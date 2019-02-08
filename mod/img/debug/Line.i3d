@@ -7,7 +7,7 @@
 
   <Files>
     <File fileId="2" filename="emissiveMap.dds"/>
-    <File fileId="3" filename="../signs/colorShader.xml"/>
+    <File fileId="3" filename="colorShader.xml"/>
   </Files>
 
 

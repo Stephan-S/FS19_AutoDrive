@@ -157,10 +157,10 @@ function AutoDriveHud:updateButtons(vehicle)
 	for _,button in pairs(self.Buttons) do
 		if button.name == "input_silomode" then
 			local buttonImg = "";
-			if vehicle.bReverseTrack == true then
+			if vehicle.ad.reverseTrack == true then
 				button.img_active = button.img_on;						
 			else
-				if vehicle.bUnloadAtTrigger == true then
+				if vehicle.ad.unloadAtTrigger == true then
 					button.img_active = button.img_3;
 				else
 					button.img_active = button.img_off;
@@ -172,9 +172,9 @@ function AutoDriveHud:updateButtons(vehicle)
 	
 		if button.name == "input_record" then
 			local buttonImg = "";
-			if vehicle.bcreateMode == true then
+			if vehicle.ad.creationMode == true then
 				button.img_active = button.img_on;
-				if vehicle.bcreateModeDual == true then
+				if vehicle.ad.creationModeDual == true then
 					button.img_active = button.img_dual;
 				end;
 			else
@@ -185,7 +185,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		
 		if button.name == "input_start_stop" then
 			local buttonImg = "";
-			if vehicle.bActive == true then
+			if vehicle.ad.isActive == true then
 				button.img_active = button.img_on;						
 			else
 				button.img_active = button.img_off;
@@ -195,7 +195,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		
 		if button.name == "input_debug" then
 			local buttonImg = "";
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.img_active = button.img_on;						
 			else
 				button.img_active = button.img_off;
@@ -206,14 +206,14 @@ function AutoDriveHud:updateButtons(vehicle)
 		if button.name == "input_showNeighbor" then
 
 
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.isVisible = true
 			else
 				button.isVisible = false;
 			end;
 
 			local buttonImg = "";
-			if vehicle.bShowSelectedDebugPoint == true then
+			if vehicle.ad.showSelectedDebugPoint == true then
 				button.img_active = button.img_on;						
 			else
 				button.img_active = button.img_off;
@@ -222,7 +222,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		end;
 
 		if button.name == "input_toggleConnection" then
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.isVisible = true
 			else
 				button.isVisible = false;
@@ -230,7 +230,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		end;
 
 		if button.name == "input_nextNeighbor" then
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.isVisible = true
 			else
 				button.isVisible = false;
@@ -238,7 +238,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		end;
 
 		if button.name == "input_createMapMarker" then
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.isVisible = true
 			else
 				button.isVisible = false;
@@ -246,7 +246,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		end;
 
 		if button.name == "input_exportRoutes" then
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.isVisible = true
 			else
 				button.isVisible = false;
@@ -276,7 +276,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		
 		if button.name == "input_removeWaypoint" then
 			local buttonImg = "";
-			if vehicle.bCreateMapPoints == true then
+			if vehicle.ad.createMapPoints == true then
 				button.isVisible = true
 				button.img_active = button.img_on;
 			else
@@ -311,7 +311,7 @@ function AutoDriveHud:drawHud(vehicle)
 		local ovWidth = self.Background.width;
 		local ovHeight = self.Background.height;
 
-		if vehicle.bEnteringMapMarker == true then
+		if vehicle.ad.enteringMapMarker == true then
 			ovHeight = ovHeight + 0.07;
 		end;
 		
@@ -354,45 +354,45 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 		end;
 		
-		if vehicle.sTargetSelected ~= nil then
+		if vehicle.ad.nameOfSelectedTarget ~= nil then
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 
-			if vehicle.bChoosingDestination == true then
-				if vehicle.sChosenDestination ~= "" then
+			if vehicle.ad.choosingDestination == true then
+				if vehicle.ad.chosenDestination ~= "" then
 					setTextColor(1,1,1,1);
-					renderText(adPosX, adPosY, adFontSize, vehicle.sTargetSelected);
+					renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
 				end;
-				if vehicle.sEnteredChosenDestination ~= "" then
+				if vehicle.ad.enteredChosenDestination ~= "" then
 					setTextColor(1,0,0,1);
-					renderText(adPosX, adPosY, adFontSize,  vehicle.sEnteredChosenDestination);
+					renderText(adPosX, adPosY, adFontSize,  vehicle.ad.enteredChosenDestination);
 				end;
 			else
 				setTextColor(1,1,1,1);
-				renderText(adPosX, adPosY, adFontSize, vehicle.sTargetSelected);
+				renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
 			end;
 			setTextColor(1,1,1,1);
-			renderText(self.posX - 0.012 + self.width, adPosY, adFontSize, "" .. vehicle.nSpeed);
+			renderText(self.posX - 0.012 + self.width, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
 		end;
 
-		if vehicle.bEnteringMapMarker == true then
+		if vehicle.ad.enteringMapMarker == true then
 			local adFontSize = 0.012;
 			local adPosX = self.posX + self.borderX;
 			local adPosY = self.posY + 0.085 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			setTextColor(1,1,1,1);
 			renderText(adPosX, adPosY + 0.02, adFontSize, g_i18n:getText("AD_new_marker_helptext"));
-			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.sEnteredMapMarkerString);
+			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
 
-		if vehicle.bUnloadAtTrigger == true then
+		if vehicle.ad.unloadAtTrigger == true then
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			setTextColor(1,1,1,1);
 
 			self.Background.unloadOverlay.ov:render();
-			renderText(adPosX, adPosY, adFontSize, vehicle.sTargetSelected_Unload);
+			renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload);
 		end;		
 	end;	
 end;
@@ -416,7 +416,7 @@ function AutoDriveHud:toggleMouse()
     if self.showHud == true then
         if AutoDrive.showMouse == false then
             AutoDrive.showMouse = true;					
-            g_currentMission.isPlayerFrozen = true;
+            --g_currentMission.isPlayerFrozen = true;
             
             g_inputBinding:setShowMouseCursor(true);
             vehicle.ad.camerasBackup = {};
@@ -431,7 +431,7 @@ function AutoDriveHud:toggleMouse()
         else
             g_inputBinding:setShowMouseCursor(false);
             AutoDrive.showMouse = false;				
-            g_currentMission.isPlayerFrozen = false;
+            --g_currentMission.isPlayerFrozen = false;
             
             if vehicle.spec_enterable ~= nil then
                 if vehicle.spec_enterable.cameras ~= nil then
@@ -492,13 +492,13 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         local height = 0.015;
         local width = 0.05;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
-            if vehicle.bChoosingDestination == false then
-                vehicle.bChoosingDestination = true
+            if vehicle.ad.choosingDestination == false then
+                vehicle.ad.choosingDestination = true
                 vehicle.isBroken = false;
                 g_currentMission.isPlayerFrozen = true;
                 vehicle.isBroken = true;
             else
-                vehicle.bChoosingDestination = false;
+                vehicle.ad.choosingDestination = false;
                 g_currentMission.isPlayerFrozen = false;
                 vehicle.isBroken = false;
             end;
