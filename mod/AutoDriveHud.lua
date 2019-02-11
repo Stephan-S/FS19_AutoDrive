@@ -7,14 +7,14 @@ function AutoDriveHud:new()
     return o
 end;
 
-function AutoDriveHud:loadHud()		
-	
+function AutoDriveHud:loadHud()	
 	local uiScale = g_gameSettings:getValue("uiScale")
 	local numButtons = 9
 	local numButtonRows = 2
 	local buttonSize = 32
 	local iconSize = 32
 	local gapSize = 3
+	
 	self.borderX,      self.borderY       = getNormalizedScreenValues(uiScale * gapSize,    uiScale * gapSize)
 	self.buttonWidth,  self.buttonHeight  = getNormalizedScreenValues(uiScale * buttonSize, uiScale * buttonSize)
 	self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
@@ -416,7 +416,10 @@ function AutoDriveHud:toggleHud(vehicle)
     if self.showHud == false then
         self.showHud = true;
     else
-        self.showHud = false;        
+		if AutoDrive.showMouse then
+			AutoDrive.Hud.toggleMouse(vehicle);
+		end;
+		self.showHud = false;
     end;
 end;
 
@@ -477,18 +480,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         end;
 
         if posX > (self.Background.close_small.posX) and posX < (self.Background.close_small.posX + self.Background.close_small.width) and posY > (self.Background.close_small.posY) and posY < (self.Background.close_small.posY + self.Background.close_small.height) then
-            if self.showHud == false then
-                self.showHud = true;
-            else
-                self.showHud = false;
-                if AutoDrive.showMouse == false then
-                    AutoDrive.showMouse = true;
-                    g_inputBinding:setShowMouseCursor(true);
-                else
-                    g_inputBinding:setShowMouseCursor(false);
-                    AutoDrive.showMouse = false;
-                end;
-            end;
+		   	AutoDrive.Hud.toggleHud(self);
         end;
 
         local adPosX = self.posX + self.Background.destination.width;

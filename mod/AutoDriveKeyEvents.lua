@@ -60,7 +60,7 @@ end;
 
 function AutoDrive:handleKeyEventForMapMarkerInput(vehicle, unicode, sym, modifier, isDown)    
     if sym == 13 then
-        AutoDrive:createMapMarker(vehicle)
+        AutoDrive:finishCreatingMapMarker(vehicle)
     elseif sym == 8 then
         vehicle.ad.enteredMapMarkerString = string.sub(vehicle.ad.enteredMapMarkerString,1,string.len(vehicle.ad.enteredMapMarkerString)-1)
     elseif unicode ~= 0 then

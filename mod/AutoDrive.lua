@@ -33,7 +33,7 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 
 	local registerEvents = isOnActiveVehicle;
 	if self.ad ~= nil then
-		registerEvents = registerEvents or self.ad.isActive;
+		registerEvents = registerEvents or self == g_currentMission.controlledVehicle; -- or self.ad.isActive;
 	end;
 
 	-- only in active vehicle
@@ -158,6 +158,8 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("AutoDriveDriveFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("AutoDriveKeyEvents.lua", AutoDrive.directory))
 	source(Utils.getFilename("AutoDriveTrigger.lua", AutoDrive.directory))
+	source(Utils.getFilename("AutoDriveDijkstra.lua", AutoDrive.directory))
+	source(Utils.getFilename("AutoDriveUtilFuncs.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
 		--DebugUtil.printTableRecursively(g_currentMission, "	:	",0,2);
@@ -295,6 +297,9 @@ function init(self)
 	self.ad.chosenDestination = "";
 	self.ad.enteredChosenDestination = "";
 
+	self.ad.showingHud = true;
+	self.ad.showingMouse = false;
+
 	if AutoDrive.searchedTriggers ~= true then
 		AutoDrive:getAllTriggers();
 		AutoDrive.searchedTriggers = true;
@@ -397,7 +402,7 @@ function AutoDrive:InputHandling(vehicle, input)
 	if vehicle.ad.currentInput == nil then
 		return;
 	end;
-
+		
 	if vehicle ~= g_currentMission.controlledVehicle then
 		return;
 	end;
@@ -453,25 +458,7 @@ function AutoDrive:InputHandling(vehicle, input)
 	end;
 
 	if input == "input_showNeighbor" and g_server ~= nil and g_dedicatedServerInfo == nil then
-		if vehicle.ad.showSelectedDebugPoint == false then
-			vehicle.ad.showSelectedDebugPoint = true;
-
-			local debugCounter = 1;
-			for i,point in pairs(AutoDrive.mapWayPoints) do
-				local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
-				local distance = getDistance(point.x,point.z,x1,z1);
-
-				if distance < 15 then
-					vehicle.ad.iteratedDebugPoints[debugCounter] = point;
-					debugCounter = debugCounter + 1;
-				end;
-			end;
-			vehicle.ad.selectedDebugPoint = 1;
-		else
-			vehicle.ad.showSelectedDebugPoint = false;
-		end;
-
-		AutoDrive.Hud:updateSingleButton("input_showNeighbor", vehicle.ad.showSelectedDebugPoint)
+		AutoDrive:inputShowNeighbors(vehicle)		
 	end;
 
 	if input == "input_toggleConnection" and g_server ~= nil and g_dedicatedServerInfo == nil then
@@ -484,27 +471,7 @@ function AutoDrive:InputHandling(vehicle, input)
 	end;
 
 	if input == "input_createMapMarker" and g_server ~= nil and g_dedicatedServerInfo == nil then
-		if vehicle.ad.showMapMarker == true then
-			if vehicle.ad.creatingMapMarker == false then
-				vehicle.ad.creatingMapMarker  = true;
-				vehicle.ad.enteringMapMarker = true;
-				vehicle.ad.enteredMapMarkerString = "Test_" .. AutoDrive.mapWayPointsCounter;
-				g_currentMission.isPlayerFrozen = true;
-				vehicle.isBroken = true;				
-				g_inputBinding:setContext("AutoDrive.Input_MapMarker", true, false);
-			else
-				vehicle.ad.creatingMapMarker  = false;
-				vehicle.ad.enteringMapMarker = false;
-				vehicle.ad.enteredMapMarkerString = "";
-				g_currentMission.isPlayerFrozen = false;
-				vehicle.isBroken = false;
-				g_inputBinding:revertContext(true);
-
-				vehicle.printMessages = "Not ready";
-				vehicle.nPrintTime = 3000;
-			end;
-		end;
-
+		AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 
 	if input == "input_increaseSpeed" then
@@ -601,185 +568,6 @@ function AutoDrive:InputHandling(vehicle, input)
 
 	vehicle.ad.currentInput = "";
 
-end;
-
-function AutoDrive:ContiniousRecalculation()
-
-	if  AutoDrive.Recalculation.continue == true then
-		if AutoDrive.Recalculation.initializedWaypoints == false then
-			print(("%s - Recalculating started"):format(getDate("%H:%M:%S")))
-			for i2,point in pairs(AutoDrive.mapWayPoints) do
-				point.marker = {};
-			end;
-			AutoDrive.Recalculation.initializedWaypoints = true;
-			AutoDrive.Recalculation.handledWayPoints = 1;
-			AutoDrive.Recalculation.dijkstraStep = 0
-			AutoDrive.Recalculation.dijkstraCopy = nil;
-			return 10;
-		end;
-
-		local markerFinished = false;
-		--print("AutoDrive - Recalculating");	
-		for i, marker in pairs(AutoDrive.mapMarker) do
-			if markerFinished == false then
-				
-				if i == AutoDrive.Recalculation.nextMarker then
-					
-					--DebugUtil.printTableRecursively(AutoDrive.mapWayPoints, "--", 0,3);
-					local tempAD = AutoDrive.Recalculation.dijkstraCopy;
-					if AutoDrive.Recalculation.dijkstraCopy == nil then
-						local percentage = 0;
-						tempAD, percentage = AutoDrive:dijkstra(AutoDrive.mapWayPoints, marker.id,"incoming");
-						
-						--Only continue if dijkstra calculation has finished
-						if tempAD == -1 then
-							local markerPercentage = (AutoDrive.Recalculation.handledMarkers/AutoDrive.mapMarkerCounter);
-							local percentagePerMarker = math.ceil(90/AutoDrive.mapMarkerCounter);
-							return 10 + math.ceil(markerPercentage * 90) + math.ceil(percentage * percentagePerMarker * 0.5);
-						else
-							AutoDrive.Recalculation.dijkstraCopy = tempAD;
-						end;
-					end;
-
-					local wayPointsToHandleThisFrame = 100;
-					while wayPointsToHandleThisFrame > 0  and AutoDrive.Recalculation.handledWayPoints <= AutoDrive.mapWayPointsCounter do
-						wayPointsToHandleThisFrame = wayPointsToHandleThisFrame - 1;
-						local point = AutoDrive.mapWayPoints[AutoDrive.Recalculation.handledWayPoints];						
-						point.marker[marker.name] = tempAD.pre[point.id];
-						AutoDrive.Recalculation.handledWayPoints = AutoDrive.Recalculation.handledWayPoints + 1;
-					end;
-
-					if AutoDrive.Recalculation.handledWayPoints >= AutoDrive.mapWayPointsCounter then
-						markerFinished = true;
-						AutoDrive.Recalculation.dijkstraCopy = nil;
-						AutoDrive.Recalculation.handledWayPoints = 1;
-					end;
-
-					if wayPointsToHandleThisFrame == 0 and AutoDrive.Recalculation.handledWayPoints < AutoDrive.mapWayPointsCounter then
-						local markerPercentage = (AutoDrive.Recalculation.handledMarkers/AutoDrive.mapMarkerCounter);
-						local wayPointPercentage = (AutoDrive.Recalculation.handledWayPoints/AutoDrive.mapWayPointsCounter)
-						local percentagePerMarker = math.ceil(90/AutoDrive.mapMarkerCounter);
-						return 10 + math.ceil(markerPercentage * 90) + (percentagePerMarker/2) + math.ceil(wayPointPercentage * percentagePerMarker * 0.5);
-					end;
-
-				end;
-			else				
-				AutoDrive.Recalculation.nextMarker = i;
-				AutoDrive.Recalculation.handledMarkers = AutoDrive.Recalculation.handledMarkers + 1;
-				return 10 + math.ceil((AutoDrive.Recalculation.handledMarkers/AutoDrive.mapMarkerCounter) * 90)
-			end;
-		end;
-
-		if AutoDrive.adXml ~= nil then
-			setXMLString(AutoDrive.adXml, "AutoDrive.Recalculation","false");
-			AutoDrive:MarkChanged();
-			AutoDrive.handledRecalculation = true;
-		end;
-
-		AutoDrive.Recalculation.continue = false;
-		print(("%s - Recalculating finished"):format(getDate("%H:%M:%S")))
-		return 100;
-
-	else
-		AutoDrive.Recalculation = {};
-		AutoDrive.Recalculation.continue = true;
-		AutoDrive.Recalculation.initializedWaypoints = false;
-		AutoDrive.Recalculation.nextMarker = ""
-		for i, marker in pairs(AutoDrive.mapMarker) do
-			if AutoDrive.Recalculation.nextMarker == "" then
-				AutoDrive.Recalculation.nextMarker = i;
-			end;
-		end;
-		AutoDrive.Recalculation.handledMarkers = 0;
-		AutoDrive.Recalculation.nextCalculationSkipFrames = 6;
-
-		return 5;
-	end;
-end
-
-function AutoDrive:dijkstra(Graph,start,setToUse)	
-	if AutoDrive.Recalculation.dijkstraStep == 0 then
-		if AutoDrive.dijkstraCalc == nil then
-			AutoDrive.dijkstraCalc = {};
-		end;
-
-		AutoDrive.dijkstraCalc.Q = AutoDrive:graphcopy(Graph);
-		AutoDrive.dijkstraCalc.distance = {};
-		AutoDrive.dijkstraCalc.pre = {};
-		AutoDrive.Recalculation.dijkstraHandledIteratorsQ = 0;
-	end;
-
-	local workGraph = AutoDrive.dijkstraCalc;
-	local workDistances = workGraph.distance;
-	local workPre = workGraph.pre;
-	local workQ = workGraph.Q;
-
-	if AutoDrive.Recalculation.dijkstraStep == 1 then
-		for i in pairs(Graph) do
-			workDistances[i] = math.huge;
-			workPre[i] = -1;
-		end;
-	end;
-
-	if AutoDrive.Recalculation.dijkstraStep == 2 then
-		workDistances[start] = 0;
-		for i in pairs(workQ[start][setToUse]) do
-			workDistances[workQ[start][setToUse][i]] = 1;
-			workPre[workQ[start][setToUse][i]] = start;
-		end;
-	end;
-	
-	--init end
-
-	if AutoDrive.Recalculation.dijkstraStep == 3 then
-		AutoDrive.Recalculation.dijkstraAllowedIteratorQ = 200;		
-
-		while AutoDrive.Recalculation.dijkstraAllowedIteratorQ > 0 and next(workGraph.Q,nil) ~= nil do
-			AutoDrive.Recalculation.dijkstraAllowedIteratorQ = AutoDrive.Recalculation.dijkstraAllowedIteratorQ - 1;
-			AutoDrive.Recalculation.dijkstraHandledIteratorsQ = AutoDrive.Recalculation.dijkstraHandledIteratorsQ + 1;
-
-			local shortest = 10000000;
-			local shortest_id = -1;
-			for i, element in pairs(workQ) do			
-				if workGraph.distance[element["id"]] < shortest and workDistances[element["id"]] ~= -1 then
-					shortest = workDistances[element["id"]];
-					shortest_id = element["id"];
-				end;
-			end;
-			
-			if shortest_id == -1 then
-				workQ = {};
-			else
-				for i, element in pairs(workQ[shortest_id][setToUse]) do
-					local wp = workGraph[element]
-					if nil ~= wp then					
-						--distanceupdate
-						local alternative = shortest + 1;
-						if alternative < workDistances[element] then
-							workDistances[element] = alternative;
-							workPre[element] = shortest_id;
-						end;
-					end;			
-				end;
-				
-				workQ[shortest_id] = nil;
-			end;	
-		end;
-
-		if next(workQ,nil) == nil then
-			AutoDrive.Recalculation.dijkstraStep = 0;
-			return AutoDrive.dijkstraCalc, 1.0;
-		else
-			local percentage = AutoDrive.Recalculation.dijkstraHandledIteratorsQ/AutoDrive.mapWayPointsCounter;
-			return -1, percentage;
-		end;
-	end;	
-	
-	if AutoDrive.Recalculation.dijkstraStep < 3 then
-		AutoDrive.Recalculation.dijkstraStep = AutoDrive.Recalculation.dijkstraStep + 1;		
-	end;
-
-	return -1, 0.1;
 end;
 
 function AutoDrive:graphcopy(Graph)
@@ -893,17 +681,23 @@ function AutoDrive:shortestPath(Graph,distance,pre,start,endNode)
 end;
 
 function AutoDrive:onLeaveVehicle()
-	if AutoDrive.showMouse then
-		self.ad.showingMouse = true;
-		g_inputBinding:setShowMouseCursor(false);
-		AutoDrive.showMouse = false;
-	end
+	self.ad.showingHud = AutoDrive.Hud.showHud;
+	self.ad.showingMouse = AutoDrive.showMouse;
+
 end;
 
 function AutoDrive:onEnterVehicle()
+	if self.ad.showingHud ~= AutoDrive.Hud.showHud then
+		AutoDrive.Hud.toggleHud(self);
+	end;
 	if self.ad.showingMouse ~= AutoDrive.showMouse then
 		AutoDrive.Hud:toggleMouse(self);
 	end
+
+	if self ~= g_currentMission.controlledVehicle then
+		print("I am not the controlled vehicle");
+		g_currentMission.controlledVehicle = self;
+	end;
 end;
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)

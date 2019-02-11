@@ -2,13 +2,21 @@ function AutoDrive:startAD(vehicle)
     vehicle.ad.isActive = true;
     vehicle.ad.creationMode = false;
     
-    vehicle.forceIsActive = true;
-    vehicle.stopMotorOnLeave = false;
-    vehicle.disableCharacterOnLeave = true;
+    --vehicle.forceIsActive = true;
+    vehicle.spec_motorized.stopMotorOnLeave = false;
+    vehicle.spec_enterable.disableCharacterOnLeave = false;
     vehicle.currentHelper = g_helperManager:getRandomHelper()
     vehicle.spec_aiVehicle.isActive = true
     
     vehicle.ad.unloadType = AutoDrive:getCurrentFillType(vehicle);
+
+    if vehicle.setRandomVehicleCharacter ~= nil then
+        vehicle:setRandomVehicleCharacter()
+    end
+    
+    if vehicle.steeringEnabled == true then
+        vehicle.steeringEnabled = false;
+    end
 
     vehicle.nPrintTime = 3000;
 end;
@@ -35,8 +43,8 @@ function AutoDrive:stopVehicle(vehicle, dt)
 
         vehicle.ad.isActive = false; 
         vehicle.forceIsActive = false;
-        vehicle.stopMotorOnLeave = true;
-        vehicle.disableCharacterOnLeave = true;
+        vehicle.spec_motorized.stopMotorOnLeave = true;
+        vehicle.spec_enterable.disableCharacterOnLeave = true;
         vehicle.currentHelper = nil
                         
         vehicle.ad.initialized = false;

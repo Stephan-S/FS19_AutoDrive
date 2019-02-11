@@ -55,9 +55,14 @@ end;
 
 function AutoDrive:checkActiveAttributesSet(vehicle)
     if vehicle.ad.isActive == true and vehicle.isServer then
-        vehicle.forceIsActive = true;
-        vehicle.stopMotorOnLeave = false;
-		vehicle.disableCharacterOnLeave = true;
+        --vehicle.forceIsActive = true;
+        vehicle.spec_motorized.stopMotorOnLeave = false;
+        vehicle.spec_enterable.disableCharacterOnLeave = false;
+        vehicle.spec_aiVehicle.isActive = true
+        
+        if vehicle.steeringEnabled == true then
+            vehicle.steeringEnabled = false;
+        end
 	end;
 	
 	if vehicle.startMotor and vehicle.stopMotor then
@@ -258,19 +263,41 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1];
         local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint];
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1];
-        local angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_ref.x, z = wp_ahead.z - wp_ref.z },
+        local highestAngle = 0;
+        local distanceToLookAhead = 15;
+        local pointsToLookAhead = 3;
+        local doneCheckingRoute = false;
+        local currentLookAheadPoint = 1;
+        while not doneCheckingRoute and currentLookAheadPoint <= pointsToLookAhead do
+            if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+currentLookAheadPoint] ~= nil then
+                local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+currentLookAheadPoint];
+                local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+currentLookAheadPoint-1];
+                local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+currentLookAheadPoint-2];    
+                
+                local angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_ref.x, z = wp_ahead.z - wp_ref.z },
                                                 {x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
+                if getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
+                                wp_ahead.x,                                         wp_ahead.z) 
+                    <= distanceToLookAhead then
+                    highestAngle = math.max(highestAngle, angle);
+                else
+                    doneCheckingRoute = true;
+                end;
+            else
+                doneCheckingRoute = true;
+            end;
+            currentLookAheadPoint = currentLookAheadPoint+1;
+        end;
 
 
-        if angle < 3 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
-        if angle >= 3 and angle < 5 then vehicle.ad.speedOverride = 30; end;
-        if angle >= 5 and angle < 8 then vehicle.ad.speedOverride = 22; end;
-        if angle >= 8 and angle < 12 then vehicle.ad.speedOverride = 16; end;
-        if angle >= 12 and angle < 15 then vehicle.ad.speedOverride = 10; end;
-        if angle >= 15 and angle < 20 then vehicle.ad.speedOverride = 6; end;
-        if angle >= 20 and angle < 30 then vehicle.ad.speedOverride = 4; end;
-        if angle >= 30 and angle < 90 then vehicle.ad.speedOverride = 2; end;
-        --print("Speed override: " .. vehicle.ad.speedOverride);
+        if highestAngle < 3 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
+        if highestAngle >= 3 and highestAngle < 5 then vehicle.ad.speedOverride = 38; end;
+        if highestAngle >= 5 and highestAngle < 8 then vehicle.ad.speedOverride = 27; end;
+        if highestAngle >= 8 and highestAngle < 12 then vehicle.ad.speedOverride = 20; end;
+        if highestAngle >= 12 and highestAngle < 15 then vehicle.ad.speedOverride = 13; end;
+        if highestAngle >= 15 and highestAngle < 20 then vehicle.ad.speedOverride = 11; end;
+        if highestAngle >= 20 and highestAngle < 30 then vehicle.ad.speedOverride = 9; end;
+        if highestAngle >= 30 and highestAngle < 90 then vehicle.ad.speedOverride = 4; end;
     end;
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
@@ -311,7 +338,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local distZ = wp_ahead.z - wp_current.z;
 
         local distanceToCurrentTarget = getDistance(x,z, wp_current.x, wp_current.z);
-        local lookAheadDistance = 4 - distanceToCurrentTarget;
+        local lookAheadDistance = 5 - distanceToCurrentTarget;
 
         if lookAheadDistance > 0 then
             local addX = lookAheadDistance * (math.abs(distX)/(math.abs(distX)+math.abs(distZ)));
