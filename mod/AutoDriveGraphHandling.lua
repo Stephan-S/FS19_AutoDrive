@@ -110,6 +110,7 @@ function AutoDrive:removeMapMarker(toDelete)
 	for _,marker in pairs(AutoDrive.mapMarker) do
 		if marker.id == toDelete.id then
 			deletedMarker = true;
+			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1;
 		end;
 		if deletedMarker then
 			if AutoDrive.mapMarker[_+1] ~= nil then
@@ -125,7 +126,7 @@ end
 function AutoDrive:createWayPoint(x, y, z, connectPrevious, dual)
 	if vehicle.ad.createMapPoints == true then
 		AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter + 1;
-		if AutoDrive.mapWayPointsCounter > 2 and connectPrevious then
+		if AutoDrive.mapWayPointsCounter > 1 and connectPrevious then
 			--edit previous point
 			local out_index = 1;
 			if AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter-1].out[out_index] ~= nil then out_index = out_index+1; end;
@@ -217,7 +218,7 @@ function AutoDrive:handleRecalculation(vehicle)
 		if AutoDrive.Recalculation.continue == true then
 			if AutoDrive.Recalculation.nextCalculationSkipFrames <= 0 then
 				AutoDrive.recalculationPercentage = AutoDrive:ContiniousRecalculation();
-				AutoDrive.Recalculation.nextCalculationSkipFrames = 6;
+				AutoDrive.Recalculation.nextCalculationSkipFrames = 0;
 
 				AutoDrive.nPrintTime = 10000;
 				AutoDrive.printMessage = g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%";

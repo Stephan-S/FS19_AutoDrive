@@ -2,12 +2,12 @@ function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle);
     AutoDrive:checkForDeadLock(vehicle, dt);   
 	AutoDrive:handlePrintMessage(vehicle, dt);
+	AutoDrive:handleTrailers(vehicle, dt)
+	AutoDrive:handleDeadlock(vehicle, dt)	
 	
-	--follow waypoints on route:	
-	if vehicle.ad.stopAD == true and vehicle.isServer then
-		AutoDrive:stopAD(vehicle);
-		vehicle.ad.stopAD = false;
-		vehicle.ad.isPaused = false;
+	if vehicle.ad.isStopping == true then
+		AutoDrive:stopVehicle(vehicle, dt)
+		return;
 	end;
 	
 	if vehicle.components ~= nil and vehicle.isServer then	
@@ -15,10 +15,6 @@ function AutoDrive:handleDriving(vehicle, dt)
 		local xl,yl,zl = worldToLocal(vehicle.components[1].node, x,y,z);
 			
 		if vehicle.ad.isActive == true and vehicle.ad.isPaused == false then
-			if vehicle.steeringEnabled then
-                vehicle.steeringEnabled = false;
-			end
-
 			if vehicle.ad.initialized == false then
 				AutoDrive:initializeAD(vehicle)
             else
@@ -39,6 +35,7 @@ function AutoDrive:handleDriving(vehicle, dt)
 		end;
 
 		if vehicle.ad.isPaused == true then
+			AutoDrive:getVehicleToStop(vehicle, dt);
 			vehicle.ad.timeTillDeadLock = 15000;
 			if vehicle.ad.pauseTimer > 0 then
 				if vehicle.isServer == true then
@@ -54,162 +51,6 @@ function AutoDrive:handleDriving(vehicle, dt)
 			end;
 		end;
 	end;
-	
-	if vehicle.ad.inDeadLock == true and vehicle.ad.isActive == true and vehicle.isServer then
-		AutoDrive.printMessage = g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck");
-		AutoDrive.nPrintTime = 10000;
-		
-		--deadlock handling
-		if vehicle.ad.inDeadLockRepairCounter < 1 then
-			AutoDrive.printMessage = g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck");
-			AutoDrive.nPrintTime = 10000;
-			vehicle.ad.stopAD = true;
-			vehicle.ad.isActive = false;
-		else
-			--print("AD: Trying to recover from deadlock")
-			if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] ~= nil then
-				vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + 1;
-				vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-				vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-
-				vehicle.ad.inDeadLock = false;
-				vehicle.ad.timeTillDeadLock = 15000;
-				vehicle.ad.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter - 1;
-			end;
-		end;
-	end;
-	
-
-	if vehicle.ad.isActive == true and vehicle.ad.unloadAtTrigger == true and vehicle.isServer == true then
-		local trailers = {};
-		local trailerCount = 0;
-		local trailer = nil;
-		if vehicle.attachedImplements ~= nil then
-			for _, implement in pairs(vehicle.attachedImplements) do
-				if implement.object ~= nil then
-					if implement.object.typeDesc == g_i18n:getText("typeDesc_tipper") then
-						trailer = implement.object;
-						trailers[1] = trailer;
-						trailerCount = 1;
-						for __,impl in pairs(trailer.attachedImplements) do
-							if impl.object ~= nil then
-								if impl.object.typeDesc == g_i18n:getText("typeDesc_tipper") then
-									trailers[2] = impl.object;
-									trailerCount = 2;
-									for ___,implement3 in pairs(trailers[2].attachedImplements) do
-										if implement3.object ~= nil then
-											if implement3.object.typeDesc == g_i18n:getText("typeDesc_tipper") then
-												trailers[3] = implement3.object;
-												trailerCount = 3;
-											end;
-										end;
-									end;
-								end;
-							end;
-						end;
-					end;
-				end;
-			end;
-
-			--check distance to unloading destination, do not unload too far from it. You never know where the tractor might already drive over an unloading trigger before that
-			local x,y,z = getWorldTranslation(vehicle.components[1].node);
-			local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
-			local distance = getDistance(x,z, destination.x, destination.z);
-			if distance < 40 then
-				--check trailer trigger: trailerTipTriggers
-				local globalUnload = false;
-				for _,trailer in pairs(trailers) do
-					if trailer ~= nil then
-						for _,trigger in pairs(g_currentMission.tipTriggers) do
-
-							local allowed,minDistance,bestPoint = trigger:getTipInfoForTrailer(trailer, trailer.preferedTipReferencePointIndex);
-							--print("Min distance: " .. minDistance);
-							if allowed and minDistance == 0 then
-								if trailer.tipping ~= true  then
-									--print("toggling tip state for " .. trigger.stationName .. " distance: " .. minDistance );
-									trailer:toggleTipState(trigger, bestPoint);
-									vehicle.ad.isPaused = true;
-									vehicle.ad.isUnloading = true;
-									trailer.tipping = true;
-								end;
-							end;
-
-							if trailer.tipState == Trailer.TIPSTATE_CLOSED and vehicle.ad.isUnloading == true and trailer.tipping == true then
-								--print("trailer is unloaded. continue");
-								trailer.tipping = false;
-							end;
-
-							if trailer.tipping == true or vehicle.ad.isPaused == false then
-								globalUnload = true;
-							end;
-
-						end;
-					end;
-				end;
-				if (globalUnload == false and vehicle.ad.isUnloading == true) or vehicle.ad.isPaused == false then
-					vehicle.ad.isPaused = false;
-					vehicle.ad.isUnloading = false;
-				end;
-			end;
-
-			--check distance to unloading destination, do not unload too far from it. You never know where the tractor might already drive over an unloading trigger before that
-			local x,y,z = getWorldTranslation(vehicle.components[1].node);
-			local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
-			local distance = getDistance(x,z, destination.x, destination.z);
-			if distance < 40 then
-				--print("distance < 40");
-				local globalLoading = false;
-
-				for _,trailer in pairs(trailers) do
-					if trailer ~= nil and vehicle.ad.unloadType ~= -1 then
-						--print("Trailer detected. unloadType = " .. vehicle.ad.unloadType .. " level: " .. trailer:getFillLevel(vehicle.ad.unloadType));
-						for _,trigger in pairs(g_currentMission.siloTriggers) do
-
-							local valid = trigger:getIsValidTrailer(trailer);
-							local level = trigger:getFillLevel(vehicle.ad.unloadType);
-							local activatable = trigger.activeTriggers >=4 --trigger:getIsActivatable()
-							local correctTrailer = false;
-							if trigger.siloTrailer == trailer then correctTrailer = true; end;
-
-							--print("valid: " .. tostring(valid) .. " level: " ..  tostring(level) .. " activatable: " .. tostring(activatable) .. " correctTrailer: " .. tostring(correctTrailer) );
-							if valid and level > 0 and activatable and correctTrailer and trailer.ad.isLoading ~= true then --
-								if	trailer:getFreeCapacity() > 1 then
-									--print("Starting to unload into trailer" );
-									trigger:startFill(vehicle.ad.unloadType);
-									vehicle.ad.isPaused = true;
-									vehicle.ad.isLoading = true;
-									trailer.ad.isLoading = true;
-								end;
-							end;
-
-							if (trailer:getFreeCapacity(vehicle.ad.unloadType) <= 0 or vehicle.ad.isPaused == false) and trailer.ad.isLoading == true and correctTrailer == true then
-								--print("trailer is full. continue");
-								trigger:stopFill();
-								trailer.ad.isLoading = false;
-							end;
-
-							if trailer.ad.isLoading == true then
-								globalLoading = true;
-							end;
-
-						end;
-					end;
-				end;
-				if (globalLoading == false and vehicle.ad.isLoading == true) or vehicle.ad.isPaused == false then
-					vehicle.ad.isPaused = false;
-					vehicle.ad.isLoading = false;
-				end;
-			end;
-
-		end;
-
-		if vehicle.ad.isPaused == true and not vehicle.ad.isUnloading and not vehicle.ad.isLoading then
-			if trailer == nil or trailer:getFreeCapacity() <= 0 then
-				vehicle.ad.isPaused = false;
-			end;
-		end;
-
-	end;
 end;
 
 function AutoDrive:checkActiveAttributesSet(vehicle)
@@ -217,10 +58,19 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
         vehicle.forceIsActive = true;
         vehicle.stopMotorOnLeave = false;
 		vehicle.disableCharacterOnLeave = true;
-		if vehicle.isMotorStarted == false then
-            vehicle:startMotor();
-        end;
-    end;
+	end;
+	
+	if vehicle.startMotor and vehicle.stopMotor then
+		if vehicle.ad.isActive then
+			vehicle:startMotor();
+		end;
+	end;
+
+	if vehicle.ad.isActive == true and vehicle.ad.isPaused == false then
+		if vehicle.steeringEnabled then
+			vehicle.steeringEnabled = false;
+		end;
+	end;
 end;
 
 function AutoDrive:checkForDeadLock(vehicle, dt)
@@ -274,8 +124,12 @@ function AutoDrive:initializeAD(vehicle)
     if vehicle.ad.targetMode == true then
         local closest = AutoDrive:findMatchingWayPoint(vehicle);
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
-        
-        DebugUtil.printTableRecursively(vehicle.ad.wayPoints, "--", 0,2);
+		
+		if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
+			AutoDrive.printMessage = g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget;
+            AutoDrive.nPrintTime = 6000;                    
+			AutoDrive:stopAD(vehicle);
+		end;
         
         if vehicle.ad.wayPoints[2] ~= nil then
             vehicle.ad.currentWayPoint = 2;
@@ -285,14 +139,13 @@ function AutoDrive:initializeAD(vehicle)
     else
         vehicle.ad.currentWayPoint = 1;
     end;
-	--print("currentWayPoint: " .. vehicle.ad.currentWayPoint .. " waypoint.id: "  .. vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id);
-    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+	
+	if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
         vehicle.ad.initialized = true;
         vehicle.ad.drivingForward = true;
     else
-        --print("Autodrive hat ein Problem festgestellt");
         print("Autodrive hat ein Problem beim Initialisieren festgestellt");
         AutoDrive:stopAD(vehicle); 
     end;
@@ -318,12 +171,12 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
     else
-        print("Last waypoint reached");
+        --print("Last waypoint reached");
         if vehicle.ad.unloadAtTrigger == false then
             if vehicle.ad.roundTrip == false then
-                print("No Roundtrip");
+                --print("No Roundtrip");
                 if vehicle.ad.reverseTrack == true then
-                    print("Starting reverse track");
+                    --print("Starting reverse track");
                     --reverse driving direction
                     if vehicle.ad.drivingForward == true then
                         vehicle.ad.drivingForward = false;
@@ -349,13 +202,13 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 
                 else
-                    print("Shutting down");
+                    --print("Shutting down");
                     AutoDrive.printMessage = g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. vehicle.ad.nameOfSelectedTarget;
                     AutoDrive.nPrintTime = 6000;
                     AutoDrive:stopAD(vehicle); 
                 end;
             else
-                print("Going into next round");
+                --print("Going into next round");
                 vehicle.ad.currentWayPoint = 1
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
@@ -376,6 +229,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                 vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 
+				vehicle.ad.isPaused = true;
                 vehicle.ad.unloadSwitch = false;
             else
                 vehicle.ad.timeTillDeadLock = 15000;
@@ -442,21 +296,88 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     local finalSpeed = vehicle.ad.speedOverride;
     local finalAcceleration = true;
     
-	--vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE);
-	local node = vehicle.components[1].node;					
-	if vehicle.getAIVehicleDirectionNode ~= nil then
-		node = vehicle:getAIVehicleDirectionNode();
-	end;
-    local lx, lz = AIVehicleUtil.getDriveDirection(node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
+    local node = vehicle.components[1].node;	
+    if vehicle.getAIVehicleDirectionNode ~= nil then
+      node = vehicle:getAIVehicleDirectionNode();
+    end;	
+    local maxAngle = 30;
+
+    --start driving to the nextWayPoint when closing in on current waypoint in order to avoid harsh steering angles and oversteering
+    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then
+        local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint];
+        local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1];
+
+        local distX = wp_ahead.x - wp_current.x;
+        local distZ = wp_ahead.z - wp_current.z;
+
+        local distanceToCurrentTarget = getDistance(x,z, wp_current.x, wp_current.z);
+        local lookAheadDistance = 4 - distanceToCurrentTarget;
+
+        if lookAheadDistance > 0 then
+            local addX = lookAheadDistance * (math.abs(distX)/(math.abs(distX)+math.abs(distZ)));
+            local addZ = lookAheadDistance * (math.abs(distZ)/(math.abs(distX)+math.abs(distZ)));
+            if distX < 0 then
+                addX = -addX;
+            end;
+
+            if distZ < 0 then
+                addZ = -addZ;
+            end;
+
+            vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x + addX;
+            vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z + addZ;
+        end;        
+    end;
+
+    local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
+    
+    if vehicle.ad.drivingForward == false then
+        lz = -lz;
+        lx = -lx;
+        maxAngle = 5;
+        finalSpeed = finalSpeed / 2;
+    end;
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
-    AIVehicleUtil.driveInDirection(vehicle, dt, 30, 1, 0.2, 20, true, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
-    --AIVehicleUtil.driveToPoint(vehicle, dt, 1, true, vehicle.ad.drivingForward, xl, zl, finalSpeed, false );
+    AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, 1, 0.2, maxAngle, true, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
 end;
 
 function AutoDrive:driveToLastWaypoint(vehicle, dt)
 	--print("Reaching last waypoint - slowing down"); 
 	local x,y,z = getWorldTranslation(vehicle.components[1].node);   
-    local finalSpeed = 8;					
+    local finalSpeed = 8;	
+    local maxAngle = 50;				
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
-    AIVehicleUtil.driveInDirection(vehicle, dt, 75, 1, 0.2, 20, true, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
+    if vehicle.ad.drivingForward == false then
+        lz = -lz;
+        lx = -lx;
+        maxAngle = 5;
+        finalSpeed = finalSpeed / 2;
+    end;
+    AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, 1, 0.2, maxAngle, true, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
+end;
+
+function AutoDrive:handleDeadlock(vehicle, dt)
+	if vehicle.ad.inDeadLock == true and vehicle.ad.isActive == true and vehicle.isServer then
+		AutoDrive.printMessage = g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck");
+		AutoDrive.nPrintTime = 10000;
+		
+		--deadlock handling
+		if vehicle.ad.inDeadLockRepairCounter < 1 then
+			AutoDrive.printMessage = g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck");
+			AutoDrive.nPrintTime = 10000;
+			vehicle.ad.stopAD = true;
+			vehicle.ad.isActive = false;
+		else
+			--print("AD: Trying to recover from deadlock")
+			if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] ~= nil then
+				vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + 1;
+				vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+				vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+
+				vehicle.ad.inDeadLock = false;
+				vehicle.ad.timeTillDeadLock = 15000;
+				vehicle.ad.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter - 1;
+			end;
+		end;
+	end;
 end;

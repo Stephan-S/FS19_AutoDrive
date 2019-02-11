@@ -1,8 +1,8 @@
 function AutoDrive:handleKeyEvents(vehicle, unicode, sym, modifier, isDown)
     if isDown and vehicle.ad.choosingDestination then
         AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier, isDown);
-    elseif isDOwn and vehicle.ad.choosingDestination then
-    
+    elseif isDown and vehicle.ad.enteringMapMarker then
+        AutoDrive:handleKeyEventForMapMarkerInput(vehicle, unicode, sym, modifier, isDown)
     end;   	
 end;
 
@@ -13,6 +13,7 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
         vehicle.ad.enteredChosenDestination = "";
         vehicle.isBroken = false;
         g_currentMission.isPlayerFrozen = false;
+        g_inputBinding:revertContext(true);
     elseif sym == 8 then
         vehicle.ad.enteredChosenDestination = string.sub(vehicle.ad.enteredChosenDestination,1,string.len(vehicle.ad.enteredChosenDestination)-1)
     elseif sym == 9 then
@@ -51,8 +52,6 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
             vehicle.ad.mapMarkerSelected = markerIndex;
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
             vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-            local translation = AutoDrive:translate(vehicle.ad.nameOfSelectedTarget);
-            vehicle.ad.nameOfSelectedTarget = translation;
         end;
     elseif unicode ~= 0 then
         vehicle.ad.enteredChosenDestination = vehicle.ad.enteredChosenDestination .. string.char(unicode);

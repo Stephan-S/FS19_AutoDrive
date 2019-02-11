@@ -8,13 +8,28 @@ function AutoDriveHud:new()
 end;
 
 function AutoDriveHud:loadHud()		
+	
+	local uiScale = g_gameSettings:getValue("uiScale")
+	local numButtons = 9
+	local numButtonRows = 2
+	local buttonSize = 32
+	local iconSize = 32
+	local gapSize = 3
+	self.borderX,      self.borderY       = getNormalizedScreenValues(uiScale * gapSize,    uiScale * gapSize)
+	self.buttonWidth,  self.buttonHeight  = getNormalizedScreenValues(uiScale * buttonSize, uiScale * buttonSize)
+	self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
+	self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
+	self.iconWidth, 		self.iconHeight	  = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize);
+	self.posX   = 1 - self.width - self.gapWidth; --0.80468750145519
+	self.posY   = 0.235
+
+	
 	self.Speed = "40";
 	self.Target = "Not Ready"
 	self.showHud = true;
 	if AutoDrive.mapMarker[1] ~= nil then
 		self.Target = AutoDrive.mapMarker[1].name;
-	end;
-	
+	end;	
 	
 	self.Background = {};
 	self.Buttons = {};
@@ -24,17 +39,6 @@ function AutoDriveHud:loadHud()
 	self.cols = 9;
 	self.colCurrent = 1;
 	
-	
-	self.posX = 0.80468750145519;
-	self.posY = 0.207;
-	self.width = 0.176;
-	self.height = 0.13  + 0.015;
-	self.borderX = 0.004;
-	self.borderY = self.borderX * (g_screenWidth / g_screenHeight);
-	
-	self.buttonWidth = 0.015;
-	self.buttonHeight = self.buttonWidth * (g_screenWidth / g_screenHeight);
-	
 	self.Background.img = AutoDrive.directory .. "img/Background.dds";
 	self.Background.ov = Overlay:new(AutoDrive.directory .. "img/Background.dds", self.posX, self.posY , self.width, self.height);
 	self.Background.posX = self.posX;
@@ -42,38 +46,14 @@ function AutoDriveHud:loadHud()
 	self.Background.width = self.width;
 	self.Background.height = self.height;
 
-	self.Background.unloadOverlay = {};
-	self.Background.unloadOverlay.posX = self.posX + 0.0025;
-	self.Background.unloadOverlay.posY = self.posY + self.height - 0.074;
-	self.Background.unloadOverlay.width = 0.015;
-	self.Background.unloadOverlay.height = self.Background.unloadOverlay.width * (g_screenWidth / g_screenHeight);
-	self.Background.unloadOverlay.img = AutoDrive.directory .. "img/tipper_overlay.dds";
-	self.Background.unloadOverlay.ov = Overlay:new(self.Background.unloadOverlay.img, self.Background.unloadOverlay.posX, self.Background.unloadOverlay.posY , self.Background.unloadOverlay.width, self.Background.unloadOverlay.height);
-
 	self.Background.Header = {};
 	self.Background.Header.img = AutoDrive.directory .. "img/Header.dds";
 	self.Background.Header.width = self.width;
-	self.Background.Header.height = 0.016;
+	self.Background.Header.height = 0.009 * (g_screenWidth / g_screenHeight);
 	self.Background.Header.posX = self.posX;
 	self.Background.Header.posY = self.posY + self.height - self.Background.Header.height;
 	self.Background.Header.ov = Overlay:new(self.Background.Header.img, self.Background.Header.posX, self.Background.Header.posY , self.Background.Header.width, self.Background.Header.height);
-
-	self.Background.destination = {};
-	self.Background.destination.img = AutoDrive.directory .. "img/destination.dds";
-	self.Background.destination.width = 0.018;
-	self.Background.destination.height = self.Background.destination.width * (g_screenWidth / g_screenHeight);
-	self.Background.destination.posX = self.posX;
-	self.Background.destination.posY = self.posY + self.height - self.Background.Header.height - self.Background.destination.height - 0.001;
-	self.Background.destination.ov = Overlay:new(self.Background.destination.img, self.Background.destination.posX, self.Background.destination.posY , self.Background.destination.width, self.Background.destination.height);
-
-	self.Background.speedmeter = {};
-	self.Background.speedmeter.img = AutoDrive.directory .. "img/speedmeter.dds";
-	self.Background.speedmeter.width = 0.019;
-	self.Background.speedmeter.height = self.Background.speedmeter.width * (g_screenWidth / g_screenHeight);
-	self.Background.speedmeter.posX = self.posX + self.width - 0.04;
-	self.Background.speedmeter.posY = self.posY + self.height - self.Background.Header.height - self.Background.speedmeter.height + 0.001;
-	self.Background.speedmeter.ov = Overlay:new(self.Background.speedmeter.img, self.Background.speedmeter.posX, self.Background.speedmeter.posY , self.Background.speedmeter.width, self.Background.speedmeter.height);
-
+	
 	self.Background.close_small = {};
 	self.Background.close_small.img = AutoDrive.directory .. "img/close_small.dds";
 	self.Background.close_small.width = 0.01;
@@ -82,14 +62,38 @@ function AutoDriveHud:loadHud()
 	self.Background.close_small.posY = self.posY + self.height - 0.0101* (g_screenWidth / g_screenHeight);
 	self.Background.close_small.ov = Overlay:new(self.Background.close_small.img, self.Background.close_small.posX, self.Background.close_small.posY , self.Background.close_small.width, self.Background.close_small.height);
 
+	self.Background.destination = {};
+	self.Background.destination.img = AutoDrive.directory .. "img/destination.dds";
+	self.Background.destination.width = self.iconWidth * 1.2; --0.018;
+	self.Background.destination.height = self.iconHeight * 1.2; --self.Background.destination.width * (g_screenWidth / g_screenHeight);
+	self.Background.destination.posX = self.posX;
+	self.Background.destination.posY = self.posY + self.height - self.Background.Header.height - self.Background.destination.height - self.gapHeight; -- - 0.001;
+	self.Background.destination.ov = Overlay:new(self.Background.destination.img, self.Background.destination.posX, self.Background.destination.posY , self.Background.destination.width, self.Background.destination.height);
+
+	self.Background.speedmeter = {};
+	self.Background.speedmeter.img = AutoDrive.directory .. "img/speedmeter.dds";
+	self.Background.speedmeter.width = self.iconWidth * 1.2; --0.019;
+	self.Background.speedmeter.height = self.iconHeight * 1.2; --self.Background.speedmeter.width * (g_screenWidth / g_screenHeight);
+	self.Background.speedmeter.posX = self.posX + self.width - 0.03;
+	self.Background.speedmeter.posY = self.posY + self.height - self.Background.Header.height - self.Background.speedmeter.height - self.gapHeight; -- + 0.001;
+	self.Background.speedmeter.ov = Overlay:new(self.Background.speedmeter.img, self.Background.speedmeter.posX, self.Background.speedmeter.posY , self.Background.speedmeter.width, self.Background.speedmeter.height);
+	
 	self.Background.divider = {};
 	self.Background.divider.img = AutoDrive.directory .. "img/divider.dds";
 	self.Background.divider.width = self.width;
 	self.Background.divider.height = 0.001
 	self.Background.divider.posX = self.posX;
-	self.Background.divider.posY = self.posY + self.Background.height - 0.045;
+	self.Background.divider.posY = self.posY + self.height - self.Background.Header.height - self.Background.speedmeter.height - self.gapHeight;
 	self.Background.divider.ov = Overlay:new(self.Background.divider.img, self.Background.divider.posX, self.Background.divider.posY , self.Background.divider.width, self.Background.divider.height);
 
+	self.Background.unloadOverlay = {};
+	self.Background.unloadOverlay.width = self.iconWidth;
+	self.Background.unloadOverlay.height = self.iconHeight; --self.Background.unloadOverlay.width * (g_screenWidth / g_screenHeight);
+	self.Background.unloadOverlay.posX = self.posX + self.gapWidth;
+	self.Background.unloadOverlay.posY = self.posY + self.height - self.Background.Header.height - self.Background.speedmeter.height - self.gapHeight*2 - self.Background.unloadOverlay.height;
+	self.Background.unloadOverlay.img = AutoDrive.directory .. "img/tipper_overlay.dds";
+	self.Background.unloadOverlay.ov = Overlay:new(self.Background.unloadOverlay.img, self.Background.unloadOverlay.posX, self.Background.unloadOverlay.posY , self.Background.unloadOverlay.width, self.Background.unloadOverlay.height);
+	
 	self:AddButton("input_start_stop", "on.dds", "off.dds", "input_ADEnDisable", false, true);
 	self:AddButton("input_previousTarget", "previousTarget.dds", "previousTarget.dds", "input_ADSelectPreviousTarget", true, true);
 	self:AddButton("input_nextTarget", "nextTarget.dds", "nextTarget.dds","input_ADSelectTarget", true, true);
@@ -304,8 +308,8 @@ function AutoDriveHud:updateSingleButton(buttonName, stateOn)
     end;
 end;
 
-function AutoDriveHud:drawHud(vehicle)		
-	if vehicle == g_currentMission.controlledVehicle then
+function AutoDriveHud:drawHud(vehicle)	
+	if vehicle == g_currentMission.controlledVehicle then		
         self:updateButtons(vehicle);
         
 		local ovWidth = self.Background.width;
@@ -328,6 +332,7 @@ function AutoDriveHud:drawHud(vehicle)
 		self.Background.Header.ov = Overlay:new(self.Background.Header.img, self.Background.Header.posX, self.Background.Header.posY , self.Background.Header.width, self.Background.Header.height);
 		self.Background.close_small.posY = self.posY + ovHeight - 0.0101* (g_screenWidth / g_screenHeight);
 		self.Background.close_small.ov = Overlay:new(self.Background.close_small.img, self.Background.close_small.posX, self.Background.close_small.posY , self.Background.close_small.width, self.Background.close_small.height);
+		self.Background.ov = Overlay:new(AutoDrive.directory .. "img/Background.dds", self.posX, self.posY , self.width, ovHeight);
 		self.Background.ov:render();
 		self.Background.destination.ov:render();
 		self.Background.Header.ov:render();
@@ -342,38 +347,45 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 		end;
 
-		if true then
-			local adFontSize = 0.009;
-			local adPosX = self.posX + self.borderX;
-			local adPosY = self.posY + ovHeight - adFontSize - 0.002;
+		local adFontSize = 0.009;
+		local adPosX = self.posX + self.borderX;
+		local adPosY = self.posY + ovHeight - adFontSize - 0.002;
 
-			setTextColor(1,1,1,1);
-			renderText(adPosX, adPosY, adFontSize,"AutoDrive");
-			if vehicle.ad.sToolTip ~= "" and vehicle.ad.nToolTipWait <= 0 then
-				renderText(adPosX + 0.03, adPosY, adFontSize," - " .. vehicle.ad.sToolTip);
-			end;
+		setTextColor(1,1,1,1);
+		setTextAlignment(RenderText.ALIGN_LEFT);
+		renderText(adPosX, adPosY, adFontSize,"AutoDrive");
+		if vehicle.ad.sToolTip ~= "" and vehicle.ad.nToolTipWait <= 0 then
+			setTextAlignment(RenderText.ALIGN_LEFT);
+			local posX = adPosX + 0.025;
+			renderText(posX, adPosY, adFontSize," - " .. vehicle.ad.sToolTip);
 		end;
 		
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
-			local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+			--local adPosY = self.posY + (0.0225 * (g_screenWidth / g_screenHeight)) + (self.borderY + self.buttonHeight) * self.rowCurrent;
+			local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
 
 			if vehicle.ad.choosingDestination == true then
 				if vehicle.ad.chosenDestination ~= "" then
 					setTextColor(1,1,1,1);
+					setTextAlignment(RenderText.ALIGN_LEFT);
 					renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
 				end;
 				if vehicle.ad.enteredChosenDestination ~= "" then
 					setTextColor(1,0,0,1);
+					setTextAlignment(RenderText.ALIGN_LEFT);
 					renderText(adPosX, adPosY, adFontSize,  vehicle.ad.enteredChosenDestination);
 				end;
 			else
 				setTextColor(1,1,1,1);
+				setTextAlignment(RenderText.ALIGN_LEFT);
 				renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
 			end;
 			setTextColor(1,1,1,1);
-			renderText(self.posX - 0.012 + self.width, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
+			setTextAlignment(RenderText.ALIGN_LEFT);
+			local posX = self.posX - 0.012 + self.width
+			renderText(posX, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
 		end;
 
 		if vehicle.ad.enteringMapMarker == true then
@@ -381,43 +393,37 @@ function AutoDriveHud:drawHud(vehicle)
 			local adPosX = self.posX + self.borderX;
 			local adPosY = self.posY + 0.085 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			setTextColor(1,1,1,1);
-			renderText(adPosX, adPosY + 0.02, adFontSize, g_i18n:getText("AD_new_marker_helptext"));
+			setTextAlignment(RenderText.ALIGN_LEFT);
+			local posY = adPosY + (0.01125 * (g_screenWidth / g_screenHeight));
+			renderText(adPosX, posY, adFontSize, g_i18n:getText("AD_new_marker_helptext"));
 			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
 
 		if vehicle.ad.unloadAtTrigger == true then
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
-			local adPosY = self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			setTextColor(1,1,1,1);
 
 			self.Background.unloadOverlay.ov:render();
+			setTextAlignment(RenderText.ALIGN_LEFT);
 			renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload);
 		end;		
 	end;	
 end;
 
-function AutoDriveHud:toggleHud()
+function AutoDriveHud:toggleHud(vehicle)
     if self.showHud == false then
         self.showHud = true;
     else
-        self.showHud = false;
-        if AutoDrive.showMouse == false then
-            AutoDrive.showMouse = true;
-            g_inputBinding:setShowMouseCursor(true);
-        else
-            g_inputBinding:setShowMouseCursor(false);
-            AutoDrive.showMouse = false;
-        end;
+        self.showHud = false;        
     end;
 end;
 
-function AutoDriveHud:toggleMouse()
+function AutoDriveHud:toggleMouse(vehicle)
     if self.showHud == true then
         if AutoDrive.showMouse == false then
-            AutoDrive.showMouse = true;					
-            --g_currentMission.isPlayerFrozen = true;
-            
+            AutoDrive.showMouse = true;					            
             g_inputBinding:setShowMouseCursor(true);
             vehicle.ad.camerasBackup = {};
             if vehicle.spec_enterable ~= nil then
@@ -430,9 +436,7 @@ function AutoDriveHud:toggleMouse()
             end;
         else
             g_inputBinding:setShowMouseCursor(false);
-            AutoDrive.showMouse = false;				
-            --g_currentMission.isPlayerFrozen = false;
-            
+            AutoDrive.showMouse = false;				            
             if vehicle.spec_enterable ~= nil then
                 if vehicle.spec_enterable.cameras ~= nil then
                     for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
@@ -494,13 +498,15 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
             if vehicle.ad.choosingDestination == false then
                 vehicle.ad.choosingDestination = true
-                vehicle.isBroken = false;
                 g_currentMission.isPlayerFrozen = true;
-                vehicle.isBroken = true;
+				vehicle.isBroken = true;
+				--print("Entering destination - player frozen and vehicle broken")
+				g_inputBinding:setContext("AutoDrive.Input_Destination", true, false);
             else
                 vehicle.ad.choosingDestination = false;
                 g_currentMission.isPlayerFrozen = false;
-                vehicle.isBroken = false;
+				vehicle.isBroken = false;
+				g_inputBinding:revertContext(true);
             end;
         end;
 

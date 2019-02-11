@@ -185,6 +185,11 @@
 			<de>hat sich fest gefahren</de>
 			<it>è bloccato</it>
 		</text>
+		
+		<text name="AD_cannot_reach">	
+			<en>can't reach</en> 
+			<de>hat keinen Weg gefunden zu</de>
+		</text>
 
 		<text name="AD_new_marker">
 			<en>New Goal:</en>
@@ -211,10 +216,42 @@
 		</text>
 
 	</l10n>
+	
+	<text name="input_ADEnDisable"> 						<en>AD: En/Disable</en> 						<de>AD: Ein/Ausschalten</de>				<it>AD: Abilita/Disabilita</it>							</text>
+	<text name="input_ADRecord">  							<en>AD: Record</en>  							<de>AD: Aufzeichnen</de>					<it>AD:	Registra</it>									</text>
+	<text name="input_ADSelectTarget">						<en>AD: Select Next Target</en>  				<de>AD: Ziel wählen</de>					<it>AD: Seleziona prossima destinazione</it>			</text>
+	<text name="input_ADSelectPreviousTarget">				<en>AD: Select Previous Target</en>  			<de>AD: Voriges Ziel wählen</de>			<it>AD: Seleziona precedente destinazione</it>			</text>
+	<text name="input_ADSelectTargetUnload">				<en>AD: Select Next Unload</en>  				<de>AD: Nächsten Abladepunkt</de>			<it>AD: Seleziona prossimo scarico</it>					</text>
+	<text name="input_ADSelectPreviousTargetUnload">		<en>AD: Select Previous Unload</en>  			<de>AD: Vorigen Abladepunkt</de>			<it>AD: Seleziona precedente scarico</it>				</text>
+	
+	<text name="input_ADActivateDebug">			<en>AD: Activate Debug Mode</en> 		<de>AD: Debug Modus aktivieren</de>				<it>AD: Attiva Modo Debug</it>					</text>		
+	<text name="input_ADDebugShowClosest">		<en>AD: Show Closest Point</en>  		<de>AD: Naheliegendsten Punkt anzeigen</de>		<it>AD: Mostra punto vicino</it>				</text>		
+	<text name="input_ADDebugSelectNeighbor">	<en>AD: Select Neighbor Point</en>  	<de>AD: Nachbarpunkt wählen</de>				<it>AD: Seleziona punto vicinanze</it>			</text>		
+	<text name="input_ADDebugChangeNeighbor">	<en>AD: Select next Neighbor Point</en> <de>AD: Nächsten Nachbarpunkt wählen</de>		<it>AD: Seleziona altro punto vicinanze</it>	</text>		
+	<text name="input_ADDebugCreateConnection">	<en>AD: Toggle connection between</en>  <de>AD: Verbindung an/aus</de>					<it>AD: Crea/Togli connessione</it>				</text>
+	<text name="input_ADDebugCreateMapMarker">	<en>AD: Create new Target</en>  		<de>AD: Neues Ziel erstellen</de>				<it>AD: Crea nuova destinazione</it>			</text>		
+	<text name="input_ADDebugDeleteWayPoint">	<en>AD: Delete Waypoint</en>  			<de>AD: Wegpunkt löschen</de>					<it>AD: Cancella punto percorso</it>			</text>	
+	<text name="input_ADDebugForceUpdate">		<en>AD: Update ways</en>  				<de>AD: Wege neuberechnen</de>					<it>AD: Aggiorna percorsi</it>					</text>	
+	<text name="input_ADDebugDeleteDestination"><en>AD: Delete Destination</en>  		<de>AD: Ziel löschen</de>					<it>AD: Cancella Destinazione</it>  	</text>
+
 
 	<actions>
-		<action name="ADToggleMouse" 	category="VEHICLE" ignoreComboMask="false"/>
-		<action name="ADToggleHud" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADToggleMouse" 				category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADToggleHud" 					category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADEnDisable" 					category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADSelectTarget" 				category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADSelectPreviousTarget" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADSelectTargetUnload" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADSelectPreviousTargetUnload" category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADActivateDebug" 				category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugShowClosest" 			category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugSelectNeighbor" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugChangeNeighbor" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugCreateConnection" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugCreateMapMarker" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugDeleteWayPoint" 		category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugForceUpdate" 			category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADDebugDeleteDestination" 	category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 	
 	<inputBindings>
@@ -223,6 +260,62 @@
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_17" />
 		</actionBinding>
 		<actionBinding action="ADToggleMouse">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADEnDisable">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADSelectTarget">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADSelectPreviousTarget">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADSelectTargetUnload">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADSelectPreviousTargetUnload">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADActivateDebug">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugShowClosest">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugSelectNeighbor">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugChangeNeighbor">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugCreateConnection">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugCreateMapMarker">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugDeleteWayPoint">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugForceUpdate">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADDebugDeleteDestination">
 			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>

@@ -63,7 +63,7 @@ function AutoDrive:inputRecord(vehicle)
         else
             vehicle.ad.creationMode = false;
             vehicle.ad.creationModeDual = false;
-            AutoDrive:inputNextTarget(vehicle);
+            --AutoDrive:inputNextTarget(vehicle);
         end;
     end;
 
@@ -127,57 +127,56 @@ function AutoDrive:inputPreviousTarget(vehicle)
 end;
 
 function AutoDrive:toggleConnectionBetween(startNode, targetNode)
-        local out_counter = 1;
-        local exists = false;
-        for i, in pairs(startNode.out) do
-            if exists == true then
-                startNode.out[out_counter] = startNode.out[i];
-                startNode.out_cost[out_counter] = startNode.out_cost[i];
-                out_counter = out_counter +1;
-            else
-                if startNode.out[i] == targetNode.id then
-                    AutoDrive:MarkChanged()
-                    startNode.out[i] = nil;
-                    startNode.out_cost[i] = nil;
+    local out_counter = 1;
+    local exists = false;
+    for i in pairs(startNode.out) do
+        if exists == true then
+            startNode.out[out_counter] = startNode.out[i];
+            startNode.out_cost[out_counter] = startNode.out_cost[i];
+            out_counter = out_counter +1;
+        else
+            if startNode.out[i] == targetNode.id then
+                AutoDrive:MarkChanged()
+                startNode.out[i] = nil;
+                startNode.out_cost[i] = nil;
 
-                    if AutoDrive.loadedMap ~= nil and AutoDrive.adXml ~= nil then
-                        removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp".. startNode.id ..".out" .. i) ;
-                        removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp".. startNode.id ..".out_cost" .. i) ;
-                    end;
+                if AutoDrive.loadedMap ~= nil and AutoDrive.adXml ~= nil then
+                    removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp".. startNode.id ..".out" .. i) ;
+                    removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp".. startNode.id ..".out_cost" .. i) ;
+                end;
 
-                    local incomingExists = false;
-                    for _,i2 in pairs(targetNode.incoming) do
-                        if i2 == startNode.id or incomingExists then
-                            incomingExists = true;
-                            if targetNode.incoming[_ + 1] ~= nil then
-                                targetNode.incoming[_] = targetNode.incoming[_ + 1];
-                                targetNode.incoming[_ + 1] = nil;
-                            else
-                                targetNode.incoming[_] = nil;
-                            end;
+                local incomingExists = false;
+                for _,i2 in pairs(targetNode.incoming) do
+                    if i2 == startNode.id or incomingExists then
+                        incomingExists = true;
+                        if targetNode.incoming[_ + 1] ~= nil then
+                            targetNode.incoming[_] = targetNode.incoming[_ + 1];
+                            targetNode.incoming[_ + 1] = nil;
+                        else
+                            targetNode.incoming[_] = nil;
                         end;
                     end;
-
-                    exists = true;
-                else
-                    out_counter = out_counter +1;
                 end;
+
+                exists = true;
+            else
+                out_counter = out_counter +1;
             end;
         end;
+    end;
+       
+    if exists == false then
+        startNode.out[out_counter] = targetNode.id;
+        startNode.out_cost[out_counter] = 1;
 
-        if exists == false then
-            startNode.out[out_counter] = targetNode.id;
-            startNode.out_cost[out_counter] = 1;
-
-            local incomingCounter = 1;
-            for _,id in pairs(targetNode.incoming) do
-                incomingCounter = incomingCounter + 1;
-            end;
-            targetNode.incoming[incomingCounter] = startNode.id;
-
-            AutoDrive:MarkChanged()
+        local incomingCounter = 1;
+        for _,id in pairs(targetNode.incoming) do
+            incomingCounter = incomingCounter + 1;
         end;
-    end;					
+        targetNode.incoming[incomingCounter] = startNode.id;
+
+        AutoDrive:MarkChanged()
+    end;				
 end;
 
 function AutoDrive:nextSelectedDebugPoint(vehicle)
@@ -199,4 +198,5 @@ function AutoDrive:createMapMarker(vehicle)
     g_currentMission.isPlayerFrozen = false;
     vehicle.isBroken = false;    
     vehicle.ad.enteringMapMarker = false;
+    g_inputBinding:revertContext(true);
 end;

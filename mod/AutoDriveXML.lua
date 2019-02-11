@@ -95,11 +95,7 @@ function AutoDrive:readFromXML(xmlFile)
 	local zTable = zString:split(",");
 	
 	local outString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out");
-	print("Outstring: " .. outString);
-	local outTable = outString:split(";");
-	for _,out in pairs(outTable) do
-		print("Outtable[" .. _ .. "] = " .. out);
-	end;
+	local outTable = outString:split(";");	
 	local outSplitted = {};
 	for i, outer in pairs(outTable) do
 		local out = outer:split(",");
@@ -248,31 +244,6 @@ function AutoDrive:readFromXML(xmlFile)
 	if recalculateString == "false" then
 		recalculate = false;
 	end;
-				
-	if recalculate == true then
-		for i2,point in pairs(AutoDrive.mapWayPoints) do
-			point.marker = {};
-		end;
-
-		print("AD: recalculating routes");
-		for i, marker in pairs(AutoDrive.mapMarker) do
-			
-			local tempAD = AutoDrive:dijkstra(AutoDrive.mapWayPoints, marker.id,"incoming");
-			
-			for i2,point in pairs(AutoDrive.mapWayPoints) do
-						
-				point.marker[marker.name] = tempAD.pre[point.id];
-							
-			end;
-			
-			
-		end;
-		setXMLString(xmlFile, "AutoDrive.Recalculation","false");
-		AutoDrive:MarkChanged();
-		AutoDrive.handledRecalculation = true;
-	else
-		print("AD: Routes are already calculated");
-	end;	
 end;
 
 function AutoDrive:saveToXML(xmlFile)
