@@ -194,9 +194,9 @@ function AutoDrive:handleRecording(vehicle)
 			local angle = AutoDrive:angleBetween( {x=x-wp_ref.x,z=z-wp_ref.z},{x=wp.x-wp_ref.x, z = wp.z - wp_ref.z } )
 			local max_distance = 6;
 			if angle < 1 then max_distance = 20; end;
-			if angle >= 1 and angle < 2 then max_distance = 12; end;
-			if angle >= 2 and angle < 3 then max_distance = 9; end;
-			if angle >= 3 and angle < 5 then max_distance = 6; end;
+			if angle >= 1 and angle < 2 then max_distance = 4; end;
+			if angle >= 2 and angle < 3 then max_distance = 4; end;
+			if angle >= 3 and angle < 5 then max_distance = 4; end;
 			if angle >= 5 and angle < 8 then max_distance = 4; end;
 			if angle >= 8 and angle < 12 then max_distance = 2; end;
 			if angle >= 12 and angle < 15 then max_distance = 1; end;
@@ -220,11 +220,23 @@ function AutoDrive:handleRecalculation(vehicle)
 				AutoDrive.recalculationPercentage = AutoDrive:ContiniousRecalculation();
 				AutoDrive.Recalculation.nextCalculationSkipFrames = 0;
 
-				AutoDrive.nPrintTime = 10000;
-				AutoDrive.printMessage = g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%";
+				AutoDrive:printMessage(g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%");
 			else
 				AutoDrive.Recalculation.nextCalculationSkipFrames =  AutoDrive.Recalculation.nextCalculationSkipFrames - 1;
 			end;
 		end;
 	end;
+end;
+
+function AutoDrive:isDualRoad(start, target)
+	for _,incoming in pairs(start.incoming) do
+		if incoming == target.id then
+			return true;
+		end;
+	end;
+	return false;
+end;
+
+function AutoDrive:getDistanceBetweenNodes(start, target)
+	return getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].y, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].y)
 end;

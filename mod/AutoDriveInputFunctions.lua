@@ -251,9 +251,6 @@ function AutoDrive:inputCreateMapMarker(vehicle)
             g_currentMission.isPlayerFrozen = false;
             vehicle.isBroken = false;
             g_inputBinding:revertContext(true);
-
-            vehicle.printMessages = "Not ready";
-            vehicle.nPrintTime = 3000;
         end;
     end;
 end;

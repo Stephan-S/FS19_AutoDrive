@@ -21,7 +21,7 @@
 	   </it>
 	</description>
     <version>1.0.0.0</version>
-	<multiplayer supported="true"/>   
+	<multiplayer supported="false"/>   
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
         <sourceFile filename="register.lua" />

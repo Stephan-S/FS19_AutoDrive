@@ -8,12 +8,6 @@ AutoDrive.actions   = { 'ADToggleMouse', 'ADToggleHud', 'ADEnDisable', 'ADSelect
 						'ADDebugChangeNeighbor', 'ADDebugCreateConnection', 'ADDebugCreateMapMarker', 'ADDebugDeleteWayPoint',
 						'ADDebugForceUpdate', 'ADDebugDeleteDestination' }
 
-function string:split(sep)
-    local sep, fields = sep or ":", {}
-    local pattern = string.format("([^%s]+)", sep)
-    self:gsub(pattern, function(c) fields[#fields+1] = c end)
-    return fields
-end
 
 function AutoDrive:prerequisitesPresent(specializations)
     return true;
@@ -46,40 +40,40 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		end 
 
 		-- attach our actions
-			local __, eventName
-			local toggleButton = false;
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADToggleMouse', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, true)	
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADToggleHud', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, true)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADEnDisable', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, true)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, true)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADActivateDebug', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, true)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugShowClosest', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugSelectNeighbor', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugChangeNeighbor', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugCreateConnection', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugCreateMapMarker', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteWayPoint', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugForceUpdate', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)
-			__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteDestination', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-			g_inputBinding:setActionEventTextVisibility(eventName, false)			
+		local __, eventName
+		local toggleButton = false;
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADToggleMouse', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, true)	
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADToggleHud', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, true)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADEnDisable', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, true)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, true)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADActivateDebug', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, true)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugShowClosest', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugSelectNeighbor', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugChangeNeighbor', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugCreateConnection', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugCreateMapMarker', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteWayPoint', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugForceUpdate', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteDestination', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)			
 	end
 end
 
@@ -191,6 +185,12 @@ function AutoDrive:loadMap(name)
 	AutoDrive.Hud = AutoDriveHud:new();
 	AutoDrive.Hud:loadHud();
 
+	AutoDrive.print = {};
+	AutoDrive.print.currentMessage = nil;
+	AutoDrive.print.nextMessage = nil;
+	AutoDrive.print.showMessageFor = 3000;
+	AutoDrive.print.currentMessageActiveSince = 0;
+
 	AutoDrive:loadStoredXML();
 
 	AutoDrive:initLineDrawing();
@@ -210,15 +210,10 @@ function AutoDrive:saveSavegame()
 end;
 
 function init(self)
-	self.bDisplay = 1; 
 	if self.ad == nil then
 		self.ad = {};		
 	end;
-	
-	self.bLongFormat = 0; 
-	self.nSubStringLength = 40; 
-	self.bDarkColor = 0; 
-	self.nDebugOutput = 0; 
+	 
 	self.ad.isActive = false;
 	self.ad.roundTrip = false;
 	self.ad.reverseTrack = false;
@@ -263,6 +258,9 @@ function init(self)
 	
 	
 	self.name = g_i18n:getText("UNKNOWN")
+	if self.getName ~= nil then
+		self.name = self:getName();
+	end;
 	self.ad.moduleInitialized = true;
 	self.ad.currentInput = "";
 	self.ad.lastSpeed = self.ad.targetSpeed;
@@ -590,9 +588,7 @@ function AutoDrive:graphcopy(Graph)
 		end;
 		for i4 in pairs(Graph[i]["out_cost"]) do
 			out_cost[i4] = Graph[i]["out_cost"][i4];
-		end;
-		
-		
+		end;		
 		for i5 in pairs(Graph[i]["marker"]) do
 			marker[i5] = Graph[i]["marker"][i5];
 		end;
@@ -625,12 +621,9 @@ function AutoDrive:FastShortestPath(Graph,start,markerName, markerID)
 	local wp = {};
 	local count = 1;
 	local id = start;
-	--print("searching path for start id: " .. id .. " and target: " .. markerName .. " id: " .. markerID);
-	while id ~= -1 and id ~= nil do
-		
+	while id ~= -1 and id ~= nil do		
 		wp[count] = Graph[id];
 		count = count+1;
-		--print(""..wp[count-1]["id"]);
 		if id == markerID then
 			id = nil;
 		else
@@ -639,45 +632,15 @@ function AutoDrive:FastShortestPath(Graph,start,markerName, markerID)
 	end;
 	
 	local wp_copy = AutoDrive:graphcopy(wp);
-	
-	--print("shortest path to " .. markerName);
-	for i in pairs(wp) do
-		--print(""..wp[i]["id"]);
-	end;
-	
-	return wp_copy;
-end;
 
-function AutoDrive:shortestPath(Graph,distance,pre,start,endNode)
-	local wp = {};
-	local count = 1;
-	local id = Graph[endNode]["id"];
-	
-	while self.ad.pre[id] ~= -1 do
-		for i in pairs(Graph) do
-			if Graph[i]["id"] == id then
-				wp[count] = Graph[i];  --todo: maybe create copy
-			end;
-		end;
-		count = count+1;
-		id = self.ad.pre[id];
-	end;
-
-	
-	local wp_reversed = {};
-	for i in pairs(wp) do
-		wp_reversed[count-i] = wp[i];
-	end;
-	
-	local wp_copy = AutoDrive:graphcopy(wp_reversed);
-	
-	--print("shortest path to " .. Graph[endNode]["id"]);
-	for i in pairs(wp) do
-		--print(""..wp[i]["id"]);
-	end;
-	
+	--local path = "Path: " .. start;
+	--local last = wp[count-1];
+	--for i,wp in pairs(wp_copy) do
+	--	path = path .. " -> " .. wp.id;	
+	--end;
+	--print(path);
+	--DebugUtil.printTableRecursively(last,":", 0, 1);		
 	return wp_copy;
-	
 end;
 
 function AutoDrive:onLeaveVehicle()
@@ -693,11 +656,6 @@ function AutoDrive:onEnterVehicle()
 	if self.ad.showingMouse ~= AutoDrive.showMouse then
 		AutoDrive.Hud:toggleMouse(self);
 	end
-
-	if self ~= g_currentMission.controlledVehicle then
-		print("I am not the controlled vehicle");
-		g_currentMission.controlledVehicle = self;
-	end;
 end;
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
@@ -728,16 +686,17 @@ function AutoDrive:onUpdate(dt)
 	
 	AutoDrive:handleRecalculation(self);	
 	AutoDrive:handleRecording(self);
-	AutoDrive:handleDriving(self, dt);		
+	AutoDrive:handleDriving(self, dt);
+	AutoDrive:log(self, dt);	
 end;
 
-function AutoDrive:log(dt)	
-	self.nlastLogged = self.nlastLogged + dt;
-	if self.nlastLogged >= self.nloggingInterval then
-		self.nlastLogged = self.nlastLogged - self.nloggingInterval;
-		if self.logMessage ~= "" then
-			print(self.logMessage);
-			self.logMessage = "";
+function AutoDrive:log(vehicle, dt)	
+	vehicle.nlastLogged = vehicle.nlastLogged + dt;
+	if vehicle.nlastLogged >= vehicle.nloggingInterval then
+		vehicle.nlastLogged = vehicle.nlastLogged - vehicle.nloggingInterval;
+		if vehicle.logMessage ~= "" then
+			print(vehicle.logMessage);
+			vehicle.logMessage = "";
 		end;
 	end;
 	
@@ -748,11 +707,8 @@ function AutoDrive:addlog(text)
 end;
 
 function createVector(x,y,z)
-	local table t = {};
-	t["x"] = x;
-	t["y"] = y;
-	t["z"] = z;
-	return t; 
+	local t = {x=x, y=y, z=z};
+	return t;
 end;
 
 function getDistance(x1,z1,x2,z2)
@@ -806,40 +762,49 @@ function AutoDrive:findMatchingWayPoint(veh)
 	for i,id in pairs(candidates) do
 
 		local point = AutoDrive.mapWayPoints[id];
-		local nextP = -1;
-		if point.out ~= nil then
-			if point.out[1] ~= nil then
-				nextP = AutoDrive.mapWayPoints[point.out[1]];
+		local nextP = nil;
+		local outIndex = 1;
+		if point.out ~= nil then			
+			if point.out[outIndex] ~= nil then
+				nextP = AutoDrive.mapWayPoints[point.out[outIndex]];
 			end;
-		end;
-		if nextP ~= -1 then
-			local tempVec = {x= nextP.x - point.x, z= nextP.z - point.z};
-			local tempVecToVehicle = { x = point.x - x1, z = point.z - z1 };
-			local tempAngle = AutoDrive:angleBetween(vehicleVector, tempVec);
-			local tempAngleToVehicle = AutoDrive:angleBetween(vehicleVector, tempVecToVehicle);
-			local dis = getDistance(point.x,point.z,x1,z1);
 
-			if closest == -1 and math.abs(tempAngle) < 60 and math.abs(tempAngleToVehicle) < 30 then
-				closest = point.id;
-				distance = dis;
-				angle = tempAngle;
-				--print("TempAngle to vehicle: " .. tempAngleToVehicle);
-			else
-				if math.abs(tempAngle) < math.abs(angle) then
-					if math.abs(tempAngleToVehicle) < 30 then
-						if math.abs(angle) < 20 then
-							if dis < distance then
+			while nextP ~= nil do
+				local vecToNextPoint 	= {x = nextP.x - point.x, 	z = nextP.z - point.z};
+				local vecToVehicle 		= {x = point.x - x1, 		z = point.z - z1 };
+				local angleToNextPoint 	= AutoDrive:angleBetween(vehicleVector, vecToNextPoint);
+				local angleToVehicle 	= AutoDrive:angleBetween(vehicleVector, vecToVehicle);
+				local dis = getDistance(point.x,point.z,x1,z1);
+
+				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
+					closest = point.id;
+					distance = dis;
+					angle = angleToNextPoint;
+					--print("TempAngle to vehicle: " .. angleToVehicle);
+				else
+					if math.abs(angleToNextPoint) < math.abs(angle) then
+						if math.abs(angleToVehicle) < 60 then
+							if math.abs(angle) < 20 then
+								if dis < distance then
+									closest = point.id;
+									distance = dis;
+									angle = angleToNextPoint;
+									--print("TempAngle to vehicle: " .. angleToVehicle);
+								end;
+							else
 								closest = point.id;
 								distance = dis;
-								angle = tempAngle;
-								--print("TempAngle to vehicle: " .. tempAngleToVehicle);
+								angle = angleToNextPoint;
 							end;
-						else
-							closest = point.id;
-							distance = dis;
-							angle = tempAngle;
 						end;
 					end;
+				end;
+
+				outIndex = outIndex + 1;
+				if point.out[outIndex] ~= nil then
+					nextP = AutoDrive.mapWayPoints[point.out[outIndex]];
+				else
+					nextP = nil;
 				end;
 			end;
 		end;
@@ -882,7 +847,7 @@ function AutoDrive:onDraw()
 			if self.ad.wayPoints[n+1] ~= nil then				
 				AutoDrive:drawLine(self.ad.wayPoints[n], self.ad.wayPoints[n+1], newColor(1,1,1,1));
 			else
-				AutoDrive:drawLine(self.ad.wayPoints[n], newPoint(self.ad.wayPoints[n].x, self.ad.wayPoints[n].y+2, self.ad.wayPoints[n].z), newColor(1,1,1,1));
+				AutoDrive:drawLine(self.ad.wayPoints[n], createVector(self.ad.wayPoints[n].x, self.ad.wayPoints[n].y+2, self.ad.wayPoints[n].z), newColor(1,1,1,1));
 			end;
 		end;
 	end;
@@ -899,22 +864,13 @@ end;
 function AutoDrive:onDrawControlledVehicle(vehicle)
 	AutoDrive:drawJobs();
 
-	if AutoDrive.printMessage ~= nil then
+	if AutoDrive.print.currentMessage ~= nil then
 		local adFontSize = 0.014;
 		local adPosX = 0.03;
 		local adPosY = 0.975;
 		setTextColor(1,1,1,1);
 		setTextAlignment(RenderText.ALIGN_LEFT);
-		renderText(adPosX, adPosY, adFontSize, AutoDrive.printMessage);
-	end;
-
-	if vehicle.printMessage ~= nil and AutoDrive.printMessage == nil then
-		local adFontSize = 0.014;
-		local adPosX = 0.03;
-		local adPosY = 0.975;
-		setTextColor(1,1,1,1);
-		setTextAlignment(RenderText.ALIGN_LEFT);
-		renderText(adPosX, adPosY, adFontSize, vehicle.printMessage);
+		renderText(adPosX, adPosY, adFontSize, AutoDrive.print.currentMessage);
 	end;
 
 	if AutoDrive.Hud ~= nil then
@@ -961,11 +917,11 @@ function AutoDrive:onDrawCreationMode(vehicle)
 	if vehicle.ad.showMapMarker == true and AutoDrive.mapWayPoints[1] ~= nil then
 		local closest = AutoDrive:findClosestWayPoint(vehicle);
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);					
-		AutoDrive:drawLine(newPoint(x1,y1,z1), AutoDrive.mapWayPoints[closest], newColor(1,0,0,1));
+		AutoDrive:drawLine(createVector(x1,y1,z1), AutoDrive.mapWayPoints[closest], newColor(1,0,0,1));
 
 		if vehicle.ad.showSelectedDebugPoint == true then
 			if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
-				AutoDrive:drawLine(newPoint(x1,y1,z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], newColor(1,1,0,1));
+				AutoDrive:drawLine(createVector(x1,y1,z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], newColor(1,1,0,1));
 			end;
 		end;
 	end;
@@ -1009,20 +965,8 @@ function AutoDrive:angleBetween(vec1, vec2)
 end
 
 function newColor(r, g, b, a)
-	local color = {};
-	color["r"] = r;
-	color["g"] = g;
-	color["b"] = b;
-	color["a"] = a;
+	local color = {r=r, g=g, b=b, a=a};
 	return color;
-end;
-
-function newPoint(x, y, z)
-	local point = {}
-	point["x"] = x;
-	point["y"] = y;
-	point["z"] = z;
-	return point;
 end;
 
 addModEventListener(AutoDrive);
