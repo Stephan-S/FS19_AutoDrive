@@ -89,6 +89,12 @@ function AutoDrive:readFromXML(xmlFile)
 	AutoDrive.HudY = getXMLFloat(xmlFile,"AutoDrive.HudY");
 		
 	local idString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id");
+	
+	--maybe map was opened and saved, but no waypoints recorded with AutoDrive!
+	if idString == nil then
+		return;
+	end;
+	
 	local idTable = idString:split(",");
 	local xString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.x");
 	local xTable = xString:split(",");
