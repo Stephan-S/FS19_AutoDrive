@@ -8,6 +8,29 @@ function AutoDriveHud:new()
 end;
 
 function AutoDriveHud:loadHud()	
+	if AutoDrive.HudX == nil or AutoDrive.HudY == nil then
+		local uiScale = g_gameSettings:getValue("uiScale")
+		local numButtons = 9
+		local numButtonRows = 2
+		local buttonSize = 32
+		local iconSize = 32
+		local gapSize = 3
+		
+		self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
+		self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
+		self.posX   = 1 - self.width - self.gapWidth;
+		self.posY   = 0.235;
+		AutoDrive.HudX = self.posX;
+		AutoDrive.HudY = self.posY;
+	else
+		self.posX = AutoDrive.HudX;
+		self.posY = AutoDrive.HudY;
+	end;
+	AutoDriveHud:createHudAt(self.posX, self.posY);
+	self.isMoving = false;
+end;
+
+function AutoDriveHud:createHudAt(hudX, hudY)
 	local uiScale = g_gameSettings:getValue("uiScale")
 	local numButtons = 9
 	local numButtonRows = 2
@@ -20,9 +43,12 @@ function AutoDriveHud:loadHud()
 	self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
 	self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
 	self.iconWidth, 		self.iconHeight	  = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize);
-	self.posX   = 1 - self.width - self.gapWidth; --0.80468750145519
-	self.posY   = 0.235
+	self.posX   = hudX;
+	self.posY   = hudY;
 
+	AutoDrive.HudX = self.posX;
+	AutoDrive.HudY = self.posY;
+	AutoDrive.HudChanged = true;
 	
 	self.Speed = "40";
 	self.Target = "Not Ready"
@@ -469,7 +495,15 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
         if not buttonHovered then
             vehicle.ad.sToolTip = "";
-        end;
+		end;
+		
+		if self.isMoving then
+			if button == 1 and isUp then
+				self:stopMovingHud();
+			else
+				self:moveHud(posX, posY);
+			end;
+		end;		
 	end;
 		
     if AutoDrive.showMouse and button == 1 and isDown then        
@@ -500,8 +534,30 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				vehicle.isBroken = false;
 				g_inputBinding:revertContext(true);
             end;
+		end;
+		
+		if posX > (self.Background.Header.posX) and posX < (self.Background.Header.posX + self.Background.Header.width) and posY > (self.Background.Header.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
+			self:startMovingHud(posX, posY);
         end;
-
-
     end;
-end;	
+end;
+
+function AutoDriveHud:startMovingHud(mouseX, mouseY)
+	self.isMoving = true;
+	self.lastMousePosX = mouseX;
+	self.lastMousePosY = mouseY;
+end;
+
+function AutoDriveHud:moveHud(posX, posY)
+	if self.isMoving then
+		local diffX = posX - self.lastMousePosX;
+		local diffY = posY - self.lastMousePosY;
+		self:createHudAt(self.posX+diffX, self.posY+diffY);
+		self.lastMousePosX = posX;
+		self.lastMousePosY = posY;
+	end;
+end;
+
+function AutoDriveHud:stopMovingHud()
+	self.isMoving = false;
+end;

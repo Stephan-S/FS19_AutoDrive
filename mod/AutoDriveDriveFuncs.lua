@@ -350,21 +350,13 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
     local acceleration = 1;
     if vehicle.ad.trafficDetected == true then 
-        if (math.abs(vehicle.lastSpeedReal) > 0.001) then
-            finalSpeed = 0;
-            vehicle.ad.allowedToDrive = true
-            acceleration = -1;
-        else
-            finalSpeed = 0;
-            vehicle.ad.allowedToDrive = false
-            acceleration = -1;
-        end;
-        vehicle.ad.timeTillDeadLock = 15000;        
+        AutoDrive:getVehicleToStop(vehicle, dt);
+        vehicle.ad.timeTillDeadLock = 15000;
     else        
         vehicle.ad.allowedToDrive = true;
+        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.4);    
     end;
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
-    AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.4);
     
 end;
 
@@ -392,7 +384,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
 		if vehicle.ad.inDeadLockRepairCounter < 1 then
 			AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
 			AutoDrive.nPrintTime = 10000;
-			vehicle.ad.stopAD = true;
+            AutoDrive:stopAD(vehicle);
 			vehicle.ad.isActive = false;
 		else
 			--print("AD: Trying to recover from deadlock")

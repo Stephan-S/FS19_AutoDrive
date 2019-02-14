@@ -84,6 +84,9 @@ function AutoDrive:readFromXML(xmlFile)
 		print("AutoDrive is starting a new configuration file");
 		return;
 	end;
+
+	AutoDrive.HudX = getXMLFloat(xmlFile,"AutoDrive.HudX");
+	AutoDrive.HudY = getXMLFloat(xmlFile,"AutoDrive.HudY");
 		
 	local idString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id");
 	local idTable = idString:split(",");
@@ -259,7 +262,10 @@ function AutoDrive:saveToXML(xmlFile)
 	else
 		setXMLString(xmlFile, "AutoDrive.Recalculation", "false");
 		print("AD: Set to not recalculating routes");
-	end;		
+	end;	
+	
+	setXMLFloat(xmlFile, "AutoDrive.HudX", AutoDrive.HudX);
+	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY);
 		
 	local idFullTable = {};
 	local idString = "";

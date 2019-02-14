@@ -55,7 +55,8 @@ function AutoDrive:stopVehicle(vehicle, dt)
 end;
 
 function AutoDrive:getVehicleToStop(vehicle, dt)
-    local finalSpeed = 0;
+	local finalSpeed = 0;
+	local acc = -1;
     local allowedToDrive = false;
     local node = vehicle.components[1].node;					
     if vehicle.getAIVehicleDirectionNode ~= nil then
@@ -63,7 +64,7 @@ function AutoDrive:getVehicleToStop(vehicle, dt)
     end;
     local x,y,z = getWorldTranslation(vehicle.components[1].node);   
     local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z);
-    AIVehicleUtil.driveInDirection(vehicle, dt, 30, 1, 0.2, 20, allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
+    AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
 end;
 
 function AutoDrive:isActive(vehicle)
@@ -77,17 +78,17 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 	if vehicle.ad.isActive == true then
 		local idToCheck = 3;
 		local alreadyOnDualRoute = false;
-		if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-2] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1] ~= nil then
-			alreadyOnDualRoute = AutoDrive:isDualRoad(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-2], vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1]);
+		if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+			alreadyOnDualRoute = AutoDrive:isDualRoad(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1], vehicle.ad.wayPoints[vehicle.ad.currentWayPoint]);
         end;
-        
+		
 		if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+idToCheck] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+idToCheck+1] ~= nil and not alreadyOnDualRoute then
 			local dualRoute = AutoDrive:isDualRoad(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+idToCheck], vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+idToCheck+1]);
 			
 			local dualRoutePoints = {};
 			local counter = 0;
 			idToCheck = -3;
-            while (dualRoute == true) or (idToCheck < 3) do
+            while (dualRoute == true) or (idToCheck < 5) do
                 local startNode = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+idToCheck];
                 local targetNode = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+idToCheck+1];
 				if (startNode ~= nil) and (targetNode ~= nil) then
@@ -121,6 +122,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 							end;
 							i = i + 1;
 						end;
+
 						if onSameRoute == true and other.ad.trafficVehicle == nil then
 							trafficDetected = true;
 							vehicle.ad.trafficVehicle = other;
@@ -128,6 +130,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 					end;
 				end;
 			end;
+
 			if trafficDetected == true then
 				--print("Traffic on same road deteced");
 				return true;

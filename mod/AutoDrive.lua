@@ -36,7 +36,7 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		if self.ActionEvents == nil then 
 		  self.ActionEvents = {}
 		else  
-		  self:clearActionEventsTable( self.ActionEvents )
+		  --self:clearActionEventsTable( self.ActionEvents )
 		end 
 
 		-- attach our actions
@@ -182,8 +182,6 @@ function AutoDrive:loadMap(name)
 	AutoDrive.mapMarkerCounter = 0;
 	AutoDrive.showMouse = false;					
 		
-	AutoDrive.Hud = AutoDriveHud:new();
-	AutoDrive.Hud:loadHud();
 
 	AutoDrive.print = {};
 	AutoDrive.print.currentMessage = nil;
@@ -194,13 +192,16 @@ function AutoDrive:loadMap(name)
 	AutoDrive:loadStoredXML();
 
 	AutoDrive:initLineDrawing();
+	
+	AutoDrive.Hud = AutoDriveHud:new();
+	AutoDrive.Hud:loadHud();
 
 	-- Save Configuration when saving savegame
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame);
 end;
 
 function AutoDrive:saveSavegame()
-	if AutoDrive:GetChanged() == true then
+	if AutoDrive:GetChanged() == true or AutoDrive.HudChanged then
 		AutoDrive:saveToXML(AutoDrive.adXml);
 	else
 		if AutoDrive.adXml ~= nil then
@@ -646,7 +647,6 @@ end;
 function AutoDrive:onLeaveVehicle()
 	self.ad.showingHud = AutoDrive.Hud.showHud;
 	self.ad.showingMouse = AutoDrive.showMouse;
-
 end;
 
 function AutoDrive:onEnterVehicle()
