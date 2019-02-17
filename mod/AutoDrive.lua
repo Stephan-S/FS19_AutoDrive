@@ -73,6 +73,10 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugForceUpdate', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteDestination', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)	
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectNextFillType', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)	
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousFillType', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)			
 	end
 end
@@ -198,7 +202,46 @@ function AutoDrive:loadMap(name)
 
 	-- Save Configuration when saving savegame
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame);
+
+	
+	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject,AutoDrive.onActivateObject)
+	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable,AutoDrive.getIsActivatable)
 end;
+
+function AutoDrive:onActivateObject(superFunc,vehicle)
+	--print("Overwritten onActivateObject function");
+	if vehicle~= nil then
+		--DebugUtil.printTableRecursively(vehicle, ":" ,0,1);
+		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+		if g_currentMission.controlledVehicle ~= vehicle then
+			local oldControlledVehicle = g_currentMission.controlledVehicle;
+			g_currentMission.controlledVehicle = vehicle;
+			superFunc(self);
+			g_currentMission.controlledVehicle = oldControlledVehicle;
+			return;
+		end
+	end
+	superFunc(self);
+end
+
+-- LoadTrigger doesn't allow filling non controlled tools
+function AutoDrive:getIsActivatable(superFunc,objectToFill)
+	--when the trigger is filling, it uses this function without objectToFill
+	if objectToFill ~= nil then
+		local vehicle = objectToFill:getRootVehicle()
+		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive then
+			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+			if g_currentMission.controlledVehicle ~= vehicle then
+				local oldControlledVehicle = g_currentMission.controlledVehicle;
+				g_currentMission.controlledVehicle = vehicle or objectToFill;
+				local result = superFunc(self,objectToFill);
+				g_currentMission.controlledVehicle = oldControlledVehicle;
+				return result;
+			end
+		end
+	end
+	return superFunc(self,objectToFill);
+end
 
 function AutoDrive:saveSavegame()
 	if AutoDrive:GetChanged() == true or AutoDrive.HudChanged then
@@ -273,6 +316,7 @@ function init(self)
 	self.ad.unloadSwitch = false;
 	self.ad.unloadType = -1;
 	self.ad.isLoading = false;
+	self.ad.unloadFillTypeIndex = 2;
 
 	AutoDrive.Recalculation = {};
 
@@ -389,9 +433,16 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADDebugDeleteDestination" then
 		AutoDrive:InputHandling(self, "input_removeDestination");
 	end;
+	if actionName == "ADSelectNextFillType" then
+		AutoDrive:InputHandling(self, "input_nextFillType");
+	end;
+	if actionName == "ADSelectPreviousFillType" then
+		AutoDrive:InputHandling(self, "input_previousFillType");
+	end;
 end;
 
 function AutoDrive:InputHandling(vehicle, input)
+	--print("AutoDrive InputHandling.." .. input);
 	vehicle.ad.currentInput = input;
 
 	if g_server == nil then
@@ -559,6 +610,23 @@ function AutoDrive:InputHandling(vehicle, input)
 		end;
 	end;
 
+	if input == "input_nextFillType" then		
+		vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex + 1;
+		if g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex) == nil then
+			vehicle.ad.unloadFillTypeIndex = 2;
+		end;		
+	end;
+
+	if input == "input_previousFillType" then
+		vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex - 1;
+		if vehicle.ad.unloadFillTypeIndex <= 1 then
+			while g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex) ~= nil do 
+				vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex + 1;
+			end;
+			vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex - 1;
+		end;
+	end;
+
 	if input == "input_continue" then
 		if vehicle.ad.isPaused == true then
 			vehicle.ad.isPaused = false;
@@ -659,14 +727,14 @@ function AutoDrive:onEnterVehicle()
 end;
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
-	vehicle = g_currentMission.controlledVehicle;
+	local vehicle = g_currentMission.controlledVehicle;
 	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button);
 	end;
 end; 
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown) 
-	vehicle = g_currentMission.controlledVehicle
+	local vehicle = g_currentMission.controlledVehicle
 	if vehicle == nil or vehicle.ad == nil then
 		return;
 	end;

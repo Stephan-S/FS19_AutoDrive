@@ -50,6 +50,34 @@ function AutoDrive:handleTrailers(vehicle, dt)
                         vehicle.ad.isUnloading = false;
                         --print("Trailer is empty - continue");
                     end;
+                end;                
+            end;
+        end;
+
+        local x,y,z = getWorldTranslation(vehicle.components[1].node);
+        local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
+        local distance = getDistance(x,z, destination.x, destination.z);
+        if distance < 20 then
+            for _,trailer in pairs(trailers) do
+                for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+                    for __,fillableObject in pairs(trigger.fillableObjects) do
+                        if fillableObject.object == trailer then                    
+
+                            trigger.autoStart = true
+                            --trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex
+                            trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
+                            trigger:onActivateObject(vehicle)
+                            trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
+                           
+                            --g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
+                            trigger.autoStart = false
+                        end;
+                    end;
+                    if trigger.getIsActivatable ~= nil then
+                        --print("loadTrigger.getISActivatable: " .. ADBoolToString(trigger:getIsActivatable()));
+                    else
+                        --print("Load trigger doesnt have getIsActivatable function");
+                    end;
                 end;
             end;
         end;

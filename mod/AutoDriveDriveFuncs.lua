@@ -22,19 +22,18 @@ function AutoDrive:handleDriving(vehicle, dt)
                 local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
 
 				if getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
-					AutoDrive:handleReachedWayPoint(vehicle);
+                    AutoDrive:handleReachedWayPoint(vehicle);  
 				end;
 			end;
 
             if vehicle.ad.isActive == true and vehicle.isServer then
                 vehicle.ad.trafficDetected =    AutoDrive:detectAdTrafficOnRoute(vehicle) or 
                                                 AutoDrive:detectTraffic(vehicle, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint])
-
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then                
                     AutoDrive:driveToNextWayPoint(vehicle, dt);                    
                 else
                     AutoDrive:driveToLastWaypoint(vehicle, dt);                    
-                end;				
+                end;	                			
 			end;
 		end;
 
@@ -325,9 +324,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
     local finalSpeed = vehicle.ad.speedOverride;
     local finalAcceleration = true;
-
-    
-    
+   
     local node = vehicle.components[1].node;	
     if vehicle.getAIVehicleDirectionNode ~= nil then
       node = vehicle:getAIVehicleDirectionNode();

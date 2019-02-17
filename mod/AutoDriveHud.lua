@@ -433,7 +433,7 @@ function AutoDriveHud:drawHud(vehicle)
 
 			self.Background.unloadOverlay.ov:render();
 			setTextAlignment(RenderText.ALIGN_LEFT);
-			renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload);
+			renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title);
 		end;		
 	end;	
 end;
@@ -538,8 +538,18 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		
 		if posX > (self.Background.Header.posX) and posX < (self.Background.Header.posX + self.Background.Header.width) and posY > (self.Background.Header.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
 			self:startMovingHud(posX, posY);
+		end;
+		
+		if posX > (self.Background.unloadOverlay.posX) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
+			AutoDrive:InputHandling(vehicle, "input_nextFillType");
         end;
-    end;
+	end;
+	
+	if AutoDrive.showMouse and button == 3 and isDown then   
+		if posX > (self.Background.unloadOverlay.posX) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
+			AutoDrive:InputHandling(vehicle, "input_previousFillType");
+        end;
+	end;
 end;
 
 function AutoDriveHud:startMovingHud(mouseX, mouseY)

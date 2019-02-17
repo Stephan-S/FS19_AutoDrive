@@ -73,3 +73,10 @@ end
 function AutoDrive:printMessage(newMessage)
 	AutoDrive.print.nextMessage = newMessage;
 end;
+
+function ADBoolToString(value)
+	if value == true then
+		return "true";
+	end;
+	return "false";
+end;

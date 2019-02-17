@@ -205,25 +205,29 @@ function AutoDrive:inputShowNeighbors(vehicle)
     if vehicle.ad.showSelectedDebugPoint == false then
         vehicle.ad.showSelectedDebugPoint = true;
 
-        local leastIncomingRoads = math.huge;
-        local nodeWithLeastIncomingRoads = nil;
         local debugCounter = 1;
 
+        local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
         for i,point in pairs(AutoDrive.mapWayPoints) do
-            local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
             local distance = getDistance(point.x,point.z,x1,z1);
 
             if distance < 15 then
-                if ADTableLength(point.incoming) < leastIncomingRoads then
-                    leastIncomingRoads = ADTableLength(point.incoming);
-                    nodeWithLeastIncomingRoads = debugCounter;
-                end;
-
                 vehicle.ad.iteratedDebugPoints[debugCounter] = point;
                 debugCounter = debugCounter + 1;
             end;
         end;
-        vehicle.ad.selectedDebugPoint = 1;
+        vehicle.ad.selectedDebugPoint = 2;
+
+        vehicle.ad.iteratedDebugPoints = AutoDrive:sortNodesByDistance(x1, z1, vehicle.ad.iteratedDebugPoints);
+        
+        local leastIncomingRoads = 1;
+        local nodeWithLeastIncomingRoads = nil;        
+        for i,point in pairs(vehicle.ad.iteratedDebugPoints) do
+            if ADTableLength(point.incoming) < leastIncomingRoads then
+                leastIncomingRoads = ADTableLength(point.incoming);
+                nodeWithLeastIncomingRoads = i;
+            end;
+        end;
         
         if nodeWithLeastIncomingRoads ~= nil then
             vehicle.ad.selectedDebugPoint = nodeWithLeastIncomingRoads;
@@ -240,7 +244,7 @@ function AutoDrive:inputCreateMapMarker(vehicle)
         if vehicle.ad.creatingMapMarker == false then
             vehicle.ad.creatingMapMarker  = true;
             vehicle.ad.enteringMapMarker = true;
-            vehicle.ad.enteredMapMarkerString = "Test_" .. AutoDrive.mapWayPointsCounter;
+            vehicle.ad.enteredMapMarkerString = "" .. AutoDrive.mapWayPointsCounter;
             g_currentMission.isPlayerFrozen = true;
             vehicle.isBroken = true;				
             g_inputBinding:setContext("AutoDrive.Input_MapMarker", true, false);

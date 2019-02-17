@@ -123,7 +123,7 @@ function AutoDrive:removeMapMarker(toDelete)
 	AutoDrive:MarkChanged()
 end
 
-function AutoDrive:createWayPoint(x, y, z, connectPrevious, dual)
+function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 	if vehicle.ad.createMapPoints == true then
 		AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter + 1;
 		if AutoDrive.mapWayPointsCounter > 1 and connectPrevious then
@@ -172,7 +172,7 @@ function AutoDrive:handleRecording(vehicle)
 		vehicle.ad.wayPoints[i] = createVector(x1,y1,z1);
 		
 		if vehicle.ad.createMapPoints == true then
-			AutoDrive:createWayPoint(x1, y1, z1, false, vehicle.ad.creationModeDual)		
+			AutoDrive:createWayPoint(vehicle, x1, y1, z1, false, vehicle.ad.creationModeDual)		
 		end;
 		
 		i = i+1;
@@ -183,7 +183,7 @@ function AutoDrive:handleRecording(vehicle)
 			if getDistance(x,z,wp.x,wp.z) > 3 then
 				vehicle.ad.wayPoints[i] = createVector(x,y,z);
 				if vehicle.ad.createMapPoints == true then
-					AutoDrive:createWayPoint(x, y, z, true, vehicle.ad.creationModeDual)		
+					AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)		
 				end;
 				i = i+1;
 			end;
@@ -193,19 +193,19 @@ function AutoDrive:handleRecording(vehicle)
 			local wp_ref = vehicle.ad.wayPoints[i-2]
 			local angle = AutoDrive:angleBetween( {x=x-wp_ref.x,z=z-wp_ref.z},{x=wp.x-wp_ref.x, z = wp.z - wp_ref.z } )
 			local max_distance = 6;
-			if angle < 1 then max_distance = 20; end;
+			if angle < 1 then max_distance = 6; end;
 			if angle >= 1 and angle < 2 then max_distance = 4; end;
 			if angle >= 2 and angle < 3 then max_distance = 4; end;
-			if angle >= 3 and angle < 5 then max_distance = 4; end;
-			if angle >= 5 and angle < 8 then max_distance = 4; end;
-			if angle >= 8 and angle < 12 then max_distance = 2; end;
+			if angle >= 3 and angle < 5 then max_distance = 3; end;
+			if angle >= 5 and angle < 8 then max_distance = 2; end;
+			if angle >= 8 and angle < 12 then max_distance = 1; end;
 			if angle >= 12 and angle < 15 then max_distance = 1; end;
 			if angle >= 15 and angle < 50 then max_distance = 0.5; end;
 
 			if getDistance(x,z,wp.x,wp.z) > max_distance then
 				vehicle.ad.wayPoints[i] = createVector(x,y,z);
 				if vehicle.ad.createMapPoints == true then
-					AutoDrive:createWayPoint(x, y, z, true, vehicle.ad.creationModeDual)		
+					AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)		
 				end;
 				i = i+1;
 			end;
@@ -238,5 +238,33 @@ function AutoDrive:isDualRoad(start, target)
 end;
 
 function AutoDrive:getDistanceBetweenNodes(start, target)
-	return getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].y, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].y)
+	return getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
+end;
+
+function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
+	local sortedList = {};
+	local outerLoop = 1;
+	local minDistance = math.huge;
+	local minDistanceNode = -1;
+	for i = 1, ADTableLength(listOfNodes) do
+		for currentNode,checkNode in pairs(listOfNodes) do
+			local distance = getDistance(x, z, AutoDrive.mapWayPoints[checkNode.id].x, AutoDrive.mapWayPoints[checkNode.id].z);
+			
+			local alreadyInList = false;	
+			for _,alreadySorted in pairs(sortedList) do
+				if alreadySorted.id == checkNode.id then
+					alreadyInList = true;
+				end;
+			end;
+
+			if (distance < minDistance) and (not alreadyInList) then
+				minDistance = distance;
+				minDistanceNode = checkNode;
+			end;
+		end;	
+		sortedList[i] = minDistanceNode;
+		minDistance = math.huge;
+	end;
+
+	return sortedList;
 end;

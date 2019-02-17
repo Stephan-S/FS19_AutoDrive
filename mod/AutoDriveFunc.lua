@@ -100,6 +100,8 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 					else
 						dualRoute = false;
 					end;
+				else
+					dualRoute = false;
 				end;
 				idToCheck = idToCheck + 1;
 			end;

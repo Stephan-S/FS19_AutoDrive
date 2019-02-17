@@ -79,6 +79,7 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 	if recalculateString == "false" then
 		recalculate = false;
+		AutoDrive:MarkChanged();
 	end;
 	if recalculateString == nil then
 		print("AutoDrive is starting a new configuration file");

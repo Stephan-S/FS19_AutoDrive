@@ -62,8 +62,16 @@ function AutoDrive:handleKeyEventForMapMarkerInput(vehicle, unicode, sym, modifi
     if sym == 13 then
         AutoDrive:finishCreatingMapMarker(vehicle)
     elseif sym == 8 then
-        vehicle.ad.enteredMapMarkerString = string.sub(vehicle.ad.enteredMapMarkerString,1,string.len(vehicle.ad.enteredMapMarkerString)-1)
+        if vehicle.ad.enteredMapMarkerString == ("" .. AutoDrive.mapWayPointsCounter) then
+            vehicle.ad.enteredMapMarkerString = "";
+        else
+            vehicle.ad.enteredMapMarkerString = string.sub(vehicle.ad.enteredMapMarkerString,1,string.len(vehicle.ad.enteredMapMarkerString)-1)
+        end;
     elseif unicode ~= 0 then
-        vehicle.ad.enteredMapMarkerString = vehicle.ad.enteredMapMarkerString .. string.char(unicode);
+        if vehicle.ad.enteredMapMarkerString == ("" .. AutoDrive.mapWayPointsCounter) then
+            vehicle.ad.enteredMapMarkerString = "";
+        end;
+        
+        vehicle.ad.enteredMapMarkerString = vehicle.ad.enteredMapMarkerString .. string.char(unicode);        
     end;
 end;
