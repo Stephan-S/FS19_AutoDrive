@@ -92,15 +92,10 @@ function AutoDrive:checkForDeadLock(vehicle, dt)
 end;
 
 function AutoDrive:handlePrintMessage(vehicle, dt)    
-    if vehicle == g_currentMission.controlledVehicle then
-        AutoDrive.print = {};
-        AutoDrive.print.currentMessage = nil;
-        AutoDrive.print.nextMessage = nil;
-        AutoDrive.print.showMessageFor = 3000;
-        AutoDrive.print.currentMessageActiveSince = 0;
-                
+    if vehicle == g_currentMission.controlledVehicle then                
     
         if AutoDrive.print.currentMessage ~= nil then
+            AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt;
             if AutoDrive.print.nextMessage ~= nil then
                 if AutoDrive.print.currentMessageActiveSince > 200 then
                     AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
@@ -110,6 +105,12 @@ function AutoDrive:handlePrintMessage(vehicle, dt)
             end;
             if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
                 AutoDrive.print.currentMessage = nil;
+                AutoDrive.print.currentMessageActiveSince = 0;
+            end;
+        else
+            if AutoDrive.print.nextMessage ~= nil then
+                AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
+                AutoDrive.print.nextMessage = nil;
                 AutoDrive.print.currentMessageActiveSince = 0;
             end;
 		end;

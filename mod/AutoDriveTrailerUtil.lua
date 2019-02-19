@@ -38,7 +38,6 @@ function AutoDrive:handleTrailers(vehicle, dt)
                     end
                     
                     if trailer:getCanDischargeToObject(currentDischargeNode) then
-                        --print("Current discharge node possible");
                         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
                         vehicle.ad.isPaused = true;
                         vehicle.ad.isUnloading = true;
@@ -48,7 +47,6 @@ function AutoDrive:handleTrailers(vehicle, dt)
                     if dischargeState == Trailer.TIPSTATE_CLOSED or dischargeState == Trailer.TIPSTATE_CLOSING then
                         vehicle.ad.isPaused = false;
                         vehicle.ad.isUnloading = false;
-                        --print("Trailer is empty - continue");
                     end;
                 end;                
             end;
@@ -56,27 +54,24 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
         local x,y,z = getWorldTranslation(vehicle.components[1].node);
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
-        local distance = getDistance(x,z, destination.x, destination.z);
+        local distance = getDistance(x,z, destination.x, destination.z);        
         if distance < 20 then
             for _,trailer in pairs(trailers) do
                 for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+                    local activate = false;
                     for __,fillableObject in pairs(trigger.fillableObjects) do
-                        if fillableObject.object == trailer then                    
-
-                            trigger.autoStart = true
-                            --trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex
-                            trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
-                            trigger:onActivateObject(vehicle)
-                            trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
-                           
-                            --g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
-                            trigger.autoStart = false
+                        if fillableObject.object == trailer then   
+                            activate = true;    
                         end;
                     end;
-                    if trigger.getIsActivatable ~= nil then
-                        --print("loadTrigger.getISActivatable: " .. ADBoolToString(trigger:getIsActivatable()));
-                    else
-                        --print("Load trigger doesnt have getIsActivatable function");
+
+                    if activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then
+                        trigger.autoStart = true
+                        trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
+                        trigger:onActivateObject(vehicle) 
+                        trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
+                        g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
+                        trigger.autoStart = false
                     end;
                 end;
             end;
@@ -88,6 +83,60 @@ function AutoDrive:handleTrailers(vehicle, dt)
             vehicle.ad.isLoading = false;
         end;
     end;
+end;
+
+function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFillUnit)
+	if fillTrigger ~= nil then
+		local typesMatch = false
+		local selectedFillType = vehicle.ad.unloadFillTypeIndex or FillType.UNKNOWN;
+		local fillUnits = workTool:getFillUnits()
+		local checkOnly = onlyCheckThisFillUnit or 0;
+		-- go throught the single fillUnits and check:
+		-- does the trigger support the tools filltype ?
+		-- does the trigger support the single fillUnits filltype ?
+		-- does the trigger and the fillUnit match the selectedFilltype or do they ignore it ?
+		for i=1,#fillUnits do
+			if checkOnly == 0 or i == checkOnly then
+				local selectedFillTypeIsNotInMyFillUnit = true
+				local matchInThisUnit = false
+				for index,_ in pairs(workTool:getFillUnitSupportedFillTypes(i))do 
+					--loadTriggers
+					if fillTrigger.source ~= nil and fillTrigger.source.providedFillTypes[index] then
+						typesMatch = true
+						matchInThisUnit =true
+					end
+					--fillTriggers
+					if fillTrigger.sourceObject ~= nil then
+						local fillTypes = fillTrigger.sourceObject:getFillUnitSupportedFillTypes(1)  
+						if fillTypes[index] then 
+							typesMatch = true
+							matchInThisUnit =true
+						end
+					end
+					if index == selectedFillType and selectedFillType ~= FillType.UNKNOWN then
+						selectedFillTypeIsNotInMyFillUnit = false;
+					end
+				end
+				if matchInThisUnit and selectedFillTypeIsNotInMyFillUnit then
+					return false;
+				end
+			end
+		end	
+		
+		if typesMatch then
+			if selectedFillType == FillType.UNKNOWN then
+				return true;
+			else
+				if fillTrigger.source then
+					return fillTrigger.source.providedFillTypes[selectedFillType] or false;
+				elseif fillTrigger.sourceObject ~= nil then
+					local fillType = fillTrigger.sourceObject:getFillUnitFillType(1)  
+					return fillType == selectedFillType;
+				end
+			end		
+		end
+	end
+	return false;
 end;
 
 function AutoDrive:getTrailersOf(vehicle)
@@ -117,24 +166,4 @@ function AutoDrive:getTrailersOf(vehicle)
     end;
 
     return trailers, trailerCount;
-end;
-
-function AutoDrive:getCurrentFillType(vehicle)
-    local trailer = nil;
-    if vehicle.attachedImplements ~= nil then
-        for _, implement in pairs(vehicle.attachedImplements) do
-            if implement.object ~= nil then
-                if implement.object.typeDesc == g_i18n:getText("typeDesc_tipper") then
-                    trailer = implement.object;
-                end;
-            end;
-        end;
-    end;
-
-    if vehicle.bUnloadAtTrigger == true and trailer ~= nil then
-        local fillTable = trailer:getCurrentFillTypes();
-        if fillTable[1] ~= nil then
-            return fillTable[1];
-        end;
-    end;
 end;

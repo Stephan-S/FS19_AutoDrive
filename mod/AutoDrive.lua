@@ -209,19 +209,33 @@ function AutoDrive:loadMap(name)
 end;
 
 function AutoDrive:onActivateObject(superFunc,vehicle)
-	--print("Overwritten onActivateObject function");
 	if vehicle~= nil then
-		--DebugUtil.printTableRecursively(vehicle, ":" ,0,1);
 		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
 		if g_currentMission.controlledVehicle ~= vehicle then
-			local oldControlledVehicle = g_currentMission.controlledVehicle;
+			local oldControlledVehicle = nil;
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle;
+			else
+				oldControlledVehicle = g_currentMission.controlledVehicle;
+			end;
 			g_currentMission.controlledVehicle = vehicle;
-			superFunc(self);
-			g_currentMission.controlledVehicle = oldControlledVehicle;
+
+			superFunc(self, vehicle);
+
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle;
+				vehicle.ad.oldControlledVehicle = nil;
+			else
+				if oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = oldControlledVehicle
+				end;								
+			end;
 			return;
+		else
+			--print("Called on Player Vehicle");
 		end
 	end
-	superFunc(self);
+	superFunc(self, vehicle);
 end
 
 -- LoadTrigger doesn't allow filling non controlled tools
@@ -232,13 +246,30 @@ function AutoDrive:getIsActivatable(superFunc,objectToFill)
 		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive then
 			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
 			if g_currentMission.controlledVehicle ~= vehicle then
-				local oldControlledVehicle = g_currentMission.controlledVehicle;
+				--print("getIsActivatable - Called on AI Vehicle");
+				local oldControlledVehicle = nil;
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle;
+				else
+					oldControlledVehicle = g_currentMission.controlledVehicle;
+				end;
 				g_currentMission.controlledVehicle = vehicle or objectToFill;
 				local result = superFunc(self,objectToFill);
-				g_currentMission.controlledVehicle = oldControlledVehicle;
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle;
+					vehicle.ad.oldControlledVehicle = nil;
+				else
+					if oldControlledVehicle ~= nil then
+						g_currentMission.controlledVehicle = oldControlledVehicle
+					end;								
+				end;
 				return result;
+			else
+				--print("getIsActivatable - Called on Player Vehicle");
 			end
 		end
+	else
+		--print("getIsActivatable - Called with  objectToFill == nil");
 	end
 	return superFunc(self,objectToFill);
 end
@@ -728,6 +759,7 @@ end;
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 	local vehicle = g_currentMission.controlledVehicle;
+
 	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button);
 	end;
@@ -735,6 +767,7 @@ end;
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown) 
 	local vehicle = g_currentMission.controlledVehicle
+
 	if vehicle == nil or vehicle.ad == nil then
 		return;
 	end;
@@ -746,6 +779,13 @@ function AutoDrive:onUpdate(dt)
 	if self.ad == nil then
 		init(self);
 	end;
+	
+	if self.ad.oldControlledVehicle ~= nil then
+		--print("Reinstalling controlled vehicle")
+		g_currentMission.controlledVehicle = self.ad.oldControlledVehicle;
+		self.ad.oldControlledVehicle = nil;
+		AutoDrive.oldControlledVehicle = nil;
+	end;
 
 	if self.ad.currentInput ~= "" and self.isServer then
 		--print("I am the server and start input handling. let's see if they think so too");
@@ -756,6 +796,7 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleRecording(self);
 	AutoDrive:handleDriving(self, dt);
 	AutoDrive:log(self, dt);	
+	AutoDrive:handleIntegrityCheck(self);
 end;
 
 function AutoDrive:log(vehicle, dt)	
@@ -909,7 +950,7 @@ function AutoDrive:onDraw()
 			AutoDrive:drawLine(self.ad.wayPoints[self.ad.currentWayPoint-1], self.ad.wayPoints[self.ad.currentWayPoint], newColor(1,1,1,1));
 		end;
 	end;
-	if self.ad.creationMode == true then
+	if self.ad.creationMode == true and self.ad.createMapPoints == false and self == g_currentMission.controlledVehicle then
 		local _drawCounter = 1;
 		for n in pairs(self.ad.wayPoints) do
 			if self.ad.wayPoints[n+1] ~= nil then				
@@ -1035,6 +1076,17 @@ end
 function newColor(r, g, b, a)
 	local color = {r=r, g=g, b=b, a=a};
 	return color;
+end;
+
+function AutoDrive:handleIntegrityCheck(vehicle)
+	if AutoDrive.handledIntegrity ~= true then
+		for _,wp in pairs(AutoDrive.mapWayPoints) do
+			if wp.y == -1 then
+				wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
+			end;
+		end;
+		AutoDrive.handledIntegrity = true;
+	end;
 end;
 
 addModEventListener(AutoDrive);

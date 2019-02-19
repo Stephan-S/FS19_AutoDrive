@@ -8,8 +8,6 @@ function AutoDrive:startAD(vehicle)
     vehicle.currentHelper = g_helperManager:getRandomHelper()
     vehicle.spec_aiVehicle.isActive = true
     
-    vehicle.ad.unloadType = AutoDrive:getCurrentFillType(vehicle);
-
     if vehicle.setRandomVehicleCharacter ~= nil then
         vehicle:setRandomVehicleCharacter()
     end
