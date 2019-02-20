@@ -212,6 +212,7 @@ function AutoDrive:onActivateObject(superFunc,vehicle)
 	if vehicle~= nil then
 		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
 		if g_currentMission.controlledVehicle ~= vehicle then
+			--print("Called on AI Vehicle");
 			local oldControlledVehicle = nil;
 			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
 				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle;
@@ -221,6 +222,7 @@ function AutoDrive:onActivateObject(superFunc,vehicle)
 			g_currentMission.controlledVehicle = vehicle;
 
 			superFunc(self, vehicle);
+			--print("Called on AI Vehicle - Done");
 
 			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
 				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle;
@@ -326,7 +328,6 @@ function init(self)
 	self.ad.timeTillDeadLock = 15000;
 	self.ad.inDeadLockRepairCounter = 4;
 	
-	self.ad.stopAD = false;
 	self.ad.creatingMapMarker = false;
 	self.ad.enteringMapMarker = false;
 	self.ad.enteredMapMarkerString = "";
@@ -345,7 +346,6 @@ function init(self)
 	self.ad.isUnloading = false;
 	self.ad.isPaused = false;
 	self.ad.unloadSwitch = false;
-	self.ad.unloadType = -1;
 	self.ad.isLoading = false;
 	self.ad.unloadFillTypeIndex = 2;
 
@@ -502,7 +502,8 @@ function AutoDrive:InputHandling(vehicle, input)
 
 	if input == "input_start_stop" then
 		if AutoDrive:isActive(vehicle) then
-			AutoDrive:stopAD(vehicle);
+			AutoDrive:disableAutoDriveFunctions(vehicle)
+			--AutoDrive:stopAD(vehicle);
 		else
 			AutoDrive:startAD(vehicle);
 		end;
@@ -694,24 +695,21 @@ function AutoDrive:graphcopy(Graph)
 		end;
 		
 		
-		Q[i] = createNode(id,out,incoming,out_cost, marker);
-		
-		Q[i].x = Graph[i].x;
-		Q[i].y = Graph[i].y;
-		Q[i].z = Graph[i].z;
-		
+		Q[i] = createNode(id, Graph[i].x, Graph[i].y, Graph[i].z, out,incoming,out_cost, marker);		
 	end;
 	return Q;
 end;
 
-function createNode(id,out,incoming,out_cost, marker)
+function createNode(id,x,y,z,out,incoming,out_cost, marker)
 	local p = {};
+	p["x"] = x;
+	p["y"] = y;
+	p["z"] = z;
 	p["id"] = id;
 	p["out"] = out;
 	p["incoming"] = incoming;
 	p["out_cost"] = out_cost;
 	p["marker"] = marker;
-	--p["coords"] = coords;
 	
 	return p;
 end
@@ -779,7 +777,7 @@ function AutoDrive:onUpdate(dt)
 	if self.ad == nil then
 		init(self);
 	end;
-	
+
 	if self.ad.oldControlledVehicle ~= nil then
 		--print("Reinstalling controlled vehicle")
 		g_currentMission.controlledVehicle = self.ad.oldControlledVehicle;
@@ -956,7 +954,7 @@ function AutoDrive:onDraw()
 			if self.ad.wayPoints[n+1] ~= nil then				
 				AutoDrive:drawLine(self.ad.wayPoints[n], self.ad.wayPoints[n+1], newColor(1,1,1,1));
 			else
-				AutoDrive:drawLine(self.ad.wayPoints[n], createVector(self.ad.wayPoints[n].x, self.ad.wayPoints[n].y+2, self.ad.wayPoints[n].z), newColor(1,1,1,1));
+				AutoDrive:drawLine(self.ad.wayPoints[n], createVector(self.ad.wayPoints[n].x, self.ad.wayPoints[n].y+0.3, self.ad.wayPoints[n].z), newColor(1,1,1,1));
 			end;
 		end;
 	end;

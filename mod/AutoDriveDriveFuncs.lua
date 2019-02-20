@@ -46,10 +46,10 @@ end;
 
 function AutoDrive:checkActiveAttributesSet(vehicle)
     if vehicle.ad.isActive == true and vehicle.isServer then
-        --vehicle.forceIsActive = true;
+        vehicle.forceIsActive = true;
         vehicle.spec_motorized.stopMotorOnLeave = false;
         vehicle.spec_enterable.disableCharacterOnLeave = false;
-        vehicle.spec_aiVehicle.isActive = true
+        --vehicle.spec_aiVehicle.isActive = true
         
         if vehicle.steeringEnabled == true then
             vehicle.steeringEnabled = false;
@@ -69,19 +69,21 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
     end;
     
     if vehicle.ad.isActive == false then       
-        --vehicle.spec_aiVehicle.isActive = false;
+        if vehicle.currentHelper == nil then
+            --vehicle.spec_aiVehicle.isActive = false;
 
-        if vehicle.steeringEnabled == false then
-            vehicle.steeringEnabled = true;
-        end
+            if vehicle.steeringEnabled == false then
+                vehicle.steeringEnabled = true;
+            end
+        end;
     end;
 end;
 
 function AutoDrive:checkForDeadLock(vehicle, dt)
-    if vehicle.ad.isActive == true and vehicle.isServer then		
+    if vehicle.ad.isActive == true and vehicle.isServer and vehicle.ad.isStopping == false then		
         vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt;
 		if vehicle.ad.timeTillDeadLock < 0 and vehicle.ad.timeTillDeadLock ~= -1 then
-			print("Deadlock reached due to timer");
+			--print("Deadlock reached due to timer");
 			vehicle.ad.inDeadLock = true;
 		end;		
 	else
@@ -223,7 +225,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
                 else
-                    print("Autodrive hat ein Problem beim Rundkurs festgestellt");
+                    --print("Autodrive hat ein Problem beim Rundkurs festgestellt");
                     AutoDrive:stopAD(vehicle);
                 end;
             end;
@@ -383,7 +385,6 @@ function AutoDrive:handleDeadlock(vehicle, dt)
 			AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
 			AutoDrive.nPrintTime = 10000;
             AutoDrive:stopAD(vehicle);
-			vehicle.ad.isActive = false;
 		else
 			--print("AD: Trying to recover from deadlock")
 			if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] ~= nil then

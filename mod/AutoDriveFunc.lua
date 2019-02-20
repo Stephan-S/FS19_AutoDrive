@@ -2,7 +2,7 @@ function AutoDrive:startAD(vehicle)
     vehicle.ad.isActive = true;
     vehicle.ad.creationMode = false;
     
-    --vehicle.forceIsActive = true;
+    vehicle.forceIsActive = true;
     vehicle.spec_motorized.stopMotorOnLeave = false;
     vehicle.spec_enterable.disableCharacterOnLeave = false;
     vehicle.currentHelper = g_helperManager:getRandomHelper()
@@ -13,8 +13,10 @@ function AutoDrive:startAD(vehicle)
     end
     
     if vehicle.steeringEnabled == true then
-        vehicle.steeringEnabled = false;
-    end
+       vehicle.steeringEnabled = false;
+	end
+	
+	vehicle.spec_aiVehicle.aiTrafficCollision = nil;
 end;
 
 function AutoDrive:stopAD(vehicle)
@@ -29,28 +31,39 @@ function AutoDrive:stopVehicle(vehicle, dt)
     if vehicle.ad.isStopping then
         AutoDrive:getVehicleToStop(vehicle, dt);
     else       
-        vehicle.ad.currentWayPoint = 0;
-        vehicle.ad.drivingForward = true;
-        vehicle.ad.isActive = false;
-        
-        vehicle.spec_aiVehicle.isActive = false;
-        vehicle.ad.isUnloading = false;
-        vehicle.ad.isLoading = false;
- 
-        vehicle.forceIsActive = false;
-        vehicle.spec_motorized.stopMotorOnLeave = true;
-        vehicle.spec_enterable.disableCharacterOnLeave = true;
-        vehicle.currentHelper = nil
-                        
-        vehicle.ad.initialized = false;
-        vehicle.ad.lastSpeed = 10;
-        if vehicle.steeringEnabled == false then
-            vehicle.steeringEnabled = true;
-        end
-
-        vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF);
+        AutoDrive:disableAutoDriveFunctions(vehicle);
     end;
 end;
+
+function AutoDrive:disableAutoDriveFunctions(vehicle) 
+	vehicle.ad.currentWayPoint = 0;
+	vehicle.ad.drivingForward = true;
+	vehicle.ad.isActive = false;
+	vehicle.ad.isPaused = false;
+
+	vehicle.spec_aiVehicle.isActive = false;
+	vehicle.ad.isUnloading = false;
+	vehicle.ad.isLoading = false;
+
+	vehicle.forceIsActive = false;
+	vehicle.spec_motorized.stopMotorOnLeave = true;
+	vehicle.spec_enterable.disableCharacterOnLeave = true;
+	vehicle.currentHelper = nil
+
+	if vehicle.restoreVehicleCharacter ~= nil then
+		vehicle:restoreVehicleCharacter()
+	end
+					
+	vehicle.ad.initialized = false;
+	vehicle.ad.lastSpeed = 10;
+	if vehicle.steeringEnabled == false then
+		vehicle.steeringEnabled = true;
+	end
+
+	vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF);
+
+	vehicle:requestActionEventUpdate();
+end
 
 function AutoDrive:getVehicleToStop(vehicle, dt)
 	local finalSpeed = 0;
