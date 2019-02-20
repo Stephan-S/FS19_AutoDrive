@@ -136,13 +136,10 @@ function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 		
 		--edit current point
 		--print("Creating Waypoint #" .. AutoDrive.mapWayPointsCounter);
-		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter] = createNode(AutoDrive.mapWayPointsCounter,{},{},{},{});
+		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter] = createNode(AutoDrive.mapWayPointsCounter,x, y, z, {},{},{},{});
 		if connectPrevious then
 			AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].incoming[1] = AutoDrive.mapWayPointsCounter-1;
 		end;
-		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].x = x;
-		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].y = y;
-		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].z = z;
 	end;
 	if vehicle.ad.creationModeDual == true then
 		local incomingNodes = 1;
@@ -169,7 +166,7 @@ function AutoDrive:handleRecording(vehicle)
 	--first entry
 	if i == 1 then
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
-		vehicle.ad.wayPoints[i] = createVector(x1,y1,z1);
+		vehicle.ad.wayPoints[i] = createNode(i,x1, y1, z1, {},{},{},{});
 		
 		if vehicle.ad.createMapPoints == true then
 			AutoDrive:createWayPoint(vehicle, x1, y1, z1, false, vehicle.ad.creationModeDual)		
@@ -181,7 +178,7 @@ function AutoDrive:handleRecording(vehicle)
 			local x,y,z = getWorldTranslation(vehicle.components[1].node);
 			local wp = vehicle.ad.wayPoints[i-1];
 			if getDistance(x,z,wp.x,wp.z) > 3 then
-				vehicle.ad.wayPoints[i] = createVector(x,y,z);
+				vehicle.ad.wayPoints[i] = createNode(i,x, y, z, {},{},{},{});
 				if vehicle.ad.createMapPoints == true then
 					AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)		
 				end;
@@ -203,7 +200,7 @@ function AutoDrive:handleRecording(vehicle)
 			if angle >= 15 and angle < 50 then max_distance = 0.5; end;
 
 			if getDistance(x,z,wp.x,wp.z) > max_distance then
-				vehicle.ad.wayPoints[i] = createVector(x,y,z);
+				vehicle.ad.wayPoints[i] = createNode(i,x, y, z, {},{},{},{});
 				if vehicle.ad.createMapPoints == true then
 					AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)		
 				end;
