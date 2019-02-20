@@ -55,16 +55,16 @@ function AutoDrive:createLineObject()
 end;
 
 function AutoDrive:parameterizeLine(line, startPoint, targetPoint, color, visible)
-    setTranslation(line, startPoint.x, startPoint.y+3, startPoint.z);
+    setTranslation(line, startPoint.x, startPoint.y+0.3, startPoint.z);
     
     setVisibility(line, visible);
 
     --- Get the direction to the end point
-    local dirX, _, dirZ, distToNextPoint = AutoDrive:getWorldDirection(startPoint.x, startPoint.y + 4 , startPoint.z, targetPoint.x, targetPoint.y+4, targetPoint.z);
+    local dirX, _, dirZ, distToNextPoint = AutoDrive:getWorldDirection(startPoint.x, startPoint.y + 0.3 , startPoint.z, targetPoint.x, targetPoint.y+0.3, targetPoint.z);
     --- Get Y rotation
     local rotY = MathUtil.getYRotationFromDirection(dirX, dirZ);
     --- Get X rotation
-    local dy = (targetPoint.y+4) - (startPoint.y+4);
+    local dy = (targetPoint.y+0.3) - (startPoint.y+0.3);
     local dist2D = MathUtil.vector2Length(targetPoint.x - startPoint.x, targetPoint.z - startPoint.z);
     local rotX = -MathUtil.getYRotationFromDirection(dy, dist2D);
 
