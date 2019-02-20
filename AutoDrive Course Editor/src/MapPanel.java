@@ -60,7 +60,7 @@ public class MapPanel extends JPanel{
                             g.setColor(Color.RED);
                         }
                         Point2D outPos = worldPosToScreenPos((int) outgoing.x + 1024, (int) outgoing.z + 1024);
-                        g.drawLine((int) (nodePos.getX()), (int) (nodePos.getY()), (int) (outPos.getX()), (int) (outPos.getY()));
+                        drawArrowBetween(g, nodePos, outPos, dual);
                     }
                 }
 
@@ -279,6 +279,58 @@ public class MapPanel extends JPanel{
             roadMap.removeMapNode(node);
         }
 
+    }
+
+    public void drawArrowBetween(Graphics g, Point2D start, Point2D target, boolean dual) {
+        double vecX = start.getX() - target.getX();
+        double vecY = start.getY() - target.getY();
+
+        double angleRad = Math.atan2(vecY, vecX);
+
+        angleRad = normalizeAngle(angleRad);
+
+        double arrowLength = 1.3 * zoomLevel;
+
+        double arrowLeft = normalizeAngle(angleRad + Math.toRadians(-20));
+        double arrowRight = normalizeAngle(angleRad + Math.toRadians(20));
+
+        double arrowLeftX = target.getX() + Math.cos(arrowLeft) * arrowLength;
+        double arrowLeftY = target.getY() + Math.sin(arrowLeft) * arrowLength;
+
+        double arrowRightX = target.getX() + Math.cos(arrowRight) * arrowLength;
+        double arrowRightY = target.getY() + Math.sin(arrowRight) * arrowLength;
+
+        g.drawLine((int) (start.getX()), (int) (start.getY()), (int) (target.getX()), (int) (target.getY()));
+        g.drawLine((int) (target.getX()), (int) (target.getY()), (int) arrowLeftX, (int) arrowLeftY);
+        g.drawLine((int) (target.getX()), (int) (target.getY()), (int) arrowRightX, (int) arrowRightY);
+
+        if (dual) {
+            angleRad = normalizeAngle(angleRad+Math.PI);
+
+            arrowLeft = normalizeAngle(angleRad + Math.toRadians(-20));
+            arrowRight = normalizeAngle(angleRad + Math.toRadians(20));
+
+            arrowLeftX = start.getX() + Math.cos(arrowLeft) * arrowLength;
+            arrowLeftY = start.getY() + Math.sin(arrowLeft) * arrowLength;
+            arrowRightX = start.getX() + Math.cos(arrowRight) * arrowLength;
+            arrowRightY = start.getY() + Math.sin(arrowRight) * arrowLength;
+
+            g.drawLine((int) (start.getX()), (int) (start.getY()), (int) arrowLeftX, (int) arrowLeftY);
+            g.drawLine((int) (start.getX()), (int) (start.getY()), (int) arrowRightX, (int) arrowRightY);
+        }
+    }
+
+    public double normalizeAngle(double input) {
+        if (input > (2*Math.PI)) {
+            input = input - (2*Math.PI);
+        }
+        else {
+            if (input < -(2*Math.PI)) {
+                input = input + (2*Math.PI);
+            }
+        }
+
+        return input;
     }
 
 }

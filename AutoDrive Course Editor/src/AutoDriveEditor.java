@@ -275,7 +275,12 @@ public class AutoDriveEditor extends JFrame {
 
                         MapNode markerTarget = null;
                         if (Integer.parseInt(markerIDs[markerIndex])-1 >= 0) {
-                            markerTarget = nodes.get(Integer.parseInt(markerIDs[markerIndex])-1);
+                            if (Integer.parseInt(markerIDs[markerIndex]) < nodes.size()) {
+                                markerTarget = nodes.get(Integer.parseInt(markerIDs[markerIndex]) - 1);
+                            }
+                            else {
+                                markerTarget = null;
+                            }
                         }
                         mapNode.directions.put(mapMarker , markerTarget);
                     }
