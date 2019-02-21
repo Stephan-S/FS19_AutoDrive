@@ -1,5 +1,5 @@
 function AutoDrive:handleTrailers(vehicle, dt)
-    if vehicle.ad.isActive == true and vehicle.ad.unloadAtTrigger == true and vehicle.isServer == true then
+    if vehicle.ad.isActive == true and (vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER) and vehicle.isServer == true then
         local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);        			
 		--print("Autodrive detected trailers: " .. trailerCount);			
 
@@ -18,6 +18,9 @@ function AutoDrive:handleTrailers(vehicle, dt)
         --check distance to unloading destination, do not unload too far from it. You never know where the tractor might already drive over an unloading trigger before that
         local x,y,z = getWorldTranslation(vehicle.components[1].node);
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
+        if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+            destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
+        end;
         local distance = getDistance(x,z, destination.x, destination.z);
         if distance < 20 then
             for _,trailer in pairs(trailers) do

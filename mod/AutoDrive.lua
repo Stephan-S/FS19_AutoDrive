@@ -8,6 +8,12 @@ AutoDrive.actions   = { 'ADToggleMouse', 'ADToggleHud', 'ADEnDisable', 'ADSelect
 						'ADDebugChangeNeighbor', 'ADDebugCreateConnection', 'ADDebugCreateMapMarker', 'ADDebugDeleteWayPoint',
 						'ADDebugForceUpdate', 'ADDebugDeleteDestination' }
 
+AutoDrive.drawHeight = 0.3;
+
+AutoDrive.MODE_DRIVETO = 1;
+AutoDrive.MODE_COMPACTSILO = 2;
+AutoDrive.MODE_PICKUPANDDELIVER = 3;
+AutoDrive.MODE_DELIVERTO = 4;
 
 function AutoDrive:prerequisitesPresent(specializations)
     return true;
@@ -77,7 +83,9 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectNextFillType', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)	
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousFillType', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)			
+		g_inputBinding:setActionEventTextVisibility(eventName, false)		
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADRecord', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)		
 	end
 end
 
@@ -278,7 +286,9 @@ end
 
 function AutoDrive:saveSavegame()
 	if AutoDrive:GetChanged() == true or AutoDrive.HudChanged then
-		AutoDrive:saveToXML(AutoDrive.adXml);
+		AutoDrive:saveToXML(AutoDrive.adXml);	
+		AutoDrive.config_changed = false;
+		AutoDrive.HudChanged = false;
 	else
 		if AutoDrive.adXml ~= nil then
 			saveXMLFile(AutoDrive.adXml);
@@ -292,7 +302,6 @@ function init(self)
 	end;
 	 
 	self.ad.isActive = false;
-	self.ad.roundTrip = false;
 	self.ad.reverseTrack = false;
 	self.ad.drivingForward = true;
 	self.ad.targetX = 0;
@@ -316,10 +325,10 @@ function init(self)
 			self.ad.nameOfSelectedTarget = AutoDrive.mapMarker[1].name;
 		end;	
 	end;
-	self.ad.targetMode = true;
+	self.ad.mode = AutoDrive.MODE_DRIVETO;
 	self.ad.targetSpeed = 40;
 	self.ad.createMapPoints = false;
-	self.ad.showMapMarker = true;
+	self.ad.showClosestPoint = true;
 	self.ad.selectedDebugPoint = -1;
 	self.ad.showSelectedDebugPoint = false;
 	self.ad.changeSelectedDebugPoint = false;
@@ -342,7 +351,6 @@ function init(self)
 	self.ad.lastSpeed = self.ad.targetSpeed;
 	self.ad.speedOverride = nil;
 
-	self.ad.unloadAtTrigger = false;
 	self.ad.isUnloading = false;
 	self.ad.isPaused = false;
 	self.ad.unloadSwitch = false;
@@ -386,11 +394,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADSilomode" then			
 		--print("sending event to InputHandling");
 		AutoDrive:InputHandling(self, "input_silomode");
-	end;
-	if actionName == "ADRoundtrip" then
-		AutoDrive:InputHandling(self, "input_roundtrip");			
-	end; 
-	
+	end;	
 	if actionName == "ADRecord" then
 		AutoDrive:InputHandling(self, "input_record");			
 	end; 
@@ -424,7 +428,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end; 
 	
 	if actionName == "ADDebugSelectNeighbor" then 
-		AutoDrive:InputHandling(self, "input_showNeighbor");			
+		AutoDrive:InputHandling(self, "input_showClosest");			
 	end; 
 	if actionName == "ADDebugCreateConnection" then 
 		AutoDrive:InputHandling(self, "input_toggleConnection");			
@@ -492,10 +496,6 @@ function AutoDrive:InputHandling(vehicle, input)
 		AutoDrive:inputSiloMode(vehicle);
 	end;
 
-	if input == "input_roundtrip" then
-		AutoDrive:inputRoundTrip(vehicle)
-	end;
-
 	if input == "input_record" and g_server ~= nil and g_dedicatedServerInfo == nil then
 		AutoDrive:inputRecord(vehicle)
 	end;
@@ -530,13 +530,9 @@ function AutoDrive:InputHandling(vehicle, input)
 	end;
 
 	if input == "input_showClosest" and g_server ~= nil and g_dedicatedServerInfo == nil then
-		if vehicle.ad.showMapMarker == false then
-			vehicle.ad.showMapMarker = true;
-		else
-			vehicle.ad.showMapMarker = false;
-		end;
+		AutoDrive:inputShowClosest(vehicle);
 
-		AutoDrive.Hud:updateSingleButton("input_showClosest", vehicle.ad.showMapMarker)
+		AutoDrive.Hud:updateSingleButton("input_showClosest", vehicle.ad.showClosestPoint)
 	end;
 
 	if input == "input_showNeighbor" and g_server ~= nil and g_dedicatedServerInfo == nil then
@@ -578,7 +574,7 @@ function AutoDrive:InputHandling(vehicle, input)
 	end;
 
 	if input == "input_removeWaypoint" and g_server ~= nil and g_dedicatedServerInfo == nil then
-		if vehicle.ad.showMapMarker == true and AutoDrive.mapWayPoints[1] ~= nil then
+		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 			local closest = AutoDrive:findClosestWayPoint(vehicle)
 			AutoDrive:removeMapWayPoint( AutoDrive.mapWayPoints[closest] );
 		end;
@@ -586,7 +582,7 @@ function AutoDrive:InputHandling(vehicle, input)
 	end;
 
 	if input == "input_removeDestination" and g_server ~= nil and g_dedicatedServerInfo == nil then
-		if vehicle.ad.showMapMarker == true and AutoDrive.mapWayPoints[1] ~= nil then
+		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 			local closest = AutoDrive:findClosestWayPoint(vehicle)
 			AutoDrive:removeMapMarker( AutoDrive.mapWayPoints[closest] );
 		end;
@@ -954,7 +950,7 @@ function AutoDrive:onDraw()
 			if self.ad.wayPoints[n+1] ~= nil then				
 				AutoDrive:drawLine(self.ad.wayPoints[n], self.ad.wayPoints[n+1], newColor(1,1,1,1));
 			else
-				AutoDrive:drawLine(self.ad.wayPoints[n], createVector(self.ad.wayPoints[n].x, self.ad.wayPoints[n].y+0.3, self.ad.wayPoints[n].z), newColor(1,1,1,1));
+				--AutoDrive:drawLine(self.ad.wayPoints[n], createVector(self.ad.wayPoints[n].x, self.ad.wayPoints[n].y+0.3, self.ad.wayPoints[n].z), newColor(1,1,1,1));
 			end;
 		end;
 	end;
@@ -1021,14 +1017,21 @@ function AutoDrive:onDrawCreationMode(vehicle)
 		end;
 	end;
 
-	if vehicle.ad.showMapMarker == true and AutoDrive.mapWayPoints[1] ~= nil then
+	if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 		local closest = AutoDrive:findClosestWayPoint(vehicle);
-		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);					
-		AutoDrive:drawLine(createVector(x1,y1,z1), AutoDrive.mapWayPoints[closest], newColor(1,0,0,1));
+		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
+		
+		if vehicle.ad.showClosestPoint == true then					
+			AutoDrive:drawLine(createVector(x1,y1+4,z1), AutoDrive.mapWayPoints[closest], newColor(1,0,0,1));
+		end;
+	end;
 
+	if vehicle.ad.showSelectedDebugPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
+		local closest = AutoDrive:findClosestWayPoint(vehicle);
+		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
 		if vehicle.ad.showSelectedDebugPoint == true then
 			if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
-				AutoDrive:drawLine(createVector(x1,y1,z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], newColor(1,1,0,1));
+				AutoDrive:drawLine(createVector(x1,y1+4,z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], newColor(1,1,0,1));
 			end;
 		end;
 	end;

@@ -187,10 +187,10 @@ function AutoDriveHud:updateButtons(vehicle)
 	for _,button in pairs(self.Buttons) do
 		if button.name == "input_silomode" then
 			local buttonImg = "";
-			if vehicle.ad.reverseTrack == true then
+			if vehicle.ad.mode == AutoDrive.MODE_COMPACTSILO then
 				button.img_active = button.img_on;						
 			else
-				if vehicle.ad.unloadAtTrigger == true then
+				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then 
 					button.img_active = button.img_3;
 				else
 					button.img_active = button.img_off;
@@ -425,7 +425,7 @@ function AutoDriveHud:drawHud(vehicle)
 			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
 
-		if vehicle.ad.unloadAtTrigger == true then
+		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;

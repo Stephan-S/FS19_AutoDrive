@@ -160,24 +160,24 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
 	local x,y,z = getWorldTranslation( vehicle.components[1].node );
 	--create bounding box to check for vehicle
 	local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
-	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);
-	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz) };
+	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
+	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
 	local width = vehicle.sizeWidth;
 	local length = vehicle.sizeLength;
 	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
 	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
 	local boundingBox = {};
     boundingBox[1] ={ 	x = x + (width/2) * ortho.x,
-                        y = y,
+                        y = y+2,
 						z = z + (width/2) * ortho.z};
 	boundingBox[2] ={ 	x = x - (width/2) * ortho.x,
-                        y = y,
+                        y = y+2,
 						z = z - (width/2) * ortho.z};
 	boundingBox[3] ={ 	x = x - (width/2) * ortho.x +  (length/2 + lookAheadDistance) * vehicleVector.x,
-                        y = y,
+                        y = y+2,
 						z = z - (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z };
 	boundingBox[4] ={ 	x = x + (width/2) * ortho.x +  (length/2 + lookAheadDistance) * vehicleVector.x,
-                        y = y,
+                        y = y+2,
 						z = z + (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z};
 
 	

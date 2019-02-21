@@ -32,7 +32,6 @@
 		<text name="input_ADToggleMouse"> 						<en>AD: Toggle Mouse</en> 						<de>AD: Maus ein/ausblenden</de>			<it>AD: Mouse mostra/nascondi</it>						</text>
 		<text name="input_ADEnDisable"> 						<en>AD: En/Disable</en> 						<de>AD: Ein/Ausschalten</de>				<it>AD: Abilita/Disabilita</it>							</text>
 		<text name="input_ADSilomode">  						<en>AD: Change mode</en>  						<de>AD: Modus wechseln</de>					<it>AD: Cambia modo</it>								</text>
-		<text name="input_ADRoundtrip"> 						<en>AD: Roundtrip</en>  						<de>AD: Rundkurs</de>						<it>AD: Viaggio</it>									</text>
 		<text name="input_ADRecord">  							<en>AD: Record</en>  							<de>AD: Aufzeichnen</de>					<it>AD:	Registra</it>									</text>
 		<text name="input_ADSelectTarget">						<en>AD: Select Next Target</en>  				<de>AD: Ziel wählen</de>					<it>AD: Seleziona prossima destinazione</it>			</text>
 		<text name="input_ADSelectPreviousTarget">				<en>AD: Select Previous Target</en>  			<de>AD: Voriges Ziel wählen</de>			<it>AD: Seleziona precedente destinazione</it>			</text>
@@ -65,8 +64,6 @@
 		
 		<text name="AD_Silomode_on">	<en>Silomode on</en>  					<de>Silomodus an</de>				<it>Modo silo on</it>				</text>	
 		<text name="AD_Silomode_off">	<en>Silomode off</en>  					<de>Silomodus aus</de>				<it>Modo silo off</it>				</text>	
-		<text name="AD_Roundtrip_off">	<en>Roundtrip off</en>  				<de>Rundkurs aus</de>				<it>Viaggio on</it>					</text>	
-		<text name="AD_Roundtrip_on">	<en>Roundtrip on</en>  					<de>Rundkurs an</de>				<it>Viaggio off</it>				</text>	
 		<text name="AD_Recording_off">	<en>Stopped Recording</en>  			<de>Aufzeichnen beendet</de>		<it>Registrazione fermata</it>		</text>	
 		<text name="AD_Recording_on">	<en>Started Recording</en>  			<de>Aufzeichnen gestartet</de>		<it>Registrazione avviata</it>		</text>	
 		
@@ -240,6 +237,7 @@
 		<action name="ADDebugDeleteDestination" 	category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADSelectNextFillType" 		category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADSelectPreviousFillType" 	category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADRecord"	 					category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 	
 	<inputBindings>
@@ -312,6 +310,10 @@
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>
 		<actionBinding action="ADSelectPreviousFillType">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="ADRecord">
 			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>

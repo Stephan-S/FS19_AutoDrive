@@ -3,9 +3,9 @@ function AutoDrive:loadStoredXML()
 	local path = g_currentMission.missionInfo.savegameDirectory;
 	local file = "";
 	if path ~= nil then
-		file = path .."/AutoDrive_config.xml";
+		file = path .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 	else
-		file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex  .. "/AutoDrive_config.xml";
+		file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex  .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 	end;
 	local tempXml = nil;
 	
@@ -20,7 +20,7 @@ function AutoDrive:loadStoredXML()
 			print("AD: Version Check or Map check failed - Loading init config");
 
 			path = getUserProfileAppPath();
-			file = path .. "/mods/FS19_AutoDrive/AutoDrive_init_config.xml";				
+			file = path .. "/mods/FS19_AutoDrive/AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml";				
 
 			tempXml = loadXMLFile("AutoDrive_XML_temp", file);--, "AutoDrive");
 			local MapCheckInit= hasXMLProperty(tempXml, "AutoDrive." .. AutoDrive.loadedMap);
@@ -33,7 +33,7 @@ function AutoDrive:loadStoredXML()
 		end;				
 	else --create std file instead:
 		path = getUserProfileAppPath();
-		file = path .. "/mods/FS19_AutoDrive/AutoDrive_init_config.xml";
+		file = path .. "/mods/FS19_AutoDrive/AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml";
 		
 		print("AD: Loading xml file from init config");
 		tempXml = loadXMLFile("AutoDrive_XML_temp", file);
@@ -45,9 +45,9 @@ function AutoDrive:loadStoredXML()
 		
 		path = g_currentMission.missionInfo.savegameDirectory;
 		if path ~= nil then
-			file = path .."/AutoDrive_config.xml";
+			file = path .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 		else
-			file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex  .. "/AutoDrive_config.xml";
+			file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex  .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 		end;
 		print("AD: creating xml file at " .. file);
 		adXml = createXMLFile("AutoDrive_XML", file, "AutoDrive");
@@ -253,6 +253,41 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 	if recalculateString == "false" then
 		recalculate = false;
+	end;
+end;
+
+function AutoDrive:ExportRoutes()
+	path = getUserProfileAppPath();
+	file = path .. "/FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
+
+	createFolder(path .. "/FS19_AutoDrive_Export");
+	
+	print("AD: Storing to xml file : " .. file);
+	print("AD: creating xml file at " .. file);
+	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive");			
+	saveXMLFile(adXml);
+	AutoDrive:saveToXML(adXml);
+	print("AD: Finished exporting routes");
+end;
+
+function AutoDrive:ImportRoutes()
+	path = getUserProfileAppPath();
+	file = path .. "/FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
+
+	createFolder(path .. "/FS19_AutoDrive_Import");
+
+	if fileExists(file) then
+		print("AD: Loading xml file from " .. file);
+		AutoDrive.xmlSaveFile = file;
+		adXml = loadXMLFile("AutoDrive_XML", file);
+		
+		local VersionCheck = getXMLString(adXml, "AutoDrive.version");
+		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap);
+		if VersionCheck == nil or MapCheck == false then
+			print("AD: Version Check or Map check failed - cannot import");
+		else
+			AutoDrive:readFromXML(adXml);
+		end;
 	end;
 end;
 

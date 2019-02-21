@@ -1,51 +1,32 @@
 function AutoDrive:inputSiloMode(vehicle)
-    if vehicle.ad.targetMode == true and vehicle.ad.unloadAtTrigger == false then
-        if g_server ~= nil and g_dedicatedServerInfo == nil then
-            vehicle.ad.reverseTrack = true;
-            vehicle.ad.drivingForward = true;
-            vehicle.ad.targetMode = false;
-            vehicle.ad.roundTrip = false;
-            vehicle.savedSpeed = vehicle.ad.targetSpeed;
-            vehicle.ad.targetSpeed = 15;
-            vehicle.ad.unloadAtTrigger = false;
-        end;
-    else
-        if vehicle.ad.reverseTrack == true then
-            vehicle.ad.reverseTrack = false;
-            vehicle.ad.drivingForward = true;
-            vehicle.ad.targetMode = true;
-            vehicle.ad.roundTrip = false;
-            vehicle.ad.unloadAtTrigger = true;
-
-            if vehicle.savedSpeed ~= nil then
-                vehicle.ad.targetSpeed = vehicle.savedSpeed;
-                vehicle.savedSpeed = nil;
-            end;
-        else
-            if vehicle.ad.targetMode == true and vehicle.ad.unloadAtTrigger == true then
-                vehicle.ad.reverseTrack = false;
-                vehicle.ad.drivingForward = true;
-                vehicle.ad.targetMode = true;
-                vehicle.ad.roundTrip = false;
-                vehicle.ad.unloadAtTrigger = false;
-                if vehicle.savedSpeed ~= nil then
-                    vehicle.ad.targetSpeed = vehicle.savedSpeed;
-                    vehicle.savedSpeed = nil;
-                end;
-            end;
-        end;
+    vehicle.ad.mode = vehicle.ad.mode + 1;
+    if vehicle.ad.mode > 4 then
+        vehicle.ad.mode = 1;
     end;
+    AutoDrive:enableCurrentMode(vehicle);
 end;
 
-function AutoDrive:inputRoundTrip(vehicle)
-    if vehicle.ad.roundTrip == false then
-        vehicle.ad.roundTrip = true;
-        vehicle.ad.targetSpeed = 40;
-        vehicle.ad.targetMode = false;
-        vehicle.ad.reverseTrack = false;
+function AutoDrive:enableCurrentMode(vehicle)
+    if vehicle.ad.mode == AutoDrive.MODE_DRIVETO then
+        vehicle.ad.drivingForward = true;
+    elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+        vehicle.ad.drivingForward = true;
+    elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        vehicle.ad.drivingForward = true;     
+    elseif vehicle.ad.mode == AutoDrive.MODE_COMPACTSILO then
+        vehicle.ad.drivingForward = true;
+        vehicle.ad.savedSpeed = vehicle.ad.targetSpeed;
+        vehicle.ad.targetSpeed = 15;
+    end;
 
-    else
-        vehicle.ad.roundTrip = false;
+    if vehicle.ad.mode ~= AutoDrive.MODE_COMPACTSILO then
+        if vehicle.ad.savedSpeed ~= nil then
+            vehicle.ad.targetSpeed = vehicle.ad.savedSpeed;
+            vehicle.savedSpeed = nil;
+        end;
+        if vehicle.ad.targetSpeed == 15 then
+            vehicle.ad.targetSpeed = 40;
+        end;
     end;
 end;
 
@@ -77,25 +58,14 @@ function AutoDrive:inputNextTarget(vehicle)
             vehicle.ad.mapMarkerSelected = 1
 
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            if vehicle.ad.targetSpeed == 15 then
-                vehicle.ad.targetSpeed = 40;
-            end;
             vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-            vehicle.ad.targetMode = true;
-            vehicle.ad.roundTrip = false;
-            vehicle.ad.reverseTrack = false;
-            vehicle.ad.drivingForward = true;
         else
             vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected + 1;
             if vehicle.ad.mapMarkerSelected > AutoDrive.mapMarkerCounter then
                 vehicle.ad.mapMarkerSelected = 1;
             end;
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-            if vehicle.ad.targetSpeed == 15 then
-                vehicle.ad.targetSpeed = 40;
-            end;
-            vehicle.ad.targetMode = true;
+            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;            
         end;
     end;
 end;
@@ -106,12 +76,7 @@ function AutoDrive:inputPreviousTarget(vehicle)
             vehicle.ad.mapMarkerSelected = AutoDrive.mapMarkerCounter;
 
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            if vehicle.ad.targetSpeed == 15 then
-                vehicle.ad.targetSpeed = 40;
-            end;
             vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-            vehicle.ad.targetMode = true;
-
         else
             vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1;
             if vehicle.ad.mapMarkerSelected < 1 then
@@ -119,10 +84,6 @@ function AutoDrive:inputPreviousTarget(vehicle)
             end;
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
             vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-            if vehicle.ad.targetSpeed == 15 then
-                vehicle.ad.targetSpeed = 40;
-            end;
-            vehicle.ad.targetMode = true;
         end;
     end;
 end;
@@ -240,8 +201,12 @@ function AutoDrive:inputShowNeighbors(vehicle)
     AutoDrive.Hud:updateSingleButton("input_showNeighbor", vehicle.ad.showSelectedDebugPoint)
 end;
 
+function AutoDrive:inputShowClosest(vehicle)
+    vehicle.ad.showClosestPoint = not vehicle.ad.showClosestPoint;
+end;
+
 function AutoDrive:inputCreateMapMarker(vehicle)
-    if vehicle.ad.showMapMarker == true then
+    if vehicle.ad.showClosestPoint == true then
         if vehicle.ad.creatingMapMarker == false then
             vehicle.ad.creatingMapMarker  = true;
             vehicle.ad.enteringMapMarker = true;

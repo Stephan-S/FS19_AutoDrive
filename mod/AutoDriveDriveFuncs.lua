@@ -133,7 +133,7 @@ end;
 
 function AutoDrive:initializeAD(vehicle)
     vehicle.ad.timeTillDeadLock = 15000;
-    if vehicle.ad.targetMode == true then
+    if vehicle.ad.mode ~= AutoDrive.MODE_COMPACTSILO then
         local closest = AutoDrive:findMatchingWayPoint(vehicle);
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
 		
@@ -183,52 +183,38 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
     else
         --print("Last waypoint reached");
-        if vehicle.ad.unloadAtTrigger == false then
-            if vehicle.ad.roundTrip == false then
-                --print("No Roundtrip");
-                if vehicle.ad.reverseTrack == true then
-                    --print("Starting reverse track");
-                    --reverse driving direction
-                    if vehicle.ad.drivingForward == true then
-                        vehicle.ad.drivingForward = false;
-                    else
-                        vehicle.ad.drivingForward = true;
-                    end;
-                    --reverse waypoints
-                    local reverseWaypoints = {};
-                    local _counterWayPoints = 0;
-                    for n in pairs(vehicle.ad.wayPoints) do
-                        _counterWayPoints = _counterWayPoints + 1;
-                    end;
-                    for n in pairs(vehicle.ad.wayPoints) do
-                        reverseWaypoints[_counterWayPoints] = vehicle.ad.wayPoints[n];
-                        _counterWayPoints = _counterWayPoints - 1;
-                    end;
-                    for n in pairs(reverseWaypoints) do
-                        vehicle.ad.wayPoints[n] = reverseWaypoints[n];
-                    end;
-                    --start again:
-                    vehicle.ad.currentWayPoint = 1
-                    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-                    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-
+        if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER then
+            if vehicle.ad.mode == AutoDrive.MODE_COMPACTSILO then
+                --reverse driving direction
+                if vehicle.ad.drivingForward == true then
+                    vehicle.ad.drivingForward = false;
                 else
-                    --print("Shutting down");
-                    
-                    AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. vehicle.ad.nameOfSelectedTarget);
-                    AutoDrive:stopAD(vehicle); 
+                    vehicle.ad.drivingForward = true;
                 end;
-            else
-                --print("Going into next round");
+                --reverse waypoints
+                local reverseWaypoints = {};
+                local _counterWayPoints = 0;
+                for n in pairs(vehicle.ad.wayPoints) do
+                    _counterWayPoints = _counterWayPoints + 1;
+                end;
+                for n in pairs(vehicle.ad.wayPoints) do
+                    reverseWaypoints[_counterWayPoints] = vehicle.ad.wayPoints[n];
+                    _counterWayPoints = _counterWayPoints - 1;
+                end;
+                for n in pairs(reverseWaypoints) do
+                    vehicle.ad.wayPoints[n] = reverseWaypoints[n];
+                end;
+                --start again:
                 vehicle.ad.currentWayPoint = 1
-                if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
-                    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-                    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                else
-                    --print("Autodrive hat ein Problem beim Rundkurs festgestellt");
-                    AutoDrive:stopAD(vehicle);
-                end;
-            end;
+                vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+                vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+
+            else
+                --print("Shutting down");
+                
+                AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. vehicle.ad.nameOfSelectedTarget);
+                AutoDrive:stopAD(vehicle); 
+            end;           
         else
             if vehicle.ad.unloadSwitch == true then
                 vehicle.ad.timeTillDeadLock = 15000;
@@ -313,7 +299,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         xl,yl,zl = worldToLocal(vehicle.components[1].node, wp_new.x,y,wp_new.z);
     end;
 
-    if vehicle.ad.unloadAtTrigger == true then
+    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
         local start = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
         local distance1 = getDistance(x,z, destination.x, destination.z);
