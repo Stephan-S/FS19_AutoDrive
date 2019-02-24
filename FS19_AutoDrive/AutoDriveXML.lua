@@ -32,8 +32,8 @@ function AutoDrive:loadStoredXML()
 			print("AD: Finished loading xml from memory");				
 		end;				
 	else --create std file instead:
-		path = getUserProfileAppPath();
-		file = path .. "/mods/FS19_AutoDrive/AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml";
+		path = AutoDrive.directory; --getUserProfileAppPath();
+		file = path .. "AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml";
 		
 		print("AD: Loading xml file from init config");
 		tempXml = loadXMLFile("AutoDrive_XML_temp", file);
