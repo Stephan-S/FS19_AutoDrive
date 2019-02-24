@@ -39,6 +39,8 @@ function AutoDrive:loadStoredXML()
 		tempXml = loadXMLFile("AutoDrive_XML_temp", file);
 		--local tempstring = saveXMLFileToMemory(tempXml);
 		--adXml = loadXMLFileFromMemory("AutoDrive_XML", tempstring);
+		
+		AutoDrive:readFromXML(tempXml);
 		print("AD: Finished loading xml from memory");
 		
 		AutoDrive:MarkChanged();
@@ -54,6 +56,7 @@ function AutoDrive:loadStoredXML()
 					
 		saveXMLFile(adXml);
 		AutoDrive.xmlSaveFile = file;
+		AutoDrive:saveToXML(adXml);
 	end;
 
 	AutoDrive:readFromXML(adXml);
@@ -95,6 +98,8 @@ function AutoDrive:readFromXML(xmlFile)
 	if idString == nil then
 		return;
 	end;
+
+	AutoDrive.mapWayPoints = {};
 	
 	local idTable = idString:split(",");
 	local xString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.x");
@@ -124,17 +129,6 @@ function AutoDrive:readFromXML(xmlFile)
 		if incoming == nil then
 			incomingSplitted[i] = {outer};
 		end;
-	end;
-	
-	local out_costString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out_cost");
-	local out_costTable = out_costString:split(";");
-	local out_costSplitted = {};
-	for i, outer in pairs(out_costTable) do
-		local out_cost = outer:split(",");
-		out_costSplitted[i] = out_cost;	
-		if out_cost == nil then
-			out_costSplitted[i] = {outer};
-		end;				
 	end;
 	
 	local markerIDString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID");
@@ -188,17 +182,7 @@ function AutoDrive:readFromXML(xmlFile)
 					incoming_counter = incoming_counter +1;
 				end;
 			end;
-			
-			wp["out_cost"] = {};
-			if out_costSplitted[i] ~= nil then
-				for i2,out_costString in pairs(out_costSplitted[i]) do
-					local number = tonumber(out_costString);
-					if number ~= -1 then
-						wp["out_cost"][i2] = tonumber(out_costString);
-					end;
-				end;
-			end;
-			
+						
 			wp["marker"] = {};
 			if markerNamesSplitted[i] ~= nil then
 				for i2, markerName in pairs(markerNamesSplitted[i]) do
@@ -228,6 +212,8 @@ function AutoDrive:readFromXML(xmlFile)
 	local mapMarkerCounter = 1;
 	mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
 	
+	AutoDrive.mapMarker = {};
+
 	while mapMarker.name ~= nil do
 		--print("Loading map marker: " .. mapMarker.name);
 		mapMarker.id = getXMLFloat(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".id");
@@ -258,9 +244,9 @@ end;
 
 function AutoDrive:ExportRoutes()
 	path = getUserProfileAppPath();
-	file = path .. "/FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
+	file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 
-	createFolder(path .. "/FS19_AutoDrive_Export");
+	createFolder(path .. "FS19_AutoDrive_Export");
 	
 	print("AD: Storing to xml file : " .. file);
 	print("AD: creating xml file at " .. file);
@@ -272,10 +258,11 @@ end;
 
 function AutoDrive:ImportRoutes()
 	path = getUserProfileAppPath();
-	file = path .. "/FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
+	file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 
-	createFolder(path .. "/FS19_AutoDrive_Import");
+	createFolder(path .. "FS19_AutoDrive_Import");
 
+	print("AD: Trying to load xml file from " .. file);
 	if fileExists(file) then
 		print("AD: Loading xml file from " .. file);
 		AutoDrive.xmlSaveFile = file;
@@ -287,6 +274,8 @@ function AutoDrive:ImportRoutes()
 			print("AD: Version Check or Map check failed - cannot import");
 		else
 			AutoDrive:readFromXML(adXml);
+			AutoDrive.requestedWaypoints = true;
+			AutoDrive.requestedWaypointCount = 1;
 		end;
 	end;
 end;
@@ -326,10 +315,7 @@ function AutoDrive:saveToXML(xmlFile)
 	
 	local incomingTable = {};
 	local incomingString = "";
-	
-	local out_costTable = {};
-	local out_costString = "";
-	
+		
 	local markerNamesTable = {};
 	local markerNames = "";
 	
@@ -362,12 +348,7 @@ function AutoDrive:saveToXML(xmlFile)
 			end;
 		end;
 		incomingTable[i] = table.concat(innerIncomingTable, ",");
-		
-		out_costTable[i] = table.concat(p.out_cost, ",");
-		if out_costTable[i] == nil or out_costTable[i] == "" then
-			out_costTable[i] = "-1";
-		end;
-			
+					
 		local markerCounter = 1;
 		local innerMarkerNamesTable = {};
 		local innerMarkerIDsTable = {};
@@ -388,7 +369,6 @@ function AutoDrive:saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.z" , table.concat(zTable, ","));
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out" , table.concat(outTable, ";"));
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming" , table.concat(incomingTable, ";") );
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out_cost" , table.concat(out_costTable, ";"));
 		if markerIDsTable[1] ~= nil then
 			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID" , table.concat(markerIDsTable, ";"));
 			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerNames" , table.concat(markerNamesTable, ";"));

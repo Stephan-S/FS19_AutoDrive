@@ -4,19 +4,25 @@ function AutoDrive:startAD(vehicle)
     
     vehicle.forceIsActive = true;
     vehicle.spec_motorized.stopMotorOnLeave = false;
-    vehicle.spec_enterable.disableCharacterOnLeave = false;
-    vehicle.currentHelper = g_helperManager:getRandomHelper()
-    vehicle.spec_aiVehicle.isActive = true
-    
-    if vehicle.setRandomVehicleCharacter ~= nil then
-        vehicle:setRandomVehicleCharacter()
-    end
+	vehicle.spec_enterable.disableCharacterOnLeave = false;
+	if vehicle.currentHelper == nil then
+		vehicle.currentHelper = g_helperManager:getRandomHelper()
+		if vehicle.setRandomVehicleCharacter ~= nil then
+			vehicle:setRandomVehicleCharacter()
+			vehicle.ad.vehicleCharacter = vehicle.spec_enterable.vehicleCharacter;
+		end
+		vehicle.spec_aiVehicle.startedFarmId = vehicle.spec_enterable.controllerFarmId;
+	end;
+	vehicle.spec_aiVehicle.isActive = true	
     
     if vehicle.steeringEnabled == true then
        vehicle.steeringEnabled = false;
 	end
 	
 	vehicle.spec_aiVehicle.aiTrafficCollision = nil;
+	if g_server ~= nil then
+		vehicle.ad.enableAI = 5;
+	end;
 end;
 
 function AutoDrive:stopAD(vehicle)
@@ -24,18 +30,19 @@ function AutoDrive:stopAD(vehicle)
 end;
 
 function AutoDrive:stopVehicle(vehicle, dt)
-    if math.abs(vehicle.lastSpeedReal) < 0.001 then
+    if math.abs(vehicle.lastSpeedReal) < 0.0015 then
         vehicle.ad.isStopping = false;
     end;
     
     if vehicle.ad.isStopping then
-        AutoDrive:getVehicleToStop(vehicle, dt);
+        AutoDrive:getVehicleToStop(vehicle, true, dt);
     else       
         AutoDrive:disableAutoDriveFunctions(vehicle);
     end;
 end;
 
 function AutoDrive:disableAutoDriveFunctions(vehicle) 
+	--print("Disabling vehicle .. " .. vehicle.name);
 	vehicle.ad.currentWayPoint = 0;
 	vehicle.ad.drivingForward = true;
 	vehicle.ad.isActive = false;
@@ -61,14 +68,27 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	end
 
 	vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF);
+	AIVehicleUtil.driveInDirection(vehicle, 16, 30, 0, 0.2, 20, false, vehicle.ad.drivingForward, 0, 0, 0, 1);
+
+	--tell clients to dismiss ai worker etc.
+	if g_server ~= nil then
+		vehicle.ad.disableAI = 5;
+	end;
 
 	vehicle:requestActionEventUpdate();
 end
 
-function AutoDrive:getVehicleToStop(vehicle, dt)
+function AutoDrive:getVehicleToStop(vehicle, brake, dt)
 	local finalSpeed = 0;
 	local acc = -1;
-    local allowedToDrive = false;
+	local allowedToDrive = false;
+	
+	if brake == true or math.abs(vehicle.lastSpeedReal) > 0.002 then
+		finalSpeed = 0.01;
+		acc = -0.6;
+		allowedToDrive = true;
+	end;
+
     local node = vehicle.components[1].node;					
     if vehicle.getAIVehicleDirectionNode ~= nil then
         node = vehicle:getAIVehicleDirectionNode();
@@ -83,6 +103,20 @@ function AutoDrive:isActive(vehicle)
         return vehicle.ad.isActive;
     end;
     return false;
+end;
+
+function AutoDrive:handleClientIntegrity(vehicle)
+	if g_server ~= nil then
+		vehicle.ad.enableAI = math.max(vehicle.ad.enableAI-1,0);
+		vehicle.ad.disableAI = math.max(vehicle.ad.disableAI-1,0);
+	else
+		if vehicle.ad.enableAI > 0 then
+			AutoDrive:startAD(vehicle);
+		end;
+		if vehicle.ad.disableAI > 0 then
+			AutoDrive:disableAutoDriveFunctions(vehicle)
+		end;
+	end;
 end;
 
 function AutoDrive:detectAdTrafficOnRoute(vehicle)

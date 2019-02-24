@@ -38,7 +38,7 @@ function AutoDrive:handleDriving(vehicle, dt)
 		end;
 
 		if vehicle.ad.isPaused == true then
-			AutoDrive:getVehicleToStop(vehicle, dt);
+			AutoDrive:getVehicleToStop(vehicle, false, dt);
 			vehicle.ad.timeTillDeadLock = 15000;
 		end;
 	end;
@@ -133,20 +133,17 @@ end;
 
 function AutoDrive:initializeAD(vehicle)
     vehicle.ad.timeTillDeadLock = 15000;
-    if vehicle.ad.mode ~= AutoDrive.MODE_COMPACTSILO then
-        local closest = AutoDrive:findMatchingWayPoint(vehicle);
-        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
-		
-		if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
-            AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
-			AutoDrive:stopAD(vehicle);
-		end;
-        
-        if vehicle.ad.wayPoints[2] ~= nil then
-            vehicle.ad.currentWayPoint = 2;
-        else
-            vehicle.ad.currentWayPoint = 1;
-        end;
+    
+    local closest = AutoDrive:findMatchingWayPoint(vehicle);
+    vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
+    
+    if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
+        AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
+        AutoDrive:stopAD(vehicle);
+    end;
+    
+    if vehicle.ad.wayPoints[2] ~= nil then
+        vehicle.ad.currentWayPoint = 2;
     else
         vehicle.ad.currentWayPoint = 1;
     end;
@@ -183,38 +180,11 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
     else
         --print("Last waypoint reached");
-        if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER then
-            if vehicle.ad.mode == AutoDrive.MODE_COMPACTSILO then
-                --reverse driving direction
-                if vehicle.ad.drivingForward == true then
-                    vehicle.ad.drivingForward = false;
-                else
-                    vehicle.ad.drivingForward = true;
-                end;
-                --reverse waypoints
-                local reverseWaypoints = {};
-                local _counterWayPoints = 0;
-                for n in pairs(vehicle.ad.wayPoints) do
-                    _counterWayPoints = _counterWayPoints + 1;
-                end;
-                for n in pairs(vehicle.ad.wayPoints) do
-                    reverseWaypoints[_counterWayPoints] = vehicle.ad.wayPoints[n];
-                    _counterWayPoints = _counterWayPoints - 1;
-                end;
-                for n in pairs(reverseWaypoints) do
-                    vehicle.ad.wayPoints[n] = reverseWaypoints[n];
-                end;
-                --start again:
-                vehicle.ad.currentWayPoint = 1
-                vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-                vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-
-            else
-                --print("Shutting down");
-                
-                AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. vehicle.ad.nameOfSelectedTarget);
-                AutoDrive:stopAD(vehicle); 
-            end;           
+        if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER then            
+            --print("Shutting down");
+            
+            AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. vehicle.ad.nameOfSelectedTarget);
+            AutoDrive:stopAD(vehicle);           
         else
             if vehicle.ad.unloadSwitch == true then
                 vehicle.ad.timeTillDeadLock = 15000;
@@ -245,8 +215,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
     end;
 end;
 
-function AutoDrive:driveToNextWayPoint(vehicle, dt)
-	--AutoDrive:addlog("Issuing Drive Request");    
+function AutoDrive:driveToNextWayPoint(vehicle, dt) 
     local x,y,z = getWorldTranslation(vehicle.components[1].node);
     xl,yl,zl = worldToLocal(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
 
@@ -292,6 +261,12 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end;
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
+    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] == nil then
+        vehicle.ad.speedOverride = math.min(12, vehicle.ad.speedOverride);
+    end;
+    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3] == nil then
+        vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
+    end;
 
     local wp_new = nil;
 
@@ -336,7 +311,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
     local acceleration = 1;
     if vehicle.ad.trafficDetected == true then 
-        AutoDrive:getVehicleToStop(vehicle, dt);
+        AutoDrive:getVehicleToStop(vehicle, false, dt);
         vehicle.ad.timeTillDeadLock = 15000;
     else        
         vehicle.ad.allowedToDrive = true;
@@ -364,12 +339,10 @@ end;
 function AutoDrive:handleDeadlock(vehicle, dt)
 	if vehicle.ad.inDeadLock == true and vehicle.ad.isActive == true and vehicle.isServer then
 		AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
-		AutoDrive.nPrintTime = 10000;
 		
 		--deadlock handling
 		if vehicle.ad.inDeadLockRepairCounter < 1 then
 			AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
-			AutoDrive.nPrintTime = 10000;
             AutoDrive:stopAD(vehicle);
 		else
 			--print("AD: Trying to recover from deadlock")

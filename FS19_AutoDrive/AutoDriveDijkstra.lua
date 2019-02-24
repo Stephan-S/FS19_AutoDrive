@@ -76,6 +76,11 @@ function AutoDrive:ContiniousRecalculation()
 
 		recalcTable.continue = false;
 		print(("%s - Recalculating finished"):format(getDate("%H:%M:%S")))
+		if g_server ~= nil then
+			AutoDrive.requestedWaypoints = true;
+			AutoDrive.requestedWaypointCount = 1;
+			--AutoDriveCourseDownloadEvent:sendEvent(vehicle);
+		end;
 		return 100;
 
 	else

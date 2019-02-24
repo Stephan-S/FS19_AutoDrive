@@ -1,6 +1,6 @@
 function AutoDrive:inputSiloMode(vehicle)
     vehicle.ad.mode = vehicle.ad.mode + 1;
-    if vehicle.ad.mode > 4 then
+    if vehicle.ad.mode > AutoDrive.MODE_DELIVERTO then
         vehicle.ad.mode = 1;
     end;
     AutoDrive:enableCurrentMode(vehicle);
@@ -12,21 +12,7 @@ function AutoDrive:enableCurrentMode(vehicle)
     elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
         vehicle.ad.drivingForward = true;
     elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-        vehicle.ad.drivingForward = true;     
-    elseif vehicle.ad.mode == AutoDrive.MODE_COMPACTSILO then
-        vehicle.ad.drivingForward = true;
-        vehicle.ad.savedSpeed = vehicle.ad.targetSpeed;
-        vehicle.ad.targetSpeed = 15;
-    end;
-
-    if vehicle.ad.mode ~= AutoDrive.MODE_COMPACTSILO then
-        if vehicle.ad.savedSpeed ~= nil then
-            vehicle.ad.targetSpeed = vehicle.ad.savedSpeed;
-            vehicle.savedSpeed = nil;
-        end;
-        if vehicle.ad.targetSpeed == 15 then
-            vehicle.ad.targetSpeed = 40;
-        end;
+        vehicle.ad.drivingForward = true;  
     end;
 end;
 
@@ -94,17 +80,14 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
     for i in pairs(startNode.out) do
         if exists == true then
             startNode.out[out_counter] = startNode.out[i];
-            startNode.out_cost[out_counter] = startNode.out_cost[i];
             out_counter = out_counter +1;
         else
             if startNode.out[i] == targetNode.id then
                 AutoDrive:MarkChanged()
                 startNode.out[i] = nil;
-                startNode.out_cost[i] = nil;
 
                 if AutoDrive.loadedMap ~= nil and AutoDrive.adXml ~= nil then
                     removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp".. startNode.id ..".out" .. i) ;
-                    removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp".. startNode.id ..".out_cost" .. i) ;
                 end;
 
                 local incomingExists = false;
@@ -129,7 +112,6 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
        
     if exists == false then
         startNode.out[out_counter] = targetNode.id;
-        startNode.out_cost[out_counter] = 1;
 
         local incomingCounter = 1;
         for _,id in pairs(targetNode.incoming) do
@@ -138,7 +120,10 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
         targetNode.incoming[incomingCounter] = startNode.id;
 
         AutoDrive:MarkChanged()
-    end;				
+    end;		
+
+    AutoDriveCourseEditEvent:sendEvent(startNode);
+    AutoDriveCourseEditEvent:sendEvent(targetNode);		
 end;
 
 function AutoDrive:nextSelectedDebugPoint(vehicle)
@@ -161,6 +146,14 @@ function AutoDrive:finishCreatingMapMarker(vehicle)
     vehicle.isBroken = false;    
     vehicle.ad.enteringMapMarker = false;
     g_inputBinding:revertContext(true);
+    
+    if g_server ~= nil then
+        AutoDrive.requestedWaypoints = true;
+		AutoDrive.requestedWaypointCount = 1;
+        --AutoDriveCourseDownloadEvent:sendEvent(vehicle);
+    else
+        AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, closest, vehicle.ad.enteredMapMarkerString);
+	end;
 end;
 
 function AutoDrive:inputShowNeighbors(vehicle)
@@ -197,7 +190,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
     else
         vehicle.ad.showSelectedDebugPoint = false;
     end;
-        
+
     AutoDrive.Hud:updateSingleButton("input_showNeighbor", vehicle.ad.showSelectedDebugPoint)
 end;
 
@@ -206,6 +199,9 @@ function AutoDrive:inputShowClosest(vehicle)
 end;
 
 function AutoDrive:inputCreateMapMarker(vehicle)
+    if AutoDrive:findClosestWayPoint(vehicle) == nil then
+        return;
+    end;
     if vehicle.ad.showClosestPoint == true then
         if vehicle.ad.creatingMapMarker == false then
             vehicle.ad.creatingMapMarker  = true;

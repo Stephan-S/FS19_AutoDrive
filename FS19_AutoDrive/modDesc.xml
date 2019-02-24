@@ -21,7 +21,7 @@
 	   </it>
 	</description>
     <version>1.0.0.0</version>
-	<multiplayer supported="false"/>   
+	<multiplayer supported="true"/>   
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
         <sourceFile filename="register.lua" />
@@ -41,6 +41,7 @@
 		<text name="input_AD_Speed_down">						<en>AD: Decrease Speed</en>  					<de>AD: Geschwindigkeit verringern</de>		<it>AD: decrementa velocità</it>						</text>
 		<text name="input_AD_export_routes">					<en>AD: Export Routes</en>  					<de>AD: Strecken exportieren</de>			<it>AD: Esporta percorsi</it>							</text>
 		<text name="input_AD_import_routes">					<en>AD: Import Routes</en>  					<de>AD: Strecken importieren</de>			<it>AD: Importa percorsi</it>							</text>
+		<text name="input_AD_upload_routes">					<en>AD: Upload Routes</en>  					<de>AD: Strecken hochladen</de>																		</text>
 		<text name="input_AD_continue">							<en>AD: Continue</en>  							<de>AD: Weiterfahren</de>					<it>AD: Continua</it>									</text>
 		<text name="input_ADSelectTargetUnload">				<en>AD: Select Next Unload</en>  				<de>AD: Nächsten Abladepunkt</de>			<it>AD: Seleziona prossimo scarico</it>					</text>
 		<text name="input_ADSelectPreviousTargetUnload">		<en>AD: Select Previous Unload</en>  			<de>AD: Vorigen Abladepunkt</de>			<it>AD: Seleziona precedente scarico</it>				</text>
@@ -215,7 +216,21 @@
 			<de>Abladestelle:</de>
 			<it>Scarica a:</it>
 		</text>
+		
+		<text name="AD_MODE_DRIVETO">
+			<en>Drive</en>
+			<de>Fahren</de>
+		</text>
 
+		<text name="AD_MODE_DELIVERTO">
+			<en>Deliver</en>
+			<de>Abladen</de>
+		</text>
+
+		<text name="AD_MODE_PICKUPANDDELIVER">
+			<en>Pickup and Deliver</en>
+			<de>Laden und abladen</de>
+		</text>
 	</l10n>
 	
 	<actions>
@@ -238,6 +253,9 @@
 		<action name="ADSelectNextFillType" 		category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADSelectPreviousFillType" 	category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADRecord"	 					category="VEHICLE" ignoreComboMask="false"/>
+		<action name="AD_export_routes" 			category="VEHICLE" ignoreComboMask="false"/>
+		<action name="AD_import_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
+		<action name="AD_upload_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 	
 	<inputBindings>
@@ -314,6 +332,18 @@
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>
 		<actionBinding action="ADRecord">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="AD_export_routes">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="AD_import_routes">
+			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+		</actionBinding>
+		<actionBinding action="AD_upload_routes">
 			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>

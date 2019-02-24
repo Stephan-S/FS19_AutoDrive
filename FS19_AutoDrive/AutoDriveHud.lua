@@ -187,14 +187,11 @@ function AutoDriveHud:updateButtons(vehicle)
 	for _,button in pairs(self.Buttons) do
 		if button.name == "input_silomode" then
 			local buttonImg = "";
-			if vehicle.ad.mode == AutoDrive.MODE_COMPACTSILO then
-				button.img_active = button.img_on;						
+			
+			if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then 
+				button.img_active = button.img_3;
 			else
-				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then 
-					button.img_active = button.img_3;
-				else
-					button.img_active = button.img_off;
-				end;
+				button.img_active = button.img_off;
 			end;
 			
 			button.ov = Overlay:new(button.img_active,button.posX ,button.posY , self.buttonWidth, self.buttonHeight);					
@@ -379,12 +376,15 @@ function AutoDriveHud:drawHud(vehicle)
 
 		setTextColor(1,1,1,1);
 		setTextAlignment(RenderText.ALIGN_LEFT);
-		renderText(adPosX, adPosY, adFontSize,"AutoDrive");
+		local textToShow = "AutoDrive";
+		textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle);
 		if vehicle.ad.sToolTip ~= "" and vehicle.ad.nToolTipWait <= 0 then
-			setTextAlignment(RenderText.ALIGN_LEFT);
-			local posX = adPosX + 0.025;
-			renderText(posX, adPosY, adFontSize," - " .. vehicle.ad.sToolTip);
+			--setTextAlignment(RenderText.ALIGN_LEFT);
+			--local posX = adPosX + 0.025;
+			--renderText(posX, adPosY, adFontSize," - " .. vehicle.ad.sToolTip);
+			textToShow = textToShow .. " - " .. vehicle.ad.sToolTip;
 		end;
+		renderText(adPosX, adPosY, adFontSize, textToShow);
 		
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
 			local adFontSize = 0.013;
@@ -570,4 +570,16 @@ end;
 
 function AutoDriveHud:stopMovingHud()
 	self.isMoving = false;
+end;
+
+function AutoDriveHud:getModeName(vehicle)
+	if vehicle.ad.mode == AutoDrive.MODE_DRIVETO then
+		return g_i18n:getText("AD_MODE_DRIVETO");
+	elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+		return g_i18n:getText("AD_MODE_DELIVERTO");
+	elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+		return g_i18n:getText("AD_MODE_PICKUPANDDELIVER");
+	end;
+
+	return "";
 end;

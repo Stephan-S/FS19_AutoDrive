@@ -10,6 +10,13 @@
 
 source(Utils.getFilename("AutoDrive.lua", g_currentModDirectory))
 source(Utils.getFilename("AutoDriveHud.lua", g_currentModDirectory))
+source(Utils.getFilename("AutoDriveUpdateEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("AutoDriveCourseEditEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("AutoDriveCourseDownloadEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("AutoDriveCreateMapMarkerEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
+
+
 
 AutoDrive_Register = {};
 AutoDrive_Register.modDirectory = g_currentModDirectory;
