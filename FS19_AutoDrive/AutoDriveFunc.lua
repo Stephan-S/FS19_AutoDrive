@@ -193,7 +193,6 @@ end
 function AutoDrive:detectTraffic(vehicle, wp_next)
 	local x,y,z = getWorldTranslation( vehicle.components[1].node );
 	--create bounding box to check for vehicle
-	local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
 	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
 	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
 	local width = vehicle.sizeWidth;
@@ -215,10 +214,10 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
 						z = z + (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z};
 
 	
-    --AutoDrive:drawLine(boundingBox[1], boundingBox[2], newColor(0,0,0,1));
-    --AutoDrive:drawLine(boundingBox[2], boundingBox[3], newColor(0,0,0,1));
-    --AutoDrive:drawLine(boundingBox[3], boundingBox[4], newColor(0,0,0,1));
-    --AutoDrive:drawLine(boundingBox[4], boundingBox[1], newColor(0,0,0,1));	
+    --AutoDrive:drawLine(boundingBox[1], boundingBox[2], 0, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[2], boundingBox[3], 0, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[3], boundingBox[4], 0, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 0, 0, 0, 1);	
 
 	for _,other in pairs(g_currentMission.vehicles) do --pairs(g_currentMission.nodeToVehicle) do
 		if other ~= vehicle then
@@ -281,10 +280,10 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
                                                     z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
 
 							
-                            --AutoDrive:drawLine(otherBoundingBox[1], otherBoundingBox[2], newColor(0,0,1,1));
-                            --AutoDrive:drawLine(otherBoundingBox[2], otherBoundingBox[3], newColor(0,0,1,1));
-                            --AutoDrive:drawLine(otherBoundingBox[3], otherBoundingBox[4], newColor(0,0,1,1));
-                            --AutoDrive:drawLine(otherBoundingBox[4], otherBoundingBox[1], newColor(0,0,1,1));							
+                            --AutoDrive:drawLine(otherBoundingBox[1], otherBoundingBox[2], 0, 0, 1, 1);
+                            --AutoDrive:drawLine(otherBoundingBox[2], otherBoundingBox[3], 0, 0, 1, 1);
+                            --AutoDrive:drawLine(otherBoundingBox[3], otherBoundingBox[4], 0, 0, 1, 1);
+                            --AutoDrive:drawLine(otherBoundingBox[4], otherBoundingBox[1], 0, 0, 1, 1);							
 
 							if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
 								if other.configFileName ~= nil then

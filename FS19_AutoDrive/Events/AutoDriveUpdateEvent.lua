@@ -46,7 +46,6 @@ function AutoDriveUpdateEvent:new(vehicle)
 
 	self.moduleInitialized = vehicle.ad.moduleInitialized;
 	self.currentInput = vehicle.ad.currentInput;
-	--print("Received currentInput: " .. self.currentInput .. " in update event");
 	self.lastSpeed = vehicle.ad.lastSpeed;
 	self.speedOverride = vehicle.ad.speedOverride;
 
@@ -59,22 +58,13 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.targetSelected_Unload = vehicle.ad.targetSelected_Unload;
 	self.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload;
 	self.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload;
-
-	self.nToolTipWait = vehicle.ad.nToolTipWait;
-	self.nToolTipTimer = vehicle.ad.nToolTipTimer;
-	self.sToolTip = vehicle.ad.sToolTip;
 	
-	self.choosingDestination = vehicle.ad.choosingDestination;
-	self.chosenDestination = vehicle.ad.chosenDestination;
-	self.enteredChosenDestination = vehicle.ad.enteredChosenDestination;
-
 	self.enableAI = vehicle.ad.enableAI;
 	self.disableAI = vehicle.ad.disableAI;
 
 	self.showingHud = vehicle.ad.showingHud;
 	self.showingMouse = vehicle.ad.showingMouse;
-		
-	--print("event new")
+
     return self;
 end;
 
@@ -146,15 +136,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt16(streamId, self.targetSelected_Unload);
 	streamWriteInt16(streamId, self.mapMarkerSelected_Unload);
 	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
-
-	streamWriteFloat32(streamId, self.nToolTipWait);
-	streamWriteFloat32(streamId, self.nToolTipTimer);
-	streamWriteStringOrEmpty(streamId, self.sToolTip);
 	
-	streamWriteBool(streamId, self.choosingDestination);
-	streamWriteStringOrEmpty(streamId, self.chosenDestination);
-	streamWriteStringOrEmpty(streamId, self.enteredChosenDestination);
-
 	streamWriteInt8(streamId, self.enableAI);
 	streamWriteInt8(streamId, self.disableAI);
 
@@ -164,11 +146,11 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteBool(streamId, AutoDrive.Hud.showHud);
 	streamWriteBool(streamId, AutoDrive.showMouse);
 
+	streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage);
 	-- print("event writeStream")
 end;
 
 function AutoDriveUpdateEvent:readStream(streamId, connection)
-	--print("Received AutoDriveUpdateEvent");
 	if AutoDrive == nil then
 		return;
 	end;
@@ -209,13 +191,11 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local changeSelectedDebugPoint = streamReadBool(streamId);
 
 	local DebugPointsIteratedString = streamReadStringOrEmpty(streamId);	
-	--print("Reading DebugPointsIteratedString: " .. DebugPointsIteratedString .. " in update event");
 	local DebugPointsID = StringUtil.splitString(",", DebugPointsIteratedString);
 	local iteratedDebugPoints = {};
 	for i,id in pairs(DebugPointsID) do
 		if id ~= "" then
 			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(id)];
-			--print("iteratedDebugPoints[" .. i .. "].id: " .. iteratedDebugPoints[i].id);
 		end;
 	end;
 	
@@ -240,16 +220,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local targetSelected_Unload = streamReadInt16(streamId);
 	local mapMarkerSelected_Unload = streamReadInt16(streamId);
 	local nameOfSelectedTarget_Unload = streamReadStringOrEmpty(streamId);
-
 	
-	local nToolTipWait = streamReadFloat32(streamId);
-	local nToolTipTimer = streamReadFloat32(streamId);
-	local sToolTip = streamReadStringOrEmpty(streamId);
-	
-	local choosingDestination = streamReadBool(streamId);
-	local chosenDestination = streamReadStringOrEmpty(streamId);
-	local enteredChosenDestination = streamReadStringOrEmpty(streamId);
-
 	local enableAI = streamReadInt8(streamId);
 	local disableAI = streamReadInt8(streamId);
 	
@@ -258,6 +229,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 	local AD_showingHud = streamReadBool(streamId);
 	local AD_showingMouse = streamReadBool(streamId);
+
+	local AD_currentMessage = streamReadStringOrEmpty(streamId);
 		
 	if g_server ~= nil then
 		vehicle.ad.currentInput = currentInput;
@@ -308,15 +281,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.targetSelected_Unload = targetSelected_Unload;
 		vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
 		vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload;
-
-		vehicle.ad.nToolTipWait = nToolTipWait;
-		vehicle.ad.nToolTipTimer = nToolTipTimer;
-		vehicle.ad.sToolTip = sToolTip;
 		
-		vehicle.ad.choosingDestination = choosingDestination;
-		vehicle.ad.chosenDestination = chosenDestination;
-		vehicle.ad.enteredChosenDestination = enteredChosenDestination;
-
 		vehicle.ad.enableAI = enableAI;
 		vehicle.ad.disableAI = disableAI;
 
@@ -325,35 +290,18 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 		--AutoDrive.showHud = showHud;
 		--AutoDrive.showMouse = showMouse;
+		AutoDrive.print.currentMessage = AD_currentMessage;
 	end;
 		
 	if g_server ~= nil then	
 		g_server:broadcastEvent(AutoDriveUpdateEvent:new(vehicle), nil, nil, vehicle);
-		-- print("broadcasting")
 	end;
 end;
 
 function AutoDriveUpdateEvent:sendEvent(vehicle)
 	if g_server ~= nil then	
 		g_server:broadcastEvent(AutoDriveUpdateEvent:new(vehicle), nil, nil, vehicle);
-		--print("broadcasting Update event")
 	else
 		g_client:getServerConnection():sendEvent(AutoDriveUpdateEvent:new(vehicle));
-		--print("sending Update event to server...")
 	end;
-end;
-
-function streamReadStringOrEmpty(streamID) 
-	local string = streamReadString(streamID);
-	if string == nil or string == "nil" then
-		string = "";
-	end;
-	return string;
-end;
-
-function streamWriteStringOrEmpty(streamID, string) 	
-	if string == nil or string == "" then
-		string = "nil";
-	end;
-	streamWriteString(streamID, string);
 end;

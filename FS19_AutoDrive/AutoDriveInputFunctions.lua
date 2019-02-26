@@ -1,3 +1,221 @@
+function AutoDrive:InputHandling(vehicle, input)
+	--print("AutoDrive InputHandling.." .. input);
+	vehicle.ad.currentInput = input;
+	if vehicle.ad.currentInput == nil then
+		return;
+	end;
+
+	if g_server == nil then
+		AutoDrive:InputHandlingClientOnly(vehicle, input)	
+	end;
+
+	AutoDrive:InputHandlingClientAndServer(vehicle, input)	
+
+	if g_server == nil then
+		if vehicle.ad.currentInput ~= nil then
+			AutoDriveUpdateEvent:sendEvent(vehicle);
+		end;
+		return;
+	end;		
+
+	AutoDrive:InputHandlingServerOnly(vehicle, input)
+
+	vehicle.ad.currentInput = "";
+end;
+
+function AutoDrive:InputHandlingClientOnly(vehicle, input)
+	if input == "input_uploadRoutes" then
+		local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId);
+		if user:getIsMasterUser() then
+			print("User is admin and allowed to upload course");
+			AutoDrive.playerSendsMapToServer = true;
+			AutoDrive.requestedWaypointCount = 1;
+		else
+			print("User is no admin and is not allowed to upload course");
+		end;
+	end;	
+
+	if input == "input_recalculate" then --make sure the hud button shows active recalculation when server is busy
+		AutoDrive.Recalculation.continue = true;
+	end;
+end
+
+function AutoDrive:InputHandlingClientAndServer(vehicle, input)
+	if input == "input_toggleHud" then
+		AutoDrive.Hud:toggleHud(vehicle);				
+	end;
+
+	if input == "input_toggleMouse" then
+		AutoDrive.Hud:toggleMouse(vehicle);				
+	end;
+
+	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
+		AutoDrive:inputCreateMapMarker(vehicle);
+	end;
+
+	if input == "input_start_stop" then
+		if AutoDrive.mapWayPoints == nil or AutoDrive.mapWayPoints[1] == nil or vehicle.ad.targetSelected == -1 then
+			return;
+		end;
+		if AutoDrive:isActive(vehicle) then
+			AutoDrive:disableAutoDriveFunctions(vehicle)
+			--AutoDrive:stopAD(vehicle);
+		else
+			AutoDrive:startAD(vehicle);
+		end;
+
+		AutoDrive.Hud:updateSingleButton("input_start_stop", vehicle.ad.isActive)
+	end;
+
+	if input == "input_exportRoutes" then
+		AutoDrive:ExportRoutes();
+	end;
+
+	if input == "input_importRoutes" then
+		AutoDrive:ImportRoutes();
+	end;
+end;
+
+function AutoDrive:InputHandlingServerOnly(vehicle, input)
+	if input == "input_silomode" then
+		AutoDrive:inputSiloMode(vehicle);
+	end;
+
+	if input == "input_record" then
+		AutoDrive:inputRecord(vehicle)
+	end;
+	
+	if input == "input_nextTarget" then
+		AutoDrive:inputNextTarget(vehicle)
+	end;
+
+	if input == "input_previousTarget" then
+		AutoDrive:inputPreviousTarget(vehicle)
+	end;
+
+	if input == "input_debug"  then
+		if vehicle.ad.createMapPoints == false then
+			vehicle.ad.createMapPoints = true;
+		else
+			vehicle.ad.createMapPoints = false;
+		end;
+
+		AutoDrive.Hud:updateSingleButton("input_debug", vehicle.ad.createMapPoints)
+	end;
+
+	if input == "input_showClosest" then
+		AutoDrive:inputShowClosest(vehicle);
+
+		AutoDrive.Hud:updateSingleButton("input_showClosest", vehicle.ad.showClosestPoint)
+	end;
+
+	if input == "input_showNeighbor" then
+		AutoDrive:inputShowNeighbors(vehicle)		
+	end;
+
+	if input == "input_toggleConnection" then
+		local closest = AutoDrive:findClosestWayPoint(vehicle);
+		AutoDrive:toggleConnectionBetween(AutoDrive.mapWayPoints[closest], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint]);
+	end;
+
+	if input == "input_nextNeighbor" then
+		AutoDrive:nextSelectedDebugPoint(vehicle);
+	end;	
+
+	if input == "input_increaseSpeed" then
+		if vehicle.ad.targetSpeed < 100 then
+			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed + 1;
+		end;
+	end;
+
+	if input == "input_decreaseSpeed" then
+		if vehicle.ad.targetSpeed > 2 then
+			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed - 1;
+		end;
+
+	end;	
+
+	if input == "input_removeWaypoint" then
+		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
+			local closest = AutoDrive:findClosestWayPoint(vehicle)
+			AutoDrive:removeMapWayPoint( AutoDrive.mapWayPoints[closest] );
+		end;
+
+	end;
+
+	if input == "input_removeDestination" then
+		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
+			local closest = AutoDrive:findClosestWayPoint(vehicle)
+			AutoDrive:removeMapMarker( AutoDrive.mapWayPoints[closest] );
+		end;
+	end;
+
+	if input == "input_recalculate" then
+		AutoDrive:ContiniousRecalculation();
+	end;	
+
+	if input == "input_nextTarget_Unload" then
+		if  AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+			if vehicle.ad.mapMarkerSelected_Unload == -1 then
+				vehicle.ad.mapMarkerSelected_Unload = 1
+
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			else
+				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload + 1;
+				if vehicle.ad.mapMarkerSelected_Unload > AutoDrive.mapMarkerCounter then
+					vehicle.ad.mapMarkerSelected_Unload = 1;
+				end;
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			end;
+		end;
+
+	end;
+
+	if input == "input_previousTarget_Unload" then
+		if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+			if vehicle.ad.mapMarkerSelected_Unload == -1 then
+				vehicle.ad.mapMarkerSelected_Unload = AutoDrive.mapMarkerCounter;
+
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			else
+				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1;
+				if vehicle.ad.mapMarkerSelected_Unload < 1 then
+					vehicle.ad.mapMarkerSelected_Unload = AutoDrive.mapMarkerCounter;
+				end;
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			end;
+		end;
+	end;
+
+	if input == "input_nextFillType" then		
+		vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex + 1;
+		if g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex) == nil then
+			vehicle.ad.unloadFillTypeIndex = 2;
+		end;		
+	end;
+
+	if input == "input_previousFillType" then
+		vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex - 1;
+		if vehicle.ad.unloadFillTypeIndex <= 1 then
+			while g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex) ~= nil do 
+				vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex + 1;
+			end;
+			vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex - 1;
+		end;
+	end;
+
+	if input == "input_continue" then
+		if vehicle.ad.isPaused == true then
+			vehicle.ad.isPaused = false;
+		end;
+	end;
+end;
+
 function AutoDrive:inputSiloMode(vehicle)
     vehicle.ad.mode = vehicle.ad.mode + 1;
     if vehicle.ad.mode > AutoDrive.MODE_DELIVERTO then
@@ -148,9 +366,7 @@ function AutoDrive:finishCreatingMapMarker(vehicle)
     g_inputBinding:revertContext(true);
     
     if g_server ~= nil then
-        AutoDrive.requestedWaypoints = true;
-		AutoDrive.requestedWaypointCount = 1;
-        --AutoDriveCourseDownloadEvent:sendEvent(vehicle);
+        AutoDrive:broadCastUpdateToClients();
     else
         AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, closest, vehicle.ad.enteredMapMarkerString);
 	end;
@@ -164,7 +380,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 
         local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
         for i,point in pairs(AutoDrive.mapWayPoints) do
-            local distance = getDistance(point.x,point.z,x1,z1);
+            local distance = AutoDrive:getDistance(point.x,point.z,x1,z1);
 
             if distance < 15 then
                 vehicle.ad.iteratedDebugPoints[debugCounter] = point;

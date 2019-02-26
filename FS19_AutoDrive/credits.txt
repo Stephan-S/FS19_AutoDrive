@@ -1,0 +1,5 @@
+GUI Textures and Design: OlfDE
+Tips & Tricks for Lua/FS: DeckerMMIV
+Many code examples reused from Courseplay!
+Linedrawing code reused from Courseplay!
+French Translations: Anonymous-any

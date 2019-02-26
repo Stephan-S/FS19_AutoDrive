@@ -20,8 +20,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 		end;			
 	end;
 	
-	--remove node on all incoming nodes
-	
+	--remove node on all incoming nodes	
 	for _,node in pairs(AutoDrive.mapWayPoints) do
 		
 		local deleted = false;
@@ -42,8 +41,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 		
 	end;
 	
-	--adjust ids for all succesive nodes :(
-	
+	--adjust ids for all succesive nodes :(	
 	local deleted = false;
 	for _,node in pairs(AutoDrive.mapWayPoints) do
 		if _ > toDelete.id then
@@ -101,11 +99,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 		end;
 	end;
 
-	if g_server ~= nil then
-		AutoDrive.requestedWaypoints = true;
-		AutoDrive.requestedWaypointCount = 1;
-		--AutoDriveCourseDownloadEvent:sendEvent(vehicle);
-	end;
+	AutoDrive:broadCastUpdateToClients();
 end;
 
 function AutoDrive:removeMapMarker(toDelete)
@@ -125,11 +119,8 @@ function AutoDrive:removeMapMarker(toDelete)
 		end;
 	end;
 	AutoDrive:MarkChanged()
-	if g_server ~= nil then
-		AutoDrive.requestedWaypoints = true;
-		AutoDrive.requestedWaypointCount = 1;
-		--AutoDriveCourseDownloadEvent:sendEvent(vehicle);
-	end;
+	
+	AutoDrive:broadCastUpdateToClients();	
 end
 
 function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
@@ -144,7 +135,7 @@ function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 		
 		--edit current point
 		--print("Creating Waypoint #" .. AutoDrive.mapWayPointsCounter);
-		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter] = createNode(AutoDrive.mapWayPointsCounter,x, y, z, {},{},{});
+		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter] = AutoDrive:createNode(AutoDrive.mapWayPointsCounter,x, y, z, {},{},{});
 		if connectPrevious then
 			AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].incoming[1] = AutoDrive.mapWayPointsCounter-1;
 		end;
@@ -193,7 +184,7 @@ function AutoDrive:handleRecording(vehicle)
 		if i == 2 then
 			local x,y,z = getWorldTranslation(vehicle.components[1].node);
 			local wp = vehicle.ad.wayPoints[i-1];
-			if getDistance(x,z,wp.x,wp.z) > 3 then
+			if AutoDrive:getDistance(x,z,wp.x,wp.z) > 3 then
 				if vehicle.ad.createMapPoints == true then
 					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)		
 				end;
@@ -214,7 +205,7 @@ function AutoDrive:handleRecording(vehicle)
 			if angle >= 12 and angle < 15 then max_distance = 1; end;
 			if angle >= 15 and angle < 50 then max_distance = 0.5; end;
 
-			if getDistance(x,z,wp.x,wp.z) > max_distance then
+			if AutoDrive:getDistance(x,z,wp.x,wp.z) > max_distance then
 				if vehicle.ad.createMapPoints == true then
 					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)		
 				end;
@@ -249,7 +240,7 @@ function AutoDrive:isDualRoad(start, target)
 end;
 
 function AutoDrive:getDistanceBetweenNodes(start, target)
-	return getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
+	return AutoDrive:getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
 end;
 
 function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
@@ -259,7 +250,7 @@ function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
 	local minDistanceNode = -1;
 	for i = 1, ADTableLength(listOfNodes) do
 		for currentNode,checkNode in pairs(listOfNodes) do
-			local distance = getDistance(x, z, AutoDrive.mapWayPoints[checkNode.id].x, AutoDrive.mapWayPoints[checkNode.id].z);
+			local distance = AutoDrive:getDistance(x, z, AutoDrive.mapWayPoints[checkNode.id].x, AutoDrive.mapWayPoints[checkNode.id].z);
 			
 			local alreadyInList = false;	
 			for _,alreadySorted in pairs(sortedList) do
@@ -279,3 +270,191 @@ function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
 
 	return sortedList;
 end;
+
+function AutoDrive:getHighestConsecutiveIndex()
+	local toCheckFor = 0;
+	local consecutive = true;
+	while consecutive == true do
+		toCheckFor = toCheckFor + 1;
+		consecutive = false;
+		if AutoDrive.mapWayPoints[toCheckFor] ~= nil then
+			if AutoDrive.mapWayPoints[toCheckFor].id == toCheckFor then
+				consecutive = true;
+			end;
+		end;
+	end;
+	
+	return (toCheckFor-1);
+end;
+
+function AutoDrive:FastShortestPath(Graph,start,markerName, markerID)	
+	local wp = {};
+	local count = 1;
+	local id = start;
+	while id ~= -1 and id ~= nil do		
+		wp[count] = Graph[id];
+		count = count+1;
+		if id == markerID then
+			id = nil;
+		else
+			id = AutoDrive.mapWayPoints[id].marker[markerName];
+		end;
+	end;
+	
+	local wp_copy = AutoDrive:graphcopy(wp);
+		
+	return wp_copy;
+end;
+
+function AutoDrive:findClosestWayPoint(veh)
+	--returns waypoint closest to vehicle position
+	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
+	local closest = 1;
+	if AutoDrive.mapWayPoints[1] ~= nil then
+
+		local distance = AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
+		for i in pairs(AutoDrive.mapWayPoints) do
+			local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x,AutoDrive.mapWayPoints[i].z,x1,z1);
+			if dis < distance then
+				closest = i;
+				distance = dis;
+			end;
+		end;
+	end;
+	
+	return closest;
+end;
+
+function AutoDrive:findMatchingWayPoint(veh)
+	--returns waypoint closest to vehicle position and with the most suited heading
+	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
+	local rx,ry,rz = localDirectionToWorld(veh.components[1].node, 0,0,1);
+	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz) };
+
+	local candidates = {};
+	local candidatesCounter = 0;
+
+	for i in pairs(AutoDrive.mapWayPoints) do
+		local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x,AutoDrive.mapWayPoints[i].z,x1,z1);
+		if dis < 20 and dis > 1 then
+			candidatesCounter = candidatesCounter + 1;
+			candidates[candidatesCounter] = i;
+		end;
+	end;
+
+	if candidatesCounter == 0 then
+		return AutoDrive:findClosestWayPoint(veh);
+	end;
+
+	local closest = -1;
+	local distance = -1;
+	local angle = -1;
+
+	for i,id in pairs(candidates) do
+
+		local point = AutoDrive.mapWayPoints[id];
+		local nextP = nil;
+		local outIndex = 1;
+		if point.out ~= nil then			
+			if point.out[outIndex] ~= nil then
+				nextP = AutoDrive.mapWayPoints[point.out[outIndex]];
+			end;
+
+			while nextP ~= nil do
+				local vecToNextPoint 	= {x = nextP.x - point.x, 	z = nextP.z - point.z};
+				local vecToVehicle 		= {x = point.x - x1, 		z = point.z - z1 };
+				local angleToNextPoint 	= AutoDrive:angleBetween(vehicleVector, vecToNextPoint);
+				local angleToVehicle 	= AutoDrive:angleBetween(vehicleVector, vecToVehicle);
+				local dis = AutoDrive:getDistance(point.x,point.z,x1,z1);
+
+				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
+					closest = point.id;
+					distance = dis;
+					angle = angleToNextPoint;
+				else
+					if math.abs(angleToNextPoint) < math.abs(angle) then
+						if math.abs(angleToVehicle) < 60 then
+							if math.abs(angle) < 20 then
+								if dis < distance then
+									closest = point.id;
+									distance = dis;
+									angle = angleToNextPoint;
+								end;
+							else
+								closest = point.id;
+								distance = dis;
+								angle = angleToNextPoint;
+							end;
+						end;
+					end;
+				end;
+
+				outIndex = outIndex + 1;
+				if point.out[outIndex] ~= nil then
+					nextP = AutoDrive.mapWayPoints[point.out[outIndex]];
+				else
+					nextP = nil;
+				end;
+			end;
+		end;
+	end;
+
+	if closest == -1 then
+		return AutoDrive:findClosestWayPoint(veh);
+	end;
+
+	return closest;
+end;
+
+function AutoDrive:graphcopy(Graph)
+	local Q = {};
+	for i in pairs(Graph) do
+		local id = Graph[i]["id"];
+		local out = {};
+		local incoming = {};
+		local marker = {};
+		
+		for i2 in pairs(Graph[i]["out"]) do
+			out[i2] = Graph[i]["out"][i2];
+		end;
+
+		for i3 in pairs(Graph[i]["incoming"]) do
+			incoming[i3] = Graph[i]["incoming"][i3];
+		end;	
+		for i5 in pairs(Graph[i]["marker"]) do
+			marker[i5] = Graph[i]["marker"][i5];
+		end;		
+		
+		Q[i] = AutoDrive:createNode(id, Graph[i].x, Graph[i].y, Graph[i].z, out,incoming, marker);		
+	end;
+	return Q;
+end;
+
+function AutoDrive:createNode(id,x,y,z,out,incoming, marker)
+	local p = {};
+	p["x"] = x;
+	p["y"] = y;
+	p["z"] = z;
+	p["id"] = id;
+	p["out"] = out;
+	p["incoming"] = incoming;
+	p["marker"] = marker;
+	
+	return p;
+end
+
+function  AutoDrive:getDistance(x1,z1,x2,z2)
+	return math.sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2) );
+end;
+
+function AutoDrive:handleYPositionIntegrityCheck(vehicle)
+	if AutoDrive.handledIntegrity ~= true then
+		for _,wp in pairs(AutoDrive.mapWayPoints) do
+			if wp.y == -1 then
+				wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
+			end;
+		end;
+		AutoDrive.handledIntegrity = true;
+	end;
+end;
+

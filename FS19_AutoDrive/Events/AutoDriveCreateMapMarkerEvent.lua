@@ -14,27 +14,21 @@ function AutoDriveCreateMapMarkerEvent:new(vehicle, id, name)
     self.vehicle = vehicle;
     self.id = id;
     self.name = name;
-	--print("event new")
 	return self;
 end;
 
 function AutoDriveCreateMapMarkerEvent:writeStream(streamId, connection)
 
 	if g_server == nil then
-        print("Sending MapMarkerEvent to server");
         streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle));
 	
 		streamWriteInt16(streamId, self.id);
 		streamWriteStringOrEmpty(streamId, self.name);
 	end;
-	--print("event writeStream")
 end;
 
 function AutoDriveCreateMapMarkerEvent:readStream(streamId, connection)
-	--print("Received AutoDriveCreateMapMarkerEvent");
-
 	if g_server ~= nil then
-        print("Receiving new map marker");
         local id = streamReadInt32(streamId);
         local vehicle = NetworkUtil.getObject(id);
         
@@ -48,12 +42,7 @@ function AutoDriveCreateMapMarkerEvent:readStream(streamId, connection)
 end;
 
 function AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, id, name)
-	--print("Sending AutoDriveCreateMapMarkerEvent");
-	if g_server ~= nil then
-		--g_server:broadcastEvent(AutoDriveCreateMapMarkerEvent:new(point), nil, nil, nil);
-		--print("broadcasting")
-	else
+	if g_server == nil then
 		g_client:getServerConnection():sendEvent(AutoDriveCreateMapMarkerEvent:new(vehicle, id, name));
-		--print("sending event to server...")
 	end;
 end;

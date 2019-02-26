@@ -10,11 +10,13 @@
 
 source(Utils.getFilename("AutoDrive.lua", g_currentModDirectory))
 source(Utils.getFilename("AutoDriveHud.lua", g_currentModDirectory))
-source(Utils.getFilename("AutoDriveUpdateEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("AutoDriveCourseEditEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("AutoDriveCourseDownloadEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("AutoDriveCreateMapMarkerEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveEventUtil.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveUpdateEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveCourseEditEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveCourseDownloadEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveCreateMapMarkerEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", AutoDrive.directory))
 
 
 
@@ -69,8 +71,10 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
   
   end;
   
-  function AutoDrive_Register:update(dt)
-	  
+	function AutoDrive_Register:update(dt)
+		if AutoDrive ~= nil then
+			AutoDrive.runThisFrame = false;
+		end;
   end;
   
   function AutoDrive_Register:draw()

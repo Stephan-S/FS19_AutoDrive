@@ -21,7 +21,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
         if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
             destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
         end;
-        local distance = getDistance(x,z, destination.x, destination.z);
+        local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);
         if distance < 20 then
             for _,trailer in pairs(trailers) do
                 for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
@@ -57,7 +57,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
         local x,y,z = getWorldTranslation(vehicle.components[1].node);
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
-        local distance = getDistance(x,z, destination.x, destination.z);        
+        local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);        
         if distance < 20 then
             for _,trailer in pairs(trailers) do
                 for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do

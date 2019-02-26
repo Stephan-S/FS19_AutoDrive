@@ -56,7 +56,7 @@ function AutoDrive:loadStoredXML()
 					
 		saveXMLFile(adXml);
 		AutoDrive.xmlSaveFile = file;
-		AutoDrive:saveToXML(adXml);
+		--AutoDrive:saveToXML(adXml);
 	end;
 
 	AutoDrive:readFromXML(adXml);
@@ -68,8 +68,6 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 
 	AutoDrive.adXml = xmlFile;
-	--print("retrieving waypoints");
-	--print("map " .. g_currentMission.autoLoadedMap .. " waypoints are loaded");
 	if AutoDrive.loadedMap == nil then
 		print("AutoDrive could not load your map name");
 		return;
@@ -248,7 +246,6 @@ function AutoDrive:ExportRoutes()
 
 	createFolder(path .. "FS19_AutoDrive_Export");
 	
-	print("AD: Storing to xml file : " .. file);
 	print("AD: creating xml file at " .. file);
 	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive");			
 	saveXMLFile(adXml);
@@ -361,8 +358,7 @@ function AutoDrive:saveToXML(xmlFile)
 		markerIDsTable[i] = table.concat(innerMarkerIDsTable, ",");
 	end;
 		
-	if idFullTable[1] ~= nil then
-					
+	if idFullTable[1] ~= nil then					
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id" , table.concat(idFullTable, ",") );
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.x" , table.concat(xTable, ","));
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.y" , table.concat(yTable, ","));

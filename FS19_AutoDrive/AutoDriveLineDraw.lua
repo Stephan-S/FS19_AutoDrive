@@ -30,7 +30,11 @@ function AutoDrive:drawJobs()
     AutoDrive.LineDraw.jobCounter = 0;
 end;
 
-function AutoDrive:drawLine(startPoint, targetPoint, color)
+function AutoDrive:drawLine(startPoint, targetPoint, r, g, b, a)
+    if (startPoint == nil or targetPoint == nil) then
+        return;
+    end;
+    local color = AutoDrive:newColor(r, g, b, a);
     AutoDrive.LineDraw.jobCounter = AutoDrive.LineDraw.jobCounter + 1;
     while AutoDrive.LineDraw.jobCounter > AutoDrive.LineDraw.lineCounter do
         AutoDrive.LineDraw.lines[AutoDrive.LineDraw.lineCounter+1] = AutoDrive:createLineObject();

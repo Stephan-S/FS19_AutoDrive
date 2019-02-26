@@ -80,3 +80,145 @@ function ADBoolToString(value)
 	end;
 	return "false";
 end;
+
+function AutoDrive:angleBetween(vec1, vec2)
+
+	local scalarproduct_top = vec1.x * vec2.x + vec1.z * vec2.z;
+	local scalarproduct_down = math.sqrt(vec1.x * vec1.x + vec1.z*vec1.z) * math.sqrt(vec2.x * vec2.x + vec2.z*vec2.z)
+	local scalarproduct = scalarproduct_top / scalarproduct_down;
+
+	return math.deg(math.acos(scalarproduct));
+end
+
+function AutoDrive:createVector(x,y,z)
+	local t = {x=x, y=y, z=z};
+	return t;
+end;
+
+function AutoDrive:newColor(r, g, b, a)
+	local color = {r=r, g=g, b=b, a=a};
+	return color;
+end;
+
+function AutoDrive:getWorldDirection(fromX, fromY, fromZ, toX, toY, toZ)
+	-- NOTE: if only 2D is needed, pass fromY and toY as 0
+	local wdx, wdy, wdz = toX - fromX, toY - fromY, toZ - fromZ;
+	local dist = MathUtil.vector3Length(wdx, wdy, wdz); -- length of vector
+	if dist and dist > 0.01 then
+		wdx, wdy, wdz = wdx/dist, wdy/dist, wdz/dist; -- if not too short: normalize
+		return wdx, wdy, wdz, dist;
+	end;
+	return 0, 0, 0, 0;
+end;
+
+AIVehicleUtil.driveInDirection = function (self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
+
+	local angle = 0;
+    if lx ~= nil and lz ~= nil then
+        local dot = lz;
+		angle = math.deg(math.acos(dot));
+        if angle < 0 then
+            angle = angle+180;
+        end
+        local turnLeft = lx > 0.00001;
+        if not moveForwards then
+            turnLeft = not turnLeft;
+        end
+        local targetRotTime = 0;
+        if turnLeft then
+            --rotate to the left
+			targetRotTime = self.maxRotTime*math.min(angle/steeringAngleLimit, 1);
+        else
+            --rotate to the right
+			targetRotTime = self.minRotTime*math.min(angle/steeringAngleLimit, 1);
+		end
+		if targetRotTime > self.rotatedTime then
+			self.rotatedTime = math.min(self.rotatedTime + dt*self:getAISteeringSpeed(), targetRotTime);
+		else
+			self.rotatedTime = math.max(self.rotatedTime - dt*self:getAISteeringSpeed(), targetRotTime);
+		end
+    end
+    if self.firstTimeRun then
+        local acc = acceleration;
+        if maxSpeed ~= nil and maxSpeed ~= 0 then
+            if math.abs(angle) >= slowAngleLimit then
+                maxSpeed = maxSpeed * slowDownFactor;
+            end
+            self.spec_motorized.motor:setSpeedLimit(maxSpeed);
+            if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
+                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE);
+            end
+        else
+            if math.abs(angle) >= slowAngleLimit then
+                acc = slowAcceleration;
+            end
+        end
+        if not allowedToDrive then
+            acc = 0;
+        end
+        if not moveForwards then
+            acc = -acc;
+        end
+		--FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
+		WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal*self.movingDirection, acc, not allowedToDrive, true)
+    end
+end
+
+function AutoDrive:onActivateObject(superFunc,vehicle)
+	if vehicle~= nil then
+		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+		if g_currentMission.controlledVehicle ~= vehicle then
+			local oldControlledVehicle = nil;
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle;
+			else
+				oldControlledVehicle = g_currentMission.controlledVehicle;
+			end;
+			g_currentMission.controlledVehicle = vehicle;
+
+			superFunc(self, vehicle);
+
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle;
+				vehicle.ad.oldControlledVehicle = nil;
+			else
+				if oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = oldControlledVehicle
+				end;								
+			end;
+			return;
+		end
+	end
+	superFunc(self, vehicle);
+end
+
+-- LoadTrigger doesn't allow filling non controlled tools
+function AutoDrive:getIsActivatable(superFunc,objectToFill)
+	--when the trigger is filling, it uses this function without objectToFill
+	if objectToFill ~= nil then
+		local vehicle = objectToFill:getRootVehicle()
+		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive then
+			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+			if g_currentMission.controlledVehicle ~= vehicle then
+				local oldControlledVehicle = nil;
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle;
+				else
+					oldControlledVehicle = g_currentMission.controlledVehicle;
+				end;
+				g_currentMission.controlledVehicle = vehicle or objectToFill;
+				local result = superFunc(self,objectToFill);
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle;
+					vehicle.ad.oldControlledVehicle = nil;
+				else
+					if oldControlledVehicle ~= nil then
+						g_currentMission.controlledVehicle = oldControlledVehicle
+					end;								
+				end;
+				return result;
+			end
+		end
+	end
+	return superFunc(self,objectToFill);
+end

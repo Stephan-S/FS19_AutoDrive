@@ -50,7 +50,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	AutoDrive.HudY = self.posY;
 	AutoDrive.HudChanged = true;
 	
-	self.Speed = "40";
+	self.Speed = "60";
 	self.Target = "Not Ready"
 	self.showHud = true;
 	if AutoDrive.mapMarker[1] ~= nil then
@@ -440,19 +440,22 @@ end;
 
 function AutoDriveHud:toggleHud(vehicle)
     if self.showHud == false then
-        self.showHud = true;
+		self.showHud = true;		
+		vehicle.ad.showingHud = true;
     else
 		if AutoDrive.showMouse then
-			AutoDrive.Hud.toggleMouse(vehicle);
+			AutoDrive.Hud:toggleMouse(vehicle);
 		end;
 		self.showHud = false;
+		vehicle.ad.showingHud = false;
     end;
 end;
 
 function AutoDriveHud:toggleMouse(vehicle)
     if self.showHud == true then
         if AutoDrive.showMouse == false then
-            AutoDrive.showMouse = true;					            
+			AutoDrive.showMouse = true;		
+			vehicle.ad.showingMouse = true;			            
             g_inputBinding:setShowMouseCursor(true);
             vehicle.ad.camerasBackup = {};
             if vehicle.spec_enterable ~= nil then
@@ -465,7 +468,8 @@ function AutoDriveHud:toggleMouse(vehicle)
             end;
         else
             g_inputBinding:setShowMouseCursor(false);
-            AutoDrive.showMouse = false;				            
+            AutoDrive.showMouse = false;	
+			vehicle.ad.showingMouse = false;				            
             if vehicle.spec_enterable ~= nil then
                 if vehicle.spec_enterable.cameras ~= nil then
                     for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
@@ -514,7 +518,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         end;
 
         if posX > (self.Background.close_small.posX) and posX < (self.Background.close_small.posX + self.Background.close_small.width) and posY > (self.Background.close_small.posY) and posY < (self.Background.close_small.posY + self.Background.close_small.height) then
-		   	AutoDrive.Hud.toggleHud(self);
+		   	AutoDrive.Hud:toggleHud(vehicle);
         end;
 
         local adPosX = self.posX + self.Background.destination.width;

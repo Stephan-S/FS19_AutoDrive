@@ -12,15 +12,11 @@ end;
 function AutoDriveCourseEditEvent:new(point)
 	local self = AutoDriveCourseEditEvent:emptyNew()
 	self.point = point;
-	--print("event new")
 	return self;
 end;
 
 function AutoDriveCourseEditEvent:writeStream(streamId, connection)
-
 	if g_server ~= nil then
-		--print("Broadcasting course edit event");
-
 		local incomingTable = {};
 		for incomingIndex, incomingID in pairs(self.point.incoming) do
 			incomingTable[incomingIndex] = incomingID;
@@ -53,14 +49,10 @@ function AutoDriveCourseEditEvent:writeStream(streamId, connection)
 		streamWriteStringOrEmpty(streamId, markerIDsString)
 		streamWriteStringOrEmpty(streamId, markerNamesString)
 	end;
-	--print("event writeStream")
 end;
 
 function AutoDriveCourseEditEvent:readStream(streamId, connection)
-	--print("Received AutoDriveCourseEditEvent");
-
 	if g_server == nil then
-		--print("Receiving course edit");
 		local point = {};
 
 		point.id = streamReadInt16(streamId);
@@ -102,12 +94,7 @@ function AutoDriveCourseEditEvent:readStream(streamId, connection)
 end;
 
 function AutoDriveCourseEditEvent:sendEvent(point)
-	--print("Sending AutoDriveCourseEditEvent");
 	if g_server ~= nil then
 		g_server:broadcastEvent(AutoDriveCourseEditEvent:new(point), nil, nil, nil);
-		--print("broadcasting")
-	else
-		--g_client:getServerConnection():sendEvent(AutoDriveCourseEditEvent:new(vehicle));
-		--print("sending event to server...")
 	end;
 end;

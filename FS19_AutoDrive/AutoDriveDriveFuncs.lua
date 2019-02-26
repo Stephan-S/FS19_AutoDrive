@@ -21,7 +21,7 @@ function AutoDrive:handleDriving(vehicle, dt)
             else
                 local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
 
-				if getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
+				if AutoDrive:getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
                     AutoDrive:handleReachedWayPoint(vehicle);  
 				end;
 			end;
@@ -94,7 +94,7 @@ function AutoDrive:checkForDeadLock(vehicle, dt)
 end;
 
 function AutoDrive:handlePrintMessage(vehicle, dt)    
-    if vehicle == g_currentMission.controlledVehicle then                
+    if vehicle == g_currentMission.controlledVehicle or (g_dedicatedServerInfo ~= nil and (not AutoDrive.runThisFrame)) then                
     
         if AutoDrive.print.currentMessage ~= nil then
             AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt;
@@ -237,7 +237,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 
                 local angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_ref.x, z = wp_ahead.z - wp_ref.z },
                                                 {x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
-                if getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
+                if AutoDrive:getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
                                 wp_ahead.x,                                         wp_ahead.z) 
                     <= distanceToLookAhead then
                     highestAngle = math.max(highestAngle, angle);
@@ -277,8 +277,8 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
         local start = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
-        local distance1 = getDistance(x,z, destination.x, destination.z);
-        local distance2 = getDistance(x,z, start.x, start.z);
+        local distance1 = AutoDrive:getDistance(x,z, destination.x, destination.z);
+        local distance2 = AutoDrive:getDistance(x,z, start.x, start.z);
         if distance1 < 20 or distance2 < 20 then
             if vehicle.ad.speedOverride > 12 then
                 vehicle.ad.speedOverride = 12;
@@ -346,14 +346,31 @@ function AutoDrive:handleDeadlock(vehicle, dt)
             AutoDrive:stopAD(vehicle);
 		else
 			--print("AD: Trying to recover from deadlock")
-			if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] ~= nil then
-				vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + 1;
-				vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-				vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+            if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3] ~= nil then
+                --figure out best moment to switch to next waypoint!
 
-				vehicle.ad.inDeadLock = false;
-				vehicle.ad.timeTillDeadLock = 15000;
-				vehicle.ad.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter - 1;
+                local x,y,z = getWorldTranslation( vehicle.components[1].node );
+                local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
+                local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
+
+                local wpAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2]
+                local wpTwoAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3]
+
+                local wpVector = {x= (wpTwoAhead.x - wpAhead.x), z= (wpTwoAhead.z - wpAhead.z) };
+                local vehicleToWPVector = {x= (wpAhead.x - x), z= (wpAhead.z - z) };
+
+                local angleBetweenVehicleVectorAndNextCourse = AutoDrive:angleBetween(vehicleVector, wpVector);
+                local angleBetweenVehicleAndLookAheadWp = AutoDrive:angleBetween(vehicleVector, vehicleToWPVector);
+
+                if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 20 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -10000) then                            
+                    vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + 2;
+                    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+                    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+
+                    vehicle.ad.inDeadLock = false;
+                    vehicle.ad.timeTillDeadLock = 15000;
+                    vehicle.ad.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter - 1;
+                end;
 			end;
 		end;
 	end;
@@ -371,11 +388,11 @@ function AutoDrive:getLookAheadTarget(vehicle)
 
         local lookAheadID = 1;
         local lookAheadDistance = 5;
-        local distanceToCurrentTarget = getDistance(x,z, wp_current.x, wp_current.z);
+        local distanceToCurrentTarget = AutoDrive:getDistance(x,z, wp_current.x, wp_current.z);
         lookAheadDistance = lookAheadDistance - distanceToCurrentTarget;
 
         local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAheadID];
-        local distanceToNextTarget = getDistance(x,z, wp_ahead.x, wp_ahead.z);
+        local distanceToNextTarget = AutoDrive:getDistance(x,z, wp_ahead.x, wp_ahead.z);
         while lookAheadDistance > distanceToNextTarget do
             lookAheadDistance = lookAheadDistance - distanceToNextTarget;
             lookAheadID = lookAheadID + 1;
@@ -384,7 +401,7 @@ function AutoDrive:getLookAheadTarget(vehicle)
             end;
             wp_current = wp_ahead;
             wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAheadID];
-            distanceToNextTarget = getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z);
+            distanceToNextTarget = AutoDrive:getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z);
         end;
 
         local distX = wp_ahead.x - wp_current.x;
@@ -408,7 +425,6 @@ function AutoDrive:getLookAheadTarget(vehicle)
     end;
 
     --local x,y,z = getWorldTranslation(vehicle.components[1].node);    
-    --AutoDrive:drawLine(createVector(targetX,y, targetZ), createVector(x,y,z), newColor(1,0,1,1));
-
+    --AutoDrive:drawLine(AutoDrive:createVector(targetX,y, targetZ), AutoDrive:createVector(x,y,z), 1, 0, 1, 1);
     return targetX, targetZ;
 end;

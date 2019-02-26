@@ -9,10 +9,8 @@ function AutoDriveRequestWayPointEvent:emptyNew()
 	return self;
 end;
 
-function AutoDriveRequestWayPointEvent:new(vehicle)
+function AutoDriveRequestWayPointEvent:new()
 	local self = AutoDriveRequestWayPointEvent:emptyNew()
-	self.vehicle = vehicle;
-	--print("event new")
 	return self;
 end;
 
@@ -21,33 +19,31 @@ function AutoDriveRequestWayPointEvent:writeStream(streamId, connection)
 		return;
 	end;
 	if g_server == nil then
-		print("Requesting waypoints");
-		streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle));
+        --print("Requesting waypoints");
+        local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId);
+		streamWriteInt32(streamId, user:getId());
 	end;
-	--print("event writeStream")
 end;
 
 function AutoDriveRequestWayPointEvent:readStream(streamId, connection)
-	--print("Received Event");
 	if AutoDrive == nil then
 		return;
 	end;
 
 	if g_server ~= nil then
-		print("Receiving request for broadcasting waypoints");
-		local id = streamReadInt32(streamId);
-		local vehicle = NetworkUtil.getObject(id);
+		--print("Receiving request for broadcasting waypoints");
+        local id = streamReadInt32(streamId);
+        AutoDrive.Server.Users[id] = {};
+        AutoDrive.Server.Users[id].highestIndex = 1;
+        AutoDrive.Server.Users[id].ackReceived = true;
+        AutoDrive.Server.Users[id].keepAlive = 300;
 		AutoDrive.requestedWaypoints = true;
 		AutoDrive.requestedWaypointCount = 1;
 	end;
 end;
 
 function AutoDriveRequestWayPointEvent:sendEvent(vehicle)
-	if g_server ~= nil then
-		--g_server:broadcastEvent(AutoDriveRequestWayPointEvent:new(vehicle), nil, nil, nil);
-		--print("broadcasting")
-	else
+	if g_server == nil then
 		g_client:getServerConnection():sendEvent(AutoDriveRequestWayPointEvent:new(vehicle));
-		--print("sending event to server...")
 	end;
 end;
