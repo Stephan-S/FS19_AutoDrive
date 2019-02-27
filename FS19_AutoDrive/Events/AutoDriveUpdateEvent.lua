@@ -285,11 +285,12 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.enableAI = enableAI;
 		vehicle.ad.disableAI = disableAI;
 
-		vehicle.ad.showingHud = showingHud;
-		vehicle.ad.showingMouse = showingMouse;
+		--vehicle.ad.showingHud = showingHud;
+		--vehicle.ad.showingMouse = showingMouse;
 
-		--AutoDrive.showHud = showHud;
-		--AutoDrive.showMouse = showMouse;
+		--AutoDrive.Hud.showHud = AD_showingHud;
+		--AutoDrive.showMouse = AD_showingMouse;
+
 		AutoDrive.print.currentMessage = AD_currentMessage;
 	end;
 		

@@ -38,9 +38,7 @@ function AutoDrive:InputHandlingClientOnly(vehicle, input)
 	if input == "input_recalculate" then --make sure the hud button shows active recalculation when server is busy
 		AutoDrive.Recalculation.continue = true;
 	end;
-end
 
-function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_toggleHud" then
 		AutoDrive.Hud:toggleHud(vehicle);				
 	end;
@@ -48,7 +46,9 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_toggleMouse" then
 		AutoDrive.Hud:toggleMouse(vehicle);				
 	end;
+end
 
+function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
 		AutoDrive:inputCreateMapMarker(vehicle);
 	end;

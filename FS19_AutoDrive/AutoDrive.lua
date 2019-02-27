@@ -368,17 +368,12 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;
 end;
 
-function AutoDrive:onLeaveVehicle()
-	self.ad.showingHud = AutoDrive.Hud.showHud;
-	self.ad.showingMouse = AutoDrive.showMouse;
+function AutoDrive:onLeaveVehicle()	
 	local storedshowingHud = self.ad.showingHud;
 	local storedMouse = self.ad.showingMouse;
-	if self.ad.showingHud == true then
-			AutoDrive.Hud:toggleHud(self);
-	end;
-	if self.ad.showingMouse == true then
+	if (AutoDrive.showMouse) then
 		AutoDrive.Hud:toggleMouse(self);
-	end
+	end;
 	self.ad.showingHud = storedshowingHud
 	self.ad.showingMouse = storedMouse;
 end;
