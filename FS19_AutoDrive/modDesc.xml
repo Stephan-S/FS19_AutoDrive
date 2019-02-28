@@ -294,6 +294,7 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
 		<action name="AD_export_routes" 			category="VEHICLE" ignoreComboMask="false"/>
 		<action name="AD_import_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
 		<action name="AD_upload_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADSilomode" 					category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 
 	<inputBindings>
@@ -306,68 +307,58 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>
 		<actionBinding action="ADEnDisable">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_up" axisComponent="+" neutralInput="0" index="1"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_17" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectTarget">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_right" axisComponent="+" neutralInput="0" index="1"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_18" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectPreviousTarget">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_left" axisComponent="+" neutralInput="0" index="1"/>
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_20" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectTargetUnload">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_3+" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectPreviousTargetUnload">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_3-" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADActivateDebug">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_11" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugShowClosest">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_9" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugSelectNeighbor">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_10" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugChangeNeighbor">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+       	 	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_4-" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugCreateConnection">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_12" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugCreateMapMarker">
 			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>
 		<actionBinding action="ADDebugDeleteWayPoint">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_4" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugForceUpdate">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_1" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugDeleteDestination">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_i" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectNextFillType">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_o" axisComponent="+" neutralInput="0" index="1"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_2-" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectPreviousFillType">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_4" axisComponent="+" neutralInput="0" index="1"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_2+" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADRecord">
 			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
@@ -378,12 +369,13 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
 		</actionBinding>
 		<actionBinding action="AD_import_routes">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_lctrl KEY_KP_1" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="AD_upload_routes">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_2" axisComponent="+" neutralInput="0" index="1"/>
+		</actionBinding>
+		<actionBinding action="ADSilomode">
+       	 	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_4+" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 	</inputBindings>
 

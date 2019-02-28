@@ -6,7 +6,7 @@ AutoDrive.directory = g_currentModDirectory;
 AutoDrive.actions   = { 'ADToggleMouse', 'ADToggleHud', 'ADEnDisable', 'ADSelectTarget', 'ADSelectPreviousTarget', 'ADSelectTargetUnload',
 						'ADSelectPreviousTargetUnload', 'ADActivateDebug', 'ADDebugShowClosest', 'ADDebugSelectNeighbor',
 						'ADDebugChangeNeighbor', 'ADDebugCreateConnection', 'ADDebugCreateMapMarker', 'ADDebugDeleteWayPoint',
-						'ADDebugForceUpdate', 'ADDebugDeleteDestination' }
+						'ADDebugForceUpdate', 'ADDebugDeleteDestination', 'ADSilomode' }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -59,6 +59,8 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		g_inputBinding:setActionEventTextVisibility(eventName, true)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSilomode', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)	
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)

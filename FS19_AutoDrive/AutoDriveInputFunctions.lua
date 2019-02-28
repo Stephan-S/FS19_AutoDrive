@@ -66,9 +66,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_importRoutes" then
 		AutoDrive:ImportRoutes();
 	end;
-end;
-
-function AutoDrive:InputHandlingServerOnly(vehicle, input)	
+	
 	if input == "input_toggleHud" then
 		AutoDrive.Hud:toggleHud(vehicle);				
 	end;
@@ -76,7 +74,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	if input == "input_toggleMouse" then
 		AutoDrive.Hud:toggleMouse(vehicle);				
 	end;
-	
+end;
+
+function AutoDrive:InputHandlingServerOnly(vehicle, input)	
 	if input == "input_silomode" then
 		AutoDrive:inputSiloMode(vehicle);
 	end;
