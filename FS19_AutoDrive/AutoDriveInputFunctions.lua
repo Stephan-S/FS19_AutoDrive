@@ -25,6 +25,9 @@ end;
 
 function AutoDrive:InputHandlingClientOnly(vehicle, input)
 	if input == "input_uploadRoutes" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId);
 		if user:getIsMasterUser() then
 			print("User is admin and allowed to upload course");
@@ -42,6 +45,9 @@ end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 
@@ -60,10 +66,16 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	end;
 
 	if input == "input_exportRoutes" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		AutoDrive:ExportRoutes();
 	end;
 
 	if input == "input_importRoutes" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		AutoDrive:ImportRoutes();
 	end;
 	
@@ -82,6 +94,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_record" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		AutoDrive:inputRecord(vehicle)
 	end;
 	
@@ -114,6 +129,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_toggleConnection" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		local closest = AutoDrive:findClosestWayPoint(vehicle);
 		AutoDrive:toggleConnectionBetween(AutoDrive.mapWayPoints[closest], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint]);
 	end;
@@ -136,6 +154,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;	
 
 	if input == "input_removeWaypoint" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 			local closest = AutoDrive:findClosestWayPoint(vehicle)
 			AutoDrive:removeMapWayPoint( AutoDrive.mapWayPoints[closest] );
@@ -144,6 +165,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_removeDestination" then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;
 		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 			local closest = AutoDrive:findClosestWayPoint(vehicle)
 			AutoDrive:removeMapMarker( AutoDrive.mapWayPoints[closest] );

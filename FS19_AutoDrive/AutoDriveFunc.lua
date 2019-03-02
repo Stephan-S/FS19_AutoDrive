@@ -221,19 +221,7 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
 
 	for _,other in pairs(g_currentMission.vehicles) do --pairs(g_currentMission.nodeToVehicle) do
 		if other ~= vehicle then
-			local isAttachedToMe = false;
-
-			for _i,impl in pairs(vehicle:getAttachedImplements()) do
-				if impl.object ~= nil then
-					if impl.object == other then isAttachedToMe = true; end;
-                    
-					if impl.object.getAttachedImplements ~= nil then
-						for _, implement in pairs(impl.object:getAttachedImplements()) do
-							if implement.object == other then isAttachedToMe = true; end;
-						end;
-					end;
-				end;
-            end;
+			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);			
             
 			if isAttachedToMe == false and other.components ~= nil then
 				if other.sizeWidth == nil then
@@ -286,18 +274,8 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
                             --AutoDrive:drawLine(otherBoundingBox[4], otherBoundingBox[1], 0, 0, 1, 1);							
 
 							if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
-								if other.configFileName ~= nil then
-									--print("vehicle " .. vehicle.configFileName .. " has collided with " .. other.configFileName);
-								else
-									if other.getName ~= nil then
-										--print("vehicle " .. vehicle.configFileName .. " has collided with " .. other.getName());
-									else
-										--print("vehicle " .. vehicle.configFileName .. " has collided with " .. "unknown");
-									end;
-								end;
 								return true;
 							end;
-
 						end;
 					end;
 				end;
@@ -307,3 +285,24 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
 
 	return false;
 end
+
+function AutoDrive:checkIsConnected(toCheck, other)
+	local isAttachedToMe = false;
+	if toCheck.getAttachedImplements == nil then
+		return false;
+	end;
+
+	for _i,impl in pairs(toCheck:getAttachedImplements()) do
+		if impl.object ~= nil then
+			if impl.object == other then  
+				return true;
+			end;
+			
+			if impl.object.getAttachedImplements ~= nil then
+				isAttachedToMe = isAttachedToMe or AutoDrive:checkIsConnected(impl.object, other)
+			end;
+		end;
+	end;
+
+	return isAttachedToMe;
+end;

@@ -59,6 +59,7 @@ function AutoDrive:loadStoredXML()
 		--AutoDrive:saveToXML(adXml);
 	end;
 
+	AutoDrive.adXml = adXml;
 	AutoDrive:readFromXML(adXml);
 end;
 
@@ -66,8 +67,7 @@ function AutoDrive:readFromXML(xmlFile)
 	if xmlFile == nil then
 		return;
 	end;
-
-	AutoDrive.adXml = xmlFile;
+	
 	if AutoDrive.loadedMap == nil then
 		print("AutoDrive could not load your map name");
 		return;
@@ -89,6 +89,25 @@ function AutoDrive:readFromXML(xmlFile)
 
 	AutoDrive.HudX = getXMLFloat(xmlFile,"AutoDrive.HudX");
 	AutoDrive.HudY = getXMLFloat(xmlFile,"AutoDrive.HudY");
+
+	local mapMarker = {};
+	local mapMarkerCounter = 1;
+	mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
+	
+	AutoDrive.mapMarker = {};
+
+	while mapMarker.name ~= nil do
+		--print("Loading map marker: " .. mapMarker.name);
+		mapMarker.id = getXMLFloat(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".id");
+
+		AutoDrive.mapMarker[mapMarkerCounter] = mapMarker;
+
+		mapMarker = nil;
+		mapMarker = {};
+		mapMarkerCounter = mapMarkerCounter + 1;	
+		AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
+		mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
+	end;
 		
 	local idString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id");
 	
@@ -141,13 +160,15 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 	
 	local markerNamesString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerNames");
-	local markerNamesTable = markerNamesString:split(";");
-	local markerNamesSplitted = {};
-	for i, outer in pairs(markerNamesTable) do
-		local markerNames = outer:split(",");
-		markerNamesSplitted[i] = markerNames;
-		if markerNames == nil then
-			markerNamesSplitted[i] = {outer};
+	if markerNamesString ~= nil then
+		local markerNamesTable = markerNamesString:split(";");
+		local markerNamesSplitted = {};
+		for i, outer in pairs(markerNamesTable) do
+			local markerNames = outer:split(",");
+			markerNamesSplitted[i] = markerNames;
+			if markerNames == nil then
+				markerNamesSplitted[i] = {outer};
+			end;
 		end;
 	end;
 	
@@ -182,10 +203,28 @@ function AutoDrive:readFromXML(xmlFile)
 			end;
 						
 			wp["marker"] = {};
-			if markerNamesSplitted[i] ~= nil then
-				for i2, markerName in pairs(markerNamesSplitted[i]) do
-					if markerName ~= "" then
-						wp.marker[markerName] = tonumber(markerIDSplitted[i][i2]);
+			if markerNamesSplitted ~= nil then
+				if markerNamesSplitted[i] ~= nil then
+					for i2, markerName in pairs(markerNamesSplitted[i]) do
+						if markerName ~= "" then						
+							wp.marker[markerName] = tonumber(markerIDSplitted[i][i2]);
+						end;
+					end;
+				end;
+			else
+				if markerIDSplitted[i] ~= nil then
+					if markerIDSplitted[i][1] == "=" then
+						for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+							wp.marker[marker.name] = tonumber(markerIDSplitted[i][2]);
+						end;
+					else
+						for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+							wp.marker[marker.name] = tonumber(markerIDSplitted[i][markerIndex]);
+						end;
+					end;
+				else
+					for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+						wp.marker[marker.name] = -1;
 					end;
 				end;
 			end;
@@ -205,30 +244,13 @@ function AutoDrive:readFromXML(xmlFile)
 	else
 		AutoDrive.mapWayPointsCounter = 0;
 	end;
-		
-	local mapMarker = {};
-	local mapMarkerCounter = 1;
-	mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
-	
-	AutoDrive.mapMarker = {};
 
-	while mapMarker.name ~= nil do
-		--print("Loading map marker: " .. mapMarker.name);
-		mapMarker.id = getXMLFloat(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".id");
-
-		local node = createTransformGroup(mapMarker.name);
-		setTranslation(node, AutoDrive.mapWayPoints[mapMarker.id].x, AutoDrive.mapWayPoints[mapMarker.id].y + 4 , AutoDrive.mapWayPoints[mapMarker.id].z  );
-		mapMarker.node = node;
-		--TODO: do this on import as well
-
-		AutoDrive.mapMarker[mapMarkerCounter] = mapMarker;
-
-		mapMarker = nil;
-		mapMarker = {};
-		mapMarkerCounter = mapMarkerCounter + 1;	
-		AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
-		mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
+	for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+		local node = createTransformGroup(marker.name);
+		setTranslation(node, AutoDrive.mapWayPoints[marker.id].x, AutoDrive.mapWayPoints[marker.id].y + 4 , AutoDrive.mapWayPoints[marker.id].z  );
+		marker.node = node;
 	end;
+
 	
 	local recalculate = true;
 	local recalculateString = getXMLString(xmlFile, "AutoDrive.Recalculation");
@@ -262,8 +284,7 @@ function AutoDrive:ImportRoutes()
 	print("AD: Trying to load xml file from " .. file);
 	if fileExists(file) then
 		print("AD: Loading xml file from " .. file);
-		AutoDrive.xmlSaveFile = file;
-		adXml = loadXMLFile("AutoDrive_XML", file);
+		local adXml = loadXMLFile("AutoDrive_XML", file);
 		
 		local VersionCheck = getXMLString(adXml, "AutoDrive.version");
 		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap);
@@ -273,6 +294,7 @@ function AutoDrive:ImportRoutes()
 			AutoDrive:readFromXML(adXml);
 			AutoDrive.requestedWaypoints = true;
 			AutoDrive.requestedWaypointCount = 1;
+			AutoDrive:MarkChanged();
 		end;
 	end;
 end;
@@ -322,11 +344,12 @@ function AutoDrive:saveToXML(xmlFile)
 	for i,p in pairs(AutoDrive.mapWayPoints) do
 	
 		idFullTable[i] = p.id;
-		xTable[i] = p.x;
-		yTable[i] = p.y;
-		zTable[i] = p.z;
+		xTable[i] = string.format("%.3f", p.x);
+		yTable[i] = string.format("%.3f", p.y);
+		zTable[i] = string.format("%.3f", p.z);
 		
-		outTable[i] = table.concat(p.out, ",");
+		
+		outTable[i] = table.concat(p.out, ",");		
 		if outTable[i] == nil or outTable[i] == "" then
 			outTable[i] = "-1";
 		end;
@@ -345,17 +368,36 @@ function AutoDrive:saveToXML(xmlFile)
 			end;
 		end;
 		incomingTable[i] = table.concat(innerIncomingTable, ",");
-					
-		local markerCounter = 1;
-		local innerMarkerNamesTable = {};
-		local innerMarkerIDsTable = {};
+		
+		
+		local allMarkerIdsMatch = true;
+		local lastMarker = nil;
+		local firstMarker = nil;
 		for i2,marker in pairs(p.marker) do
-			innerMarkerIDsTable[markerCounter] = marker;
-			innerMarkerNamesTable[markerCounter] = i2;
-			markerCounter = markerCounter + 1;
+			if lastMarker == nil then
+				lastMarker = marker;
+				firstMarker = i2;
+			else
+				if lastMarker ~= marker then
+					allMarkerIdsMatch = false;
+				end;
+			end;
 		end;
-		markerNamesTable[i] = table.concat(innerMarkerNamesTable, ",");
-		markerIDsTable[i] = table.concat(innerMarkerIDsTable, ",");
+
+		if allMarkerIdsMatch == true then
+			if p.marker[firstMarker] ~= nil then
+				markerIDsTable[i] = "=," .. p.marker[firstMarker];
+			end;
+		else
+			local markerCounter = 1;
+			local innerMarkerNamesTable = {};
+			local innerMarkerIDsTable = {};
+			for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+				innerMarkerIDsTable[markerCounter] = p.marker[marker.name];
+				markerCounter = markerCounter + 1;
+			end;
+			markerIDsTable[i] = table.concat(innerMarkerIDsTable, ",");		
+		end;		
 	end;
 		
 	if idFullTable[1] ~= nil then					
@@ -367,15 +409,30 @@ function AutoDrive:saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming" , table.concat(incomingTable, ";") );
 		if markerIDsTable[1] ~= nil then
 			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID" , table.concat(markerIDsTable, ";"));
-			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerNames" , table.concat(markerNamesTable, ";"));
 		end;
 	end;
 		
 	for i in pairs(AutoDrive.mapMarker) do
-
 		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. i ..".id", AutoDrive.mapMarker[i].id);
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. i ..".name", AutoDrive.mapMarker[i].name);		
 	end;
 	
 	saveXMLFile(xmlFile);
+end;
+
+function AutoDrive:tableEntriesAreEqual(list)
+	local match = true;
+	local toCompare = nil;
+
+	for _,element in pairs(list) do
+		if toCompare == nil then
+			toCompare = element;
+		else
+			if toCompare ~= element then
+				match = false;
+			end;
+		end;	
+	end;
+
+	return match;
 end;

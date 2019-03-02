@@ -517,10 +517,6 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
             end;            
         end;
 
-        if posX > (self.Background.close_small.posX) and posX < (self.Background.close_small.posX + self.Background.close_small.width) and posY > (self.Background.close_small.posY) and posY < (self.Background.close_small.posY + self.Background.close_small.height) then
-		   	AutoDrive.Hud:toggleHud(vehicle);
-        end;
-
         local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
         local height = 0.015;
@@ -541,7 +537,11 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 		
 		if posX > (self.Background.Header.posX) and posX < (self.Background.Header.posX + self.Background.Header.width) and posY > (self.Background.Header.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
-			self:startMovingHud(posX, posY);
+			if posX > (self.Background.close_small.posX) and posX < (self.Background.close_small.posX + self.Background.close_small.width) and posY > (self.Background.close_small.posY) and posY < (self.Background.close_small.posY + self.Background.close_small.height) then
+				AutoDrive.Hud:toggleHud(vehicle);
+			else
+				self:startMovingHud(posX, posY);				
+			end;
 		end;
 		
 		if posX > (self.Background.unloadOverlay.posX) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then

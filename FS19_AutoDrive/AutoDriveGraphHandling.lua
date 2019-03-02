@@ -86,6 +86,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	for _,marker in pairs(AutoDrive.mapMarker) do
 		if marker.id == toDelete.id then
 			deletedMarker = true;
+			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1;
 		end;
 		if deletedMarker then
 			if AutoDrive.mapMarker[_+1] ~= nil then
