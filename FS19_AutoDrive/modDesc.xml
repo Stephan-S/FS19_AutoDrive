@@ -9,17 +9,13 @@
 	</title>
 	<description>
 		<en>
-<![CDATA[ToDO
+<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
 ]]>
 		</en>
 		<de>
-<![CDATA[ToDO
+<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
 ]]>
 	   </de>
-		<it>
-<![CDATA[ToDO
-]]>
-	   </it>
 		<fr>
 <![CDATA[Une alternative "Courseplay" muni d'un éditeur intégré très pratique pour déplacer rapidement les véhicules d'un point à un autre de manière autonome, ou pour éffectuer des tâches de transport. 
 Créer, modifier, supprimer vos routes, points de passage, ou croisements sans supprimer la totalité de votre route !
@@ -33,165 +29,166 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
         <sourceFile filename="register.lua" />
     </extraSourceFiles>
 	<l10n>
-		<text name="UNKNOWN">	           						<en>Unknown</en>         						<de>Unbekannt</de>		        			<it>Sconosciuto</it>									<fr>Inconnu</fr>         					</text>
-		<text name="input_ADToggleHud"> 						<en>AD: Toggle HUD</en> 						<de>AD: HUD ein/ausblenden</de>				<it>AD: HUD mostra/nascondi</it>						<fr>AD: Montrer/cacher HUD</fr> 			</text>
-		<text name="input_ADToggleMouse"> 						<en>AD: Toggle Mouse</en> 						<de>AD: Maus ein/ausblenden</de>			<it>AD: Mouse mostra/nascondi</it>						<fr>AD: Montrer/cacher Souris</fr> 			</text>
-		<text name="input_ADEnDisable"> 						<en>AD: En/Disable</en> 						<de>AD: Ein/Ausschalten</de>				<it>AD: Abilita/Disabilita</it>							<fr>AD: Activer/Désactiver</fr> 			</text>
-		<text name="input_ADSilomode">  						<en>AD: Change mode</en>  						<de>AD: Modus wechseln</de>					<it>AD: Cambia modo</it>								<fr>AD: Changer mode</fr>  					</text>
-		<text name="input_ADRecord">  							<en>AD: Record</en>  							<de>AD: Aufzeichnen</de>					<it>AD:	Registra</it>									<fr>AD: Enregistrer</fr>  					</text>
-		<text name="input_ADSelectTarget">						<en>AD: Select Next Target</en>  				<de>AD: Ziel wählen</de>					<it>AD: Seleziona prossima destinazione</it>			<fr>AD: Sélect. prochaine destination</fr>  </text>
-		<text name="input_ADSelectPreviousTarget">				<en>AD: Select Previous Target</en>  			<de>AD: Voriges Ziel wählen</de>			<it>AD: Seleziona precedente destinazione</it>			<fr>AD: Sélect. destination précédente</fr>	</text>
-		<text name="input_ADSelectTargetMouseWheel">			<en>AD: Select Target (Mouse Wheel)</en>  		<de>AD: Ziel wählen (Mausrad)</de>			<it>AD: Seleziona destinazione (Rotella mouse)</it>		<fr>AD: Sélect. dest. (Molette Souris)</fr>	</text>
-		<text name="input_ADSelectPreviousTargetMouseWheel">	<en>AD: Select Previous Target (Mouse)</en>  	<de>AD: Voriges Ziel wählen (Mausrad)</de>	<it>AD: Seleziona precedente destinazione (mouse)</it>	<fr>AD: Sélect. dest. précédente(Souris)</fr></text>
-		<text name="input_AD_Speed_up">							<en>AD: Increase Speed</en>  					<de>AD: Geschwindigkeit erhöhen</de>		<it>AD: Incrementa velocità</it>						<fr>AD: Augmenter la vitesse</fr>  			</text>
-		<text name="input_AD_Speed_down">						<en>AD: Decrease Speed</en>  					<de>AD: Geschwindigkeit verringern</de>		<it>AD: decrementa velocità</it>						<fr>AD: Réduire la vitesse</fr>  			</text>
-		<text name="input_AD_export_routes">					<en>AD: Export Routes</en>  					<de>AD: Strecken exportieren</de>			<it>AD: Esporta percorsi</it>							<fr>AD: Exporter routes</fr>  				</text>
-		<text name="input_AD_import_routes">					<en>AD: Import Routes</en>  					<de>AD: Strecken importieren</de>			<it>AD: Importa percorsi</it>							<fr>AD: Importer routes</fr>  				</text>
-		<text name="input_AD_upload_routes">					<en>AD: Upload Routes</en>  					<de>AD: Strecken hochladen</de>																		<fr>AD: Uploader routes</fr>  				</text>
-		<text name="input_AD_continue">							<en>AD: Continue</en>  							<de>AD: Weiterfahren</de>					<it>AD: Continua</it>									<fr>AD: Continuer</fr>  					</text>
-		<text name="input_ADSelectTargetUnload">				<en>AD: Select Next Unload</en>  				<de>AD: Nächsten Abladepunkt</de>			<it>AD: Seleziona prossimo scarico</it>					<fr>AD: Sélect. prochain déchargement</fr>	</text>
-		<text name="input_ADSelectPreviousTargetUnload">		<en>AD: Select Previous Unload</en>  			<de>AD: Vorigen Abladepunkt</de>			<it>AD: Seleziona precedente scarico</it>				<fr>AD: Sélect. déchargement précédent</fr>	</text>
-
-		<text name="input_ADActivateDebug">			<en>AD: Activate Debug Mode</en> 		<de>AD: Debug Modus aktivieren</de>				<it>AD: Attiva Modo Debug</it>					<fr>AD: Activer mode édition</fr>			</text>
-		<text name="input_ADDebugShowClosest">		<en>AD: Show Closest Point</en>  		<de>AD: Naheliegendsten Punkt anzeigen</de>		<it>AD: Mostra punto vicino</it>				<fr>AD: Afficher point proche</fr>			</text>
-		<text name="input_ADDebugSelectNeighbor">	<en>AD: Select Neighbor Point</en>  	<de>AD: Nachbarpunkt wählen</de>				<it>AD: Seleziona punto vicinanze</it>			<fr>AD: Sélecteur de connection</fr>		</text>
-		<text name="input_ADDebugChangeNeighbor">	<en>AD: Select next Neighbor Point</en> <de>AD: Nächsten Nachbarpunkt wählen</de>		<it>AD: Seleziona altro punto vicinanze</it>	<fr>AD: Sélect. point suivant</fr>			</text>
-		<text name="input_ADDebugCreateConnection">	<en>AD: Toggle connection between</en>  <de>AD: Verbindung an/aus</de>					<it>AD: Crea/Togli connessione</it>				<fr>AD: Connecter entre</fr>				</text>
-		<text name="input_ADDebugCreateMapMarker">	<en>AD: Create new Target</en>  		<de>AD: Neues Ziel erstellen</de>				<it>AD: Crea nuova destinazione</it>			<fr>AD: Créer nouvelle destination</fr>		</text>
-		<text name="input_ADDebugDeleteWayPoint">	<en>AD: Delete Waypoint</en>  			<de>AD: Wegpunkt löschen</de>					<it>AD: Cancella punto percorso</it>			<fr>AD: Éffacer point de passage</fr>		</text>
-		<text name="input_ADDebugForceUpdate">		<en>AD: Update ways</en>  				<de>AD: Wege neuberechnen</de>					<it>AD: Aggiorna percorsi</it>					<fr>AD: Màj des points</fr>					</text>
-		<text name="input_ADDebugDeleteDestination">		<en>AD: Delete Destination</en>  		<de>AD: Ziel löschen</de>						<it>AD: Cancella Destinazione</it>  	<fr>AD: Éffacer point destination</fr>		</text>
-
-		<text name="input_ADSelectNextFillType">			<en>AD: Select Next Filltype</en>  				<de>AD: Nächster Fruchttyp</de>			<it>AD: Select Next Filltype</it>			<fr>AD: Sélect. prochain type de fruit</fr>	</text>
-		<text name="input_ADSelectPreviousFillType">		<en>AD: Select Previous Filltype</en>  			<de>AD: Voriger Fruchttyp</de>			<it>AD: Select Previous Filltype</it>		<fr>AD: Sélect. précédent type de fruit</fr></text>
-
-
-		<text name="AD_Deactivated">	<en>AutoDrive stopped</en>  			<de>AutoDrive aus</de>				<it>Autodrive fermato</it>			<fr>AutoDrive stoppé</fr>	</text>
-		<text name="AD_Activated">		<en>AutoDrive started</en>  			<de>AutoDrive an</de>				<it>Autodrive avviato</it>			<fr>AutoDrive démarré</fr>	</text>
-
-		<text name="AD_Silomode_on">	<en>Silomode on</en>  					<de>Silomodus an</de>				<it>Modo silo on</it>				<fr>Mode silo on</fr>				</text>
-		<text name="AD_Silomode_off">	<en>Silomode off</en>  					<de>Silomodus aus</de>				<it>Modo silo off</it>				<fr>Mode silo off</fr>				</text>
-		<text name="AD_Recording_off">	<en>Stopped Recording</en>  			<de>Aufzeichnen beendet</de>		<it>Registrazione fermata</it>		<fr>Enregistrement stoppé</fr>		</text>
-		<text name="AD_Recording_on">	<en>Started Recording</en>  			<de>Aufzeichnen gestartet</de>		<it>Registrazione avviata</it>		<fr>Enregistrement démarré</fr>		</text>
-
-		<text name="AD_Selected_Target">	<en>Selected Target: </en>  			<de>Gewähltes Ziel: </de>		<it>Destinazione selezionata: </it>	<fr>Destination sélectionné: </fr>	</text>
-		<text name="AD_Debug_on">
-			<en>Debug mode - Warning. Only for Developers.</en>
-			<de>Debug Modus: Vorsicht, nur für Entwickler oder erfahrene Nutzer</de>
-			<it>Debug mode - Attenzione: Solo per Sviluppatori.</it>
-			<fr>Mode debug - Attention! Seulement pour développeurs.</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="UNKNOWN">	           						
+			<en>Unknown</en> 
+			<de>Unbekannt</de>
+			<it>Sconosciuto</it>
+			<fr>Inconnu</fr>   
 		</text>
-		<text name="AD_Debug_off">
-			<en>Debug mode - off</en>
-			<de>Debug Modus: aus</de>
-			<it>Debug mode - off</it>
-			<fr>Mode debug - off</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADToggleHud">
+			<en>AD: Toggle HUD</en>
+			<de>AD: HUD ein/ausblenden</de>	
+			<it>AD: HUD mostra/nascondi</it>
+			<fr>AD: Montrer/cacher HUD</fr>
 		</text>
-
-		<text name="AD_Debug_show_closest">
-			<en>Debug mode - closest waypoint marked</en>
-			<de>Debug Modus: nächster Wegpunkt wird angezeigt</de>
-			<it>Debug mode - punto vicinanza marked</it>
-			<fr>Mode debug - point le plus proche marqué</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADToggleMouse">
+			<en>AD: Toggle Mouse</en> 
+			<de>AD: Maus ein/ausblenden</de>
+			<it>AD: Mouse mostra/nascondi</it>	
+			<fr>AD: Montrer/cacher Souris</fr> 	
 		</text>
-
-		<text name="AD_Debug_show_closest_off">
-			<en>Debug mode - stopped marking closest waypoint</en>
-			<de>Debug Modus: nächster Wegpunkt wird nicht mehr angezeigt</de>
-			<it>Debug mode - fermato marking punto passaggio</it>
-			<fr>Mode debug - arrêt marquage du point le plus proche</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADEnDisable"> 
+			<en>AD: En/Disable</en>
+			<de>AD: Ein/Ausschalten</de>
+			<it>AD: Abilita/Disabilita</it>
+			<fr>AD: Activer/Désactiver</fr> 
 		</text>
-
-		<text name="AD_Debug_show_closest_neighbors">
-			<en>Debug mode - Showing possible connection points</en>
-			<de>Debug Modus: mögliche Verbindungspunkte werden markiert</de>
-			<it>Debug mode - Visualizza punti connessione possibili</it>
-			<fr>Mode debug - affichage possible des points de conn.</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADSilomode"> 
+			<en>AD: Change mode</en>  	
+			<de>AD: Modus wechseln</de>					
+			<it>AD: Cambia modo</it>								
+			<fr>AD: Changer mode</fr>  					
 		</text>
-
-		<text name="AD_Debug_change_connection">
-			<en>Debug mode - connection established / destroyed</en>
-			<de>Debug Modus: Verbindungspunkte hergestellt / entfernt</de>
-			<it>Debug mode - connessione creata / distrutta</it>
-			<fr>Mode debug - connection établie / détruite</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADRecord">  							
+			<en>AD: Record</en>  							
+			<de>AD: Aufzeichnen</de>					
+			<it>AD:	Registra</it>									
+			<fr>AD: Enregistrer</fr>  					
 		</text>
-
-		<text name="AD_Debug_not_ready">
-			<en>Debug mode - not ready</en>
-			<de>Debug Modus: nicht bereit</de>
-			<it>Debug mode - non pronto</it>
-			<fr>Mode debug - non prêt</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADSelectTarget">						
+			<en>AD: Select Next Target</en>  				
+			<de>AD: Ziel wählen</de>					
+			<it>AD: Seleziona prossima destinazione</it>			
+			<fr>AD: Sélect. prochaine destination</fr>  
 		</text>
-
-		<text name="AD_Debug_closest">
-			<en>Closest Waypoint: </en>
-			<de>Nähester Wegpunkt: </de>
-			<it>Punto passaggio vicinanze:</it>
-			<fr>Plus proche point de passage: </fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_ADSelectPreviousTarget">			
+			<en>AD: Select Previous Target</en>  			
+			<de>AD: Voriges Ziel wählen</de>			
+			<it>AD: Seleziona precedente destinazione</it>			
+			<fr>AD: Sélect. destination précédente</fr>	
 		</text>
-
-		<text name="AD_Debug_waypoint_created_1">
-			<en>New Waypoint created. Edit name in the AutoDrive_config.XML with id: </en>
-			<de>Neues Ziel erstellt. Passen Sie den Namen in der AutoDrive_config.xml an. Ziel ID: </de>
-			<it>Nuovo punto passaggio creato. Modifica il nome nel AutoDrive_config.XML con id: </it>
-			<fr>Nouveau point de passage crée. Éditez le nom dans AutoDrive_config.XML avec l'id: </fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_AD_Speed_up">							
+			<en>AD: Increase Speed</en>  					
+			<de>AD: Geschwindigkeit erhöhen</de>		
+			<it>AD: Incrementa velocità</it>						
+			<fr>AD: Augmenter la vitesse</fr>  			
 		</text>
-
-		<text name="AD_Debug_waypoint_created_2">
-			<en> after exiting the game. Then restart!</en>
-			<de> Erst Spiel beenden!</de>
-			<it> poi esci dal gioco. E riavvia!</it>
-			<fr> après avoir quitté le jeux. Redémarrez!</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_AD_Speed_down">					
+			<en>AD: Decrease Speed</en>  					
+			<de>AD: Geschwindigkeit verringern</de>		
+			<it>AD: decrementa velocità</it>						
+			<fr>AD: Réduire la vitesse</fr>  			
 		</text>
-
-		<text name="AD_Speed_set_to">
-			<en>Speed set to:</en>
-			<de>Geschwindigkeit gesetzt auf:</de>
-			<it>Velocita impostata a:</it>
-			<fr>Vitesse réglé sur:</fr>	<!-- This is not show nowhere then is it linked to "input_ADActivateDebug" function where translation say <en>AD: Activate Debug Mode</en> Only for Developers ? or my bad -->
+		<text name="input_AD_export_routes">				
+			<en>AD: Export Routes</en>  					
+			<de>AD: Strecken exportieren</de>			
+			<it>AD: Esporta percorsi</it>							
+			<fr>AD: Exporter routes</fr>  				
 		</text>
-
-		<text name="AD_Hof">
-			<en>Farm</en>
-			<de>Hof</de>
-			<it>Fattoria</it>
-			<fr>Ferme</fr>
+		<text name="input_AD_import_routes">				
+			<en>AD: Import Routes</en>  					
+			<de>AD: Strecken importieren</de>			
+			<it>AD: Importa percorsi</it>							
+			<fr>AD: Importer routes</fr>  			
 		</text>
-
-		<text name="AD_Kuhstall">
-			<en>Cows</en>
-			<de>Kuhstall</de>
-			<it>Vacche</it>
-			<fr>Vaches</fr>
+		<text name="input_AD_upload_routes">				
+			<en>AD: Upload Routes</en>  					
+			<de>AD: Strecken hochladen</de>																		
+			<fr>AD: Uploader routes</fr>  				
 		</text>
-
-		<text name="AD_Schweinestall">
-			<en>Pigs</en>
-			<de>Schweinestall</de>
-			<it>Maiali</it>
-			<fr>Cochons</fr>
+		<text name="input_AD_continue">							
+			<en>AD: Continue</en>  							
+			<de>AD: Weiterfahren</de>					
+			<it>AD: Continua</it>									
+			<fr>AD: Continuer</fr>  					
 		</text>
-
-		<text name="AD_Schafsweide">
-			<en>Sheeps</en>
-			<de>Schafsweide</de>
-			<it>Pecore</it>
-			<fr>Moutons</fr>
+		<text name="input_ADSelectTargetUnload">				
+			<en>AD: Select Next Unload</en>  				
+			<de>AD: Nächsten Abladepunkt</de>			
+			<it>AD: Seleziona prossimo scarico</it>					
+			<fr>AD: Sélect. prochain déchargement</fr>
 		</text>
-
-		<text name="AD_Tankstelle">
-			<en>Gas station</en>
-			<de>Tankstelle</de>
-			<it>Stazione carburanti</it>
-			<fr>Station essence</fr>
+		<text name="input_ADSelectPreviousTargetUnload">		
+			<en>AD: Select Previous Unload</en>  			
+			<de>AD: Vorigen Abladepunkt</de>			
+			<it>AD: Seleziona precedente scarico</it>				
+			<fr>AD: Sélect. déchargement précédent</fr>	
 		</text>
-
-		<text name="AD_Viehhandel">
-			<en>Animal Shop</en>
-			<de>Viehhandel</de>
-			<it>Negozio animali</it>
-			<fr>Magasin de bétail</fr>
+		<text name="input_ADActivateDebug">						
+			<en>AD: Edit Mode</en> 							
+			<de>AD: Editor Modus</de>						
+			<it>AD: Attiva Modo Debug</it>					
+			<fr>AD: Activer mode édition</fr>			
 		</text>
+		<text name="input_ADDebugShowClosest">				
+			<en>AD: Show Closest Point</en>  				
+			<de>AD: Naheliegendsten Punkt anzeigen</de>		
+			<it>AD: Mostra punto vicino</it>				
+			<fr>AD: Afficher point proche</fr>			
+		</text>
+		<text name="input_ADDebugSelectNeighbor">			
+			<en>AD: Select Neighbor Point</en>  			
+			<de>AD: Nachbarpunkt wählen</de>				
+			<it>AD: Seleziona punto vicinanze</it>			
+			<fr>AD: Sélecteur de connection</fr>		
+		</text>
+		<text name="input_ADDebugChangeNeighbor">			
+			<en>AD: Select next Neighbor Point</en> 		
+			<de>AD: Nächsten Nachbarpunkt wählen</de>		
+			<it>AD: Seleziona altro punto vicinanze</it>	
+			<fr>AD: Sélect. point suivant</fr>			
+		</text>
+		<text name="input_ADDebugCreateConnection">			
+			<en>AD: Toggle connection between</en>  		
+			<de>AD: Verbindung an/aus</de>					
+			<it>AD: Crea/Togli connessione</it>				
+			<fr>AD: Connecter entre</fr>				
+		</text>
+		<text name="input_ADDebugCreateMapMarker">			
+			<en>AD: Create new Target</en>  				
+			<de>AD: Neues Ziel erstellen</de>				
+			<it>AD: Crea nuova destinazione</it>			
+			<fr>AD: Créer nouvelle destination</fr>		
+		</text>
+		<text name="input_ADDebugDeleteWayPoint">			
+			<en>AD: Delete Waypoint</en>  					
+			<de>AD: Wegpunkt löschen</de>					
+			<it>AD: Cancella punto percorso</it>			
+			<fr>AD: Éffacer point de passage</fr>		
+		</text>
+		<text name="input_ADDebugForceUpdate">				
+			<en>AD: Update ways</en>  						
+			<de>AD: Wege neuberechnen</de>					
+			<it>AD: Aggiorna percorsi</it>					
+			<fr>AD: Màj des points</fr>					
+		</text>
+		<text name="input_ADDebugDeleteDestination">		
+			<en>AD: Delete Destination</en>  			
+			<de>AD: Ziel löschen</de>						
+			<it>AD: Cancella Destinazione</it>  	
+			<fr>AD: Éffacer point destination</fr>		
+		</text>
+		<text name="input_ADSelectNextFillType">		
+			<en>AD: Select Next Filltype</en>  				
+			<de>AD: Nächster Fruchttyp</de>			
+			<it>AD: Select Next Filltype</it>			
+			<fr>AD: Sélect. prochain type de fruit</fr>
+		</text>
+		<text name="input_ADSelectPreviousFillType">		
+			<en>AD: Select Previous Filltype</en>  			
+			<de>AD: Vorheriger Fruchttyp</de>	
+			<fr>AD: Sélect. précédent type de fruit</fr>
+		</text>			
 
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
@@ -217,7 +214,6 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
 		<text name="AD_cannot_reach">
 			<en>can't reach</en>
 			<de>hat keinen Weg gefunden zu</de>
-			<it>can't reach</it>
 			<fr>ne peut pas rejoindre</fr>
 		</text>
 
@@ -240,13 +236,6 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
 			<de>Routen werden neuberechnet. Bitte warten. Berechnet:</de>
 			<it>Ricalcola i percorsi. Attendi qualche istante. Finito:</it>
 			<fr>Recalcul des routes. Veuilllez patienter. Terminé:</fr>
-		</text>
-
-		<text name="AD_intermediate">
-			<en>Unload at:</en>
-			<de>Abladestelle:</de>
-			<it>Scarica a:</it>
-			<fr>Déchargement à:</fr>
 		</text>
 
 		<text name="AD_MODE_DRIVETO">
@@ -297,17 +286,17 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
 		<action name="ADSilomode" 					category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 
-	<inputBindings>
+	<inputBinding>
 		<actionBinding action="ADToggleHud">
 			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_KP_0" />
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_17" />
 		</actionBinding>
 		<actionBinding action="ADToggleMouse">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+        	<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_MIDDLE" 			axisComponent="+" neutralInput="0" index="3"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_19" 	axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADEnDisable">
-			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_up" axisComponent="+" neutralInput="0" index="1"/>
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_up" axisComponent="+" inputComponent="+" index="1"/>
         	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_17" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectTarget">
@@ -328,29 +317,16 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
         	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_11" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugShowClosest">
-        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_9" axisComponent="+" neutralInput="0" index="1"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_10" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugSelectNeighbor">
-        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_10" axisComponent="+" neutralInput="0" index="1"/>
+        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_9" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugChangeNeighbor">
        	 	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_4-" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADDebugCreateConnection">
         	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_12" axisComponent="+" neutralInput="0" index="1"/>
-		</actionBinding>
-		<actionBinding action="ADDebugCreateMapMarker">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
-		</actionBinding>
-		<actionBinding action="ADDebugDeleteWayPoint">
-        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_4" axisComponent="+" neutralInput="0" index="1"/>
-		</actionBinding>
-		<actionBinding action="ADDebugForceUpdate">
-        	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_1" axisComponent="+" neutralInput="0" index="1"/>
-		</actionBinding>
-		<actionBinding action="ADDebugDeleteDestination">
-        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_i" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSelectNextFillType">
         	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_o" axisComponent="+" neutralInput="0" index="1"/>
@@ -361,22 +337,19 @@ Créer, modifier, supprimer vos routes, points de passage, ou croisements sans s
         	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_2+" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADRecord">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
-		</actionBinding>
-		<actionBinding action="AD_export_routes">
-			<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_RIGHT" />
-			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_15" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_3" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="AD_import_routes">
         	<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_lctrl KEY_KP_1" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
-		<actionBinding action="AD_upload_routes">
+		<actionBinding action="AD_export_routes">
         	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_2" axisComponent="+" neutralInput="0" index="1"/>
+		</actionBinding>
+		<actionBinding action="AD_upload_routes">
+        	<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_3" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
 		<actionBinding action="ADSilomode">
        	 	<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_4+" axisComponent="+" neutralInput="0" index="1"/>
 		</actionBinding>
-	</inputBindings>
-
+	</inputBinding>
 </modDesc>
