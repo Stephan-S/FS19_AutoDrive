@@ -51,7 +51,16 @@ function AutoDrive:handleTrailers(vehicle, dt)
                         vehicle.ad.isPaused = false;
                         vehicle.ad.isUnloading = false;
                     end;
-                end;                
+                end; 
+                
+                if trailer.spec_cover ~= nil then
+                    if trailer.spec_cover.state == 0 then
+                        local newState = 1    
+                        if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
+                            trailer:setCoverState(newState,true);
+                        end
+                    end;
+                end;               
             end;
         end;
 
@@ -75,6 +84,15 @@ function AutoDrive:handleTrailers(vehicle, dt)
                         trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
                         g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
                         trigger.autoStart = false
+                    end;
+                end;
+
+                if trailer.spec_cover ~= nil then
+                    if trailer.spec_cover.state == 0 then
+                        local newState = 1    
+                        if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
+                            trailer:setCoverState(newState,true);
+                        end
                     end;
                 end;
             end;
