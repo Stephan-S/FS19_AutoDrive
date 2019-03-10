@@ -172,6 +172,18 @@ function AutoDrive:loadMap(name)
 	else
 		AutoDrive.highestIndex = 1;
 	end;
+
+	if AutoDrive == nil then 
+		print("ERROR: unable to add specialization 'AutoDrive'")
+	else 
+		local ADSpecName = g_currentModName .. ".AutoDrive"
+		for typeName,vehicleType in pairs(g_vehicleTypeManager.vehicleTypes) do
+			if SpecializationUtil.hasSpecialization(AIVehicle, vehicleType.specializations) and not vehicleType.hasADSpec then
+					g_vehicleTypeManager:addSpecialization(typeName, ADSpecName)
+					vehicleType.hasADSpec = true;
+			end;
+		end;			
+	end
 end;
 
 function AutoDrive:saveSavegame()
