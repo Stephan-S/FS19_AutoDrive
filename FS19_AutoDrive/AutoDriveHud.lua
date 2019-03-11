@@ -438,6 +438,31 @@ function AutoDriveHud:drawHud(vehicle)
 	end;	
 end;
 
+function AutoDriveHud:drawMinimalHud(vehicle)	
+	if vehicle == g_currentMission.controlledVehicle then								
+		if vehicle.ad.nameOfSelectedTarget ~= nil then
+			if vehicle.ad.lastPrintedTarget ~= vehicle.ad.nameOfSelectedTarget then
+				vehicle.ad.destinationPrintTimer = 4000;
+				vehicle.ad.lastPrintedTarget = vehicle.ad.nameOfSelectedTarget;
+			end;
+
+			local adFontSize = 0.013;
+			local adPosX = self.posX + self.Background.destination.width;
+			local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
+
+			if vehicle.ad.destinationPrintTimer > 0 or vehicle.ad.isActive then
+				if vehicle.ad.isActive then
+					setTextColor(0,1,0,1);
+				else
+					setTextColor(1,1,1,1);
+				end;
+				setTextAlignment(RenderText.ALIGN_LEFT);
+				renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
+			end;
+		end;
+	end;
+end;
+
 function AutoDriveHud:toggleHud(vehicle)
     if self.showHud == false then
 		self.showHud = true;		

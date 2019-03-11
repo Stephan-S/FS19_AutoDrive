@@ -259,6 +259,8 @@ function init(self)
 	self.ad.nToolTipWait = 300;
 	self.ad.nToolTipTimer = 6000;
 	self.ad.sToolTip = "";
+
+	self.ad.destinationPrintTimer = 0;
 	
 	self.ad.choosingDestination = false;
 	self.ad.chosenDestination = "";
@@ -419,7 +421,12 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleDriving(self, dt);
 	AutoDrive:handleYPositionIntegrityCheck(self);
 	AutoDrive:handleClientIntegrity(self);
-	AutoDrive:handleMultiplayer(self, dt);	
+	AutoDrive:handleMultiplayer(self, dt);
+
+	if self.ad.destinationPrintTimer > 0 then
+		self.ad.destinationPrintTimer = self.ad.destinationPrintTimer - dt;
+	end;
+
 	AutoDrive.runThisFrame = true;
 end;
 
@@ -467,6 +474,8 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 	if AutoDrive.Hud ~= nil then
 		if AutoDrive.Hud.showHud == true then
 			AutoDrive.Hud:drawHud(vehicle);
+		else
+			AutoDrive.Hud:drawMinimalHud(vehicle);
 		end;
 	end;
 end;
