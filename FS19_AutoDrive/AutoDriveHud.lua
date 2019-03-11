@@ -441,6 +441,9 @@ end;
 function AutoDriveHud:drawMinimalHud(vehicle)	
 	if vehicle == g_currentMission.controlledVehicle then								
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
+			if vehicle.ad.lastPrintedTarget == nil then
+				vehicle.ad.lastPrintedTarget = vehicle.ad.nameOfSelectedTarget;
+			end;
 			if vehicle.ad.lastPrintedTarget ~= vehicle.ad.nameOfSelectedTarget then
 				vehicle.ad.destinationPrintTimer = 4000;
 				vehicle.ad.lastPrintedTarget = vehicle.ad.nameOfSelectedTarget;

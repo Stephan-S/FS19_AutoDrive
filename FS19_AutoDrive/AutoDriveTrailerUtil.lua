@@ -173,7 +173,7 @@ function AutoDrive:getTrailersOf(vehicle)
                 for _, implement in pairs(toCheck:getAttachedImplements()) do                    
                     if implement.object ~= nil then
                         --if workTool.spec_dischargeable and workTool.cp.capacity and workTool.cp.capacity > 0.1 then
-                        if implement.object.typeDesc == g_i18n:getText("typeDesc_tipper") then
+                        if implement.object.typeDesc == g_i18n:getText("typeDesc_tipper") or implement.object.spec_dischargeable ~= nil then
                             trailer = implement.object;
                             trailerCount = 1;
                             trailers[trailerCount] = trailer;
