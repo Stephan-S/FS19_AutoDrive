@@ -8,15 +8,15 @@
 
 -- #############################################################################
 
-source(Utils.getFilename("AutoDrive.lua", g_currentModDirectory))
-source(Utils.getFilename("AutoDriveHud.lua", g_currentModDirectory))
-source(Utils.getFilename("Events/AutoDriveEventUtil.lua", AutoDrive.directory))
-source(Utils.getFilename("Events/AutoDriveUpdateEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("Events/AutoDriveCourseEditEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("Events/AutoDriveCourseDownloadEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("Events/AutoDriveCreateMapMarkerEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("Events/AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveHud.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveEventUtil.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveUpdateEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveCourseEditEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveCourseDownloadEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveCreateMapMarkerEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", AutoDrive.directory))
 
 
 
@@ -34,7 +34,7 @@ AutoDrive_Register.version = getXMLString(modDesc, "modDesc.version");
 end; ]]
 
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
-	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("AutoDrive.lua",  g_currentModDirectory), nil)
+	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua",  g_currentModDirectory), nil)
 	
 	local ADSpecName = g_currentModName .. ".AutoDrive"
 	
