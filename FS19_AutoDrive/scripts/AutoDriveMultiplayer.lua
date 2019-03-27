@@ -4,7 +4,18 @@ function AutoDrive:handleMultiplayer(vehicle, dt)
     end;
 
     if g_server ~= nil then
-        AutoDriveUpdateEvent:sendEvent(vehicle);
+        if vehicle.lastUpdateEvent == nil then
+            vehicle.lastUpdateEvent = AutoDriveUpdateEvent:new(vehicle)
+            AutoDriveUpdateEvent:sendEvent(vehicle);
+        else
+            local newUpdate = AutoDriveUpdateEvent:new(vehicle);
+            if newUpdate:compareTo(vehicle.lastUpdateEvent) == false then
+                AutoDriveUpdateEvent:sendEvent(vehicle);
+                vehicle.lastUpdateEvent = newUpdate;
+            else
+               -- print("No update required for " .. vehicle.name)
+            end;
+        end;
         
         local allAcksReceived, highestIndex = AutoDrive:checkUsers();    
         

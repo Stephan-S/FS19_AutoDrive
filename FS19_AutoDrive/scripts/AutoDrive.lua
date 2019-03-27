@@ -198,6 +198,7 @@ function init(self)
 	self.ad.targetZ = 0;
 	self.ad.initialized = false;
 	self.ad.wayPoints = {};
+	self.ad.wayPointsChanged = true;
 	self.ad.creationMode = false;
 	self.ad.creationModeDual = false;
 	self.ad.currentWayPoint = 0;

@@ -19,6 +19,7 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 	if AutoDrive == nil then
 		return;
 	end;
+	
 	if g_server ~= nil or AutoDrive.playerSendsMapToServer == true then
 		streamWriteInt16(streamId, AutoDrive.requestedWaypointCount);
 

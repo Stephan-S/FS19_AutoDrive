@@ -117,6 +117,7 @@ function AutoDrive:removeMapMarker(toDelete)
 				AutoDrive.mapMarker[_] =  AutoDrive.mapMarker[_+1];
 			else
 				AutoDrive.mapMarker[_] = nil;
+				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. _) ;
 			end;
 		end;
 	end;

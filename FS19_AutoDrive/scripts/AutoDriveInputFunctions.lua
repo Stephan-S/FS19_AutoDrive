@@ -264,7 +264,8 @@ function AutoDrive:inputRecord(vehicle)
         vehicle.ad.creationModeDual = false;
         vehicle.ad.currentWayPoint = 0;
         vehicle.ad.isActive = false;
-        vehicle.ad.wayPoints = {};
+		vehicle.ad.wayPoints = {};
+		vehicle.ad.wayPointsChanged = true;
 
         AutoDrive:disableAutoDriveFunctions(vehicle)
     else

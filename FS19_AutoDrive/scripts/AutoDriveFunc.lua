@@ -37,10 +37,12 @@ function AutoDrive:startAD(vehicle)
 	if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity < 1000 then
 		vehicle.ad.skipStart = true;
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
-        vehicle.ad.unloadSwitch = true;   
+		vehicle.ad.wayPointsChanged = true;
+		vehicle.ad.unloadSwitch = true;   
     else
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
-    end;
+		vehicle.ad.wayPointsChanged = true;
+	end;
 end;
 
 function AutoDrive:stopAD(vehicle)

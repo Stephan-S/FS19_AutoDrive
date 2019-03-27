@@ -138,9 +138,11 @@ function AutoDrive:initializeAD(vehicle)
     if vehicle.ad.skipStart == true then
         vehicle.ad.skipStart = false;
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+        vehicle.ad.wayPointsChanged = true;
         vehicle.ad.unloadSwitch = true;   
     else
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
+        vehicle.ad.wayPointsChanged = true;
     end;
     
     if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
@@ -203,6 +205,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                 local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
                 vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
+                vehicle.ad.wayPointsChanged = true;
                 vehicle.ad.currentWayPoint = 1;
 
                 vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
@@ -215,6 +218,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                 local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
                 vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+                vehicle.ad.wayPointsChanged = true;
                 vehicle.ad.currentWayPoint = 1;
 
                 vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;

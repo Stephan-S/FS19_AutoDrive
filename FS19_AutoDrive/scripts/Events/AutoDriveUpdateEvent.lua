@@ -23,6 +23,8 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.targetZ = vehicle.ad.targetZ;
 	self.initialized = vehicle.ad.initialized;
 	self.wayPoints = vehicle.ad.wayPoints;
+	self.wayPointsChanged = vehicle.ad.wayPointsChanged;
+	vehicle.ad.wayPointsChanged = false;
 	self.creationMode = vehicle.ad.creationMode;
 	self.creationModeDual = vehicle.ad.creationModeDual;
 	self.currentWayPoint = vehicle.ad.currentWayPoint;
@@ -46,8 +48,8 @@ function AutoDriveUpdateEvent:new(vehicle)
 
 	self.moduleInitialized = vehicle.ad.moduleInitialized;
 	self.currentInput = vehicle.ad.currentInput;
-	self.lastSpeed = vehicle.ad.lastSpeed;
-	self.speedOverride = vehicle.ad.speedOverride;
+	--self.lastSpeed = vehicle.ad.lastSpeed;
+	--self.speedOverride = vehicle.ad.speedOverride;
 
 	self.isUnloading = vehicle.ad.isUnloading;
 	self.isPaused = vehicle.ad.isPaused;
@@ -62,16 +64,13 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.enableAI = vehicle.ad.enableAI;
 	self.disableAI = vehicle.ad.disableAI;
 
-	self.showingHud = vehicle.ad.showingHud;
-	self.showingMouse = vehicle.ad.showingMouse;
-
     return self;
 end;
 
 function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	if AutoDrive == nil then
 		return;
-	end;
+	end;	
 	streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle));
 	
 	streamWriteBool(streamId, self.isActive);
@@ -80,17 +79,21 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteFloat32(streamId, self.targetX);
 	streamWriteFloat32(streamId, self.targetZ);
 	streamWriteBool(streamId, self.initialized);
+	
+	streamWriteBool(streamId, self.wayPointsChanged);
 
-	self.wayPointsString = "";
-	for i, point in pairs(self.wayPoints) do 
-		if self.wayPointsString == "" then
-			self.wayPointsString = self.wayPointsString .. point.id;
-		else
-			self.wayPointsString = self.wayPointsString .. "," .. point.id;
+	if self.wayPointsChanged then
+		self.wayPointsString = "";
+		for i, point in pairs(self.wayPoints) do 
+			if self.wayPointsString == "" then
+				self.wayPointsString = self.wayPointsString .. point.id;
+			else
+				self.wayPointsString = self.wayPointsString .. "," .. point.id;
+			end;
 		end;
+		streamWriteStringOrEmpty(streamId, self.wayPointsString);
 	end;
-
-	streamWriteStringOrEmpty(streamId, self.wayPointsString);
+	
 	streamWriteBool(streamId, self.creationMode);
 	streamWriteBool(streamId, self.creationModeDual);
 	streamWriteInt16(streamId, self.currentWayPoint);
@@ -105,7 +108,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt16(streamId, self.selectedDebugPoint);
 	streamWriteBool(streamId, self.showSelectedDebugPoint);
 	streamWriteBool(streamId, self.changeSelectedDebugPoint);
-
+	
 	self.debugPointsIteratedString = "";
 	for i, point in pairs(self.iteratedDebugPoints) do 
 		if self.debugPointsIteratedString == "" then
@@ -114,7 +117,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 			self.debugPointsIteratedString = self.debugPointsIteratedString .. "," .. point.id;
 		end;
 	end;
-	streamWriteStringOrEmpty(streamId, self.debugPointsIteratedString);
+	streamWriteStringOrEmpty(streamId, self.debugPointsIteratedString);	
 
 	streamWriteBool(streamId, self.inDeadLock);
 	streamWriteFloat32(streamId, self.timeTillDeadLock);
@@ -124,8 +127,8 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 
 	streamWriteBool(streamId, self.moduleInitialized);
 	streamWriteStringOrEmpty(streamId, self.currentInput);
-	streamWriteFloat32(streamId, self.lastSpeed);
-	streamWriteFloat32(streamId, self.speedOverride);
+	--streamWriteFloat32(streamId, self.lastSpeed);
+	--streamWriteFloat32(streamId, self.speedOverride);
 
 	streamWriteBool(streamId, self.isUnloading);
 	streamWriteBool(streamId, self.isPaused);
@@ -139,12 +142,6 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	
 	streamWriteInt8(streamId, self.enableAI);
 	streamWriteInt8(streamId, self.disableAI);
-
-	streamWriteBool(streamId, self.showingHud);
-	streamWriteBool(streamId, self.showingMouse);
-	
-	streamWriteBool(streamId, AutoDrive.Hud.showHud);
-	streamWriteBool(streamId, AutoDrive.showMouse);
 
 	streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage);
 	-- print("event writeStream")
@@ -164,13 +161,17 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local targetX = streamReadFloat32(streamId);
 	local targetZ = streamReadFloat32(streamId);
 	local initialized = streamReadBool(streamId);
+
+	local wayPointsChanged = streamReadBool(streamId);
 	
-	local wayPointsString = streamReadStringOrEmpty(streamId);
-	local wayPointID =  StringUtil.splitString(",", wayPointsString);
 	local wayPoints = {};
-	for i,id in pairs(wayPointID) do
-		if id ~= "" then
-			wayPoints[i] = AutoDrive.mapWayPoints[tonumber(id)];
+	if wayPointsChanged then
+		local wayPointsString = streamReadStringOrEmpty(streamId);
+		local wayPointID =  StringUtil.splitString(",", wayPointsString);		
+		for i,id in pairs(wayPointID) do
+			if id ~= "" then
+				wayPoints[i] = AutoDrive.mapWayPoints[tonumber(id)];
+			end;
 		end;
 	end;
 
@@ -207,8 +208,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	
 	local moduleInitialized = streamReadBool(streamId);
 	local currentInput = streamReadStringOrEmpty(streamId);
-	local lastSpeed = streamReadFloat32(streamId);
-	local speedOverride = streamReadFloat32(streamId);
+	--local lastSpeed = streamReadFloat32(streamId);
+	--local speedOverride = streamReadFloat32(streamId);
 
 	
 	local isUnloading = streamReadBool(streamId);	
@@ -224,12 +225,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local enableAI = streamReadInt8(streamId);
 	local disableAI = streamReadInt8(streamId);
 	
-	local showingHud = streamReadBool(streamId);
-	local showingMouse = streamReadBool(streamId);
-
-	local AD_showingHud = streamReadBool(streamId);
-	local AD_showingMouse = streamReadBool(streamId);
-
 	local AD_currentMessage = streamReadStringOrEmpty(streamId);
 		
 	if g_server ~= nil then
@@ -245,7 +240,11 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.targetX = targetX;
 		vehicle.ad.targetZ = targetZ;
 		vehicle.ad.initialized = initialized;
-		vehicle.ad.wayPoints = wayPoints;
+		vehicle.ad.wayPointsChanged = wayPointsChanged;
+		if wayPointsChanged then
+			vehicle.ad.wayPoints = wayPoints;
+		end;
+		vehicle.ad.wayPointsChanged = wayPointsChanged;
 		vehicle.ad.creationMode = creationMode;
 		vehicle.ad.creationModeDual = creationModeDual;
 		vehicle.ad.currentWayPoint = currentWayPoint;
@@ -269,8 +268,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 		vehicle.ad.moduleInitialized = moduleInitialized;
 		vehicle.ad.currentInput = currentInput;
-		vehicle.ad.lastSpeed = lastSpeed;
-		vehicle.ad.speedOverride = speedOverride;
+		--vehicle.ad.lastSpeed = lastSpeed;
+		--vehicle.ad.speedOverride = speedOverride;
 
 		vehicle.ad.isUnloading = isUnloading;
 		vehicle.ad.isPaused = isPaused;
@@ -284,12 +283,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		
 		vehicle.ad.enableAI = enableAI;
 		vehicle.ad.disableAI = disableAI;
-
-		--vehicle.ad.showingHud = showingHud;
-		--vehicle.ad.showingMouse = showingMouse;
-
-		--AutoDrive.Hud.showHud = AD_showingHud;
-		--AutoDrive.showMouse = AD_showingMouse;
 
 		AutoDrive.print.currentMessage = AD_currentMessage;
 	end;
@@ -305,4 +298,169 @@ function AutoDriveUpdateEvent:sendEvent(vehicle)
 	else
 		g_client:getServerConnection():sendEvent(AutoDriveUpdateEvent:new(vehicle));
 	end;
+end;
+
+function AutoDriveUpdateEvent:compareTo(oldEvent)
+	local remained = true;
+	local reason = "";
+	remained = remained and self.vehicle == oldEvent.vehicle;
+	if self.vehicle ~= oldEvent.vehicle then
+		reason = reason .. " vehicle";
+	end;
+	remained = remained and self.isActive == oldEvent.isActive;
+	if self.isActive ~= oldEvent.isActive then
+		reason = reason .. " isActive";
+	end;
+	remained = remained and self.isStopping == oldEvent.isStopping;
+	if self.isStopping ~= oldEvent.isStopping then
+		reason = reason .. " isStopping";
+	end;
+	remained = remained and self.drivingForward == oldEvent.drivingForward;
+	if self.drivingForward ~= oldEvent.drivingForward then
+		reason = reason .. " drivingForward";
+	end;
+	remained = remained and self.targetX == oldEvent.targetX;
+	if self.targetX ~= oldEvent.targetX then
+		reason = reason .. " targetX";
+	end;
+	remained = remained and self.targetZ == oldEvent.targetZ;
+	if self.targetZ ~= oldEvent.targetZ then
+		reason = reason .. " targetZ";
+	end;
+	remained = remained and self.initialized == oldEvent.initialized;
+	if self.initialized ~= oldEvent.initialized then
+		reason = reason .. " initialized";
+	end;
+	remained = remained and self.wayPointsChanged == oldEvent.wayPointsChanged;
+	if self.wayPointsChanged ~= oldEvent.wayPointsChanged then
+		reason = reason .. " wayPointsChanged";
+	end;
+	remained = remained and self.creationMode == oldEvent.creationMode;
+	if self.creationMode ~= oldEvent.creationMode then
+		reason = reason .. " creationMode";
+	end;
+	remained = remained and self.creationModeDual == oldEvent.creationModeDual;
+	if self.creationModeDual ~= oldEvent.creationModeDual then
+		reason = reason .. " creationModeDual";
+	end;
+	remained = remained and self.currentWayPoint == oldEvent.currentWayPoint;
+	if self.currentWayPoint ~= oldEvent.currentWayPoint then
+		reason = reason .. " currentWayPoint";
+	end;
+	remained = remained and self.targetSelected == oldEvent.targetSelected;
+	if self.targetSelected ~= oldEvent.targetSelected then
+		reason = reason .. " targetSelected";
+	end;
+	remained = remained and self.mapMarkerSelected == oldEvent.mapMarkerSelected;
+	if self.mapMarkerSelected ~= oldEvent.mapMarkerSelected then
+		reason = reason .. " mapMarkerSelected";
+	end;
+	remained = remained and self.nameOfSelectedTarget == oldEvent.nameOfSelectedTarget;
+	if self.nameOfSelectedTarget ~= oldEvent.nameOfSelectedTarget then
+		reason = reason .. " nameOfSelectedTarget";
+	end;
+	remained = remained and self.mode == oldEvent.mode;
+	if self.mode ~= oldEvent.mode then
+		reason = reason .. " mode";
+	end;
+	remained = remained and self.targetSpeed == oldEvent.targetSpeed;
+	if self.targetSpeed ~= oldEvent.targetSpeed then
+		reason = reason .. " targetSpeed";
+	end;
+	remained = remained and self.createMapPoints == oldEvent.createMapPoints;
+	if self.createMapPoints ~= oldEvent.createMapPoints then
+		reason = reason .. " createMapPoints";
+	end;
+	remained = remained and self.showClosestPoint == oldEvent.showClosestPoint;
+	if self.showClosestPoint ~= oldEvent.showClosestPoint then
+		reason = reason .. " showClosestPoint";
+	end;
+	remained = remained and self.selectedDebugPoint == oldEvent.selectedDebugPoint;
+	if self.selectedDebugPoint ~= oldEvent.selectedDebugPoint then
+		reason = reason .. " selectedDebugPoint";
+	end;
+	remained = remained and self.showSelectedDebugPoint == oldEvent.showSelectedDebugPoint;
+	if self.showSelectedDebugPoint ~= oldEvent.showSelectedDebugPoint then
+		reason = reason .. " showSelectedDebugPoint";
+	end;
+	remained = remained and self.changeSelectedDebugPoint == oldEvent.changeSelectedDebugPoint;
+	if self.changeSelectedDebugPoint ~= oldEvent.changeSelectedDebugPoint then
+		reason = reason .. " changeSelectedDebugPoint";
+	end;
+	remained = remained and self.iteratedDebugPoints == oldEvent.iteratedDebugPoints;
+	if self.iteratedDebugPoints ~= oldEvent.iteratedDebugPoints then
+		reason = reason .. " iteratedDebugPoints";
+	end;
+	remained = remained and self.inDeadLock == oldEvent.inDeadLock;
+	if self.inDeadLock ~= oldEvent.inDeadLock then
+		reason = reason .. " inDeadLock";
+	end;
+	--remained = remained and self.timeTillDeadLock == oldEvent.timeTillDeadLock;
+	--if self.isStopping ~= oldEvent.isStopping then
+		--reason = reason .. " isStopping";
+	--end;
+	remained = remained and self.inDeadLockRepairCounter == oldEvent.inDeadLockRepairCounter;
+	if self.inDeadLockRepairCounter ~= oldEvent.inDeadLockRepairCounter then
+		reason = reason .. " inDeadLockRepairCounter";
+	end;
+	remained = remained and self.name == oldEvent.name;
+	if self.name ~= oldEvent.name then
+		reason = reason .. " name";
+	end;
+	remained = remained and self.moduleInitialized == oldEvent.moduleInitialized;
+	if self.moduleInitialized ~= oldEvent.moduleInitialized then
+		reason = reason .. " moduleInitialized";
+	end;
+	remained = remained and self.currentInput == oldEvent.currentInput;
+	if self.currentInput ~= oldEvent.currentInput then
+		reason = reason .. " currentInput";
+	end;
+	--remained = remained and self.lastSpeed == oldEvent.lastSpeed;
+	--remained = remained and self.speedOverride == oldEvent.speedOverride;
+	remained = remained and self.isUnloading == oldEvent.isUnloading;
+	if self.isUnloading ~= oldEvent.isUnloading then
+		reason = reason .. " isUnloading";
+	end;
+	remained = remained and self.isPaused == oldEvent.isPaused;
+	if self.isPaused ~= oldEvent.isPaused then
+		reason = reason .. " isPaused";
+	end;
+	remained = remained and self.unloadSwitch == oldEvent.unloadSwitch;
+	if self.unloadSwitch ~= oldEvent.unloadSwitch then
+		reason = reason .. " unloadSwitch";
+	end;
+	remained = remained and self.isLoading == oldEvent.isLoading;
+	if self.isLoading ~= oldEvent.isLoading then
+		reason = reason .. " isLoading";
+	end;
+	remained = remained and self.unloadFillTypeIndex == oldEvent.unloadFillTypeIndex;
+	if self.unloadFillTypeIndex ~= oldEvent.unloadFillTypeIndex then
+		reason = reason .. " unloadFillTypeIndex";
+	end;
+	remained = remained and self.targetSelected_Unload == oldEvent.targetSelected_Unload;
+	if self.targetSelected_Unload ~= oldEvent.targetSelected_Unload then
+		reason = reason .. " targetSelected_Unload";
+	end;
+	remained = remained and self.mapMarkerSelected_Unload == oldEvent.mapMarkerSelected_Unload;
+	if self.mapMarkerSelected_Unload ~= oldEvent.mapMarkerSelected_Unload then
+		reason = reason .. " mapMarkerSelected_Unload";
+	end;
+	remained = remained and self.nameOfSelectedTarget_Unload == oldEvent.nameOfSelectedTarget_Unload;
+	if self.nameOfSelectedTarget_Unload ~= oldEvent.nameOfSelectedTarget_Unload then
+		reason = reason .. " nameOfSelectedTarget_Unload";
+	end;
+	remained = remained and self.enableAI == oldEvent.enableAI;
+	if self.enableAI ~= oldEvent.enableAI then
+		reason = reason .. " enableAI";
+	end;
+	remained = remained and self.disableAI == oldEvent.disableAI;
+	if self.disableAI ~= oldEvent.disableAI then
+		reason = reason .. " disableAI";
+	end;
+
+	--if reason ~= "" then
+		--print("Reason: " .. reason);
+	--end;
+
+	return remained
 end;
