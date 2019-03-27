@@ -23,8 +23,7 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.targetZ = vehicle.ad.targetZ;
 	self.initialized = vehicle.ad.initialized;
 	self.wayPoints = vehicle.ad.wayPoints;
-	self.wayPointsChanged = vehicle.ad.wayPointsChanged;
-	vehicle.ad.wayPointsChanged = false;
+	self.wayPointsChanged = vehicle.ad.wayPointsChanged;	
 	self.creationMode = vehicle.ad.creationMode;
 	self.creationModeDual = vehicle.ad.creationModeDual;
 	self.currentWayPoint = vehicle.ad.currentWayPoint;
@@ -92,6 +91,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 			end;
 		end;
 		streamWriteStringOrEmpty(streamId, self.wayPointsString);
+		self.vehicle.ad.wayPointsChanged = false;
 	end;
 	
 	streamWriteBool(streamId, self.creationMode);
@@ -244,7 +244,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		if wayPointsChanged then
 			vehicle.ad.wayPoints = wayPoints;
 		end;
-		vehicle.ad.wayPointsChanged = wayPointsChanged;
 		vehicle.ad.creationMode = creationMode;
 		vehicle.ad.creationModeDual = creationModeDual;
 		vehicle.ad.currentWayPoint = currentWayPoint;
