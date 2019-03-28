@@ -19,8 +19,6 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.isActive = vehicle.ad.isActive;
 	self.isStopping = vehicle.ad.isStopping;
 	self.drivingForward = vehicle.ad.drivingForward;
-	self.targetX = vehicle.ad.targetX;
-	self.targetZ = vehicle.ad.targetZ;
 	self.initialized = vehicle.ad.initialized;
 	self.wayPoints = vehicle.ad.wayPoints;
 	self.wayPointsChanged = vehicle.ad.wayPointsChanged;	
@@ -47,8 +45,6 @@ function AutoDriveUpdateEvent:new(vehicle)
 
 	self.moduleInitialized = vehicle.ad.moduleInitialized;
 	self.currentInput = vehicle.ad.currentInput;
-	--self.lastSpeed = vehicle.ad.lastSpeed;
-	--self.speedOverride = vehicle.ad.speedOverride;
 
 	self.isUnloading = vehicle.ad.isUnloading;
 	self.isPaused = vehicle.ad.isPaused;
@@ -75,8 +71,6 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteBool(streamId, self.isActive);
 	streamWriteBool(streamId, self.isStopping);
 	streamWriteBool(streamId, self.drivingForward);
-	streamWriteFloat32(streamId, self.targetX);
-	streamWriteFloat32(streamId, self.targetZ);
 	streamWriteBool(streamId, self.initialized);
 	
 	streamWriteBool(streamId, self.wayPointsChanged);
@@ -127,8 +121,6 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 
 	streamWriteBool(streamId, self.moduleInitialized);
 	streamWriteStringOrEmpty(streamId, self.currentInput);
-	--streamWriteFloat32(streamId, self.lastSpeed);
-	--streamWriteFloat32(streamId, self.speedOverride);
 
 	streamWriteBool(streamId, self.isUnloading);
 	streamWriteBool(streamId, self.isPaused);
@@ -158,14 +150,12 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local isActive = streamReadBool(streamId);
 	local isStopping = streamReadBool(streamId);
 	local drivingForward = streamReadBool(streamId);
-	local targetX = streamReadFloat32(streamId);
-	local targetZ = streamReadFloat32(streamId);
 	local initialized = streamReadBool(streamId);
 
 	local wayPointsChanged = streamReadBool(streamId);
-	
+		
 	local wayPoints = {};
-	if wayPointsChanged then
+	if wayPointsChanged == true then	
 		local wayPointsString = streamReadStringOrEmpty(streamId);
 		local wayPointID =  StringUtil.splitString(",", wayPointsString);		
 		for i,id in pairs(wayPointID) do
@@ -208,9 +198,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	
 	local moduleInitialized = streamReadBool(streamId);
 	local currentInput = streamReadStringOrEmpty(streamId);
-	--local lastSpeed = streamReadFloat32(streamId);
-	--local speedOverride = streamReadFloat32(streamId);
-
 	
 	local isUnloading = streamReadBool(streamId);	
 	local isPaused = streamReadBool(streamId);
@@ -237,11 +224,9 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.isActive = isActive;
 		vehicle.ad.isStopping = isStopping;
 		vehicle.ad.drivingForward = drivingForward;
-		vehicle.ad.targetX = targetX;
-		vehicle.ad.targetZ = targetZ;
 		vehicle.ad.initialized = initialized;
 		vehicle.ad.wayPointsChanged = wayPointsChanged;
-		if wayPointsChanged then
+		if wayPointsChanged == true then
 			vehicle.ad.wayPoints = wayPoints;
 		end;
 		vehicle.ad.creationMode = creationMode;
@@ -267,8 +252,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 		vehicle.ad.moduleInitialized = moduleInitialized;
 		vehicle.ad.currentInput = currentInput;
-		--vehicle.ad.lastSpeed = lastSpeed;
-		--vehicle.ad.speedOverride = speedOverride;
 
 		vehicle.ad.isUnloading = isUnloading;
 		vehicle.ad.isPaused = isPaused;
@@ -317,14 +300,6 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	remained = remained and self.drivingForward == oldEvent.drivingForward;
 	if self.drivingForward ~= oldEvent.drivingForward then
 		reason = reason .. " drivingForward";
-	end;
-	remained = remained and self.targetX == oldEvent.targetX;
-	if self.targetX ~= oldEvent.targetX then
-		reason = reason .. " targetX";
-	end;
-	remained = remained and self.targetZ == oldEvent.targetZ;
-	if self.targetZ ~= oldEvent.targetZ then
-		reason = reason .. " targetZ";
 	end;
 	remained = remained and self.initialized == oldEvent.initialized;
 	if self.initialized ~= oldEvent.initialized then
@@ -394,10 +369,6 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	if self.inDeadLock ~= oldEvent.inDeadLock then
 		reason = reason .. " inDeadLock";
 	end;
-	--remained = remained and self.timeTillDeadLock == oldEvent.timeTillDeadLock;
-	--if self.isStopping ~= oldEvent.isStopping then
-		--reason = reason .. " isStopping";
-	--end;
 	remained = remained and self.inDeadLockRepairCounter == oldEvent.inDeadLockRepairCounter;
 	if self.inDeadLockRepairCounter ~= oldEvent.inDeadLockRepairCounter then
 		reason = reason .. " inDeadLockRepairCounter";
@@ -414,8 +385,6 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	if self.currentInput ~= oldEvent.currentInput then
 		reason = reason .. " currentInput";
 	end;
-	--remained = remained and self.lastSpeed == oldEvent.lastSpeed;
-	--remained = remained and self.speedOverride == oldEvent.speedOverride;
 	remained = remained and self.isUnloading == oldEvent.isUnloading;
 	if self.isUnloading ~= oldEvent.isUnloading then
 		reason = reason .. " isUnloading";

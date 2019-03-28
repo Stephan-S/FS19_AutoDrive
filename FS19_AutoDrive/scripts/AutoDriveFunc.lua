@@ -23,25 +23,27 @@ function AutoDrive:startAD(vehicle)
 	if g_server ~= nil then
 		vehicle.ad.enableAI = 5;
 	end;
-
-	local leftCapacity = 0;
-    local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
-    if trailerCount > 0 then        
-        for _,trailer in pairs(trailers) do
-            for _,fillUnit in pairs(trailer:getFillUnits()) do
-                leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
-            end
-        end;
-	end;
 	
-	if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity < 1000 then
-		vehicle.ad.skipStart = true;
-        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
-		vehicle.ad.wayPointsChanged = true;
-		vehicle.ad.unloadSwitch = true;   
-    else
-        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
-		vehicle.ad.wayPointsChanged = true;
+	if g_server ~= nil then
+		local leftCapacity = 0;
+		local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
+		if trailerCount > 0 then        
+			for _,trailer in pairs(trailers) do
+				for _,fillUnit in pairs(trailer:getFillUnits()) do
+					leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
+				end
+			end;
+		end;
+
+		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity < 1000 then
+			vehicle.ad.skipStart = true;
+			vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+			vehicle.ad.wayPointsChanged = true;
+			vehicle.ad.unloadSwitch = true;   
+		else
+			vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
+			vehicle.ad.wayPointsChanged = true;
+		end;
 	end;
 end;
 
