@@ -133,7 +133,8 @@ function AutoDrive:loadMap(name)
 	
 	AutoDrive.loadedMap = g_currentMission.missionInfo.map.title;
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, " ", "_");
-	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, "%.", "_");	
+	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, "%.", "_");
+	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ",", "_");		
 	print("map " .. AutoDrive.loadedMap .. " was loaded");		
 		
 	AutoDrive.mapWayPoints = {};
