@@ -144,13 +144,14 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.targetSpeed < 100 then
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed + 1;
 		end;
+		AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed;
 	end;
 
 	if input == "input_decreaseSpeed" then
 		if vehicle.ad.targetSpeed > 2 then
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed - 1;
 		end;
-
+		AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed;
 	end;	
 
 	if input == "input_removeWaypoint" then

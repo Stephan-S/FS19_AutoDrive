@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.0.0";
+AutoDrive.Version = "1.0.0.2";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -135,6 +135,8 @@ function AutoDrive:loadMap(name)
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, " ", "_");
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, "%.", "_");
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ",", "_");		
+	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ":", "_");	
+	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ";", "_");	
 	print("map " .. AutoDrive.loadedMap .. " was loaded");		
 		
 	AutoDrive.mapWayPoints = {};
@@ -143,6 +145,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.mapMarkerCounter = 0;
 	AutoDrive.showMouse = false;					
 		
+	AutoDrive.lastSetSpeed = 50;
 
 	AutoDrive.print = {};
 	AutoDrive.print.currentMessage = nil;
@@ -214,7 +217,7 @@ function init(self)
 		end;	
 	end;
 	self.ad.mode = AutoDrive.MODE_DRIVETO;
-	self.ad.targetSpeed = 60;
+	self.ad.targetSpeed = AutoDrive.lastSetSpeed;
 	self.ad.createMapPoints = false;
 	self.ad.showClosestPoint = true;
 	self.ad.selectedDebugPoint = -1;

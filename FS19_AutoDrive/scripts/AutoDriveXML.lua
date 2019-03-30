@@ -90,6 +90,10 @@ function AutoDrive:readFromXML(xmlFile)
 	AutoDrive.HudX = getXMLFloat(xmlFile,"AutoDrive.HudX");
 	AutoDrive.HudY = getXMLFloat(xmlFile,"AutoDrive.HudY");
 	AutoDrive.showingHud = getXMLBool(xmlFile,"AutoDrive.HudShow");
+	local lastSetSpeed = getXMLFloat(xmlFile,"AutoDrive.lastSetSpeed");
+	if lastSetSpeed ~= nil then
+		AutoDrive.lastSetSpeed = lastSetSpeed;
+	end;
 
 	local mapMarker = {};
 	local mapMarkerCounter = 1;
@@ -317,7 +321,8 @@ function AutoDrive:saveToXML(xmlFile)
 	
 	setXMLFloat(xmlFile, "AutoDrive.HudX", AutoDrive.HudX);
 	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY);
-	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud);
+	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud);	
+	setXMLFloat(xmlFile, "AutoDrive.lastSetSpeed", AutoDrive.lastSetSpeed);
 		
 	local idFullTable = {};
 	local idString = "";
