@@ -402,41 +402,47 @@ function AutoDrive:finishCreatingMapMarker(vehicle)
 end;
 
 function AutoDrive:inputShowNeighbors(vehicle)
-    if vehicle.ad.showSelectedDebugPoint == false then
-        vehicle.ad.showSelectedDebugPoint = true;
+	if vehicle.ad.showSelectedDebugPoint == false then
+		-- Find all candidate points, no further away than 15 units from vehicle
+		local x1,_,z1 = getWorldTranslation(vehicle.components[1].node);
+		local candidateDebugPoints = {}
+		for _,point in pairs(AutoDrive.mapWayPoints) do
+			local distance = AutoDrive:getDistance(point.x,point.z,x1,z1);
+			if distance < 15 then
+				-- Add new element consisting of 'distance' (for sorting) and 'point'
+				table.insert(candidateDebugPoints, {distance=distance, point=point})
+			end
+		end;
+		-- If more than one point found, then arrange them from inner closest to further out
+		if ADTableLength(candidateDebugPoints) > 1 then
+			-- Sort by distance
+			table.sort(candidateDebugPoints, function(left,right)
+				return left.distance < right.distance
+			end)
+			-- Clear the array for any previous 'points'
+			vehicle.ad.iteratedDebugPoints = {}
+			-- Only need 'point' in the iteratedDebugPoints-array
+			for _,elem in pairs(candidateDebugPoints) do
+				table.insert(vehicle.ad.iteratedDebugPoints, elem.point)
+			end
+			-- Begin at the 2nd closest one (assuming 1st is 'ourself / the closest')
+			vehicle.ad.selectedDebugPoint = 2
 
-        local debugCounter = 1;
+			-- But try to find a node with no IncomingRoads, and use that as starting from
+			for idx,point in pairs(vehicle.ad.iteratedDebugPoints) do
+				if ADTableLength(point.incoming) < 1 then
+					vehicle.ad.selectedDebugPoint = idx
+					break -- Since array was already sorted by distance, we dont need to search for another one
+				end
+			end
 
-        local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
-        for i,point in pairs(AutoDrive.mapWayPoints) do
-            local distance = AutoDrive:getDistance(point.x,point.z,x1,z1);
+			vehicle.ad.showSelectedDebugPoint = true;
+		end
+	else
+		vehicle.ad.showSelectedDebugPoint = false;
+	end;
 
-            if distance < 15 then
-                vehicle.ad.iteratedDebugPoints[debugCounter] = point;
-                debugCounter = debugCounter + 1;
-            end;
-        end;
-        vehicle.ad.selectedDebugPoint = 2;
-
-        vehicle.ad.iteratedDebugPoints = AutoDrive:sortNodesByDistance(x1, z1, vehicle.ad.iteratedDebugPoints);
-        
-        local leastIncomingRoads = 1;
-        local nodeWithLeastIncomingRoads = nil;        
-        for i,point in pairs(vehicle.ad.iteratedDebugPoints) do
-            if ADTableLength(point.incoming) < leastIncomingRoads then
-                leastIncomingRoads = ADTableLength(point.incoming);
-                nodeWithLeastIncomingRoads = i;
-            end;
-        end;
-        
-        if nodeWithLeastIncomingRoads ~= nil then
-            vehicle.ad.selectedDebugPoint = nodeWithLeastIncomingRoads;
-        end;
-    else
-        vehicle.ad.showSelectedDebugPoint = false;
-    end;
-
-    AutoDrive.Hud:updateSingleButton("input_showNeighbor", vehicle.ad.showSelectedDebugPoint)
+	AutoDrive.Hud:updateSingleButton("input_showNeighbor", vehicle.ad.showSelectedDebugPoint)
 end;
 
 function AutoDrive:inputShowClosest(vehicle)

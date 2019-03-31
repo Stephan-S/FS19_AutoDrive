@@ -26,7 +26,10 @@ function AutoDrive:handleTrailers(vehicle, dt)
         if distance < 20 then
             for _,trailer in pairs(trailers) do
                 for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
-
+                    if trailer.getCurrentDischargeNode == nil then
+                        return;
+                    end;
+                    
                     local currentDischargeNode = trailer:getCurrentDischargeNode()
                     local distanceToTrigger, bestTipReferencePoint = 0, currentDischargeNode;
 
