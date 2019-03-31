@@ -29,7 +29,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
                     if trailer.getCurrentDischargeNode == nil then
                         return;
                     end;
-                    
+
                     local currentDischargeNode = trailer:getCurrentDischargeNode()
                     local distanceToTrigger, bestTipReferencePoint = 0, currentDischargeNode;
 
@@ -174,37 +174,36 @@ function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFi
 end;
 
 function AutoDrive:getTrailersOf(vehicle)
-    local trailers = {};
-    local trailerCount = 0;
-    local trailer = nil;
+    AutoDrive.tempTrailers = {};
+    AutoDrive.tempTrailerCount = 0;
+
     if vehicle.getAttachedImplements ~= nil then
-        local hasImplements = true;
-        local toCheck = vehicle
-        while hasImplements do
-            hasImplements = false;
-            if toCheck.getAttachedImplements ~= nil then
-                for _, implement in pairs(toCheck:getAttachedImplements()) do                    
-                    if implement.object ~= nil then
-                        --if workTool.spec_dischargeable and workTool.cp.capacity and workTool.cp.capacity > 0.1 then
-                        if implement.object.typeDesc == g_i18n:getText("typeDesc_tipper") or implement.object.spec_dischargeable ~= nil then
-                            trailer = implement.object;
-                            trailerCount = 1;
-                            trailers[trailerCount] = trailer;
-                            toCheck = implement;
-                            hasImplements = true;
-                        end;
-                        if implement.object.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then                   
-                            trailer = implement.object.spec_hookLiftTrailer.attachedContainer.object
-                            trailerCount = 1;
-                            trailers[trailerCount] = trailer;
-                            toCheck = implement;
-                            hasImplements = true;
-                        end;
-                    end;
-                end;
-            end;
+        for _, implement in pairs(vehicle:getAttachedImplements()) do
+            AutoDrive:getTrailersOfImplement(implement.object);
+        end;
+    end;
+    --print("Vehicle: " .. vehicle.name .. " has " .. trailerCount .. " trailers");
+
+    return AutoDrive.tempTrailers, AutoDrive.tempTrailerCount;
+end;
+
+function AutoDrive:getTrailersOfImplement(attachedImplement)
+    if attachedImplement.getAttachedImplements ~= nil then
+        for _, implement in pairs(attachedImplement:getAttachedImplements()) do
+            AutoDrive:getTrailersOfImplement(implement.object);
         end;
     end;
 
-    return trailers, trailerCount;
+    if attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil then
+        trailer = attachedImplement;
+        AutoDrive.tempTrailerCount = 1;
+        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+    end;
+    if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then                   
+        trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
+        AutoDrive.tempTrailerCount = 1;
+        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+    end;
+
+    return;
 end;
