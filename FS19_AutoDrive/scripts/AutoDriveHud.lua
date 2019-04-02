@@ -188,7 +188,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		if button.name == "input_silomode" then
 			local buttonImg = "";
 			
-			if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then 
+			if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == MODE_UNLOAD then 
 				button.img_active = button.img_3;
 			else
 				button.img_active = button.img_off;
@@ -425,7 +425,7 @@ function AutoDriveHud:drawHud(vehicle)
 			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
 
-		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
@@ -613,6 +613,8 @@ function AutoDriveHud:getModeName(vehicle)
 		return g_i18n:getText("AD_MODE_DELIVERTO");
 	elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
 		return g_i18n:getText("AD_MODE_PICKUPANDDELIVER");
+	elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+		return g_i18n:getText("AD_MODE_UNLOAD");
 	end;
 
 	return "";

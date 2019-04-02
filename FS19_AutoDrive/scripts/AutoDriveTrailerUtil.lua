@@ -1,5 +1,5 @@
 function AutoDrive:handleTrailers(vehicle, dt)
-    if vehicle.ad.isActive == true and (vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER) then --and vehicle.isServer == true
+    if vehicle.ad.isActive == true and (vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) then --and vehicle.isServer == true
         local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);  		
 
         if trailerCount == 0 then
@@ -68,54 +68,66 @@ function AutoDrive:handleTrailers(vehicle, dt)
             end;
         end;
 
-        local x,y,z = getWorldTranslation(vehicle.components[1].node);
-        local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
-        if destination == nil then
-            return;
-        end;
-        local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);        
-        if distance < 20 then
-            for _,trailer in pairs(trailers) do
-                for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-                    local activate = false;
-                    for __,fillableObject in pairs(trigger.fillableObjects) do
-                        if fillableObject.object == trailer then   
-                            activate = true;    
+        if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then 
+            local x,y,z = getWorldTranslation(vehicle.components[1].node);
+            local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
+            if destination == nil then
+                return;
+            end;
+            local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);        
+            if distance < 20 then
+                for _,trailer in pairs(trailers) do
+                    for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+                        local activate = false;
+                        for __,fillableObject in pairs(trigger.fillableObjects) do
+                            if fillableObject.object == trailer then   
+                                activate = true;    
+                            end;
+                        end;
+
+                        if activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then
+                            if vehicle.ad.triggerWaitCycles > 0 then                                
+                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
+                                vehicle.ad.triggerWaitCycles = vehicle.ad.triggerWaitCycles - 1;
+                            else
+                                trigger.autoStart = true
+                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
+                                trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
+                                if g_dedicatedServerInfo == nil then     
+                                    print("Calling trigger onActivate");              
+                                    --trigger:onActivateObject(vehicle)
+                                end;
+                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
+                                g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
+                                trigger.autoStart = false
+                            end;
+
+                            vehicle.ad.isPaused = true;
+                            vehicle.ad.isLoading = true;
+
+                            if g_server == nil and trigger.isLoading then
+                                --AutoDriveUpdateEvent:sendEvent(vehicle); --The unload function has to be called on the client side. Therefore the client has to inform the server
+                            end;
+                        end;
+
+                        if leftCapacity == 0 and vehicle.ad.isPaused then
+                            vehicle.ad.isPaused = false;
+                            vehicle.ad.isUnloading = false;
+                            vehicle.ad.isLoading = false;
                         end;
                     end;
 
-                    if activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then
-                        trigger.autoStart = true
-                        trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex                         
-                        trigger:onActivateObject(vehicle) 
-                        trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
-                        g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
-                        trigger.autoStart = false
-                        vehicle.ad.isPaused = true;
-                        vehicle.ad.isLoading = true;
-
-                        if g_server == nil and trigger.isLoading then
-                            --AutoDriveUpdateEvent:sendEvent(vehicle); --The unload function has to be called on the client side. Therefore the client has to inform the server
+                    if trailer.spec_cover ~= nil then
+                        if trailer.spec_cover.state == 0 then
+                            local newState = 1    
+                            if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
+                                trailer:setCoverState(newState,true);
+                            end
                         end;
-                    end;
-
-                    if leftCapacity == 0 and vehicle.ad.isPaused then
-                        vehicle.ad.isPaused = false;
-                        vehicle.ad.isUnloading = false;
-                        vehicle.ad.isLoading = false;
-                    end;
-                end;
-
-                if trailer.spec_cover ~= nil then
-                    if trailer.spec_cover.state == 0 then
-                        local newState = 1    
-                        if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
-                            trailer:setCoverState(newState,true);
-                        end
                     end;
                 end;
             end;
-        end;        
+        end;
     end;
 end;
 
@@ -194,7 +206,7 @@ function AutoDrive:getTrailersOfImplement(attachedImplement)
         end;
     end;
 
-    if attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil then
+    if (attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) and attachedImplement.getFillUnits ~= nil then
         trailer = attachedImplement;
         AutoDrive.tempTrailerCount = 1;
         AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;

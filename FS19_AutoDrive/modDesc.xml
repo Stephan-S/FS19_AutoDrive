@@ -169,6 +169,10 @@
 			<en>Pickup and Deliver</en>
 			<de>Abholen und Abliefern</de>
 		</text>
+		<text name="AD_MODE_UNLOAD">
+			<en>Unload Combine</en>
+			<de>Drescher abfahren</de>
+		</text>
 	</l10n>
 
 	<actions>

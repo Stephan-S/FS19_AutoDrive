@@ -26,13 +26,6 @@ AutoDrive_Register.modDirectory = g_currentModDirectory;
 local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
 AutoDrive_Register.version = getXMLString(modDesc, "modDesc.version");
 
---[[ for typeName,vehicleType in pairs(g_vehicleTypeManager.vehicleTypes) do
-	if SpecializationUtil.hasSpecialization(AIVehicle, vehicleType.specializations) and not vehicleType.hasADSpec then
-			g_vehicleTypeManager:addSpecialization(typeName, "AutoDrive")
-			vehicleType.hasADSpec = true;
-	end;
-end; ]]
-
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua",  g_currentModDirectory), nil)
 	

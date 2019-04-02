@@ -29,13 +29,15 @@ function AutoDrive:startAD(vehicle)
 		local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
 		if trailerCount > 0 then        
 			for _,trailer in pairs(trailers) do
-				for _,fillUnit in pairs(trailer:getFillUnits()) do
-					leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
-				end
+				if trailer.getFillUnits ~= nil then
+					for _,fillUnit in pairs(trailer:getFillUnits()) do
+						leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
+					end
+				end;
 			end;
 		end;
-
-		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity < 1000 then
+				
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and leftCapacity < 5000 then
 			vehicle.ad.skipStart = true;
 			vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
 			vehicle.ad.wayPointsChanged = true;
@@ -43,7 +45,7 @@ function AutoDrive:startAD(vehicle)
 		else
 			vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
 			vehicle.ad.wayPointsChanged = true;
-		end;
+		end;	
 	end;
 end;
 
@@ -81,8 +83,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 
 	if vehicle.restoreVehicleCharacter ~= nil then
 		vehicle:restoreVehicleCharacter()
-	end
-					
+	end;
+
 	vehicle.ad.initialized = false;
 	vehicle.ad.lastSpeed = 10;
 	if vehicle.steeringEnabled == false then
@@ -95,6 +97,13 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	--tell clients to dismiss ai worker etc.
 	if g_server ~= nil then
 		vehicle.ad.disableAI = 5;
+	end;
+
+	vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;
+	
+	if vehicle.ad.currentCombine ~= nil then
+		vehicle.ad.currentCombine.ad.currentDriver = nil;
+		vehicle.ad.currentCombine = nil;
 	end;
 
 	vehicle:requestActionEventUpdate();
@@ -242,7 +251,7 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
     --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 0, 0, 0, 1);	
 
 	for _,other in pairs(g_currentMission.vehicles) do --pairs(g_currentMission.nodeToVehicle) do
-		if other ~= vehicle then
+		if other ~= vehicle and other ~= vehicle.ad.currentCombine then
 			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);			
             
 			if isAttachedToMe == false and other.components ~= nil then

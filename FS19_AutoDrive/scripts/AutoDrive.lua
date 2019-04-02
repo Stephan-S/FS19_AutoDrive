@@ -13,6 +13,7 @@ AutoDrive.drawHeight = 0.3;
 AutoDrive.MODE_DRIVETO = 1;
 AutoDrive.MODE_PICKUPANDDELIVER = 2;
 AutoDrive.MODE_DELIVERTO = 3;
+AutoDrive.MODE_UNLOAD = 4;
 
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
 
@@ -114,6 +115,9 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveDijkstra.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveUtilFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDrivePathPlanning.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/FieldDataCallback.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
 		--DebugUtil.printTableRecursively(g_currentMission, "	:	",0,2);
@@ -176,6 +180,8 @@ function AutoDrive:loadMap(name)
 	else
 		AutoDrive.highestIndex = 1;
 	end;
+
+	AutoDrive.waitingUnloadDrivers = {}
 end;
 
 function AutoDrive:saveSavegame()
@@ -271,6 +277,8 @@ function init(self)
 	self.ad.chosenDestination = "";
 	self.ad.enteredChosenDestination = "";
 
+	self.ad.triggerWaitCycles = 120;
+
 	if AutoDrive.showingHud ~= nil then
 		self.ad.showingHud = AutoDrive.showingHud;
 	else
@@ -283,6 +291,10 @@ function init(self)
 	--variables the server sets so that the clients can act upon it:
 	self.ad.disableAI = 0;
 	self.ad.enableAI = 0;
+
+	self.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;
+	self.ad.currentCombine = nil;
+	self.ad.currentDriver = nil;
 
 	if AutoDrive.searchedTriggers ~= true then
 		AutoDrive:getAllTriggers();
@@ -431,7 +443,10 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleYPositionIntegrityCheck(self);
 	AutoDrive:handleClientIntegrity(self);
 	AutoDrive:handleMultiplayer(self, dt);
-
+	
+	if self.typeDesc == "harvester" then
+		AutoDrive:handleCombineHarvester(self, dt)
+	end;
 	if self.ad.destinationPrintTimer > 0 then
 		self.ad.destinationPrintTimer = self.ad.destinationPrintTimer - dt;
 	end;
@@ -459,13 +474,21 @@ function AutoDrive:onDraw()
 		end;
 	end;
 
+	if self.ad.mode == AutoDrive.MODE_UNLOAD and self.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
+		if ADTableLength(self.ad.wayPoints) > 1 then
+			for i=2, ADTableLength(self.ad.wayPoints), 1 do
+				AutoDrive:drawLine(self.ad.wayPoints[i-1], self.ad.wayPoints[i], 1, 1, 1, 1);
+			end;
+		end;
+	end;
+
 	if self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawControlledVehicle(self);
 	end;
 	
 	if self.ad.createMapPoints == true and self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawCreationMode(self);
-	end;		
+	end;
 end; 
 
 function AutoDrive:onDrawControlledVehicle(vehicle)

@@ -2,8 +2,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	AutoDrive:MarkChanged();
 	
 	--remove node on all out going nodes
-	for _,node in pairs(toDelete.out) do			
-		local IncomingCounter = 1;
+	for _,node in pairs(toDelete.out) do	
 		local deleted = false;
 		for __,incoming in pairs(AutoDrive.mapWayPoints[node].incoming) do
 			if incoming == toDelete.id then
@@ -21,14 +20,12 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	end;
 	
 	--remove node on all incoming nodes	
-	for _,node in pairs(AutoDrive.mapWayPoints) do
-		
+	for _,node in pairs(AutoDrive.mapWayPoints) do		
 		local deleted = false;
 		for __,out_id in pairs(node.out) do
 			if out_id == toDelete.id then
 				deleted = true;
-			end;
-			
+			end;			
 			
 			if deleted then
 				if node.out[__ + 1 ] ~= nil then
@@ -37,8 +34,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 					node.out[__] = nil;
 				end;
 			end;
-		end;
-		
+		end;	
 	end;
 	
 	--adjust ids for all succesive nodes :(	
@@ -234,9 +230,11 @@ function AutoDrive:handleRecalculation(vehicle)
 end;
 
 function AutoDrive:isDualRoad(start, target)
-	for _,incoming in pairs(start.incoming) do
-		if incoming == target.id then
-			return true;
+	if start.incoming ~= nil then
+		for _,incoming in pairs(start.incoming) do
+			if incoming == target.id then
+				return true;
+			end;
 		end;
 	end;
 	return false;
