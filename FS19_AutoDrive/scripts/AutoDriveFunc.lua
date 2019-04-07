@@ -19,7 +19,7 @@ function AutoDrive:startAD(vehicle)
        vehicle.steeringEnabled = false;
 	end
 	
-	vehicle.spec_aiVehicle.aiTrafficCollision = nil;
+	--vehicle.spec_aiVehicle.aiTrafficCollision = nil;
 	if g_server ~= nil then
 		vehicle.ad.enableAI = 5;
 	end;
@@ -38,13 +38,17 @@ function AutoDrive:startAD(vehicle)
 		end;
 				
 		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and leftCapacity < 5000 then
-			vehicle.ad.skipStart = true;
-			vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
-			vehicle.ad.wayPointsChanged = true;
-			vehicle.ad.unloadSwitch = true;   
+			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
+				vehicle.ad.skipStart = true;
+				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+				vehicle.ad.wayPointsChanged = true;
+				vehicle.ad.unloadSwitch = true;   
+			end;
 		else
-			vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
-			vehicle.ad.wayPointsChanged = true;
+			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] ~= nil then
+				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
+				vehicle.ad.wayPointsChanged = true;
+			end;
 		end;	
 	end;
 end;
@@ -106,6 +110,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		vehicle.ad.currentCombine = nil;
 	end;
 
+	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
+
 	vehicle:requestActionEventUpdate();
 end
 
@@ -125,7 +131,10 @@ function AutoDrive:getVehicleToStop(vehicle, brake, dt)
         node = vehicle:getAIVehicleDirectionNode();
     end;
     local x,y,z = getWorldTranslation(vehicle.components[1].node);   
-    local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z);
+	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
+	x = x + rx;
+	z = z + rz;
+	local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
     AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);
 end;
 
@@ -152,6 +161,10 @@ end;
 
 function AutoDrive:detectAdTrafficOnRoute(vehicle)
 	if vehicle.ad.isActive == true then
+		if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS and vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+			return false;
+		end;
+
 		local idToCheck = 3;
 		local alreadyOnDualRoute = false;
 		if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
@@ -221,7 +234,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 
 end
 
-function AutoDrive:detectTraffic(vehicle, wp_next)
+function AutoDrive:detectTraffic(vehicle)
 	local x,y,z = getWorldTranslation( vehicle.components[1].node );
 	--create bounding box to check for vehicle
 	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
@@ -252,9 +265,10 @@ function AutoDrive:detectTraffic(vehicle, wp_next)
 
 	for _,other in pairs(g_currentMission.vehicles) do --pairs(g_currentMission.nodeToVehicle) do
 		if other ~= vehicle and other ~= vehicle.ad.currentCombine then
-			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);			
+			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
+			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE);		
             
-			if isAttachedToMe == false and other.components ~= nil then
+			if isAttachedToMe == false and other.components ~= nil and isAttachedToMyCombine == false then
 				if other.sizeWidth == nil then
 					--print("vehicle " .. other.configFileName .. " has no width");
 				else
@@ -319,6 +333,9 @@ end
 
 function AutoDrive:checkIsConnected(toCheck, other)
 	local isAttachedToMe = false;
+	if toCheck == nil or other == nil then
+		return false;
+	end;
 	if toCheck.getAttachedImplements == nil then
 		return false;
 	end;

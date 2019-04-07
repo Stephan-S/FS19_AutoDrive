@@ -103,6 +103,18 @@ function AutoDrive:newColor(r, g, b, a)
 	return color;
 end;
 
+function AutoDrive:round(num)
+    under = math.floor(num)
+    upper = math.floor(num) + 1
+    underV = -(under - num)
+    upperV = upper - num
+    if (upperV > underV) then
+        return under
+    else
+        return upper
+    end
+end
+
 function AutoDrive:getWorldDirection(fromX, fromY, fromZ, toX, toY, toZ)
 	-- NOTE: if only 2D is needed, pass fromY and toY as 0
 	local wdx, wdy, wdz = toX - fromX, toY - fromY, toZ - fromZ;

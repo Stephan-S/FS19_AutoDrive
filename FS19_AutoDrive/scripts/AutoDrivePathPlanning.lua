@@ -7,51 +7,14 @@ AutoDrive.PP_DOWN_LEFT = 5;
 AutoDrive.PP_LEFT = 6;
 AutoDrive.PP_UP_LEFT = 7;
 
-AutoDrive.PP_MIN_DISTANCE = 10;
+AutoDrive.PP_MIN_DISTANCE = 14;
 AutoDrive.PP_CELL_X = 8;
-AutoDrive.PP_CELL_Z = 6;
+AutoDrive.PP_CELL_Z = 8;
 AutoDrive.PP_MAX_STEPS = 300;
-
-function AutoDrive:plotWayToPipe(driver, combine, dischargeNode)
-	local nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode);
-
-	local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
-	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, math.sin(combine.rotatedTime),0,math.cos(combine.rotatedTime));	
-	local combineVector = {x= math.sin(rx) ,z= math.sin(rz)};
-
-	local wpAhead = {x= (nodeX + 8*rx), y = worldY, z = nodeZ + 8*rz };
-	local wpBehind = {x= (nodeX - 7*rx), y = worldY, z = nodeZ - 7*rz };
-	local wpBehindTwo = {x= (nodeX - 14*rx), y = worldY, z = nodeZ - 14*rz };
-	local wpBehindThree = {x= (nodeX - 21*rx), y = worldY, z = nodeZ - 21*rz };
-	local wpCurrent = {x= (nodeX), y = worldY, z = nodeZ };
-
-	local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
-	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, math.sin(driver.rotatedTime),0,math.cos(driver.rotatedTime));	
-	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};
-
-	local vecX = combineVector.x - driverVector.x;
-	local vecZ = combineVector.z - driverVector.z;
-	
-	local angleRad = math.atan2(vecZ, vecX);
-
-	angleRad = normalizeAngle(angleRad);
-
-	local wayPoints = {};
-	wayPoints[1] = wpBehindThree;
-	wayPoints[2] = wpBehindTwo;
-	wayPoints[3] = wpBehind;
-	wayPoints[4] = wpCurrent;
-	wayPoints[5] = wpAhead;
-	local wayPointCounter = 5;
-	return wayPoints;
-	--FSDensityMapUtil.getFieldStatusAsync(x, z, corner2x, z, corner2x, corner2z, self.triggerCallbacks[currentPartition][2].onFieldDataUpdateFinished,  self.triggerCallbacks[currentPartition][2]);
-end;
 
 function AutoDrive:startPathPlanningToCombine(driver, combine, dischargeNode)
 	driver.ad.pp = {};
 	driver.ad.pp.isFinished = false;
-	driver.ad.pp.combine = combine;
-	driver.ad.pp.dischargeNode = dischargeNode;
 	driver.ad.pp.grid = {};
 
 	local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);
@@ -63,8 +26,8 @@ function AutoDrive:startPathPlanningToCombine(driver, combine, dischargeNode)
 	local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, math.sin(driver.rotatedTime),0,math.cos(driver.rotatedTime));	
 	driver.ad.pp.driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
-	driver.ad.pp.targetX = driverWorldX + 8*driverRx;
-	driver.ad.pp.targetZ = driverWorldZ + 8*driverRz;
+	driver.ad.pp.targetX = driverWorldX + 12*driverRx;
+	driver.ad.pp.targetZ = driverWorldZ + 12*driverRz;
 
 	driver.ad.pp.wpAhead = {x= (nodeX + 8*rx), y = worldY, z = nodeZ + 8*rz };
 	driver.ad.pp.wpBehind = {x= (nodeX - 7*rx), y = worldY, z = nodeZ - 7*rz };
@@ -113,8 +76,14 @@ function AutoDrive:startPathPlanningToCombine(driver, combine, dischargeNode)
 	driver.ad.pp.fallBackMode = false; --Ignore fruits when this is true
 	driver.ad.pp.steps = 0;
 
+	driver.ad.pp.fruitToCheck = 0;
+
+	local driverGrid = AutoDrive:worldLocationToGridLocation(driver, driverWorldX, driverWorldZ)
+	local driverDirection = AutoDrive:worldDirectionToGridDirection(driver, driver.ad.pp.driverVector)
+	AutoDrive:determineBlockedCells(driver, driverDirection, driverGrid.x, driverGrid.z);
+
 	AutoDrive:createGridLocation(driver, 0, 0);
-	AutoDrive:setGridLocationRestricted(driver, 0, 0, false)
+	AutoDrive:setGridLocationRestricted(driver, 0, 0, true)
 	AutoDrive:createGridLocation(driver, -1, 0);
 	AutoDrive:setGridLocationRestricted(driver, -1, 0, false)
 	
@@ -165,7 +134,7 @@ function AutoDrive:startPathPlanningToStartPosition(driver)
 
 	angleRad = normalizeAngle(angleRad);
 
-	local vectorLength = 8;
+	local vectorLength = 14;
 
 	driver.ad.pp.targetX = preTargetPoint.x + math.cos(angleRad) * vectorLength; --Make the target a few meters ahead of the road to the start point
 	driver.ad.pp.targetZ = preTargetPoint.z + math.sin(angleRad) * vectorLength;
@@ -208,20 +177,19 @@ function AutoDrive:startPathPlanningToStartPosition(driver)
 	driver.ad.pp.fallBackMode = false; --Ignore fruits when this is true
 	driver.ad.pp.steps = 0;
 
+	driver.ad.pp.fruitToCheck = 0;
+
 	AutoDrive:createGridLocation(driver, 0, 0);
 	AutoDrive:setGridLocationRestricted(driver, 0, 0, false)
+
+	local endVector = { x = preTargetPoint.x - targetPoint.x, z = preTargetPoint.z - targetPoint.z };
+	local driverGrid = AutoDrive:worldLocationToGridLocation(driver, targetPoint.x, targetPoint.z)
+	local driverDirection = AutoDrive:worldDirectionToGridDirection(driver, endVector)
+	AutoDrive:determineBlockedCells(driver, driverDirection, driverGrid.x, driverGrid.z);
 end;
 
 function AutoDrive:updatePathPlanning(driver)
-	if ADTableLength(driver.ad.pp.chain) > 1 then
-		for i=2, ADTableLength(driver.ad.pp.chain), 1 do
-			local pointA = AutoDrive:gridLocationToWorldLocation(driver, driver.ad.pp.chain[i-1].x, driver.ad.pp.chain[i-1].z);
-			pointA.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointA.x, 1, pointA.z);
-			local pointB = AutoDrive:gridLocationToWorldLocation(driver, driver.ad.pp.chain[i].x, driver.ad.pp.chain[i].z);
-			pointB.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointB.x, 1, pointB.z);
-			AutoDrive:drawLine(pointA, pointB, 1, 1, 1, 1);
-		end;
-	end;
+	AutoDrive:drawDebugForPP(driver);
 
 	if driver.ad.pp == nil then
 		return;
@@ -249,13 +217,14 @@ function AutoDrive:updatePathPlanning(driver)
 		pp.steps = pp.steps + 1;
 		if pp.steps > AutoDrive.PP_MAX_STEPS then
 			print("Error in pathfinding. Could not find a route in the correct time - AutoDrive shuts down");
-			--DebugUtil.printTableRecursively(pp.grid, "-", 0,2);
 			pp.isFinished = true;
 			pp.wayPoints = {};
 		end;
 				
-		local bestIndex = 0;
+		pp.bestIndex = 0;
+		local nextBestIndex = 0;
 		local bestDistance = math.huge;
+		local nextBestDistance = math.huge;
 		for index, testLocation in pairs(pp.testGrid) do
 			if pp.grid[testLocation.x][testLocation.z].isRestricted == false or pp.fallBackMode == true then
 				local worldPos = AutoDrive:gridLocationToWorldLocation(driver, testLocation.x, testLocation.z);
@@ -263,16 +232,24 @@ function AutoDrive:updatePathPlanning(driver)
 
 				if distance < bestDistance then
 					bestDistance = distance;
-					bestIndex = index;
+					pp.bestIndex = index;
+				end;
+
+				if nextBestIndex == 0 and pp.bestIndex ~= 0 and pp.bestIndex ~= index and distance < nextBestDistance then
+					nextBestDistance = distance;
+					nextBestIndex = index;
 				end;
 			end;
 		end;
 
-		if bestIndex == 0 then
+		AutoDrive:checkForStraightLineAway(driver, pp.bestIndex, nextBestIndex);
+		AutoDrive:checkForSnakeSyndrom(driver, pp.bestIndex);
+
+		if pp.bestIndex == 0 then
 			--we have to trace back our greedy algorithm
 			AutoDrive:stepBackPPAlgorithm(driver);
 		else
-			AutoDrive:stepForwardPPAlgorithm(driver, bestIndex);
+			AutoDrive:stepForwardPPAlgorithm(driver, pp.bestIndex);
 		end;
 	end;
 end;
@@ -381,7 +358,10 @@ function AutoDrive:createGridLocation(driver, x, z)
 		pp.grid[x][z].isFruitFree = false; -- should be false when making actual FieldInfo Request
 		pp.grid[x][z].hasInfo = false; -- should be false when making actual FieldInfo Request	
 		pp.grid[x][z].isRestricted = false;
+		pp.grid[x][z].hasRequested = false;
+		return true;
 	end;
+	return false;
 end;
 
 function AutoDrive:setGridLocationRestricted(driver, x, z, restricted)
@@ -391,6 +371,7 @@ function AutoDrive:setGridLocationRestricted(driver, x, z, restricted)
 			pp.grid[x][z].hasInfo = true;
 			pp.grid[x][z].isFruitFree = not restricted;
 			pp.grid[x][z].isRestricted = restricted;
+			pp.grid[x][z].hasRequested = true;
 		end;
 	end;
 end;
@@ -405,6 +386,157 @@ function AutoDrive:gridLocationToWorldLocation(driver, x, z)
 	return result;
 end;
 
+function AutoDrive:worldLocationToGridLocation(driver, worldX, worldZ)
+	local pp = driver.ad.pp;
+	local result = {x= 0, z=0};
+
+	result.z = (((worldX - pp.startX) / pp.vectorX.x) * pp.vectorX.z -worldZ + pp.startZ) / (((pp.vectorZ.x / pp.vectorX.x) * pp.vectorX.z) - pp.vectorZ.z);
+	result.x = (worldZ - pp.startZ - result.z * pp.vectorZ.z) / pp.vectorX.z;
+
+	result.x = AutoDrive:round(result.x);
+	result.z = AutoDrive:round(result.z);
+
+	return result;
+end;
+
+function AutoDrive:worldDirectionToGridDirection(driver, vector)
+	local pp = driver.ad.pp;
+
+	local vecUp = {x = pp.vectorX.x + pp.vectorZ.x, z = pp.vectorX.z + pp.vectorZ.z};
+
+	local angleWorldDirection = math.atan2(vector.z, vector.x);
+	angleWorldDirection = normalizeAngle2(angleWorldDirection);
+
+	local angleRad = math.atan2(vecUp.z, vecUp.x);
+	angleRad = normalizeAngle2(angleRad);
+
+	local upRightAngle = normalizeAngle2(angleRad + math.rad(45));
+	local rightAngle = normalizeAngle2(angleRad + math.rad(90));
+	local downRightAngle = normalizeAngle2(angleRad + math.rad(135));
+	local downAngle = normalizeAngle2(angleRad + math.rad(180));
+	local downLeftAngle = normalizeAngle2(angleRad + math.rad(225));
+	local leftAngle = normalizeAngle2(angleRad + math.rad(270));
+	local upLeftAngle = normalizeAngle2(angleRad + math.rad(315));
+
+	local direction = AutoDrive.PP_UP;
+
+	if math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_UP_RIGHT;
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_RIGHT;
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_DOWN_RIGHT;
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_DOWN;
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_DOWN_LEFT;
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_LEFT;
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) <= 22.5 then
+		direction = AutoDrive.PP_UP_LEFT;
+	end;
+
+	return direction;
+end;
+
+function AutoDrive:determineBlockedCells(driver, endDirection, x, z)
+	local pp = driver.ad.pp;
+
+	--block cells which would result in bad angles to the end/start point
+	--  xx
+	--  x->
+	--  xx
+	if endDirection == AutoDrive.PP_UP then
+		AutoDrive:createGridLocation(driver, x-1, z)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z, true)
+		AutoDrive:createGridLocation(driver, x-1, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z-1, true)
+		AutoDrive:createGridLocation(driver, x-1, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z+1, true)
+		--AutoDrive:createGridLocation(driver, x, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x, z-1, true)
+		--AutoDrive:createGridLocation(driver, x, z+1)
+		--AutoDrive:setGridLocationRestricted(driver, x, z+1, true)
+	elseif endDirection == AutoDrive.PP_UP_RIGHT then
+		AutoDrive:createGridLocation(driver, x-1, z)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z, true)
+		AutoDrive:createGridLocation(driver, x-1, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z-1, true)
+		--AutoDrive:createGridLocation(driver, x-1, z+1)
+		--AutoDrive:setGridLocationRestricted(driver, x-1, z+1, true)
+		AutoDrive:createGridLocation(driver, x, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x, z-1, true)
+		--AutoDrive:createGridLocation(driver, x+1, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x+1, z-1, true)
+	elseif endDirection == AutoDrive.PP_RIGHT then
+		--AutoDrive:createGridLocation(driver, x-1, z)
+		--AutoDrive:setGridLocationRestricted(driver, x-1, z, true)
+		AutoDrive:createGridLocation(driver, x-1, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z-1, true)
+		AutoDrive:createGridLocation(driver, x+1, z)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z, true)
+		AutoDrive:createGridLocation(driver, x+1, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z-1, true)
+		--AutoDrive:createGridLocation(driver, x, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x, z-1, true)
+	elseif endDirection == AutoDrive.PP_DOWN_RIGHT then
+		AutoDrive:createGridLocation(driver, x+1, z)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z, true)
+		AutoDrive:createGridLocation(driver, x+1, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z-1, true)
+		--AutoDrive:createGridLocation(driver, x+1, z+1)
+		--AutoDrive:setGridLocationRestricted(driver, x+1, z+1, true)
+		AutoDrive:createGridLocation(driver, x, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x, z-1, true)
+		--AutoDrive:createGridLocation(driver, x-1, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x-1, z-1, true)
+	elseif endDirection == AutoDrive.PP_DOWN then
+		AutoDrive:createGridLocation(driver, x+1, z)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z, true)
+		AutoDrive:createGridLocation(driver, x+1, z-1)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z-1, true)
+		AutoDrive:createGridLocation(driver, x+1, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z+1, true)
+		--AutoDrive:createGridLocation(driver, x, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x, z-1, true)
+		--AutoDrive:createGridLocation(driver, x, z+1)
+		--AutoDrive:setGridLocationRestricted(driver, x, z+1, true)
+	elseif endDirection == AutoDrive.PP_DOWN_LEFT then
+		AutoDrive:createGridLocation(driver, x+1, z)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z, true)
+		--AutoDrive:createGridLocation(driver, x+1, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x+1, z-1, true)
+		AutoDrive:createGridLocation(driver, x+1, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z+1, true)
+		AutoDrive:createGridLocation(driver, x, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x, z+1, true)
+		--AutoDrive:createGridLocation(driver, x-1, z+1)
+		--AutoDrive:setGridLocationRestricted(driver, x-1, z+1, true)
+	elseif endDirection == AutoDrive.PP_LEFT then
+		--AutoDrive:createGridLocation(driver, x-1, z)
+		--AutoDrive:setGridLocationRestricted(driver, x-1, z, true)
+		AutoDrive:createGridLocation(driver, x-1, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z+1, true)
+		AutoDrive:createGridLocation(driver, x+1, z)
+		--AutoDrive:setGridLocationRestricted(driver, x+1, z, true)
+		--AutoDrive:createGridLocation(driver, x+1, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x+1, z+1, true)
+		AutoDrive:createGridLocation(driver, x, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x, z+1, true)
+	elseif endDirection == AutoDrive.PP_UP_LEFT then
+		AutoDrive:createGridLocation(driver, x-1, z)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z, true)
+		AutoDrive:createGridLocation(driver, x-1, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x-1, z+1, true)
+		--AutoDrive:createGridLocation(driver, x-1, z-1)
+		--AutoDrive:setGridLocationRestricted(driver, x-1, z-1, true)
+		AutoDrive:createGridLocation(driver, x, z+1)
+		AutoDrive:setGridLocationRestricted(driver, x, z+1, true)
+		--AutoDrive:createGridLocation(driver, x+1, z+1)
+		--AutoDrive:setGridLocationRestricted(driver, x+1, z+1, true)
+	end;
+end;
+
 function AutoDrive:stepBackPPAlgorithm(driver)
 	local pp = driver.ad.pp;
 
@@ -417,8 +549,9 @@ function AutoDrive:stepBackPPAlgorithm(driver)
 		pp.chain[pp.chainIndex] = nil;
 		pp.chainIndex = pp.chainIndex-1;
 		pp.waitForRequest = false;
+		pp.steps = pp.steps - 1;
 	else
-		print("Error in pathfinding. Could not trace back any further");
+		print("Error in pathfinding. Could not trace back any further - switching to fallback mode and ignoring fruit");
 		--DebugUtil.printTableRecursively(pp.grid, "-", 0,2);
 		--pp.isFinished = true;
 		--pp.wayPoints = {};
@@ -471,6 +604,49 @@ function AutoDrive:stepForwardPPAlgorithm(driver, bestIndex)
 	end;
 end;
 
+function AutoDrive:checkForSnakeSyndrom(driver, bestIndex)
+	local pp = driver.ad.pp;
+
+	if bestIndex == 0 then
+		return;
+	end;
+	local bestPoint = {x = pp.testGrid[bestIndex].x, z = pp.testGrid[bestIndex].z, lastDirection = pp.lastDirection};
+
+	for index,chainElement in pairs(pp.chain) do
+		if chainElement.x == bestPoint.x and chainElement.z == bestPoint.z and chainElement.lastDirection == bestPoint.lastDirection then
+			pp.grid[bestPoint.x][bestPoint.z].isRestricted = true;
+			pp.bestPoint = 0;
+			break;
+		end;
+	end;
+end;
+
+function AutoDrive:checkForStraightLineAway(driver, bestIndex, nextBestIndex)
+	local pp = driver.ad.pp;
+
+	if bestIndex == 0 then
+		return;
+	end;
+
+	local hasRestrictedAreas = false;
+	for index, testLocation in pairs(pp.testGrid) do
+		if pp.grid[testLocation.x][testLocation.z].isRestricted == true and pp.fallBackMode == false then
+			hasRestrictedAreas = true;
+		end;
+	end;
+	
+	if pp.lastDirection == pp.testGrid[bestIndex].direction and hasRestrictedAreas == false then
+		local worldPosCurrent = AutoDrive:gridLocationToWorldLocation(driver, pp.currentX, pp.currentZ);
+		local distanceCurrent = math.sqrt(math.pow((worldPosCurrent.x - pp.targetX) , 2) + math.pow((worldPosCurrent.z - pp.targetZ) , 2));
+		local worldPosNew = AutoDrive:gridLocationToWorldLocation(driver, pp.testGrid[bestIndex].x, pp.testGrid[bestIndex].z);
+		local distanceNew = math.sqrt(math.pow((worldPosNew.x - pp.targetX) , 2) + math.pow((worldPosNew.z - pp.targetZ) , 2));
+
+		if distanceNew > distanceCurrent then
+			pp.bestIndex = nextBestIndex;
+		end;
+	end;
+end;
+
 function AutoDrive:createWayPointsFromPPChain(driver)
 	local pp = driver.ad.pp;
 
@@ -491,9 +667,11 @@ function AutoDrive:createWayPointsFromPPChain(driver)
 			index = index + pp.prependWayPointCount;			
 		end;
 	end;
-	while pp.chainIndex > 0 do
+	while pp.chainIndex > 0 do		
+		--print("point: " .. pp.chainIndex .. ": " .. pp.chain[pp.chainIndex].x .. " / " .. pp.chain[pp.chainIndex].z)
 		pp.wayPoints[index] = AutoDrive:gridLocationToWorldLocation(driver, pp.chain[pp.chainIndex].x, pp.chain[pp.chainIndex].z);
 		pp.wayPoints[index].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pp.wayPoints[index].x, 1, pp.wayPoints[index].z);
+		pp.wayPoints[index].lastDirection = pp.chain[pp.chainIndex].lastDirection;
 		pp.chainIndex = pp.chainIndex - 1;
 		if driver.ad.pp.reverseChain == false then
 			index = index - 1;
@@ -507,10 +685,11 @@ function AutoDrive:createWayPointsFromPPChain(driver)
 			pp.wayPoints[originalIndex+i] = pp.appendWayPoints[i];
 		end;
 	end;
+
+	AutoDrive:smoothResultingPPPath(driver);
 end;
 
 function AutoDrive:calculateBoundingBoxForGrid(driver, x, z)
-	--FSDensityMapUtil.getFieldStatusAsync(x, z, corner2x, z, corner2x, corner2z, self.triggerCallbacks[currentPartition][2].onFieldDataUpdateFinished,  self.triggerCallbacks[currentPartition][2]);
 	local pp = driver.ad.pp;
 	local worldPos = AutoDrive:gridLocationToWorldLocation(driver, x, z);
 
@@ -526,19 +705,45 @@ function AutoDrive:calculateBoundingBoxForGrid(driver, x, z)
 	local corner4X = worldPos.x + (pp.vectorX.x + pp.vectorZ.x)/2
 	local corner4Z = worldPos.z + (pp.vectorX.z + pp.vectorZ.z)/2
 
-	local callBack = FieldDataCallback:new(driver, x, z);
-	FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);	
+	if pp.grid[x][z].hasRequested == nil or pp.grid[x][z].hasRequested == false then
+		if pp.fruitToCheck == 0 then 		
+			local callBack = FieldDataCallback:new(driver, x, z);
+			FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
+			pp.grid[x][z].hasRequested = true;	
+		else
+			local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pp.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+			if fruitValue < (0.3 * pp.fieldArea) then
+				pp.grid[x][z].isFruitFree = true;
+				pp.grid[x][z].isRestricted = false;
+			else
+				pp.grid[x][z].isFruitFree = false;
+				pp.grid[x][z].isRestricted = true;
+			end;
+
+			--Allow fruit in the first few grid cells
+			if pp.chainIndex < 3 then
+				pp.grid[x][z].isRestricted = false;
+				pp.grid[x][z].isFruitFree = true;
+			end;
+			pp.grid[x][z].hasInfo = true;
+		end;
+	end;
 end;
 
 function AutoDrive:onFieldDataUpdateFinished(driver, fielddata, x, z)
 	driver.ad.pp.grid[x][z].fielddata = fielddata;
 	local totalFruitPixels = 0;
 	if fielddata ~= nil then
-		for fruitIndex,fruitAmount in pairs(fielddata.fruitPixels) do	
-			--ToDo: filter out grass and growthstate < x	
+		local maxAmount = 0;
+		local maxIndex = 0;
+		for fruitIndex,fruitAmount in pairs(fielddata.fruitPixels) do
 			if fruitIndex ~= 13 then --13 should be grass
 				if fielddata.fruits[fruitIndex] > 2 and fielddata.fruits[fruitIndex] <  9 then
 					totalFruitPixels = totalFruitPixels + fruitAmount;
+					if fruitAmount > maxAmount then
+						maxAmount = fruitAmount;
+						maxIndex = fruitIndex;
+					end;
 				end;
 			end;
 		end;
@@ -550,9 +755,14 @@ function AutoDrive:onFieldDataUpdateFinished(driver, fielddata, x, z)
 			driver.ad.pp.grid[x][z].isRestricted = true;
 		end;
 		driver.ad.pp.grid[x][z].fruitArea = totalFruitPixels;
+
+		if maxIndex > 0 then
+			driver.ad.pp.fruitToCheck = maxIndex;
+			driver.ad.pp.fieldArea = fielddata.fieldArea;
+		end;
 	
 		--Allow fruit in the first few grid cells
-		if driver.ad.pp.chainIndex < 2 then
+		if driver.ad.pp.chainIndex < 3 then
 			driver.ad.pp.grid[x][z].isRestricted = false;
 			driver.ad.pp.grid[x][z].isFruitFree = true;
 		end;
@@ -566,4 +776,98 @@ function AutoDrive:onFieldDataUpdateFinished(driver, fielddata, x, z)
 	
 
 	driver.ad.pp.grid[x][z].hasInfo = true;
+end;
+
+function AutoDrive:smoothResultingPPPath(driver)
+	local pp = driver.ad.pp;
+	local index = 1;
+	local filteredIndex = 1;
+	local filteredWPs = {};
+
+	--print("Waypoints: " .. ADTableLength(pp.wayPoints));
+
+	while index < ADTableLength(pp.wayPoints) - 2 do
+		local node = pp.wayPoints[index];
+		local nodeAhead = pp.wayPoints[index+1];
+		local nodeTwoAhead = pp.wayPoints[index+2];
+
+		filteredWPs[filteredIndex] = node;
+		filteredIndex = filteredIndex + 1;
+
+		if node.lastDirection ~= nil and nodeAhead.lastDirection ~= nil and nodeTwoAhead.lastDirection ~= nil then
+			if node.lastDirection == nodeTwoAhead.lastDirection and node.lastDirection ~= nodeAhead.lastDirection then
+				--print("Skipping index: " .. (index+1));
+				index = index + 1; --skip next point because it is a zig zag line. Cut right through instead
+			end;
+		else
+			--print("Not all nodes have a direction set at index: " .. index);
+		end;
+		
+		index = index + 1;
+	end;
+	
+	while index <= ADTableLength(pp.wayPoints) do
+		--print("Adding index: " .. index);
+		local node = pp.wayPoints[index];
+		filteredWPs[filteredIndex] = node;
+		filteredIndex = filteredIndex + 1;
+		index = index + 1;
+	end;
+
+	pp.wayPoints = filteredWPs;
+end;
+
+function AutoDrive:drawDebugForPP(driver)
+	if ADTableLength(driver.ad.pp.chain) > 1 then
+		for i=2, ADTableLength(driver.ad.pp.chain), 1 do
+			local pointA = AutoDrive:gridLocationToWorldLocation(driver, driver.ad.pp.chain[i-1].x, driver.ad.pp.chain[i-1].z);
+			pointA.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointA.x, 1, pointA.z) + 3;
+			local pointB = AutoDrive:gridLocationToWorldLocation(driver, driver.ad.pp.chain[i].x, driver.ad.pp.chain[i].z);
+			pointB.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointB.x, 1, pointB.z) + 3;
+			AutoDrive:drawLine(pointA, pointB, 1, 1, 1, 1);
+		end;
+	end;
+	--if AutoDrive.drawCounter == nil then
+		--AutoDrive.drawCounter = 120;
+	--else
+		--if AutoDrive.drawCounter <= 0 then
+			--AutoDrive.drawCounter = 120;
+			for rowIndex, row in pairs(driver.ad.pp.grid) do
+				for zIndex, cell in pairs(driver.ad.pp.grid[rowIndex]) do
+					local size = 0.3;
+					local pointA = AutoDrive:gridLocationToWorldLocation(driver, rowIndex, zIndex);
+					pointA.x = pointA.x + driver.ad.pp.vectorX.x * size + driver.ad.pp.vectorZ.x * size;
+					pointA.z = pointA.z + driver.ad.pp.vectorX.z * size + driver.ad.pp.vectorZ.z * size;
+					pointA.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointA.x, 1, pointA.z) + 3;
+					local pointB = AutoDrive:gridLocationToWorldLocation(driver, rowIndex, zIndex);
+					pointB.x = pointB.x - driver.ad.pp.vectorX.x * size - driver.ad.pp.vectorZ.x * size;
+					pointB.z = pointB.z - driver.ad.pp.vectorX.z * size - driver.ad.pp.vectorZ.z * size;
+					pointB.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointB.x, 1, pointB.z) + 3;
+					local pointC = AutoDrive:gridLocationToWorldLocation(driver, rowIndex, zIndex);
+					pointC.x = pointC.x - driver.ad.pp.vectorX.x * size - driver.ad.pp.vectorZ.x * size;
+					pointC.z = pointC.z + driver.ad.pp.vectorX.z * size + driver.ad.pp.vectorZ.z * size;
+					pointC.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointC.x, 1, pointC.z) + 3;
+					local pointD = AutoDrive:gridLocationToWorldLocation(driver, rowIndex, zIndex);
+					pointD.x = pointD.x + driver.ad.pp.vectorX.x * size + driver.ad.pp.vectorZ.x * size;
+					pointD.z = pointD.z - driver.ad.pp.vectorX.z * size - driver.ad.pp.vectorZ.z * size;
+					pointD.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointD.x, 1, pointD.z) + 3;
+					
+					if cell.hasInfo == true then
+						if cell.isRestricted == true then
+							AutoDrive:drawLine(pointA, pointB, 1, 0, 0, 1);
+							AutoDrive:drawLine(pointC, pointD, 1, 0, 0, 1);
+						else
+							AutoDrive:drawLine(pointA, pointB, 0, 1, 0, 1);
+							AutoDrive:drawLine(pointC, pointD, 0, 1, 0, 1);
+						end;
+					else
+						AutoDrive:drawLine(pointA, pointB, 0, 0, 1, 1);
+						AutoDrive:drawLine(pointC, pointD, 0, 0, 1, 1);
+					end;					
+				end;
+			end;
+		--else
+			--AutoDrive.drawCounter = AutoDrive.drawCounter - 1;
+		--end;
+	--end;
 end;

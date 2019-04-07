@@ -27,7 +27,13 @@ function AutoDrive:handleDriving(vehicle, dt)
                 
                 if vehicle.ad.isActive == true and vehicle.isServer then
                     vehicle.ad.trafficDetected =    AutoDrive:detectAdTrafficOnRoute(vehicle) or 
-                                                    AutoDrive:detectTraffic(vehicle, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint])
+                                                    AutoDrive:detectTraffic(vehicle)
+                    
+                    if vehicle.ad.isPausedCauseTraffic == true and vehicle.ad.trafficDetected == false then
+                        vehicle.ad.isPaused = false;
+                        vehicle.ad.isPausedCauseTraffic = false;
+                    end;
+                                                    
                     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then                
                         AutoDrive:driveToNextWayPoint(vehicle, dt);                    
                     else
@@ -36,6 +42,16 @@ function AutoDrive:handleDriving(vehicle, dt)
                 end;
 			end;            
 		end;
+
+        if vehicle.ad.isPausedCauseTraffic then
+            vehicle.ad.trafficDetected =    AutoDrive:detectAdTrafficOnRoute(vehicle) or 
+                                            AutoDrive:detectTraffic(vehicle)
+
+            if vehicle.ad.trafficDetected == false then
+                vehicle.ad.isPaused = false;
+                vehicle.ad.isPausedCauseTraffic = false;
+            end;
+        end;
 
 		if vehicle.ad.isPaused == true then
 			AutoDrive:getVehicleToStop(vehicle, false, dt);
@@ -141,93 +157,9 @@ function AutoDrive:initializeAD(vehicle)
     vehicle.ad.timeTillDeadLock = 15000;
 
     if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
-        if vehicle.ad.wayPoints == nil or vehicle.ad.wayPoints[1] == nil then
-            vehicle.ad.initialized = false;
-            if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
-                if vehicle.ad.currentCombine ~= nil then
-                    AutoDrive:updatePathPlanning(vehicle);
-
-                    if AutoDrive:isPathPlanningFinished(vehicle) then
-                        vehicle.ad.wayPoints = vehicle.ad.pp.wayPoints;
-                        --vehicle.ad.wayPointsChanged = true;
-                        vehicle.ad.currentWayPoint = 1;
-                    else
-                        return;
-                    end;
-                else
-                    return;
-                end;
-            elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
-
-                local maxCapacity = 0;
-                local leftCapacity = 0;
-                local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
-                if trailerCount > 0 then        
-                    for _,trailer in pairs(trailers) do
-                        if trailer.getFillUnits ~= nil then
-                            for fillUnitIndex,fillUnit in pairs(trailer:getFillUnits()) do
-                                if trailer:getFillUnitCapacity(fillUnitIndex) > 2000 then
-                                    maxCapacity = maxCapacity + trailer:getFillUnitCapacity(fillUnitIndex);
-                                    leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(fillUnitIndex)
-                                end;
-                            end
-                        end;
-                    end;
-                end;
-
-                print("Left capacity: " .. leftCapacity);
-
-                local combineLeftCapacity = 0;
-                local combineMaxCapacity = 0;
-                if vehicle.ad.currentCombine.getFillUnits ~= nil then
-                    for fillUnitIndex,fillUnit in pairs(vehicle.ad.currentCombine:getFillUnits()) do
-                        if vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex) > 2000 then
-                            combineMaxCapacity = combineMaxCapacity + vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex);
-                            combineLeftCapacity = combineLeftCapacity + vehicle.ad.currentCombine:getFillUnitFreeCapacity(fillUnitIndex)
-                        end;
-                    end
-                end;
-
-                if (combineLeftCapacity == combineMaxCapacity) then
-                    if leftCapacity < 4000 then
-                        vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
-                        AutoDrive:startPathPlanningToStartPosition(vehicle);
-                    else
-                        vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS;
-                        --ToDo: plot path to suitable park pos;
-                        AutoDrive:startPathPlanningToStartPosition(vehicle);
-                    end;
-                end;
-
-                if leftCapacity <= 10000 then
-                    print("leftCapacity <= 10000: " .. leftCapacity);
-                    vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
-                    AutoDrive:startPathPlanningToStartPosition(vehicle);
-                end;
-
-                return;
-            elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-                AutoDrive:updatePathPlanning(vehicle);
-
-                if AutoDrive:isPathPlanningFinished(vehicle) then
-                    vehicle.ad.wayPoints = vehicle.ad.pp.wayPoints;
-                    --vehicle.ad.wayPointsChanged = true;
-                    vehicle.ad.currentWayPoint = 1;
-                else
-                    return;
-                end;
-            elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
-                AutoDrive:updatePathPlanning(vehicle);
-
-                if AutoDrive:isPathPlanningFinished(vehicle) then
-                    vehicle.ad.wayPoints = vehicle.ad.pp.wayPoints;
-                    --vehicle.ad.wayPointsChanged = true;
-                    vehicle.ad.currentWayPoint = 1;
-                else
-                    return;
-                end;
-            end;
-        end;        
+        if AutoDrive:initializeADCombine(vehicle) == true then
+            return;
+        end;
     else
         local closest = AutoDrive:findMatchingWayPoint(vehicle);
         if vehicle.ad.skipStart == true then
@@ -239,7 +171,6 @@ function AutoDrive:initializeAD(vehicle)
         else
             vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
             vehicle.ad.wayPointsChanged = true;
-            vehicle.ad.triggerWaitCycles = 120;
         end;
         
         if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
@@ -254,7 +185,7 @@ function AutoDrive:initializeAD(vehicle)
         end;
     end;
     
-	if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+	if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
         vehicle.ad.initialized = true;
@@ -299,51 +230,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             AutoDrive:stopAD(vehicle);           
         else
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
-                if vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --register Driver as available unloader if target point is reached (Hopefully field position!)
-                    AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
-                    vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
-                    vehicle.ad.isPaused = true;
-                    print("Registering " .. vehicle.name .. " as driver");
-                elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
-                    vehicle.ad.combineState = AutoDrive.WAIT_TILL_UNLOADED;
-                    vehicle.ad.initialized = false;
-                    vehicle.ad.wayPoints = {};
-                    vehicle.ad.isPaused = true;
-                    print("Finished driving to combine " .. vehicle.name);
-                elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
-                    AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
-                    vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
-                    vehicle.ad.currentCombine.ad.currentDriver = nil;
-                    --vehicle.ad.initialized = false;
-                    vehicle.ad.wayPoints = {};
-                    vehicle.ad.isPaused = true;
-                    print("Reached parkpos " .. vehicle.name);
-                elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-                    print("Reached startpos - going to unload now " .. vehicle.name);
-                    local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
-                    vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
-                    vehicle.ad.wayPointsChanged = true;
-                    vehicle.ad.currentWayPoint = 1;
-
-                    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-                    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                    vehicle.ad.unloadSwitch = true;
-                    vehicle.ad.currentCombine.ad.currentDriver = nil;
-                    vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
-                elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
-                    vehicle.ad.timeTillDeadLock = 15000;
-
-                    local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
-                    vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
-                    vehicle.ad.wayPointsChanged = true;
-                    vehicle.ad.currentWayPoint = 1;
-
-                    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-                    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                    vehicle.ad.isPaused = true;
-                    vehicle.ad.unloadSwitch = false;                    
-                    vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;
-                end;
+                AutoDrive:handleReachedWayPointCombine(vehicle);
             else
                 if vehicle.ad.unloadSwitch == true then
                     vehicle.ad.timeTillDeadLock = 15000;
@@ -357,8 +244,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 
                     vehicle.ad.isPaused = true;
-                    vehicle.ad.unloadSwitch = false;                    
-                    vehicle.ad.triggerWaitCycles = 120;
+                    vehicle.ad.unloadSwitch = false;
                 else
                     vehicle.ad.timeTillDeadLock = 15000;
 
@@ -370,10 +256,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                        vehicle.ad.unloadSwitch = true;
-                        vehicle.ad.triggerWaitCycles = 120;
-                    else
-                        
+                        vehicle.ad.unloadSwitch = true;                        
                     end;
 
                     vehicle.ad.isPaused = true;
@@ -480,10 +363,18 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end;
 
     local acceleration = 1;
-    if vehicle.ad.trafficDetected == true and vehicle.ad.currentCombine == nil then 
+    if vehicle.ad.trafficDetected == true then
         AutoDrive:getVehicleToStop(vehicle, false, dt);
         vehicle.ad.timeTillDeadLock = 15000;
-    else        
+        if math.abs(vehicle.lastSpeedReal) < 0.002 then
+            vehicle.ad.isPaused = true;
+            vehicle.ad.isPausedCauseTraffic = true;
+        end;
+    else   
+        if vehicle.ad.isPausedCauseTraffic == true then
+            vehicle.ad.isPaused = false;
+            vehicle.ad.isPausedCauseTraffic = false;
+        end;
         vehicle.ad.allowedToDrive = true;
         AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.4);    
     end;
@@ -515,16 +406,20 @@ function AutoDrive:handleDeadlock(vehicle, dt)
 			AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
             AutoDrive:stopAD(vehicle);
 		else
-			--print("AD: Trying to recover from deadlock")
-            if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3] ~= nil then
+            --print("AD: Trying to recover from deadlock")
+            local lookAhead = 3;
+            if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead] == nil then
+                lookAhead = 2;
+            end;
+            if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead] ~= nil then
                 --figure out best moment to switch to next waypoint!
 
                 local x,y,z = getWorldTranslation( vehicle.components[1].node );
                 local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
                 local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
 
-                local wpAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2]
-                local wpTwoAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3]
+                local wpAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead-1]
+                local wpTwoAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead]
 
                 local wpVector = {x= (wpTwoAhead.x - wpAhead.x), z= (wpTwoAhead.z - wpAhead.z) };
                 local vehicleToWPVector = {x= (wpAhead.x - x), z= (wpAhead.z - z) };
@@ -533,7 +428,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
                 local angleBetweenVehicleAndLookAheadWp = AutoDrive:angleBetween(vehicleVector, vehicleToWPVector);
 
                 if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 20 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -10000) then                            
-                    vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + 2;
+                    vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + lookAhead-1;
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 

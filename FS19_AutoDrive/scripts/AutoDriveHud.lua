@@ -15,11 +15,11 @@ function AutoDriveHud:loadHud()
 		local buttonSize = 32
 		local iconSize = 32
 		local gapSize = 3
-		
+
 		self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
 		self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
 		self.posX   = 1 - self.width - self.gapWidth;
-		self.posY   = 0.235;
+		self.posY   = 0.285926;
 		AutoDrive.HudX = self.posX;
 		AutoDrive.HudY = self.posY;
 	else
@@ -50,9 +50,9 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	AutoDrive.HudY = self.posY;
 	AutoDrive.HudChanged = true;
 	
-	self.Speed = "60";
+	self.Speed = "50";
 	self.Target = "Not Ready"
-	self.showHud = true;
+	self.showHud = false;
 	if AutoDrive.mapMarker[1] ~= nil then
 		self.Target = AutoDrive.mapMarker[1].name;
 	end;	
@@ -167,6 +167,8 @@ function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible)
 
 	if name == "input_silomode" then
 		self.Buttons[self.buttonCounter].img_3 =  AutoDrive.directory .. "textures/" .. "unload.dds";
+		self.Buttons[self.buttonCounter].img_4 =  AutoDrive.directory .. "textures/" .. "pickupAndDeliver.dds";
+		self.Buttons[self.buttonCounter].img_5 =  AutoDrive.directory .. "textures/" .. "combine.dds";
 	end;
 	if name == "input_record" then
 		self.Buttons[self.buttonCounter].img_dual = AutoDrive.directory .. "textures/" .. "record_dual.dds";
@@ -188,8 +190,12 @@ function AutoDriveHud:updateButtons(vehicle)
 		if button.name == "input_silomode" then
 			local buttonImg = "";
 			
-			if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == MODE_UNLOAD then 
+			if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == MODE_UNLOAD then 
 				button.img_active = button.img_3;
+			elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+				button.img_active = button.img_4;
+			elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+				button.img_active = button.img_5;
 			else
 				button.img_active = button.img_off;
 			end;
@@ -433,7 +439,11 @@ function AutoDriveHud:drawHud(vehicle)
 
 			self.Background.unloadOverlay.ov:render();
 			setTextAlignment(RenderText.ALIGN_LEFT);
-			renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title);
+			local text = vehicle.ad.nameOfSelectedTarget_Unload
+			if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+				text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
+			end;
+			renderText(adPosX, adPosY, adFontSize, text);
 		end;		
 	end;	
 end;

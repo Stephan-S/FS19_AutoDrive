@@ -11,7 +11,6 @@ function AutoDrive:removeMapWayPoint(toDelete)
 			if deleted then
 				if AutoDrive.mapWayPoints[node].incoming[__ + 1] ~= nil then
 					AutoDrive.mapWayPoints[node].incoming[__] = AutoDrive.mapWayPoints[node].incoming[__ + 1];
-					--AutoDrive.mapWayPoints[node].incoming[__ + 1] = nil;
 				else
 					AutoDrive.mapWayPoints[node].incoming[__] = nil;
 				end;
@@ -230,11 +229,12 @@ function AutoDrive:handleRecalculation(vehicle)
 end;
 
 function AutoDrive:isDualRoad(start, target)
-	if start.incoming ~= nil then
-		for _,incoming in pairs(start.incoming) do
-			if incoming == target.id then
-				return true;
-			end;
+	if start == nil or target == nil or start.incoming == nil or target.id == nil then
+		return false;
+	end;
+	for _,incoming in pairs(start.incoming) do
+		if incoming == target.id then
+			return true;
 		end;
 	end;
 	return false;
@@ -299,6 +299,9 @@ function AutoDrive:FastShortestPath(Graph,start,markerName, markerID)
 			id = nil;
 		else
 			id = AutoDrive.mapWayPoints[id].marker[markerName];
+		end;
+		if count > 5000 then
+			return {};  --something went wrong. prevent overflow here
 		end;
 	end;
 	

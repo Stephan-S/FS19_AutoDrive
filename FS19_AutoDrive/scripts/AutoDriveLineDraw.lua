@@ -9,6 +9,7 @@ AutoDrive.LineDraw.lines = {};
 AutoDrive.LineDraw.jobs = {};
 AutoDrive.LineDraw.jobCounter = 0;
 AutoDrive.LineDraw.lineCounter = 0;
+AutoDrive.LineDraw.needsResetting = true;
 
 function AutoDrive:initLineDrawing()
     for i=1, AutoDrive.LineDraw.initLines, 1 do
@@ -17,6 +18,16 @@ function AutoDrive:initLineDrawing()
 end;
 
 function AutoDrive:drawJobs()
+    if AutoDrive.LineDraw.jobCounter == 0 then
+        if AutoDrive.LineDraw.needsResetting == false then
+            return;
+        else
+            AutoDrive.LineDraw.needsResetting = false;
+        end;
+    else
+        AutoDrive.LineDraw.needsResetting = true;
+    end;
+
     for i=1,AutoDrive.LineDraw.jobCounter,1 do
         local job = AutoDrive.LineDraw.jobs[i];
         AutoDrive:parameterizeLine(AutoDrive.LineDraw.lines[i], job.startPoint, job.targetPoint, job.color, true);

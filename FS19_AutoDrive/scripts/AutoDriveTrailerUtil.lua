@@ -85,29 +85,16 @@ function AutoDrive:handleTrailers(vehicle, dt)
                             end;
                         end;
 
-                        if activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then
-                            if vehicle.ad.triggerWaitCycles > 0 then                                
-                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
-                                vehicle.ad.triggerWaitCycles = vehicle.ad.triggerWaitCycles - 1;
-                            else
-                                trigger.autoStart = true
-                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
-                                trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
-                                if g_dedicatedServerInfo == nil then     
-                                    print("Calling trigger onActivate");              
-                                    --trigger:onActivateObject(vehicle)
-                                end;
-                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
-                                g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
-                                trigger.autoStart = false
-                            end;
+                        if activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then                            
+                            trigger.autoStart = true
+                            trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
+                            trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
+                            trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
+                            g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
+                            trigger.autoStart = false
 
                             vehicle.ad.isPaused = true;
                             vehicle.ad.isLoading = true;
-
-                            if g_server == nil and trigger.isLoading then
-                                --AutoDriveUpdateEvent:sendEvent(vehicle); --The unload function has to be called on the client side. Therefore the client has to inform the server
-                            end;
                         end;
 
                         if leftCapacity == 0 and vehicle.ad.isPaused then

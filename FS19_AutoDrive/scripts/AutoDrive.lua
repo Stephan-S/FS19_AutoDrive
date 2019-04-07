@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.0.4";
+AutoDrive.Version = "1.0.0.5";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -118,6 +118,8 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDrivePathPlanning.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/FieldDataCallback.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/PathFinderCallBack.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
 		--DebugUtil.printTableRecursively(g_currentMission, "	:	",0,2);
@@ -154,7 +156,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.print = {};
 	AutoDrive.print.currentMessage = nil;
 	AutoDrive.print.nextMessage = nil;
-	AutoDrive.print.showMessageFor = 3000;
+	AutoDrive.print.showMessageFor = 6000;
 	AutoDrive.print.currentMessageActiveSince = 0;
 	AutoDrive.requestedWaypoints = false;
 	AutoDrive.requestedWaypointCount = 1;
@@ -253,6 +255,7 @@ function init(self)
 	self.ad.unloadSwitch = false;
 	self.ad.isLoading = false;
 	self.ad.unloadFillTypeIndex = 2;
+	self.ad.isPausedCauseTraffic = false;
 
 	AutoDrive.Recalculation = {};
 
@@ -276,8 +279,6 @@ function init(self)
 	self.ad.choosingDestination = false;
 	self.ad.chosenDestination = "";
 	self.ad.enteredChosenDestination = "";
-
-	self.ad.triggerWaitCycles = 120;
 
 	if AutoDrive.showingHud ~= nil then
 		self.ad.showingHud = AutoDrive.showingHud;
@@ -426,13 +427,6 @@ function AutoDrive:onUpdate(dt)
 		init(self);
 	end;
 
-	if self.ad.oldControlledVehicle ~= nil then
-		--Reinstalling controlled vehicle in case of an error while substituting g_currentMission.controlledVehicle
-		g_currentMission.controlledVehicle = self.ad.oldControlledVehicle;
-		self.ad.oldControlledVehicle = nil;
-		AutoDrive.oldControlledVehicle = nil;
-	end;
-
 	if self.ad.currentInput ~= "" and self.isServer then
 		AutoDrive:InputHandling(self, self.ad.currentInput);
 	end;
@@ -447,6 +441,7 @@ function AutoDrive:onUpdate(dt)
 	if self.typeDesc == "harvester" then
 		AutoDrive:handleCombineHarvester(self, dt)
 	end;
+
 	if self.ad.destinationPrintTimer > 0 then
 		self.ad.destinationPrintTimer = self.ad.destinationPrintTimer - dt;
 	end;
@@ -468,19 +463,19 @@ function AutoDrive:onDraw()
 		end
 	end;
 	
-	if self.ad.currentWayPoint > 0 then
+	if self.ad.currentWayPoint > 0 and self.ad.wayPoints ~= nil then
 		if self.ad.wayPoints[self.ad.currentWayPoint+1] ~= nil then
 			AutoDrive:drawLine(self.ad.wayPoints[self.ad.currentWayPoint], self.ad.wayPoints[self.ad.currentWayPoint+1], 1, 1, 1, 1);
 		end;
 	end;
 
-	if self.ad.mode == AutoDrive.MODE_UNLOAD and self.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
-		if ADTableLength(self.ad.wayPoints) > 1 then
-			for i=2, ADTableLength(self.ad.wayPoints), 1 do
-				AutoDrive:drawLine(self.ad.wayPoints[i-1], self.ad.wayPoints[i], 1, 1, 1, 1);
-			end;
-		end;
-	end;
+	--if self.ad.mode == AutoDrive.MODE_UNLOAD and self.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
+		--if ADTableLength(self.ad.wayPoints) > 1 then
+			--for i=2, ADTableLength(self.ad.wayPoints), 1 do
+				--AutoDrive:drawLine(self.ad.wayPoints[i-1], self.ad.wayPoints[i], 1, 1, 1, 1);
+			--end;
+		--end;
+	--end;
 
 	if self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawControlledVehicle(self);
@@ -489,6 +484,9 @@ function AutoDrive:onDraw()
 	if self.ad.createMapPoints == true and self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawCreationMode(self);
 	end;
+
+	
+
 end; 
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
@@ -616,6 +614,18 @@ function normalizeAngle(inputAngle)
 			inputAngle = inputAngle - (2*math.pi);	
 	else
 			if inputAngle < -(2*math.pi) then
+				inputAngle = inputAngle + (2*math.pi);
+			end;
+	end;
+
+	return inputAngle;
+end;
+
+function normalizeAngle2(inputAngle)
+	if inputAngle > (2*math.pi) then
+			inputAngle = inputAngle - (2*math.pi);	
+	else
+			if inputAngle < 0 then
 				inputAngle = inputAngle + (2*math.pi);
 			end;
 	end;

@@ -452,7 +452,7 @@ function AutoDrive:inputShowClosest(vehicle)
 end;
 
 function AutoDrive:inputCreateMapMarker(vehicle)
-    if AutoDrive:findClosestWayPoint(vehicle) == nil then
+    if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
         return;
     end;
     if vehicle.ad.showClosestPoint == true then
