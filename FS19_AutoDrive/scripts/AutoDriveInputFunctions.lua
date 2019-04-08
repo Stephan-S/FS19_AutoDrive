@@ -40,7 +40,7 @@ function AutoDrive:InputHandlingClientOnly(vehicle, input)
 
 	if input == "input_recalculate" then --make sure the hud button shows active recalculation when server is busy
 		AutoDrive.Recalculation.continue = true;
-	end;
+	end;	
 end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
@@ -85,6 +85,10 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 
 	if input == "input_toggleMouse" then
 		AutoDrive.Hud:toggleMouse(vehicle);				
+	end;
+	
+	if input == "input_openGUI" then
+		AutoDrive:onOpenSettings();
 	end;
 end;
 

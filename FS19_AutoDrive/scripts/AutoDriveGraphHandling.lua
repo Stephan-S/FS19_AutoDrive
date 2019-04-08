@@ -241,7 +241,21 @@ function AutoDrive:isDualRoad(start, target)
 end;
 
 function AutoDrive:getDistanceBetweenNodes(start, target)
-	return AutoDrive:getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
+	local isMapMarker = false;
+	for _,mapMarker in pairs(AutoDrive.mapMarker) do
+		if mapMarker.id == start then
+			isMapMarker = true;
+		end;
+	end;
+
+	local euclidianDistance = AutoDrive:getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z);
+
+	local distance = euclidianDistance;
+	if isMapMarker and AutoDrive.avoidMarkers == true then
+		distance = distance + AutoDrive.MAP_MARKER_DETOUR;
+	end;
+
+	return distance;
 end;
 
 function AutoDrive:sortNodesByDistance(x, z, listOfNodes)

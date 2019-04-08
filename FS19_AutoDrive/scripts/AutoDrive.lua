@@ -1,12 +1,12 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.0.5";
+AutoDrive.Version = "1.0.0.6";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
 AutoDrive.actions   = { 'ADToggleMouse', 'ADToggleHud', 'ADEnDisable', 'ADSelectTarget', 'ADSelectPreviousTarget', 'ADSelectTargetUnload',
 						'ADSelectPreviousTargetUnload', 'ADActivateDebug', 'ADDebugShowClosest', 'ADDebugSelectNeighbor',
 						'ADDebugChangeNeighbor', 'ADDebugCreateConnection', 'ADDebugCreateMapMarker', 'ADDebugDeleteWayPoint',
-						'ADDebugForceUpdate', 'ADDebugDeleteDestination', 'ADSilomode' }
+						'ADDebugForceUpdate', 'ADDebugDeleteDestination', 'ADSilomode', 'ADOpenGUI' }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -95,6 +95,8 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'AD_import_routes', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)		
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'AD_upload_routes', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)		
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADOpenGUI', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)	
 	end
 end
@@ -120,6 +122,8 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/FieldDataCallback.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/PathFinderCallBack.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
 		--DebugUtil.printTableRecursively(g_currentMission, "	:	",0,2);
@@ -168,6 +172,8 @@ function AutoDrive:loadMap(name)
 	
 	AutoDrive.Hud = AutoDriveHud:new();
 	AutoDrive.Hud:loadHud();
+
+	AutoDrive:loadGUI();
 
 	-- Save Configuration when saving savegame
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame);
@@ -391,6 +397,10 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;
 	if actionName == "ADSelectPreviousFillType" then
 		AutoDrive:InputHandling(self, "input_previousFillType");
+	end;
+	if actionName == "ADOpenGUI" then			
+		--print("sending event to InputHandling");
+		AutoDrive:InputHandling(self, "input_openGUI");
 	end;
 end;
 

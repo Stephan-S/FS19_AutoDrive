@@ -18,7 +18,7 @@
 ]]>
 		</it>
 	</description>
-    <version>1.0.0.5</version>
+    <version>1.0.0.6</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -160,6 +160,10 @@
 			<de>AD: Vorheriger Fruchttyp</de>
 			<it>AD: Prodotto precedente</it>
 		</text>	
+		<text name="input_ADOpenGUI">
+			<en>AD: Open GUI</en>
+			<de>AD: Menü öffnen</de>	
+		</text>
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
 			<de>Der Fahrer von</de>
@@ -215,6 +219,46 @@
 			<de>Drescher abfahren</de>
 			<it>Scarica la trebbia</it>
 		</text>
+		<text name="gui_ad_Setting">
+			<en>AutoDrive - Settings</en>
+			<de>AutoDrive - Einstellungen</de>
+		</text>
+		<text name="gui_ad_pipe_offset">
+			<en>Pipe Offset</en>
+			<de>Abstand Rohr</de>
+		</text>
+		<text name="gui_ad_lookahead_turning">
+			<en>Look ahead distance (turn)</en>
+			<de>Distanz Vorausschauen (Lenkung)</de>
+		</text>
+		<text name="gui_ad_lookahead_turning_tooltip">
+			<en>The distance the vehicle looks ahead to adjust steering to follow the next segment</en>
+			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken</de>
+		</text>
+		<text name="gui_ad_lookahead_braking">
+			<en>Look ahead distance (brake)</en>
+			<de>Distanz Vorausschauen (Bremse)</de>
+		</text>
+		<text name="gui_ad_lookahead_braking_tooltip">
+			<en>The distance the vehicle looks ahead to adjust the speed to the expected turn radius</en>
+			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig vor Kurven abzubremsen</de>
+		</text>		
+		<text name="gui_ad_avoidMarkers">
+			<en>Avoid driving through targets</en>
+			<de>Durchfahren von Zielpunkten vermeiden</de>
+		</text>	
+		<text name="gui_ad_avoidMarkers_tooltip">
+			<en>The pathfinding tries to find detours around targets. Useful to avoid jams</en>
+			<de>Die Zielsuche probiert das Durchfahren von anderen Zielpunkten zu vermeiden</de>
+		</text>
+		<text name="gui_ad_mapMarkerDetour">
+			<en>Maximum detour</en>
+			<de>Maximaler Umweg</de>
+		</text>		
+		<text name="gui_ad_mapMarkerDetour_tooltip">
+			<en>Maximum detour when avoiding targets</en>
+			<de>Maximaler Umweg wenn Zielpunkte vermieden werden sollen</de>
+		</text>	
 	</l10n>
 
 	<actions>
@@ -241,12 +285,17 @@
 		<action name="AD_import_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
 		<action name="AD_upload_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADSilomode" 					category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADOpenGUI" 					category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 
 	<inputBinding>
 		<actionBinding action="ADToggleHud">
 			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_KP_0" />
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_17" />
+		</actionBinding>
+		<actionBinding action="ADOpenGUI">
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_0" />
+			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_16" />
 		</actionBinding>
 		<actionBinding action="ADToggleMouse">
         	<binding device="KB_MOUSE_DEFAULT" input="MOUSE_BUTTON_MIDDLE" 			axisComponent="+" neutralInput="0" index="3"/>

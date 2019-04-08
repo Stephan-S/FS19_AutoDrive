@@ -94,6 +94,31 @@ function AutoDrive:readFromXML(xmlFile)
 	if lastSetSpeed ~= nil then
 		AutoDrive.lastSetSpeed = lastSetSpeed;
 	end;
+	local pipeOffset = getXMLFloat(xmlFile,"AutoDrive.pipeOffset");
+	if pipeOffset ~= nil then
+		AutoDrive.pipeOffsetCurrent = pipeOffset;
+		AutoDrive.PATHFINDER_PIPE_OFFSET = AutoDrive.pipeOffsetValues[pipeOffset];
+	end;
+	local lookAheadTurn = getXMLFloat(xmlFile,"AutoDrive.lookAheadTurn");
+	if lookAheadTurn ~= nil then
+		AutoDrive.lookAheadTurnCurrent = lookAheadTurn;
+		AutoDrive.LOOKAHEAD_DISTANCE_TURNING = AutoDrive.lookAheadTurnValues[lookAheadTurn];
+	end;
+	local lookAheadBraking = getXMLFloat(xmlFile,"AutoDrive.lookAheadBraking");
+	if lookAheadBraking ~= nil then
+		AutoDrive.lookAheadBrakingCurrent = lookAheadBraking;
+		AutoDrive.LOOKAHEAD_DISTANCE_BRAKING = AutoDrive.lookAheadBrakingValues[lookAheadBraking];
+	end;
+	local avoidMarkers = getXMLFloat(xmlFile,"AutoDrive.avoidMarkers");
+	if avoidMarkers ~= nil then
+		AutoDrive.avoidMarkers = AutoDrive.avoidMarkersValues[avoidMarkers];		
+		AutoDrive.avoidMarkersCurrent = avoidMarkers;
+	end;
+	local markerDetour = getXMLFloat(xmlFile,"AutoDrive.markerDetour");
+	if markerDetour ~= nil then
+		AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[markerDetour];		
+		AutoDrive.MAP_MARKER_DETOUR_Current = markerDetour;
+	end;
 
 	local mapMarker = {};
 	local mapMarkerCounter = 1;
@@ -323,6 +348,9 @@ function AutoDrive:saveToXML(xmlFile)
 	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY);
 	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud);	
 	setXMLFloat(xmlFile, "AutoDrive.lastSetSpeed", AutoDrive.lastSetSpeed);
+	setXMLFloat(xmlFile, "AutoDrive.pipeOffset", AutoDrive.pipeOffsetCurrent);
+	setXMLFloat(xmlFile, "AutoDrive.lookAheadTurn", AutoDrive.lookAheadTurnCurrent);
+	setXMLFloat(xmlFile, "AutoDrive.lookAheadBraking", AutoDrive.lookAheadBrakingCurrent);
 		
 	local idFullTable = {};
 	local idString = "";
