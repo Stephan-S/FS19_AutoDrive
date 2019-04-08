@@ -33,12 +33,12 @@
 		<text name="input_ADToggleHud">
 			<en>AD: Toggle HUD</en>
 			<de>AD: HUD ein/ausblenden</de>	
-			<it>AD: Commuta HUD</it>
+			<it>AD: Mostra/Nascondi HUD</it>
 		</text>
 		<text name="input_ADToggleMouse">
 			<en>AD: Toggle Mouse</en> 
 			<de>AD: Maus ein/ausblenden</de>	
-			<it>AD: Commuta mouse</it>
+			<it>AD: Mostra/Nascondi mouse</it>
 		</text>
 		<text name="input_ADEnDisable"> 
 			<en>AD: En/Disable</en>
@@ -58,12 +58,12 @@
 		<text name="input_ADSelectTarget">						
 			<en>AD: Select Next Target</en>  				
 			<de>AD: Ziel wählen</de> 
-			<it>AD: Obbiettivo successivo</it>
+			<it>AD: Meta successivo</it>
 		</text>
 		<text name="input_ADSelectPreviousTarget">			
 			<en>AD: Select Previous Target</en>  			
 			<de>AD: Voriges Ziel wählen</de>
-			<it>AD: Obbiettivo precedente</it>
+			<it>AD: Meta precedente</it>
 		</text>
 		<text name="input_AD_Speed_up">							
 			<en>AD: Increase Speed</en>  					
