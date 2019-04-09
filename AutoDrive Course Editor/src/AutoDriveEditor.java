@@ -213,20 +213,10 @@ public class AutoDriveEditor extends JFrame {
                 String incomingString = node.getNodeValue();
                 String[] incomingValueArrays = incomingString.split(";");
 
-                nodeList = eElement.getElementsByTagName("out_cost").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
-                String outCostString = node.getNodeValue();
-                String[] outCostArrays = outCostString.split(";");
-
                 nodeList = eElement.getElementsByTagName("markerID").item(0).getChildNodes();
                 node = (Node) nodeList.item(0);
                 String markerIdsString = node.getNodeValue();
                 String[] markerIdsArrays = markerIdsString.split(";");
-
-                nodeList = eElement.getElementsByTagName("markerNames").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
-                String markerNamesString = node.getNodeValue();
-                String[] markerNamesArrays = markerNamesString.split(";");
 
 
                 for (int i=0; i<ids.length; i++) {
@@ -262,27 +252,39 @@ public class AutoDriveEditor extends JFrame {
                 for (int i=0; i<ids.length; i++) {
                     MapNode mapNode = nodes.get(i);
                     String[] markerIDs = markerIdsArrays[i].split(",");
-                    String[] markerNames = markerNamesArrays[i].split(",");
 
-
+                    boolean allTargetsSame = false;
+                    int targetIndex = 0;
                     for (int markerIndex=0; markerIndex<markerIDs.length; markerIndex++) {
-                        MapMarker mapMarker = null;
-                        for (MapMarker iter : mapMarkers) {
-                            if (iter.name.equals(markerNames[markerIndex])) {
-                                mapMarker = iter;
-                            }
+                        if(markerIDs[markerIndex].equals("=")) {
+                            allTargetsSame = true;
                         }
+                        else {
+                            targetIndex = Integer.parseInt(markerIDs[markerIndex]);
+                        }
+                    }
 
+                    if (allTargetsSame) {
                         MapNode markerTarget = null;
-                        if (Integer.parseInt(markerIDs[markerIndex])-1 >= 0) {
-                            if (Integer.parseInt(markerIDs[markerIndex]) < nodes.size()) {
-                                markerTarget = nodes.get(Integer.parseInt(markerIDs[markerIndex]) - 1);
-                            }
-                            else {
-                                markerTarget = null;
-                            }
+                        if(targetIndex != -1) {
+                            markerTarget = nodes.get(targetIndex-1);
                         }
-                        mapNode.directions.put(mapMarker , markerTarget);
+                        for (MapMarker iter : mapMarkers) {
+                            mapNode.directions.put(iter , markerTarget);
+                        }
+                    }
+                    else {
+                        for (int markerIndex = 0; markerIndex < markerIDs.length; markerIndex++) {
+                            MapNode markerTarget = null;
+                            if (Integer.parseInt(markerIDs[markerIndex]) - 1 >= 0) {
+                                if (Integer.parseInt(markerIDs[markerIndex]) < nodes.size()) {
+                                    markerTarget = nodes.get(Integer.parseInt(markerIDs[markerIndex]) - 1);
+                                } else {
+                                    markerTarget = null;
+                                }
+                            }
+                            mapNode.directions.put(mapMarkers.get(markerIndex), markerTarget);
+                        }
                     }
                 }
             }
@@ -294,7 +296,7 @@ public class AutoDriveEditor extends JFrame {
 
         Node ADNode = doc.getElementsByTagName("AutoDrive").item(0);
         NodeList adNodes = ADNode.getChildNodes();
-        Node mapNameNode = adNodes.item(5);
+        Node mapNameNode = nList.item(0).getParentNode();
         String mapName = mapNameNode.getNodeName();
         System.out.println("Loaded config for map: " + mapNameNode.getNodeName());
 
@@ -331,7 +333,7 @@ public class AutoDriveEditor extends JFrame {
 
             Node AutoDrive = doc.getFirstChild();
             Node recalculation = doc.getElementsByTagName("Recalculation").item(0);
-            recalculation.setTextContent("false");
+            recalculation.setTextContent("true");
 
             Node waypoints = doc.getElementsByTagName("waypoints").item(0);
 
@@ -429,37 +431,21 @@ public class AutoDriveEditor extends JFrame {
                     }
                     node.setTextContent(outgoingString);
                 }
-                if ("out_cost".equals(node.getNodeName())) {
-                    String outCostString = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        String outCostPerNode = "";
-                        for (int outCostIndex = 0; outCostIndex < mapNode.directions.size(); outCostIndex++) {
-                            outCostPerNode += "1";
-                            if (outCostIndex<(mapNode.directions.size()-1)) {
-                                outCostPerNode += ",";
-                            }
-                        }
-                        if (outCostPerNode == "") {
-                            outCostPerNode = "-1";
-                        }
-                        outCostString += outCostPerNode;
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
-                            outCostString = outCostString + ";";
-                        }
-                    }
-                    node.setTextContent(outCostString);
-                }
+
                 if ("markerID".equals(node.getNodeName())) {
                     String markerString = "";
                     for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
                         MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
                         String markerPerNode = "";
                         int markerIndex = 0;
+                        boolean allTheSame = true;
+                        int lastId = -1;
                         for (Map.Entry<MapMarker, MapNode> entry : mapNode.directions.entrySet()) {
                             MapNode markerTargetNode = entry.getValue();
                             if (markerTargetNode != null) {
-                                markerPerNode += entry.getValue().id;
+                                markerPerNode += entry.getValue().id
+                                ;allTheSame = allTheSame && (lastId == -1 || lastId == entry.getValue().id);
+                                lastId = entry.getValue().id;
                             }
                             else {
                                 markerPerNode += "-1";
@@ -468,34 +454,17 @@ public class AutoDriveEditor extends JFrame {
                                 markerPerNode += ",";
                             }
                             markerIndex++;
+
                         }
                         if (markerPerNode == "") {
                             markerPerNode = "-1";
                         }
-                        markerString += markerPerNode;
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
-                            markerString = markerString + ";";
+                        if(allTheSame) {
+                            markerString += "=," + lastId;
                         }
-                    }
-                    node.setTextContent(markerString);
-                }
-                if ("markerNames".equals(node.getNodeName())) {
-                    String markerString = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        String markerPerNode = "";
-                        int markerIndex = 0;
-                        for (Map.Entry<MapMarker, MapNode> entry : mapNode.directions.entrySet()) {
-                            markerPerNode += entry.getKey().name;
-                            if (markerIndex<(mapNode.directions.size()-1)) {
-                                markerPerNode += ",";
-                            }
-                            markerIndex++;
+                        else {
+                            markerString += markerPerNode;
                         }
-                        if (markerPerNode == "") {
-                            markerPerNode = "-1";
-                        }
-                        markerString += markerPerNode;
                         if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
                             markerString = markerString + ";";
                         }
