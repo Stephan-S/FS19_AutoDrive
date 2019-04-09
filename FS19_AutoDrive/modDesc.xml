@@ -23,7 +23,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
 	   </fr>
 	</description>
-    <version>1.0.0.6</version>
+    <version>1.0.0.7</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
