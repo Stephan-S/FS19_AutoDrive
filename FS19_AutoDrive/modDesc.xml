@@ -69,7 +69,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="input_ADSelectTarget">
 			<en>AD: Select Next Target</en>
 			<de>AD: Ziel wählen</de>
-			<it>AD: Meta successivo</it>
+			<it>AD: Meta successiva</it>
 			<fr>AD: Sélect. prochaine destination</fr>
 		</text>
 		<text name="input_ADSelectPreviousTarget">
@@ -135,7 +135,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="input_ADDebugShowClosest">
 			<en>AD: Show Closest Point</en>
 			<de>AD: Naheliegendsten Punkt anzeigen</de>
-			<it>AD: Visualizza il punto più vicino</it>
+			<it>AD: Visualizza punto più vicino</it>
 			<fr>AD: Afficher point proche</fr>
 		</text>
 		<text name="input_ADDebugSelectNeighbor">
@@ -159,13 +159,13 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="input_ADDebugCreateMapMarker">
 			<en>AD: Create new Target</en>
 			<de>AD: Neues Ziel erstellen</de>
-			<it>AD: Crea un nuovo punto</it>
+			<it>AD: Crea nuova destinazione</it>
 			<fr>AD: Créer nouvelle destination</fr>
 		</text>
 		<text name="input_ADDebugDeleteWayPoint">
 			<en>AD: Delete Waypoint</en>
 			<de>AD: Wegpunkt löschen</de>
-			<it>AD: Elimina tappa</it>
+			<it>AD: Elimina punto</it>
 			<fr>AD: Éffacer point de passage</fr>
 		</text>
 		<text name="input_ADDebugForceUpdate">
@@ -195,6 +195,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="input_ADOpenGUI">
 			<en>AD: Open GUI</en>
 			<de>AD: Menü öffnen</de>
+			<it>AD: Apri menu</it>
 			<fr>AD: Ouvrir GUI</fr>
 		</text>
 		<text name="AD_Driver_of">
@@ -266,51 +267,61 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_Setting">
 			<en>AutoDrive - Settings</en>
 			<de>AutoDrive - Einstellungen</de>
+			<it>AutoDrive - Impostazioni</it>
 			<fr>AutoDrive - paramètres</fr>
 		</text>
 		<text name="gui_ad_pipe_offset">
 			<en>Pipe Offset</en>
 			<de>Abstand Rohr</de>
+			<it>Distanza dal tubo</it>
 			<fr>Décalage du tuyau</fr>
 		</text>
 		<text name="gui_ad_lookahead_turning">
 			<en>Look ahead distance (turn)</en>
 			<de>Distanz Vorausschauen (Lenkung)</de>
+			<it>Distanza d'avanti (sterzata)</it>
 			<fr>Distance devant vous (virage)</fr>
 		</text>
 		<text name="gui_ad_lookahead_turning_tooltip">
 			<en>The distance the vehicle looks ahead to adjust steering to follow the next segment</en>
 			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken</de>
+			<it>La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso</it>
 			<fr>Distance laquelle le véhicule tourne afin de suivre le segment suivant</fr>
 		</text>
 		<text name="gui_ad_lookahead_braking">
 			<en>Look ahead distance (brake)</en>
 			<de>Distanz Vorausschauen (Bremse)</de>
+			<it>Distanza d'avanti (frenata)</it>
 			<fr>Distance devant vous (frein)</fr>
 		</text>
 		<text name="gui_ad_lookahead_braking_tooltip">
 			<en>The distance the vehicle looks ahead to adjust the speed to the expected turn radius</en>
 			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig vor Kurven abzubremsen</de>
+			<it>La distanza alla quale il veicolo aggiusta la velocità per effettuare una curva</it>
 			<fr>Distance du véhicule pour ralentir plus tôt avant le virage</fr>
 		</text>
 		<text name="gui_ad_avoidMarkers">
 			<en>Avoid driving through targets</en>
 			<de>Durchfahren von Zielpunkten vermeiden</de>
+			<it>Evita di attraversare i punti di destinazione</it>
 			<fr>Éviter de traverser des points de destinations</fr>
 		</text>
 		<text name="gui_ad_avoidMarkers_tooltip">
 			<en>The pathfinding tries to find detours around targets. Useful to avoid jams</en>
 			<de>Die Zielsuche probiert das Durchfahren von anderen Zielpunkten zu vermeiden</de>
+			<it>La ricerca tenta di trovare un percorso che non passi per un punto di destinazione</it>
 			<fr>La recherche de destination essaie d'éviter de passer par d'autres destinations</fr>
 		</text>
 		<text name="gui_ad_mapMarkerDetour">
 			<en>Maximum detour</en>
 			<de>Maximaler Umweg</de>
+			<it>Deviazione massima</it>
 			<fr>Détour maximum</fr>
 		</text>
 		<text name="gui_ad_mapMarkerDetour_tooltip">
 			<en>Maximum detour when avoiding targets</en>
 			<de>Maximaler Umweg wenn Zielpunkte vermieden werden sollen</de>
+			<it>Deviazione massima quando le destinazioni devono essere evitate</it>
 			<fr>Détour maximum quand des destinations doivent être évités</fr>
 		</text>
 	</l10n>
