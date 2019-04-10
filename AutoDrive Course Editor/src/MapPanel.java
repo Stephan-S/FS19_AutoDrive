@@ -19,7 +19,7 @@ public class MapPanel extends JPanel{
 
     public double x = 0.5;
     public double y = 0.5;
-    public double zoomLevel = 1;
+    public double zoomLevel = 1.0;
     public double lastZoomLevel = 0;
     public double nodeSize = 1;
     public AutoDriveEditor editor;
@@ -51,7 +51,7 @@ public class MapPanel extends JPanel{
                     if (mapNode == editor.selected) {
                         g.setColor(Color.PINK);
                     }
-                    Point2D nodePos = worldPosToScreenPos((int) mapNode.x + 1024, (int) mapNode.z + 1024);
+                    Point2D nodePos = worldPosToScreenPos(mapNode.x + 1024, mapNode.z + 1024);
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
                     for (MapNode outgoing : mapNode.outgoing) {
                         g.setColor(Color.GREEN);
@@ -59,20 +59,20 @@ public class MapPanel extends JPanel{
                         if (dual) {
                             g.setColor(Color.RED);
                         }
-                        Point2D outPos = worldPosToScreenPos((int) outgoing.x + 1024, (int) outgoing.z + 1024);
+                        Point2D outPos = worldPosToScreenPos(outgoing.x + 1024, outgoing.z + 1024);
                         drawArrowBetween(g, nodePos, outPos, dual);
                     }
                 }
 
                 if (editor.selected != null && editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
-                    Point2D nodePos = worldPosToScreenPos((int) editor.selected.x + 1024, (int) editor.selected.z + 1024);
+                    Point2D nodePos = worldPosToScreenPos(editor.selected.x + 1024, editor.selected.z + 1024);
                     g.setColor(Color.WHITE);
                     g.drawLine((int) (nodePos.getX()), (int) (nodePos.getY()), (int) (editor.mouseListener.mousePosX), (int) (editor.mouseListener.mousePosY));
                 }
 
                 if (hoveredNode != null) {
                     g.setColor(Color.WHITE);
-                    Point2D nodePos = worldPosToScreenPos((int) hoveredNode.x + 1024, (int) hoveredNode.z + 1024);
+                    Point2D nodePos = worldPosToScreenPos(hoveredNode.x + 1024, hoveredNode.z + 1024);
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
                 }
 
@@ -164,7 +164,7 @@ public class MapPanel extends JPanel{
             for (MapNode mapNode : this.roadMap.mapNodes) {
                 double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-                Point2D outPos = worldPosToScreenPos((int) mapNode.x + 1024, (int) mapNode.z + 1024);
+                Point2D outPos = worldPosToScreenPos(mapNode.x + 1024, mapNode.z + 1024);
 
                 if (posX < outPos.getX() + currentNodeSize && posX > outPos.getX() - currentNodeSize && posY < outPos.getY() + currentNodeSize && posY > outPos.getY() - currentNodeSize) {
                     return mapNode;
@@ -216,7 +216,7 @@ public class MapPanel extends JPanel{
         return worldPos;
     }
 
-    public Point2D worldPosToScreenPos(int worldX, int worldY) {
+    public Point2D worldPosToScreenPos(double worldX, double worldY) {
         Point2D screenPos = new Point2D.Double(0,0);
 
         double scaledX = worldX * zoomLevel;
@@ -269,7 +269,7 @@ public class MapPanel extends JPanel{
         for (MapNode mapNode : this.roadMap.mapNodes) {
             double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-            Point2D nodePos = worldPosToScreenPos((int) mapNode.x + 1024, (int) mapNode.z + 1024);
+            Point2D nodePos = worldPosToScreenPos(mapNode.x + 1024, mapNode.z + 1024);
 
             if (screenStartX < nodePos.getX() + currentNodeSize && (screenStartX + width) > nodePos.getX() - currentNodeSize && screenStartY < nodePos.getY() + currentNodeSize && (screenStartY + height) > nodePos.getY() - currentNodeSize) {
                 toDelete.add(mapNode);
