@@ -23,7 +23,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
             end
         end;
 
-        if maxCapacity > 0 and (leftCapacity/maxCapacity) <= 0.0 then
+        if maxCapacity > 0 and leftCapacity <= 1.0 and vehicle.lastSpeedReal <= 0.0005 then
             local spec = vehicle.spec_pipe
             if spec.currentState == spec.targetState and spec.currentState == 2 then
             

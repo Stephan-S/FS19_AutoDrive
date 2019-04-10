@@ -19,7 +19,23 @@ function AutoDrive:startAD(vehicle)
        vehicle.steeringEnabled = false;
 	end
 	
+
 	--vehicle.spec_aiVehicle.aiTrafficCollision = nil;
+	--Code snippet from function AIVehicle:startAIVehicle(helperIndex, noEventSend, startedFarmId):
+	if vehicle.getAINeedsTrafficCollisionBox ~= nil then
+		if vehicle:getAINeedsTrafficCollisionBox() then
+			local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, vehicle.baseDirectory, false, true, false)
+			if collisionRoot ~= nil and collisionRoot ~= 0 then
+				local collision = getChildAt(collisionRoot, 0)
+				link(getRootNode(), collision)
+
+				vehicle.spec_aiVehicle.aiTrafficCollision = collision
+
+				delete(collisionRoot)
+			end
+		end
+	end;
+
 	if g_server ~= nil then
 		vehicle.ad.enableAI = 5;
 	end;

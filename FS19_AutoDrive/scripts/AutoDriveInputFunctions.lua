@@ -45,7 +45,7 @@ end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		AutoDrive:inputCreateMapMarker(vehicle);
@@ -66,14 +66,14 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	end;
 
 	if input == "input_exportRoutes" then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		AutoDrive:ExportRoutes();
 	end;
 
 	if input == "input_importRoutes" then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		AutoDrive:ImportRoutes();
@@ -98,7 +98,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_record" then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		AutoDrive:inputRecord(vehicle)
@@ -133,7 +133,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_toggleConnection" then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		local closest = AutoDrive:findClosestWayPoint(vehicle);
@@ -141,6 +141,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_nextNeighbor" then
+		if AutoDrive.requestedWaypoints == true then
+			return;
+		end;
 		AutoDrive:nextSelectedDebugPoint(vehicle);
 	end;	
 
@@ -159,7 +162,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;	
 
 	if input == "input_removeWaypoint" then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
@@ -170,7 +173,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_removeDestination" then
-		if vehicle.ad.createMapPoints == false then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
 		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
@@ -180,6 +183,9 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_recalculate" then
+		if AutoDrive.requestedWaypoints == true then
+			return;
+		end;
 		AutoDrive:ContiniousRecalculation();
 	end;	
 

@@ -179,13 +179,15 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 	
 	local markerIDString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID");
-	local markerIDTable = markerIDString:split(";");
 	local markerIDSplitted = {};
-	for i, outer in pairs(markerIDTable) do
-		local markerID = outer:split(",");
-		markerIDSplitted[i] = markerID;	
-		if markerID == nil then
-			markerIDSplitted[i] = {outer};
+	if markerIDString ~= nil then
+		local markerIDTable = markerIDString:split(";");		
+		for i, outer in pairs(markerIDTable) do
+			local markerID = outer:split(",");
+			markerIDSplitted[i] = markerID;	
+			if markerID == nil then
+				markerIDSplitted[i] = {outer};
+			end;
 		end;
 	end;
 	

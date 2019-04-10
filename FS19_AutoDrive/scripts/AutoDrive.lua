@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.0.7";
+AutoDrive.Version = "1.0.0.8";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -448,7 +448,7 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleClientIntegrity(self);
 	AutoDrive:handleMultiplayer(self, dt);
 	
-	if self.typeDesc == "harvester" then
+	if self.typeName == "combineDrivable" then
 		AutoDrive:handleCombineHarvester(self, dt)
 	end;
 

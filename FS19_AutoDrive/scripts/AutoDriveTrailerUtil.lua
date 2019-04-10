@@ -85,7 +85,11 @@ function AutoDrive:handleTrailers(vehicle, dt)
                             end;
                         end;
 
-                        if activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then                            
+                        if vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading then --trigger must be empty by now. Drive on!
+                            vehicle.ad.isPaused = false;
+                            vehicle.ad.isUnloading = false;
+                            vehicle.ad.isLoading = false; 
+                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then                            
                             trigger.autoStart = true
                             trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
                             trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
@@ -95,9 +99,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
                             vehicle.ad.isPaused = true;
                             vehicle.ad.isLoading = true;
-                        end;
-
-                        if leftCapacity == 0 and vehicle.ad.isPaused then
+                        elseif leftCapacity == 0 and vehicle.ad.isPaused then
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
                             vehicle.ad.isLoading = false;

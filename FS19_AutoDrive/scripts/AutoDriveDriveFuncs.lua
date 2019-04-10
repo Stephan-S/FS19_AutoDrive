@@ -198,7 +198,7 @@ end;
 
 function AutoDrive:defineMinDistanceByVehicleType(vehicle)
     local min_distance = 1.8;
-    if vehicle.typeDesc == "combine" or  vehicle.typeDesc == "harvester" then
+    if vehicle.typeDesc == "combine" or  vehicle.typeDesc == "harvester" or vehicle.typeName == "combineDrivable" then
         min_distance = 6;
     end;
     if vehicle.typeDesc == "telehandler" then
