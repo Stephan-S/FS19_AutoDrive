@@ -22,307 +22,361 @@
 Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
 ]]>
 	   </fr>
+	   <es>
+<![CDATA[Este mod se utiliza para crear una red de rutas y permitir que los vehículos conduzcan de forma autónoma. Una vez configurado, puede ordenar a un tractor, cercano a la red, que conduzca a cualquier meta definida, como la tienda, el campo 1 o un punto de venta.
+]]>
+ 	  </es>
 	</description>
-    <version>1.0.0.8</version>
+	<version>1.0.0.8</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
         <sourceFile filename="register.lua" />
     </extraSourceFiles>
+
 	<l10n>
 		<text name="UNKNOWN">
 			<en>Unknown</en>
 			<de>Unbekannt</de>
 			<it>Sconosciuto</it>
 			<fr>Inconnu</fr>
+			<es>Desconocido</es>
 		</text>
 		<text name="input_ADToggleHud">
 			<en>AD: Toggle HUD</en>
 			<de>AD: HUD ein/ausblenden</de>
 			<it>AD: Mostra/Nascondi HUD</it>
 			<fr>AD: Montrer/cacher HUD</fr>
+			<es>AD: Mostrar/Ocultar HUD</es>
 		</text>
 		<text name="input_ADToggleMouse">
 			<en>AD: Toggle Mouse</en>
 			<de>AD: Maus ein/ausblenden</de>
 			<it>AD: Mostra/Nascondi mouse</it>
 			<fr>AD: Montrer/cacher Souris</fr>
+			<es>AD: Mostrar/Ocultar Ratón</es>
 		</text>
 		<text name="input_ADEnDisable">
 			<en>AD: En/Disable</en>
 			<de>AD: Ein/Ausschalten</de>
 			<it>AD: Abilita/Disabilita</it>
 			<fr>AD: Activer/Désactiver</fr>
+			<es>AD: Activar/Desactivar</es>
 		</text>
 		<text name="input_ADSilomode">
 			<en>AD: Change mode</en>
 			<de>AD: Modus wechseln</de>
 			<it>AD: Cambia modalità</it>
 			<fr>AD: Changer mode</fr>
+			<es>AD: Cambiar modo</es>
 		</text>
 		<text name="input_ADRecord">
 			<en>AD: Record</en>
 			<de>AD: Aufzeichnen</de>
 			<it>AD: Registra</it>
 			<fr>AD: Enregistrer</fr>
+			<es>AD: Grabar</es>
 		</text>
 		<text name="input_ADSelectTarget">
 			<en>AD: Select Next Target</en>
 			<de>AD: Ziel wählen</de>
 			<it>AD: Meta successiva</it>
 			<fr>AD: Sélect. prochaine destination</fr>
+			<es>AD: Seleccionar destino siguiente</es>
 		</text>
 		<text name="input_ADSelectPreviousTarget">
 			<en>AD: Select Previous Target</en>
 			<de>AD: Voriges Ziel wählen</de>
 			<it>AD: Meta precedente</it>
 			<fr>AD: Sélect. destination précédente</fr>
+			<es>AD: Seleccionar destino anterior</es>
 		</text>
 		<text name="input_AD_Speed_up">
 			<en>AD: Increase Speed</en>
 			<de>AD: Geschwindigkeit erhöhen</de>
 			<it>AD: Aumenta velocità</it>
 			<fr>AD: Augmenter la vitesse</fr>
+			<es>AD: Aumentar velocidad</es>
 		</text>
 		<text name="input_AD_Speed_down">
 			<en>AD: Decrease Speed</en>
 			<de>AD: Geschwindigkeit verringern</de>
 			<it>AD: Diminuisci velocità</it>
 			<fr>AD: Réduire la vitesse</fr>
+			<es>AD: Reducir velocidad</es>
 		</text>
 		<text name="input_AD_export_routes">
 			<en>AD: Export Routes</en>
 			<de>AD: Strecken exportieren</de>
 			<it>AD: Esporta percorsi</it>
 			<fr>AD: Exporter routes</fr>
+			<es>AD: Exportar rutas</es>
 		</text>
 		<text name="input_AD_import_routes">
 			<en>AD: Import Routes</en>
 			<de>AD: Strecken importieren</de>
 			<it>AD: Importa percorsi</it>
 			<fr>AD: Importer routes</fr>
+			<es>AD: Importar rutas</es>
 		</text>
 		<text name="input_AD_upload_routes">
 			<en>AD: Upload Routes</en>
 			<de>AD: Strecken hochladen</de>
 			<it>AD: Carica percorsi</it>
 			<fr>AD: Uploader routes</fr>
+			<es>AD: Cargar rutas</es>
 		</text>
 		<text name="input_AD_continue">
 			<en>AD: Continue</en>
 			<de>AD: Weiterfahren</de>
 			<it>AD: Continua</it>
 			<fr>AD: Continuer</fr>
+			<es>AD: Continuar</es>
 		</text>
 		<text name="input_ADSelectTargetUnload">
 			<en>AD: Select Next Unload</en>
 			<de>AD: Nächster Abladepunkt</de>
 			<it>AD: Punto di scarico successivo</it>
 			<fr>AD: Sélect. prochain déchargement</fr>
+			<es>AD: Selec. descarga siguiente</es>
 		</text>
 		<text name="input_ADSelectPreviousTargetUnload">
 			<en>AD: Select Previous Unload</en>
 			<de>AD: Voriger Abladepunkt</de>
 			<it>AD: Punto di scarico precedente</it>
 			<fr>AD: Sélect. déchargement précédent</fr>
+			<es>AD: Selec. descarga previa</es>
 		</text>
 		<text name="input_ADActivateDebug">
 			<en>AD: Edit Mode</en>
 			<de>AD: Editor Modus</de>
 			<it>AD: Modalità di modifica</it>
 			<fr>AD: Activer mode édition</fr>
+			<es>AD: Activar modo edición</es>
 		</text>
 		<text name="input_ADDebugShowClosest">
 			<en>AD: Show Closest Point</en>
 			<de>AD: Naheliegendsten Punkt anzeigen</de>
 			<it>AD: Visualizza punto più vicino</it>
 			<fr>AD: Afficher point proche</fr>
+			<es>AD: Muestra punto más cercano</es>
 		</text>
 		<text name="input_ADDebugSelectNeighbor">
 			<en>AD: Select Neighbour Point</en>
 			<de>AD: Nachbarpunkt wählen</de>
 			<it>AD: Seleziona un punto vicino</it>
 			<fr>AD: Sélecteur de connection</fr>
+			<es>AD: Selec. punto de conexión</es>
 		</text>
 		<text name="input_ADDebugChangeNeighbor">
 			<en>AD: Select next Neighbour Point</en>
 			<de>AD: Nächsten Nachbarpunkt wählen</de>
 			<it>AD: Prossimo punto vicino</it>
 			<fr>AD: Sélect. point suivant</fr>
+			<es>AD: Selec. siguiente punto conexión</es>
 		</text>
 		<text name="input_ADDebugCreateConnection">
 			<en>AD: Toggle connection between</en>
 			<de>AD: Verbindung an/aus</de>
 			<it>AD: Connetti/Disconnetti</it>
 			<fr>AD: Connecter entre</fr>
+			<es>AD: Activar/Desactivar conectar </es>
 		</text>
 		<text name="input_ADDebugCreateMapMarker">
 			<en>AD: Create new Target</en>
 			<de>AD: Neues Ziel erstellen</de>
 			<it>AD: Crea nuova destinazione</it>
 			<fr>AD: Créer nouvelle destination</fr>
+			<es>AD: Crear nueva meta</es>
 		</text>
 		<text name="input_ADDebugDeleteWayPoint">
 			<en>AD: Delete Waypoint</en>
 			<de>AD: Wegpunkt löschen</de>
 			<it>AD: Elimina punto</it>
 			<fr>AD: Éffacer point de passage</fr>
+			<es>AD: Eliminar Waypoint</es>
 		</text>
 		<text name="input_ADDebugForceUpdate">
 			<en>AD: Update ways</en>
 			<de>AD: Wege neu berechnen</de>
 			<it>AD: Ricalcola percorsi</it>
 			<fr>AD: Màj des points</fr>
+			<es>AD: Recalcular Rutas</es>
 		</text>
 		<text name="input_ADDebugDeleteDestination">
 			<en>AD: Delete Destination</en>
 			<de>AD: Ziel löschen</de>
 			<it>AD: Elimina destinazione</it>
 			<fr>AD: Éffacer point destination</fr>
+			<es>AD: Borrar Meta</es>
 		</text>
 		<text name="input_ADSelectNextFillType">
 			<en>AD: Select Next Filltype</en>
 			<de>AD: Nächster Fruchttyp</de>
 			<it>AD: Prodotto successivo</it>
 			<fr>AD: Sélect. prochain type de fruit</fr>
+			<es>AD: Selec. producto siguiente</es>
 		</text>
 		<text name="input_ADSelectPreviousFillType">
 			<en>AD: Select Previous Filltype</en>
 			<de>AD: Vorheriger Fruchttyp</de>
 			<it>AD: Prodotto precedente</it>
 			<fr>AD: Sélect. précédent type de fruit</fr>
+			<es>AD: Selec. producto anterior</es>
 		</text>
 		<text name="input_ADOpenGUI">
 			<en>AD: Open GUI</en>
 			<de>AD: Menü öffnen</de>
 			<it>AD: Apri menu</it>
 			<fr>AD: Ouvrir GUI</fr>
+			<es>AD: Mostrar menu</es>
 		</text>
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
 			<de>Der Fahrer von</de>
 			<it>L'autista di</it>
 			<fr>Le conducteur de</fr>
+			<es>El conductor de</es>
 		</text>
 		<text name="AD_has_reached">
 			<en>has reached</en>
 			<de>ist angekommen bei</de>
 			<it>ha raggiunto</it>
 			<fr>est arrivé à</fr>
+			<es>ha llegado</es>
 		</text>
 		<text name="AD_got_stuck">
 			<en>got stuck</en>
 			<de>hat sich fest gefahren</de>
 			<it>si è bloccato</it>
 			<fr>est bloqué</fr>
+			<es>está bloqueado</es>
 		</text>
 		<text name="AD_cannot_reach">
 			<en>can't reach</en>
 			<de>hat keinen Weg gefunden zu</de>
 			<it>non può raggiungere</it>
 			<fr>ne peut pas rejoindre</fr>
+			<es>no puede llegar a</es>
 		</text>
 		<text name="AD_new_marker">
 			<en>New Goal:</en>
 			<de>Neues Ziel:</de>
 			<it>Nuovo obbiettivo:</it>
 			<fr>Nouvel objectif:</fr>
+			<es>Nueva meta:</es>
 		</text>
 		<text name="AD_new_marker_helptext">
 			<en>Please enter new name (Stop with enter key)</en>
 			<de>Namen eingeben - Beenden mit Enter-Taste</de>
 			<it>Inserisci il nome (Termina con invio)</it>
 			<fr>Veuillez entrer un nouveau nom (Validez avec Éntrée)</fr>
+			<es>Por favor introduzca nombre (Guardar con intro)</es>
 		</text>
 		<text name="AD_Recalculationg_routes_status">
 			<en>Recalculating routes. Please wait. Finished:</en>
 			<de>Routen werden neuberechnet. Bitte warten. Berechnet:</de>
 			<it>Sto ricalcolando i percorsi. Attendere. Finito:</it>
 			<fr>Recalcul des routes. Veuilllez patienter. Terminé:</fr>
+			<es>Recalculando rutas. Por favor, espere. Finalizado:</es>
 		</text>
 		<text name="AD_MODE_DRIVETO">
 			<en>Drive</en>
 			<de>Fahren</de>
 			<it>Guida</it>
 			<fr>Conduite</fr>
+			<es>Conducir</es>
 		</text>
 		<text name="AD_MODE_DELIVERTO">
 			<en>Deliver</en>
 			<de>Abladen</de>
 			<it>Consegna</it>
 			<fr>Livraison</fr>
+			<es>Transportar</es>
 		</text>
 		<text name="AD_MODE_PICKUPANDDELIVER">
 			<en>Pickup and Deliver</en>
 			<de>Abholen und Abliefern</de>
 			<it>Carica e consegna</it>
 			<fr>Chargement et livraison</fr>
+			<es>Carga y descarga</es>
 		</text>
 		<text name="AD_MODE_UNLOAD">
 			<en>Unload Combine</en>
 			<de>Drescher abfahren</de>
 			<it>Scarica la trebbia</it>
 			<fr>Décharger moissoneuse</fr>
+			<es>Descargar cosechadora</es>
 		</text>
 		<text name="gui_ad_Setting">
 			<en>AutoDrive - Settings</en>
 			<de>AutoDrive - Einstellungen</de>
 			<it>AutoDrive - Impostazioni</it>
 			<fr>AutoDrive - paramètres</fr>
+			<es>AutoDrive - Configuración</es>
 		</text>
 		<text name="gui_ad_pipe_offset">
 			<en>Pipe Offset</en>
 			<de>Abstand Rohr</de>
 			<it>Distanza dal tubo</it>
 			<fr>Décalage du tuyau</fr>
+			<es>Distancia del tubo</es>
 		</text>
 		<text name="gui_ad_lookahead_turning">
 			<en>Look ahead distance (turn)</en>
 			<de>Distanz Vorausschauen (Lenkung)</de>
 			<it>Distanza d'avanti (sterzata)</it>
 			<fr>Distance devant vous (virage)</fr>
+			<es>Distacia hacia adelante (desvío)</es>
 		</text>
 		<text name="gui_ad_lookahead_turning_tooltip">
 			<en>The distance the vehicle looks ahead to adjust steering to follow the next segment</en>
 			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken</de>
 			<it>La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso</it>
 			<fr>Distance laquelle le véhicule tourne afin de suivre le segment suivant</fr>
+			<es>Distancia que el vehículo mira hacia adelante y ajusta la dirección a seguir en el siguiente segmento</es>
 		</text>
 		<text name="gui_ad_lookahead_braking">
 			<en>Look ahead distance (brake)</en>
 			<de>Distanz Vorausschauen (Bremse)</de>
 			<it>Distanza d'avanti (frenata)</it>
 			<fr>Distance devant vous (frein)</fr>
+			<es>Distacia hacia adelante (frenado)</es>
 		</text>
 		<text name="gui_ad_lookahead_braking_tooltip">
 			<en>The distance the vehicle looks ahead to adjust the speed to the expected turn radius</en>
 			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig vor Kurven abzubremsen</de>
 			<it>La distanza alla quale il veicolo aggiusta la velocità per effettuare una curva</it>
 			<fr>Distance du véhicule pour ralentir plus tôt avant le virage</fr>
+			<es>Distancia a la que el vehículo ajusta su velocidad para efectuar un desvío</es>
 		</text>
 		<text name="gui_ad_avoidMarkers">
 			<en>Avoid driving through targets</en>
 			<de>Durchfahren von Zielpunkten vermeiden</de>
 			<it>Evita di attraversare i punti di destinazione</it>
 			<fr>Éviter de traverser des points de destinations</fr>
+			<es>Evitar desvíos a traves de metas</es>
 		</text>
 		<text name="gui_ad_avoidMarkers_tooltip">
 			<en>The pathfinding tries to find detours around targets. Useful to avoid jams</en>
 			<de>Die Zielsuche probiert das Durchfahren von anderen Zielpunkten zu vermeiden</de>
 			<it>La ricerca tenta di trovare un percorso che non passi per un punto di destinazione</it>
 			<fr>La recherche de destination essaie d'éviter de passer par d'autres destinations</fr>
+			<es>El Busca_Rutas intenta encontrar desvíos alrededor de las metas. Útil para evitar atascos.</es>
 		</text>
 		<text name="gui_ad_mapMarkerDetour">
 			<en>Maximum detour</en>
 			<de>Maximaler Umweg</de>
 			<it>Deviazione massima</it>
 			<fr>Détour maximum</fr>
+			<es>Desvio máximo</es>
 		</text>
 		<text name="gui_ad_mapMarkerDetour_tooltip">
 			<en>Maximum detour when avoiding targets</en>
 			<de>Maximaler Umweg wenn Zielpunkte vermieden werden sollen</de>
 			<it>Deviazione massima quando le destinazioni devono essere evitate</it>
 			<fr>Détour maximum quand des destinations doivent être évités</fr>
+			<es>Desvío máximo cuando evitemos metas</es>
 		</text>
 	</l10n>
 
