@@ -333,7 +333,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<en>The distance the vehicle looks ahead to adjust steering to follow the next segment</en>
 			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken</de>
 			<it>La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso</it>
-			<fr>Distance laquelle le véhicule tourne afin de suivre le segment suivant</fr>
+			<fr>Distance à laquelle le véhicule tourne afin de suivre le segment suivant</fr>r>
 			<es>Distancia que el vehículo mira hacia adelante y ajusta la dirección a seguir en el siguiente segmento</es>
 		</text>
 		<text name="gui_ad_lookahead_braking">
@@ -353,8 +353,8 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_avoidMarkers">
 			<en>Avoid driving through targets</en>
 			<de>Durchfahren von Zielpunkten vermeiden</de>
-			<it>Evita di attraversare i punti di destinazione</it>
-			<fr>Éviter de traverser des points de destinations</fr>
+      <it>Evita di attraversare i punti di destinazione</it>
+			<fr>Éviter de traverser les destinations</fr>
 			<es>Evitar desvíos a traves de metas</es>
 		</text>
 		<text name="gui_ad_avoidMarkers_tooltip">
