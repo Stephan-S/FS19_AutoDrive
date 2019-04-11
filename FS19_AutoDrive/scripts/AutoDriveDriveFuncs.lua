@@ -229,6 +229,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
             AutoDrive:stopAD(vehicle);           
         else
+            vehicle.ad.startedLoadingAtTrigger = false;
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
                 AutoDrive:handleReachedWayPointCombine(vehicle);
             else

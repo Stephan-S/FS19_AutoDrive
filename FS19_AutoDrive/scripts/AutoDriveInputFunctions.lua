@@ -45,7 +45,7 @@ end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+		if vehicle.ad.createMapPoints == false then
 			return;
 		end;
 		AutoDrive:inputCreateMapMarker(vehicle);

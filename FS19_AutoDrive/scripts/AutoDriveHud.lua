@@ -391,6 +391,15 @@ function AutoDriveHud:drawHud(vehicle)
 			textToShow = textToShow .. " - " .. vehicle.ad.sToolTip;
 		end;
 		renderText(adPosX, adPosY, adFontSize, textToShow);
+
+		local target = vehicle.ad.nameOfSelectedTarget;
+		for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
+			if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)] ~= nil then
+				if mapMarker.id == vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id then
+					target = mapMarker.name;
+				end;
+			end;
+		end;
 		
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
 			local adFontSize = 0.013;
@@ -409,10 +418,25 @@ function AutoDriveHud:drawHud(vehicle)
 					setTextAlignment(RenderText.ALIGN_LEFT);
 					renderText(adPosX, adPosY, adFontSize,  vehicle.ad.enteredChosenDestination);
 				end;
-			else
-				setTextColor(1,1,1,1);
+			else				
+				local startPoint = target == vehicle.ad.nameOfSelectedTarget;
+
+				if vehicle.ad.isActive and startPoint then
+					setTextColor(0,1,0,1);
+				else
+					setTextColor(1,1,1,1);
+				end;
+
+				local text = vehicle.ad.nameOfSelectedTarget
+				if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+					local combineText = AutoDrive:combineStateToDescription(vehicle)
+					if combineText ~= nil then
+						text = text .. " - " .. combineText;
+					end;
+				end;
+
 				setTextAlignment(RenderText.ALIGN_LEFT);
-				renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
+				renderText(adPosX, adPosY, adFontSize, text);
 			end;
 			setTextColor(1,1,1,1);
 			setTextAlignment(RenderText.ALIGN_LEFT);
@@ -435,7 +459,13 @@ function AutoDriveHud:drawHud(vehicle)
 			local adFontSize = 0.013;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
-			setTextColor(1,1,1,1);
+			
+			local targetPoint = target == vehicle.ad.nameOfSelectedTarget_Unload;
+			if vehicle.ad.isActive and targetPoint then
+				setTextColor(0,1,0,1);
+			else
+				setTextColor(1,1,1,1);
+			end;
 
 			self.Background.unloadOverlay.ov:render();
 			setTextAlignment(RenderText.ALIGN_LEFT);
@@ -449,8 +479,18 @@ function AutoDriveHud:drawHud(vehicle)
 end;
 
 function AutoDriveHud:drawMinimalHud(vehicle)	
-	if vehicle == g_currentMission.controlledVehicle then								
+	if vehicle == g_currentMission.controlledVehicle then		
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
+
+			local target = vehicle.ad.nameOfSelectedTarget;
+			for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
+				if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)] ~= nil then
+					if mapMarker.id == vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id then
+						target = mapMarker.name;
+					end;
+				end;
+			end;
+
 			if vehicle.ad.lastPrintedTarget == nil then
 				vehicle.ad.lastPrintedTarget = vehicle.ad.nameOfSelectedTarget;
 			end;
@@ -464,14 +504,45 @@ function AutoDriveHud:drawMinimalHud(vehicle)
 			local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
 
 			if vehicle.ad.destinationPrintTimer > 0 or vehicle.ad.isActive then
-				if vehicle.ad.isActive then
+				local startPoint = target == vehicle.ad.nameOfSelectedTarget;
+
+				if vehicle.ad.isActive and startPoint then
 					setTextColor(0,1,0,1);
 				else
 					setTextColor(1,1,1,1);
 				end;
+
+				local text = vehicle.ad.nameOfSelectedTarget;
+				if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+					local combineText = AutoDrive:combineStateToDescription(vehicle)
+					if combineText ~= nil then
+						text = text .. " - " .. combineText;
+					end;
+				end;
+
 				setTextAlignment(RenderText.ALIGN_LEFT);
-				renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget);
+				renderText(adPosX, adPosY, adFontSize, text);
 			end;
+
+			if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (vehicle.ad.destinationPrintTimer > 0  or vehicle.ad.isActive) then
+				adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+				
+				local targetPoint = target == vehicle.ad.nameOfSelectedTarget_Unload;
+				if vehicle.ad.isActive and targetPoint then
+					setTextColor(0,1,0,1);
+				else
+					setTextColor(1,1,1,1);
+				end;
+	
+				--self.Background.unloadOverlay.ov:render();
+				setTextAlignment(RenderText.ALIGN_LEFT);
+				local text = vehicle.ad.nameOfSelectedTarget_Unload
+				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+					text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
+				end;
+				renderText(adPosX, adPosY, adFontSize, text);
+			end;	
+
 		end;
 	end;
 end;

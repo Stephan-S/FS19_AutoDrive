@@ -1,6 +1,7 @@
 function AutoDrive:startAD(vehicle)
     vehicle.ad.isActive = true;
-    vehicle.ad.creationMode = false;
+	vehicle.ad.creationMode = false;
+	vehicle.ad.startedLoadingAtTrigger = false;
     
     vehicle.forceIsActive = true;
     vehicle.spec_motorized.stopMotorOnLeave = false;

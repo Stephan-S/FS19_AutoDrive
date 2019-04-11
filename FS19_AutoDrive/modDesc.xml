@@ -27,7 +27,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
  	  </es>
 	</description>
-	<version>1.0.0.8</version>
+	<version>1.0.0.9</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -351,9 +351,9 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<es>Distancia a la que el vehículo ajusta su velocidad para efectuar un desvío</es>
 		</text>
 		<text name="gui_ad_avoidMarkers">
-			<en>Avoid driving through targets</en>
-			<de>Durchfahren von Zielpunkten vermeiden</de>
-      <it>Evita di attraversare i punti di destinazione</it>
+			<en>Avoid other targets</en>
+			<de>Zielpunkte vermeiden</de>
+      		<it>Evita di attraversare i punti di destinazione</it>
 			<fr>Éviter de traverser les destinations</fr>
 			<es>Evitar desvíos a traves de metas</es>
 		</text>
@@ -377,6 +377,54 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<it>Deviazione massima quando le destinazioni devono essere evitate</it>
 			<fr>Détour maximum quand des destinations doivent être évités</fr>
 			<es>Desvío máximo cuando evitemos metas</es>
+		</text>
+		<text name="gui_ad_siloEmpty">
+			<en>If silo empty</en>
+			<de>Wenn Silo leer</de>
+		</text>		
+		<text name="gui_ad_siloEmpty_tooltip">
+			<en>How a pickup and deliver driver reacts to an empty silo</en>
+			<de>Legt fest, wie ein Abfahrer auf ein leeres Silo reagieren soll</de>
+		</text>		
+		<text name="gui_ad_wait">
+			<en>Wait</en>
+			<de>Warten</de>
+		</text>	
+		<text name="gui_ad_drive">
+			<en>Drive on</en>
+			<de>Weiterfahren</de>
+		</text>
+		<text name="gui_ad_yes">
+			<en>Yes</en>
+			<de>Ja</de>
+		</text>
+		<text name="gui_ad_no">
+			<en>No</en>
+			<de>Nein</de>
+		</text>
+		<text name="ad_wait_for_combine">
+			<en>Wait for combine</en>
+			<de>Warten auf Drescher</de>
+		</text>
+		<text name="ad_drive_to_combine">
+			<en>Drive to combine</en>
+			<de>Fahre zu Drescher</de>
+		</text>
+		<text name="ad_unloading_combine">
+			<en>Unloading combine</en>
+			<de>Entlade Drescher</de>
+		</text>
+		<text name="ad_drive_to_parkpos">
+			<en>Parking</en>
+			<de>Parken</de>
+		</text>
+		<text name="ad_drive_to_startpos">
+			<en>Drive to start</en>
+			<de>Fahre zum Start</de>
+		</text>
+		<text name="ad_drive_to_unloadpos">
+			<en>Drive to unload</en>
+			<de>Fahre abladen</de>
 		</text>
 	</l10n>
 

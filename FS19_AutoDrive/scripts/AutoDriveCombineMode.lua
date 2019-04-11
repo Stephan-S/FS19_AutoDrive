@@ -214,3 +214,21 @@ function AutoDrive:initializeADCombine(vehicle)
 
     return false;
 end;
+
+function AutoDrive:combineStateToDescription(vehicle)
+    if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
+        return g_i18n:getText('ad_wait_for_combine');
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
+        return g_i18n:getText('ad_drive_to_combine');
+    elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
+        return g_i18n:getText('ad_unloading_combine');
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
+        return g_i18n:getText('ad_drive_to_parkpos');
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
+        return g_i18n:getText('ad_drive_to_startpos');
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
+        return g_i18n:getText('ad_drive_to_unloadpos');
+    end
+
+    return;
+end;

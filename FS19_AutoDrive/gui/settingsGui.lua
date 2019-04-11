@@ -24,7 +24,7 @@ AutoDrive.lookAheadBrakingCurrent = 5;
 AutoDrive.LOOKAHEAD_DISTANCE_BRAKING = AutoDrive.lookAheadBrakingValues[AutoDrive.lookAheadBrakingDefault];
 
 AutoDrive.avoidMarkersValues = { false, true };
-AutoDrive.avoidMarkersTexts = { "No", "Yes"};
+AutoDrive.avoidMarkersTexts = { "gui_ad_no", "gui_ad_yes"};
 AutoDrive.avoidMarkersDefault = 0; --No
 AutoDrive.avoidMarkersCurrent = 0;
 AutoDrive.avoidMarkers = AutoDrive.avoidMarkersValues[AutoDrive.avoidMarkersDefault];
@@ -34,6 +34,12 @@ AutoDrive.MAP_MARKER_DETOUR_Texts = { "0m", "10m", "50m", "100m", "200m", "500m"
 AutoDrive.MAP_MARKER_DETOUR_Default = 0; --15m
 AutoDrive.MAP_MARKER_DETOUR_Current = 0;
 AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[AutoDrive.MAP_MARKER_DETOUR_Default];
+
+AutoDrive.siloEmptyValues = { false, true };
+AutoDrive.siloEmptyTexts = { "gui_ad_wait", "gui_ad_drive"};
+AutoDrive.siloEmptyDefault = 0; --No
+AutoDrive.siloEmptyCurrent = 0;
+AutoDrive.continueOnEmptySilo = AutoDrive.siloEmptyValues[AutoDrive.siloEmptyDefault];
 
 adSettingsGui = {};
 
@@ -53,6 +59,7 @@ function adSettingsGui:onOpen()
 	AutoDrive.gui.adSettingsGui:setLookAheadBraking(AutoDrive.lookAheadBrakingCurrent);
     AutoDrive.gui.adSettingsGui:setAvoidMarkers(AutoDrive.avoidMarkersCurrent)
     AutoDrive.gui.adSettingsGui:setMapMarkerDetour(AutoDrive.MAP_MARKER_DETOUR_Current)
+    AutoDrive.gui.adSettingsGui:setSiloEmpty(AutoDrive.siloEmptyCurrent)
 end;
 
 function adSettingsGui:onClose()
@@ -76,6 +83,8 @@ function adSettingsGui:onClickOk()
     AutoDrive.avoidMarkersCurrent = self.avoidMarkers:getState();
     AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[self.mapMarkerDetour:getState()];
     AutoDrive.MAP_MARKER_DETOUR_Current = self.mapMarkerDetour:getState();
+    AutoDrive.continueOnEmptySilo = AutoDrive.siloEmptyValues[self.siloEmpty:getState()];
+    AutoDrive.siloEmptyCurrent = self.siloEmpty:getState();
     AutoDriveUpdateSettingsEvent:sendEvent();
     self:onClickBack();
 end;
@@ -86,6 +95,7 @@ function adSettingsGui:onClickResetButton()
     adSettingsGui:setLookAheadBraking(AutoDrive.lookAheadBrakingDefault)
     adSettingsGui:setAvoidMarkers(AutoDrive.avoidMarkersDefault)
     adSettingsGui:setMapMarkerDetour(AutoDrive.MAP_MARKER_DETOUR_Default)
+    adSettingsGui:setSiloEmpty(AutoDrive.siloEmptyDefault)
 end;
 
 function AutoDrive:guiClosed()
@@ -94,6 +104,7 @@ function AutoDrive:guiClosed()
 	AutoDrive.gui.adSettingsGui:setLookAheadBraking(AutoDrive.lookAheadBrakingCurrent);
     AutoDrive.gui.adSettingsGui:setAvoidMarkers(AutoDrive.avoidMarkersCurrent)
     AutoDrive.gui.adSettingsGui:setMapMarkerDetour(AutoDrive.MAP_MARKER_DETOUR_Current)
+    AutoDrive.gui.adSettingsGui:setSiloEmpty(AutoDrive.siloEmptyCurrent)
 end;
 
 function adSettingsGui:onIngameMenuHelpTextChanged(element)
@@ -161,7 +172,7 @@ function adSettingsGui:onCreateAvoidMarkers(element)
     local avoidMarkerArray = {};
 
     for i = 1, #AutoDrive.avoidMarkersTexts, 1 do
-        avoidMarkerArray[i] = AutoDrive.avoidMarkersTexts[i];
+        avoidMarkerArray[i] = g_i18n:getText(AutoDrive.avoidMarkersTexts[i]);
     end;
 	
     element:setTexts(avoidMarkerArray);
@@ -186,4 +197,21 @@ end;
 
 function adSettingsGui:setMapMarkerDetour(index)
     self.mapMarkerDetour:setState(index, false);
+end;
+
+function adSettingsGui:onCreateSiloEmpty(element)
+    self.siloEmpty = element;
+	element.labelElement.text = g_i18n:getText('gui_ad_siloEmpty');
+	element.toolTipText = g_i18n:getText('gui_ad_siloEmpty_tooltip');
+    local siloEmptys = {};
+
+    for i = 1, #AutoDrive.siloEmptyTexts, 1 do
+        siloEmptys[i] = g_i18n:getText(AutoDrive.siloEmptyTexts[i]);
+    end;
+	
+    element:setTexts(siloEmptys);
+end;
+
+function adSettingsGui:setSiloEmpty(index)
+    self.siloEmpty:setState(index, false);
 end;

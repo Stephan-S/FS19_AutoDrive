@@ -1,5 +1,5 @@
-AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 5;
-AutoDrive.PATHFINDER_TARGET_DISTANCE = 14;
+AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
+AutoDrive.PATHFINDER_TARGET_DISTANCE = 20;
 AutoDrivePathFinder = {};
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
@@ -134,7 +134,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
         return;
     end;
 
-    if pf.steps > 3000 then
+    if pf.steps > 500 then
         if not pf.fallBackMode then --look for path through fruit
             pf.fallBackMode = true;
             pf.steps = 0;

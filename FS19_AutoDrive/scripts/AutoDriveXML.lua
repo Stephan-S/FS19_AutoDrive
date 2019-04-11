@@ -119,6 +119,11 @@ function AutoDrive:readFromXML(xmlFile)
 		AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[markerDetour];		
 		AutoDrive.MAP_MARKER_DETOUR_Current = markerDetour;
 	end;
+	local siloEmpty = getXMLFloat(xmlFile,"AutoDrive.siloEmpty");
+	if siloEmpty ~= nil then
+		AutoDrive.continueOnSiloEmpty = AutoDrive.siloEmptyValues[markerDetour];		
+		AutoDrive.siloEmptyCurrent = siloEmpty;
+	end;
 
 	local mapMarker = {};
 	local mapMarkerCounter = 1;
@@ -353,6 +358,9 @@ function AutoDrive:saveToXML(xmlFile)
 	setXMLFloat(xmlFile, "AutoDrive.pipeOffset", AutoDrive.pipeOffsetCurrent);
 	setXMLFloat(xmlFile, "AutoDrive.lookAheadTurn", AutoDrive.lookAheadTurnCurrent);
 	setXMLFloat(xmlFile, "AutoDrive.lookAheadBraking", AutoDrive.lookAheadBrakingCurrent);
+	setXMLFloat(xmlFile, "AutoDrive.avoidMarkers", AutoDrive.avoidMarkersCurrent);
+	setXMLFloat(xmlFile, "AutoDrive.markerDetour", AutoDrive.MAP_MARKER_DETOUR_Current);
+	setXMLFloat(xmlFile, "AutoDrive.siloEmpty", AutoDrive.siloEmptyCurrent);
 		
 	local idFullTable = {};
 	local idString = "";

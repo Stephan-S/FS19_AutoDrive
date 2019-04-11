@@ -51,6 +51,8 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.unloadSwitch = vehicle.ad.unloadSwitch;
 	self.isLoading = vehicle.ad.isLoading;
 	self.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex;
+	self.startedLoadingAtTrigger = vehicle.ad.startedLoadingAtTrigger;
+	self.combineState = vehicle.ad.combineState;
 
 	self.targetSelected_Unload = vehicle.ad.targetSelected_Unload;
 	self.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload;
@@ -127,6 +129,8 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteBool(streamId, self.unloadSwitch);
 	streamWriteBool(streamId, self.isLoading);
 	streamWriteInt8(streamId, self.unloadFillTypeIndex);
+	streamWriteBool(streamId, self.startedLoadingAtTrigger);
+	streamWriteInt8(streamId, self.combineState);
 
 	streamWriteInt16(streamId, self.targetSelected_Unload);
 	streamWriteInt16(streamId, self.mapMarkerSelected_Unload);
@@ -204,6 +208,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local unloadSwitch = streamReadBool(streamId);
 	local isLoading = streamReadBool(streamId);
 	local unloadFillTypeIndex = streamReadInt8(streamId);
+	local startedLoadingAtTrigger = streamReadBool(streamId);
+	local combineState = streamReadInt8(streamId);
 	
 	local targetSelected_Unload = streamReadInt16(streamId);
 	local mapMarkerSelected_Unload = streamReadInt16(streamId);
@@ -257,8 +263,10 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.isPaused = isPaused;
 		vehicle.ad.unloadSwitch = unloadSwitch;
 		vehicle.ad.isLoading = isLoading;
-		vehicle.ad.unloadFillTypeIndex = unloadFillTypeIndex;
-
+		vehicle.ad.unloadFillTypeIndex = unloadFillTypeIndex;		
+		vehicle.ad.startedLoadingAtTrigger = startedLoadingAtTrigger;
+		vehicle.ad.combineState = combineState;
+		
 		vehicle.ad.targetSelected_Unload = targetSelected_Unload;
 		vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
 		vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload;
@@ -424,6 +432,14 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	remained = remained and self.disableAI == oldEvent.disableAI;
 	if self.disableAI ~= oldEvent.disableAI then
 		reason = reason .. " disableAI";
+	end;	
+	remained = remained and self.startedLoadingAtTrigger == oldEvent.startedLoadingAtTrigger;
+	if self.startedLoadingAtTrigger ~= oldEvent.startedLoadingAtTrigger then
+		reason = reason .. " startedLoadingAtTrigger";
+	end;
+	remained = remained and self.combineState == oldEvent.combineState;
+	if self.combineState ~= oldEvent.combineState then
+		reason = reason .. " combineState";
 	end;
 
 	--if reason ~= "" then

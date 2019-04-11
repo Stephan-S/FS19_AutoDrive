@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.0.8";
+AutoDrive.Version = "1.0.0.9";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -262,6 +262,7 @@ function init(self)
 	self.ad.isLoading = false;
 	self.ad.unloadFillTypeIndex = 2;
 	self.ad.isPausedCauseTraffic = false;
+	self.ad.startedLoadingAtTrigger = false;
 
 	AutoDrive.Recalculation = {};
 
