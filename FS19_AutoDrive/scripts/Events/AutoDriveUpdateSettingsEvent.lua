@@ -24,6 +24,9 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 	streamWriteInt16(streamId, AutoDrive.lookAheadBrakingCurrent);
 	streamWriteInt16(streamId, AutoDrive.avoidMarkersCurrent);
 	streamWriteInt16(streamId, AutoDrive.MAP_MARKER_DETOUR_Current);	
+	streamWriteInt16(streamId, AutoDrive.siloEmptyCurrent);		
+	streamWriteInt16(streamId, AutoDrive.autoConnectStartCurrent);	
+	streamWriteInt16(streamId, AutoDrive.autoConnectEndCurrent);	
 end;
 
 function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
@@ -36,12 +39,18 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 	AutoDrive.lookAheadBrakingCurrent = streamReadInt16(streamId);
 	AutoDrive.avoidMarkersCurrent = streamReadInt16(streamId);
 	AutoDrive.MAP_MARKER_DETOUR_Current = streamReadInt16(streamId);
+	AutoDrive.siloEmptyCurrent = streamReadInt16(streamId);
+	AutoDrive.autoConnectStartCurrent = streamReadInt16(streamId);
+	AutoDrive.autoConnectEndCurrent = streamReadInt16(streamId);
 	
 	AutoDrive.PATHFINDER_PIPE_OFFSET = AutoDrive.pipeOffsetValues[AutoDrive.pipeOffsetCurrent];
     AutoDrive.LOOKAHEAD_DISTANCE_TURNING = AutoDrive.lookAheadTurnValues[AutoDrive.lookAheadTurnCurrent];
     AutoDrive.LOOKAHEAD_DISTANCE_BRAKING = AutoDrive.lookAheadBrakingValues[AutoDrive.lookAheadBrakingCurrent];
     AutoDrive.avoidMarkers = AutoDrive.avoidMarkersValues[AutoDrive.avoidMarkersCurrent];
 	AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[AutoDrive.MAP_MARKER_DETOUR_Current];	
+	AutoDrive.continueOnEmptySilo = AutoDrive.siloEmptyValues[AutoDrive.siloEmptyCurrent];
+	AutoDrive.autoConnectStart = AutoDrive.autoConnectStartValues[AutoDrive.autoConnectStartCurrent];
+	AutoDrive.autoConnectEnd = AutoDrive.autoConnectEndValues[AutoDrive.autoConnectEndCurrent];
 	
 	if g_server ~= nil then
 		g_server:broadcastEvent(AutoDriveUpdateSettingsEvent:new(), nil, nil, nil);

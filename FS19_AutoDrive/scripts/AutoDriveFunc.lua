@@ -1,6 +1,7 @@
 function AutoDrive:startAD(vehicle)
     vehicle.ad.isActive = true;
-    vehicle.ad.creationMode = false;
+	vehicle.ad.creationMode = false;
+	vehicle.ad.startedLoadingAtTrigger = false;
     
     vehicle.forceIsActive = true;
     vehicle.spec_motorized.stopMotorOnLeave = false;
@@ -125,6 +126,9 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
 		vehicle.ad.currentCombine = nil;
 	end;
+	
+	vehicle.ad.combineUnloadInFruit = false;
+	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
 
 	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
 

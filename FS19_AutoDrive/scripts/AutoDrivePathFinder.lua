@@ -1,5 +1,5 @@
-AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 5;
-AutoDrive.PATHFINDER_TARGET_DISTANCE = 14;
+AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
+AutoDrive.PATHFINDER_TARGET_DISTANCE = 20;
 AutoDrivePathFinder = {};
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
@@ -100,11 +100,14 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     startCell.direction = AutoDrive.PP_UP;
     startCell.visited = false;
     startCell.isRestricted = false;
+    startCell.hasCollision = false;
     startCell.hasInfo = true;
     startCell.steps = 0;
 
     driver.ad.pf = {};
-    driver.ad.pf.driver = driver;
+    driver.ad.pf.driver = driver;    
+	driver.ad.combineUnloadInFruit = false;
+	driver.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
     driver.ad.pf.grid = {};
     driver.ad.pf.startX = startX;
     driver.ad.pf.startZ = startZ;
@@ -134,7 +137,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
         return;
     end;
 
-    if pf.steps > 3000 then
+    if pf.steps > 1500 then
         if not pf.fallBackMode then --look for path through fruit
             pf.fallBackMode = true;
             pf.steps = 0;
@@ -159,7 +162,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             local bestSteps = math.huge;
             
             for _,cell in pairs(pf.grid) do
-                if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and cell.hasInfo == true then
+                if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
                     local distance = cellDistance(pf, cell);
                     if distance < minDistance then
                         minDistance = distance;
@@ -179,6 +182,10 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
                     --print("Found target cell: " .. bestCell.x .. "/" .. bestCell.z);
                     pf.isFinished = true;
                     pf.targetCell.incoming = bestCell.incoming;
+                    if pf.currentCell.hasFruit ~= nil then
+                        pf.driver.ad.combineUnloadInFruit = pf.currentCell.hasFruit;                        
+                    end;
+                    print("Driver " .. pf.driver.name .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
                     AutoDrivePathFinder:createWayPoints(pf);
                 end;
             end;
@@ -310,6 +317,7 @@ function AutoDrivePathFinder:createGridCells(pf, location)
     location.isRestricted=false;
     location.hasInfo=false;
     location.hasRequested=false;
+    location.hasCollision = false;
     table.insert(pf.grid, location);
 end;
 
@@ -330,14 +338,21 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             local corner4X = worldPos.x + (pf.vectorX.x + pf.vectorZ.x)/2
             local corner4Z = worldPos.z + (pf.vectorX.z + pf.vectorZ.z)/2
 
+            local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
+            local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
+            local shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+            cell.hasCollision = (shapes > 0);
+
             if pf.fruitToCheck == nil then
                 --make async query until fruittype is known
                 local callBack = PathFinderCallBack:new(pf, cell);
                 FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
+                local box = {}
                 cell.hasRequested = true;
             else
                 local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
                 cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
+                cell.hasFruit = cell.isRestricted;
 
                 --Allow fruit in the first few grid cells
                 if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then
@@ -499,7 +514,8 @@ function AutoDrivePathFinder:onFieldDataUpdateFinished(pf, fielddata, cell)
 			end;
         end;
         
-		cell.isRestricted = (maxAmount > (0.3 * fielddata.fieldArea) and (fielddata.fieldArea > 150))
+        cell.isRestricted = (maxAmount > (0.3 * fielddata.fieldArea) and (fielddata.fieldArea > 150))
+        cell.hasFruit = cell.isRestricted;
 
         if maxIndex > 0 and maxAmount > (0.2 * fielddata.fieldArea) and pf.fruitToCheck == nil  and fielddata.fieldArea > 150 then
             --print("Avoiding fruit: " .. maxIndex .. " from now on. FieldArea: " .. fielddata.fieldArea);
@@ -587,53 +603,53 @@ function AutoDrivePathFinder:determineBlockedCells(pf, endDirection, cell)
 	-- x|x  x/-  x>-  x\-  x|x  -/x  -<x  -\x
 	-- xxx  xxx  xx\  x|\  /|\  /|x  /xx  xxx
     if endDirection == AutoDrive.PP_DOWN then
-        table.insert(pf.grid, {x=x-1,   z=z,      direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z,      direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_DOWN_LEFT then
-        table.insert(pf.grid, {x=x-1,   z=z,      direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x,     z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z,      direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x,     z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_LEFT then
-        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_UP_LEFT then
-        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_UP then
-        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_UP_RIGHT then
-        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_RIGHT then
-        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
 	elseif endDirection == AutoDrive.PP_DOWN_RIGHT then
-        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
-        table.insert(pf.grid, {x=x-0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+1,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x+0,   z=z+1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-1,   z=z+0,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
+        table.insert(pf.grid, {x=x-0,   z=z-1,    direction=-1, hasInfo=true, isRestricted=true, hasCollision=true, steps=1000})
     end;    
 end;
 
@@ -669,10 +685,18 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
                 if cell.hasInfo == true then
                     if cell.isRestricted == true then
                         AutoDrive:drawLine(pointA, pointB, 1, 0, 0, 1);
-                        AutoDrive:drawLine(pointC, pointD, 1, 0, 0, 1);
+                        if cell.hasCollision == true then
+                            AutoDrive:drawLine(pointC, pointD, 1, 1, 0, 1);
+                        else
+                            AutoDrive:drawLine(pointC, pointD, 1, 0, 1, 1);
+                        end;
                     else
                         AutoDrive:drawLine(pointA, pointB, 0, 1, 0, 1);
-                        AutoDrive:drawLine(pointC, pointD, 0, 1, 0, 1);
+                        if cell.hasCollision == true then
+                            AutoDrive:drawLine(pointC, pointD, 1, 1, 0, 1);
+                        else
+                            AutoDrive:drawLine(pointC, pointD, 1, 0, 1, 1);
+                        end;
                     end;
                 else
                     AutoDrive:drawLine(pointA, pointB, 0, 0, 1, 1);

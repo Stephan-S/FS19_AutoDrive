@@ -172,9 +172,21 @@ function AutoDrive:handleRecording(vehicle)
 	
 	--first entry
 	if i == 1 then
+		local startPoint = AutoDrive:findClosestWayPoint(vehicle);
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);		
 		if vehicle.ad.createMapPoints == true then
 			vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x1, y1, z1, false, vehicle.ad.creationModeDual)		
+		end;
+		
+		if AutoDrive.autoConnectStart then 
+			if startPoint ~= nil then
+				local startNode = AutoDrive.mapWayPoints[startPoint];
+				if startNode ~= nil then
+					startNode.out[ADTableLength(startNode.out)+1] = vehicle.ad.wayPoints[i].id;
+					vehicle.ad.wayPoints[i].incoming[ADTableLength(vehicle.ad.wayPoints[i].incoming)] = startNode.id;
+					AutoDriveCourseEditEvent:sendEvent(startNode);
+				end;
+			end;
 		end;
 		
 		i = i+1;
@@ -192,7 +204,7 @@ function AutoDrive:handleRecording(vehicle)
 			local x,y,z = getWorldTranslation(vehicle.components[1].node);
 			local wp = vehicle.ad.wayPoints[i-1];
 			local wp_ref = vehicle.ad.wayPoints[i-2]
-			local angle = AutoDrive:angleBetween( {x=x-wp_ref.x,z=z-wp_ref.z},{x=wp.x-wp_ref.x, z = wp.z - wp_ref.z } )
+			local angle = math.abs(AutoDrive:angleBetween( {x=x-wp_ref.x,z=z-wp_ref.z},{x=wp.x-wp_ref.x, z = wp.z - wp_ref.z } ))
 			local max_distance = 6;
 			if angle < 1 then max_distance = 6; end;
 			if angle >= 1 and angle < 2 then max_distance = 4; end;
@@ -343,73 +355,61 @@ function AutoDrive:findClosestWayPoint(veh)
 	return closest;
 end;
 
-function AutoDrive:findMatchingWayPoint(veh)
+function AutoDrive:findMatchingWayPointForVehicle(veh)
 	--returns waypoint closest to vehicle position and with the most suited heading
 	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
 	local rx,ry,rz = localDirectionToWorld(veh.components[1].node, 0,0,1);
 	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz) };
+	local point = {x=x1, z=z1};
 
-	local candidates = {};
-	local candidatesCounter = 0;
+	local bestPoint = AutoDrive:findMatchingWayPoint(point, vehicleVector, 1, 20);	
 
-	for i in pairs(AutoDrive.mapWayPoints) do
-		local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x,AutoDrive.mapWayPoints[i].z,x1,z1);
-		if dis < 20 and dis > 1 then
-			candidatesCounter = candidatesCounter + 1;
-			candidates[candidatesCounter] = i;
-		end;
-	end;
-
-	if candidatesCounter == 0 then
+	if bestPoint == -1 then
 		return AutoDrive:findClosestWayPoint(veh);
 	end;
 
+	return bestPoint;	
+end;
+
+function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
+	local candidates = AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax);
+	
 	local closest = -1;
 	local distance = -1;
-	local angle = -1;
-
+	local lastAngleToPoint = -1;
+	local lastAngleToVehicle = -1;
 	for i,id in pairs(candidates) do
-
-		local point = AutoDrive.mapWayPoints[id];
+		local toCheck = AutoDrive.mapWayPoints[id];
 		local nextP = nil;
 		local outIndex = 1;
-		if point.out ~= nil then			
-			if point.out[outIndex] ~= nil then
-				nextP = AutoDrive.mapWayPoints[point.out[outIndex]];
+		if toCheck.out ~= nil then			
+			if toCheck.out[outIndex] ~= nil then
+				nextP = AutoDrive.mapWayPoints[toCheck.out[outIndex]];
 			end;
 
 			while nextP ~= nil do
-				local vecToNextPoint 	= {x = nextP.x - point.x, 	z = nextP.z - point.z};
-				local vecToVehicle 		= {x = point.x - x1, 		z = point.z - z1 };
-				local angleToNextPoint 	= AutoDrive:angleBetween(vehicleVector, vecToNextPoint);
-				local angleToVehicle 	= AutoDrive:angleBetween(vehicleVector, vecToVehicle);
-				local dis = AutoDrive:getDistance(point.x,point.z,x1,z1);
-
+				local vecToNextPoint 	= {x = nextP.x - toCheck.x, 	z = nextP.z - toCheck.z};
+				local vecToVehicle 		= {x = toCheck.x - point.x, 		z = toCheck.z - point.z };
+				local angleToNextPoint 	= AutoDrive:angleBetween(direction, vecToNextPoint);
+				local angleToVehicle 	= AutoDrive:angleBetween(direction, vecToVehicle);
+				local dis = AutoDrive:getDistance(toCheck.x,toCheck.z,point.x,point.z);
 				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
-					closest = point.id;
+					closest = toCheck.id;
 					distance = dis;
-					angle = angleToNextPoint;
+					lastAngleToPoint = angleToNextPoint;
+					lastAngleToVehicle = angleToVehicle;
 				else
-					if math.abs(angleToNextPoint) < math.abs(angle) then
-						if math.abs(angleToVehicle) < 60 then
-							if math.abs(angle) < 20 then
-								if dis < distance then
-									closest = point.id;
-									distance = dis;
-									angle = angleToNextPoint;
-								end;
-							else
-								closest = point.id;
-								distance = dis;
-								angle = angleToNextPoint;
-							end;
-						end;
+					if math.abs(angleToNextPoint + angleToVehicle) < math.abs(lastAngleToPoint, lastAngleToVehicle) and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
+						closest = toCheck.id;
+						distance = dis;
+						lastAngleToPoint = angleToNextPoint;
+						lastAngleToVehicle = angleToVehicle;
 					end;
 				end;
 
 				outIndex = outIndex + 1;
-				if point.out[outIndex] ~= nil then
-					nextP = AutoDrive.mapWayPoints[point.out[outIndex]];
+				if toCheck.out[outIndex] ~= nil then
+					nextP = AutoDrive.mapWayPoints[toCheck.out[outIndex]];
 				else
 					nextP = nil;
 				end;
@@ -417,11 +417,38 @@ function AutoDrive:findMatchingWayPoint(veh)
 		end;
 	end;
 
-	if closest == -1 then
-		return AutoDrive:findClosestWayPoint(veh);
+	return closest;
+end;
+
+function AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)
+	local inRange = {};
+	local counter = 0;
+
+	for i in pairs(AutoDrive.mapWayPoints) do
+		local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x,AutoDrive.mapWayPoints[i].z,point.x,point.z);
+		if dis < rangeMax and dis > rangeMin then
+			counter = counter + 1;
+			inRange[counter] = i;
+		end;
 	end;
 
-	return closest;
+	return inRange;
+end;
+
+function AutoDrive:findMatchingWayPointForReverseDirection(veh)
+	--returns waypoint closest to vehicle position and with the most suited heading
+	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
+	local rx,ry,rz = localDirectionToWorld(veh.components[1].node, 0,0,1);
+	local vehicleVector = {x= -math.sin(rx) ,z= -math.sin(rz) };
+	local point = {x=x1, z=z1};
+
+	local bestPoint = AutoDrive:findMatchingWayPoint(point, vehicleVector, 0.1, 5);	
+
+	if bestPoint == -1 then
+		return nil;
+	end;
+
+	return bestPoint;	
 end;
 
 function AutoDrive:graphcopy(Graph)

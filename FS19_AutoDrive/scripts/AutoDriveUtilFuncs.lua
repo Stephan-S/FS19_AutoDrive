@@ -86,11 +86,12 @@ end;
 
 function AutoDrive:angleBetween(vec1, vec2)
 
-	local scalarproduct_top = vec1.x * vec2.x + vec1.z * vec2.z;
-	local scalarproduct_down = math.sqrt(vec1.x * vec1.x + vec1.z*vec1.z) * math.sqrt(vec2.x * vec2.x + vec2.z*vec2.z)
-	local scalarproduct = scalarproduct_top / scalarproduct_down;
-
-	return math.deg(math.acos(scalarproduct));
+	--local scalarproduct_top = vec1.x * vec2.x + vec1.z * vec2.z;
+	--local scalarproduct_down = math.sqrt(vec1.x * vec1.x + vec1.z*vec1.z) * math.sqrt(vec2.x * vec2.x + vec2.z*vec2.z)
+	--local scalarproduct = scalarproduct_top / scalarproduct_down;
+	local angle = math.atan2(vec2.z, vec2.x) - math.atan2(vec1.z, vec1.x);
+	angle = normalizeAngleToPlusMinusPI(angle);
+	return math.deg(angle); --math.acos(angle)
 end
 
 function AutoDrive:createVector(x,y,z)

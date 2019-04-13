@@ -17,7 +17,7 @@ function AutoDrive:handleDriving(vehicle, dt)
         
         if vehicle.ad.isActive == true and vehicle.ad.isPaused == false then
 			if vehicle.ad.initialized == false then
-				AutoDrive:initializeAD(vehicle)
+				AutoDrive:initializeAD(vehicle, dt)
             else
                 local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
 
@@ -153,15 +153,15 @@ function AutoDrive:handlePrintMessage(vehicle, dt)
 	end;
 end;
 
-function AutoDrive:initializeAD(vehicle)   
+function AutoDrive:initializeAD(vehicle, dt)   
     vehicle.ad.timeTillDeadLock = 15000;
 
     if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
-        if AutoDrive:initializeADCombine(vehicle) == true then
+        if AutoDrive:initializeADCombine(vehicle, dt) == true then
             return;
         end;
     else
-        local closest = AutoDrive:findMatchingWayPoint(vehicle);
+        local closest = AutoDrive:findMatchingWayPointForVehicle(vehicle);
         if vehicle.ad.skipStart == true then
             vehicle.ad.skipStart = false;
             vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
@@ -173,15 +173,17 @@ function AutoDrive:initializeAD(vehicle)
             vehicle.ad.wayPointsChanged = true;
         end;
         
-        if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
-            AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
-            AutoDrive:stopAD(vehicle);
-        end;
-        
-        if vehicle.ad.wayPoints[2] ~= nil then
-            vehicle.ad.currentWayPoint = 2;
-        else
-            vehicle.ad.currentWayPoint = 1;
+        if vehicle.ad.wayPoints ~= nil then
+            if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
+                AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
+                AutoDrive:stopAD(vehicle);
+            end;
+            
+            if vehicle.ad.wayPoints[2] ~= nil then
+                vehicle.ad.currentWayPoint = 2;
+            else
+                vehicle.ad.currentWayPoint = 1;
+            end;
         end;
     end;
     
@@ -229,6 +231,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
             AutoDrive:stopAD(vehicle);           
         else
+            vehicle.ad.startedLoadingAtTrigger = false;
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
                 AutoDrive:handleReachedWayPointCombine(vehicle);
             else
@@ -277,7 +280,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1];
         local highestAngle = 0;
         local distanceToLookAhead = AutoDrive.LOOKAHEAD_DISTANCE_BRAKING;
-        local pointsToLookAhead = 3;
+        local pointsToLookAhead = 20;
         local doneCheckingRoute = false;
         local currentLookAheadPoint = 1;
         while not doneCheckingRoute and currentLookAheadPoint <= pointsToLookAhead do
@@ -288,6 +291,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 
                 local angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_ref.x, z = wp_ahead.z - wp_ref.z },
                                                 {x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
+                angle = math.abs(angle);
                 if AutoDrive:getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
                                 wp_ahead.x,                                         wp_ahead.z) 
                     <= distanceToLookAhead then

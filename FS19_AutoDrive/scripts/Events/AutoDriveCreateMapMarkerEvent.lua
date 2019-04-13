@@ -36,7 +36,9 @@ function AutoDriveCreateMapMarkerEvent:readStream(streamId, connection)
         local name = streamReadString(streamId);
 
         vehicle.ad.enteredMapMarkerString = name;
-
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+			return;
+		end;
         AutoDrive:finishCreatingMapMarker(vehicle)
 	end;
 end;
