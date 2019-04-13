@@ -27,7 +27,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
  	  </es>
 	</description>
-	<version>1.0.0.9</version>
+	<version>1.0.1.0</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -231,6 +231,10 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<fr>AD: Ouvrir GUI</fr>
 			<es>AD: Mostrar menu</es>
 		</text>
+		<text name="input_ADCallDriver">
+			<en>AD: Call Driver</en>
+			<de>AD: Abfahrer rufen</de>
+		</text>
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
 			<de>Der Fahrer von</de>
@@ -333,7 +337,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<en>The distance the vehicle looks ahead to adjust steering to follow the next segment</en>
 			<de>Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken</de>
 			<it>La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso</it>
-			<fr>Distance à laquelle le véhicule tourne afin de suivre le segment suivant</fr>r>
+			<fr>Distance à laquelle le véhicule tourne afin de suivre le segment suivant</fr>
 			<es>Distancia que el vehículo mira hacia adelante y ajusta la dirección a seguir en el siguiente segmento</es>
 		</text>
 		<text name="gui_ad_lookahead_braking">
@@ -426,6 +430,22 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<en>Drive to unload</en>
 			<de>Fahre abladen</de>
 		</text>
+		<text name="gui_ad_autoConnect_start">
+			<en>Auto connect (start)</en>
+			<de>Automatisches verbinden (Start)</de>
+		</text>
+		<text name="gui_ad_autoConnect_start_tooltip">
+			<en>Auto connect suitable node on start of recording</en>
+			<de>Automatisch passenden Knoten beim Start der Aufnahme verbinden</de>
+		</text>
+		<text name="gui_ad_autoConnect_end">
+			<en>Auto connect (end)</en>
+			<de>Automatisches verbinden (Ende)</de>
+		</text>
+		<text name="gui_ad_autoConnect_end_tooltip">
+			<en>Auto connect suitable node on end of recording</en>
+			<de>Automatisch passenden Knoten beim Ende der Aufnahme verbinden</de>
+		</text>
 	</l10n>
 
 	<actions>
@@ -453,6 +473,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="AD_upload_routes"	 			category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADSilomode" 					category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADOpenGUI" 					category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADCallDriver" 				category="VEHICLE" ignoreComboMask="false"/>
 	</actions>
 
 	<inputBinding>

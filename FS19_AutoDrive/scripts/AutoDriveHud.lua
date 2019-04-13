@@ -618,7 +618,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			else
 				self:moveHud(posX, posY);
 			end;
-		end;		
+		end;
 	end;
 		
     if AutoDrive.showMouse and button == 1 and isDown then        
@@ -664,6 +664,78 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		if posX > (self.Background.unloadOverlay.posX) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
 			AutoDrive:InputHandling(vehicle, "input_previousFillType");
         end;
+	end;
+
+	local mouseWheelActive = false;
+	local adPosX = self.posX + self.Background.destination.width;
+	local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+	local height = self.buttonHeight;--0.015;
+	local width = self.Background.width - self.Background.destination.width;
+	if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+		mouseWheelActive = true;
+	end;
+
+	adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+	if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+		mouseWheelActive = true;
+	end;
+
+	if AutoDrive.showMouse and button == 4 and isDown then     
+        local adPosX = self.posX + self.Background.destination.width;
+        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        local height = self.buttonHeight;--0.015;
+        local width = self.Background.width - self.Background.destination.width;
+        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+			AutoDrive:InputHandling(vehicle, "input_previousTarget");
+		end;
+	end;
+
+	if AutoDrive.showMouse and button == 5 and isDown then     
+        local adPosX = self.posX + self.Background.destination.width;
+        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        local height = self.buttonHeight;--0.015;
+        local width = self.Background.width - self.Background.destination.width;
+        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+            AutoDrive:InputHandling(vehicle, "input_nextTarget");
+		end;
+	end;
+	if AutoDrive.showMouse and button == 4 and isDown then     
+        local adPosX = self.posX + self.Background.destination.width;
+        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+        local height = self.buttonHeight;--0.015;
+        local width = (self.Background.width - self.Background.destination.width)/2;
+        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+            AutoDrive:InputHandling(vehicle, "input_previousTarget_Unload");
+		end;
+
+		adPosX = adPosX + width;
+		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+            AutoDrive:InputHandling(vehicle, "input_previousFillType");
+		end;
+	end;
+
+	if AutoDrive.showMouse and button == 5 and isDown then     
+        local adPosX = self.posX + self.Background.destination.width;
+        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+        local height = self.buttonHeight;--0.015;
+        local width = (self.Background.width - self.Background.destination.width)/2;
+		
+		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+            AutoDrive:InputHandling(vehicle, "input_nextTarget_Unload");
+		end;
+
+		adPosX = adPosX + width;
+		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+            AutoDrive:InputHandling(vehicle, "input_nextFillType");
+		end;
+	end;
+
+	
+	if mouseWheelActive == false and g_inputBinding:getContextName() == "AutoDrive.MOUSEWHEEL_ACTIVE" then
+		g_inputBinding:revertContext(true);
+	end;
+	if mouseWheelActive == true and g_inputBinding:getContextName() ~= "AutoDrive.MOUSEWHEEL_ACTIVE" then
+		g_inputBinding:setContext("AutoDrive.MOUSEWHEEL_ACTIVE", true, false);
 	end;
 end;
 

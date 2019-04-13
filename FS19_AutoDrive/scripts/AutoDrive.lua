@@ -1,12 +1,12 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.0.9";
+AutoDrive.Version = "1.0.1.0";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
 AutoDrive.actions   = { 'ADToggleMouse', 'ADToggleHud', 'ADEnDisable', 'ADSelectTarget', 'ADSelectPreviousTarget', 'ADSelectTargetUnload',
 						'ADSelectPreviousTargetUnload', 'ADActivateDebug', 'ADDebugShowClosest', 'ADDebugSelectNeighbor',
 						'ADDebugChangeNeighbor', 'ADDebugCreateConnection', 'ADDebugCreateMapMarker', 'ADDebugDeleteWayPoint',
-						'ADDebugForceUpdate', 'ADDebugDeleteDestination', 'ADSilomode', 'ADOpenGUI' }
+						'ADDebugForceUpdate', 'ADDebugDeleteDestination', 'ADSilomode', 'ADOpenGUI', 'ADCallDriver' }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -97,6 +97,8 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'AD_upload_routes', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)		
 		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADOpenGUI', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
+		g_inputBinding:setActionEventTextVisibility(eventName, false)	
+		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADCallDriver', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
 		g_inputBinding:setActionEventTextVisibility(eventName, false)	
 	end
 end
@@ -263,6 +265,8 @@ function init(self)
 	self.ad.unloadFillTypeIndex = 2;
 	self.ad.isPausedCauseTraffic = false;
 	self.ad.startedLoadingAtTrigger = false;
+	self.ad.combineUnloadInFruit = false;
+	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
 
 	AutoDrive.Recalculation = {};
 
@@ -400,8 +404,10 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_previousFillType");
 	end;
 	if actionName == "ADOpenGUI" then			
-		--print("sending event to InputHandling");
 		AutoDrive:InputHandling(self, "input_openGUI");
+	end;
+	if actionName == "ADCallDriver" then			
+		AutoDrive:InputHandling(self, "input_callDriver");
 	end;
 end;
 
@@ -496,9 +502,47 @@ function AutoDrive:onDraw()
 		AutoDrive:onDrawCreationMode(self);
 	end;
 
+	--if AutoDrive.calls == nil then
+		--AutoDrive.calls = 0;
+		--AutoDrive.backs = 0;
+	--end;
+
+	--AutoDrive.calls = AutoDrive.calls + 1
 	
 
+	--local box = {}
+	--box.center = {};
+	--box.center[1] = 0;
+	--box.center[2] = 0.5;
+	--box.center[3] = 5;
+	--box.size = {};
+	--box.size[1] = 4;
+	--box.size[2] = 4;
+	--box.size[3] = 5;
+	--box.x, box.y, box.z = localToWorld(self.components[1].node, box.center[1], box.center[2], box.center[3])
+	--box.zx, box.zy, box.zz = localDirectionToWorld(self.components[1].node, 0,0,1)
+	--box.xx, box.xy, box.xz = localDirectionToWorld(self.components[1].node, 1,0,0)
+	--box.ry = math.atan2(box.zx, box.zz)
+	--local shapes = overlapBox(box.x,box.y,box.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", AutoDrive, AIVehicleUtil.COLLISION_MASK, true, true, true)
+	--print("Overlaps shapes " .. shapes .. " : " .. AutoDrive.calls);
 end; 
+
+function AutoDrive:collisionTestCallback(transformId)
+	AutoDrive.backs = AutoDrive.backs + 1
+
+	print("Received callback from collsion check " .. AutoDrive.backs);
+	-- ai should not collide with vehicles and objects, only with the dynamic traffic
+	local object = g_currentMission:getNodeObject(transformId)
+	if object == nil or object:isa(Placeable) then
+			print("Received callback from collsion check - hiit!!!");
+			return false
+	end
+	if transformId ~= nil then
+		print("Received callback from collsion check -  returned not nil");
+	else
+		print("Received callback from collsion check - no hit");
+	end;
+end
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
 	AutoDrive:drawJobs();
@@ -637,6 +681,18 @@ function normalizeAngle2(inputAngle)
 			inputAngle = inputAngle - (2*math.pi);	
 	else
 			if inputAngle < 0 then
+				inputAngle = inputAngle + (2*math.pi);
+			end;
+	end;
+
+	return inputAngle;
+end;
+
+function normalizeAngleToPlusMinusPI(inputAngle)
+	if inputAngle > (math.pi) then
+			inputAngle = inputAngle - (2*math.pi);	
+	else
+			if inputAngle < -(math.pi) then
 				inputAngle = inputAngle + (2*math.pi);
 			end;
 	end;

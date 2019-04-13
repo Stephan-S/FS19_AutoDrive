@@ -121,8 +121,18 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 	local siloEmpty = getXMLFloat(xmlFile,"AutoDrive.siloEmpty");
 	if siloEmpty ~= nil then
-		AutoDrive.continueOnSiloEmpty = AutoDrive.siloEmptyValues[markerDetour];		
+		AutoDrive.continueOnSiloEmpty = AutoDrive.siloEmptyValues[siloEmpty];		
 		AutoDrive.siloEmptyCurrent = siloEmpty;
+	end;
+	local autoConnectEnd = getXMLFloat(xmlFile,"AutoDrive.autoConnectEnd");
+	if autoConnectEnd ~= nil then
+		AutoDrive.autoConnectEnd = AutoDrive.autoConnectEndValues[autoConnectEnd];		
+		AutoDrive.autoConnectEndCurrent = autoConnectEnd;
+	end;
+	local autoConnectStart = getXMLFloat(xmlFile,"AutoDrive.autoConnectStart");
+	if autoConnectStart ~= nil then
+		AutoDrive.autoConnectStart = AutoDrive.autoConnectStartValues[autoConnectStart];		
+		AutoDrive.autoConnectStartCurrent = autoConnectStart;
 	end;
 
 	local mapMarker = {};
@@ -304,6 +314,7 @@ function AutoDrive:ExportRoutes()
 	file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 
 	createFolder(path .. "FS19_AutoDrive_Export");
+	createFolder(path .. "FS19_AutoDrive_Import");
 	
 	print("AD: creating xml file at " .. file);
 	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive");			
@@ -361,6 +372,8 @@ function AutoDrive:saveToXML(xmlFile)
 	setXMLFloat(xmlFile, "AutoDrive.avoidMarkers", AutoDrive.avoidMarkersCurrent);
 	setXMLFloat(xmlFile, "AutoDrive.markerDetour", AutoDrive.MAP_MARKER_DETOUR_Current);
 	setXMLFloat(xmlFile, "AutoDrive.siloEmpty", AutoDrive.siloEmptyCurrent);
+	setXMLFloat(xmlFile, "AutoDrive.autoConnectStart", AutoDrive.autoConnectStartCurrent);
+	setXMLFloat(xmlFile, "AutoDrive.autoConnectEnd", AutoDrive.autoConnectEndCurrent);
 		
 	local idFullTable = {};
 	local idString = "";

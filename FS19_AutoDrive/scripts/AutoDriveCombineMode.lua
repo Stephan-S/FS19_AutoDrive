@@ -5,6 +5,7 @@ AutoDrive.WAIT_TILL_UNLOADED = 3;
 AutoDrive.DRIVE_TO_PARK_POS = 4;
 AutoDrive.DRIVE_TO_START_POS = 5;
 AutoDrive.DRIVE_TO_UNLOAD_POS = 6;
+AutoDrive.UNLOAD_WAIT_TIMER = 15000;
 
 function AutoDrive:handleCombineHarvester(vehicle, dt)    
     if vehicle.ad.currentDriver ~= nil then
@@ -24,39 +25,43 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         end;
 
         if maxCapacity > 0 and leftCapacity <= 1.0 and vehicle.lastSpeedReal <= 0.0005 then
-            local spec = vehicle.spec_pipe
-            if spec.currentState == spec.targetState and spec.currentState == 2 then
-            
-                local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
+            AutoDrive:callDriverToCombine(vehicle);
+        end;
+    end;
+end;
 
-                for _,dischargeNode in pairs(vehicle.spec_dischargeable.dischargeNodes) do
-                    local nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
-                    if ADTableLength(AutoDrive.waitingUnloadDrivers) > 0 then
-                        local closestDriver = nil;
-                        local closestDistance = math.huge;
-                        for _,driver in pairs(AutoDrive.waitingUnloadDrivers) do
-                            local driverX, driverY, driverZ = getWorldTranslation( driver.components[1].node );
-                            local distance = math.sqrt( math.pow((driverX-worldX),2) + math.pow((driverZ - worldZ), 2));
-                            
-                            if distance < closestDistance and (distance < 300 or driver.ad.targetSelected == vehicle.ad.targetSelected) then
-                                closestDistance = distance;
-                                closestDriver = driver;							
-                            end;
-                        end;
+function AutoDrive:callDriverToCombine(combine)
+    local spec = combine.spec_pipe
+    if spec.currentState == spec.targetState and spec.currentState == 2 then
+    
+        local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 
-                        if closestDriver ~= nil then                    		
-                            AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, vehicle, dischargeNode.node);
-                            closestDriver.ad.currentCombine = vehicle;
-                            AutoDrive.waitingUnloadDrivers[closestDriver] = nil;
-                            closestDriver.ad.combineState = AutoDrive.DRIVE_TO_COMBINE;
-                            vehicle.ad.currentDriver = closestDriver;
-                            closestDriver.ad.isPaused = false;
-                            closestDriver.ad.isUnloading = false;
-                            closestDriver.ad.isLoading = false;
-                            closestDriver.ad.initialized = false 
-                            closestDriver.ad.wayPoints = {};
-                        end;
+        for _,dischargeNode in pairs(combine.spec_dischargeable.dischargeNodes) do
+            local nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
+            if ADTableLength(AutoDrive.waitingUnloadDrivers) > 0 then
+                local closestDriver = nil;
+                local closestDistance = math.huge;
+                for _,driver in pairs(AutoDrive.waitingUnloadDrivers) do
+                    local driverX, driverY, driverZ = getWorldTranslation( driver.components[1].node );
+                    local distance = math.sqrt( math.pow((driverX-worldX),2) + math.pow((driverZ - worldZ), 2));
+                    
+                    if distance < closestDistance and (distance < 300 or driver.ad.targetSelected == combine.ad.targetSelected) then
+                        closestDistance = distance;
+                        closestDriver = driver;							
                     end;
+                end;
+
+                if closestDriver ~= nil then                    		
+                    AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, dischargeNode.node);
+                    closestDriver.ad.currentCombine = combine;
+                    AutoDrive.waitingUnloadDrivers[closestDriver] = nil;
+                    closestDriver.ad.combineState = AutoDrive.DRIVE_TO_COMBINE;
+                    combine.ad.currentDriver = closestDriver;
+                    closestDriver.ad.isPaused = false;
+                    closestDriver.ad.isUnloading = false;
+                    closestDriver.ad.isLoading = false;
+                    closestDriver.ad.initialized = false 
+                    closestDriver.ad.wayPoints = {};
                 end;
             end;
         end;
@@ -86,7 +91,8 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
             vehicle.ad.currentCombine = nil;
         end;
     elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-        local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+        --local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+        local closest = AutoDrive:findClosestWayPoint(vehicle);
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
         vehicle.ad.wayPointsChanged = true;
         vehicle.ad.currentWayPoint = 1;
@@ -117,7 +123,7 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
     end;
 end;
 
-function AutoDrive:initializeADCombine(vehicle)   
+function AutoDrive:initializeADCombine(vehicle, dt)   
     if vehicle.ad.wayPoints == nil or vehicle.ad.wayPoints[1] == nil then
         vehicle.ad.initialized = false;
         vehicle.ad.timeTillDeadLock = 15000;
@@ -162,7 +168,15 @@ function AutoDrive:initializeADCombine(vehicle)
                 end
             end;
 
-            if (combineLeftCapacity == combineMaxCapacity) then
+            if (combineLeftCapacity == combineMaxCapacity) or leftCapacity <= 500 then
+                if vehicle.ad.combineUnloadInFruit == true then
+                    --wait for combine to move away. Currently by fixed timer of 15s
+                    if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
+                        vehicle.ad.combineUnloadInFruitWaitTimer = vehicle.ad.combineUnloadInFruitWaitTimer - dt;
+                        return true;
+                    end;
+                end;                                       
+                
                 if leftCapacity < 4000 then
                     vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
                     AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
@@ -171,22 +185,27 @@ function AutoDrive:initializeADCombine(vehicle)
                         vehicle.ad.currentCombine = nil;
                     end;
                 else
-                    vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS;
-                    --ToDo: plot path to suitable park pos;
-                    AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
-                    if vehicle.ad.currentCombine ~= nil then
-                        vehicle.ad.currentCombine.ad.currentDriver = nil;
-                        vehicle.ad.currentCombine = nil;
+                    if vehicle.ad.combineUnloadInFruit == true then
+                        vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS;
+                        --ToDo: plot path to suitable park pos;
+                        AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
+                        if vehicle.ad.currentCombine ~= nil then
+                            vehicle.ad.currentCombine.ad.currentDriver = nil;
+                            vehicle.ad.currentCombine = nil;
+                        end;
+                    else
+                        --wait in field
+                        
+                        AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
+                        vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
+                        --vehicle.ad.initialized = false;
+                        vehicle.ad.wayPoints = {};
+                        vehicle.ad.isPaused = true;
+                        if vehicle.ad.currentCombine ~= nil then
+                            vehicle.ad.currentCombine.ad.currentDriver = nil;
+                            vehicle.ad.currentCombine = nil;
+                        end;
                     end;
-                end;
-            end;
-
-            if leftCapacity <= 500 then
-                vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
-                AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
-                if vehicle.ad.currentCombine ~= nil then
-                    vehicle.ad.currentCombine.ad.currentDriver = nil;
-                    vehicle.ad.currentCombine = nil;
                 end;
             end;
 

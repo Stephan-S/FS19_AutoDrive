@@ -60,7 +60,21 @@
 				<GuiElement type="text" profile="multiTextOptionSettingsText" />
 				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="$l10n_gui_ad_siloEmpty" />
 				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>			
+			</GuiElement>		
+			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoConnectStart" toolTipElementId="ingameMenuHelpBoxText" toolTipText="$l10n_gui_ad_autoConnect_start_tooltip">
+				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+				<GuiElement type="text" profile="multiTextOptionSettingsText" />
+				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="$l10n_gui_ad_autoConnect_start" />
+				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+			</GuiElement>		
+			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoConnectEnd" toolTipElementId="ingameMenuHelpBoxText" toolTipText="$l10n_gui_ad_autoConnect_end_tooltip">
+				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+				<GuiElement type="text" profile="multiTextOptionSettingsText" />
+				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="$l10n_gui_ad_autoConnect_end" />
+				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+			</GuiElement>		
 		</GuiElement>
 
 		<GuiElement type="bitmap" profile="ingameMenuHelpRowBg" position="80px 50px" id="ingameMenuHelpBox" visible="true">

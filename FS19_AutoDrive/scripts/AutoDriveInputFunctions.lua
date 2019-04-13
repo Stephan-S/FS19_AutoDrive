@@ -249,6 +249,12 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			vehicle.ad.isPaused = false;
 		end;
 	end;
+
+	if input == "input_callDriver" then
+		if vehicle.typeName == "combineDrivable" then
+			AutoDrive:callDriverToCombine(vehicle);
+		end;
+	end;
 end;
 
 function AutoDrive:inputSiloMode(vehicle)
@@ -286,7 +292,22 @@ function AutoDrive:inputRecord(vehicle)
             vehicle.ad.creationModeDual = true;
         else
             vehicle.ad.creationMode = false;
-            vehicle.ad.creationModeDual = false;
+			vehicle.ad.creationModeDual = false;
+			
+			if AutoDrive.autoConnectEnd then 
+				if vehicle.ad.wayPoints ~= nil and ADTableLength(vehicle.ad.wayPoints) > 0 then
+					local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle);
+					if targetID ~= nil then
+						local targetNode = AutoDrive.mapWayPoints[targetID];
+						if targetNode ~= nil then
+							targetNode.incoming[ADTableLength(targetNode.incoming)+1] = vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id;
+							vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out[ADTableLength(vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out)] = targetNode.id;
+							
+							AutoDriveCourseEditEvent:sendEvent(targetNode);
+						end;
+					end;
+				end;
+			end;
             --AutoDrive:inputNextTarget(vehicle);
         end;
     end;
