@@ -182,9 +182,11 @@ function AutoDrive:handleRecording(vehicle)
 			if startPoint ~= nil then
 				local startNode = AutoDrive.mapWayPoints[startPoint];
 				if startNode ~= nil then
-					startNode.out[ADTableLength(startNode.out)+1] = vehicle.ad.wayPoints[i].id;
-					vehicle.ad.wayPoints[i].incoming[ADTableLength(vehicle.ad.wayPoints[i].incoming)] = startNode.id;
-					AutoDriveCourseEditEvent:sendEvent(startNode);
+					if AutoDrive:getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
+						startNode.out[ADTableLength(startNode.out)+1] = vehicle.ad.wayPoints[i].id;
+						vehicle.ad.wayPoints[i].incoming[ADTableLength(vehicle.ad.wayPoints[i].incoming)] = startNode.id;
+						AutoDriveCourseEditEvent:sendEvent(startNode);
+					end;
 				end;
 			end;
 		end;

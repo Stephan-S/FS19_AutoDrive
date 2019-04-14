@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.0";
+AutoDrive.Version = "1.0.1.1";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -286,6 +286,7 @@ function init(self)
 	self.ad.sToolTip = "";
 
 	self.ad.destinationPrintTimer = 0;
+	self.ad.lastPrintedModeTimer = 0;
 	
 	self.ad.choosingDestination = false;
 	self.ad.chosenDestination = "";
@@ -335,6 +336,14 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	
 	if actionName == "ADSelectPreviousTarget" then
 		AutoDrive:InputHandling(self, "input_previousTarget");
+	end;
+
+	if actionName ==  "ADSelectTargetUnload" then
+		AutoDrive:InputHandling(self, "input_nextTarget_Unload");			
+	end; 
+	
+	if actionName == "ADSelectPreviousTargetUnload" then
+		AutoDrive:InputHandling(self, "input_previousTarget_Unload");
 	end;
 
 	if actionName == "ADSelectTargetMouseWheel" and AutoDrive.showMouse then
@@ -463,6 +472,10 @@ function AutoDrive:onUpdate(dt)
 		self.ad.destinationPrintTimer = self.ad.destinationPrintTimer - dt;
 	end;
 
+	if self.ad.lastPrintedModeTimer > 0 then
+		self.ad.lastPrintedModeTimer = self.ad.lastPrintedModeTimer - dt;
+	end;
+
 	AutoDrive.runThisFrame = true;
 end;
 
@@ -501,30 +514,7 @@ function AutoDrive:onDraw()
 	if self.ad.createMapPoints == true and self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawCreationMode(self);
 	end;
-
-	--if AutoDrive.calls == nil then
-		--AutoDrive.calls = 0;
-		--AutoDrive.backs = 0;
-	--end;
-
-	--AutoDrive.calls = AutoDrive.calls + 1
-	
-
-	--local box = {}
-	--box.center = {};
-	--box.center[1] = 0;
-	--box.center[2] = 0.5;
-	--box.center[3] = 5;
-	--box.size = {};
-	--box.size[1] = 4;
-	--box.size[2] = 4;
-	--box.size[3] = 5;
-	--box.x, box.y, box.z = localToWorld(self.components[1].node, box.center[1], box.center[2], box.center[3])
-	--box.zx, box.zy, box.zz = localDirectionToWorld(self.components[1].node, 0,0,1)
-	--box.xx, box.xy, box.xz = localDirectionToWorld(self.components[1].node, 1,0,0)
-	--box.ry = math.atan2(box.zx, box.zz)
-	--local shapes = overlapBox(box.x,box.y,box.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", AutoDrive, AIVehicleUtil.COLLISION_MASK, true, true, true)
-	--print("Overlaps shapes " .. shapes .. " : " .. AutoDrive.calls);
+		
 end; 
 
 function AutoDrive:collisionTestCallback(transformId)

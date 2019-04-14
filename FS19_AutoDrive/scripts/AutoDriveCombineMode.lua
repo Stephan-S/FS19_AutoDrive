@@ -27,7 +27,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         if maxCapacity > 0 and leftCapacity <= 1.0 and vehicle.lastSpeedReal <= 0.0005 then
             AutoDrive:callDriverToCombine(vehicle);
         end;
-    end;
+    end;    
 end;
 
 function AutoDrive:callDriverToCombine(combine)
@@ -168,7 +168,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 end
             end;
 
-            if (combineLeftCapacity == combineMaxCapacity) or leftCapacity <= 500 then
+            if (combineLeftCapacity == combineMaxCapacity) or leftCapacity <= 500 or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER)then
                 if vehicle.ad.combineUnloadInFruit == true then
                     --wait for combine to move away. Currently by fixed timer of 15s
                     if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
@@ -228,6 +228,9 @@ function AutoDrive:initializeADCombine(vehicle, dt)
             else
                 return true;
             end;
+        elseif vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then            
+            vehicle.ad.timeTillDeadLock = 15000;
+            vehicle.ad.inDeadLock = false;
         end;
     end; 
 

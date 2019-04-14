@@ -56,6 +56,7 @@ function AutoDrive:handleDriving(vehicle, dt)
 		if vehicle.ad.isPaused == true then
 			AutoDrive:getVehicleToStop(vehicle, false, dt);
             vehicle.ad.timeTillDeadLock = 15000;
+            vehicle.ad.inDeadLock = false;
             
             if math.abs(vehicle.lastSpeedReal) < 0.002 then
                 if vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
@@ -380,7 +381,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             vehicle.ad.isPausedCauseTraffic = false;
         end;
         vehicle.ad.allowedToDrive = true;
-        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.4);    
+        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);    
     end;
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
     

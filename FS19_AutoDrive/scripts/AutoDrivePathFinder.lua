@@ -1,20 +1,22 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
+AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 2500;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 20;
 AutoDrivePathFinder = {};
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
-    --print("startPathPlanningToCombine " .. driver.name );     
-	local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);
-
-	local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
+    --print("startPathPlanningToCombine " .. driver.name );
+    local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
     local combineVector = {x= math.sin(rx) ,z= math.sin(rz)};	
     local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
+    
+    local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
 
-	local wpAhead = {x= (nodeX + 8*rx) - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z};
+    local wpAhead = {x= (nodeX + 8*rx) - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z};
     local wpCurrent = {x= (nodeX - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x ), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z};
 	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z }; --make this target
     
+
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
 	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
@@ -137,7 +139,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
         return;
     end;
 
-    if pf.steps > 1500 then
+    if pf.steps > AutoDrive.MAX_PATHFINDER_STEPS_TOTAL then
         if not pf.fallBackMode then --look for path through fruit
             pf.fallBackMode = true;
             pf.steps = 0;
@@ -185,7 +187,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
                     if pf.currentCell.hasFruit ~= nil then
                         pf.driver.ad.combineUnloadInFruit = pf.currentCell.hasFruit;                        
                     end;
-                    print("Driver " .. pf.driver.name .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
+                    --print("Driver " .. pf.driver.name .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
                     AutoDrivePathFinder:createWayPoints(pf);
                 end;
             end;
@@ -343,6 +345,21 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             local shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             cell.hasCollision = (shapes > 0);
 
+            local previousCell = cell.incoming
+            local worldPosPrevious = AutoDrivePathFinder:gridLocationToWorldLocation(pf, previousCell);
+            
+            local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 0, worldPos.z)
+            local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPosPrevious.x, 0, worldPosPrevious.z)
+            local length = MathUtil.vector3Length(worldPos.x-worldPosPrevious.x, terrain1-terrain2, worldPos.z-worldPosPrevious.z)
+            local angleBetween = math.atan(math.abs(terrain1-terrain2)/length)
+
+            if angleBetween > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+                cell.hasCollision = true;
+            end
+
+            shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
+            cell.hasCollision = cell.hasCollision or (shapes > 0);            
+
             if pf.fruitToCheck == nil then
                 --make async query until fruittype is known
                 local callBack = PathFinderCallBack:new(pf, cell);
@@ -412,6 +429,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
                     cell.isRestricted = true;
                     cell.hasInfo = true;
+                    cell.hasCollision = true;
                 end;
             end;
         end;
