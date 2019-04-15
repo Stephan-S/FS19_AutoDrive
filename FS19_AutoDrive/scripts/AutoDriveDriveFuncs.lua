@@ -280,7 +280,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint];
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1];
         local highestAngle = 0;
-        local distanceToLookAhead = AutoDrive.LOOKAHEAD_DISTANCE_BRAKING;
+        local distanceToLookAhead = AutoDrive:getSetting("lookAheadBraking");
         local pointsToLookAhead = 20;
         local doneCheckingRoute = false;
         local currentLookAheadPoint = 1;
@@ -457,7 +457,7 @@ function AutoDrive:getLookAheadTarget(vehicle)
         local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1];
 
         local lookAheadID = 1;
-        local lookAheadDistance = AutoDrive.LOOKAHEAD_DISTANCE_TURNING;
+        local lookAheadDistance = AutoDrive:getSetting("lookAheadTurning");
         local distanceToCurrentTarget = AutoDrive:getDistance(x,z, wp_current.x, wp_current.z);
         lookAheadDistance = lookAheadDistance - distanceToCurrentTarget;
 

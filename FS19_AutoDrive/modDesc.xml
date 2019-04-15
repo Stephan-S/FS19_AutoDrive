@@ -446,6 +446,22 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<en>Auto connect suitable node on end of recording</en>
 			<de>Automatisch passenden Knoten beim Ende der Aufnahme verbinden</de>
 		</text>
+		<text name="gui_ad_parkInField">
+			<en>Park in field</en>
+			<de>Parken im Feld</de>
+		</text>
+		<text name="gui_ad_parkInField_tooltip">
+			<en>After unliading a combine - if not parked in fruit</en>
+			<de>Nach Drescher abladen - falls nicht in Frucht stehend</de>
+		</text>
+		<text name="gui_ad_unloadFillLevel">
+			<en>Unload fill level</en>
+			<de>Abladen ab Level</de>
+		</text>
+		<text name="gui_ad_unloadFillLevel_tooltip">
+			<en>After unloading combine. Directly go to deliver at this fill level.</en>
+			<de>Nach Drescher abladen - Direkt abfahren und nicht auf nächsten Drescher warten ab dieser Füllung</de>
+		</text>
 	</l10n>
 
 	<actions>

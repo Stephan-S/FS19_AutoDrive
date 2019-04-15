@@ -1,6 +1,18 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 2500;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 20;
+AutoDrive.PP_UP = 0;
+AutoDrive.PP_UP_RIGHT = 1;
+AutoDrive.PP_RIGHT = 2;
+AutoDrive.PP_DOWN_RIGHT = 3;
+AutoDrive.PP_DOWN = 4;
+AutoDrive.PP_DOWN_LEFT = 5;
+AutoDrive.PP_LEFT = 6;
+AutoDrive.PP_UP_LEFT = 7;
+
+AutoDrive.PP_MIN_DISTANCE = 14;
+AutoDrive.PP_CELL_X = 8;
+AutoDrive.PP_CELL_Z = 8;
 AutoDrivePathFinder = {};
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
@@ -11,10 +23,10 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
     
     local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
-
-    local wpAhead = {x= (nodeX + 8*rx) - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z};
-    local wpCurrent = {x= (nodeX - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x ), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z};
-	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - AutoDrive.PATHFINDER_PIPE_OFFSET * combineNormalVector.z }; --make this target
+    local pipeOffset = AutoDrive:getSetting("pipeOffset");
+    local wpAhead = {x= (nodeX + 8*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - pipeOffset * combineNormalVector.z};
+    local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
+	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
     
 
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
@@ -121,7 +133,8 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     driver.ad.pf.isFinished = false;
     driver.ad.pf.fallBackMode = false;
     driver.ad.pf.combine = combine;
-    driver.ad.pf.fruitToCheck = nil;
+    driver.ad.pf.fruitToCheck = driver.ad.combineFruitToCheck;
+    driver.ad.pf.fieldArea = driver.ad.combineFieldArea;
     
     driver.ad.pf.targetCell = AutoDrivePathFinder:worldLocationToGridLocation(driver.ad.pf, targetX, targetZ);
     local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
@@ -538,7 +551,9 @@ function AutoDrivePathFinder:onFieldDataUpdateFinished(pf, fielddata, cell)
         if maxIndex > 0 and maxAmount > (0.2 * fielddata.fieldArea) and pf.fruitToCheck == nil  and fielddata.fieldArea > 150 then
             --print("Avoiding fruit: " .. maxIndex .. " from now on. FieldArea: " .. fielddata.fieldArea);
 			pf.fruitToCheck = maxIndex;
-			pf.fieldArea = fielddata.fieldArea;
+            pf.fieldArea = fielddata.fieldArea;
+            driver.ad.combineFieldArea = pf.fieldArea;
+            driver.ad.combineFruitToCheck = pf.fruitToCheck; 
 		end;
 	
 		--Allow fruit in the first few grid cells

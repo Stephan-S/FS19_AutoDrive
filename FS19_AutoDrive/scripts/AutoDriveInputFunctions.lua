@@ -294,7 +294,7 @@ function AutoDrive:inputRecord(vehicle)
             vehicle.ad.creationMode = false;
 			vehicle.ad.creationModeDual = false;
 			
-			if AutoDrive.autoConnectEnd then 
+			if AutoDrive:getSetting("autoConnectEnd") then 
 				if vehicle.ad.wayPoints ~= nil and ADTableLength(vehicle.ad.wayPoints) > 0 then
 					local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle);
 					if targetID ~= nil then

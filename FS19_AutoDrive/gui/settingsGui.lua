@@ -5,54 +5,6 @@
 -- @author Stephan Schlosser
 -- @date 08/04/2019
 
-AutoDrive.pipeOffsetValues = { 0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0 };
-AutoDrive.pipeOffsetTexts = { "0 m", "0.25 m", "0.5 m", "0.75 m", "1.0 m", "1.25 m", "1.5 m", "1.75 m", "2.0 m", "2.25 m", "2.5 m", "2.75 m", "3.0 m", "3.25 m", "3.5 m", "3.75 m", "4.0 m", "4.25 m", "4.5 m", "4.75 m", "5.0 m"};
-AutoDrive.pipeOffsetDefault = 4; --0.75m
-AutoDrive.pipeOffsetCurrent = 4;
-AutoDrive.PATHFINDER_PIPE_OFFSET = AutoDrive.pipeOffsetValues[AutoDrive.pipeOffsetDefault];
-
-AutoDrive.lookAheadTurnValues = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-AutoDrive.lookAheadTurnTexts = { "2 m", "3 m", "4 m", "5 m", "6 m", "7 m", "8 m", "9 m", "10 m", "11 m", "12 m", "13 m", "14 m", "15 m"};
-AutoDrive.lookAheadTurnDefault = 4; --5m
-AutoDrive.lookAheadTurnCurrent = 4;
-AutoDrive.LOOKAHEAD_DISTANCE_TURNING = AutoDrive.lookAheadTurnValues[AutoDrive.lookAheadTurnDefault];
-
-AutoDrive.lookAheadBrakingValues = { 5, 7.5, 10, 12.5, 15, 17.5, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100 };
-AutoDrive.lookAheadBrakingTexts = { "5m", "7.5m", "10m", "12.5m", "15m", "17.5m", "20m", "25m", "30m", "35m", "40m", "50m", "60m", "70m", "80m", "90m", "100m"};
-AutoDrive.lookAheadBrakingDefault = 10; --35m
-AutoDrive.lookAheadBrakingCurrent = 10;
-AutoDrive.LOOKAHEAD_DISTANCE_BRAKING = AutoDrive.lookAheadBrakingValues[AutoDrive.lookAheadBrakingDefault];
-
-AutoDrive.avoidMarkersValues = { false, true };
-AutoDrive.avoidMarkersTexts = { "gui_ad_no", "gui_ad_yes"};
-AutoDrive.avoidMarkersDefault = 0; --No
-AutoDrive.avoidMarkersCurrent = 0;
-AutoDrive.avoidMarkers = AutoDrive.avoidMarkersValues[AutoDrive.avoidMarkersDefault];
-
-AutoDrive.MAP_MARKER_DETOUR_Values = { 0, 10, 50, 100, 200, 300, 500, 1000, 10000};
-AutoDrive.MAP_MARKER_DETOUR_Texts = { "0m", "10m", "50m", "100m", "200m", "500m", "1000m", "10000m"};
-AutoDrive.MAP_MARKER_DETOUR_Default = 0; --15m
-AutoDrive.MAP_MARKER_DETOUR_Current = 0;
-AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[AutoDrive.MAP_MARKER_DETOUR_Default];
-
-AutoDrive.siloEmptyValues = { false, true };
-AutoDrive.siloEmptyTexts = { "gui_ad_wait", "gui_ad_drive"};
-AutoDrive.siloEmptyDefault = 0; --No
-AutoDrive.siloEmptyCurrent = 0;
-AutoDrive.continueOnEmptySilo = AutoDrive.siloEmptyValues[AutoDrive.siloEmptyDefault];
-
-AutoDrive.autoConnectStartValues = { false, true };
-AutoDrive.autoConnectStartTexts = { "gui_ad_no", "gui_ad_yes"};
-AutoDrive.autoConnectStartDefault = 0; --No
-AutoDrive.autoConnectStartCurrent = 0;
-AutoDrive.autoConnectStart = AutoDrive.autoConnectStartValues[AutoDrive.autoConnectStartDefault];
-
-AutoDrive.autoConnectEndValues = { false, true };
-AutoDrive.autoConnectEndTexts = { "gui_ad_no", "gui_ad_yes"};
-AutoDrive.autoConnectEndDefault = 0; --No
-AutoDrive.autoConnectEndCurrent = 0;
-AutoDrive.autoConnectEnd = AutoDrive.autoConnectEndValues[AutoDrive.autoConnectEndDefault];
-
 adSettingsGui = {};
 
 local adSettingsGui_mt = Class(adSettingsGui, ScreenElement);
@@ -65,15 +17,10 @@ end;
 
 function adSettingsGui:onOpen()
     adSettingsGui:superClass().onOpen(self);
-	FocusManager:setFocus(self.backButton);
-	AutoDrive.gui.adSettingsGui:setPipeOffset(AutoDrive.pipeOffsetCurrent);
-	AutoDrive.gui.adSettingsGui:setLookAheadTurn(AutoDrive.lookAheadTurnCurrent);
-	AutoDrive.gui.adSettingsGui:setLookAheadBraking(AutoDrive.lookAheadBrakingCurrent);
-    AutoDrive.gui.adSettingsGui:setAvoidMarkers(AutoDrive.avoidMarkersCurrent)
-    AutoDrive.gui.adSettingsGui:setMapMarkerDetour(AutoDrive.MAP_MARKER_DETOUR_Current)
-    AutoDrive.gui.adSettingsGui:setSiloEmpty(AutoDrive.siloEmptyCurrent)
-    AutoDrive.gui.adSettingsGui:setAutoConnectStart(AutoDrive.autoConnectStartCurrent)
-    AutoDrive.gui.adSettingsGui:setAutoConnectEnd(AutoDrive.autoConnectEndCurrent)
+    FocusManager:setFocus(self.backButton);
+    for settingName, setting in AutoDrive.settings do
+        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.current);
+    end;
 end;
 
 function adSettingsGui:onClose()
@@ -87,46 +34,23 @@ end;
 
 function adSettingsGui:onClickOk()
     adSettingsGui:superClass().onClickOk(self);
-    AutoDrive.PATHFINDER_PIPE_OFFSET = AutoDrive.pipeOffsetValues[self.pipeOffset:getState()];
-    AutoDrive.pipeOffsetCurrent = self.pipeOffset:getState();
-    AutoDrive.LOOKAHEAD_DISTANCE_TURNING = AutoDrive.lookAheadTurnValues[self.lookAheadTurn:getState()];
-    AutoDrive.lookAheadTurnCurrent = self.lookAheadTurn:getState();
-    AutoDrive.LOOKAHEAD_DISTANCE_BRAKING = AutoDrive.lookAheadBrakingValues[self.lookAheadBraking:getState()];
-    AutoDrive.lookAheadBrakingCurrent = self.lookAheadBraking:getState();
-    AutoDrive.avoidMarkers = AutoDrive.avoidMarkersValues[self.avoidMarkers:getState()];
-    AutoDrive.avoidMarkersCurrent = self.avoidMarkers:getState();
-    AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[self.mapMarkerDetour:getState()];
-    AutoDrive.MAP_MARKER_DETOUR_Current = self.mapMarkerDetour:getState();
-    AutoDrive.continueOnEmptySilo = AutoDrive.siloEmptyValues[self.siloEmpty:getState()];
-    AutoDrive.siloEmptyCurrent = self.siloEmpty:getState();
-    AutoDrive.autoConnectStart = AutoDrive.autoConnectStartValues[self.autoConnectStart:getState()];
-    AutoDrive.autoConnectStartCurrent = self.autoConnectStart:getState();
-    AutoDrive.autoConnectEnd = AutoDrive.autoConnectEndValues[self.autoConnectEnd:getState()];
-    AutoDrive.autoConnectEndCurrent = self.autoConnectEnd:getState();
+    for settingName, setting in AutoDrive.settings do
+        setting.current = self[settingName]:getState();
+    end;
     AutoDriveUpdateSettingsEvent:sendEvent();
     self:onClickBack();
 end;
 
 function adSettingsGui:onClickResetButton()
-    adSettingsGui:setPipeOffset(AutoDrive.pipeOffsetDefault)
-    adSettingsGui:setLookAheadTurn(AutoDrive.lookAheadTurnDefault)
-    adSettingsGui:setLookAheadBraking(AutoDrive.lookAheadBrakingDefault)
-    adSettingsGui:setAvoidMarkers(AutoDrive.avoidMarkersDefault)
-    adSettingsGui:setMapMarkerDetour(AutoDrive.MAP_MARKER_DETOUR_Default)
-    adSettingsGui:setSiloEmpty(AutoDrive.siloEmptyDefault)
-    adSettingsGui:setAutoConnectStart(AutoDrive.autoConnectStartDefault)
-    adSettingsGui:setAutoConnectEnd(AutoDrive.autoConnectEndDefault)
+    for settingName, setting in AutoDrive.settings do
+        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.default);
+    end;
 end;
 
 function AutoDrive:guiClosed()
-	AutoDrive.gui.adSettingsGui:setPipeOffset(AutoDrive.pipeOffsetCurrent);
-	AutoDrive.gui.adSettingsGui:setLookAheadTurn(AutoDrive.lookAheadTurnCurrent);
-	AutoDrive.gui.adSettingsGui:setLookAheadBraking(AutoDrive.lookAheadBrakingCurrent);
-    AutoDrive.gui.adSettingsGui:setAvoidMarkers(AutoDrive.avoidMarkersCurrent)
-    AutoDrive.gui.adSettingsGui:setMapMarkerDetour(AutoDrive.MAP_MARKER_DETOUR_Current)
-    AutoDrive.gui.adSettingsGui:setSiloEmpty(AutoDrive.siloEmptyCurrent)
-    AutoDrive.gui.adSettingsGui:setAutoConnectStart(AutoDrive.autoConnectStartCurrent)
-    AutoDrive.gui.adSettingsGui:setAutoConnectEnd(AutoDrive.autoConnectEndCurrent)
+	for settingName, setting in AutoDrive.settings do
+        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.current);
+    end;
 end;
 
 function adSettingsGui:onIngameMenuHelpTextChanged(element)
@@ -136,138 +60,24 @@ function adSettingsGui:onCreateadSettingsGuiHeader(element)
 	element.text = g_i18n:getText('gui_ad_Setting');
 end;
 
-function adSettingsGui:onCreatePipeOffset(element)
-    self.pipeOffset = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_pipe_offset');
-	element.toolTipText = g_i18n:getText('gui_ad_pipe_offset');
-    local pipeOffsets = {};
+function adSettingsGui:onCreateAutoDriveSetting(element)
+    local settingName = element.text;
+    self[settingName] = element;
+    local setting = AutoDrive.settings[settingName];
+	element.labelElement.text = g_i18n:getText(setting.text);
+	element.toolTipText = g_i18n:getText(setting.tooltip);
 
-    for i = 1, #AutoDrive.pipeOffsetTexts, 1 do
-        pipeOffsets[i] = AutoDrive.pipeOffsetTexts[i];
-    end;
-	
-    element:setTexts(pipeOffsets);
+    local labels = {};
+    for i = 1, #setting.texts, 1 do
+        if setting.translate == true then
+            labels[i] = g_i18n:getText(setting.texts[i]);
+        else 
+            labels[i] = setting.texts[i];
+        end;
+    end;	
+    element:setTexts(labels);
 end;
 
-function adSettingsGui:setPipeOffset(index)
-    self.pipeOffset:setState(index, false);
-end;
-
-function adSettingsGui:onCreateLookAheadTurn(element)
-    self.lookAheadTurn = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_lookahead_turning');
-	element.toolTipText = g_i18n:getText('gui_ad_lookahead_turning_tooltip');
-    local lookAheadTurns = {};
-
-    for i = 1, #AutoDrive.lookAheadTurnTexts, 1 do
-        lookAheadTurns[i] = AutoDrive.lookAheadTurnTexts[i];
-    end;
-	
-    element:setTexts(lookAheadTurns);
-end;
-
-function adSettingsGui:setLookAheadTurn(index)
-    self.lookAheadTurn:setState(index, false);
-end;
-
-function adSettingsGui:onCreateLookAheadBraking(element)
-    self.lookAheadBraking = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_lookahead_braking');
-	element.toolTipText = g_i18n:getText('gui_ad_lookahead_braking_tooltip');
-    local lookAheadBrakings = {};
-
-    for i = 1, #AutoDrive.lookAheadBrakingTexts, 1 do
-        lookAheadBrakings[i] = AutoDrive.lookAheadBrakingTexts[i];
-    end;
-	
-    element:setTexts(lookAheadBrakings);
-end;
-
-function adSettingsGui:setLookAheadBraking(index)
-    self.lookAheadBraking:setState(index, false);
-end;
-
-function adSettingsGui:onCreateAvoidMarkers(element)
-    self.avoidMarkers = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_avoidMarkers');
-	element.toolTipText = g_i18n:getText('gui_ad_avoidMarkers_tooltip');
-    local avoidMarkerArray = {};
-
-    for i = 1, #AutoDrive.avoidMarkersTexts, 1 do
-        avoidMarkerArray[i] = g_i18n:getText(AutoDrive.avoidMarkersTexts[i]);
-    end;
-	
-    element:setTexts(avoidMarkerArray);
-end;
-
-function adSettingsGui:setAvoidMarkers(index)
-    self.avoidMarkers:setState(index, false);
-end;
-
-function adSettingsGui:onCreateMapMarkerDetour(element)
-    self.mapMarkerDetour = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_mapMarkerDetour');
-	element.toolTipText = g_i18n:getText('gui_ad_mapMarkerDetour_tooltip');
-    local mapMarkerDetours = {};
-
-    for i = 1, #AutoDrive.MAP_MARKER_DETOUR_Texts, 1 do
-        mapMarkerDetours[i] = AutoDrive.MAP_MARKER_DETOUR_Texts[i];
-    end;
-	
-    element:setTexts(mapMarkerDetours);
-end;
-
-function adSettingsGui:setMapMarkerDetour(index)
-    self.mapMarkerDetour:setState(index, false);
-end;
-
-function adSettingsGui:onCreateSiloEmpty(element)
-    self.siloEmpty = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_siloEmpty');
-	element.toolTipText = g_i18n:getText('gui_ad_siloEmpty_tooltip');
-    local siloEmptys = {};
-
-    for i = 1, #AutoDrive.siloEmptyTexts, 1 do
-        siloEmptys[i] = g_i18n:getText(AutoDrive.siloEmptyTexts[i]);
-    end;
-	
-    element:setTexts(siloEmptys);
-end;
-
-function adSettingsGui:setSiloEmpty(index)
-    self.siloEmpty:setState(index, false);
-end;
-
-function adSettingsGui:onCreateAutoConnectStart(element)
-    self.autoConnectStart = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_autoConnect_start');
-	element.toolTipText = g_i18n:getText('gui_ad_autoConnect_start_tooltip');
-    local autoConnects = {};
-
-    for i = 1, #AutoDrive.autoConnectStartTexts, 1 do
-        autoConnects[i] = g_i18n:getText(AutoDrive.autoConnectStartTexts[i]);
-    end;
-	
-    element:setTexts(autoConnects);
-end;
-
-function adSettingsGui:setAutoConnectStart(index)
-    self.autoConnectStart:setState(index, false);
-end;
-
-function adSettingsGui:onCreateAutoConnectEnd(element)
-    self.autoConnectEnd = element;
-	element.labelElement.text = g_i18n:getText('gui_ad_autoConnect_end');
-	element.toolTipText = g_i18n:getText('gui_ad_autoConnect_end_tooltip');
-    local autoConnects = {};
-
-    for i = 1, #AutoDrive.autoConnectEndTexts, 1 do
-        autoConnects[i] = g_i18n:getText(AutoDrive.autoConnectEndTexts[i]);
-    end;
-	
-    element:setTexts(autoConnects);
-end;
-
-function adSettingsGui:setAutoConnectEnd(index)
-    self.autoConnectEnd:setState(index, false);
+function adSettingsGui:updateGUISettings(settingName, index)
+    self[settingName]:setState(index, false);
 end;

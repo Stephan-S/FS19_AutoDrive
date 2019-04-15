@@ -129,6 +129,9 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	
 	vehicle.ad.combineUnloadInFruit = false;
 	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
+	
+	vehicle.ad.combineFieldArea = nil;
+	vehicle.ad.combineFruitToCheck = nil; 
 
 	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
 

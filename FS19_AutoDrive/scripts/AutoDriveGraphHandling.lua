@@ -178,7 +178,7 @@ function AutoDrive:handleRecording(vehicle)
 			vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x1, y1, z1, false, vehicle.ad.creationModeDual)		
 		end;
 		
-		if AutoDrive.autoConnectStart then 
+		if AutoDrive:getSetting("autoConnectStart") then 
 			if startPoint ~= nil then
 				local startNode = AutoDrive.mapWayPoints[startPoint];
 				if startNode ~= nil then
@@ -265,8 +265,8 @@ function AutoDrive:getDistanceBetweenNodes(start, target)
 	local euclidianDistance = AutoDrive:getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z);
 
 	local distance = euclidianDistance;
-	if isMapMarker and AutoDrive.avoidMarkers == true then
-		distance = distance + AutoDrive.MAP_MARKER_DETOUR;
+	if isMapMarker and AutoDrive:getSetting("avoidMarkers") == true then
+		distance = distance + AutoDrive:getSettings("mapMarkerDetour");
 	end;
 
 	return distance;

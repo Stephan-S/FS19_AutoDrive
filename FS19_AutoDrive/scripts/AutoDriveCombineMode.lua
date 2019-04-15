@@ -126,49 +126,15 @@ end;
 function AutoDrive:initializeADCombine(vehicle, dt)   
     if vehicle.ad.wayPoints == nil or vehicle.ad.wayPoints[1] == nil then
         vehicle.ad.initialized = false;
-        vehicle.ad.timeTillDeadLock = 15000;
-        if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
-            if vehicle.ad.currentCombine ~= nil then
-                AutoDrivePathFinder:updatePathPlanning(vehicle);
+        vehicle.ad.timeTillDeadLock = 15000;        
+        vehicle.ad.inDeadLock = false;
 
-                if AutoDrivePathFinder:isPathPlanningFinished(vehicle) then
-                    vehicle.ad.wayPoints = vehicle.ad.pf.wayPoints;
-                    vehicle.ad.currentWayPoint = 1;
-                else
-                    return true;
-                end;
-            else
-                return true;
-            end;
+        if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
+            return not AutoDrive:handlePathPlanning(vehicle)
         elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
-            local maxCapacity = 0;
-            local leftCapacity = 0;
-            local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
-            if trailerCount > 0 then        
-                for _,trailer in pairs(trailers) do
-                    if trailer.getFillUnits ~= nil then
-                        for fillUnitIndex,fillUnit in pairs(trailer:getFillUnits()) do
-                            if trailer:getFillUnitCapacity(fillUnitIndex) > 2000 then
-                                maxCapacity = maxCapacity + trailer:getFillUnitCapacity(fillUnitIndex);
-                                leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(fillUnitIndex)
-                            end;
-                        end
-                    end;
-                end;
-            end;
-
-            local combineLeftCapacity = 0;
-            local combineMaxCapacity = 0;
-            if vehicle.ad.currentCombine.getFillUnits ~= nil then
-                for fillUnitIndex,fillUnit in pairs(vehicle.ad.currentCombine:getFillUnits()) do
-                    if vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex) > 2000 then
-                        combineMaxCapacity = combineMaxCapacity + vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex);
-                        combineLeftCapacity = combineLeftCapacity + vehicle.ad.currentCombine:getFillUnitFreeCapacity(fillUnitIndex)
-                    end;
-                end
-            end;
-
-            if (combineLeftCapacity == combineMaxCapacity) or leftCapacity <= 500 or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER)then
+            local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnlaoding(vehicle);
+            
+            if doneUnloading or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER) then
                 if vehicle.ad.combineUnloadInFruit == true then
                     --wait for combine to move away. Currently by fixed timer of 15s
                     if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
@@ -177,64 +143,78 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     end;
                 end;                                       
                 
-                if leftCapacity < 4000 then
-                    vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
+                if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel") or vehicle.ad.combineUnloadInFruit == true or (AutoDrive:getSetting("parkInField") == false) then
+                    if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel") then
+                        vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
+                    else
+                        vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS;
+                    end;
                     AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
                     if vehicle.ad.currentCombine ~= nil then
                         vehicle.ad.currentCombine.ad.currentDriver = nil;
                         vehicle.ad.currentCombine = nil;
                     end;
                 else
-                    if vehicle.ad.combineUnloadInFruit == true then
-                        vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS;
-                        --ToDo: plot path to suitable park pos;
-                        AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
-                        if vehicle.ad.currentCombine ~= nil then
-                            vehicle.ad.currentCombine.ad.currentDriver = nil;
-                            vehicle.ad.currentCombine = nil;
-                        end;
-                    else
-                        --wait in field
-                        
-                        AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
-                        vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
-                        --vehicle.ad.initialized = false;
-                        vehicle.ad.wayPoints = {};
-                        vehicle.ad.isPaused = true;
-                        if vehicle.ad.currentCombine ~= nil then
-                            vehicle.ad.currentCombine.ad.currentDriver = nil;
-                            vehicle.ad.currentCombine = nil;
-                        end;
+                    --wait in field                        
+                    AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
+                    vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
+                    --vehicle.ad.initialized = false;
+                    vehicle.ad.wayPoints = {};
+                    vehicle.ad.isPaused = true;
+                    if vehicle.ad.currentCombine ~= nil then
+                        vehicle.ad.currentCombine.ad.currentDriver = nil;
+                        vehicle.ad.currentCombine = nil;
                     end;
                 end;
             end;
 
-            return true;
-        elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-            AutoDrivePathFinder:updatePathPlanning(vehicle);
-
-            if AutoDrivePathFinder:isPathPlanningFinished(vehicle) then
-                vehicle.ad.wayPoints = vehicle.ad.pf.wayPoints;
-                vehicle.ad.currentWayPoint = 1;
-            else
-                return true;
-            end;
-        elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
-            AutoDrivePathFinder:updatePathPlanning(vehicle);
-
-            if AutoDrivePathFinder:isPathPlanningFinished(vehicle) then
-                vehicle.ad.wayPoints = vehicle.ad.pf.wayPoints;
-                vehicle.ad.currentWayPoint = 1;
-            else
-                return true;
-            end;
-        elseif vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then            
-            vehicle.ad.timeTillDeadLock = 15000;
-            vehicle.ad.inDeadLock = false;
-        end;
+            return true;          
+        end;        
     end; 
 
     return false;
+end;
+
+function AutoDrive:handlePathPlanning(vehicle)
+    AutoDrivePathFinder:updatePathPlanning(vehicle);
+
+    if AutoDrivePathFinder:isPathPlanningFinished(vehicle) then
+        vehicle.ad.wayPoints = vehicle.ad.pf.wayPoints;
+        vehicle.ad.currentWayPoint = 1;
+        return true
+    end;
+    return false;
+end;
+
+function AutoDrive:checkDoneUnloading(vehicle)
+    local maxCapacity = 0;
+    local leftCapacity = 0;
+    local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
+    if trailerCount > 0 then        
+        for _,trailer in pairs(trailers) do
+            if trailer.getFillUnits ~= nil then
+                for fillUnitIndex,fillUnit in pairs(trailer:getFillUnits()) do
+                    if trailer:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                        maxCapacity = maxCapacity + trailer:getFillUnitCapacity(fillUnitIndex);
+                        leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(fillUnitIndex)
+                    end;
+                end
+            end;
+        end;
+    end;
+
+    local combineLeftCapacity = 0;
+    local combineMaxCapacity = 0;
+    if vehicle.ad.currentCombine.getFillUnits ~= nil then
+        for fillUnitIndex,fillUnit in pairs(vehicle.ad.currentCombine:getFillUnits()) do
+            if vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                combineMaxCapacity = combineMaxCapacity + vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex);
+                combineLeftCapacity = combineLeftCapacity + vehicle.ad.currentCombine:getFillUnitFreeCapacity(fillUnitIndex)
+            end;
+        end
+    end;
+
+    return (combineLeftCapacity == combineMaxCapacity) or leftCapacity <= 500, (1-(leftCapacity/maxCapacity));
 end;
 
 function AutoDrive:combineStateToDescription(vehicle)

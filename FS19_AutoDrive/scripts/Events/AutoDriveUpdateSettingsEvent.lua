@@ -19,14 +19,9 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 		return;
 	end;
 
-	streamWriteInt16(streamId, AutoDrive.pipeOffsetCurrent);
-	streamWriteInt16(streamId, AutoDrive.lookAheadTurnCurrent);
-	streamWriteInt16(streamId, AutoDrive.lookAheadBrakingCurrent);
-	streamWriteInt16(streamId, AutoDrive.avoidMarkersCurrent);
-	streamWriteInt16(streamId, AutoDrive.MAP_MARKER_DETOUR_Current);	
-	streamWriteInt16(streamId, AutoDrive.siloEmptyCurrent);		
-	streamWriteInt16(streamId, AutoDrive.autoConnectStartCurrent);	
-	streamWriteInt16(streamId, AutoDrive.autoConnectEndCurrent);	
+	for settingName, setting in pairs(AutoDrive.setting) do
+		streamWriteInt16(streamId, setting.current);
+	end;
 end;
 
 function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
@@ -34,23 +29,9 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 		return;
 	end;
 
-	AutoDrive.pipeOffsetCurrent = streamReadInt16(streamId);
-	AutoDrive.lookAheadTurnCurrent = streamReadInt16(streamId);
-	AutoDrive.lookAheadBrakingCurrent = streamReadInt16(streamId);
-	AutoDrive.avoidMarkersCurrent = streamReadInt16(streamId);
-	AutoDrive.MAP_MARKER_DETOUR_Current = streamReadInt16(streamId);
-	AutoDrive.siloEmptyCurrent = streamReadInt16(streamId);
-	AutoDrive.autoConnectStartCurrent = streamReadInt16(streamId);
-	AutoDrive.autoConnectEndCurrent = streamReadInt16(streamId);
-	
-	AutoDrive.PATHFINDER_PIPE_OFFSET = AutoDrive.pipeOffsetValues[AutoDrive.pipeOffsetCurrent];
-    AutoDrive.LOOKAHEAD_DISTANCE_TURNING = AutoDrive.lookAheadTurnValues[AutoDrive.lookAheadTurnCurrent];
-    AutoDrive.LOOKAHEAD_DISTANCE_BRAKING = AutoDrive.lookAheadBrakingValues[AutoDrive.lookAheadBrakingCurrent];
-    AutoDrive.avoidMarkers = AutoDrive.avoidMarkersValues[AutoDrive.avoidMarkersCurrent];
-	AutoDrive.MAP_MARKER_DETOUR = AutoDrive.MAP_MARKER_DETOUR_Values[AutoDrive.MAP_MARKER_DETOUR_Current];	
-	AutoDrive.continueOnEmptySilo = AutoDrive.siloEmptyValues[AutoDrive.siloEmptyCurrent];
-	AutoDrive.autoConnectStart = AutoDrive.autoConnectStartValues[AutoDrive.autoConnectStartCurrent];
-	AutoDrive.autoConnectEnd = AutoDrive.autoConnectEndValues[AutoDrive.autoConnectEndCurrent];
+	for settingName, setting in pairs(AutoDrive.setting) do
+		setting.current = streamReadInt16(streamId);
+	end;
 	
 	if g_server ~= nil then
 		g_server:broadcastEvent(AutoDriveUpdateSettingsEvent:new(), nil, nil, nil);

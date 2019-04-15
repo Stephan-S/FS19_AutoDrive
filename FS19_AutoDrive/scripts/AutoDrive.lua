@@ -266,7 +266,9 @@ function init(self)
 	self.ad.isPausedCauseTraffic = false;
 	self.ad.startedLoadingAtTrigger = false;
 	self.ad.combineUnloadInFruit = false;
-	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
+	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
+	self.ad.combineFieldArea = nil;
+	self.ad.combineFruitToCheck = nil; 
 
 	AutoDrive.Recalculation = {};
 
