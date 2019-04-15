@@ -385,66 +385,82 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_siloEmpty">
 			<en>If silo empty</en>
 			<de>Wenn Silo leer</de>
+			<fr>Quand le silo est vide</fr>
 		</text>		
 		<text name="gui_ad_siloEmpty_tooltip">
 			<en>How a pickup and deliver driver reacts to an empty silo</en>
 			<de>Legt fest, wie ein Abfahrer auf ein leeres Silo reagieren soll</de>
+			<fr>Détermine comment un transporteur devrait réagir à un silo vide</fr>
 		</text>		
 		<text name="gui_ad_wait">
 			<en>Wait</en>
 			<de>Warten</de>
+			<fr>Attente</fr>
 		</text>	
 		<text name="gui_ad_drive">
 			<en>Drive on</en>
 			<de>Weiterfahren</de>
+			<fr>Continuer</fr>
 		</text>
 		<text name="gui_ad_yes">
 			<en>Yes</en>
 			<de>Ja</de>
+			<fr>Oui</fr>
 		</text>
 		<text name="gui_ad_no">
 			<en>No</en>
 			<de>Nein</de>
+			<fr>Non</fr>
 		</text>
 		<text name="ad_wait_for_combine">
 			<en>Wait for combine</en>
 			<de>Warten auf Drescher</de>
+			<fr>Attente de moissoneuse</fr>
 		</text>
 		<text name="ad_drive_to_combine">
 			<en>Drive to combine</en>
 			<de>Fahre zu Drescher</de>
+			<fr>Conduire à la moissoneuse</fr>
 		</text>
 		<text name="ad_unloading_combine">
 			<en>Unloading combine</en>
 			<de>Entlade Drescher</de>
+			<fr>Déchargement de moissoneuse</fr>
 		</text>
 		<text name="ad_drive_to_parkpos">
 			<en>Parking</en>
 			<de>Parken</de>
+			<fr>Stationnement</fr>
 		</text>
 		<text name="ad_drive_to_startpos">
 			<en>Drive to start</en>
 			<de>Fahre zum Start</de>
+			<fr>Conduire au départ</fr>
 		</text>
 		<text name="ad_drive_to_unloadpos">
 			<en>Drive to unload</en>
 			<de>Fahre abladen</de>
+			<fr>Conduire au déchargement</fr>
 		</text>
 		<text name="gui_ad_autoConnect_start">
 			<en>Auto connect (start)</en>
 			<de>Automatisches verbinden (Start)</de>
+			<fr>Connexion automatique (Départ)</fr>
 		</text>
 		<text name="gui_ad_autoConnect_start_tooltip">
 			<en>Auto connect suitable node on start of recording</en>
 			<de>Automatisch passenden Knoten beim Start der Aufnahme verbinden</de>
+			<fr>Connecter automatiquement le noeud approprié au début de l'enregistrement</fr>
 		</text>
 		<text name="gui_ad_autoConnect_end">
 			<en>Auto connect (end)</en>
 			<de>Automatisches verbinden (Ende)</de>
+			<fr>Connexion automatique (fin)</fr>
 		</text>
 		<text name="gui_ad_autoConnect_end_tooltip">
 			<en>Auto connect suitable node on end of recording</en>
 			<de>Automatisch passenden Knoten beim Ende der Aufnahme verbinden</de>
+			<fr>Connecter automatiquement le noeud approprié en fin d'enregistrement</fr>
 		</text>
 	</l10n>
 
