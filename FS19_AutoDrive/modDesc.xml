@@ -445,7 +445,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_autoConnect_start">
 			<en>Auto connect (start)</en>
 			<de>Automatisches verbinden (Start)</de>
-			<fr>Connexion automatique (Départ)</fr>
+			<fr>Connexion automatique (départ)</fr>
 		</text>
 		<text name="gui_ad_autoConnect_start_tooltip">
 			<en>Auto connect suitable node on start of recording</en>
