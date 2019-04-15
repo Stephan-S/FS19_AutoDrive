@@ -119,11 +119,11 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveDijkstra.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveUtilFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDrivePathPlanning.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/FieldDataCallback.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/PathFinderCallBack.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
@@ -518,23 +518,6 @@ function AutoDrive:onDraw()
 	end;
 		
 end; 
-
-function AutoDrive:collisionTestCallback(transformId)
-	AutoDrive.backs = AutoDrive.backs + 1
-
-	print("Received callback from collsion check " .. AutoDrive.backs);
-	-- ai should not collide with vehicles and objects, only with the dynamic traffic
-	local object = g_currentMission:getNodeObject(transformId)
-	if object == nil or object:isa(Placeable) then
-			print("Received callback from collsion check - hiit!!!");
-			return false
-	end
-	if transformId ~= nil then
-		print("Received callback from collsion check -  returned not nil");
-	else
-		print("Received callback from collsion check - no hit");
-	end;
-end
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
 	AutoDrive:drawJobs();

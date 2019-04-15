@@ -12,13 +12,14 @@ local adSettingsGui_mt = Class(adSettingsGui, ScreenElement);
 function adSettingsGui:new(target, custom_mt)
     local self = ScreenElement:new(target, adSettingsGui_mt);
     self.returnScreenName = "";
+    self.settingElements = {};
     return self;	
 end;
 
 function adSettingsGui:onOpen()
     adSettingsGui:superClass().onOpen(self);
     FocusManager:setFocus(self.backButton);
-    for settingName, setting in AutoDrive.settings do
+    for settingName, setting in pairs(AutoDrive.settings) do
         AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.current);
     end;
 end;
@@ -34,8 +35,8 @@ end;
 
 function adSettingsGui:onClickOk()
     adSettingsGui:superClass().onClickOk(self);
-    for settingName, setting in AutoDrive.settings do
-        setting.current = self[settingName]:getState();
+    for settingName, setting in pairs(AutoDrive.settings) do
+        setting.current = self.settingElements[settingName]:getState();
     end;
     AutoDriveUpdateSettingsEvent:sendEvent();
     self:onClickBack();
@@ -48,7 +49,7 @@ function adSettingsGui:onClickResetButton()
 end;
 
 function AutoDrive:guiClosed()
-	for settingName, setting in AutoDrive.settings do
+	for settingName, setting in pairs(AutoDrive.settings) do
         AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.current);
     end;
 end;
@@ -60,9 +61,8 @@ function adSettingsGui:onCreateadSettingsGuiHeader(element)
 	element.text = g_i18n:getText('gui_ad_Setting');
 end;
 
-function adSettingsGui:onCreateAutoDriveSetting(element)
-    local settingName = element.text;
-    self[settingName] = element;
+function adSettingsGui:onCreateAutoDriveSetting(element, settingName)    
+    self.settingElements[settingName] = element;
     local setting = AutoDrive.settings[settingName];
 	element.labelElement.text = g_i18n:getText(setting.text);
 	element.toolTipText = g_i18n:getText(setting.tooltip);
@@ -79,5 +79,48 @@ function adSettingsGui:onCreateAutoDriveSetting(element)
 end;
 
 function adSettingsGui:updateGUISettings(settingName, index)
-    self[settingName]:setState(index, false);
+    print("Called with " .. settingName);
+    --DebugUtil.printTableRecursively(self.settingElements, ":::", 0, 2);
+    self.settingElements[settingName]:setState(index, false);
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingPipeOffset(element)
+    self:onCreateAutoDriveSetting(element, "pipeOffset");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingLookAheadTurning(element)
+    self:onCreateAutoDriveSetting(element, "lookAheadTurning");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingLookAheadBraking(element)
+    self:onCreateAutoDriveSetting(element, "lookAheadBraking");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingAvoidMarkers(element)
+    self:onCreateAutoDriveSetting(element, "avoidMarkers");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingMapMarkerDetour(element)
+    self:onCreateAutoDriveSetting(element, "mapMarkerDetour");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingContinueOnEmptySilo(element)
+    self:onCreateAutoDriveSetting(element, "continueOnEmptySilo");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingAutoConnectStart(element)
+    self:onCreateAutoDriveSetting(element, "autoConnectStart");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingAutoConnectEnd(element)
+    self:onCreateAutoDriveSetting(element, "autoConnectEnd");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingUnloadFillLevel(element)
+    self:onCreateAutoDriveSetting(element, "unloadFillLevel");
+end;
+
+
+function adSettingsGui:onCreateAutoDriveSettingParkInField(element)
+    self:onCreateAutoDriveSetting(element, "parkInField");
 end;

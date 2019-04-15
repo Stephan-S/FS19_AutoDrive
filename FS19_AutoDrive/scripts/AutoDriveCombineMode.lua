@@ -132,7 +132,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
         if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
             return not AutoDrive:handlePathPlanning(vehicle)
         elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
-            local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnlaoding(vehicle);
+            local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
             
             if doneUnloading or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER) then
                 if vehicle.ad.combineUnloadInFruit == true then

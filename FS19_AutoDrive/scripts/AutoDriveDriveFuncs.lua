@@ -311,9 +311,9 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         if highestAngle >= 5 and highestAngle < 8 then vehicle.ad.speedOverride = 27; end;
         if highestAngle >= 8 and highestAngle < 12 then vehicle.ad.speedOverride = 20; end;
         if highestAngle >= 12 and highestAngle < 15 then vehicle.ad.speedOverride = 13; end;
-        if highestAngle >= 15 and highestAngle < 20 then vehicle.ad.speedOverride = 11; end;
-        if highestAngle >= 20 and highestAngle < 30 then vehicle.ad.speedOverride = 9; end;
-        if highestAngle >= 30 and highestAngle < 90 then vehicle.ad.speedOverride = 9; end;
+        if highestAngle >= 15 and highestAngle < 20 then vehicle.ad.speedOverride = 13; end;
+        if highestAngle >= 20 and highestAngle < 30 then vehicle.ad.speedOverride = 13; end;
+        if highestAngle >= 30 and highestAngle < 90 then vehicle.ad.speedOverride = 13; end;
     end;
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
@@ -381,7 +381,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             vehicle.ad.isPausedCauseTraffic = false;
         end;
         vehicle.ad.allowedToDrive = true;
-        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 1);    
+        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.5);    
     end;
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
     

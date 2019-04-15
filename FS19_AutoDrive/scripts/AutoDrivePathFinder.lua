@@ -552,8 +552,8 @@ function AutoDrivePathFinder:onFieldDataUpdateFinished(pf, fielddata, cell)
             --print("Avoiding fruit: " .. maxIndex .. " from now on. FieldArea: " .. fielddata.fieldArea);
 			pf.fruitToCheck = maxIndex;
             pf.fieldArea = fielddata.fieldArea;
-            driver.ad.combineFieldArea = pf.fieldArea;
-            driver.ad.combineFruitToCheck = pf.fruitToCheck; 
+            pf.driver.ad.combineFieldArea = pf.fieldArea;
+            pf.driver.ad.combineFruitToCheck = pf.fruitToCheck; 
 		end;
 	
 		--Allow fruit in the first few grid cells

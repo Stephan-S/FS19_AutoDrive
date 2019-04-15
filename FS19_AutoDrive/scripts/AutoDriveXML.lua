@@ -97,7 +97,9 @@ function AutoDrive:readFromXML(xmlFile)
 
 	for settingName, setting in pairs(AutoDrive.settings) do
 		local value = getXMLFloat(xmlFile,"AutoDrive." .. settingName);
-		AutoDrive.settings["settingName"].current = value;
+		if value ~= nil then
+			AutoDrive.settings[settingName].current = value;
+		end;
 	end;
 
 	local mapMarker = {};
