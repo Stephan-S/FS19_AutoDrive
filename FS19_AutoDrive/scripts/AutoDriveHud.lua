@@ -1,4 +1,5 @@
 AutoDriveHud = {}
+AutoDrive.FONT_SCALE = 0.0115;
 
 function AutoDriveHud:new()
     o = {}
@@ -15,7 +16,7 @@ function AutoDriveHud:loadHud()
 		local buttonSize = 32
 		local iconSize = 32
 		local gapSize = 3
-
+		
 		self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
 		self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
 		self.posX   = 1 - self.width - self.gapWidth;
@@ -339,6 +340,7 @@ end;
 
 function AutoDriveHud:drawHud(vehicle)	
 	if vehicle == g_currentMission.controlledVehicle then		
+		local uiScale = g_gameSettings:getValue("uiScale")	
         self:updateButtons(vehicle);
         
 		local ovWidth = self.Background.width;
@@ -376,10 +378,11 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 		end;
 
-		local adFontSize = 0.009;
+		local adFontSize = 0.009 * uiScale;
 		local adPosX = self.posX + self.borderX;
 		local adPosY = self.posY + ovHeight - adFontSize - 0.002;
 
+		setTextBold(false);
 		setTextColor(1,1,1,1);
 		setTextAlignment(RenderText.ALIGN_LEFT);
 		local textToShow = "AutoDrive";
@@ -402,7 +405,7 @@ function AutoDriveHud:drawHud(vehicle)
 		end;
 		
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
-			local adFontSize = 0.013;
+			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			--local adPosY = self.posY + (0.0225 * (g_screenWidth / g_screenHeight)) + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
@@ -445,7 +448,7 @@ function AutoDriveHud:drawHud(vehicle)
 		end;
 
 		if vehicle.ad.enteringMapMarker == true then
-			local adFontSize = 0.012;
+			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.borderX;
 			local adPosY = self.posY + 0.085 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			setTextColor(1,1,1,1);
@@ -456,7 +459,7 @@ function AutoDriveHud:drawHud(vehicle)
 		end;
 
 		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
-			local adFontSize = 0.013;
+			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 			
@@ -479,7 +482,9 @@ function AutoDriveHud:drawHud(vehicle)
 end;
 
 function AutoDriveHud:drawMinimalHud(vehicle)	
-	if vehicle == g_currentMission.controlledVehicle then		
+	if vehicle == g_currentMission.controlledVehicle then				
+		local uiScale = g_gameSettings:getValue("uiScale")	
+		setTextBold(false);	
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
 
 			local target = vehicle.ad.nameOfSelectedTarget;
@@ -498,8 +503,22 @@ function AutoDriveHud:drawMinimalHud(vehicle)
 				vehicle.ad.destinationPrintTimer = 4000;
 				vehicle.ad.lastPrintedTarget = vehicle.ad.nameOfSelectedTarget;
 			end;
+			if vehicle.ad.lastPrintedTargetUnload == nil then
+				vehicle.ad.lastPrintedTargetUnload = vehicle.ad.nameOfSelectedTarget_Unload;
+			end;
+			if vehicle.ad.lastPrintedTargetUnload ~= vehicle.ad.nameOfSelectedTarget_Unload then
+				vehicle.ad.destinationPrintTimer = 4000;
+				vehicle.ad.lastPrintedTargetUnload = vehicle.ad.nameOfSelectedTarget_Unload;
+			end;
+			if vehicle.ad.lastPrintedMode == nil then
+				vehicle.ad.lastPrintedMode = vehicle.ad.mode;
+			end;
+			if vehicle.ad.lastPrintedMode ~= vehicle.ad.mode then
+				vehicle.ad.lastPrintedModeTimer = 4000;
+				vehicle.ad.lastPrintedMode = vehicle.ad.mode;
+			end;
 
-			local adFontSize = 0.013;
+			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
 
@@ -541,7 +560,13 @@ function AutoDriveHud:drawMinimalHud(vehicle)
 					text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
 				end;
 				renderText(adPosX, adPosY, adFontSize, text);
-			end;	
+			end;
+			if vehicle.ad.lastPrintedModeTimer > 0 then
+				self:updateButtons(vehicle);
+				if self.Buttons[5] ~= nil then
+					self.Buttons[5].ov:render();
+				end;
+			end;
 
 		end;
 	end;
@@ -629,7 +654,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         end;
 
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        local adPosY = self.Background.destination.posY --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
         local height = 0.015;
         local width = 0.05;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
@@ -668,21 +693,21 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 	local mouseWheelActive = false;
 	local adPosX = self.posX + self.Background.destination.width;
-	local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+	local adPosY = self.Background.destination.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 	local height = self.buttonHeight;--0.015;
 	local width = self.Background.width - self.Background.destination.width;
 	if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 		mouseWheelActive = true;
 	end;
 
-	adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+	adPosY =  self.Background.unloadOverlay.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
 	if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 		mouseWheelActive = true;
 	end;
 
 	if AutoDrive.showMouse and button == 4 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        local adPosY = self.Background.destination.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
         local height = self.buttonHeight;--0.015;
         local width = self.Background.width - self.Background.destination.width;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
@@ -692,7 +717,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 	if AutoDrive.showMouse and button == 5 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        local adPosY = self.Background.destination.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
         local height = self.buttonHeight;--0.015;
         local width = self.Background.width - self.Background.destination.width;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
@@ -701,7 +726,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	end;
 	if AutoDrive.showMouse and button == 4 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+        local adPosY = self.Background.unloadOverlay.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
         local height = self.buttonHeight;--0.015;
         local width = (self.Background.width - self.Background.destination.width)/2;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
@@ -716,7 +741,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 	if AutoDrive.showMouse and button == 5 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+        local adPosY = self.Background.unloadOverlay.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
         local height = self.buttonHeight;--0.015;
         local width = (self.Background.width - self.Background.destination.width)/2;
 		
@@ -734,7 +759,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	if mouseWheelActive == false and g_inputBinding:getContextName() == "AutoDrive.MOUSEWHEEL_ACTIVE" then
 		g_inputBinding:revertContext(true);
 	end;
-	if mouseWheelActive == true and g_inputBinding:getContextName() ~= "AutoDrive.MOUSEWHEEL_ACTIVE" then
+	if mouseWheelActive == true and g_inputBinding:getContextName() ~= "AutoDrive.MOUSEWHEEL_ACTIVE" and g_inputBinding:getContextName() ~= "AutoDrive.Input_Destination" then
 		g_inputBinding:setContext("AutoDrive.MOUSEWHEEL_ACTIVE", true, false);
 	end;
 end;
