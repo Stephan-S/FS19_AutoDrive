@@ -63,8 +63,8 @@ AutoDrive.settings.continueOnEmptySilo = {
 AutoDrive.settings.autoConnectStart = {  
     values= {false, true},                                    
     texts= {"gui_ad_no", "gui_ad_yes"},                                    
-    default= 1,                                    
-    current= 1,                                    
+    default= 2,                                    
+    current= 2,                                    
     text= "gui_ad_autoConnect_start",                                    
     tooltip= "gui_ad_autoConnect_start_tooltip",
     translate= true
@@ -83,8 +83,8 @@ AutoDrive.settings.autoConnectEnd = {
 AutoDrive.settings.parkInField = {  
     values= {false, true},                                    
     texts= {"gui_ad_no", "gui_ad_yes"},                                    
-    default= 1,                                    
-    current= 1,                                    
+    default= 2,                                    
+    current= 2,                                    
     text= "gui_ad_parkInField",                                    
     tooltip= "gui_ad_parkInField_tooltip",
     translate= true
@@ -98,6 +98,16 @@ AutoDrive.settings.unloadFillLevel = {
     text= "gui_ad_unloadFillLevel",                                    
     tooltip= "gui_ad_unloadFillLevel_tooltip",
     translate= false
+};
+
+AutoDrive.settings.findDriver = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 2,                                    
+    current= 2,                                    
+    text= "gui_ad_findDriver",                                    
+    tooltip= "gui_ad_findDriver_tooltip",
+    translate= true
 };
 
 function AutoDrive:getSetting(settingName)

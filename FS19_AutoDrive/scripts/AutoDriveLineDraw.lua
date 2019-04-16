@@ -1,5 +1,6 @@
 AutoDrive.LineDraw = {};
 AutoDrive.LineDraw.initLines = 20;
+AutoDrive.LineDraw.maxLines = 400;
 AutoDrive.LineDraw.initColorR = 1;
 AutoDrive.LineDraw.initColorG = 0;
 AutoDrive.LineDraw.initColorB = 1;
@@ -30,7 +31,9 @@ function AutoDrive:drawJobs()
 
     for i=1,AutoDrive.LineDraw.jobCounter,1 do
         local job = AutoDrive.LineDraw.jobs[i];
-        AutoDrive:parameterizeLine(AutoDrive.LineDraw.lines[i], job.startPoint, job.targetPoint, job.color, true);
+        if AutoDrive.LineDraw.lines[i] ~= nil then
+            AutoDrive:parameterizeLine(AutoDrive.LineDraw.lines[i], job.startPoint, job.targetPoint, job.color, true);
+        end;
     end;
 
     --Reset visibility of 'idle' lines
@@ -47,7 +50,7 @@ function AutoDrive:drawLine(startPoint, targetPoint, r, g, b, a)
     end;
     local color = AutoDrive:newColor(r, g, b, a);
     AutoDrive.LineDraw.jobCounter = AutoDrive.LineDraw.jobCounter + 1;
-    while AutoDrive.LineDraw.jobCounter > AutoDrive.LineDraw.lineCounter do
+    while AutoDrive.LineDraw.jobCounter > AutoDrive.LineDraw.lineCounter and AutoDrive.LineDraw.lineCounter <= AutoDrive.LineDraw.maxLines do
         AutoDrive.LineDraw.lines[AutoDrive.LineDraw.lineCounter+1] = AutoDrive:createLineObject();
     end;
     local job = {};

@@ -45,7 +45,7 @@ function AutoDrive:callDriverToCombine(combine)
                     local driverX, driverY, driverZ = getWorldTranslation( driver.components[1].node );
                     local distance = math.sqrt( math.pow((driverX-worldX),2) + math.pow((driverZ - worldZ), 2));
                     
-                    if distance < closestDistance and (distance < 300 or driver.ad.targetSelected == combine.ad.targetSelected) then
+                    if distance < closestDistance and ((distance < 300 and AutoDrive:getSetting("findDriver") == true) or driver.ad.targetSelected == combine.ad.targetSelected) then
                         closestDistance = distance;
                         closestDriver = driver;							
                     end;

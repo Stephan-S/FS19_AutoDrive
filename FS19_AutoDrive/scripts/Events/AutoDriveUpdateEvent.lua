@@ -69,6 +69,14 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 		return;
 	end;	
 	streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle));
+
+	if self.reason == "currentWayPoint" then
+		streamWriteInt8(streamId, 1);
+		streamWriteInt16(streamId, self.currentWayPoint);
+		return;
+	end;
+
+	streamWriteInt8(streamId, 0);
 	
 	streamWriteBool(streamId, self.isActive);
 	streamWriteBool(streamId, self.isStopping);
@@ -150,6 +158,16 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	
 	local id = streamReadInt32(streamId);
 	local vehicle = NetworkUtil.getObject(id);
+
+	local updateMode = streamReadInt8(streamId);
+	if updateMode == 1 then
+		local currentWayPoint = streamReadInt16(streamId);
+		if vehicle == nil or vehicle.ad == nil then
+			return;
+		end;
+		vehicle.ad.currentWayPoint = currentWayPoint;
+		return;
+	end;
 	
 	local isActive = streamReadBool(streamId);
 	local isStopping = streamReadBool(streamId);
@@ -442,9 +460,10 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 		reason = reason .. " combineState";
 	end;
 
-	--if reason ~= "" then
-		--print("Reason: " .. reason);
-	--end;
+	if reason ~= "" then
+		--print("Vehicle " .. self.vehicle.name .. " sends update. Reason: " .. reason);
+		self.reason = reason;
+	end;
 
 	return remained
 end;

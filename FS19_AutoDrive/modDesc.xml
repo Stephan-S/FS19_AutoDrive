@@ -27,7 +27,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
  	  </es>
 	</description>
-	<version>1.0.1.1</version>
+	<version>1.0.1.2</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -461,6 +461,14 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_unloadFillLevel_tooltip">
 			<en>After unloading combine. Directly go to deliver at this fill level.</en>
 			<de>Nach Drescher abladen - Direkt abfahren und nicht auf nächsten Drescher warten ab dieser Füllung</de>
+		</text>
+		<text name="gui_ad_findDriver">
+			<en>Find Driver</en>
+			<de>Abfahrer finden</de>
+		</text>
+		<text name="gui_ad_findDriver_tooltip">
+			<en>Search for close by drivers (Ignore destination)</en>
+			<de>Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)</de>
 		</text>
 	</l10n>
 

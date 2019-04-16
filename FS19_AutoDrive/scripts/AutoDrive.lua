@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.1";
+AutoDrive.Version = "1.0.1.2";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -458,6 +458,8 @@ function AutoDrive:onUpdate(dt)
 	if self.ad.currentInput ~= "" and self.isServer then
 		AutoDrive:InputHandling(self, self.ad.currentInput);
 	end;
+
+	self.ad.closest = nil;
 	
 	AutoDrive:handleRecalculation(self);	
 	AutoDrive:handleRecording(self);

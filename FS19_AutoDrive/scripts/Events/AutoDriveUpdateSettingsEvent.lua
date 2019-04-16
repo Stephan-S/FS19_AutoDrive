@@ -19,7 +19,7 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 		return;
 	end;
 
-	for settingName, setting in pairs(AutoDrive.setting) do
+	for settingName, setting in pairs(AutoDrive.settings) do
 		streamWriteInt16(streamId, setting.current);
 	end;
 end;
@@ -29,7 +29,7 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 		return;
 	end;
 
-	for settingName, setting in pairs(AutoDrive.setting) do
+	for settingName, setting in pairs(AutoDrive.settings) do
 		setting.current = streamReadInt16(streamId);
 	end;
 	

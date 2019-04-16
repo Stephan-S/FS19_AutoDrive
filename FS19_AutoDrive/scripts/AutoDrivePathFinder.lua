@@ -1,6 +1,6 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 2500;
-AutoDrive.PATHFINDER_TARGET_DISTANCE = 20;
+AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
 AutoDrive.PP_RIGHT = 2;
@@ -10,7 +10,7 @@ AutoDrive.PP_DOWN_LEFT = 5;
 AutoDrive.PP_LEFT = 6;
 AutoDrive.PP_UP_LEFT = 7;
 
-AutoDrive.PP_MIN_DISTANCE = 14;
+AutoDrive.PP_MIN_DISTANCE = 20;
 AutoDrive.PP_CELL_X = 8;
 AutoDrive.PP_CELL_Z = 8;
 AutoDrivePathFinder = {};
@@ -371,7 +371,12 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             end
 
             shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
-            cell.hasCollision = cell.hasCollision or (shapes > 0);            
+            cell.hasCollision = cell.hasCollision or (shapes > 0);    
+
+            --allow collsiion in the first few grid. as it also detects the driver and trailer itself
+            if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 3 then --also allow collision at the end if other drivers are waiting in line
+                cell.hasCollision = false;
+            end;
 
             if pf.fruitToCheck == nil then
                 --make async query until fruittype is known

@@ -79,8 +79,6 @@ function adSettingsGui:onCreateAutoDriveSetting(element, settingName)
 end;
 
 function adSettingsGui:updateGUISettings(settingName, index)
-    print("Called with " .. settingName);
-    --DebugUtil.printTableRecursively(self.settingElements, ":::", 0, 2);
     self.settingElements[settingName]:setState(index, false);
 end;
 
@@ -120,7 +118,10 @@ function adSettingsGui:onCreateAutoDriveSettingUnloadFillLevel(element)
     self:onCreateAutoDriveSetting(element, "unloadFillLevel");
 end;
 
-
 function adSettingsGui:onCreateAutoDriveSettingParkInField(element)
     self:onCreateAutoDriveSetting(element, "parkInField");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingFindDriver(element)
+    self:onCreateAutoDriveSetting(element, "findDriver");
 end;

@@ -266,7 +266,7 @@ function AutoDrive:getDistanceBetweenNodes(start, target)
 
 	local distance = euclidianDistance;
 	if isMapMarker and AutoDrive:getSetting("avoidMarkers") == true then
-		distance = distance + AutoDrive:getSettings("mapMarkerDetour");
+		distance = distance + AutoDrive:getSetting("mapMarkerDetour");
 	end;
 
 	return distance;
@@ -339,6 +339,10 @@ function AutoDrive:FastShortestPath(Graph,start,markerName, markerID)
 end;
 
 function AutoDrive:findClosestWayPoint(veh)
+	if veh.ad.closest ~= nil then
+		return veh.ad.closest;
+	end;
+
 	--returns waypoint closest to vehicle position
 	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
 	local closest = 1;
@@ -354,6 +358,8 @@ function AutoDrive:findClosestWayPoint(veh)
 		end;
 	end;
 	
+	veh.ad.closest = closest;
+
 	return closest;
 end;
 
