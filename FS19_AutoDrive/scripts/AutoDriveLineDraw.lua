@@ -1,6 +1,5 @@
 AutoDrive.LineDraw = {};
 AutoDrive.LineDraw.initLines = 20;
-AutoDrive.LineDraw.maxLines = 400;
 AutoDrive.LineDraw.initColorR = 1;
 AutoDrive.LineDraw.initColorG = 0;
 AutoDrive.LineDraw.initColorB = 1;
@@ -50,7 +49,7 @@ function AutoDrive:drawLine(startPoint, targetPoint, r, g, b, a)
     end;
     local color = AutoDrive:newColor(r, g, b, a);
     AutoDrive.LineDraw.jobCounter = AutoDrive.LineDraw.jobCounter + 1;
-    while AutoDrive.LineDraw.jobCounter > AutoDrive.LineDraw.lineCounter and AutoDrive.LineDraw.lineCounter <= AutoDrive.LineDraw.maxLines do
+    while AutoDrive.LineDraw.jobCounter > AutoDrive.LineDraw.lineCounter do
         AutoDrive.LineDraw.lines[AutoDrive.LineDraw.lineCounter+1] = AutoDrive:createLineObject();
     end;
     local job = {};
