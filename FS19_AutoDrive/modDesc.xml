@@ -27,7 +27,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
  	  </es>
 	</description>
-	<version>1.0.1.1</version>
+	<version>1.0.1.3</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -461,6 +461,36 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<en>Auto connect suitable node on end of recording</en>
 			<de>Automatisch passenden Knoten beim Ende der Aufnahme verbinden</de>
 			<fr>Connecter automatiquement le noeud approprié en fin d'enregistrement</fr>
+		</text>
+		<text name="gui_ad_parkInField">
+			<en>Park in field</en>
+			<de>Parken im Feld</de>
+			<fr>Garer au champ</fr>
+		</text>
+		<text name="gui_ad_parkInField_tooltip">
+			<en>After unloading a combine - if not parked in fruit</en>
+			<de>Nach Drescher abladen - falls nicht in Frucht stehend</de>
+			<fr>Après avoir déchargé une moissonneuse - si pas garé en fruit</fr>	<!-- end to review -->
+		</text>
+		<text name="gui_ad_unloadFillLevel">
+			<en>Unload fill level</en>
+			<de>Abladen ab Level</de>
+			<fr>Décharger le contenu</fr>
+		</text>
+		<text name="gui_ad_unloadFillLevel_tooltip">
+			<en>After unloading combine. Directly go to deliver at this fill level.</en>
+			<de>Nach Drescher abladen - Direkt abfahren und nicht auf nächsten Drescher warten ab dieser Füllung</de>
+			<fr>Après avoir déchargé une moissonneuse - Partir tout de suite et ne pas attendre le prochain remplissage</fr>
+		</text>
+		<text name="gui_ad_findDriver">
+			<en>Find Driver</en>
+			<de>Abfahrer finden</de>
+			<fr>Trouver un chauffeur</fr>
+		</text>
+		<text name="gui_ad_findDriver_tooltip">
+			<en>Search for close by drivers (Ignore destination)</en>
+			<de>Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)</de>
+			<fr>Recherche du chauffeur le plus proche (Ignore la destination)</fr>
 		</text>
 	</l10n>
 
