@@ -178,6 +178,7 @@ AIVehicleUtil.driveInDirection = function (self, dt, steeringAngleLimit, acceler
 		--FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
 		WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal*self.movingDirection, acc, not allowedToDrive, true)
     end
+
 end
 
 function AutoDrive:onActivateObject(superFunc,vehicle)

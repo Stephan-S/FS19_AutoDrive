@@ -175,7 +175,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         end;
         
         if vehicle.ad.wayPoints ~= nil then
-            if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
+            if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1] ~= nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
                 AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
                 AutoDrive:stopAD(vehicle);
             end;
