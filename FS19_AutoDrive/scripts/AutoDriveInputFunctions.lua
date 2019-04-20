@@ -301,7 +301,7 @@ function AutoDrive:inputRecord(vehicle)
 						local targetNode = AutoDrive.mapWayPoints[targetID];
 						if targetNode ~= nil then
 							targetNode.incoming[ADTableLength(targetNode.incoming)+1] = vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id;
-							vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out[ADTableLength(vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out)] = targetNode.id;
+							vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out[ADTableLength(vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out)+1] = targetNode.id;
 							
 							AutoDriveCourseEditEvent:sendEvent(targetNode);
 						end;

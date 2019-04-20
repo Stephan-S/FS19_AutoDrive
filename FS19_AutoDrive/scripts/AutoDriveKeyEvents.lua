@@ -1,6 +1,8 @@
 function AutoDrive:handleKeyEvents(vehicle, unicode, sym, modifier, isDown)
     if isDown and vehicle.ad.choosingDestination then
         AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier, isDown);
+    elseif isDown and vehicle.ad.choosingDestinationUnload then
+        AutoDrive:handleKeyEventsForDestinationUnload(vehicle, unicode, sym, modifier, isDown);
     elseif isDown and vehicle.ad.enteringMapMarker then
         AutoDrive:handleKeyEventForMapMarkerInput(vehicle, unicode, sym, modifier, isDown)
     end;   	
@@ -14,6 +16,7 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
         vehicle.isBroken = false;
         g_currentMission.isPlayerFrozen = false;
         g_inputBinding:revertContext(true);
+        AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
     elseif sym == 8 then
         vehicle.ad.enteredChosenDestination = string.sub(vehicle.ad.enteredChosenDestination,1,string.len(vehicle.ad.enteredChosenDestination)-1)
     elseif sym == 9 then
@@ -51,10 +54,65 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
         if vehicle.ad.chosenDestination ~= "" then
             vehicle.ad.mapMarkerSelected = markerIndex;
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;            
+            AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
         end;
     elseif unicode ~= 0 then
         vehicle.ad.enteredChosenDestination = vehicle.ad.enteredChosenDestination .. string.char(unicode);
+    end;
+end;
+
+function AutoDrive:handleKeyEventsForDestinationUnload(vehicle, unicode, sym, modifier, isDown)
+    if sym == 13 then
+        vehicle.ad.choosingDestinationUnload = false;
+        vehicle.ad.chosenDestinationUnload = "";
+        vehicle.ad.enteredChosenDestinationUnload = "";
+        vehicle.isBroken = false;
+        g_currentMission.isPlayerFrozen = false;
+        g_inputBinding:revertContext(true);
+        AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
+    elseif sym == 8 then
+        vehicle.ad.enteredChosenDestinationUnload = string.sub(vehicle.ad.enteredChosenDestinationUnload,1,string.len(vehicle.ad.enteredChosenDestinationUnload)-1)
+    elseif sym == 9 then
+        local foundMatch = false;
+        local behindCurrent = false;
+        local markerID = -1;
+        local markerIndex = -1;
+        if vehicle.ad.chosenDestinationUnload == "" then
+            behindCurrent = true;
+        end;
+        for _,marker in pairs( AutoDrive.mapMarker) do
+            local tempName = vehicle.ad.chosenDestinationUnload;
+            if string.find(marker.name, vehicle.ad.enteredChosenDestinationUnload) == 1 and behindCurrent and not foundMatch then
+                vehicle.ad.chosenDestinationUnload = marker.name;
+                markerID = marker.id;
+                markerIndex = _;
+                foundMatch = true;
+            end;
+            if tempName == marker.name then
+                behindCurrent = true;
+            end;
+        end;
+        if behindCurrent == true and foundMatch == false then
+            foundMatch = false;
+            for _,marker in pairs( AutoDrive.mapMarker) do
+
+                if string.find(marker.name, vehicle.ad.enteredChosenDestinationUnload) == 1 and not foundMatch then
+                    vehicle.ad.chosenDestinationUnload = marker.name;
+                    markerID = marker.id;
+                    markerIndex = _;
+                    foundMatch = true;
+                end;
+            end;
+        end;
+        if vehicle.ad.chosenDestinationUnload ~= "" then
+            vehicle.ad.mapMarkerSelected_Unload = markerIndex;
+            vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+            vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;            
+            AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
+        end;
+    elseif unicode ~= 0 then
+        vehicle.ad.enteredChosenDestinationUnload = vehicle.ad.enteredChosenDestinationUnload .. string.char(unicode);
     end;
 end;
 

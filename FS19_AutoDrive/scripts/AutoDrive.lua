@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.3";
+AutoDrive.Version = "1.0.1.4";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -162,7 +162,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.print = {};
 	AutoDrive.print.currentMessage = nil;
 	AutoDrive.print.nextMessage = nil;
-	AutoDrive.print.showMessageFor = 6000;
+	AutoDrive.print.showMessageFor = 10000;
 	AutoDrive.print.currentMessageActiveSince = 0;
 	AutoDrive.requestedWaypoints = false;
 	AutoDrive.requestedWaypointCount = 1;
@@ -184,6 +184,7 @@ function AutoDrive:loadMap(name)
 	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject,AutoDrive.onActivateObject)
 	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable,AutoDrive.getIsActivatable)
 
+	
 	if g_server ~= nil then
 		AutoDrive.Server = {};
 		AutoDrive.Server.Users = {};
@@ -294,6 +295,10 @@ function init(self)
 	self.ad.chosenDestination = "";
 	self.ad.enteredChosenDestination = "";
 
+	self.ad.choosingDestinationUnload = false;
+	self.ad.chosenDestinationUnload = "";
+	self.ad.enteredChosenDestinationUnload = "";
+
 	if AutoDrive.showingHud ~= nil then
 		self.ad.showingHud = AutoDrive.showingHud;
 	else
@@ -314,7 +319,7 @@ function init(self)
 	if AutoDrive.searchedTriggers ~= true then
 		AutoDrive:getAllTriggers();
 		AutoDrive.searchedTriggers = true;
-	end;
+	end;	
 end;
 
 function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
@@ -524,12 +529,17 @@ end;
 function AutoDrive:onDrawControlledVehicle(vehicle)
 	AutoDrive:drawJobs();
 
+	--if vehicle.typeName ~= nil then
+		--print("vehicle.typeName: " .. vehicle.typeName);
+	--end;
+
 	if AutoDrive.print.currentMessage ~= nil then
-		local adFontSize = 0.014;
-		local adPosX = 0.03;
-		local adPosY = 0.975;
-		setTextColor(1,1,1,1);
-		setTextAlignment(RenderText.ALIGN_LEFT);
+		local adFontSize = 0.016;
+		local adPosX = 0.5; --0.03;
+		local adPosY = 0.14; --0.975;
+		setTextColor(1,1,0,1);
+		setTextAlignment(RenderText.ALIGN_CENTER);
+		--setTextAlignment(RenderText.ALIGN_LEFT);
 		renderText(adPosX, adPosY, adFontSize, AutoDrive.print.currentMessage);
 	end;
 
@@ -540,6 +550,42 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 			AutoDrive.Hud:drawMinimalHud(vehicle);
 		end;
 	end;
+
+	local x,y,z = getWorldTranslation( vehicle.components[1].node );
+	--create bounding box to check for vehicle
+	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
+	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
+	local width = vehicle.sizeWidth;
+	local length = vehicle.sizeLength;
+	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
+	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
+
+	local box = {};
+	box.center = {};
+	box.size = {};
+	box.center[1] = 0;
+	box.center[2] = 3;
+	box.center[3] = length;
+	box.size[1] = width/2;
+	box.size[2] = 1.5;
+	box.size[3] = lookAheadDistance/2;
+	box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
+	box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
+	box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
+	box.ry = math.atan2(box.zx, box.zz)
+	local boxCenter = { x = x + (((length/2 + (lookAheadDistance/2)) * vehicleVector.x)),
+											y = y+3,
+											z = z + (((length/2 + (lookAheadDistance/2)) * vehicleVector.z)) };
+
+	local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+	local red = 0;
+	if shapes > 0 then
+		red = 1;
+	end;
+	DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], red, 0, 0);
+	
+
+
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)

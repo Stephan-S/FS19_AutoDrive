@@ -214,7 +214,7 @@ function AutoDrive:checkDoneUnloading(vehicle)
         end
     end;
 
-    return (combineLeftCapacity == combineMaxCapacity) or leftCapacity <= 500, (1-(leftCapacity/maxCapacity));
+    return ((combineMaxCapacity - combineLeftCapacity) < 100) or leftCapacity <= 500, (1-(leftCapacity/maxCapacity));
 end;
 
 function AutoDrive:combineStateToDescription(vehicle)

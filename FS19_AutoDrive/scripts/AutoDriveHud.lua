@@ -289,7 +289,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		
 		if button.name == "input_recalculate" then
 			local buttonImg = "";
-			if AutoDrive:GetChanged() == true then
+			if AutoDrive:GetChanged() == true or (AutoDrive.handledRecalculation == false) then
 				button.isVisible = true;
 			else
 				button.isVisible = false;
@@ -462,21 +462,39 @@ function AutoDriveHud:drawHud(vehicle)
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
-			
-			local targetPoint = target == vehicle.ad.nameOfSelectedTarget_Unload;
-			if vehicle.ad.isActive and targetPoint then
-				setTextColor(0,1,0,1);
-			else
-				setTextColor(1,1,1,1);
+						
+			if vehicle.ad.choosingDestinationUnload == true then
+				if vehicle.ad.chosenDestinationUnload ~= "" then
+					setTextColor(1,1,1,1);
+					--setTextAlignment(RenderText.ALIGN_LEFT);
+					local text = vehicle.ad.nameOfSelectedTarget_Unload;
+					renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload);
+				end;
+				if vehicle.ad.enteredChosenDestinationUnload ~= "" then
+					setTextColor(1,0,0,1);
+					setTextAlignment(RenderText.ALIGN_LEFT);
+					local text = vehicle.ad.enteredChosenDestinationUnload;
+					renderText(adPosX, adPosY, adFontSize,  vehicle.ad.enteredChosenDestinationUnload);
+				end;
+			else	
+				local text = vehicle.ad.nameOfSelectedTarget_Unload			
+				local targetPoint = target == vehicle.ad.nameOfSelectedTarget_Unload;
+
+				if vehicle.ad.isActive and targetPoint then
+					setTextColor(0,1,0,1);
+				else
+					setTextColor(1,1,1,1);
+				end;				
+				setTextAlignment(RenderText.ALIGN_LEFT);
+
+				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+					text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
+				end;
+
+				renderText(adPosX, adPosY, adFontSize, text);
 			end;
 
-			self.Background.unloadOverlay.ov:render();
-			setTextAlignment(RenderText.ALIGN_LEFT);
-			local text = vehicle.ad.nameOfSelectedTarget_Unload
-			if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-				text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
-			end;
-			renderText(adPosX, adPosY, adFontSize, text);
+			self.Background.unloadOverlay.ov:render();		
 		end;		
 	end;	
 end;
@@ -656,8 +674,26 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.Background.destination.posY --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
         local height = 0.015;
-        local width = 0.05;
-        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+        local width = 0.05;        
+		
+		if posX > (self.Background.Header.posX) and posX < (self.Background.Header.posX + self.Background.Header.width) and posY > (self.Background.Header.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
+			if posX > (self.Background.close_small.posX) and posX < (self.Background.close_small.posX + self.Background.close_small.width) and posY > (self.Background.close_small.posY) and posY < (self.Background.close_small.posY + self.Background.close_small.height) then
+				AutoDrive.Hud:toggleHud(vehicle);
+			else
+				self:startMovingHud(posX, posY);				
+			end;
+		end;
+		
+		if posX > (self.Background.unloadOverlay.posX + (self.Background.Header.width/2) ) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
+			AutoDrive:InputHandling(vehicle, "input_nextFillType");
+		end;
+		
+		adPosX = self.posX + self.Background.destination.width;
+        adPosY = self.Background.destination.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        height = self.buttonHeight;--0.015;
+        width = self.Background.width - self.Background.destination.width;
+		
+		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
             if vehicle.ad.choosingDestination == false then
                 vehicle.ad.choosingDestination = true
                 g_currentMission.isPlayerFrozen = true;
@@ -671,18 +707,25 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				g_inputBinding:revertContext(true);
             end;
 		end;
-		
-		if posX > (self.Background.Header.posX) and posX < (self.Background.Header.posX + self.Background.Header.width) and posY > (self.Background.Header.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
-			if posX > (self.Background.close_small.posX) and posX < (self.Background.close_small.posX + self.Background.close_small.width) and posY > (self.Background.close_small.posY) and posY < (self.Background.close_small.posY + self.Background.close_small.height) then
-				AutoDrive.Hud:toggleHud(vehicle);
-			else
-				self:startMovingHud(posX, posY);				
-			end;
+
+		adPosX = self.posX + self.Background.destination.width;
+        adPosY = self.Background.unloadOverlay.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+        height = self.buttonHeight;--0.015;
+        width = (self.Background.width - self.Background.destination.width);
+        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+			if vehicle.ad.choosingDestinationUnload == false then
+                vehicle.ad.choosingDestinationUnload = true
+                g_currentMission.isPlayerFrozen = true;
+				vehicle.isBroken = true;
+				--print("Entering destination - player frozen and vehicle broken")
+				g_inputBinding:setContext("AutoDrive.Input_Destination", true, false);
+            else
+                vehicle.ad.choosingDestinationUnload = false;
+                g_currentMission.isPlayerFrozen = false;
+				vehicle.isBroken = false;
+				g_inputBinding:revertContext(true);
+            end;
 		end;
-		
-		if posX > (self.Background.unloadOverlay.posX) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
-			AutoDrive:InputHandling(vehicle, "input_nextFillType");
-        end;
 	end;
 	
 	if AutoDrive.showMouse and button == 3 and isDown then   
@@ -759,7 +802,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	if mouseWheelActive == false and g_inputBinding:getContextName() == "AutoDrive.MOUSEWHEEL_ACTIVE" then
 		g_inputBinding:revertContext(true);
 	end;
-	if mouseWheelActive == true and g_inputBinding:getContextName() ~= "AutoDrive.MOUSEWHEEL_ACTIVE" and g_inputBinding:getContextName() ~= "AutoDrive.Input_Destination" then
+	if mouseWheelActive == true and g_inputBinding:getContextName() ~= "AutoDrive.MOUSEWHEEL_ACTIVE" and g_inputBinding:getContextName() ~= "AutoDrive.Input_Destination" and g_inputBinding:getContextName() ~= "AutoDrive.Input_MapMarker" then
 		g_inputBinding:setContext("AutoDrive.MOUSEWHEEL_ACTIVE", true, false);
 	end;
 end;
