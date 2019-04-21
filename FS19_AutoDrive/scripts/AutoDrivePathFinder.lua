@@ -1,6 +1,7 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 2500;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
+AutoDrive.PATHFINDER_START_DISTANCE = 5;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
 AutoDrive.PP_RIGHT = 2;
@@ -32,13 +33,13 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
 	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
-	local startX = driverWorldX + AutoDrive.PATHFINDER_TARGET_DISTANCE*driverRx;
-	local startZ = driverWorldZ + AutoDrive.PATHFINDER_TARGET_DISTANCE*driverRz;
+	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
+	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
 	
 	local angleGrid = math.atan2(driverVector.z, driverVector.x);
 	angleGrid = normalizeAngle(angleGrid);
 
-	local atan = angleGrid;
+    local atan = angleGrid;
 	
 	local sin = math.sin(atan);
 	local cos = math.cos(atan);
@@ -65,8 +66,8 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
 	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
-	local startX = driverWorldX + AutoDrive.PATHFINDER_TARGET_DISTANCE*driverRx;
-	local startZ = driverWorldZ + AutoDrive.PATHFINDER_TARGET_DISTANCE*driverRz;
+	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
+	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
 	
 	local angleGrid = math.atan2(driverVector.z, driverVector.x);
 	angleGrid = normalizeAngle(angleGrid);
@@ -341,14 +342,14 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         if cell.hasRequested == false then            
             local worldPos = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
 
-            local cornerX = worldPos.x - (pf.vectorX.x + pf.vectorZ.x)/2
-            local cornerZ = worldPos.z - (pf.vectorX.z + pf.vectorZ.z)/2
+            local cornerX = worldPos.x + (-pf.vectorX.x - pf.vectorZ.x)/2
+            local cornerZ = worldPos.z + (-pf.vectorX.z - pf.vectorZ.z)/2
 
-            local corner2X = worldPos.x - (pf.vectorX.x + pf.vectorZ.x)/2
-            local corner2Z = worldPos.z + (pf.vectorX.z + pf.vectorZ.z)/2
+            local corner2X = worldPos.x + (pf.vectorX.x - pf.vectorZ.x)/2
+            local corner2Z = worldPos.z + (pf.vectorX.z - pf.vectorZ.z)/2
 
-            local corner3X = worldPos.x + (pf.vectorX.x + pf.vectorZ.x)/2
-            local corner3Z = worldPos.z - (pf.vectorX.z + pf.vectorZ.z)/2
+            local corner3X = worldPos.x + (-pf.vectorX.x + pf.vectorZ.x)/2
+            local corner3Z = worldPos.z + (-pf.vectorX.z + pf.vectorZ.z)/2
 
             local corner4X = worldPos.x + (pf.vectorX.x + pf.vectorZ.x)/2
             local corner4Z = worldPos.z + (pf.vectorX.z + pf.vectorZ.z)/2
@@ -373,7 +374,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
             cell.hasCollision = cell.hasCollision or (shapes > 0);    
 
-            --allow collsiion in the first few grid. as it also detects the driver and trailer itself
+            --allow collision in the first few grid. as it also detects the driver and trailer itself
             if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 3 then --also allow collision at the end if other drivers are waiting in line
                 cell.hasCollision = false;
             end;
@@ -600,7 +601,8 @@ function AutoDrivePathFinder:worldDirectionToGridDirection(pf, vector)
 	local angleWorldDirection = math.atan2(vector.z, vector.x);
 	angleWorldDirection = normalizeAngle2(angleWorldDirection);
 
-	local angleRad = math.atan2(vecUp.z, vecUp.x);
+    --local angleRad = math.atan2(vecUp.z, vecUp.x);
+    local angleRad = math.atan2(pf.vectorX.z, pf.vectorX.x);
 	angleRad = normalizeAngle2(angleRad);
 
 	local upRightAngle = normalizeAngle2(angleRad + math.rad(45));
@@ -614,19 +616,19 @@ function AutoDrivePathFinder:worldDirectionToGridDirection(pf, vector)
     local direction = AutoDrive.PP_UP;
     --print("vectorUp: " .. math.deg(angleRad) ..  " angle target: " .. math.deg(angleWorldDirection));
 
-	if math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) >= 347.5 then
+	if math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_UP_RIGHT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) >= 347.5 then
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_RIGHT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) >= 347.5 then
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_DOWN_RIGHT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) >= 347.5 then
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_DOWN;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) >= 347.5 then
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_DOWN_LEFT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) >= 347.5 then
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_LEFT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) >= 347.5 then
+	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_UP_LEFT;
 	end;
 
@@ -712,12 +714,12 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
                 pointB.z = pointB.z - pf.vectorX.z * size - pf.vectorZ.z * size;
                 pointB.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointB.x, 1, pointB.z) + 3;
                 local pointC = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
-                pointC.x = pointC.x - pf.vectorX.x * size - pf.vectorZ.x * size;
-                pointC.z = pointC.z + pf.vectorX.z * size + pf.vectorZ.z * size;
+                pointC.x = pointC.x + pf.vectorX.x * size - pf.vectorZ.x * size;
+                pointC.z = pointC.z + pf.vectorX.z * size - pf.vectorZ.z * size;
                 pointC.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointC.x, 1, pointC.z) + 3;
                 local pointD = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
-                pointD.x = pointD.x + pf.vectorX.x * size + pf.vectorZ.x * size;
-                pointD.z = pointD.z - pf.vectorX.z * size - pf.vectorZ.z * size;
+                pointD.x = pointD.x - pf.vectorX.x * size + pf.vectorZ.x * size;
+                pointD.z = pointD.z - pf.vectorX.z * size + pf.vectorZ.z * size;
                 pointD.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointD.x, 1, pointD.z) + 3;
                 
                 if cell.hasInfo == true then
@@ -752,12 +754,12 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
             pointB.z = pointB.z - pf.vectorX.z * size - pf.vectorZ.z * size;
             pointB.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointB.x, 1, pointB.z) + 3;
             local pointC = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.targetCell);
-            pointC.x = pointC.x - pf.vectorX.x * size - pf.vectorZ.x * size;
-            pointC.z = pointC.z + pf.vectorX.z * size + pf.vectorZ.z * size;
+            pointC.x = pointC.x + pf.vectorX.x * size - pf.vectorZ.x * size;
+            pointC.z = pointC.z + pf.vectorX.z * size - pf.vectorZ.z * size;
             pointC.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointC.x, 1, pointC.z) + 3;
             local pointD = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.targetCell);
-            pointD.x = pointD.x + pf.vectorX.x * size + pf.vectorZ.x * size;
-            pointD.z = pointD.z - pf.vectorX.z * size - pf.vectorZ.z * size;
+            pointD.x = pointD.x - pf.vectorX.x * size + pf.vectorZ.x * size;
+            pointD.z = pointD.z - pf.vectorX.z * size + pf.vectorZ.z * size;
             pointD.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointD.x, 1, pointD.z) + 3;
 
             AutoDrive:drawLine(pointA, pointB, 1, 1, 1, 1);
