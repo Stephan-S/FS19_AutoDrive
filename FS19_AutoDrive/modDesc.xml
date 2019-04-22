@@ -234,6 +234,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="input_ADCallDriver">
 			<en>AD: Call Driver</en>
 			<de>AD: Abfahrer rufen</de>
+			<it>AD: Chiama autista</it>	
 		</text>
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
@@ -385,111 +386,133 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_siloEmpty">
 			<en>If silo empty</en>
 			<de>Wenn Silo leer</de>
+			<it>Se il solo è vuoto</it>
 			<fr>Quand le silo est vide</fr>
 		</text>		
 		<text name="gui_ad_siloEmpty_tooltip">
 			<en>How a pickup and deliver driver reacts to an empty silo</en>
 			<de>Legt fest, wie ein Abfahrer auf ein leeres Silo reagieren soll</de>
+			<it>Determina come l'autista deve reagire ad un silo vuoto</it>
 			<fr>Détermine comment un transporteur devrait réagir à un silo vide</fr>
 		</text>		
 		<text name="gui_ad_wait">
 			<en>Wait</en>
 			<de>Warten</de>
+			<it>Attendi</it>
 			<fr>Attente</fr>
 		</text>	
 		<text name="gui_ad_drive">
 			<en>Drive on</en>
 			<de>Weiterfahren</de>
+			<it>Continua</it>
 			<fr>Continuer</fr>
 		</text>
 		<text name="gui_ad_yes">
 			<en>Yes</en>
 			<de>Ja</de>
+			<it>Si</it>
 			<fr>Oui</fr>
 		</text>
 		<text name="gui_ad_no">
 			<en>No</en>
 			<de>Nein</de>
+			<it>No</it>
 			<fr>Non</fr>
 		</text>
 		<text name="ad_wait_for_combine">
 			<en>Wait for combine</en>
 			<de>Warten auf Drescher</de>
+			<it>Aspetta la trebbia</it>
 			<fr>Attente de moissoneuse</fr>
 		</text>
 		<text name="ad_drive_to_combine">
 			<en>Drive to combine</en>
 			<de>Fahre zu Drescher</de>
+			<it>Guida fino alla trebbia</it>
 			<fr>Conduire à la moissoneuse</fr>
 		</text>
 		<text name="ad_unloading_combine">
 			<en>Unloading combine</en>
 			<de>Entlade Drescher</de>
+			<it>Scarica la trebbia</it>
 			<fr>Déchargement de moissoneuse</fr>
 		</text>
 		<text name="ad_drive_to_parkpos">
 			<en>Parking</en>
 			<de>Parken</de>
+			<it>Sta parcheggiando</it>
 			<fr>Stationnement</fr>
 		</text>
 		<text name="ad_drive_to_startpos">
 			<en>Drive to start</en>
 			<de>Fahre zum Start</de>
+			<it>Guida fino all'inizio</it>
 			<fr>Conduire au départ</fr>
 		</text>
 		<text name="ad_drive_to_unloadpos">
 			<en>Drive to unload</en>
 			<de>Fahre abladen</de>
+			<it>Guida fino al punto di scarico</it>
 			<fr>Conduire au déchargement</fr>
 		</text>
 		<text name="gui_ad_autoConnect_start">
 			<en>Auto connect (start)</en>
 			<de>Automatisches verbinden (Start)</de>
+			<it>Connessione automatica (inizio)</it>
 			<fr>Connexion automatique (départ)</fr>
 		</text>
 		<text name="gui_ad_autoConnect_start_tooltip">
 			<en>Auto connect suitable node on start of recording</en>
 			<de>Automatisch passenden Knoten beim Start der Aufnahme verbinden</de>
+			<it>Connette automaticamente il nodo all'inizio della registrazione</it>
 			<fr>Connecter automatiquement le noeud approprié au début de l'enregistrement</fr>
 		</text>
 		<text name="gui_ad_autoConnect_end">
 			<en>Auto connect (end)</en>
 			<de>Automatisches verbinden (Ende)</de>
+			<it>Connessione automatica (fine)</it>
 			<fr>Connexion automatique (fin)</fr>
 		</text>
 		<text name="gui_ad_autoConnect_end_tooltip">
 			<en>Auto connect suitable node on end of recording</en>
 			<de>Automatisch passenden Knoten beim Ende der Aufnahme verbinden</de>
+			<it>Connette automaticamente il nodo alla fine della registrazione</it>
 			<fr>Connecter automatiquement le noeud approprié en fin d'enregistrement</fr>
 		</text>
 		<text name="gui_ad_parkInField">
 			<en>Park in field</en>
 			<de>Parken im Feld</de>
+			<it>Parcheggia sul campo</it>
 			<fr>Garer au champ</fr>
 		</text>
 		<text name="gui_ad_parkInField_tooltip">
 			<en>After unloading a combine - if not parked in fruit</en>
 			<de>Nach Drescher abladen - falls nicht in Frucht stehend</de>
+			<it>Dopo aver scaricato la trebbia - se non parcheggiata sul raccolto</it>
 			<fr>Après avoir déchargé une moissonneuse - si pas garé en fruit</fr>	<!-- end to review -->
 		</text>
 		<text name="gui_ad_unloadFillLevel">
 			<en>Unload fill level</en>
 			<de>Abladen ab Level</de>
+			<it>Scarica al livello</it>
 			<fr>Décharger le contenu</fr>
 		</text>
 		<text name="gui_ad_unloadFillLevel_tooltip">
 			<en>After unloading combine. Directly go to deliver at this fill level.</en>
+			<it>Dopo aver scaricato la trebbia va a scaricare se è stato riempito fino a questo livello</it>
 			<fr>Après avoir déchargé une moissonneuse - Partir tout de suite et ne pas attendre le prochain remplissage</fr>
 			<de>Nach Drescher abladen - Direkt abfahren und nicht auf naechsten Drescher warten ab dieser Fuellung</de>
 		</text>
 		<text name="gui_ad_findDriver">
 			<en>Find Driver</en>
 			<de>Abfahrer finden</de>
+			<it>Trova autista</it>
 			<fr>Trouver un chauffeur</fr>
 		</text>
 		<text name="gui_ad_findDriver_tooltip">
 			<en>Search for close by drivers (Ignore destination)</en>
 			<de>Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)</de>
+			<it>Cerca un autista nelle vicinanze (Ignora la destinazione)</it>
 			<fr>Recherche du chauffeur le plus proche (Ignore la destination)</fr>
 		</text>
 	</l10n>
