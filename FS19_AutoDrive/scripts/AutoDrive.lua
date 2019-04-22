@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.5";
+AutoDrive.Version = "1.0.1.6";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -22,7 +22,7 @@ function AutoDrive:prerequisitesPresent(specializations)
 end;
 
 function AutoDrive.registerEventListeners(vehicleType)    
-	for _,n in pairs( { "load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onLeaveVehicle"} ) do
+	for _,n in pairs( { "load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onLeaveVehicle", "onPostLoad", "saveToXMLFile"} ) do
 	  SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
 	end 
 end
@@ -223,18 +223,29 @@ function init(self)
 	self.ad.creationMode = false;
 	self.ad.creationModeDual = false;
 	self.ad.currentWayPoint = 0;
-	self.ad.targetSelected = -1;	
-	self.ad.mapMarkerSelected = -1;
-	self.ad.nameOfSelectedTarget = "";
 	if AutoDrive ~= nil then
-		if AutoDrive.mapMarker[1] ~= nil then
-			self.ad.targetSelected = AutoDrive.mapMarker[1].id;
-			self.ad.mapMarkerSelected = 1;
-			self.ad.nameOfSelectedTarget = AutoDrive.mapMarker[1].name;
-		end;	
+		local set = false;
+		if self.ad.mapMarkerSelected ~= nil then
+			if AutoDrive.mapMarker[self.ad.mapMarkerSelected] ~= nil then
+				self.ad.targetSelected = AutoDrive.mapMarker[self.ad.mapMarkerSelected].id;
+				self.ad.nameOfSelectedTarget = AutoDrive.mapMarker[self.ad.mapMarkerSelected].name;
+				set = true;
+			end;
+		end;
+		if not set then
+			if AutoDrive.mapMarker[1] ~= nil then
+				self.ad.targetSelected = AutoDrive.mapMarker[1].id;
+				self.ad.mapMarkerSelected = 1;
+				self.ad.nameOfSelectedTarget = AutoDrive.mapMarker[1].name;
+			end;
+		end;
 	end;
-	self.ad.mode = AutoDrive.MODE_DRIVETO;
-	self.ad.targetSpeed = AutoDrive.lastSetSpeed;
+	if self.ad.mode == nil then
+		self.ad.mode = AutoDrive.MODE_DRIVETO;
+	end;
+	if self.ad.targetSpeed == nil then
+		self.ad.targetSpeed = AutoDrive.lastSetSpeed;
+	end;	
 	self.ad.createMapPoints = false;
 	self.ad.showClosestPoint = true;
 	self.ad.selectedDebugPoint = -1;
@@ -263,7 +274,9 @@ function init(self)
 	self.ad.isPaused = false;
 	self.ad.unloadSwitch = false;
 	self.ad.isLoading = false;
-	self.ad.unloadFillTypeIndex = 2;
+	if self.ad.unloadFillTypeIndex == nil then
+		self.ad.unloadFillTypeIndex = 2;
+	end;
 	self.ad.isPausedCauseTraffic = false;
 	self.ad.startedLoadingAtTrigger = false;
 	self.ad.combineUnloadInFruit = false;
@@ -272,15 +285,22 @@ function init(self)
 	self.ad.combineFruitToCheck = nil; 
 
 	AutoDrive.Recalculation = {};
-
-	self.ad.targetSelected_Unload = -1;
-	self.ad.mapMarkerSelected_Unload = -1;
-	self.ad.nameOfSelectedTarget_Unload = "";
+	
 	if AutoDrive ~= nil then
-		if AutoDrive.mapMarker[1] ~= nil then
-			self.ad.targetSelected_Unload = AutoDrive.mapMarker[1].id;
-			self.ad.mapMarkerSelected_Unload = 1;
-			self.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[1].name;
+		local set = false;
+		if self.ad.mapMarkerSelected_Unload ~= nil then
+			if AutoDrive.mapMarker[self.ad.mapMarkerSelected_Unload] ~= nil then
+				self.ad.targetSelected_Unload = AutoDrive.mapMarker[self.ad.mapMarkerSelected_Unload].id;
+				self.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[self.ad.mapMarkerSelected_Unload].name;
+				set = true;
+			end;
+		end;
+		if not set then
+			if AutoDrive.mapMarker[1] ~= nil then
+				self.ad.targetSelected_Unload = AutoDrive.mapMarker[1].id;
+				self.ad.mapMarkerSelected_Unload = 1;
+				self.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[1].name;
+			end;
 		end;
 	end;
 
@@ -456,7 +476,7 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 end; 
 
 function AutoDrive:onUpdate(dt)
-	if self.ad == nil then
+	if self.ad == nil or self.ad.moduleInitialized ~= true then
 		init(self);
 	end;
 
@@ -551,40 +571,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 		end;
 	end;
 
-	local x,y,z = getWorldTranslation( vehicle.components[1].node );
-	--create bounding box to check for vehicle
-	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
-	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
-	local width = vehicle.sizeWidth;
-	local length = vehicle.sizeLength;
-	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
-	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
-
-	local box = {};
-	box.center = {};
-	box.size = {};
-	box.center[1] = 0;
-	box.center[2] = 3;
-	box.center[3] = length;
-	box.size[1] = width/2;
-	box.size[2] = 1.5;
-	box.size[3] = lookAheadDistance/2;
-	box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
-	box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
-	box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
-	box.ry = math.atan2(box.zx, box.zz)
-	local boxCenter = { x = x + (((length/2 + (lookAheadDistance/2)) * vehicleVector.x)),
-											y = y+3,
-											z = z + (((length/2 + (lookAheadDistance/2)) * vehicleVector.z)) };
-
-	local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
-	local red = 0;
-	if shapes > 0 then
-		red = 1;
-	end;
-	DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], red, 0, 0);
 	
-
 
 end;
 
@@ -686,6 +673,48 @@ end;
 function AutoDrive:GetChanged()
 	return AutoDrive.config_changed;
 end;
+
+function AutoDrive:onPostLoad(savegame)
+	if self.isServer then
+		if savegame ~= nil then
+      local xmlFile = savegame.xmlFile
+			local key     = savegame.key ..".FS19_AutoDrive.AutoDrive"
+			
+			if self.ad == nil then
+				self.ad = {};
+			end;
+			
+			local mode = getXMLInt(xmlFile, key.."#mode");
+			if mode  ~= nil then
+				self.ad.mode = mode;
+			end;
+			local targetSpeed = getXMLInt(xmlFile, key.."#targetSpeed")
+			if targetSpeed ~= nil then
+				self.ad.targetSpeed = targetSpeed;
+			end;
+  		local mapMarkerSelected = getXMLInt(xmlFile, key.."#mapMarkerSelected");
+			if mapMarkerSelected ~= nil then
+				self.ad.mapMarkerSelected = mapMarkerSelected;
+			end;
+			local mapMarkerSelected_Unload = getXMLInt(xmlFile, key.."#mapMarkerSelected_Unload");
+			if mapMarkerSelected_Unload ~= nil then
+				self.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
+			end;      
+			local unloadFillTypeIndex = getXMLInt(xmlFile, key.."#unloadFillTypeIndex");
+			if unloadFillTypeIndex ~= nil then
+				self.ad.unloadFillTypeIndex = unloadFillTypeIndex;
+			end;   
+    end
+	end;
+end;
+
+function AutoDrive:saveToXMLFile(xmlFile, key)
+	setXMLInt(xmlFile, key.."#mode", 											self.ad.mode)
+  setXMLInt(xmlFile, key.."#targetSpeed", 							self.ad.targetSpeed)
+  setXMLInt(xmlFile, key.."#mapMarkerSelected",        	self.ad.mapMarkerSelected);
+	setXMLInt(xmlFile, key.."#mapMarkerSelected_Unload", 	self.ad.mapMarkerSelected_Unload);
+	setXMLInt(xmlFile, key.."#unloadFillTypeIndex", 			self.ad.unloadFillTypeIndex);
+end
 
 function normalizeAngle(inputAngle)
 	if inputAngle > (2*math.pi) then

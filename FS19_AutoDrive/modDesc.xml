@@ -27,7 +27,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
  	  </es>
 	</description>
-	<version>1.0.1.5</version>
+	<version>1.0.1.6</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -488,8 +488,8 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_parkInField_tooltip">
 			<en>After unloading a combine - if not parked in fruit</en>
 			<de>Nach Drescher abladen - falls nicht in Frucht stehend</de>
-			<it>Dopo aver scaricato la trebbia - se non parcheggiata sul raccolto</it>
-			<fr>Après avoir déchargé une moissonneuse - si pas garé en fruit</fr>	<!-- end to review -->
+			<it>Dopo aver scaricato la trebbia - non parcheggiare sul raccolto</it>
+			<fr>Après avoir déchargé une moissonneuse - si pas garé en fruit</fr>
 		</text>
 		<text name="gui_ad_unloadFillLevel">
 			<en>Unload fill level</en>

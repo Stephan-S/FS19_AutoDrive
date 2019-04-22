@@ -122,6 +122,7 @@ function AutoDrive:removeMapMarker(toDelete)
 end
 
 function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
+	AutoDrive:MarkChanged();
 	if vehicle.ad.createMapPoints == true then
 		AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter + 1;
 		if AutoDrive.mapWayPointsCounter > 1 and connectPrevious then

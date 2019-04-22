@@ -135,7 +135,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
             local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
             
             if doneUnloading or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER) then
-                if vehicle.ad.combineUnloadInFruit == true then
+                if vehicle.ad.combineUnloadInFruit == true or true then
                     --wait for combine to move away. Currently by fixed timer of 15s
                     if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
                         vehicle.ad.combineUnloadInFruitWaitTimer = vehicle.ad.combineUnloadInFruitWaitTimer - dt;
