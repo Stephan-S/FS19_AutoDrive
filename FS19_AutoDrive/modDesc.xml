@@ -235,6 +235,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<en>AD: Call Driver</en>
 			<de>AD: Abfahrer rufen</de>
 			<it>AD: Chiama autista</it>
+			<fr>AD: Appeler chauffeur</fr>
 			<es>AD: Llama a conductor</es>
 		</text>
 		<text name="AD_Driver_of">
