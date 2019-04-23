@@ -309,7 +309,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="AD_MODE_UNLOAD">
 			<en>Unload Combine</en>
 			<de>Drescher abfahren</de>
-			<it>Scarica la trebbia</it>
+			<it>Scarica trebbia</it>
 			<fr>Décharger moissoneuse</fr>
 			<es>Descargar cosechadora</es>
 		</text>
@@ -358,7 +358,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_avoidMarkers">
 			<en>Avoid other targets</en>
 			<de>Zielpunkte vermeiden</de>
-      		<it>Evita di attraversare i punti di destinazione</it>
+      			<it>Evita di attraversare i punti di destinazione</it>
 			<fr>Éviter de traverser les destinations</fr>
 			<es>Evitar desvíos a traves de metas</es>
 		</text>
@@ -379,14 +379,14 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_mapMarkerDetour_tooltip">
 			<en>Maximum detour when avoiding targets</en>
 			<de>Maximaler Umweg wenn Zielpunkte vermieden werden sollen</de>
-			<it>Deviazione massima quando le destinazioni devono essere evitate</it>
+			<it>Deviazione massima quando si sceglie di evitare le destinazioni</it>
 			<fr>Détour maximum quand des destinations doivent être évités</fr>
 			<es>Desvío máximo cuando evitemos metas</es>
 		</text>
 		<text name="gui_ad_siloEmpty">
 			<en>If silo empty</en>
 			<de>Wenn Silo leer</de>
-			<it>Se il solo è vuoto</it>
+			<it>Se il silo è vuoto</it>
 			<fr>Quand le silo est vide</fr>
 		</text>		
 		<text name="gui_ad_siloEmpty_tooltip">
@@ -422,37 +422,37 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="ad_wait_for_combine">
 			<en>Wait for combine</en>
 			<de>Warten auf Drescher</de>
-			<it>Aspetta la trebbia</it>
+			<it>Aspetto la trebbia</it>
 			<fr>Attente de moissoneuse</fr>
 		</text>
 		<text name="ad_drive_to_combine">
 			<en>Drive to combine</en>
 			<de>Fahre zu Drescher</de>
-			<it>Guida fino alla trebbia</it>
+			<it>Vado alla trebbia</it>
 			<fr>Conduire à la moissoneuse</fr>
 		</text>
 		<text name="ad_unloading_combine">
 			<en>Unloading combine</en>
 			<de>Entlade Drescher</de>
-			<it>Scarica la trebbia</it>
+			<it>Scarico la trebbia</it>
 			<fr>Déchargement de moissoneuse</fr>
 		</text>
 		<text name="ad_drive_to_parkpos">
 			<en>Parking</en>
 			<de>Parken</de>
-			<it>Sta parcheggiando</it>
+			<it>Parcheggio</it>
 			<fr>Stationnement</fr>
 		</text>
 		<text name="ad_drive_to_startpos">
 			<en>Drive to start</en>
 			<de>Fahre zum Start</de>
-			<it>Guida fino all'inizio</it>
+			<it>Vado all'inizio</it>
 			<fr>Conduire au départ</fr>
 		</text>
 		<text name="ad_drive_to_unloadpos">
 			<en>Drive to unload</en>
 			<de>Fahre abladen</de>
-			<it>Guida fino al punto di scarico</it>
+			<it>Vado al punto di scarico</it>
 			<fr>Conduire au déchargement</fr>
 		</text>
 		<text name="gui_ad_autoConnect_start">
@@ -464,7 +464,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_autoConnect_start_tooltip">
 			<en>Auto connect suitable node on start of recording</en>
 			<de>Automatisch passenden Knoten beim Start der Aufnahme verbinden</de>
-			<it>Connette automaticamente il nodo all'inizio della registrazione</it>
+			<it>Connette automaticamente il nodo appropriato all'inizio della registrazione</it>
 			<fr>Connecter automatiquement le noeud approprié au début de l'enregistrement</fr>
 		</text>
 		<text name="gui_ad_autoConnect_end">
@@ -476,7 +476,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_autoConnect_end_tooltip">
 			<en>Auto connect suitable node on end of recording</en>
 			<de>Automatisch passenden Knoten beim Ende der Aufnahme verbinden</de>
-			<it>Connette automaticamente il nodo alla fine della registrazione</it>
+			<it>Connette automaticamente il nodo appropriato alla fine della registrazione</it>
 			<fr>Connecter automatiquement le noeud approprié en fin d'enregistrement</fr>
 		</text>
 		<text name="gui_ad_parkInField">
@@ -488,7 +488,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_parkInField_tooltip">
 			<en>After unloading a combine - if not parked in fruit</en>
 			<de>Nach Drescher abladen - falls nicht in Frucht stehend</de>
-			<it>Dopo aver scaricato la trebbia - non parcheggiare sul raccolto</it>
+			<it>Dopo aver scaricato la trebbia se non si è sul raccolto</it>
 			<fr>Après avoir déchargé une moissonneuse - si pas garé en fruit</fr>
 		</text>
 		<text name="gui_ad_unloadFillLevel">
@@ -499,7 +499,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		</text>
 		<text name="gui_ad_unloadFillLevel_tooltip">
 			<en>After unloading combine. Directly go to deliver at this fill level.</en>
-			<it>Dopo aver scaricato la trebbia va a scaricare se è stato riempito fino a questo livello</it>
+			<it>Dopo aver scaricato la trebbia vai direttamente a consegnare se è stato raggiunto questo livello</it>
 			<fr>Après avoir déchargé une moissonneuse - Partir tout de suite et ne pas attendre le prochain remplissage</fr>
 			<de>Nach Drescher abladen - Direkt abfahren und nicht auf naechsten Drescher warten ab dieser Fuellung</de>
 		</text>
@@ -512,7 +512,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_findDriver_tooltip">
 			<en>Search for close by drivers (Ignore destination)</en>
 			<de>Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)</de>
-			<it>Cerca un autista nelle vicinanze (Ignora la destinazione)</it>
+			<it>Cerca automaticamente un autista nelle vicinanze (Ignorando la sua destinazione)</it>
 			<fr>Recherche du chauffeur le plus proche (Ignore la destination)</fr>
 		</text>
 	</l10n>
