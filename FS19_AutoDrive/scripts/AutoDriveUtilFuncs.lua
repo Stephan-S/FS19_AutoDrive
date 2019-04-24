@@ -73,8 +73,9 @@ function string:split(sep)
     return fields
 end
 
-function AutoDrive:printMessage(newMessage)
+function AutoDrive:printMessage(vehicle, newMessage)
 	AutoDrive.print.nextMessage = newMessage;
+	AutoDrive.print.nextReferencedVehicle = vehicle;
 end;
 
 function ADBoolToString(value)

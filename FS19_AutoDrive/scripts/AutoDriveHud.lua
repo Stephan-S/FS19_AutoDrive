@@ -132,8 +132,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_debug", "debug_on.dds", "debug_off.dds","input_ADActivateDebug", false, true);
 
 	self:AddButton("input_recalculate", "recalculate.dds", "recalculate_on.dds","input_ADDebugForceUpdate", true, false);
-	self:AddButton("input_previousTarget_Unload", "previousTarget_Unload.dds", "previousTarget_Unload.dds", "input_ADSelectTargetUnload", true, true);
-	self:AddButton("input_nextTarget_Unload", "nextTarget_Unload.dds", "nextTarget_Unload.dds","input_ADSelectPreviousTargetUnload", true, true);
+	self:AddButton("input_previousTarget_Unload", "previousTarget_Unload.dds", "previousTarget_Unload.dds", "input_ADSelectPreviousTargetUnload", true, true);
+	self:AddButton("input_nextTarget_Unload", "nextTarget_Unload.dds", "nextTarget_Unload.dds","input_ADSelectTargetUnload", true, true);
 	self:AddButton("input_showNeighbor", "showNeighbor_on.dds", "showNeighbor_off.dds","input_ADDebugSelectNeighbor", false, false);
 	self:AddButton("input_nextNeighbor", "nextNeighbor.dds", "nextNeighbor.dds","input_ADDebugChangeNeighbor", true, false);
 	self:AddButton("input_toggleConnection", "toggleConnection.dds", "toggleConnection.dds","input_ADDebugCreateConnection", true, false);
@@ -672,7 +672,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         end;
 
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.Background.destination.posY --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+        local adPosY = self.Background.destination.posY
         local height = 0.015;
         local width = 0.05;        
 		
@@ -689,8 +689,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 		
 		adPosX = self.posX + self.Background.destination.width;
-        adPosY = self.Background.destination.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
-        height = self.buttonHeight;--0.015;
+        adPosY = self.Background.destination.posY;
+        height = self.buttonHeight;
         width = self.Background.width - self.Background.destination.width;
 		
 		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
@@ -709,8 +709,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 
 		adPosX = self.posX + self.Background.destination.width;
-        adPosY = self.Background.unloadOverlay.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
-        height = self.buttonHeight;--0.015;
+        adPosY = self.Background.unloadOverlay.posY;
+        height = self.buttonHeight;
         width = (self.Background.width - self.Background.destination.width);
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 			if vehicle.ad.choosingDestinationUnload == false then
@@ -736,22 +736,22 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 	local mouseWheelActive = false;
 	local adPosX = self.posX + self.Background.destination.width;
-	local adPosY = self.Background.destination.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
-	local height = self.buttonHeight;--0.015;
+	local adPosY = self.Background.destination.posY;
+	local height = self.buttonHeight;
 	local width = self.Background.width - self.Background.destination.width;
 	if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 		mouseWheelActive = true;
 	end;
 
-	adPosY =  self.Background.unloadOverlay.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
+	adPosY =  self.Background.unloadOverlay.posY;
 	if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 		mouseWheelActive = true;
 	end;
 
 	if AutoDrive.showMouse and button == 4 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.Background.destination.posY; --self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
-        local height = self.buttonHeight;--0.015;
+        local adPosY = self.Background.destination.posY;
+        local height = self.buttonHeight;
         local width = self.Background.width - self.Background.destination.width;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 			AutoDrive:InputHandling(vehicle, "input_previousTarget");
@@ -760,8 +760,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 	if AutoDrive.showMouse and button == 5 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.Background.destination.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * self.rowCurrent;
-        local height = self.buttonHeight;--0.015;
+        local adPosY = self.Background.destination.posY;
+        local height = self.buttonHeight;
         local width = self.Background.width - self.Background.destination.width;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
             AutoDrive:InputHandling(vehicle, "input_nextTarget");
@@ -769,8 +769,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	end;
 	if AutoDrive.showMouse and button == 4 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.Background.unloadOverlay.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
-        local height = self.buttonHeight;--0.015;
+        local adPosY = self.Background.unloadOverlay.posY;
+        local height = self.buttonHeight;
         local width = (self.Background.width - self.Background.destination.width)/2;
         if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
             AutoDrive:InputHandling(vehicle, "input_previousTarget_Unload");
@@ -784,8 +784,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 	if AutoDrive.showMouse and button == 5 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
-        local adPosY = self.Background.unloadOverlay.posY;--self.posY + 0.04 + (self.borderY + self.buttonHeight) * (self.rowCurrent-1);
-        local height = self.buttonHeight;--0.015;
+        local adPosY = self.Background.unloadOverlay.posY;
+        local height = self.buttonHeight;
         local width = (self.Background.width - self.Background.destination.width)/2;
 		
 		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
@@ -798,13 +798,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 
-	
-	if mouseWheelActive == false and g_inputBinding:getContextName() == "AutoDrive.MOUSEWHEEL_ACTIVE" then
-		g_inputBinding:revertContext(true);
-	end;
-	if mouseWheelActive == true and g_inputBinding:getContextName() ~= "AutoDrive.MOUSEWHEEL_ACTIVE" and g_inputBinding:getContextName() ~= "AutoDrive.Input_Destination" and g_inputBinding:getContextName() ~= "AutoDrive.Input_MapMarker" then
-		g_inputBinding:setContext("AutoDrive.MOUSEWHEEL_ACTIVE", true, false);
-	end;
+	AutoDrive.mouseWheelActive = mouseWheelActive;
 end;
 
 function AutoDriveHud:startMovingHud(mouseX, mouseY)
@@ -840,3 +834,4 @@ function AutoDriveHud:getModeName(vehicle)
 
 	return "";
 end;
+

@@ -1,3 +1,111 @@
+function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
+	--print("AutoDrive onActionCall.." .. actionName);
+
+	if actionName == "ADSilomode" then			
+		--print("sending event to InputHandling");
+		AutoDrive:InputHandling(self, "input_silomode");
+	end;	
+	if actionName == "ADRecord" then
+		AutoDrive:InputHandling(self, "input_record");			
+	end; 
+	
+	if actionName == "ADEnDisable" then
+		AutoDrive:InputHandling(self, "input_start_stop");			
+	end; 
+	
+	if actionName ==  "ADSelectTarget" then
+		AutoDrive:InputHandling(self, "input_nextTarget");			
+	end; 
+	
+	if actionName == "ADSelectPreviousTarget" then
+		AutoDrive:InputHandling(self, "input_previousTarget");
+	end;
+
+	if actionName ==  "ADSelectTargetUnload" then
+		AutoDrive:InputHandling(self, "input_nextTarget_Unload");			
+	end; 
+	
+	if actionName == "ADSelectPreviousTargetUnload" then
+		AutoDrive:InputHandling(self, "input_previousTarget_Unload");
+	end;
+
+	if actionName == "ADSelectTargetMouseWheel" and AutoDrive.showMouse then
+		AutoDrive:InputHandling(self, "input_nextTarget");
+	end;
+
+	if actionName == "ADSelectPreviousTargetMouseWheel" and AutoDrive.showMouse then
+		AutoDrive:InputHandling(self, "input_previousTarget");
+	end;
+	
+	if actionName == "ADActivateDebug" then 
+		AutoDrive:InputHandling(self, "input_debug");			
+	end; 
+	
+	if actionName == "ADDebugShowClosest"  then 
+		AutoDrive:InputHandling(self, "input_showNeighbor");			
+	end; 
+	
+	if actionName == "ADDebugSelectNeighbor" then 
+		AutoDrive:InputHandling(self, "input_showClosest");			
+	end; 
+	if actionName == "ADDebugCreateConnection" then 
+		AutoDrive:InputHandling(self, "input_toggleConnection");			
+	end; 
+	if actionName == "ADDebugChangeNeighbor" then 
+		AutoDrive:InputHandling(self, "input_nextNeighbor");			
+	end; 
+	if actionName == "ADDebugCreateMapMarker" then 
+		AutoDrive:InputHandling(self, "input_createMapMarker");			
+	end; 
+	
+	if actionName == "AD_Speed_up" then 
+		AutoDrive:InputHandling(self, "input_increaseSpeed");			
+	end;
+	
+	if actionName == "AD_Speed_down" then 
+		AutoDrive:InputHandling(self, "input_decreaseSpeed");			
+	end;
+	
+	if actionName == "ADToggleHud" then 
+		AutoDrive:InputHandling(self, "input_toggleHud");			
+	end;
+
+	if actionName == "ADToggleMouse" then
+		AutoDrive:InputHandling(self, "input_toggleMouse");
+	end;
+
+	if actionName == "ADDebugDeleteWayPoint" then 
+		AutoDrive:InputHandling(self, "input_removeWaypoint");
+	end;
+	if actionName == "AD_export_routes" then
+		AutoDrive:InputHandling(self, "input_exportRoutes");
+	end;
+	if actionName == "AD_import_routes" then
+		AutoDrive:InputHandling(self, "input_importRoutes");
+	end;
+	if actionName == "AD_upload_routes" then
+		AutoDrive:InputHandling(self, "input_uploadRoutes");
+	end;
+	if actionName == "ADDebugDeleteDestination" then
+		AutoDrive:InputHandling(self, "input_removeDestination");
+	end;
+	if actionName == "ADSelectNextFillType" then
+		AutoDrive:InputHandling(self, "input_nextFillType");
+	end;
+	if actionName == "ADSelectPreviousFillType" then
+		AutoDrive:InputHandling(self, "input_previousFillType");
+	end;
+	if actionName == "ADOpenGUI" then			
+		AutoDrive:InputHandling(self, "input_openGUI");
+	end;
+	if actionName == "ADCallDriver" then			
+		AutoDrive:InputHandling(self, "input_callDriver");
+	end;
+	if actionName == "ADGoToVehicle" then			
+		AutoDrive:InputHandling(self, "input_goToVehicle");
+	end;
+end;
+
 function AutoDrive:InputHandling(vehicle, input)
 	--print("AutoDrive InputHandling.." .. input);
 	vehicle.ad.currentInput = input;
@@ -89,6 +197,10 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	
 	if input == "input_openGUI" then
 		AutoDrive:onOpenSettings();
+	end;
+
+	if input == "input_goToVehicle" then
+		AutoDrive:inputSwitchToArrivedVehicle();
 	end;
 end;
 
@@ -503,4 +615,10 @@ function AutoDrive:inputCreateMapMarker(vehicle)
             g_inputBinding:revertContext(true);
         end;
     end;
+end;
+
+function AutoDrive:inputSwitchToArrivedVehicle()
+	if AutoDrive.print.referencedVehicle ~= nil then
+		g_currentMission:requestToEnterVehicle(AutoDrive.print.referencedVehicle);
+	end;
 end;

@@ -148,6 +148,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt8(streamId, self.disableAI);
 
 	streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage);
+	streamWriteInt32OrEmpty(streamId, NetworkUtil.getObjectId(AutoDrive.print.referencedVehicle));
 	-- print("event writeStream")
 end;
 
@@ -293,6 +294,13 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.disableAI = disableAI;
 
 		AutoDrive.print.currentMessage = AD_currentMessage;
+		local refVehicleInt = streamReadInt32(streamId);
+		if refVehicleInt ~= 0 then
+			local referencedVehicle = NetworkUtil.getObject(id);
+			if referencedVehicle ~= nil then
+				AutoDrive.print.referencedVehicle = referencedVehicle;
+			end;
+		end;
 	end;
 		
 	if g_server ~= nil then	

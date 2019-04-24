@@ -235,7 +235,7 @@ function AutoDrive:handleRecalculation(vehicle)
 				AutoDrive.recalculationPercentage = AutoDrive:ContiniousRecalculation();
 				AutoDrive.Recalculation.nextCalculationSkipFrames = 0;
 
-				AutoDrive:printMessage(g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%");
+				AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%");
 			else
 				AutoDrive.Recalculation.nextCalculationSkipFrames =  AutoDrive.Recalculation.nextCalculationSkipFrames - 1;
 			end;

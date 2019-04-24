@@ -27,7 +27,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
  	  </es>
 	</description>
-	<version>1.0.1.6</version>
+	<version>1.0.1.7</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -237,6 +237,10 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<it>AD: Chiama autista</it>
 			<fr>AD: Appeler chauffeur</fr>
 			<es>AD: Llama a conductor</es>
+		</text>
+		<text name="input_ADGoToVehicle">
+			<en>AD: Go to arrived vehicle</en>
+			<de>AD: Zu angekommenem Fahrzeug wechseln</de>
 		</text>
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
@@ -567,6 +571,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="ADSilomode" 					category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADOpenGUI" 					category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADCallDriver" 				category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADGoToVehicle" 				category="VEHICLE" ignoreComboMask="false"/>		
 	</actions>
 
 	<inputBinding>

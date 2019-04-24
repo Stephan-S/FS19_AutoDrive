@@ -122,20 +122,25 @@ function AutoDrive:handlePrintMessage(vehicle, dt)
         if AutoDrive.print.currentMessage ~= nil then
             AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt;
             if AutoDrive.print.nextMessage ~= nil then
-                if AutoDrive.print.currentMessageActiveSince > 200 then
+                if AutoDrive.print.currentMessageActiveSince > 6000 then
                     AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
+                    AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle;
                     AutoDrive.print.nextMessage = nil;
+                    AutoDrive.print.nextReferencedVehicle = nil;
                     AutoDrive.print.currentMessageActiveSince = 0;
                 end;
             end;
             if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
                 AutoDrive.print.currentMessage = nil;
                 AutoDrive.print.currentMessageActiveSince = 0;
+                AutoDrive.print.referencedVehicle = nil;
             end;
         else
             if AutoDrive.print.nextMessage ~= nil then
                 AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
+                AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle;
                 AutoDrive.print.nextMessage = nil;
+                AutoDrive.print.nextReferencedVehicle = nil;
                 AutoDrive.print.currentMessageActiveSince = 0;
             end;
 		end;
@@ -176,7 +181,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         
         if vehicle.ad.wayPoints ~= nil then
             if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1] ~= nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
-                AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
+                AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
                 AutoDrive:stopAD(vehicle);
             end;
             
@@ -229,7 +234,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 end;
             end;
             
-            AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
+            AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
             AutoDrive:stopAD(vehicle);           
         else
             vehicle.ad.startedLoadingAtTrigger = false;
@@ -404,11 +409,11 @@ end;
 
 function AutoDrive:handleDeadlock(vehicle, dt)
 	if vehicle.ad.inDeadLock == true and vehicle.ad.isActive == true and vehicle.isServer then
-		AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
+		AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
 		
 		--deadlock handling
 		if vehicle.ad.inDeadLockRepairCounter < 1 then
-			AutoDrive:printMessage(g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
+			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_got_stuck"));
             AutoDrive:stopAD(vehicle);
 		else
             --print("AD: Trying to recover from deadlock")

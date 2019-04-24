@@ -1,12 +1,14 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.6";
+AutoDrive.Version = "1.0.1.7";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
-AutoDrive.actions   = { 'ADToggleMouse', 'ADToggleHud', 'ADEnDisable', 'ADSelectTarget', 'ADSelectPreviousTarget', 'ADSelectTargetUnload',
-						'ADSelectPreviousTargetUnload', 'ADActivateDebug', 'ADDebugShowClosest', 'ADDebugSelectNeighbor',
-						'ADDebugChangeNeighbor', 'ADDebugCreateConnection', 'ADDebugCreateMapMarker', 'ADDebugDeleteWayPoint',
-						'ADDebugForceUpdate', 'ADDebugDeleteDestination', 'ADSilomode', 'ADOpenGUI', 'ADCallDriver' }
+AutoDrive.actions   = { {'ADToggleMouse', true}, {'ADToggleHud', true}, {'ADEnDisable', true}, {'ADSelectTarget', false}, {'ADSelectPreviousTarget', false},
+						{'ADSelectTargetUnload', false},	{'ADSelectPreviousTargetUnload', false}, {'ADActivateDebug', false}, {'ADDebugShowClosest', false},
+						{'ADDebugSelectNeighbor', false}, {'ADDebugChangeNeighbor', false}, {'ADDebugCreateConnection', false}, {'ADDebugCreateMapMarker', false},
+						{'ADDebugDeleteWayPoint', false},  {'ADDebugForceUpdate', false}, {'ADDebugDeleteDestination', false},  {'ADSilomode',false}, {'ADOpenGUI', false},
+						{'ADCallDriver', false}, {'ADSelectNextFillType', false}, {'ADSelectPreviousFillType', false}, {'ADRecord', false}, 
+						{'AD_export_routes', false}, {'AD_import_routes', false}, {'AD_upload_routes', false}, {'ADGoToVehicle', false} }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -50,56 +52,10 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		-- attach our actions
 		local __, eventName
 		local toggleButton = false;
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADToggleMouse', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, true)	
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADToggleHud', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, true)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADEnDisable', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, true)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, true)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTarget', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSilomode', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)	
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousTargetUnload', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADActivateDebug', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, true)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugShowClosest', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugSelectNeighbor', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugChangeNeighbor', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugCreateConnection', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugCreateMapMarker', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteWayPoint', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugForceUpdate', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADDebugDeleteDestination', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)	
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectNextFillType', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)	
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADSelectPreviousFillType', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)		
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADRecord', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)			
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'AD_export_routes', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)		
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'AD_import_routes', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)		
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'AD_upload_routes', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)		
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADOpenGUI', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)	
-		__, eventName = InputBinding.registerActionEvent(g_inputBinding, 'ADCallDriver', self, AutoDrive.onActionCall, toggleButton ,true ,false ,true)
-		g_inputBinding:setActionEventTextVisibility(eventName, false)	
+		for _, action in pairs(AutoDrive.actions) do
+			__, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, AutoDrive.onActionCall, toggleButton ,true ,false ,true);
+			g_inputBinding:setActionEventTextVisibility(eventName, action[2]);	
+		end;
 	end
 end
 
@@ -128,18 +84,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
-		--DebugUtil.printTableRecursively(g_currentMission, "	:	",0,2);
-		print("Map title: " .. g_currentMission.missionInfo.map.title);
-		if g_currentMission.missionInfo.savegameDirectory ~= nil then 
-			--print("Savegame location: " .. g_currentMission.missionInfo.savegameDirectory);
-		else
-			if g_currentMission.missionInfo.savegameIndex ~= nil then
-				--print("Savegame location via index: " .. getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex);
-			else
-				--print("No savegame located");
-			end;
-		end;
-		
+		print("Map title: " .. g_currentMission.missionInfo.map.title);		
 		AutoDrive_printedDebug = true;
 	end;
 	
@@ -161,12 +106,15 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.print = {};
 	AutoDrive.print.currentMessage = nil;
+	AutoDrive.print.referencedVehicle = nil;
 	AutoDrive.print.nextMessage = nil;
-	AutoDrive.print.showMessageFor = 10000;
+	AutoDrive.print.showMessageFor = 12000;
 	AutoDrive.print.currentMessageActiveSince = 0;
 	AutoDrive.requestedWaypoints = false;
 	AutoDrive.requestedWaypointCount = 1;
 	AutoDrive.playerSendsMapToServer = false;
+
+	AutoDrive.mouseWheelActive = false;
 
 	AutoDrive:loadStoredXML();
 
@@ -179,11 +127,11 @@ function AutoDrive:loadMap(name)
 
 	-- Save Configuration when saving savegame
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame);
-
 	
 	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject,AutoDrive.onActivateObject)
 	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable,AutoDrive.getIsActivatable)
 
+	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly);
 	
 	if g_server ~= nil then
 		AutoDrive.Server = {};
@@ -223,6 +171,7 @@ function init(self)
 	self.ad.creationMode = false;
 	self.ad.creationModeDual = false;
 	self.ad.currentWayPoint = 0;
+
 	if AutoDrive ~= nil then
 		local set = false;
 		if self.ad.mapMarkerSelected ~= nil then
@@ -233,9 +182,9 @@ function init(self)
 			end;
 		end;
 		if not set then
+			self.ad.mapMarkerSelected = 1;
 			if AutoDrive.mapMarker[1] ~= nil then
 				self.ad.targetSelected = AutoDrive.mapMarker[1].id;
-				self.ad.mapMarkerSelected = 1;
 				self.ad.nameOfSelectedTarget = AutoDrive.mapMarker[1].name;
 			end;
 		end;
@@ -296,9 +245,9 @@ function init(self)
 			end;
 		end;
 		if not set then
+			self.ad.mapMarkerSelected_Unload = 1;
 			if AutoDrive.mapMarker[1] ~= nil then
 				self.ad.targetSelected_Unload = AutoDrive.mapMarker[1].id;
-				self.ad.mapMarkerSelected_Unload = 1;
 				self.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[1].name;
 			end;
 		end;
@@ -340,111 +289,6 @@ function init(self)
 		AutoDrive:getAllTriggers();
 		AutoDrive.searchedTriggers = true;
 	end;	
-end;
-
-function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
-	--print("AutoDrive onActionCall.." .. actionName);
-
-	if actionName == "ADSilomode" then			
-		--print("sending event to InputHandling");
-		AutoDrive:InputHandling(self, "input_silomode");
-	end;	
-	if actionName == "ADRecord" then
-		AutoDrive:InputHandling(self, "input_record");			
-	end; 
-	
-	if actionName == "ADEnDisable" then
-		AutoDrive:InputHandling(self, "input_start_stop");			
-	end; 
-	
-	if actionName ==  "ADSelectTarget" then
-		AutoDrive:InputHandling(self, "input_nextTarget");			
-	end; 
-	
-	if actionName == "ADSelectPreviousTarget" then
-		AutoDrive:InputHandling(self, "input_previousTarget");
-	end;
-
-	if actionName ==  "ADSelectTargetUnload" then
-		AutoDrive:InputHandling(self, "input_nextTarget_Unload");			
-	end; 
-	
-	if actionName == "ADSelectPreviousTargetUnload" then
-		AutoDrive:InputHandling(self, "input_previousTarget_Unload");
-	end;
-
-	if actionName == "ADSelectTargetMouseWheel" and AutoDrive.showMouse then
-		AutoDrive:InputHandling(self, "input_nextTarget");
-	end;
-
-	if actionName == "ADSelectPreviousTargetMouseWheel" and AutoDrive.showMouse then
-		AutoDrive:InputHandling(self, "input_previousTarget");
-	end;
-	
-	if actionName == "ADActivateDebug" then 
-		AutoDrive:InputHandling(self, "input_debug");			
-	end; 
-	
-	if actionName == "ADDebugShowClosest"  then 
-		AutoDrive:InputHandling(self, "input_showNeighbor");			
-	end; 
-	
-	if actionName == "ADDebugSelectNeighbor" then 
-		AutoDrive:InputHandling(self, "input_showClosest");			
-	end; 
-	if actionName == "ADDebugCreateConnection" then 
-		AutoDrive:InputHandling(self, "input_toggleConnection");			
-	end; 
-	if actionName == "ADDebugChangeNeighbor" then 
-		AutoDrive:InputHandling(self, "input_nextNeighbor");			
-	end; 
-	if actionName == "ADDebugCreateMapMarker" then 
-		AutoDrive:InputHandling(self, "input_createMapMarker");			
-	end; 
-	
-	if actionName == "AD_Speed_up" then 
-		AutoDrive:InputHandling(self, "input_increaseSpeed");			
-	end;
-	
-	if actionName == "AD_Speed_down" then 
-		AutoDrive:InputHandling(self, "input_decreaseSpeed");			
-	end;
-	
-	if actionName == "ADToggleHud" then 
-		AutoDrive:InputHandling(self, "input_toggleHud");			
-	end;
-
-	if actionName == "ADToggleMouse" then
-		AutoDrive:InputHandling(self, "input_toggleMouse");
-	end;
-
-	if actionName == "ADDebugDeleteWayPoint" then 
-		AutoDrive:InputHandling(self, "input_removeWaypoint");
-	end;
-	if actionName == "AD_export_routes" then
-		AutoDrive:InputHandling(self, "input_exportRoutes");
-	end;
-	if actionName == "AD_import_routes" then
-		AutoDrive:InputHandling(self, "input_importRoutes");
-	end;
-	if actionName == "AD_upload_routes" then
-		AutoDrive:InputHandling(self, "input_uploadRoutes");
-	end;
-	if actionName == "ADDebugDeleteDestination" then
-		AutoDrive:InputHandling(self, "input_removeDestination");
-	end;
-	if actionName == "ADSelectNextFillType" then
-		AutoDrive:InputHandling(self, "input_nextFillType");
-	end;
-	if actionName == "ADSelectPreviousFillType" then
-		AutoDrive:InputHandling(self, "input_previousFillType");
-	end;
-	if actionName == "ADOpenGUI" then			
-		AutoDrive:InputHandling(self, "input_openGUI");
-	end;
-	if actionName == "ADCallDriver" then			
-		AutoDrive:InputHandling(self, "input_callDriver");
-	end;
 end;
 
 function AutoDrive:onLeaveVehicle()	
@@ -528,14 +372,6 @@ function AutoDrive:onDraw()
 		end;
 	end;
 
-	--if self.ad.mode == AutoDrive.MODE_UNLOAD and self.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
-		--if ADTableLength(self.ad.wayPoints) > 1 then
-			--for i=2, ADTableLength(self.ad.wayPoints), 1 do
-				--AutoDrive:drawLine(self.ad.wayPoints[i-1], self.ad.wayPoints[i], 1, 1, 1, 1);
-			--end;
-		--end;
-	--end;
-
 	if self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawControlledVehicle(self);
 	end;
@@ -549,17 +385,12 @@ end;
 function AutoDrive:onDrawControlledVehicle(vehicle)
 	AutoDrive:drawJobs();
 
-	--if vehicle.typeName ~= nil then
-		--print("vehicle.typeName: " .. vehicle.typeName);
-	--end;
-
 	if AutoDrive.print.currentMessage ~= nil then
 		local adFontSize = 0.016;
 		local adPosX = 0.5; --0.03;
 		local adPosY = 0.14; --0.975;
 		setTextColor(1,1,0,1);
 		setTextAlignment(RenderText.ALIGN_CENTER);
-		--setTextAlignment(RenderText.ALIGN_LEFT);
 		renderText(adPosX, adPosY, adFontSize, AutoDrive.print.currentMessage);
 	end;
 
@@ -570,9 +401,6 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 			AutoDrive.Hud:drawMinimalHud(vehicle);
 		end;
 	end;
-
-	
-
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)
@@ -714,6 +542,12 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
   setXMLInt(xmlFile, key.."#mapMarkerSelected",        	self.ad.mapMarkerSelected);
 	setXMLInt(xmlFile, key.."#mapMarkerSelected_Unload", 	self.ad.mapMarkerSelected_Unload);
 	setXMLInt(xmlFile, key.."#unloadFillTypeIndex", 			self.ad.unloadFillTypeIndex);
+end
+
+function AutoDrive.zoomSmoothly(self, superFunc, offset)
+	if not AutoDrive.mouseWheelActive then -- don't zoom camera when mouse wheel is used to scroll targets (thanks to sperrgebiet)
+		superFunc(self, offset);
+	end
 end
 
 function normalizeAngle(inputAngle)

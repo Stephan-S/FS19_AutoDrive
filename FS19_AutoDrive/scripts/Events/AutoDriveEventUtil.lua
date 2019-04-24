@@ -185,3 +185,10 @@ function streamWriteStringOrEmpty(streamID, string)
 	end;
 	streamWriteString(streamID, string);
 end;
+
+function streamWriteInt32OrEmpty(streamID, value) 	
+	if value == nil then
+		value = 0;
+	end;
+	streamWriteInt32(streamID, value);
+end;
