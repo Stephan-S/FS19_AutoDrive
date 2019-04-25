@@ -241,6 +241,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="input_ADGoToVehicle">
 			<en>AD: Go to arrived vehicle</en>
 			<de>AD: Zu angekommenem Fahrzeug wechseln</de>
+			<fr>AD: Entrer dans le vehicule arrivé</fr>
 		</text>
 		<text name="AD_Driver_of">
 			<en>Driver of</en>
