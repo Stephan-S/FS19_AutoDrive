@@ -23,7 +23,7 @@ public class EditorListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         System.out.println("ActionCommand: " + e.getActionCommand());
         if (e.getActionCommand() == "Save") {
-            int returnVal = fc.showOpenDialog(editor);
+            int returnVal = fc.showSaveDialog(editor);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 editor.savedFile = fc.getSelectedFile();
@@ -77,6 +77,9 @@ public class EditorListener implements ActionListener {
                     e1.printStackTrace();
                 }
             }
+        }
+        if (e.getActionCommand() == "FourTimesMap") {
+            editor.isFourTimesMap = editor.fourTimesMap.isSelected();
         }
     }
 }

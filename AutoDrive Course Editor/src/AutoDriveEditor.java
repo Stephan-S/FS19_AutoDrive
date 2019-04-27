@@ -41,8 +41,11 @@ public class AutoDriveEditor extends JFrame {
     public JToggleButton moveNode;
     public JToggleButton connectNodes;
     public JToggleButton createNode;
+    public JToggleButton fourTimesMap;
 
     public MapNode selected = null;
+
+    public boolean isFourTimesMap = false;
 
     public int editorState = EDITORSTATE_MOVING;
 
@@ -100,6 +103,11 @@ public class AutoDriveEditor extends JFrame {
         createNode.addActionListener(this.editorListener);
         createNode.setActionCommand("Create Nodes");
         buttonPanel.add(createNode);
+
+        fourTimesMap = new JToggleButton("Four times Map");
+        fourTimesMap.addActionListener(this.editorListener);
+        fourTimesMap.setActionCommand("FourTimesMap");
+        buttonPanel.add(fourTimesMap);
 
         saveButton = new JButton("Save");
         saveButton.addActionListener(this.editorListener);
@@ -220,9 +228,20 @@ public class AutoDriveEditor extends JFrame {
 
 
                 for (int i=0; i<ids.length; i++) {
-                    MapNode mapNode = new MapNode(Integer.parseInt(ids[i]), Double.parseDouble(xValues[i]), Double.parseDouble(yValues[i]), Double.parseDouble(zValues[i]));
+                    int id = Integer.parseInt(ids[i]);
+                    double x = Double.parseDouble(xValues[i]);
+                    double y = Double.parseDouble(yValues[i]);
+                    double z = Double.parseDouble(zValues[i]);
+
+                    if (isFourTimesMap) {
+                        x = (x)/2.0;
+                        z = (z)/2.0;
+                    }
+
+                    MapNode mapNode = new MapNode(id, x, y, z);
                     nodes.add(mapNode);
                 }
+
 
                 for (Map.Entry<Integer, String> entry : mapMarkerTree.entrySet())
                 {
@@ -249,7 +268,7 @@ public class AutoDriveEditor extends JFrame {
                     }
                 }
 
-                for (int i=0; i<ids.length; i++) {
+                for (int i=0; i<ids.length && i < markerIdsArrays.length ; i++) {
                     MapNode mapNode = nodes.get(i);
                     String[] markerIDs = markerIdsArrays[i].split(",");
 
@@ -358,7 +377,12 @@ public class AutoDriveEditor extends JFrame {
                     String xPositions = "";
                     for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
                         MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        xPositions += mapNode.x;
+                        if (isFourTimesMap) {
+                            xPositions += mapNode.x * 2.0;
+                        }
+                        else {
+                            xPositions += mapNode.x;
+                        }
                         if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
                             xPositions = xPositions + ",";
                         }
@@ -380,7 +404,12 @@ public class AutoDriveEditor extends JFrame {
                     String zPositions = "";
                     for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
                         MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        zPositions += mapNode.z;
+                        if (isFourTimesMap) {
+                            zPositions += mapNode.z * 2.0;
+                        }
+                        else {
+                            zPositions += mapNode.z;
+                        }
                         if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
                             zPositions = zPositions + ",";
                         }

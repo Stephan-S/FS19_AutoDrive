@@ -211,6 +211,16 @@ function AutoDrive:onActivateObject(superFunc,vehicle)
 	superFunc(self, vehicle);
 end
 
+function AutoDrive:onFillTypeSelection(superFunc, fillType)
+	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
+		local validFillableObject = self.validFillableObject
+		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
+			local fillUnitIndex = self.validFillableFillUnitIndex
+			self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
+		end
+	end
+end
+
 -- LoadTrigger doesn't allow filling non controlled tools
 function AutoDrive:getIsActivatable(superFunc,objectToFill)
 	--when the trigger is filling, it uses this function without objectToFill

@@ -84,7 +84,6 @@ function AutoDrive:handleTrailers(vehicle, dt)
                                 activate = true;    
                             end;
                         end;
-
                         if AutoDrive:getSetting("continueOnEmptySilo") and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.startedLoadingAtTrigger then --trigger must be empty by now. Drive on!
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;

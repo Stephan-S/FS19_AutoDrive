@@ -222,6 +222,9 @@ public class MapPanel extends JPanel{
         double scaledX = worldX * zoomLevel;
         double scaledY = worldY * zoomLevel;
 
+        //scaledX = ((worldX + 2048)/2.0) * zoomLevel;
+        //scaledY = ((worldY + 2048)/2.0) * zoomLevel;
+
         double centerXScaled = (x * (image.getWidth()*zoomLevel));
         double centerYScaled = (y * (image.getHeight()*zoomLevel));
 

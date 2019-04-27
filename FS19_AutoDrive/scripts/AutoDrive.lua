@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.7";
+AutoDrive.Version = "1.0.1.8";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -130,6 +130,7 @@ function AutoDrive:loadMap(name)
 	
 	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject,AutoDrive.onActivateObject)
 	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable,AutoDrive.getIsActivatable)
+	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection,AutoDrive.onFillTypeSelection)
 
 	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly);
 	
