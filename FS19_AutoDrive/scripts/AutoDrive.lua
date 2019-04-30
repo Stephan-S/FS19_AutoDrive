@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.8";
+AutoDrive.Version = "1.0.1.9";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -521,10 +521,20 @@ function AutoDrive:onPostLoad(savegame)
 			if targetSpeed ~= nil then
 				self.ad.targetSpeed = targetSpeed;
 			end;
+
+			self.ad.targetSelected = -1;	
+			self.ad.mapMarkerSelected = -1;
+			self.ad.nameOfSelectedTarget = "";
+
   		local mapMarkerSelected = getXMLInt(xmlFile, key.."#mapMarkerSelected");
 			if mapMarkerSelected ~= nil then
 				self.ad.mapMarkerSelected = mapMarkerSelected;
 			end;
+
+			self.ad.targetSelected_Unload = -1;
+			self.ad.mapMarkerSelected_Unload = -1;
+			self.ad.nameOfSelectedTarget_Unload = "";
+
 			local mapMarkerSelected_Unload = getXMLInt(xmlFile, key.."#mapMarkerSelected_Unload");
 			if mapMarkerSelected_Unload ~= nil then
 				self.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
