@@ -80,10 +80,17 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
 	end;
 	
 	if vehicle.startMotor and vehicle.stopMotor then
-		if vehicle.ad.isActive then
+		if vehicle.ad.isActive and vehicle:getCanMotorRun() then
 			vehicle:startMotor();
 		end;
-	end;
+    end;
+    
+    if not vehicle:getCanMotorRun() then
+        vehicle.ad.isPaused = true;
+        vehicle.ad.inDeadLock = false;
+		vehicle.ad.timeTillDeadLock = 15000;
+		vehicle.ad.inDeadLockRepairCounter = 4;
+    end;
 
 	if vehicle.ad.isActive == true and vehicle.ad.isPaused == false then
 		if vehicle.steeringEnabled then
