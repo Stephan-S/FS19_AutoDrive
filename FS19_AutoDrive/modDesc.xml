@@ -363,6 +363,14 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<fr>Distance du véhicule pour ralentir plus tôt avant le virage</fr>
 			<es>Distancia a la que el vehículo ajusta su velocidad para efectuar un desvío</es>
 		</text>
+		<text name="gui_ad_useFastestRoute">
+			<en>Use fastest Route</en>
+			<de>Schnellste Strecke bevorzugen</de>
+		</text>
+		<text name="gui_ad_useFastestRoute_tooltip">
+			<en>Take the driving speed into consideration instead of simple distances, when calculating best routes</en>
+			<de>Beim Berechnen wird die erwartete Fahrgeschwindigkeit berücksichtigt und nicht nur die Entfernung</de>
+		</text>
 		<text name="gui_ad_avoidMarkers">
 			<en>Avoid other targets</en>
 			<de>Zielpunkte vermeiden</de>

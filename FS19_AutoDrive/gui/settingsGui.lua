@@ -94,6 +94,10 @@ function adSettingsGui:onCreateAutoDriveSettingLookAheadBraking(element)
     self:onCreateAutoDriveSetting(element, "lookAheadBraking");
 end;
 
+function adSettingsGui:onCreateAutoDriveSettingUseFastestRoute(element)
+    self:onCreateAutoDriveSetting(element, "useFastestRoute");
+end;
+
 function adSettingsGui:onCreateAutoDriveSettingAvoidMarkers(element)
     self:onCreateAutoDriveSetting(element, "avoidMarkers");
 end;

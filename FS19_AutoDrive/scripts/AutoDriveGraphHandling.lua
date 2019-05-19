@@ -273,6 +273,37 @@ function AutoDrive:getDistanceBetweenNodes(start, target)
 	return distance;
 end;
 
+function AutoDrive:getDriveTimeBetweenNodes(start, target)
+	local wp_ahead = AutoDrive.mapWayPoints[target];
+	local wp_current = AutoDrive.mapWayPoints[start];
+
+	local angle = 0;
+
+	if wp_current.out ~= nil and wp_current.out[1] ~= nil then
+		local wp_ref = AutoDrive.mapWayPoints[wp_current.out[1]];
+		angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
+												{x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
+		angle = math.abs(angle);
+	end; 
+	
+	local driveTime = 0;
+	local drivingSpeed = 50;
+
+	if angle < 3 then drivingSpeed = 50; end;
+	if angle >= 3 and angle < 5 then drivingSpeed = 38; end;
+	if angle >= 5 and angle < 8 then drivingSpeed = 27; end;
+	if angle >= 8 and angle < 12 then drivingSpeed = 20; end;
+	if angle >= 12 and angle < 15 then drivingSpeed = 13; end;
+	if angle >= 15 and angle < 20 then drivingSpeed = 10; end;
+	if angle >= 20 and angle < 30 then drivingSpeed = 7; end;
+	if angle >= 30 then drivingSpeed = 4; end;
+
+	local drivingDistance = AutoDrive:getDistanceBetweenNodes(start, target);
+
+	driveTime = (drivingDistance) / (drivingSpeed * (1000/3600));
+	return driveTime;
+end;
+
 function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
 	local sortedList = {};
 	local outerLoop = 1;

@@ -150,7 +150,14 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 								longLine = false;
 							end;
 
-							local alternative = shortest + AutoDrive:getDistanceBetweenNodes(shortest_id, linkedNodeId);
+							local distanceToAdd = 0;
+							if AutoDrive:getSetting("useFastestRoute") == true then
+								distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(shortest_id, linkedNodeId);
+							else
+								distanceToAdd = AutoDrive:getDistanceBetweenNodes(shortest_id, linkedNodeId);
+							end;
+
+							local alternative = shortest + distanceToAdd;
 							if alternative < workDistances[linkedNodeId] then
 								workDistances[linkedNodeId] = alternative;
 								workPre[linkedNodeId] = shortest_id;
@@ -223,7 +230,13 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 	if recalcTable.dijkstraStep == 2 then
 		workDistances[start] = 0;
 		for i, id in pairs(workQ[start]) do
-			workDistances[id] = AutoDrive:getDistanceBetweenNodes(start, id);
+			local distanceToAdd = 0;
+			if AutoDrive:getSetting("useFastestRoute") == true then
+				distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(start, id);
+			else
+				distanceToAdd = AutoDrive:getDistanceBetweenNodes(start, id);
+			end;
+			workDistances[id] = distanceToAdd;
 			workPre[id] = start;
 		end;
 	end;	

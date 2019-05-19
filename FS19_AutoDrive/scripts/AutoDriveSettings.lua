@@ -30,6 +30,16 @@ AutoDrive.settings.lookAheadBraking = {
     translate= false
 };
 
+AutoDrive.settings.useFastestRoute = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_useFastestRoute",                                    
+    tooltip= "gui_ad_useFastestRoute_tooltip",
+    translate= true
+};
+
 AutoDrive.settings.avoidMarkers = {  
     values= {false, true},                                    
     texts= {"gui_ad_no", "gui_ad_yes"},                                    
