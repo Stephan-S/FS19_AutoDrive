@@ -84,6 +84,7 @@ function AutoDrive:callDriverToCombine(combine)
                     closestDriver.ad.wayPoints = {};
                     
                     combine.ad.tryingToCallDriver = false; 
+                    combine.ad.driverOnTheWay = true;
                 end;
             end;
         end;
