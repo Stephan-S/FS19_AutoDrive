@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.1.9";
+AutoDrive.Version = "1.0.2.0";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -233,6 +233,9 @@ function init(self)
 	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
 	self.ad.combineFieldArea = nil;
 	self.ad.combineFruitToCheck = nil; 
+	self.ad.driverOnTheWay = false;
+	self.ad.tryingToCallDriver = false;
+	self.ad.stoppedTimer = 5000;
 
 	AutoDrive.Recalculation = {};
 	

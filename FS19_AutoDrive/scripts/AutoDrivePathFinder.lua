@@ -27,6 +27,8 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local pipeOffset = AutoDrive:getSetting("pipeOffset");
     local wpAhead = {x= (nodeX + 8*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - pipeOffset * combineNormalVector.z};
     local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
+    local wpBehind_close = {x= (nodeX - 5*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 5*rz - pipeOffset * combineNormalVector.z };
+    
 	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
     
 
@@ -55,10 +57,11 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     -- AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetY, targetVector, vectorX, vectorZ)
     AutoDrivePathFinder:init(driver, startX, startZ, wpBehind.x, wpBehind.z, combineVector, vectorX, vectorZ, combine) 
     
-	driver.ad.pf.appendWayPoints = {};
-	driver.ad.pf.appendWayPoints[1] = wpCurrent;
-	driver.ad.pf.appendWayPoints[2] = wpAhead;
-	driver.ad.pf.appendWayPointCount = 2;	    
+    driver.ad.pf.appendWayPoints = {};
+	driver.ad.pf.appendWayPoints[1] = wpBehind_close;
+	driver.ad.pf.appendWayPoints[2] = wpCurrent;
+	driver.ad.pf.appendWayPoints[3] = wpAhead;
+	driver.ad.pf.appendWayPointCount = 3;	    
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)       

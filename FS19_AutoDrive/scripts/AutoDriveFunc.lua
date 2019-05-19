@@ -68,6 +68,10 @@ function AutoDrive:startAD(vehicle)
 			end;
 		end;	
 	end;
+
+	
+	vehicle.ad.driverOnTheWay = false;
+	vehicle.ad.tryingToCallDriver = false;
 end;
 
 function AutoDrive:stopAD(vehicle)

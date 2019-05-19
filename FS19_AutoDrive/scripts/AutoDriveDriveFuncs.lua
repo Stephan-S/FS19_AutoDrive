@@ -120,7 +120,13 @@ function AutoDrive:checkForDeadLock(vehicle, dt)
 		vehicle.ad.inDeadLock = false;
 		vehicle.ad.timeTillDeadLock = 15000;
 		vehicle.ad.inDeadLockRepairCounter = 4;
-	end;
+    end;
+    
+    if vehicle.lastSpeedReal <= 0.0005 then
+        vehicle.ad.stoppedTimer = math.max(0, vehicle.ad.stoppedTimer-dt);
+    else
+        vehicle.ad.stoppedTimer = 5000;
+    end;
 end;
 
 function AutoDrive:handlePrintMessage(vehicle, dt)    

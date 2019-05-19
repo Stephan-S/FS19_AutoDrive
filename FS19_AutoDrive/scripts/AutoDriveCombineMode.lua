@@ -9,8 +9,13 @@ AutoDrive.UNLOAD_WAIT_TIMER = 15000;
 
 function AutoDrive:handleCombineHarvester(vehicle, dt)    
     if vehicle.ad.currentDriver ~= nil then
+        vehicle.ad.driverOnTheWay = true;
+        vehicle.ad.tryingToCallDriver = false;   
         return;
     end;
+
+    vehicle.ad.driverOnTheWay = false;     
+    vehicle.ad.tryingToCallDriver = false;  
 
     if vehicle.spec_dischargeable ~= nil then
         local leftCapacity = 0;
@@ -24,8 +29,23 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
             end
         end;
 
-        if maxCapacity > 0 and leftCapacity <= 1.0 and vehicle.lastSpeedReal <= 0.0005 then
-            AutoDrive:callDriverToCombine(vehicle);
+        local cpIsCalling = false;
+        if vehicle.cp ~= nil then
+            if vehicle.cp.driver ~= nil then
+                if vehicle.cp.driver.states ~= nil then
+                    if vehicle.cp.driver.states.WAITING_FOR_UNLOAD_OR_REFILL ~= nil then
+                        if vehicle.cp.driver.states.WAITING_FOR_UNLOAD_OR_REFILL == vehicle.cp.driver.fieldWorkUnloadOrRefillState then
+                            --print("Detected CP is calling driver");
+                            cpIsCalling = true;
+                        end;
+                    end;
+                end;
+            end;
+        end;
+
+        if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
+            vehicle.ad.tryingToCallDriver = true;  
+            AutoDrive:callDriverToCombine(vehicle);            
         end;
     end;    
 end;
@@ -33,7 +53,7 @@ end;
 function AutoDrive:callDriverToCombine(combine)
     local spec = combine.spec_pipe
     if spec.currentState == spec.targetState and spec.currentState == 2 then
-    
+        
         local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 
         for _,dischargeNode in pairs(combine.spec_dischargeable.dischargeNodes) do
@@ -62,10 +82,18 @@ function AutoDrive:callDriverToCombine(combine)
                     closestDriver.ad.isLoading = false;
                     closestDriver.ad.initialized = false 
                     closestDriver.ad.wayPoints = {};
+                    
+                    combine.ad.tryingToCallDriver = false; 
                 end;
             end;
         end;
+    else
+        combine.ad.tryingToCallDriver = true;    
     end;
+end;
+
+function AutoDrive:combineIsCallingDriver(combine)
+    return (combine.ad ~= nil) and (combine.ad.tryingToCallDriver or combine.ad.driverOnTheWay);
 end;
 
 function AutoDrive:handleReachedWayPointCombine(vehicle)
