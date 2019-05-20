@@ -30,17 +30,8 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         end;
 
         local cpIsCalling = false;
-        if vehicle.cp ~= nil then
-            if vehicle.cp.driver ~= nil then
-                if vehicle.cp.driver.states ~= nil then
-                    if vehicle.cp.driver.states.WAITING_FOR_UNLOAD_OR_REFILL ~= nil then
-                        if vehicle.cp.driver.states.WAITING_FOR_UNLOAD_OR_REFILL == vehicle.cp.driver.fieldWorkUnloadOrRefillState then
-                            --print("Detected CP is calling driver");
-                            cpIsCalling = true;
-                        end;
-                    end;
-                end;
-            end;
+        if vehicle.cp and vehicle.cp.driver and vehicle.cp.driver.isWaitingForUnload then
+            cpIsCalling = vehicle.cp.driver:isWaitingForUnload();
         end;
 
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
