@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.2.0";
+AutoDrive.Version = "1.0.2.1";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -293,6 +293,10 @@ function init(self)
 		AutoDrive:getAllTriggers();
 		AutoDrive.searchedTriggers = true;
 	end;	
+
+	if self.spec_autodrive == nil then
+		self.spec_autodrive = AutoDrive;
+	end;
 end;
 
 function AutoDrive:onLeaveVehicle()	
