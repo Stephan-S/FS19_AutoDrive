@@ -80,6 +80,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/PathFinderCallBack.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
