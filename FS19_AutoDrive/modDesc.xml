@@ -19,7 +19,7 @@
 		</it>
 		<fr>
 <![CDATA[Ce mod peut être utilisé pour créer un réseau de routes permettant aux véhicules de conduire de manière autonome. Une fois la configuration effectuée, vous pouvez indiquer à un tracteur situé près du réseau de se rendre à n’importe quel point, tel que le magasin, le champ 1 ou un point de vente.
-Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
+Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !. De plus, cette version prend aussi en charge le déchargement de moissoneuses, plusieurs didacticiels vidéos sont disponibles sur Youtube sue la chaîne de l'auteur, (baloothebear89).
 ]]>
 	   </fr>
 	   <es>
@@ -366,10 +366,12 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_useFastestRoute">
 			<en>Use fastest Route</en>
 			<de>Schnellste Strecke bevorzugen</de>
+			<fr>Préférer les routes rapide</fr>
 		</text>
 		<text name="gui_ad_useFastestRoute_tooltip">
 			<en>Take the driving speed into consideration instead of simple distances, when calculating best routes</en>
 			<de>Beim Berechnen wird die erwartete Fahrgeschwindigkeit berücksichtigt und nicht nur die Entfernung</de>
+			<fr>Lors du calcul de l'itinéraire, la vitesse de conduite privilégiée est prise en compte, pas seulement la distance</fr>
 		</text>
 		<text name="gui_ad_avoidMarkers">
 			<en>Avoid other targets</en>
