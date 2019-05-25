@@ -76,17 +76,17 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Background.Header = {};
 	self.Background.Header.img = AutoDrive.directory .. "textures/Header.dds";
 	self.Background.Header.width = self.width;
-	self.Background.Header.height = 0.009 * (g_screenWidth / g_screenHeight);
+	self.Background.Header.height = 0.009 * uiScale * (g_screenWidth / g_screenHeight);
 	self.Background.Header.posX = self.posX;
 	self.Background.Header.posY = self.posY + self.height - self.Background.Header.height;
 	self.Background.Header.ov = Overlay:new(self.Background.Header.img, self.Background.Header.posX, self.Background.Header.posY , self.Background.Header.width, self.Background.Header.height);
 	
 	self.Background.close_small = {};
 	self.Background.close_small.img = AutoDrive.directory .. "textures/close_small.dds";
-	self.Background.close_small.width = 0.01;
+	self.Background.close_small.width = 0.01 * uiScale 
 	self.Background.close_small.height = self.Background.close_small.width * (g_screenWidth / g_screenHeight);
-	self.Background.close_small.posX = self.posX + self.width - 0.0101;
-	self.Background.close_small.posY = self.posY + self.height - 0.0101* (g_screenWidth / g_screenHeight);
+	self.Background.close_small.posX = self.posX + self.width - (0.0101 * uiScale);
+	self.Background.close_small.posY = self.posY + self.height - (0.0101* (g_screenWidth / g_screenHeight)  * uiScale);
 	self.Background.close_small.ov = Overlay:new(self.Background.close_small.img, self.Background.close_small.posX, self.Background.close_small.posY , self.Background.close_small.width, self.Background.close_small.height);
 
 	self.Background.destination = {};
