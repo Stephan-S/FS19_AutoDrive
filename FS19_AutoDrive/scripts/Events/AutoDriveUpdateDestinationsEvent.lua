@@ -22,6 +22,8 @@ function AutoDriveUpdateDestinationsEvent:new(vehicle)
 	self.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload;
 	self.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload;
 
+	self.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex;
+
 	return self;
 end;
 
@@ -38,6 +40,8 @@ function AutoDriveUpdateDestinationsEvent:writeStream(streamId, connection)
     streamWriteInt16(streamId, self.targetSelected_Unload);
 	streamWriteInt16(streamId, self.mapMarkerSelected_Unload);
 	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)    	
+
+	streamWriteInt8(streamId, self.unloadFillTypeIndex);	
 end;
 
 function AutoDriveUpdateDestinationsEvent:readStream(streamId, connection)
@@ -54,7 +58,9 @@ function AutoDriveUpdateDestinationsEvent:readStream(streamId, connection)
     
     local targetSelected_Unload = streamReadInt16(streamId);
 	local mapMarkerSelected_Unload = streamReadInt16(streamId);
-    local nameOfSelectedTarget_Unload = streamReadStringOrEmpty(streamId);
+	local nameOfSelectedTarget_Unload = streamReadStringOrEmpty(streamId);
+	
+	local unloadFillTypeIndex = streamReadInt8(streamId);
     
     vehicle.ad.targetSelected = targetSelected;	
 	vehicle.ad.mapMarkerSelected = mapMarkerSelected;
@@ -62,7 +68,9 @@ function AutoDriveUpdateDestinationsEvent:readStream(streamId, connection)
     
     vehicle.ad.targetSelected_Unload = targetSelected_Unload;
     vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
-    vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload;
+	vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload;	
+	
+	vehicle.ad.unloadFillTypeIndex = unloadFillTypeIndex;	
     
     if g_server ~= nil then	
 		g_server:broadcastEvent(AutoDriveUpdateDestinationsEvent:new(vehicle), nil, nil, vehicle);

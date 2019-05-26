@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.2.1";
+AutoDrive.Version = "1.0.2.2";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -297,7 +297,19 @@ function init(self)
 
 	if self.spec_autodrive == nil then
 		self.spec_autodrive = AutoDrive;
-	end;
+	end;	
+	
+	self.ad.pullDownList = {};
+	self.ad.pullDownList.active = false;
+	self.ad.pullDownList.start = false;
+	self.ad.pullDownList.destination = false;
+	self.ad.pullDownList.fillType = false;
+	self.ad.pullDownList.itemList = {};
+	self.ad.pullDownList.selectedItem = nil;
+	self.ad.pullDownList.posX = 0;
+	self.ad.pullDownList.posY = 0;
+	self.ad.pullDownList.width = 0;
+	self.ad.pullDownList.height = 0;
 end;
 
 function AutoDrive:onLeaveVehicle()	
@@ -471,6 +483,13 @@ function AutoDrive:onDrawCreationMode(vehicle)
 				end;
 			end;
 		end;
+
+		if (ADTableLength(point.out) == 0) and (ADTableLength(point.incoming) == 0) then
+			local node = createTransformGroup("X");
+			setTranslation(node, point.x, point.y + 4 , point.z  );
+			DebugUtil.drawDebugNode(node,"X");
+		end;
+
 	end;
 
 	for markerID,marker in pairs(AutoDrive.mapMarker) do

@@ -147,6 +147,7 @@ function AutoDrive:handlePrintMessage(vehicle, dt)
                 AutoDrive.print.currentMessage = nil;
                 AutoDrive.print.currentMessageActiveSince = 0;
                 AutoDrive.print.referencedVehicle = nil;
+                AutoDrive.print.showMessageFor = 12000;
             end;
         else
             if AutoDrive.print.nextMessage ~= nil then
@@ -183,11 +184,17 @@ function AutoDrive:initializeAD(vehicle, dt)
         local closest = AutoDrive:findMatchingWayPointForVehicle(vehicle);
         if vehicle.ad.skipStart == true then
             vehicle.ad.skipStart = false;
+            if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] == nil then
+                return;
+            end;
             vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
             vehicle.ad.wayPointsChanged = true;
             vehicle.ad.unloadSwitch = true;   
             vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
         else
+            if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] == nil then
+                return;
+            end;
             vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);    
             vehicle.ad.wayPointsChanged = true;
         end;
@@ -384,6 +391,18 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         maxAngle = maxAngle*2;
         finalSpeed = finalSpeed / 2;
     end;
+
+    if vehicle.ad.lastUsedSpeed == nil then
+        vehicle.ad.lastUsedSpeed = finalSpeed;
+    end;
+
+    if finalSpeed > vehicle.ad.lastUsedSpeed then
+        finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*5, finalSpeed);
+    elseif finalSpeed < vehicle.ad.lastUsedSpeed then
+        finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*5, finalSpeed);
+    end;
+
+    vehicle.ad.lastUsedSpeed = finalSpeed;
 
     local acceleration = 1;
     if vehicle.ad.trafficDetected == true then

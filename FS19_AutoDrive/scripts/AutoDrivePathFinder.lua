@@ -61,7 +61,9 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 	driver.ad.pf.appendWayPoints[1] = wpBehind_close;
 	driver.ad.pf.appendWayPoints[2] = wpCurrent;
 	driver.ad.pf.appendWayPoints[3] = wpAhead;
-	driver.ad.pf.appendWayPointCount = 3;	    
+    driver.ad.pf.appendWayPointCount = 3;	   
+    
+    driver.ad.pf.goingToCombine = true;
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)       
@@ -111,6 +113,8 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)
 	driver.ad.pf.appendWayPoints[1] = preTargetPoint;
     driver.ad.pf.appendWayPoints[2] = targetPoint;
     driver.ad.pf.appendWayPointCount = 2;
+
+    driver.ad.pf.goingToCombine = false;
 end;
 
 function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine)    
@@ -394,7 +398,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 cell.hasFruit = cell.isRestricted;
 
                 --Allow fruit in the first few grid cells
-                if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then
+                if (((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 2 then
                     cell.isRestricted = false;
                 end;
                 cell.hasInfo = true;

@@ -27,8 +27,10 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
         if vehicle.ad.chosenDestination == "" then
             behindCurrent = true;
         end;
+
         for _,marker in pairs( AutoDrive.mapMarker) do
-            local tempName = vehicle.ad.chosenDestination;
+            local tempName = vehicle.ad.chosenDestination;            
+            
             if string.find(marker.name, vehicle.ad.enteredChosenDestination) == 1 and behindCurrent and not foundMatch then
                 vehicle.ad.chosenDestination = marker.name;
                 markerID = marker.id;
@@ -42,7 +44,6 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
         if behindCurrent == true and foundMatch == false then
             foundMatch = false;
             for _,marker in pairs( AutoDrive.mapMarker) do
-
                 if string.find(marker.name, vehicle.ad.enteredChosenDestination) == 1 and not foundMatch then
                     vehicle.ad.chosenDestination = marker.name;
                     markerID = marker.id;
@@ -58,7 +59,15 @@ function AutoDrive:handleKeyEventsForDestination(vehicle, unicode, sym, modifier
             AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
         end;
     elseif unicode ~= 0 then
-        vehicle.ad.enteredChosenDestination = vehicle.ad.enteredChosenDestination .. string.char(unicode);
+        local converted = "";
+        if (unicode <= 0x7F) then
+            converted = string.char(unicode);
+        elseif (unicode <= 0x7FF) then
+            local Byte0 = 0xC0 + math.floor(unicode / 0x40);
+            local Byte1 = 0x80 + (unicode % 0x40);
+            converted = string.char(Byte0, Byte1);            
+        end;
+        vehicle.ad.enteredChosenDestination = vehicle.ad.enteredChosenDestination .. converted;
     end;
 end;
 
@@ -96,7 +105,6 @@ function AutoDrive:handleKeyEventsForDestinationUnload(vehicle, unicode, sym, mo
         if behindCurrent == true and foundMatch == false then
             foundMatch = false;
             for _,marker in pairs( AutoDrive.mapMarker) do
-
                 if string.find(marker.name, vehicle.ad.enteredChosenDestinationUnload) == 1 and not foundMatch then
                     vehicle.ad.chosenDestinationUnload = marker.name;
                     markerID = marker.id;
@@ -112,7 +120,15 @@ function AutoDrive:handleKeyEventsForDestinationUnload(vehicle, unicode, sym, mo
             AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
         end;
     elseif unicode ~= 0 then
-        vehicle.ad.enteredChosenDestinationUnload = vehicle.ad.enteredChosenDestinationUnload .. string.char(unicode);
+        local converted = "";
+        if (unicode <= 0x7F) then
+            converted = string.char(unicode);
+        elseif (unicode <= 0x7FF) then
+            local Byte0 = 0xC0 + math.floor(unicode / 0x40);
+            local Byte1 = 0x80 + (unicode % 0x40);
+            converted = string.char(Byte0, Byte1);            
+        end;
+        vehicle.ad.enteredChosenDestinationUnload = vehicle.ad.enteredChosenDestinationUnload .. converted;
     end;
 end;
 
@@ -129,7 +145,14 @@ function AutoDrive:handleKeyEventForMapMarkerInput(vehicle, unicode, sym, modifi
         if vehicle.ad.enteredMapMarkerString == ("" .. AutoDrive.mapWayPointsCounter) then
             vehicle.ad.enteredMapMarkerString = "";
         end;
-        
-        vehicle.ad.enteredMapMarkerString = vehicle.ad.enteredMapMarkerString .. string.char(unicode);        
+        local converted = "";
+        if (unicode <= 0x7F) then
+            converted = string.char(unicode);
+        elseif (unicode <= 0x7FF) then
+            local Byte0 = 0xC0 + math.floor(unicode / 0x40);
+            local Byte1 = 0x80 + (unicode % 0x40);
+            converted = string.char(Byte0, Byte1);            
+        end;
+        vehicle.ad.enteredMapMarkerString = vehicle.ad.enteredMapMarkerString .. converted;    
     end;
 end;

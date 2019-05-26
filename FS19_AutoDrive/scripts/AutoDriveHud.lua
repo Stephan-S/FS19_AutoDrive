@@ -1,5 +1,6 @@
 AutoDriveHud = {}
 AutoDrive.FONT_SCALE = 0.0115;
+AutoDrive.PULLDOWN_ITEM_COUNT = 20;
 
 function AutoDriveHud:new()
     o = {}
@@ -28,7 +29,7 @@ function AutoDriveHud:loadHud()
 		self.posY = AutoDrive.HudY;
 	end;
 	AutoDriveHud:createHudAt(self.posX, self.posY);
-	self.isMoving = false;
+	self.isMoving = false;	
 end;
 
 function AutoDriveHud:createHudAt(hudX, hudY)
@@ -72,6 +73,14 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Background.posY = self.posY;
 	self.Background.width = self.width;
 	self.Background.height = self.height;
+
+	self.Background.pullDownBG = {};
+	self.Background.pullDownBG.img = AutoDrive.directory .. "textures/Background.dds";
+	self.Background.pullDownBG.ov = Overlay:new(AutoDrive.directory .. "textures/Background.dds", self.posX, self.posY , self.width, self.height);
+	self.Background.pullDownBG.posX = self.posX;
+	self.Background.pullDownBG.posY = self.posY;
+	self.Background.pullDownBG.width = self.width;
+	self.Background.pullDownBG.height = self.height;
 
 	self.Background.Header = {};
 	self.Background.Header.img = AutoDrive.directory .. "textures/Header.dds";
@@ -388,12 +397,11 @@ function AutoDriveHud:drawHud(vehicle)
 		local textToShow = "AutoDrive";
 		textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle);
 		if vehicle.ad.sToolTip ~= "" and vehicle.ad.nToolTipWait <= 0 then
-			--setTextAlignment(RenderText.ALIGN_LEFT);
-			--local posX = adPosX + 0.025;
-			--renderText(posX, adPosY, adFontSize," - " .. vehicle.ad.sToolTip);
 			textToShow = textToShow .. " - " .. vehicle.ad.sToolTip;
 		end;
-		renderText(adPosX, adPosY, adFontSize, textToShow);
+		if vehicle.ad.pullDownList.downwards or vehicle.ad.pullDownList.active == false then
+			renderText(adPosX, adPosY, adFontSize, textToShow);
+		end;
 
 		local target = vehicle.ad.nameOfSelectedTarget;
 		for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
@@ -404,7 +412,7 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 		end;
 		
-		if vehicle.ad.nameOfSelectedTarget ~= nil then
+		if vehicle.ad.nameOfSelectedTarget ~= nil and (vehicle.ad.pullDownList.active == false or ((vehicle.ad.pullDownList.start == false) and vehicle.ad.pullDownList.downwards)) then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			--local adPosY = self.posY + (0.0225 * (g_screenWidth / g_screenHeight)) + (self.borderY + self.buttonHeight) * self.rowCurrent;
@@ -441,13 +449,16 @@ function AutoDriveHud:drawHud(vehicle)
 				setTextAlignment(RenderText.ALIGN_LEFT);
 				renderText(adPosX, adPosY, adFontSize, text);
 			end;
-			setTextColor(1,1,1,1);
-			setTextAlignment(RenderText.ALIGN_LEFT);
-			local posX = self.posX - 0.012 + self.width
-			renderText(posX, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
 		end;
 
-		if vehicle.ad.enteringMapMarker == true then
+		
+		setTextColor(1,1,1,1);
+		setTextAlignment(RenderText.ALIGN_LEFT);
+		local posX = self.posX - 0.012 + self.width
+		local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
+		renderText(posX, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
+
+		if vehicle.ad.enteringMapMarker == true and vehicle.ad.pullDownList.active == false then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.borderX;
 			local adPosY = self.posY + 0.085 + (self.borderY + self.buttonHeight) * self.rowCurrent;
@@ -458,7 +469,7 @@ function AutoDriveHud:drawHud(vehicle)
 			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
 
-		if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (vehicle.ad.pullDownList.active == false or (vehicle.ad.pullDownList.start and vehicle.ad.pullDownList.downwards == false)) then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
@@ -466,7 +477,6 @@ function AutoDriveHud:drawHud(vehicle)
 			if vehicle.ad.choosingDestinationUnload == true then
 				if vehicle.ad.chosenDestinationUnload ~= "" then
 					setTextColor(1,1,1,1);
-					--setTextAlignment(RenderText.ALIGN_LEFT);
 					local text = vehicle.ad.nameOfSelectedTarget_Unload;
 					renderText(adPosX, adPosY, adFontSize, vehicle.ad.nameOfSelectedTarget_Unload);
 				end;
@@ -495,7 +505,9 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 
 			self.Background.unloadOverlay.ov:render();		
-		end;		
+		end;
+		
+		AutoDrive.Hud:handlePullDownList(vehicle);
 	end;	
 end;
 
@@ -561,7 +573,7 @@ function AutoDriveHud:drawMinimalHud(vehicle)
 				renderText(adPosX, adPosY, adFontSize, text);
 			end;
 
-			if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (vehicle.ad.destinationPrintTimer > 0  or vehicle.ad.isActive) then
+			if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (vehicle.ad.destinationPrintTimer > 0  or vehicle.ad.isActive) and vehicle.ad.pullDownList.active == false then
 				adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 				
 				local targetPoint = target == vehicle.ad.nameOfSelectedTarget_Unload;
@@ -637,11 +649,14 @@ function AutoDriveHud:toggleMouse(vehicle)
 end;
 
 function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
+	local pullDownHandledEvent = AutoDrive.Hud:handleMouseEventForPullDownList(vehicle, posX, posY, isDown, isUp, button);
+	if pullDownHandledEvent then
+		return;
+	end;
 	if AutoDrive.showMouse then
         local buttonHovered = false;
         for _,button in pairs(self.Buttons) do
 			if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible then
-                --print("Clicked button " .. button.name);
                 if vehicle.ad.sToolTip ~= button.toolTip then
                     vehicle.ad.sToolTip = button.toolTip;
                     vehicle.ad.nToolTipTimer = 6000;
@@ -684,8 +699,11 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end;
 		end;
 		
-		if posX > (self.Background.unloadOverlay.posX + (self.Background.Header.width/2) ) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
-			AutoDrive:InputHandling(vehicle, "input_nextFillType");
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER) then
+			if posX > (self.Background.unloadOverlay.posX + (self.Background.Header.width/2) ) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.unloadOverlay.posY + self.Background.unloadOverlay.height) then
+				AutoDrive.Hud:createPullDownList(vehicle, false, false, true);
+				--AutoDrive:InputHandling(vehicle, "input_nextFillType");
+			end;
 		end;
 		
 		adPosX = self.posX + self.Background.destination.width;
@@ -694,14 +712,34 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         width = self.Background.width - self.Background.destination.width;
 		
 		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
-            if vehicle.ad.choosingDestination == false then
+			AutoDrive.Hud:createPullDownList(vehicle, true, false, false);
+		end;
+
+		adPosX = self.posX + self.Background.destination.width;
+        adPosY = self.Background.unloadOverlay.posY;
+        height = self.buttonHeight;
+		width = self.Background.Header.width/2;
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) then
+			if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+				AutoDrive.Hud:createPullDownList(vehicle, false, true, false);
+			end;
+		end;
+	end;
+	
+	if AutoDrive.showMouse and button == 2 and isDown then		
+		local adPosX = self.posX + self.Background.destination.width;
+        local adPosY = self.Background.destination.posY
+        local height = self.buttonHeight;
+        local width = self.Background.width - self.Background.destination.width;     
+					
+		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then			
+			if vehicle.ad.choosingDestination == false then
                 vehicle.ad.choosingDestination = true
                 g_currentMission.isPlayerFrozen = true;
 				vehicle.isBroken = true;
-				--print("Entering destination - player frozen and vehicle broken")
 				g_inputBinding:setContext("AutoDrive.Input_Destination", true, false);
             else
-                vehicle.ad.choosingDestination = false;
+               	vehicle.ad.choosingDestination = false;
                 g_currentMission.isPlayerFrozen = false;
 				vehicle.isBroken = false;
 				g_inputBinding:revertContext(true);
@@ -717,7 +755,6 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 vehicle.ad.choosingDestinationUnload = true
                 g_currentMission.isPlayerFrozen = true;
 				vehicle.isBroken = true;
-				--print("Entering destination - player frozen and vehicle broken")
 				g_inputBinding:setContext("AutoDrive.Input_Destination", true, false);
             else
                 vehicle.ad.choosingDestinationUnload = false;
@@ -726,12 +763,6 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				g_inputBinding:revertContext(true);
             end;
 		end;
-	end;
-	
-	if AutoDrive.showMouse and button == 3 and isDown then   
-		if posX > (self.Background.unloadOverlay.posX) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.Header.posY + self.Background.Header.height) then
-			AutoDrive:InputHandling(vehicle, "input_previousFillType");
-        end;
 	end;
 
 	local mouseWheelActive = false;
@@ -835,3 +866,172 @@ function AutoDriveHud:getModeName(vehicle)
 	return "";
 end;
 
+function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDown, isUp, button)
+	if vehicle.ad.pullDownList.active == false or AutoDrive.showMouse == false then
+		return false;
+	end;
+	local handledEvent = false;
+	
+	if button == 4 and isDown then
+		vehicle.ad.pullDownList.topItem = math.max(1, vehicle.ad.pullDownList.topItem-1);
+		handledEvent = true;
+	end;
+	if button == 5 and isDown then
+		vehicle.ad.pullDownList.topItem = math.min(math.max(1, ADTableLength(vehicle.ad.pullDownList.itemList) - AutoDrive.PULLDOWN_ITEM_COUNT), vehicle.ad.pullDownList.topItem+1);
+		handledEvent = true;
+	end;
+
+	vehicle.ad.pullDownList.bottomItem = math.min(vehicle.ad.pullDownList.topItem + AutoDrive.PULLDOWN_ITEM_COUNT, ADTableLength(vehicle.ad.pullDownList.itemList));
+
+
+	local adPosX = vehicle.ad.pullDownList.posX
+	local adPosY = vehicle.ad.pullDownList.posY;
+	if vehicle.ad.pullDownList.downwards == false then
+		adPosY = adPosY + vehicle.ad.pullDownList.height;
+	end;
+	
+	local i = vehicle.ad.pullDownList.topItem;
+	vehicle.ad.pullDownList.hoveredItem = nil;
+	while i <= vehicle.ad.pullDownList.bottomItem and (handledEvent == false) do	
+		if posX >= adPosX and posX <= (adPosX + vehicle.ad.pullDownList.width) and posY >= adPosY and posY <= (adPosY + (self.buttonHeight/2)) then			
+			vehicle.ad.pullDownList.hoveredItem = i;
+		end;
+		
+		if vehicle.ad.pullDownList.downwards then
+			adPosY = adPosY - self.buttonHeight/2;
+		else
+			adPosY = adPosY - self.buttonHeight/2;
+		end;
+		i = i + 1;
+	end;
+
+	if button == 1 and isDown then 
+		vehicle.ad.pullDownList.active = false;
+		if vehicle.ad.pullDownList.hoveredItem ~= nil then
+			if vehicle.ad.pullDownList.start then
+				vehicle.ad.mapMarkerSelected = vehicle.ad.pullDownList.hoveredItem;
+				vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+				vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+			elseif vehicle.ad.pullDownList.destination then
+				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.pullDownList.hoveredItem;
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			elseif vehicle.ad.pullDownList.fillType then
+				vehicle.ad.unloadFillTypeIndex = vehicle.ad.pullDownList.hoveredItem;
+			end;
+			handledEvent = true;
+			
+			AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
+		end;
+	end;	
+	
+	return handledEvent;
+end;
+
+function AutoDriveHud:handlePullDownList(vehicle)
+	if vehicle.ad.pullDownList.active == false then
+		return;
+	end;
+	local uiScale = g_gameSettings:getValue("uiScale");
+
+	local adFontSize = AutoDrive.FONT_SCALE * uiScale;
+	local adPosX = vehicle.ad.pullDownList.posX;
+	local adPosY = vehicle.ad.pullDownList.posY;
+	if vehicle.ad.pullDownList.downwards == false then
+		adPosY = adPosY + vehicle.ad.pullDownList.height;
+	end;
+	
+	self.Background.pullDownBG.ov:render();
+
+	setTextColor(1,0,0,1);
+	setTextAlignment(RenderText.ALIGN_LEFT);
+	
+	local i = vehicle.ad.pullDownList.topItem;
+	while i <= vehicle.ad.pullDownList.bottomItem do
+		local text = vehicle.ad.pullDownList.itemList[i].displayName;
+		if vehicle.ad.pullDownList.hoveredItem ~= nil and i == vehicle.ad.pullDownList.hoveredItem then			
+			setTextColor(0,0,1,1);
+		else
+			setTextColor(1,1,1,1);
+		end;
+		renderText(adPosX, adPosY, adFontSize, text);
+		if vehicle.ad.pullDownList.downwards then
+			adPosY = adPosY - self.buttonHeight/2;
+		else
+			adPosY = adPosY - self.buttonHeight/2;
+		end;
+
+		i = i + 1;
+	end;
+end;
+
+function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
+	vehicle.ad.pullDownList.active = true;
+	local uiScale = g_gameSettings:getValue("uiScale");
+
+	local adFontSize = AutoDrive.FONT_SCALE * uiScale;
+
+	vehicle.ad.pullDownList.start = start;
+	vehicle.ad.pullDownList.destination = destination;
+	vehicle.ad.pullDownList.fillType = fillType;
+
+	if start == true then
+		vehicle.ad.pullDownList.posX = self.posX + self.Background.destination.width;
+		vehicle.ad.pullDownList.posY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
+	elseif destination == true or fillType == true then
+		vehicle.ad.pullDownList.posX = self.posX + self.Background.destination.width;
+		vehicle.ad.pullDownList.posY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2);
+	else
+		vehicle.ad.pullDownList.active = false;
+		return;
+	end;
+
+	vehicle.ad.pullDownList.downwards = vehicle.ad.pullDownList.posY >= 0.5;
+
+	local itemList = {};
+	vehicle.ad.pullDownList.selectedItem = 1;
+	if start == true or destination == true then
+		local index = 1;
+		for markerID, marker in pairs(AutoDrive.mapMarker) do
+			itemList[index] = {displayName=marker.name, returnValue=markerID};
+			if marker.name == vehicle.ad.nameOfSelectedTarget then
+				vehicle.ad.pullDownList.selectedItem = index;
+			end;
+			index = index + 1;
+		end;
+	elseif fillType == true then
+		local fillTypeIndex = 1;
+		local lastIndexReached = false;
+		while not lastIndexReached do
+			if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
+				itemList[fillTypeIndex] = {displayName=g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue=fillTypeIndex};
+			else
+				lastIndexReached = true;
+			end;
+			fillTypeIndex = fillTypeIndex + 1;
+		end;
+		vehicle.ad.pullDownList.selectedItem = vehicle.ad.unloadFillTypeIndex;
+	end;
+	vehicle.ad.pullDownList.itemList = itemList;
+
+	if (vehicle.ad.pullDownList.selectedItem + AutoDrive.PULLDOWN_ITEM_COUNT) <= ADTableLength(itemList) then
+		vehicle.ad.pullDownList.topItem = vehicle.ad.pullDownList.selectedItem;
+	else
+		vehicle.ad.pullDownList.topItem = math.max(1, vehicle.ad.pullDownList.selectedItem - (AutoDrive.PULLDOWN_ITEM_COUNT - (ADTableLength(itemList) - vehicle.ad.pullDownList.selectedItem)));
+	end;
+	vehicle.ad.pullDownList.bottomItem = math.min(vehicle.ad.pullDownList.topItem + AutoDrive.PULLDOWN_ITEM_COUNT, ADTableLength(itemList));
+	
+	vehicle.ad.pullDownList.height = math.min((math.min(ADTableLength(itemList),AutoDrive.PULLDOWN_ITEM_COUNT)*(self.buttonHeight*0.5)) + self.gapHeight, 0.5);
+	vehicle.ad.pullDownList.width = self.width*0.65;
+
+	self.Background.pullDownBG.img = AutoDrive.directory .. "textures/Background.dds";
+	self.Background.pullDownBG.posX = vehicle.ad.pullDownList.posX;
+	self.Background.pullDownBG.posY = vehicle.ad.pullDownList.posY;
+	self.Background.pullDownBG.width = vehicle.ad.pullDownList.width;
+	self.Background.pullDownBG.height = vehicle.ad.pullDownList.height;
+	if vehicle.ad.pullDownList.downwards then
+		self.Background.pullDownBG.ov = Overlay:new(AutoDrive.directory .. "textures/Background.dds", self.Background.pullDownBG.posX, self.Background.pullDownBG.posY - self.Background.pullDownBG.height , self.Background.pullDownBG.width, self.Background.pullDownBG.height);
+	else
+		self.Background.pullDownBG.ov = Overlay:new(AutoDrive.directory .. "textures/Background.dds", self.Background.pullDownBG.posX, self.Background.pullDownBG.posY , self.Background.pullDownBG.width, self.Background.pullDownBG.height + self.buttonHeight*0.5);
+	end;
+end;

@@ -10,7 +10,12 @@ AutoDrive.UNLOAD_WAIT_TIMER = 15000;
 function AutoDrive:handleCombineHarvester(vehicle, dt)    
     if vehicle.ad.currentDriver ~= nil then
         vehicle.ad.driverOnTheWay = true;
-        vehicle.ad.tryingToCallDriver = false;   
+        vehicle.ad.tryingToCallDriver = false;
+        if (vehicle.ad.currentDriver.ad.combineUnloadInFruitWaitTimer >= AutoDrive.UNLOAD_WAIT_TIMER) then
+            if vehicle.cp and vehicle.cp.driver and vehicle.cp.driver.holdForUnloadOrRefill then
+                vehicle.cp.driver:holdForUnloadOrRefill();
+            end;
+        end;
         return;
     end;
 
