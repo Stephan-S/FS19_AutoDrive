@@ -555,6 +555,14 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<fr>Recherche du chauffeur le plus proche (Ignore la destination)</fr>
 			<es>Busqueda de consuctores cercanos (Ignorar el destino)</es>
 		</text>
+		<text name="gui_ad_gui_scale">
+			<en>Gui scale for AutoDrive HUD</en>
+			<de>GUI Skalierung des AutoDrive HUDs</de>
+		</text>
+		<text name="gui_ad_gui_scale_tooltip">
+			<en>Leave default to use in game scaling settings</en>
+			<de>Auf Standard (Default) lassen um die spielinterne Skalierungseinstellung zu nutzen</de>
+		</text>
 	</l10n>
 
 	<actions>

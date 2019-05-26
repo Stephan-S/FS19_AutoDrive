@@ -12,6 +12,9 @@ end;
 function AutoDriveHud:loadHud()	
 	if AutoDrive.HudX == nil or AutoDrive.HudY == nil then
 		local uiScale = g_gameSettings:getValue("uiScale")
+		if AutoDrive:getSetting("guiScale") ~= 0 then
+			uiScale = AutoDrive:getSetting("guiScale");
+		end;
 		local numButtons = 9
 		local numButtonRows = 2
 		local buttonSize = 32
@@ -34,6 +37,9 @@ end;
 
 function AutoDriveHud:createHudAt(hudX, hudY)
 	local uiScale = g_gameSettings:getValue("uiScale")
+	if AutoDrive:getSetting("guiScale") ~= 0 then
+		uiScale = AutoDrive:getSetting("guiScale");
+	end;
 	local numButtons = 9
 	local numButtonRows = 2
 	local buttonSize = 32
@@ -350,6 +356,18 @@ end;
 function AutoDriveHud:drawHud(vehicle)	
 	if vehicle == g_currentMission.controlledVehicle then		
 		local uiScale = g_gameSettings:getValue("uiScale")	
+		if AutoDrive:getSetting("guiScale") ~= 0 then
+			uiScale = AutoDrive:getSetting("guiScale");
+		end;
+
+		if self.lastUIScale == nil then
+			self.lastUIScale = uiScale;
+		end;
+
+		if self.lastUIScale ~= uiScale then
+			self:createHudAt(self.posX, self.posY);
+		end;
+		self.lastUIScale = uiScale;
         self:updateButtons(vehicle);
         
 		local ovWidth = self.Background.width;
@@ -451,7 +469,7 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 		end;
 
-		
+		local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 		setTextColor(1,1,1,1);
 		setTextAlignment(RenderText.ALIGN_LEFT);
 		local posX = self.posX - 0.012 + self.width
@@ -514,6 +532,9 @@ end;
 function AutoDriveHud:drawMinimalHud(vehicle)	
 	if vehicle == g_currentMission.controlledVehicle then				
 		local uiScale = g_gameSettings:getValue("uiScale")	
+		if AutoDrive:getSetting("guiScale") ~= 0 then
+			uiScale = AutoDrive:getSetting("guiScale");
+		end;
 		setTextBold(false);	
 		if vehicle.ad.nameOfSelectedTarget ~= nil then
 
@@ -933,6 +954,9 @@ function AutoDriveHud:handlePullDownList(vehicle)
 		return;
 	end;
 	local uiScale = g_gameSettings:getValue("uiScale");
+	if AutoDrive:getSetting("guiScale") ~= 0 then
+		uiScale = AutoDrive:getSetting("guiScale");
+	end;
 
 	local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 	local adPosX = vehicle.ad.pullDownList.posX;
@@ -968,6 +992,9 @@ end;
 function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
 	vehicle.ad.pullDownList.active = true;
 	local uiScale = g_gameSettings:getValue("uiScale");
+	if AutoDrive:getSetting("guiScale") ~= 0 then
+		uiScale = AutoDrive:getSetting("guiScale");
+	end;
 
 	local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 

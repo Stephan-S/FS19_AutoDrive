@@ -103,6 +103,13 @@
 				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="findDriver" />
 				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
 			</GuiElement>
+			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSettingGUIScale" toolTipElementId="ingameMenuHelpBoxText" toolTipText="$l10n_gui_ad_gui_scale">
+				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+				<GuiElement type="text" profile="multiTextOptionSettingsText" />
+				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="guiScale" />
+				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+			</GuiElement>	
 		</GuiElement>
 
 		<GuiElement type="bitmap" profile="ingameMenuHelpRowBg" position="80px 50px" id="ingameMenuHelpBox" visible="true">

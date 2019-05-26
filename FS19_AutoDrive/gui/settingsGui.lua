@@ -129,3 +129,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingFindDriver(element)
     self:onCreateAutoDriveSetting(element, "findDriver");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingGUIScale(element)
+    self:onCreateAutoDriveSetting(element, "guiScale");
+end;

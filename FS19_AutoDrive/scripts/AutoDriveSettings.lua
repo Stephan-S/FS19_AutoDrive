@@ -120,6 +120,16 @@ AutoDrive.settings.findDriver = {
     translate= true
 };
 
+AutoDrive.settings.guiScale = {  
+    values= {0, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4},
+    texts= {"Default", "100%", "95%", "90%", "85%", "80%", "75%", "70%", "65%", "60%", "55%", "50%", "45%", "40%"},
+    default= 1,
+    current= 1,
+    text= "gui_ad_gui_scale",
+    tooltip= "gui_ad_gui_scale_tooltip",
+    translate= false
+};
+
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
