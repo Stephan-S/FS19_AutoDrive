@@ -85,7 +85,7 @@ function AutoDrive:callDriverToCombine(combine)
 end;
 
 function AutoDrive:combineIsCallingDriver(combine)
-    return (combine.ad ~= nil) and (combine.ad.tryingToCallDriver or combine.ad.driverOnTheWay);
+    return (combine.ad ~= nil) and ((combine.ad.tryingToCallDriver and ADTableLength(AutoDrive.waitingUnloadDrivers) > 0) or combine.ad.driverOnTheWay);
 end;
 
 function AutoDrive:handleReachedWayPointCombine(vehicle)
