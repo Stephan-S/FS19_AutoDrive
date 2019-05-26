@@ -64,6 +64,12 @@ public class MapPanel extends JPanel{
                     }
                 }
 
+                for (MapMarker mapMarker : this.roadMap.mapMarkers) {
+                    g.setColor(Color.BLUE);
+                    Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x + 1024 + 3, mapMarker.mapNode.z + 1024);
+                    g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
+                }
+
                 if (editor.selected != null && editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
                     Point2D nodePos = worldPosToScreenPos(editor.selected.x + 1024, editor.selected.z + 1024);
                     g.setColor(Color.WHITE);
@@ -74,6 +80,12 @@ public class MapPanel extends JPanel{
                     g.setColor(Color.WHITE);
                     Point2D nodePos = worldPosToScreenPos(hoveredNode.x + 1024, hoveredNode.z + 1024);
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
+                    for (MapMarker mapMarker : this.roadMap.mapMarkers) {
+                        if (hoveredNode.id == mapMarker.mapNode.id) {
+                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x + 1024 + 3, mapMarker.mapNode.z + 1024);
+                            g.drawString(mapMarker.name, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
+                        }
+                    }
                 }
 
                 if (editor.mouseListener.rectangleStart != null) {
@@ -92,6 +104,8 @@ public class MapPanel extends JPanel{
                     }
                     g.drawRect(x, y, width, height);
                 }
+
+
             }
         }
     }
@@ -179,6 +193,19 @@ public class MapPanel extends JPanel{
         this.repaint();
     }
 
+    public void removeDestination(MapNode toDelete) {
+        MapMarker destinationToDelete = null;
+        for (MapMarker mapMarker : this.roadMap.mapMarkers) {
+            if (mapMarker.mapNode.id == toDelete.id) {
+                destinationToDelete = mapMarker;
+            }
+        }
+        if (destinationToDelete != null) {
+            this.roadMap.removeMapMarker(destinationToDelete);
+            this.repaint();
+        }
+    }
+
     public void createNode(int screenX, int screenY) {
         if (this.roadMap == null || this.image == null) {
             return;
@@ -250,6 +277,13 @@ public class MapPanel extends JPanel{
         else {
             start.outgoing.remove(target);
             target.incoming.remove(start);
+        }
+    }
+
+    public void createDestinationAt(MapNode mapNode, String destinationName) {
+        if (mapNode != null && destinationName != null && destinationName.length() > 0) {
+            MapMarker mapMarker = new MapMarker(mapNode, destinationName);
+            this.roadMap.addMapMarker(mapMarker);
         }
     }
 

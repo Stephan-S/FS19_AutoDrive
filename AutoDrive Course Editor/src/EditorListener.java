@@ -39,11 +39,17 @@ public class EditorListener implements ActionListener {
         if (e.getActionCommand() == "Remove Nodes") {
             this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETING;
         }
+        if (e.getActionCommand() == "Remove Destinations") {
+            this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETING_DESTINATION;
+        }
         if (e.getActionCommand() == "Connect Nodes") {
             this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
         }
         if (e.getActionCommand() == "Create Nodes") {
             this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING;
+        }
+        if (e.getActionCommand() == "Create Destinations") {
+            this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION;
         }
         if (e.getActionCommand() == "Load") {
             int returnVal = fc.showOpenDialog(editor);

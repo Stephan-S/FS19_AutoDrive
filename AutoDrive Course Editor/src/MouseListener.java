@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
@@ -41,6 +42,17 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
                 Point2D worldPos = mapPanel.screenPosToWorldPos((int)e.getX(),(int)e.getY());
                 this.mapPanel.createNode((int)worldPos.getX(), (int)worldPos.getY());
             }
+            if (this.mapPanel.editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
+                movingNode = mapPanel.getNodeAt(e.getX(), e.getY());
+                if (movingNode != null) {
+                    String destinationName = JOptionPane.showInputDialog("New destination name:", "" + movingNode.id );
+                    if (destinationName != null) {
+                        mapPanel.createDestinationAt(movingNode, destinationName);
+                        this.mapPanel.repaint();
+                    }
+                }
+            }
+
         }
     }
 
@@ -58,6 +70,9 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
                 }
                 if (this.mapPanel.editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING) {
                     this.mapPanel.removeNode(movingNode);
+                }
+                if (this.mapPanel.editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING_DESTINATION) {
+                    this.mapPanel.removeDestination(movingNode);
                 }
             }
         }

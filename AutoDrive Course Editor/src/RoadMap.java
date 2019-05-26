@@ -17,6 +17,9 @@ public class RoadMap {
 
     public void addMapMarker(MapMarker mapMarker) {
         this.mapMarkers.add(mapMarker);
+        for (MapNode mapNode : this.mapNodes) {
+            mapNode.directions.put(mapMarker, null);
+        }
     }
 
     public void removeMapNode(MapNode toDelete) {
@@ -63,6 +66,13 @@ public class RoadMap {
                 mapNode.directions.entrySet().removeIf(e -> (e.getKey().name.equals(mapMarker.name)));
             }
         }
+        LinkedList<MapMarker> mapMarkersToKeep = new LinkedList<>();
+        for (MapMarker mapMarkerIter : this.mapMarkers) {
+            if (mapMarkerIter.mapNode.id != mapMarker.mapNode.id) {
+                mapMarkersToKeep.add(mapMarkerIter);
+            }
+        }
+        this.mapMarkers = mapMarkersToKeep;
     }
 
     public static boolean isDual(MapNode start, MapNode target) {
