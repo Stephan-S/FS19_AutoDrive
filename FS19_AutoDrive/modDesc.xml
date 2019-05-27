@@ -558,10 +558,12 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<text name="gui_ad_gui_scale">
 			<en>Gui scale for AutoDrive HUD</en>
 			<de>GUI Skalierung des AutoDrive HUDs</de>
+			<fr>Taille du HUD AutoDrive</fr>
 		</text>
 		<text name="gui_ad_gui_scale_tooltip">
 			<en>Leave default to use in game scaling settings</en>
 			<de>Auf Standard (Default) lassen um die spielinterne Skalierungseinstellung zu nutzen</de>
+			<fr>Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu</fr>
 		</text>
 	</l10n>
 
