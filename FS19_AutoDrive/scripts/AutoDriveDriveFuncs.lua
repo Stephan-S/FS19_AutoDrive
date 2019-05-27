@@ -399,7 +399,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if finalSpeed > vehicle.ad.lastUsedSpeed then
         finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*5, finalSpeed);
     elseif finalSpeed < vehicle.ad.lastUsedSpeed then
-        finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*5, finalSpeed);
+        finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*10, finalSpeed);
     end;
 
     vehicle.ad.lastUsedSpeed = finalSpeed;
