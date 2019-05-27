@@ -396,10 +396,12 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         vehicle.ad.lastUsedSpeed = finalSpeed;
     end;
 
-    if finalSpeed > vehicle.ad.lastUsedSpeed then
-        finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*5, finalSpeed);
-    elseif finalSpeed < vehicle.ad.lastUsedSpeed then
-        finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*10, finalSpeed);
+    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] ~= nil then --allow hard braking when getting close to destination
+        if finalSpeed > vehicle.ad.lastUsedSpeed then
+            finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*5, finalSpeed);
+        elseif finalSpeed < vehicle.ad.lastUsedSpeed then
+            finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*10, finalSpeed);
+        end;
     end;
 
     vehicle.ad.lastUsedSpeed = finalSpeed;
