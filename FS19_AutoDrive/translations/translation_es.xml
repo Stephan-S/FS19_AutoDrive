@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<l10n>
+    <translationContributors>PromGames</translationContributors>
+	<texts>
+		<text name="UNKNOWN"								 text="Desconocido" />
+		<text name="input_ADToggleHud"						 text="AD: Mostrar/Ocultar HUD" />
+		<text name="input_ADToggleMouse"					 text="AD: Mostrar/Ocultar Ratón" />
+		<text name="input_ADEnDisable"						 text="AD: Activar/Desactivar" />
+		<text name="input_ADSilomode"						 text="AD: Cambiar modo" />
+		<text name="input_ADRecord"							 text="AD: Grabar" />
+		<text name="input_ADSelectTarget"					 text="AD: Seleccionar destino siguiente" />
+		<text name="input_ADSelectPreviousTarget"			 text="AD: Seleccionar destino anterior" />
+		<text name="input_AD_Speed_up"						 text="AD: Aumentar velocidad" />
+		<text name="input_AD_Speed_down"					 text="AD: Reducir velocidad" />
+		<text name="input_AD_export_routes"					 text="AD: Exportar rutas" />
+		<text name="input_AD_import_routes"					 text="AD: Importar rutas" />
+		<text name="input_AD_upload_routes"					 text="AD: Cargar rutas" />
+		<text name="input_AD_continue"				 		 text="AD: Continuar" />
+		<text name="input_ADSelectTargetUnload"				 text="AD: Selec. descarga siguiente" />
+		<text name="input_ADSelectPreviousTargetUnload"		 text="AD: Selec. descarga previa" />
+		<text name="input_ADActivateDebug"					 text="AD: Activar modo edición" />
+		<text name="input_ADDebugShowClosest"				 text="AD: Muestra punto más cercano" />
+		<text name="input_ADDebugSelectNeighbor"			 text="AD: Selec. punto de conexión" />
+		<text name="input_ADDebugChangeNeighbor"			 text="AD: Selec. siguiente punto conexión" />
+		<text name="input_ADDebugCreateConnection"			 text="AD: Activar/Desactivar conectar " />
+		<text name="input_ADDebugCreateMapMarker"			 text="AD: Crear nueva meta" />
+		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Eliminar Waypoint" />
+		<text name="input_ADDebugForceUpdate"				 text="AD: Recalcular Rutas" />
+		<text name="input_ADDebugDeleteDestination"			 text="AD: Borrar Meta" />
+		<text name="input_ADSelectNextFillType"				 text="AD: Selec. producto siguiente" />
+		<text name="input_ADSelectPreviousFillType"			 text="AD: Selec. producto anterior" />
+		<text name="input_ADOpenGUI"						 text="AD: Mostrar menu" />
+		<text name="input_ADCallDriver"						 text="AD: Llama a conductor" />
+		<text name="input_ADGoToVehicle"					 text="AD: Go to arrived vehicle" />
+		<text name="AD_Driver_of"							 text="El conductor de" />
+		<text name="AD_has_reached"							 text="ha llegado" />
+		<text name="AD_got_stuck"							 text="está bloqueado" />
+		<text name="AD_cannot_reach"						 text="no puede llegar a" />
+		<text name="AD_new_marker"							 text="Nueva meta:" />
+		<text name="AD_new_marker_helptext"					 text="Por favor introduzca nombre (Guardar con intro)" />
+		<text name="AD_Recalculationg_routes_status"		 text="Recalculando rutas. Por favor, espere. Finalizado:" />
+		<text name="AD_MODE_DRIVETO"						 text="Conducir" />
+		<text name="AD_MODE_DELIVERTO"						 text="Transportar" />
+		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Carga y descarga" />
+		<text name="AD_MODE_UNLOAD"							 text="Descargar cosechadora" />
+		<text name="gui_ad_Setting"							 text="AutoDrive - Configuración" />
+		<text name="gui_ad_pipe_offset"						 text="Distancia del tubo" />
+		<text name="gui_ad_lookahead_turning"				 text="Distacia hacia adelante (desvío)" />
+		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distancia que el vehículo mira hacia adelante y ajusta la dirección a seguir en el siguiente segmento" />
+		<text name="gui_ad_lookahead_braking"				 text="Distacia hacia adelante (frenado)" />
+		<text name="gui_ad_lookahead_braking_tooltip"		 text="Distancia a la que el vehículo ajusta su velocidad para efectuar un desvío" />
+		<text name="gui_ad_useFastestRoute" 				text="Use fastest Route" />
+		<text name="gui_ad_useFastestRoute_tooltip"			text="Take the driving speed into consideration instead of simple distances, when calculating best routes" />			
+		<text name="gui_ad_avoidMarkers" 					 text="Evitar desvíos a traves de metas" />
+		<text name="gui_ad_avoidMarkers_tooltip"			 text="El Busca_Rutas intenta encontrar desvíos alrededor de las metas. Útil para evitar atascos." />
+		<text name="gui_ad_mapMarkerDetour"					 text="Desvio máximo" />
+		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Desvío máximo cuando evitemos metas" />
+		<text name="gui_ad_siloEmpty"						 text="Cuando el silo se vacíe" />
+		<text name="gui_ad_siloEmpty_tooltip"				 text="Como reacciona un conductor cuando el silo esta vacío" />
+		<text name="gui_ad_wait"							 text="Espere" />
+		<text name="gui_ad_drive"							 text="Continuar" />
+		<text name="gui_ad_yes"								 text="Si" />
+		<text name="gui_ad_no"								 text="No" />
+		<text name="ad_wait_for_combine"					 text="Esperando a la cosechadora" />
+		<text name="ad_drive_to_combine"					 text="Conduciendo a la cosechadora" />
+		<text name="ad_unloading_combine"					 text="Descargando cosechadora" />
+		<text name="ad_drive_to_parkpos"					 text="Estacionado" />
+		<text name="ad_drive_to_startpos" 					 text="Conduce a la salida" />
+		<text name="ad_drive_to_unloadpos"					 text="Conduce para descarga" />
+		<text name="gui_ad_autoConnect_start"				 text="Conexión automática (Inicio)" />
+		<text name="gui_ad_autoConnect_start_tooltip"		 text="Conectar automáticamente nodo cercano al iniciar grabación" />
+		<text name="gui_ad_autoConnect_end"					 text="Conexión automática (Fin)" />
+		<text name="gui_ad_autoConnect_end_tooltip"			 text="Conectar automáticamente nodo cercano al finalizar grabación" />
+		<text name="gui_ad_parkInField"						 text="Estacionar en campo" />
+		<text name="gui_ad_parkInField_tooltip"				 text="Tras decargar cosecahdora - No estacionar en cultivo" />
+		<text name="gui_ad_unloadFillLevel"					 text="Descargar el contenido" />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 text="Tras descargar cosechadora, no espere y vaya a descargar" />
+		<text name="gui_ad_findDriver"						 text="Buscando un conductor" />
+		<text name="gui_ad_findDriver_tooltip"				 text="Busqueda de consuctores cercanos (Ignorar el destino)" />
+		<text name="gui_ad_gui_scale"						 text="Gui scale for AutoDrive HUD" />
+		<text name="gui_ad_gui_scale_tooltip" 				 text="Leave default to use in game scaling settings" />
+		</text>
+	</texts>
+</l10n>

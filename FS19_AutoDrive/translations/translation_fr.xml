@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<l10n>
+    <translationContributors>Anonymous-any</translationContributors>
+	<texts>
+		<text name="UNKNOWN"								 text="Inconnu" />
+		<text name="input_ADToggleHud"						 text="AD: Montrer/cacher HUD" />
+		<text name="input_ADToggleMouse"					 text="AD: Montrer/cacher Souris" />
+		<text name="input_ADEnDisable"						 text="AD: Activer/Désactiver" />
+		<text name="input_ADSilomode"						 text="AD: Changer mode" />
+		<text name="input_ADRecord"							 text="AD: Enregistrer" />
+		<text name="input_ADSelectTarget"					 text="AD: Sélect. prochaine destination" />
+		<text name="input_ADSelectPreviousTarget"			 text="AD: Sélect. destination précédente" />
+		<text name="input_AD_Speed_up"						 text="AD: Augmenter la vitesse" />
+		<text name="input_AD_Speed_down"					 text="AD: Réduire la vitesse" />
+		<text name="input_AD_export_routes"					 text="AD: Exporter routes" />
+		<text name="input_AD_import_routes"					 text="AD: Importer routes" />
+		<text name="input_AD_upload_routes"					 text="AD: Uploader routes" />
+		<text name="input_AD_continue"						 text="AD: Continuer" />
+		<text name="input_ADSelectTargetUnload"				 text="AD: Sélect. prochain déchargement" />
+		<text name="input_ADSelectPreviousTargetUnload"		 text="AD: Sélect. déchargement précédent" />
+		<text name="input_ADActivateDebug"					 text="AD: Activer mode édition" />
+		<text name="input_ADDebugShowClosest"				 text="AD: Afficher point proche" />
+		<text name="input_ADDebugSelectNeighbor"			 text="AD: Sélecteur de connection" />
+		<text name="input_ADDebugChangeNeighbor"			 text="AD: Sélect. point suivant" />
+		<text name="input_ADDebugCreateConnection"			 text="AD: Connecter entre" />
+		<text name="input_ADDebugCreateMapMarker"			 text="AD: Créer nouvelle destination" />
+		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Éffacer point de passage" />
+		<text name="input_ADDebugForceUpdate"				 text="AD: Màj des points" />
+		<text name="input_ADDebugDeleteDestination"			 text="AD: Éffacer point destination" />
+		<text name="input_ADSelectNextFillType"				 text="AD: Sélect. prochain type de fruit" />
+		<text name="input_ADSelectPreviousFillType"			 text="AD: Sélect. précédent type de fruit" />
+		<text name="input_ADOpenGUI"						 text="AD: Ouvrir GUI" />
+		<text name="input_ADCallDriver"						 text="AD: Appeler chauffeur" />
+		<text name="input_ADGoToVehicle"					 text="AD: Entrer dans le vehicule arrivé" />
+		<text name="AD_Driver_of"							 text="Le conducteur de" />
+		<text name="AD_has_reached"							 text="est arrivé à" />
+		<text name="AD_got_stuck"							 text="est bloqué" />
+		<text name="AD_cannot_reach"						 text="ne peut pas rejoindre" />
+		<text name="AD_new_marker"							 text="Nouvel objectif:" />
+		<text name="AD_new_marker_helptext"					 text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
+		<text name="AD_Recalculationg_routes_status"		 text="Recalcul des routes. Veuilllez patienter. Terminé:" />
+		<text name="AD_MODE_DRIVETO"						 text="Conduite" />
+		<text name="AD_MODE_DELIVERTO"						 text="Livraison" />
+		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Chargement et livraison" />
+		<text name="AD_MODE_UNLOAD"							 text="Décharger moissoneuse" />
+		<text name="gui_ad_Setting"							 text="AutoDrive - paramètres" />
+		<text name="gui_ad_pipe_offset"						 text="Décalage du tuyau" />
+		<text name="gui_ad_lookahead_turning"				 text="Distance devant vous (virage)" />
+		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant" />
+		<text name="gui_ad_lookahead_braking"				 text="Distance devant vous (frein)" />
+		<text name="gui_ad_lookahead_braking_tooltip"		 text="Distance du véhicule pour ralentir plus tôt avant le virage" />
+		<text name="gui_ad_useFastestRoute"					 text="Préférer les routes rapide" />
+		<text name="gui_ad_useFastestRoute_tooltip"			 text="Lors du calcul de l'itinéraire, la vitesse de conduite privilégiée est prise en compte, pas seulement la distance" />
+		<text name="gui_ad_avoidMarkers"					 text="Éviter de traverser les destinations" />
+		<text name="gui_ad_avoidMarkers_tooltip"			 text="La recherche de destination essaie d'éviter de passer par d'autres destinations" />
+		<text name="gui_ad_mapMarkerDetour"					 text="Détour maximum" />
+		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Détour maximum quand des destinations doivent être évités" />
+		<text name="gui_ad_siloEmpty"						 text="Quand le silo est vide" />
+		<text name="gui_ad_siloEmpty_tooltip"				 text="Détermine comment un transporteur devrait réagir à un silo vide" />
+		<text name="gui_ad_wait"							 text="Attente" />	
+		<text name="gui_ad_drive"							 text="Continuer" />
+		<text name="gui_ad_yes"								 text="Oui" />
+		<text name="gui_ad_no"								 text="Non" />
+		<text name="ad_wait_for_combine"					 text="Attente de moissoneuse" />
+		<text name="ad_drive_to_combine"					 text="Conduire à la moissoneuse" />
+		<text name="ad_unloading_combine"					 text="Déchargement de moissoneuse" />
+		<text name="ad_drive_to_parkpos"					 text="Stationnement" />
+		<text name="ad_drive_to_startpos"					 text="Conduire au départ" />
+		<text name="ad_drive_to_unloadpos"					 text="Conduire au déchargement" />
+		<text name="gui_ad_autoConnect_start"				 text="Connexion automatique (départ)" />
+		<text name="gui_ad_autoConnect_start_tooltip"		 text="Connecter automatiquement le noeud approprié au début de l'enregistrement" />
+		<text name="gui_ad_autoConnect_end"					 text="Connexion automatique (fin)" />
+		<text name="gui_ad_autoConnect_end_tooltip"			 text="Connecter automatiquement le noeud approprié en fin d'enregistrement" />
+		<text name="gui_ad_parkInField"						 text="Garer au champ" />
+		<text name="gui_ad_parkInField_tooltip"				 text="Après avoir déchargé une moissonneuse - si pas garé en fruit" />
+		<text name="gui_ad_unloadFillLevel"					 text="Décharger le contenu" />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 text="Après avoir déchargé une moissonneuse - Partir tout de suite et ne pas attendre le prochain remplissage" />
+		<text name="gui_ad_findDriver"						 text="Trouver un chauffeur" />
+		<text name="gui_ad_findDriver_tooltip"				 text="Recherche du chauffeur le plus proche (Ignore la destination)" />
+		<text name="gui_ad_gui_scale"						 text="Taille du HUD AutoDrive" />
+		<text name="gui_ad_gui_scale_tooltip"				 text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu" />
+	</texts>
+</l10n>
