@@ -888,6 +888,9 @@ function AutoDriveHud:getModeName(vehicle)
 end;
 
 function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDown, isUp, button)
+	if vehicle == nil or vehicle.ad == nil then
+		return false;
+	end;
 	if vehicle.ad.pullDownList.active == false or AutoDrive.showMouse == false then
 		return false;
 	end;
