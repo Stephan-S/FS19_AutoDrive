@@ -78,6 +78,11 @@
 		<text name="gui_ad_findDriver"						 text="Find Driver" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Search for close by drivers (Ignore destination)" />
 		<text name="gui_ad_gui_scale"						 text="Gui scale for AutoDrive HUD" />
-		<text name="gui_ad_gui_scale_tooltip"				 text="Leave default to use in game scaling settings" />
+		<text name="gui_ad_gui_scale_tooltip"				 text="Leave default to use in game scaling settings" />	
+		<text name="gui_ad_exitField"					     text="Field exit" />	
+		<text name="gui_ad_exitField_tooltip"			     text="Field exit strategy for unloader" />	
+		<text name="gui_ad_default"			 				 text="Default" />	
+		<text name="gui_ad_after_start"			 			 text="Behind Start" />	
+		<text name="gui_ad_closest"			 				 text="Closest point" />
 	</texts>
 </l10n>

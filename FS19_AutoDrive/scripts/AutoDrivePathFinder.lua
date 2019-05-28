@@ -93,6 +93,23 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)
     local targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id]
 	local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]];
 	local targetVector = {};
+
+    local exitStrategy =  AutoDrive:getSetting("exitField");
+    if exitStrategy == 1 then
+        local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id);
+        if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
+            preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[5].id];
+            targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[6].id];
+        end;
+    elseif exitStrategy == 2 then
+        local closest = AutoDrive:findClosestWayPoint(driver);
+        local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id);
+        if waypointsToUnload ~= nil and waypointsToUnload[4] ~= nil then
+            preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[1].id];
+            targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[2].id];
+        end;
+    end;
+    
 	targetVector.x = preTargetPoint.x - targetPoint.x
 	targetVector.z = preTargetPoint.z - targetPoint.z
 
@@ -113,7 +130,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)
 	driver.ad.pf.appendWayPoints[1] = preTargetPoint;
     driver.ad.pf.appendWayPoints[2] = targetPoint;
     driver.ad.pf.appendWayPointCount = 2;
-
+    
     driver.ad.pf.goingToCombine = false;
 end;
 

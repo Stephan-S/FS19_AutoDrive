@@ -78,6 +78,11 @@
 		<text name="gui_ad_findDriver"						 text="Abfahrer finden" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)" />
 		<text name="gui_ad_gui_scale"						 text="GUI Skalierung des AutoDrive HUDs" />
-		<text name="gui_ad_gui_scale_tooltip"				 text="Auf Standard (Default) lassen um die spielinterne Skalierungseinstellung zu nutzen" />		
+		<text name="gui_ad_gui_scale_tooltip"				 text="Auf Standard (Default) lassen um die spielinterne Skalierungseinstellung zu nutzen" />	
+		<text name="gui_ad_exitField"					     text="Feldausfahrt" />	
+		<text name="gui_ad_exitField_tooltip"			     text="Feldausfahrt Strategie nach Abladen - Start, kurz hinter Startpunkt, Nähester Punkt" />	
+		<text name="gui_ad_default"			 				 text="Standard" />	
+		<text name="gui_ad_after_start"			 			 text="Hinterm Start" />	
+		<text name="gui_ad_closest"			 				 text="Nächstgelegen" />
 	</texts>
 </l10n>

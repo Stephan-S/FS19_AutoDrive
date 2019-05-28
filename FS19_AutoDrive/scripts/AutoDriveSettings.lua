@@ -130,6 +130,16 @@ AutoDrive.settings.guiScale = {
     translate= false
 };
 
+AutoDrive.settings.exitField = {  
+    values= {0, 1, 2},                                    
+    texts= {"gui_ad_default", "gui_ad_after_start", "gui_ad_closest"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_exitField",                                    
+    tooltip= "gui_ad_exitField_tooltip",
+    translate= true
+};
+
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
