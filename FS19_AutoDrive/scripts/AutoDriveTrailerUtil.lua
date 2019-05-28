@@ -200,10 +200,12 @@ function AutoDrive:getTrailersOfImplement(attachedImplement)
         AutoDrive.tempTrailerCount = 1;
         AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
     end;
-    if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then                   
-        trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
-        AutoDrive.tempTrailerCount = 1;
-        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+    if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then     
+        if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then    
+            trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
+            AutoDrive.tempTrailerCount = 1;
+            AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+        end;
     end;
 
     return;
