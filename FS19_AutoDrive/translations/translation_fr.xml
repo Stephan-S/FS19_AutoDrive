@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-    <translationContributors>Anonymous-any</translationContributors>
+    <translationContributors>Anonymous</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="Inconnu" />
 		<text name="input_ADToggleHud"						 text="AD: Montrer/cacher HUD" />
