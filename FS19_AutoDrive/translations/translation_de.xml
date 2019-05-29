@@ -84,5 +84,7 @@
 		<text name="gui_ad_default"			 				 text="Standard" />	
 		<text name="gui_ad_after_start"			 			 text="Hinterm Start" />	
 		<text name="gui_ad_closest"			 				 text="Nächstgelegen" />
+		<text name="gui_ad_showHelp"					     text="Hilfe anzeigen" />	
+		<text name="gui_ad_showHelp_tooltip"			     text="Tastenbelegung im F1 Hilfsfenster anzeigen" />	
 	</texts>
 </l10n>

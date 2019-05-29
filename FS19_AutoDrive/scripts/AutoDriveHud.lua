@@ -850,7 +850,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 
-	AutoDrive.mouseWheelActive = mouseWheelActive;
+	AutoDrive.mouseWheelActive = mouseWheelActive or self.PullDownMouseWheelActive;
 end;
 
 function AutoDriveHud:startMovingHud(mouseX, mouseY)
@@ -907,9 +907,17 @@ function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDow
 
 	vehicle.ad.pullDownList.bottomItem = math.min(vehicle.ad.pullDownList.topItem + AutoDrive.PULLDOWN_ITEM_COUNT, ADTableLength(vehicle.ad.pullDownList.itemList));
 
-
 	local adPosX = vehicle.ad.pullDownList.posX
 	local adPosY = vehicle.ad.pullDownList.posY;
+	local posToCheck = adPosY;
+	self.PullDownMouseWheelActive = false;
+	if vehicle.ad.pullDownList.downwards == true then
+		posToCheck = posToCheck - vehicle.ad.pullDownList.height;
+	end;
+	if posX >= adPosX and posX <= (adPosX + vehicle.ad.pullDownList.width) and posY >= posToCheck and posY <= (posToCheck + vehicle.ad.pullDownList.height) then			
+		self.PullDownMouseWheelActive = true;
+	end;
+
 	if vehicle.ad.pullDownList.downwards == false then
 		adPosY = adPosY + vehicle.ad.pullDownList.height;
 	end;
@@ -977,7 +985,7 @@ function AutoDriveHud:handlePullDownList(vehicle)
 	while i <= vehicle.ad.pullDownList.bottomItem do
 		local text = vehicle.ad.pullDownList.itemList[i].displayName;
 		if vehicle.ad.pullDownList.hoveredItem ~= nil and i == vehicle.ad.pullDownList.hoveredItem then			
-			setTextColor(0,0,1,1);
+			setTextColor(1,1,0,1);
 		else
 			setTextColor(1,1,1,1);
 		end;

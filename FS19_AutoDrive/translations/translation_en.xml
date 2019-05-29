@@ -84,5 +84,7 @@
 		<text name="gui_ad_default"			 				 text="Default" />	
 		<text name="gui_ad_after_start"			 			 text="Behind Start" />	
 		<text name="gui_ad_closest"			 				 text="Closest point" />
+		<text name="gui_ad_showHelp"					     text="Display help" />	
+		<text name="gui_ad_showHelp_tooltip"			     text="Display keybinding in F1 window" />	
 	</texts>
 </l10n>

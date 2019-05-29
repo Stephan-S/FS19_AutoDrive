@@ -137,3 +137,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingGUIScale(element)
     self:onCreateAutoDriveSetting(element, "guiScale");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingShowHelp(element)
+    self:onCreateAutoDriveSetting(element, "showHelp");
+end;

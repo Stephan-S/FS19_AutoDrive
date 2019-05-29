@@ -3,12 +3,12 @@ AutoDrive.Version = "1.0.2.4";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
-AutoDrive.actions   = { {'ADToggleMouse', true}, {'ADToggleHud', true}, {'ADEnDisable', true}, {'ADSelectTarget', false}, {'ADSelectPreviousTarget', false},
-						{'ADSelectTargetUnload', false},	{'ADSelectPreviousTargetUnload', false}, {'ADActivateDebug', false}, {'ADDebugShowClosest', false},
-						{'ADDebugSelectNeighbor', false}, {'ADDebugChangeNeighbor', false}, {'ADDebugCreateConnection', false}, {'ADDebugCreateMapMarker', false},
-						{'ADDebugDeleteWayPoint', false},  {'ADDebugForceUpdate', false}, {'ADDebugDeleteDestination', false},  {'ADSilomode',false}, {'ADOpenGUI', false},
-						{'ADCallDriver', false}, {'ADSelectNextFillType', false}, {'ADSelectPreviousFillType', false}, {'ADRecord', false}, 
-						{'AD_export_routes', false}, {'AD_import_routes', false}, {'AD_upload_routes', false}, {'ADGoToVehicle', false} }
+AutoDrive.actions   = { {'ADToggleMouse', true, 1}, {'ADToggleHud', true, 1}, {'ADEnDisable', true, 1}, {'ADSelectTarget', false, 0}, {'ADSelectPreviousTarget', false, 0},
+						{'ADSelectTargetUnload', false, 0},	{'ADSelectPreviousTargetUnload', false, 0}, {'ADActivateDebug', false, 0}, {'ADDebugShowClosest', false, 0},
+						{'ADDebugSelectNeighbor', false, 0}, {'ADDebugChangeNeighbor', false, 0}, {'ADDebugCreateConnection', false, 0}, {'ADDebugCreateMapMarker', false, 0},
+						{'ADDebugDeleteWayPoint', false, 0},  {'ADDebugForceUpdate', false, 0}, {'ADDebugDeleteDestination', false, 3},  {'ADSilomode',false, 0}, {'ADOpenGUI', true, 2},
+						{'ADCallDriver', false, 3}, {'ADSelectNextFillType', false, 0}, {'ADSelectPreviousFillType', false, 0}, {'ADRecord', false, 0}, 
+						{'AD_export_routes', false, 0}, {'AD_import_routes', false, 0}, {'AD_upload_routes', false, 0}, {'ADGoToVehicle', false, 3} }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -52,9 +52,13 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 		-- attach our actions
 		local __, eventName
 		local toggleButton = false;
+		local showF1Help = AutoDrive:getSetting("showHelp");
 		for _, action in pairs(AutoDrive.actions) do
 			__, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, AutoDrive.onActionCall, toggleButton ,true ,false ,true);
-			g_inputBinding:setActionEventTextVisibility(eventName, action[2]);	
+			g_inputBinding:setActionEventTextVisibility(eventName, action[2] and showF1Help);	
+			if showF1Help then
+				g_inputBinding:setActionEventTextPriority(eventName, action[3])
+			end;
 		end;
 	end
 end
