@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-    <translationContributors>Anonymous</translationContributors>
+    <translationContributors>Anonymous-any</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="Inconnu" />
 		<text name="input_ADToggleHud"						 text="AD: Montrer/cacher HUD" />
@@ -78,11 +78,6 @@
 		<text name="gui_ad_findDriver"						 text="Trouver un chauffeur" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Recherche du chauffeur le plus proche (Ignore la destination)" />
 		<text name="gui_ad_gui_scale"						 text="Taille du HUD AutoDrive" />
-		<text name="gui_ad_gui_scale_tooltip"				 text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu" />	
-		<text name="gui_ad_exitField"					     text="Sortie de champ" />
-		<text name="gui_ad_exitField_tooltip"			     text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche" />
-		<text name="gui_ad_default"			 				 text="Par défaut" />
-		<text name="gui_ad_after_start"			 			 text="Après le départ" />
-		<text name="gui_ad_closest"							 text="Le plus proche" />
+		<text name="gui_ad_gui_scale_tooltip"				 text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu" />
 	</texts>
 </l10n>

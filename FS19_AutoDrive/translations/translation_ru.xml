@@ -79,10 +79,5 @@
 		<text name="gui_ad_findDriver_tooltip"				 text="Поиск ближайших водителей (игнорировать пункт назначения)" />
 		<text name="gui_ad_gui_scale"						 text="Масштабирование интерфейса AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"				 text="Оставьте значение по умолчанию для использования настроек масштаба в игре" />
-		<text name="gui_ad_exitField"						 text="Выезд с поля" />
-		<text name="gui_ad_exitField_tooltip"				 text="Способ выезда с поля при разгрузке" />	
-		<text name="gui_ad_default"			 				 text="Обычный" />
-		<text name="gui_ad_after_start"			 			 text="За стартом" />	
-		<text name="gui_ad_closest"			 				 text="Ближайшая точка" />
 	</texts>
 </l10n>

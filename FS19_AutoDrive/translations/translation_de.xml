@@ -86,5 +86,7 @@
 		<text name="gui_ad_closest"			 				 text="Nächstgelegen" />
 		<text name="gui_ad_showHelp"					     text="Hilfe anzeigen" />	
 		<text name="gui_ad_showHelp_tooltip"			     text="Tastenbelegung im F1 Hilfsfenster anzeigen" />	
+		<text name="gui_ad_driverWages"					     text="Fahrer Lohn" />	
+		<text name="gui_ad_driverWages_tooltip"			     text="Mit diesem Faktor werden die Lohnkosten der Fahrer multipliziert" />	
 	</texts>
 </l10n>

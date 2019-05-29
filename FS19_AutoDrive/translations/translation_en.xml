@@ -86,5 +86,7 @@
 		<text name="gui_ad_closest"			 				 text="Closest point" />
 		<text name="gui_ad_showHelp"					     text="Display help" />	
 		<text name="gui_ad_showHelp_tooltip"			     text="Display keybinding in F1 window" />	
+		<text name="gui_ad_driverWages"					     text="Driver wages" />	
+		<text name="gui_ad_driverWages_tooltip"			     text="Driver wages will be multiplied with this value" />	
 	</texts>
 </l10n>

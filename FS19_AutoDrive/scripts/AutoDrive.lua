@@ -374,6 +374,16 @@ function AutoDrive:onUpdate(dt)
 		self.ad.lastPrintedModeTimer = self.ad.lastPrintedModeTimer - dt;
 	end;
 
+	local driverWages = AutoDrive:getSetting("driverWages");
+	local spec = self.spec_aiVehicle
+  if self.isServer then
+    if self:getIsAIActive() then
+			local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier;
+			local price = -dt * difficultyMultiplier * (driverWages -1) * spec.pricePerMS
+			g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
+		end;
+	end;
+
 	AutoDrive.runThisFrame = true;
 end;
 

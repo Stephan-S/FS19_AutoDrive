@@ -13,6 +13,17 @@ function AutoDrive:handleTrailers(vehicle, dt)
             end
         end;
 
+        if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then 
+            if trailer.spec_cover ~= nil then
+                if trailer.spec_cover.state == 0 then
+                    local newState = 1    
+                    if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
+                        trailer:setCoverState(newState,true);
+                    end
+                end;
+            end; 
+        end;
+
         --check distance to unloading destination, do not unload too far from it. You never know where the tractor might already drive over an unloading trigger before that
         local x,y,z = getWorldTranslation(vehicle.components[1].node);
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];        

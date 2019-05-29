@@ -150,6 +150,16 @@ AutoDrive.settings.showHelp = {
     translate= true
 };
 
+AutoDrive.settings.driverWages = {  
+    values= {0, 0.5, 1, 2.5, 5.0, 10.0},
+    texts= {"0%", "50%", "100%", "250%", "500%", "1000%"},
+    default= 3,
+    current= 3,
+    text= "gui_ad_driverWages",
+    tooltip= "gui_ad_driverWages_tooltip",
+    translate= false
+};
+
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

@@ -888,6 +888,7 @@ function AutoDriveHud:getModeName(vehicle)
 end;
 
 function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDown, isUp, button)
+	self.PullDownMouseWheelActive = false;
 	if vehicle == nil or vehicle.ad == nil then
 		return false;
 	end;
@@ -910,7 +911,6 @@ function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDow
 	local adPosX = vehicle.ad.pullDownList.posX
 	local adPosY = vehicle.ad.pullDownList.posY;
 	local posToCheck = adPosY;
-	self.PullDownMouseWheelActive = false;
 	if vehicle.ad.pullDownList.downwards == true then
 		posToCheck = posToCheck - vehicle.ad.pullDownList.height;
 	end;

@@ -141,3 +141,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingShowHelp(element)
     self:onCreateAutoDriveSetting(element, "showHelp");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingDriverWages(element)
+    self:onCreateAutoDriveSetting(element, "driverWages");
+end;
