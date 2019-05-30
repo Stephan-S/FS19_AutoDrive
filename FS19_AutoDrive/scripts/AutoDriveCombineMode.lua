@@ -105,7 +105,7 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
         vehicle.ad.initialized = false;
         vehicle.ad.wayPoints = {};
         vehicle.ad.isPaused = true;
-    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then    
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
         AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
         vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
         --vehicle.ad.initialized = false;

@@ -88,5 +88,7 @@
 		<text name="gui_ad_showHelp_tooltip"			     text="Tastenbelegung im F1 Hilfsfenster anzeigen" />	
 		<text name="gui_ad_driverWages"					     text="Fahrer Lohn" />	
 		<text name="gui_ad_driverWages_tooltip"			     text="Mit diesem Faktor werden die Lohnkosten der Fahrer multipliziert" />	
+		<text name="gui_ad_smoothField"					     text="Feldstrecken glätten" />	
+		<text name="gui_ad_smoothField_tooltip"			     text="Strecken zu/vom Drescher werden geglättet - Experimental" />	
 	</texts>
 </l10n>

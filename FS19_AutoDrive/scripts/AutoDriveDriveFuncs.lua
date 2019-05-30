@@ -111,11 +111,18 @@ end;
 
 function AutoDrive:checkForDeadLock(vehicle, dt)
     if vehicle.ad.isActive == true and vehicle.isServer and vehicle.ad.isStopping == false then		
-        vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt;
-		if vehicle.ad.timeTillDeadLock < 0 and vehicle.ad.timeTillDeadLock ~= -1 then
-			--print("Deadlock reached due to timer");
-			vehicle.ad.inDeadLock = true;
-		end;		
+        local x,y,z = getWorldTranslation( vehicle.components[1].node );
+        if (AutoDrive:getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < 15) then        
+            vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt;
+            if vehicle.ad.timeTillDeadLock < 0 and vehicle.ad.timeTillDeadLock ~= -1 then
+                --print("Deadlock reached due to timer");
+                vehicle.ad.inDeadLock = true;
+            end;	
+        else
+            vehicle.ad.inDeadLock = false;
+		    vehicle.ad.timeTillDeadLock = 15000;
+		    vehicle.ad.inDeadLockRepairCounter = 4;
+        end;
 	else
 		vehicle.ad.inDeadLock = false;
 		vehicle.ad.timeTillDeadLock = 15000;
@@ -367,6 +374,16 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 end;
             end;
         end;
+
+        if  vehicle.ad.mode == AutoDrive.MODE_UNLOAD 
+            and 
+            (  vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE 
+            or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS
+            or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS ) then
+            
+                vehicle.ad.speedOverride = math.min(28, vehicle.ad.speedOverride);
+        end;
+
     end;
 
     local finalSpeed = vehicle.ad.speedOverride;

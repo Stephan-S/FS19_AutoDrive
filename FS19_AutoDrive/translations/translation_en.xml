@@ -88,5 +88,7 @@
 		<text name="gui_ad_showHelp_tooltip"			     text="Display keybinding in F1 window" />	
 		<text name="gui_ad_driverWages"					     text="Driver wages" />	
 		<text name="gui_ad_driverWages_tooltip"			     text="Driver wages will be multiplied with this value" />	
+		<text name="gui_ad_smoothField"					     text="Smoother field driving" />	
+		<text name="gui_ad_smoothField_tooltip"			     text="Generated field courses to and from combine will be smoothed (experimental)" />	
 	</texts>
 </l10n>

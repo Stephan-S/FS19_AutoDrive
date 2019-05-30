@@ -145,3 +145,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingDriverWages(element)
     self:onCreateAutoDriveSetting(element, "driverWages");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingSmoothField(element)
+    self:onCreateAutoDriveSetting(element, "smoothField");
+end;

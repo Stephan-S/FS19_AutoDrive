@@ -95,13 +95,13 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)
 	local targetVector = {};
 
     local exitStrategy =  AutoDrive:getSetting("exitField");
-    if exitStrategy == 1 then
+    if exitStrategy == 1 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS then
         local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id);
         if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
             preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[5].id];
             targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[6].id];
         end;
-    elseif exitStrategy == 2 then
+    elseif exitStrategy == 2 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS  then
         local closest = AutoDrive:findClosestWayPoint(driver);
         local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id);
         if waypointsToUnload ~= nil and waypointsToUnload[2] ~= nil then
@@ -528,7 +528,10 @@ function AutoDrivePathFinder:createWayPoints(pf)
     --print("Found path!");
     --DebugUtil.printTableRecursively(pf.wayPoints, ":::",0,1);
 
-	AutoDrivePathFinder:smoothResultingPPPath(pf);
+    AutoDrivePathFinder:smoothResultingPPPath(pf);
+    if AutoDrive:getSetting("smoothField") == true then
+        AutoDrivePathFinder:smoothResultingPPPath_Refined(pf);
+    end;
 end;
 
 function AutoDrivePathFinder:smoothResultingPPPath(pf)
@@ -561,6 +564,164 @@ function AutoDrivePathFinder:smoothResultingPPPath(pf)
 	end;
 
 	pf.wayPoints = filteredWPs;
+end;
+
+function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
+    if pf.fruitToCheck == nil then
+        return;
+    end;
+
+    local index = 1;
+	local filteredIndex = 1;
+    local filteredWPs = {};
+    
+    --add first few without filtering
+    while index < ADTableLength(pf.wayPoints) and index < 3 do
+        filteredWPs[filteredIndex] = pf.wayPoints[index];
+        filteredIndex = filteredIndex + 1;
+        index = index + 1;
+    end;
+    
+    while index < ADTableLength(pf.wayPoints) - 6 do
+        local node = pf.wayPoints[index];
+        local worldPos = pf.wayPoints[index];
+
+        filteredWPs[filteredIndex] = node;
+        filteredIndex = filteredIndex + 1;
+
+        local foundCollision = false;
+        local lookAheadIndex = 1;
+        while foundCollision == false and ((index+lookAheadIndex) < (ADTableLength(pf.wayPoints) - 6)) do
+            local nodeAhead = pf.wayPoints[index+lookAheadIndex];
+            local nodeTwoAhead = pf.wayPoints[index+lookAheadIndex+1];
+
+            local angle = AutoDrive:angleBetween( 	{x=	nodeAhead.x	-	node.x, z = nodeAhead.z - node.z },
+                                                {x=	nodeTwoAhead.x-	nodeAhead.x, z = nodeTwoAhead.z - nodeAhead.z } )
+            angle = math.abs(angle);
+
+            local hasCollision = false;
+            if angle > 60 then
+                hasCollision = true;
+            end;            
+
+            local vectorX = nodeAhead.x - node.x;
+            local vectorZ = nodeAhead.z - node.z;
+            local angleRad = math.atan2(vectorZ, vectorX);
+            angleRad = normalizeAngle(angleRad);
+            local sideLength = 3;
+            local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2));
+
+            local leftAngle = normalizeAngle(angleRad + math.rad(-90));
+            local rightAngle = normalizeAngle(angleRad + math.rad(90));
+
+            local cornerX = node.x + math.cos(leftAngle) * sideLength;
+            local cornerZ = node.z + math.sin(leftAngle) * sideLength;
+
+            local corner2X = nodeAhead.x + math.cos(leftAngle) * sideLength;
+            local corner2Z = nodeAhead.z + math.sin(leftAngle) * sideLength;
+            
+            local corner3X = node.x + math.cos(rightAngle) * sideLength;
+            local corner3Z = node.z + math.sin(rightAngle) * sideLength;
+
+            local corner4X = nodeAhead.x + math.cos(rightAngle) * sideLength;
+            local corner4Z = nodeAhead.z + math.sin(rightAngle) * sideLength;
+
+            local y = worldPos.y;
+            local shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,length, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+            hasCollision = hasCollision or (shapes > 0);
+            shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,length, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
+            hasCollision = hasCollision or (shapes > 0);
+            
+            if (index > 1) then
+                local worldPosPrevious = pf.wayPoints[index-1]    
+                local length = MathUtil.vector3Length(worldPos.x-worldPosPrevious.x, worldPos.y-worldPosPrevious.y, worldPos.z-worldPosPrevious.z)
+                local angleBetween = math.atan(math.abs(worldPos.y-worldPosPrevious.y)/length)
+        
+                if angleBetween > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+                    hasCollision = true;                    
+                end
+            end;
+ 
+            local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+            if pf.fruitToCheck == 9 then
+                fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+            end;
+            hasCollision = hasCollision or (fruitValue > (0.3 * pf.fieldArea));
+            hasCollision = hasCollision or AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);
+           
+            foundCollision = hasCollision;
+
+            lookAheadIndex = lookAheadIndex + 1;
+        end;	
+
+		index = index + math.max(1,(lookAheadIndex-2));
+    end;    
+   
+    --add remaining points without filtering
+    while index <= ADTableLength(pf.wayPoints) do
+		local node = pf.wayPoints[index];
+		filteredWPs[filteredIndex] = node;
+		filteredIndex = filteredIndex + 1;
+		index = index + 1;
+	end;
+
+	pf.wayPoints = filteredWPs;
+end;
+
+function AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
+    local boundingBox = {};
+    boundingBox[1] ={ 	x = cornerX,
+                        y = 0,
+                        z = cornerZ; };
+    boundingBox[2] ={ 	x = corner2X,
+                        y = 0,
+                        z = corner2Z; };
+    boundingBox[3] ={ 	x = corner3X,
+                        y = 0,
+                        z = corner3Z; };
+    boundingBox[4] ={ 	x = corner4X,
+                        y = 0,
+                        z = corner4Z; };
+
+    if pf.combine ~= nil and pf.combine.components ~= nil and pf.combine.sizeWidth ~= nil and pf.combine.sizeLength ~= nil and pf.combine.rootNode ~= nil then     
+        local otherWidth = pf.combine.sizeWidth;
+        local otherLength = pf.combine.sizeLength;
+        local otherPos = {};
+        otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( pf.combine.components[1].node ); 
+
+        local rx,ry,rz = localDirectionToWorld(pf.combine.components[1].node, 0, 0, 1);
+
+        local otherVectorToWp = {};
+        otherVectorToWp.x = rx;
+        otherVectorToWp.z = rz;
+
+        local otherPos2 = {};
+        otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+        otherPos2.y = 0;
+        otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+        local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
+
+        local otherBoundingBox = {};
+        otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                y = 0,
+                                z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+        otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                y = 0,
+                                z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+        otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                y = 0,
+                                z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+        otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                y = 0,
+                                z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+        
+        if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
+            return true;
+        end;
+    end;
+    return false;
 end;
 
 function AutoDrivePathFinder:onFieldDataUpdateFinished(pf, fielddata, cell)
