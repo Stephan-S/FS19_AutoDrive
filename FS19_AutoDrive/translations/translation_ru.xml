@@ -83,6 +83,10 @@
 		<text name="gui_ad_exitField_tooltip"				 text="Способ выезда с поля при разгрузке" />	
 		<text name="gui_ad_default"			 				 text="Обычный" />
 		<text name="gui_ad_after_start"			 			 text="За стартом" />	
-		<text name="gui_ad_closest"			 				 text="Ближайшая точка" />	
+		<text name="gui_ad_closest"			 				 text="Ближайшая точка" />
+		<text name="gui_ad_showHelp"					     text="Отображать подсказки" />	
+		<text name="gui_ad_showHelp_tooltip"			     text="Отображать сочетания клавиш в окне подсказок по F1" />	
+		<text name="gui_ad_driverWages"					     text="Зарплата водителя" />	
+		<text name="gui_ad_driverWages_tooltip"			     text="Заработная плата водителя будет умножена на указанное значение" />	
 	</texts>
 </l10n>
