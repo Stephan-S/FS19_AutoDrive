@@ -363,7 +363,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_callDriver" then
-		if vehicle.typeName == "combineDrivable" then
+		if vehicle.typeName == "combineDrivable" or self.typeName == "combineCutterFruitPreparer" then
 			AutoDrive:callDriverToCombine(vehicle);
 		end;
 	end;

@@ -48,7 +48,7 @@ end;
 
 function AutoDrive:callDriverToCombine(combine)
     local spec = combine.spec_pipe
-    if spec.currentState == spec.targetState and spec.currentState == 2 then
+    if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
         
         local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 

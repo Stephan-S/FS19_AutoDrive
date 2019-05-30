@@ -926,7 +926,7 @@ function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDow
 	vehicle.ad.pullDownList.hoveredItem = nil;
 	while i <= vehicle.ad.pullDownList.bottomItem and (handledEvent == false) do	
 		if posX >= adPosX and posX <= (adPosX + vehicle.ad.pullDownList.width) and posY >= adPosY and posY <= (adPosY + (self.buttonHeight/2)) then			
-			vehicle.ad.pullDownList.hoveredItem = i;
+			vehicle.ad.pullDownList.hoveredItem = vehicle.ad.pullDownList.itemList[i].returnValue;
 		end;
 		
 		if vehicle.ad.pullDownList.downwards then
@@ -983,8 +983,9 @@ function AutoDriveHud:handlePullDownList(vehicle)
 	
 	local i = vehicle.ad.pullDownList.topItem;
 	while i <= vehicle.ad.pullDownList.bottomItem do
-		local text = vehicle.ad.pullDownList.itemList[i].displayName;
-		if vehicle.ad.pullDownList.hoveredItem ~= nil and i == vehicle.ad.pullDownList.hoveredItem then			
+		local entry = vehicle.ad.pullDownList.itemList[i];
+		local text = entry.displayName;
+		if vehicle.ad.pullDownList.hoveredItem ~= nil and entry.returnValue == vehicle.ad.pullDownList.hoveredItem then			
 			setTextColor(1,1,0,1);
 		else
 			setTextColor(1,1,1,1);
@@ -1051,6 +1052,9 @@ function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
 		vehicle.ad.pullDownList.selectedItem = vehicle.ad.unloadFillTypeIndex;
 	end;
 	vehicle.ad.pullDownList.itemList = itemList;
+
+	local sort_func = function( a,b ) return a.displayName < b.displayName end
+	table.sort( vehicle.ad.pullDownList.itemList, sort_func );
 
 	if (vehicle.ad.pullDownList.selectedItem + AutoDrive.PULLDOWN_ITEM_COUNT) <= ADTableLength(itemList) then
 		vehicle.ad.pullDownList.topItem = vehicle.ad.pullDownList.selectedItem;

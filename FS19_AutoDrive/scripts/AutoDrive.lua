@@ -362,7 +362,7 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleClientIntegrity(self);
 	AutoDrive:handleMultiplayer(self, dt);
 	
-	if self.typeName == "combineDrivable" then
+	if self.typeName == "combineDrivable" or self.typeName == "combineCutterFruitPreparer" then
 		AutoDrive:handleCombineHarvester(self, dt)
 	end;
 

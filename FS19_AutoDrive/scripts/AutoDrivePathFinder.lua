@@ -411,6 +411,9 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 cell.hasRequested = true;
             else
                 local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+                if pf.fruitToCheck == 9 then
+                    fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+                end;
                 cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
                 cell.hasFruit = cell.isRestricted;
 
