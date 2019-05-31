@@ -144,7 +144,6 @@
 			<mm28>                
                  <id>2157.000000</id>
                 <name>Schreinerei</name>
-
             </mm28>
 			<mm29>
                 <id>5950.000000</id>
@@ -328,7 +327,7 @@
             </mm73>
             <mm74>
                 <id>5895.000000</id>
-                <name>feld 15 Oben Abfahrer</name>
+                <name>Feld 15 Oben Abfahrer</name>
             </mm74>
             <mm75>
                 <id>5907.000000</id>
