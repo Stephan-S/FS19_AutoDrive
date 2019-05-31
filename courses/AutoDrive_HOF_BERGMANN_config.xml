@@ -52,8 +52,8 @@
         <name>Kuhweide B</name>
       </mm5>
       <mm6>
-        <id>1473</id>
-        <name>Feld 14 Unten Abfahrer</name>
+         <id>1295</id>
+        <name>Hof</name>
       </mm6>
       <mm7>
         <id>1591</id>
@@ -327,10 +327,6 @@
         <id>5967</id>
         <name>Bga Silo</name>
       </mm74>
-      <mm75>
-        <id>1295</id>
-        <name>Hof</name>
-      </mm75>
-    </mapmarker>
+      </mapmarker>
     </HOF_BERGMANN>
 </AutoDrive>
