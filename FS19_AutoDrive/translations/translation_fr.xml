@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-    <translationContributors>Anonymous-any</translationContributors>
+    <translationContributors>Anonymous</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="Inconnu" />
 		<text name="input_ADToggleHud"						 text="AD: Montrer/cacher HUD" />
@@ -57,7 +57,7 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Détour maximum quand des destinations doivent être évités" />
 		<text name="gui_ad_siloEmpty"						 text="Quand le silo est vide" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Détermine comment un transporteur devrait réagir à un silo vide" />
-		<text name="gui_ad_wait"							 text="Attente" />	
+		<text name="gui_ad_wait"							 text="Attente" />
 		<text name="gui_ad_drive"							 text="Continuer" />
 		<text name="gui_ad_yes"								 text="Oui" />
 		<text name="gui_ad_no"								 text="Non" />
@@ -82,7 +82,13 @@
 		<text name="gui_ad_exitField"					     text="Sortie de champ" />
 		<text name="gui_ad_exitField_tooltip"			     text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche" />
 		<text name="gui_ad_default"			 				 text="Par défaut" />
-		<text name="gui_ad_after_start"			 			 text="Après le départ" />
-		<text name="gui_ad_closest"							 text="Le plus proche" />		
+		<text name="gui_ad_after_start"			 			 text="Derrière le départ" />
+		<text name="gui_ad_closest"							 text="Le plus proche" />
+		<text name="gui_ad_showHelp"					     text="Afficher l'aide" />
+		<text name="gui_ad_showHelp_tooltip"			     text="Afficher l'affectation des touches dans la fenêtre d'aide F1" />
+		<text name="gui_ad_driverWages"					     text="Salaire du chauffeur" />
+		<text name="gui_ad_driverWages_tooltip"			     text="Avec cette option, les coûts salariaux des conducteurs sont multipliés" />
+		<text name="gui_ad_smoothField"					     text="Conduite adoucie au champ" />
+		<text name="gui_ad_smoothField_tooltip"			     text="Les itinéraires vers/depuis les moissoneuses sont lissés - Expérimental" />
 	</texts>
 </l10n>
