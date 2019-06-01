@@ -363,7 +363,11 @@ function AutoDrive:FastShortestPath(Graph,start,markerName, markerID)
 		if id == markerID then
 			id = nil;
 		else
-			id = AutoDrive.mapWayPoints[id].marker[markerName];
+			if AutoDrive.mapWayPoints[id] ~= nil then
+				id = AutoDrive.mapWayPoints[id].marker[markerName];
+			else
+				id = nil;
+			end;
 		end;
 		if count > 5000 then
 			return {};  --something went wrong. prevent overflow here
@@ -382,10 +386,10 @@ function AutoDrive:findClosestWayPoint(veh)
 
 	--returns waypoint closest to vehicle position
 	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
-	local closest = 1;
+	local closest = -1;
 	if AutoDrive.mapWayPoints[1] ~= nil then
 
-		local distance = AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
+		local distance = math.huge; --AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
 		for i in pairs(AutoDrive.mapWayPoints) do
 			local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x,AutoDrive.mapWayPoints[i].z,x1,z1);
 			if dis < distance then

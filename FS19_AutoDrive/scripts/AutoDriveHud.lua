@@ -1053,7 +1053,18 @@ function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
 	end;
 	vehicle.ad.pullDownList.itemList = itemList;
 
-	local sort_func = function( a,b ) return a.displayName < b.displayName end
+	--local sort_func = function( a,b ) return a.displayName < b.displayName end
+	local sort_func = function(a, b)
+		a = tostring(a.displayName)
+		b = tostring(b.displayName)
+		local patt = '^(.-)%s*(%d+)$'
+		local _,_, col1, num1 = a:find(patt)
+		local _,_, col2, num2 = b:find(patt)
+		if (col1 and col2) and col1 == col2 then
+		   return tonumber(num1) < tonumber(num2)
+		end
+		return a < b
+	 end
 	table.sort( vehicle.ad.pullDownList.itemList, sort_func );
 
 	if (vehicle.ad.pullDownList.selectedItem + AutoDrive.PULLDOWN_ITEM_COUNT) <= ADTableLength(itemList) then

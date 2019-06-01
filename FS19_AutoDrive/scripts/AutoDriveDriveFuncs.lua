@@ -263,15 +263,17 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             
             AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.name .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
             AutoDrive:stopAD(vehicle);           
-        else
-            vehicle.ad.startedLoadingAtTrigger = false;
+        else            
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
                 AutoDrive:handleReachedWayPointCombine(vehicle);
             else
                 if vehicle.ad.unloadSwitch == true then
                     vehicle.ad.timeTillDeadLock = 15000;
 
-                    local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+                    local closest = AutoDrive:findClosestWayPoint(vehicle); 
+                    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                        closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+                    end;
                     vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
                     vehicle.ad.wayPointsChanged = true;
                     vehicle.ad.currentWayPoint = 1;
@@ -285,7 +287,10 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.timeTillDeadLock = 15000;
 
                     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-                        local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+                        local closest = AutoDrive:findClosestWayPoint(vehicle); 
+                        if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                            closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+                        end;
                         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
                         vehicle.ad.wayPointsChanged = true;
                         vehicle.ad.currentWayPoint = 1;
@@ -295,9 +300,12 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                         vehicle.ad.unloadSwitch = true;                        
                     end;
 
-                    vehicle.ad.isPaused = true;
+                    if vehicle.ad.startedLoadingAtTrigger == false then
+                        vehicle.ad.isPaused = true;
+                    end;
                 end;
             end;
+            vehicle.ad.startedLoadingAtTrigger = false;
         end;
     end;
 end;

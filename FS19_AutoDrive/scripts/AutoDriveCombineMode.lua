@@ -132,7 +132,10 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
     elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
         vehicle.ad.timeTillDeadLock = 15000;
 
-        local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+        local closest = AutoDrive:findClosestWayPoint(vehicle); 
+        if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+            closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+        end;
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
         vehicle.ad.wayPointsChanged = true;
         vehicle.ad.currentWayPoint = 1;
