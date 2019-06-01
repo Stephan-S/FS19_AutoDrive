@@ -12,9 +12,9 @@
 		<text name="input_ADSelectPreviousTarget"			 text="AD: Выбрать предыдущую цель" />
 		<text name="input_AD_Speed_up"						 text="AD: Увеличить скорость" />
 		<text name="input_AD_Speed_down"					 text="AD: Уменьшить скорость" />
-		<text name="input_AD_export_routes"					 text="AD: Экспортировать путь" />
-		<text name="input_AD_import_routes"					 text="AD: Импортировать путь" />
-		<text name="input_AD_upload_routes"					 text="AD: Выгрузить путь" />
+		<text name="input_AD_export_routes"					 text="AD: Экспортировать пути" />
+		<text name="input_AD_import_routes"					 text="AD: Импортировать пути" />
+		<text name="input_AD_upload_routes"					 text="AD: Выгрузить пути" />
 		<text name="input_AD_continue"						 text="AD: Продолжить" />
 		<text name="input_ADSelectTargetUnload"				 text="AD: Выбрать следующую разгрузку" />
 		<text name="input_ADSelectPreviousTargetUnload" 	 text="AD: Выбрать предыдущую разгрузку" />
@@ -58,13 +58,13 @@
 		<text name="gui_ad_siloEmpty"						 text="Если бункер пуст" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Как водитель реагирует на пустой бункер в режиме 'Загрузка и доставка'" />
 		<text name="gui_ad_wait"							 text="Ожидать" />
-		<text name="gui_ad_drive"							 text="Двигаться к" />
+		<text name="gui_ad_drive"							 text="Следовать к" />
 		<text name="gui_ad_yes"								 text="Да" />
 		<text name="gui_ad_no"								 text="Нет" />
 		<text name="ad_wait_for_combine"					 text="Ожидаю комбайн" />
 		<text name="ad_drive_to_combine"					 text="Еду к комбайну" />
 		<text name="ad_unloading_combine"					 text="Разгружаю комбайн" />
-		<text name="ad_drive_to_parkpos"					 text="Паркуюсь" />
+		<text name="ad_drive_to_parkpos"					 text="Еду на стоянку" />
 		<text name="ad_drive_to_startpos"					 text="Двигаюсь к старту" />
 		<text name="ad_drive_to_unloadpos"					 text="Еду на разгрузку" />
 		<text name="gui_ad_autoConnect_start"				 text="Автосоединение (начало)" />
@@ -80,9 +80,15 @@
 		<text name="gui_ad_gui_scale"						 text="Масштабирование интерфейса AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"				 text="Оставьте значение по умолчанию для использования настроек масштаба в игре" />
 		<text name="gui_ad_exitField"						 text="Выезд с поля" />
-		<text name="gui_ad_exitField_tooltip"				 text="Способ выезда с поля при разгрузке" />	
+		<text name="gui_ad_exitField_tooltip"				 text="Способ выезда с поля при разгрузке" />
 		<text name="gui_ad_default"			 				 text="Обычный" />
-		<text name="gui_ad_after_start"			 			 text="За стартом" />	
-		<text name="gui_ad_closest"			 				 text="Ближайшая точка" />	
+		<text name="gui_ad_after_start"			 			 text="За стартом" />
+		<text name="gui_ad_closest"			 				 text="Ближайшая точка" />
+		<text name="gui_ad_showHelp"						 text="Отображать подсказки" />	
+		<text name="gui_ad_showHelp_tooltip"				 text="Отображать сочетания клавиш в окне подсказок по F1" />
+		<text name="gui_ad_driverWages"						 text="Зарплата водителя" />
+		<text name="gui_ad_driverWages_tooltip"				 text="Заработная плата водителя будет умножена на указанное значение" />
+		<text name="gui_ad_smoothField"						 text="Сглаживать курсы на поле" />
+		<text name="gui_ad_smoothField_tooltip"				 text="Сгенерированные полевые курсы к комбайну и обратно будут сглаживаться (экспериментальная функция)" />
 	</texts>
 </l10n>
