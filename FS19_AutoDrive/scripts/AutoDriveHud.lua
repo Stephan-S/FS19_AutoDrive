@@ -1,6 +1,25 @@
 AutoDriveHud = {}
 AutoDrive.FONT_SCALE = 0.0115;
 AutoDrive.PULLDOWN_ITEM_COUNT = 20;
+AutoDrive.ItemFilterList = {
+	34, --Air
+	11, -- Cotton
+	77, 78, 79, 80, --Chicken
+	61, 62, 63, 64, 65, 66, 67, 68, -- Cows
+	14, --Eggs
+	28, 29, --multiple grass
+	53, 54, 55, 56, 57, 58, 59, 60, --Horses
+	25, --Oilseed Radish
+	73, 74, 75, 76, --Pigs
+	35, 36, 37, 38, 39, --Round bale
+	69, 70, 71, 72, --Sheep
+	40, 41, 42, --Square bale
+	49, --Tarp?
+	22, --Tree sapling
+	1, --Unknown
+	52, --weed
+	15 --wool
+};
 
 function AutoDriveHud:new()
     o = {}
@@ -1040,10 +1059,14 @@ function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
 		end;
 	elseif fillType == true then
 		local fillTypeIndex = 1;
+		local itemListIndex = 1;
 		local lastIndexReached = false;
 		while not lastIndexReached do
 			if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
-				itemList[fillTypeIndex] = {displayName=g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue=fillTypeIndex};
+				if not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex) then
+					itemList[itemListIndex] = {displayName=g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue=fillTypeIndex};
+					itemListIndex = itemListIndex + 1;
+				end;
 			else
 				lastIndexReached = true;
 			end;
@@ -1088,3 +1111,13 @@ function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
 		self.Background.pullDownBG.ov = Overlay:new(AutoDrive.directory .. "textures/Background.dds", self.Background.pullDownBG.posX, self.Background.pullDownBG.posY , self.Background.pullDownBG.width, self.Background.pullDownBG.height + self.buttonHeight*0.5);
 	end;
 end;
+
+function AutoDriveHud:has_value (tab, val)
+	for index, value in ipairs(tab) do
+		if value == val then
+			return true
+		end
+	end
+
+	return false
+end
