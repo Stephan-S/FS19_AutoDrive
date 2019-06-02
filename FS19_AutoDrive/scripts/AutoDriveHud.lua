@@ -110,17 +110,17 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Background.Header = {};
 	self.Background.Header.img = AutoDrive.directory .. "textures/Header.dds";
 	self.Background.Header.width = self.width;
-	self.Background.Header.height = 0.009 * uiScale * (g_screenWidth / g_screenHeight);
+	self.Background.Header.height = 0.016 * uiScale; -- * (g_screenWidth / g_screenHeight);
 	self.Background.Header.posX = self.posX;
 	self.Background.Header.posY = self.posY + self.height - self.Background.Header.height;
 	self.Background.Header.ov = Overlay:new(self.Background.Header.img, self.Background.Header.posX, self.Background.Header.posY , self.Background.Header.width, self.Background.Header.height);
 	
 	self.Background.close_small = {};
 	self.Background.close_small.img = AutoDrive.directory .. "textures/close_small.dds";
-	self.Background.close_small.width = 0.01 * uiScale 
-	self.Background.close_small.height = self.Background.close_small.width * (g_screenWidth / g_screenHeight);
-	self.Background.close_small.posX = self.posX + self.width - (0.0101 * uiScale);
-	self.Background.close_small.posY = self.posY + self.height - (0.0101* (g_screenWidth / g_screenHeight)  * uiScale);
+	self.Background.close_small.height = 0.0177 * uiScale
+	self.Background.close_small.width =  self.Background.close_small.height * (g_screenHeight / g_screenWidth);
+	self.Background.close_small.posX = self.posX + self.width - (self.Background.close_small.width*1.1);
+	self.Background.close_small.posY = self.posY + self.height - (self.Background.close_small.height*1.05); --(0.0101* (g_screenWidth / g_screenHeight)  * uiScale);
 	self.Background.close_small.ov = Overlay:new(self.Background.close_small.img, self.Background.close_small.posX, self.Background.close_small.posY , self.Background.close_small.width, self.Background.close_small.height);
 
 	self.Background.destination = {};
@@ -135,14 +135,14 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Background.speedmeter.img = AutoDrive.directory .. "textures/speedmeter.dds";
 	self.Background.speedmeter.width = self.iconWidth * 1.2; --0.019;
 	self.Background.speedmeter.height = self.iconHeight * 1.2; --self.Background.speedmeter.width * (g_screenWidth / g_screenHeight);
-	self.Background.speedmeter.posX = self.posX + self.width - 0.03;
+	self.Background.speedmeter.posX = self.posX + self.width - (0.0533 * (g_screenHeight / g_screenWidth)); --0.03
 	self.Background.speedmeter.posY = self.posY + self.height - self.Background.Header.height - self.Background.speedmeter.height - self.gapHeight; -- + 0.001;
 	self.Background.speedmeter.ov = Overlay:new(self.Background.speedmeter.img, self.Background.speedmeter.posX, self.Background.speedmeter.posY , self.Background.speedmeter.width, self.Background.speedmeter.height);
 	
 	self.Background.divider = {};
 	self.Background.divider.img = AutoDrive.directory .. "textures/divider.dds";
 	self.Background.divider.width = self.width;
-	self.Background.divider.height = 0.001
+	self.Background.divider.height = 0.001 * uiScale
 	self.Background.divider.posX = self.posX;
 	self.Background.divider.posY = self.posY + self.height - self.Background.Header.height - self.Background.speedmeter.height - self.gapHeight;
 	self.Background.divider.ov = Overlay:new(self.Background.divider.img, self.Background.divider.posX, self.Background.divider.posY , self.Background.divider.width, self.Background.divider.height);
@@ -393,7 +393,7 @@ function AutoDriveHud:drawHud(vehicle)
 		local ovHeight = self.Background.height;
 
 		if vehicle.ad.enteringMapMarker == true then
-			ovHeight = ovHeight + 0.07;
+			ovHeight = ovHeight + 0.07 * uiScale;
 		end;
 		
 		local buttonCounter = 0;
@@ -407,7 +407,7 @@ function AutoDriveHud:drawHud(vehicle)
 		
 		self.Background.Header.posY = self.posY + ovHeight - self.Background.Header.height;
 		self.Background.Header.ov = Overlay:new(self.Background.Header.img, self.Background.Header.posX, self.Background.Header.posY , self.Background.Header.width, self.Background.Header.height);
-		self.Background.close_small.posY = self.posY + ovHeight - 0.0101* (g_screenWidth / g_screenHeight);
+		self.Background.close_small.posY = self.posY + ovHeight - (self.Background.close_small.height*1.05); -- 0.0101* (g_screenWidth / g_screenHeight);
 		self.Background.close_small.ov = Overlay:new(self.Background.close_small.img, self.Background.close_small.posX, self.Background.close_small.posY , self.Background.close_small.width, self.Background.close_small.height);
 		self.Background.ov = Overlay:new(AutoDrive.directory .. "textures/Background.dds", self.posX, self.posY , self.width, ovHeight);
 		self.Background.ov:render();
@@ -491,14 +491,14 @@ function AutoDriveHud:drawHud(vehicle)
 		local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 		setTextColor(1,1,1,1);
 		setTextAlignment(RenderText.ALIGN_LEFT);
-		local posX = self.posX - 0.012 + self.width
+		local posX = self.posX - (0.0213 * (g_screenHeight/g_screenWidth)) + self.width; -- -0.012
 		local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
 		renderText(posX, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
 
 		if vehicle.ad.enteringMapMarker == true and vehicle.ad.pullDownList.active == false then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.borderX;
-			local adPosY = self.posY + 0.085 + (self.borderY + self.buttonHeight) * self.rowCurrent;
+			local adPosY = self.posY + (0.0478 * (g_screenWidth / g_screenHeight)) + (self.borderY + self.buttonHeight) * self.rowCurrent; --0.085
 			setTextColor(1,1,1,1);
 			setTextAlignment(RenderText.ALIGN_LEFT);
 			local posY = adPosY + (0.01125 * (g_screenWidth / g_screenHeight));

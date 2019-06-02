@@ -281,7 +281,9 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 
-                    vehicle.ad.isPaused = true;
+                    if vehicle.ad.isUnloadingToBunkerSilo ~= true then
+                        vehicle.ad.isPaused = true;
+                    end;
                     vehicle.ad.unloadSwitch = false;
                 else
                     vehicle.ad.timeTillDeadLock = 15000;
@@ -392,6 +394,10 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 vehicle.ad.speedOverride = math.min(28, vehicle.ad.speedOverride);
         end;
 
+    end;
+
+    if vehicle.ad.isUnloadingToBunkerSilo == true and vehicle.ad.isPaused == false then
+        vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride);
     end;
 
     local finalSpeed = vehicle.ad.speedOverride;

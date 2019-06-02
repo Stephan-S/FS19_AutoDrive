@@ -7,10 +7,21 @@ function AutoDrive:handleTrailers(vehicle, dt)
         end;        
         
         local leftCapacity = 0;
+        local fillLevel = 0;
         for _,trailer in pairs(trailers) do
             for _,fillUnit in pairs(trailer:getFillUnits()) do
-                leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
+                leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_);
+                fillLevel = fillLevel + trailer:getFillUnitFillLevel(_);
             end
+        end;
+
+        if fillLevel == 0 then
+            vehicle.ad.isUnloading = false;
+            vehicle.ad.isUnloadingToBunkerSilo = false;
+            for _,trailer in pairs(trailers) do
+                trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF);
+            end;
+            
         end;
 
         if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then 
@@ -34,10 +45,14 @@ function AutoDrive:handleTrailers(vehicle, dt)
             return;
         end;
         local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);
-        if distance < 20 then
+        if distance < 100 then
             for _,trailer in pairs(trailers) do
                 for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
-                    if trailer.getCurrentDischargeNode == nil then
+                    if distance > 20 and trigger.bunkerSilo ~= nil then
+                        return;
+                    end;
+
+                    if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
                         return;
                     end;
 
@@ -57,14 +72,25 @@ function AutoDrive:handleTrailers(vehicle, dt)
                     
                     if trailer:getCanDischargeToObject(currentDischargeNode) then
                         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
-                        vehicle.ad.isPaused = true;
+                        if trigger.bunkerSilo == nil then
+                            vehicle.ad.isPaused = true;
+                        end;
                         vehicle.ad.isUnloading = true;
+                    end;
+
+                    if trigger.bunkerSilo ~= nil then
+                        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
+                        vehicle.ad.isUnloadingToBunkerSilo = true;
                     end;
                     
                     local dischargeState = trailer:getDischargeState()
                     if dischargeState == Trailer.TIPSTATE_CLOSED or dischargeState == Trailer.TIPSTATE_CLOSING then
                         vehicle.ad.isPaused = false;
                         vehicle.ad.isUnloading = false;
+                    end;
+
+                    if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING and trigger.bunkerSilo ~= nil then
+                        vehicle.ad.isUnloading = true;
                     end;
                 end; 
                 
