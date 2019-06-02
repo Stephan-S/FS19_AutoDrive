@@ -133,5 +133,14 @@ function AutoDrive:getAllTriggers()
             end
         end;
     end;
+
+    if g_currentMission.nodeToObject ~= nil then
+		for _,object in pairs (g_currentMission.nodeToObject) do
+            if object.triggerNode ~= nil  then
+                AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1;
+                AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = object;
+			end
+		end			
+	end
             
 end;
