@@ -48,12 +48,22 @@ function AutoDrive:handleTrailers(vehicle, dt)
         if distance < 100 then
             for _,trailer in pairs(trailers) do
                 for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
-                    if distance > 20 and trigger.bunkerSilo ~= nil then
-                        return;
+                    if distance > 20 and trigger.bunkerSilo == nil then
+                        break;
                     end;
 
-                    if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
-                        return;
+                    if trailer.getCurrentDischargeNode == nil then
+                        break;
+                    end;
+                    
+                    local dischargeState = trailer:getDischargeState()
+                    if dischargeState == Trailer.TIPSTATE_CLOSED and not vehicle.ad.isLoading then
+                        vehicle.ad.isPaused = false;
+                        vehicle.ad.isUnloading = false;
+                    end;
+
+                    if fillLevel == 0 then
+                        break;
                     end;
 
                     local currentDischargeNode = trailer:getCurrentDischargeNode()
@@ -72,22 +82,26 @@ function AutoDrive:handleTrailers(vehicle, dt)
                     
                     if trailer:getCanDischargeToObject(currentDischargeNode) then
                         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
-                        if trigger.bunkerSilo == nil then
-                            vehicle.ad.isPaused = true;
-                        end;
+                        vehicle.ad.isPaused = true;
                         vehicle.ad.isUnloading = true;
                     end;
 
-                    if trigger.bunkerSilo ~= nil then
-                        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
-                        vehicle.ad.isUnloadingToBunkerSilo = true;
+                    if trigger.bunkerSilo ~= nil then                        
+                        local currentDischargeNode = trailer:getCurrentDischargeNode().node
+                        local x,y,z = getWorldTranslation(currentDischargeNode)
+                        local tx,ty,tz = x,y,z+1
+                        local x1,z1 = trigger.bunkerSiloArea.sx,trigger.bunkerSiloArea.sz
+                        local x2,z2 = trigger.bunkerSiloArea.wx,trigger.bunkerSiloArea.wz
+                        local x3,z3 = trigger.bunkerSiloArea.hx,trigger.bunkerSiloArea.hz
+                        local trailerInTipRange = MathUtil.hasRectangleLineIntersection2D(x1,z1,x2-x1,z2-z1,x3-x1,z3-z1,x,z,tx-x,tz-z)
+
+                        if trailerInTipRange then
+                            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
+                            vehicle.ad.isUnloadingToBunkerSilo = true;
+                        end;
                     end;
                     
-                    local dischargeState = trailer:getDischargeState()
-                    if dischargeState == Trailer.TIPSTATE_CLOSED or dischargeState == Trailer.TIPSTATE_CLOSING then
-                        vehicle.ad.isPaused = false;
-                        vehicle.ad.isUnloading = false;
-                    end;
+                    
 
                     if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING and trigger.bunkerSilo ~= nil then
                         vehicle.ad.isUnloading = true;
@@ -116,16 +130,18 @@ function AutoDrive:handleTrailers(vehicle, dt)
                 for _,trailer in pairs(trailers) do
                     for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
                         local activate = false;
-                        for __,fillableObject in pairs(trigger.fillableObjects) do
-                            if fillableObject.object == trailer then   
-                                activate = true;    
+                        if trigger.fillableObjects ~= nil then
+                            for __,fillableObject in pairs(trigger.fillableObjects) do
+                                if fillableObject.object == trailer then   
+                                    activate = true;    
+                                end;
                             end;
                         end;
                         if AutoDrive:getSetting("continueOnEmptySilo") and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.startedLoadingAtTrigger then --trigger must be empty by now. Drive on!
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
-                            vehicle.ad.isLoading = false; 
-                        elseif activate == true and vehicle.ad.isLoading == false and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then --(not vehicle.ad.startedLoadingAtTrigger) and                        
+                            vehicle.ad.isLoading = false;
+                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then --(not vehicle.ad.startedLoadingAtTrigger) and  and vehicle.ad.isLoading == false                      
                             trigger.autoStart = true
                             trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
                             trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);

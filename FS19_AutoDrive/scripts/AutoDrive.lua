@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.2.6";
+AutoDrive.Version = "1.0.2.7";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -229,6 +229,7 @@ function init(self)
 	self.ad.isPaused = false;
 	self.ad.unloadSwitch = false;
 	self.ad.isLoading = false;
+	self.ad.isUnloadingToBunkerSilo = false;
 	if self.ad.unloadFillTypeIndex == nil then
 		self.ad.unloadFillTypeIndex = 2;
 	end;
