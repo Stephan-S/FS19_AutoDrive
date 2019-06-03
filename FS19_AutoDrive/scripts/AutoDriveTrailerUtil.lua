@@ -130,13 +130,13 @@ function AutoDrive:handleTrailers(vehicle, dt)
                 for _,trailer in pairs(trailers) do
                     for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
                         local activate = false;
-                        if trigger.fillableObjects ~= nil then
-                            for __,fillableObject in pairs(trigger.fillableObjects) do
-                                if fillableObject.object == trailer then   
-                                    activate = true;    
-                                end;
-                            end;
-                        end;
+			if trigger.fillableObjects ~= nil then
+				for __,fillableObject in pairs(trigger.fillableObjects) do
+				    if fillableObject.object == trailer then   
+					activate = true;    
+				    end;
+				end;
+			end;
                         if AutoDrive:getSetting("continueOnEmptySilo") and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.startedLoadingAtTrigger then --trigger must be empty by now. Drive on!
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
