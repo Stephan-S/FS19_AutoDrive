@@ -130,18 +130,18 @@ function AutoDrive:handleTrailers(vehicle, dt)
                 for _,trailer in pairs(trailers) do
                     for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
                         local activate = false;
-			if trigger.fillableObjects ~= nil then
-				for __,fillableObject in pairs(trigger.fillableObjects) do
-				    if fillableObject.object == trailer then   
-					activate = true;    
-				    end;
-				end;
-			end;
-                        if AutoDrive:getSetting("continueOnEmptySilo") and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.startedLoadingAtTrigger then --trigger must be empty by now. Drive on!
+			            if trigger.fillableObjects ~= nil then
+                            for __,fillableObject in pairs(trigger.fillableObjects) do
+                                if fillableObject.object == trailer then   
+                                activate = true;    
+                                end;
+                            end;
+                        end;
+                        if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.startedLoadingAtTrigger then --trigger must be empty by now. Drive on!
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
                             vehicle.ad.isLoading = false;
-                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) then --(not vehicle.ad.startedLoadingAtTrigger) and  and vehicle.ad.isLoading == false                      
+                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) and (not vehicle.ad.startedLoadingAtTrigger) then -- and  and vehicle.ad.isLoading == false                      
                             trigger.autoStart = true
                             trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
                             trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
@@ -152,6 +152,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
                             vehicle.ad.isPaused = true;
                             vehicle.ad.isLoading = true;
                             vehicle.ad.startedLoadingAtTrigger = true;
+                            vehicle.ad.trigger = trigger;
                         elseif leftCapacity == 0 and vehicle.ad.isPaused then
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
@@ -262,4 +263,34 @@ function AutoDrive:getTrailersOfImplement(attachedImplement)
     end;
 
     return;
+end;
+
+addConsoleCommand('adFillSilos', 'Fill all silos to max', 'addToAllSilos', AutoDrive);
+
+function AutoDrive:addToAllSilos()
+    print("Ad fill silos called")
+    for index, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+        print("Ad fill silos - looking for trigger")
+        if trigger.sourceObject ~= nil and trigger.sourceObject.getFillUnitSupportedFillTypes ~= nil then            
+            print("Ad fill silos - suitable trigger")
+            local fillTypes = trigger.sourceObject:getFillUnitSupportedFillTypes(1)  
+            local lastIndexReached = false;
+            while not lastIndexReached do
+                if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
+                    if fillTypes[index] then 
+                        print("Ad fill silos - suitable trigger - has filltype")
+                        for fillUnitIndex,fillUnit in pairs(trigger.sourceObject:getFillUnits()) do
+                            local capacity = trigger.sourceObject:getFillCapacity(fillUnitIndex);
+                            
+                            print("Ad fill silos - suitable trigger - filling " .. capacity);
+                            trigger.sourceObject.spec_fillUnit.fillUnits[fillUnitIndex].fillLevel = capacity;
+                        end
+                    end
+                else
+                    lastIndexReached = true;
+                end;
+                fillTypeIndex = fillTypeIndex + 1;
+            end;
+        end;
+    end;
 end;

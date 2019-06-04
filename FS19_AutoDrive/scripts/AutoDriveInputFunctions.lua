@@ -526,23 +526,25 @@ function AutoDrive:nextSelectedDebugPoint(vehicle)
 end;
 
 function AutoDrive:finishCreatingMapMarker(vehicle)
-    local closest = AutoDrive:findClosestWayPoint(vehicle);
-    AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
-    local node = createTransformGroup(vehicle.ad.enteredMapMarkerString);
-    setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
+	local closest = AutoDrive:findClosestWayPoint(vehicle);
+	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+		AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
+		local node = createTransformGroup(vehicle.ad.enteredMapMarkerString);
+		setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
 
-    AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= vehicle.ad.enteredMapMarkerString, node=node};
-    vehicle.ad.creatingMapMarker = false;
-    AutoDrive:MarkChanged();
-    g_currentMission.isPlayerFrozen = false;
-    vehicle.isBroken = false;    
-    vehicle.ad.enteringMapMarker = false;
-    g_inputBinding:revertContext(true);
-    
-    if g_server ~= nil then
-        AutoDrive:broadCastUpdateToClients();
-    else
-        AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, closest, vehicle.ad.enteredMapMarkerString);
+		AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= vehicle.ad.enteredMapMarkerString, node=node};
+		vehicle.ad.creatingMapMarker = false;
+		AutoDrive:MarkChanged();
+		g_currentMission.isPlayerFrozen = false;
+		vehicle.isBroken = false;    
+		vehicle.ad.enteringMapMarker = false;
+		g_inputBinding:revertContext(true);
+		
+		if g_server ~= nil then
+			AutoDrive:broadCastUpdateToClients();
+		else
+			AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, closest, vehicle.ad.enteredMapMarkerString);
+		end;
 	end;
 end;
 

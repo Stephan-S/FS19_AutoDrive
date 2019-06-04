@@ -380,7 +380,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
 
             local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
             local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-            local shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+            local shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,2.9,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             cell.hasCollision = (shapes > 0);
 
             local previousCell = cell.incoming
@@ -648,6 +648,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             end;
             hasCollision = hasCollision or (fruitValue > (0.3 * pf.fieldArea));
             hasCollision = hasCollision or AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);
+            --hasCollision = hasCollision or AutoDrivePathFinder:checkVehicleCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);            
            
             foundCollision = hasCollision;
 
@@ -720,6 +721,83 @@ function AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corn
         if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
             return true;
         end;
+    end;
+    return false;
+end;
+
+function AutoDrivePathFinder:checkVehicleCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
+    local boundingBox = {};
+    boundingBox[1] ={ 	x = cornerX,
+                        y = 0,
+                        z = cornerZ; };
+    boundingBox[2] ={ 	x = corner2X,
+                        y = 0,
+                        z = corner2Z; };
+    boundingBox[3] ={ 	x = corner3X,
+                        y = 0,
+                        z = corner3Z; };
+    boundingBox[4] ={ 	x = corner4X,
+                        y = 0,
+                        z = corner4Z; };
+
+    for _,other in pairs(g_currentMission.vehicles) do
+		if other ~= pf.driver and other ~= vehicle.ad.currentCombine then
+			local isAttachedToMe = AutoDrive:checkIsConnected(pf.driver, other);				
+            
+			if isAttachedToMe == false and other.components ~= nil then
+				if other.sizeWidth == nil then
+					--print("vehicle " .. other.configFileName .. " has no width");
+				else
+					if other.sizeLength == nil then
+						--print("vehicle " .. other.configFileName .. " has no length");
+					else
+						if other.rootNode == nil then
+							--print("vehicle " .. other.configFileName .. " has no root node");
+						else
+							local otherWidth = other.sizeWidth;
+							local otherLength = other.sizeLength;
+							local otherPos = {};
+							otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( other.components[1].node ); 
+
+							local distance = AutoDrive:getDistance(cornerX,cornerZ,otherPos.x,otherPos.z);
+							if distance < 100 then
+								local rx,ry,rz = localDirectionToWorld(other.components[1].node, 0, 0, 1);
+
+								local otherVectorToWp = {};
+								otherVectorToWp.x = rx;
+								otherVectorToWp.z = rz;
+
+								local otherPos2 = {};
+								otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+								otherPos2.y = y;
+								otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+								local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
+
+								local otherBoundingBox = {};
+								otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+														y = y,
+														z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+								otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+														y = y,
+														z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+								otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+														y = y,
+														z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+								otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+														y = y,
+														z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+								if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
+									return true;
+								end;
+							end;
+						end;
+					end;
+				end;
+			end;
+		end;
     end;
     return false;
 end;
