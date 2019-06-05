@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-    <translationContributors>cristiancundari</translationContributors>
+	<translationContributors>cristiancundari</translationContributors>
+	<translationContributors>Roby1164</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="Sconosciuto" />
 		<text name="input_ADToggleHud"						 text="AD: Mostra/Nascondi HUD" />
@@ -49,8 +50,8 @@
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso" />
 		<text name="gui_ad_lookahead_braking"				 text="Distanza d'avanti (frenata)" />
 		<text name="gui_ad_lookahead_braking_tooltip"		 text="La distanza alla quale il veicolo aggiusta la velocità per effettuare una curva" />
-		<text name="gui_ad_useFastestRoute"					 text="Use fastest Route" />
-		<text name="gui_ad_useFastestRoute_tooltip"			 text="Take the driving speed into consideration instead of simple distances, when calculating best routes" />
+		<text name="gui_ad_useFastestRoute"					 text="Usa la strada più veloce" />
+		<text name="gui_ad_useFastestRoute_tooltip"			 text="Prendi in considerazione la velocità di guida invece delle semplici distanze, quando calcoli i percorsi migliori" />
 		<text name="gui_ad_avoidMarkers"					 text="Evita di attraversare i punti di destinazione" />
 		<text name="gui_ad_avoidMarkers_tooltip"			 text="La ricerca tenta di trovare un percorso che non passi per un punto di destinazione" />
 		<text name="gui_ad_mapMarkerDetour"					 text="Deviazione massima" />
@@ -77,7 +78,18 @@
 		<text name="gui_ad_unloadFillLevel_tooltip"			 text="Dopo aver scaricato la trebbia vai direttamente a consegnare se è stato raggiunto questo livello" />
 		<text name="gui_ad_findDriver"						 text="Trova autista" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Cerca automaticamente un autista nelle vicinanze (Ignorando la sua destinazione)" />
-		<text name="gui_ad_gui_scale" 						text="Gui scale for AutoDrive HUD" />
-		<text name="gui_ad_gui_scale_tooltip"				text="Leave default to use in game scaling settings" />
+		<text name="gui_ad_gui_scale" 						 text="Dimensione finestra AutoDrive HUD" />
+		<text name="gui_ad_gui_scale_tooltip"				 text="Imposta predefinito per lasciare la dimensione come da impostazioni del gioco" />
+		<text name="gui_ad_exitField"					     text="Uscita dal campo" />	
+		<text name="gui_ad_exitField_tooltip"			     text="Strategia di uscita dal campo per lo scaricatore" />	
+		<text name="gui_ad_default"			 				 text="Predefinito" />	
+		<text name="gui_ad_after_start"			 			 text="Dopo l'inizio" />	
+		<text name="gui_ad_closest"			 				 text="Il punto più vicino" />
+		<text name="gui_ad_showHelp"					     text="Mostra tasti help" />	
+		<text name="gui_ad_showHelp_tooltip"			     text="Mostra la combinazione dei tasti in F1" />	
+		<text name="gui_ad_driverWages"					     text="Salario Autisti" />	
+		<text name="gui_ad_driverWages_tooltip"			     text="Il salaro del autista sarà moltiplicato per questo valore" />
+		<text name="gui_ad_smoothField"					     text="Guida più fluida sul campo" />	
+		<text name="gui_ad_smoothField_tooltip"			     text="I percorsi generati da e verso la mietitrebbia saranno più rotondi (sperimentale)" />	
 	</texts>
 </l10n>

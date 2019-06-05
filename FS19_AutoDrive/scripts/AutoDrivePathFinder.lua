@@ -380,7 +380,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
 
             local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
             local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-            local shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,2.9,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+            local shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,1,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             cell.hasCollision = (shapes > 0);
 
             local previousCell = cell.incoming
@@ -395,7 +395,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 cell.hasCollision = true;
             end
 
-            shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
+            shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,1,AutoDrive.PP_CELL_Z, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
             cell.hasCollision = cell.hasCollision or (shapes > 0);    
 
             --allow collision in the first few grid. as it also detects the driver and trailer itself
