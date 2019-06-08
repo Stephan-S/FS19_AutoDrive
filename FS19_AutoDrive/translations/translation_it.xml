@@ -88,7 +88,7 @@
 		<text name="gui_ad_showHelp"					     text="Mostra tasti help" />	
 		<text name="gui_ad_showHelp_tooltip"			     text="Mostra la combinazione dei tasti in F1" />	
 		<text name="gui_ad_driverWages"					     text="Salario Autisti" />	
-		<text name="gui_ad_driverWages_tooltip"			     text="Il salaro del autista sarà moltiplicato per questo valore" />
+		<text name="gui_ad_driverWages_tooltip"			     text="Il salario del autista sarà moltiplicato per questo valore" />
 		<text name="gui_ad_smoothField"					     text="Guida più fluida sul campo" />	
 		<text name="gui_ad_smoothField_tooltip"			     text="I percorsi generati da e verso la mietitrebbia saranno più rotondi (sperimentale)" />	
 	</texts>

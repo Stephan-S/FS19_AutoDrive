@@ -288,6 +288,11 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 else
                     vehicle.ad.timeTillDeadLock = 15000;
 
+                    if vehicle.ad.callBackFunction ~= nil then
+                        AutoDrive:stopAD(vehicle); 
+                        return;
+                    end;
+
                     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
                         local closest = AutoDrive:findClosestWayPoint(vehicle); 
                         if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then

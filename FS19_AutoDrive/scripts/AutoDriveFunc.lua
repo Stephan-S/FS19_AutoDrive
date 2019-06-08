@@ -12,7 +12,9 @@ function AutoDrive:startAD(vehicle)
 			vehicle:setRandomVehicleCharacter()
 			vehicle.ad.vehicleCharacter = vehicle.spec_enterable.vehicleCharacter;
 		end
-		vehicle.spec_aiVehicle.startedFarmId = vehicle.spec_enterable.controllerFarmId;
+		if vehicle.spec_enterable.controllerFarmId ~= 0 then
+			vehicle.spec_aiVehicle.startedFarmId = vehicle.spec_enterable.controllerFarmId;
+		end;
 	end;
 	vehicle.spec_aiVehicle.isActive = true	
     
@@ -80,7 +82,7 @@ end;
 
 function AutoDrive:stopVehicle(vehicle, dt)
     if math.abs(vehicle.lastSpeedReal) < 0.0015 then
-        vehicle.ad.isStopping = false;
+		vehicle.ad.isStopping = false;		
     end;
     
     if vehicle.ad.isStopping then
@@ -140,6 +142,30 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
 
 	vehicle:requestActionEventUpdate();
+
+	if vehicle.ad.callBackFunction ~= nil then
+		--work with copys, so we can remove the callBackObjects before calling the function
+		local callBackFunction = vehicle.ad.callBackFunction;
+		local callBackObject = vehicle.ad.callBackObject;
+		local callBackArg = vehicle.ad.callBackArg;
+		vehicle.ad.callBackFunction = nil;
+		vehicle.ad.callBackObject = nil;
+		vehicle.ad.callBackArg = nil;
+
+		if callBackObject ~= nil then
+			if callBackArg ~= nil then
+				callBackFunction(callBackObject, callBackArg);
+			else
+				callBackFunction(callBackObject);
+			end;
+		else
+			if callBackArg ~= nil then
+				callBackFunction(callBackArg);
+			else
+				callBackFunction();
+			end;
+		end;
+	end;
 end
 
 function AutoDrive:getVehicleToStop(vehicle, brake, dt)

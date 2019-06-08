@@ -1,5 +1,5 @@
-AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 10;
-AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 2500;
+AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
+AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 1500;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
 AutoDrive.PATHFINDER_START_DISTANCE = 5;
 AutoDrive.PP_UP = 0;
@@ -165,7 +165,8 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
     AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, targetDirection, driver.ad.pf.targetCell);
 
-    table.insert(driver.ad.pf.grid, startCell)
+    table.insert(driver.ad.pf.grid, startCell)    
+    driver.ad.pf.cellsToVisit = {};
 end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
@@ -197,37 +198,74 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
 
     for i=1,AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME,1 do
         if pf.currentCell == nil then 
-            local minDistance = math.huge;
-            local bestCell = nil;
-            local bestSteps = math.huge;
+            if ADTableLength(pf.cellsToVisit) > 0 then
+                for _,cellToVisit in pairs(pf.cellsToVisit) do
+                    pf.currentCell = cellToVisit;
+                    pf.cellsToVisit[_] = nil;
+                    print("Using bestRatio cell");
+                    break;
+                end;
+            else
+                local minDistance = math.huge;
+                local bestCell = nil;
+                local bestSteps = math.huge;
+
+                local bestCellRatio = nil;
+                local minRatio = 0;
+                
+                for _,cell in pairs(pf.grid) do
+                    if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
+                        local distance = cellDistance(pf, cell);
+                        local distanceWithTravel = distance + (cell.steps * AutoDrive.PP_CELL_X);
+                        local originalDistance = cellDistance(pf, pf.startCell);
+                        local ratio = (originalDistance - distance) / cell.steps;
+
+                        if distance < minDistance then
+                            minDistance = distance;
+                            bestCell = cell;
+                            bestSteps = cell.steps;
+                        elseif distance == minDistance and cell.steps < bestSteps then
+                            minDistance = distance;
+                            bestCell = cell;
+                            bestSteps = cell.steps;
+                        end;
+
+                        if ratio > minRatio then
+                            minRatio = ratio;
+                            bestCellRatio = cell;
+                        end;
+                    end;
+                end;
+
+                --table.insert(pf.cellsToVisit, bestCell);
+                if bestCell ~= bestCellRatio then
+                    --table.insert(pf.cellsToVisit, bestCellRatio);
+                end;
             
-            for _,cell in pairs(pf.grid) do
-                if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
-                    local distance = cellDistance(pf, cell);
-                    if distance < minDistance then
-                        minDistance = distance;
-                        bestCell = cell;
-                        bestSteps = cell.steps;
-                    elseif distance == minDistance and cell.steps < bestSteps then
-                        minDistance = distance;
-                        bestCell = cell;
-                        bestSteps = cell.steps;
-                    end;
+                if bestCellRatio ~= nil then
+                    pf.currentCell = bestCellRatio;     
+                else
+                    pf.currentCell = bestCell;
                 end;
+            end;           
+
+            if pf.currentCell ~= nil and cellDistance(pf, pf.currentCell) == 0 then
+                --print("Found target cell: " .. pf.currentCell.x .. "/" .. pf.currentCell.z);
+                pf.isFinished = true;
+                pf.targetCell.incoming = pf.currentCell.incoming;
+                if pf.currentCell.hasFruit ~= nil then
+                    pf.driver.ad.combineUnloadInFruit = pf.currentCell.hasFruit;                        
+                end;
+                --print("Driver " .. pf.driver.name .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
+                AutoDrivePathFinder:createWayPoints(pf);
             end;
-        
-            if bestCell ~= nil then
-                pf.currentCell = bestCell;
-                if cellDistance(pf, bestCell) == 0 then
-                    --print("Found target cell: " .. bestCell.x .. "/" .. bestCell.z);
-                    pf.isFinished = true;
-                    pf.targetCell.incoming = bestCell.incoming;
-                    if pf.currentCell.hasFruit ~= nil then
-                        pf.driver.ad.combineUnloadInFruit = pf.currentCell.hasFruit;                        
-                    end;
-                    --print("Driver " .. pf.driver.name .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
-                    AutoDrivePathFinder:createWayPoints(pf);
-                end;
+
+            if pf.currentCell == nil then
+                pf.grid = {};
+                pf.startCell.visited = false;
+                table.insert(pf.grid, pf.startCell)
+                local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(pf, pf.targetVector)
+                AutoDrivePathFinder:determineBlockedCells(pf, targetDirection, pf.targetCell);
             end;
         else
             if pf.currentCell.out == nil then
@@ -608,7 +646,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             local vectorZ = nodeAhead.z - node.z;
             local angleRad = math.atan2(vectorZ, vectorX);
             angleRad = normalizeAngle(angleRad);
-            local sideLength = 3;
+            local sideLength = 3.5;
             local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2));
 
             local leftAngle = normalizeAngle(angleRad + math.rad(-90));
