@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.2.9";
+AutoDrive.Version = "1.0.3.0";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -378,7 +378,7 @@ function AutoDrive:onUpdate(dt)
 	local driverWages = AutoDrive:getSetting("driverWages");
 	local spec = self.spec_aiVehicle
   if self.isServer then
-    if self:getIsAIActive() and spec.startedFarmId > 0 then
+    if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 then
 			local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier;
 			local price = -dt * difficultyMultiplier * (driverWages -1) * spec.pricePerMS
 			g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)

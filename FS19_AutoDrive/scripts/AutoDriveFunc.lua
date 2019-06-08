@@ -98,51 +98,22 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.drivingForward = true;
 	vehicle.ad.isActive = false;
 	vehicle.ad.isPaused = false;
-
-	vehicle.spec_aiVehicle.isActive = false;
 	vehicle.ad.isUnloading = false;
 	vehicle.ad.isLoading = false;
-
-	vehicle.forceIsActive = false;
-	vehicle.spec_motorized.stopMotorOnLeave = true;
-	vehicle.spec_enterable.disableCharacterOnLeave = true;
-	vehicle.currentHelper = nil
-
-	if vehicle.restoreVehicleCharacter ~= nil then
-		vehicle:restoreVehicleCharacter()
-	end;
-
 	vehicle.ad.initialized = false;
 	vehicle.ad.lastSpeed = 10;
-	if vehicle.steeringEnabled == false then
-		vehicle.steeringEnabled = true;
-	end
-
-	vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF);
-	AIVehicleUtil.driveInDirection(vehicle, 16, 30, 0, 0.2, 20, false, vehicle.ad.drivingForward, 0, 0, 0, 1);
-
-	--tell clients to dismiss ai worker etc.
-	if g_server ~= nil then
-		vehicle.ad.disableAI = 5;
-	end;
-
 	vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;
+	vehicle.ad.combineUnloadInFruit = false;
+	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
+	vehicle.ad.combineFieldArea = nil;
+	vehicle.ad.combineFruitToCheck = nil; 
 	
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
 		vehicle.ad.currentCombine = nil;
 	end;
-	
-	vehicle.ad.combineUnloadInFruit = false;
-	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
-	
-	vehicle.ad.combineFieldArea = nil;
-	vehicle.ad.combineFruitToCheck = nil; 
-
 	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
-
-	vehicle:requestActionEventUpdate();
-
+	
 	if vehicle.ad.callBackFunction ~= nil then
 		--work with copys, so we can remove the callBackObjects before calling the function
 		local callBackFunction = vehicle.ad.callBackFunction;
@@ -165,6 +136,30 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 				callBackFunction();
 			end;
 		end;
+	else
+		vehicle.spec_aiVehicle.isActive = false;
+		vehicle.forceIsActive = false;
+		vehicle.spec_motorized.stopMotorOnLeave = true;
+		vehicle.spec_enterable.disableCharacterOnLeave = true;
+		vehicle.currentHelper = nil
+
+		if vehicle.restoreVehicleCharacter ~= nil then
+			vehicle:restoreVehicleCharacter()
+		end;
+
+		if vehicle.steeringEnabled == false then
+			vehicle.steeringEnabled = true;
+		end
+
+		vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF);
+		AIVehicleUtil.driveInDirection(vehicle, 16, 30, 0, 0.2, 20, false, vehicle.ad.drivingForward, 0, 0, 0, 1);
+
+		--tell clients to dismiss ai worker etc.
+		if g_server ~= nil then
+			vehicle.ad.disableAI = 5;
+		end;	
+		
+		vehicle:requestActionEventUpdate();
 	end;
 end
 
