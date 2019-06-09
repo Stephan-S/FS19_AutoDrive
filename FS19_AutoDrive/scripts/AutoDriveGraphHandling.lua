@@ -1,6 +1,5 @@
 function AutoDrive:removeMapWayPoint(toDelete)
 	AutoDrive:MarkChanged();
-	
 	--remove node on all out going nodes
 	for _,node in pairs(toDelete.out) do	
 		local deleted = false;
@@ -18,8 +17,11 @@ function AutoDrive:removeMapWayPoint(toDelete)
 		end;			
 	end;
 	
+	local mapWayPoints = AutoDrive.mapWayPoints;
+	local mapWayPointsCounter = AutoDrive.mapWayPointsCounter;
+
 	--remove node on all incoming nodes	
-	for _,node in pairs(AutoDrive.mapWayPoints) do		
+	for _,node in pairs(mapWayPoints) do		
 		local deleted = false;
 		for __,out_id in pairs(node.out) do
 			if out_id == toDelete.id then
@@ -36,44 +38,38 @@ function AutoDrive:removeMapWayPoint(toDelete)
 		end;	
 	end;
 	
-	--adjust ids for all succesive nodes :(	
+	--adjust ids for all succesive nodes :(		
 	local deleted = false;
-	for _,node in pairs(AutoDrive.mapWayPoints) do
-		if _ > toDelete.id then
-			local oldID = node.id;				
-			--adjust all possible references in nodes that have a connection with this node
-			
-			for __,innerNode in pairs(AutoDrive.mapWayPoints) do
-				for ___,innerNodeOutID in pairs(innerNode.out) do
-					if innerNodeOutID == oldID then
-						innerNode.out[___] = oldID - 1;
-					end;
-				end;
+	for nodeID, node in pairs(mapWayPoints) do
+		for outGoingIndex, outGoingNodeID in pairs(node.out) do
+			if outGoingNodeID > toDelete.id then
+				node.out[outGoingIndex] = outGoingNodeID - 1;
 			end;
+		end;
 
-			for __,outGoingID in pairs(node.out) do
-				for ___,innerNodeIncoming in pairs(AutoDrive.mapWayPoints[outGoingID].incoming) do
-					if innerNodeIncoming == oldID then
-						AutoDrive.mapWayPoints[outGoingID].incoming[___] = oldID - 1;
-					end;
-				end;
+		for incomingIndex, incomingNodeID in pairs(node.incoming) do
+			if incomingNodeID > toDelete.id then
+				node.incoming[incomingIndex] = incomingNodeID - 1;
 			end;
+		end;
 			
-			AutoDrive.mapWayPoints[_ - 1] = node;
+		if nodeID > toDelete.id then
+
+			mapWayPoints[nodeID - 1] = node;
 			node.id = node.id - 1;
 			
-			if AutoDrive.mapWayPoints[_ + 1] == nil then
+			if mapWayPoints[nodeID + 1] == nil then
 				deleted = true;
-				AutoDrive.mapWayPoints[_] = nil;
-				AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter - 1;
+				mapWayPoints[nodeID] = nil;
+				mapWayPointsCounter = mapWayPointsCounter - 1;
 			end;
-			
 		end;
 	end;
+	
 	--must have been last added waypoint that got deleted. handle this here:
 	if deleted == false then
-		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter] = nil;
-		AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter - 1;
+		mapWayPoints[mapWayPointsCounter] = nil;
+		mapWayPointsCounter = mapWayPointsCounter - 1;
 	end;
 	
 	--adjust all mapmarkers
@@ -95,6 +91,9 @@ function AutoDrive:removeMapWayPoint(toDelete)
 			marker.id = marker.id -1;
 		end;
 	end;
+
+	AutoDrive.mapWayPoints = mapWayPoints;
+	AutoDrive.mapWayPointsCounter = mapWayPointsCounter;
 
 	AutoDrive:broadCastUpdateToClients();
 end;

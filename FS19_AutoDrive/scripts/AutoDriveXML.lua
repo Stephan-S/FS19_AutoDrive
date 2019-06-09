@@ -374,23 +374,12 @@ function AutoDrive:saveToXML(xmlFile)
 		if outTable[i] == nil or outTable[i] == "" then
 			outTable[i] = "-1";
 		end;
-			
-		local innerIncomingTable = {};
-		local innerIncomingCounter = 1;
-		for i2, p2 in pairs(AutoDrive.mapWayPoints) do
-			for i3, out2 in pairs(p2.out) do
-				if out2 == p.id then
-					innerIncomingTable[innerIncomingCounter] = p2.id;
-					innerIncomingCounter = innerIncomingCounter + 1;
-				end;
-			end;
-			if innerIncomingCounter == 1 then
-				innerIncomingTable[1] = -1;
-			end;
+
+		incomingTable[i] = table.concat(p.incoming, ",");		
+		if incomingTable[i] == nil or incomingTable[i] == "" then
+			incomingTable[i] = "-1";
 		end;
-		incomingTable[i] = table.concat(innerIncomingTable, ",");
-		
-		
+				
 		local allMarkerIdsMatch = true;
 		local lastMarker = nil;
 		local firstMarker = nil;

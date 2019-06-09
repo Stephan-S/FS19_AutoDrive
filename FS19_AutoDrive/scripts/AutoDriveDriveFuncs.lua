@@ -154,7 +154,14 @@ function AutoDrive:handlePrintMessage(vehicle, dt)
                 AutoDrive.print.currentMessage = nil;
                 AutoDrive.print.currentMessageActiveSince = 0;
                 AutoDrive.print.referencedVehicle = nil;
-                AutoDrive.print.showMessageFor = 12000;
+                --AutoDrive.print.showMessageFor = 12000;
+                if AutoDrive.print.nextMessage ~= nil then
+                    AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
+                    AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle;
+                    AutoDrive.print.nextMessage = nil;
+                    AutoDrive.print.nextReferencedVehicle = nil;
+                    AutoDrive.print.currentMessageActiveSince = 0;
+                end;
             end;
         else
             if AutoDrive.print.nextMessage ~= nil then
