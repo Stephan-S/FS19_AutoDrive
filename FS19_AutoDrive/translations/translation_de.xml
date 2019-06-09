@@ -30,6 +30,7 @@
 		<text name="input_ADSelectNextFillType"				 text="AD: Nächster Fruchttyp" />
 		<text name="input_ADSelectPreviousFillType"			 text="AD: Vorheriger Fruchttyp" />
 		<text name="input_ADOpenGUI"						 text="AD: Menü öffnen" />
+		<text name="input_ADNameDriver"						 text="AD: Vergebe Fahrer Namen" />
 		<text name="input_ADCallDriver"						 text="AD: Abfahrer rufen" />
 		<text name="input_ADGoToVehicle"					 text="AD: Zu angekommenem Fahrzeug wechseln" />>
 		<text name="AD_Driver_of"							 text="Der Fahrer von" />

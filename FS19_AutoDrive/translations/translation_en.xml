@@ -32,6 +32,7 @@
 		<text name="input_ADOpenGUI"						 text="AD: Open GUI" />
 		<text name="input_ADCallDriver"						 text="AD: Call Driver" />
 		<text name="input_ADGoToVehicle"					 text="AD: Go to arrived vehicle" />
+		<text name="input_ADNameDriver"						 text="AD: Assign driver name" />
 		<text name="AD_Driver_of"							 text="Driver of" />
 		<text name="AD_has_reached"							 text="has reached" />
 		<text name="AD_got_stuck"							 text="got stuck" />

@@ -41,7 +41,7 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.timeTillDeadLock = vehicle.ad.timeTillDeadLock;
 	self.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter;
 			
-	self.name = vehicle.name;
+	self.name = vehicle.ad.driverName;
 
 	self.moduleInitialized = vehicle.ad.moduleInitialized;
 	self.currentInput = vehicle.ad.currentInput;
@@ -273,7 +273,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.timeTillDeadLock = timeTillDeadLock;
 		vehicle.ad.inDeadLockRepairCounter = inDeadLockRepairCounter;
 					
-		vehicle.ad.name = name;
+		vehicle.ad.driverName = name;
 
 		vehicle.ad.moduleInitialized = moduleInitialized;
 		vehicle.ad.currentInput = currentInput;
@@ -469,7 +469,7 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	end;
 
 	if reason ~= "" then
-		--print("Vehicle " .. self.vehicle.name .. " sends update. Reason: " .. reason);
+		--print("Vehicle " .. self.vehicle.ad.driverName .. " sends update. Reason: " .. reason);
 		self.reason = reason;
 	end;
 

@@ -8,7 +8,7 @@ AutoDrive.actions   = { {'ADToggleMouse', true, 1}, {'ADToggleHud', true, 1}, {'
 						{'ADDebugSelectNeighbor', false, 0}, {'ADDebugChangeNeighbor', false, 0}, {'ADDebugCreateConnection', false, 0}, {'ADDebugCreateMapMarker', false, 0},
 						{'ADDebugDeleteWayPoint', false, 0},  {'ADDebugForceUpdate', false, 0}, {'ADDebugDeleteDestination', false, 3},  {'ADSilomode',false, 0}, {'ADOpenGUI', true, 2},
 						{'ADCallDriver', false, 3}, {'ADSelectNextFillType', false, 0}, {'ADSelectPreviousFillType', false, 0}, {'ADRecord', false, 0}, 
-						{'AD_export_routes', false, 0}, {'AD_import_routes', false, 0}, {'AD_upload_routes', false, 0}, {'ADGoToVehicle', false, 3} }
+						{'AD_export_routes', false, 0}, {'AD_import_routes', false, 0}, {'AD_upload_routes', false, 0}, {'ADGoToVehicle', false, 3}, {'ADNameDriver', false, 0} }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -86,6 +86,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
@@ -218,6 +219,9 @@ function init(self)
 	self.name = g_i18n:getText("UNKNOWN")
 	if self.getName ~= nil then
 		self.name = self:getName();
+	end;
+	if self.ad.driverName == nil then
+		self.ad.driverName = self.name;
 	end;
 
 	self.ad.moduleInitialized = true;
@@ -568,7 +572,7 @@ function AutoDrive:onPostLoad(savegame)
 			self.ad.mapMarkerSelected = -1;
 			self.ad.nameOfSelectedTarget = "";
 
-  		local mapMarkerSelected = getXMLInt(xmlFile, key.."#mapMarkerSelected");
+  			local mapMarkerSelected = getXMLInt(xmlFile, key.."#mapMarkerSelected");
 			if mapMarkerSelected ~= nil then
 				self.ad.mapMarkerSelected = mapMarkerSelected;
 			end;
@@ -584,17 +588,22 @@ function AutoDrive:onPostLoad(savegame)
 			local unloadFillTypeIndex = getXMLInt(xmlFile, key.."#unloadFillTypeIndex");
 			if unloadFillTypeIndex ~= nil then
 				self.ad.unloadFillTypeIndex = unloadFillTypeIndex;
-			end;   
+			end;  
+			local driverName = getXMLString(xmlFile, key.."#driverName");
+			if driverName ~= nil then
+				self.ad.driverName = driverName;
+			end;  
     end
 	end;
 end;
 
 function AutoDrive:saveToXMLFile(xmlFile, key)
-	setXMLInt(xmlFile, key.."#mode", 											self.ad.mode)
-  setXMLInt(xmlFile, key.."#targetSpeed", 							self.ad.targetSpeed)
-  setXMLInt(xmlFile, key.."#mapMarkerSelected",        	self.ad.mapMarkerSelected);
+	setXMLInt(xmlFile, key.."#mode", 						self.ad.mode)
+  	setXMLInt(xmlFile, key.."#targetSpeed", 				self.ad.targetSpeed)
+  	setXMLInt(xmlFile, key.."#mapMarkerSelected",        	self.ad.mapMarkerSelected);
 	setXMLInt(xmlFile, key.."#mapMarkerSelected_Unload", 	self.ad.mapMarkerSelected_Unload);
-	setXMLInt(xmlFile, key.."#unloadFillTypeIndex", 			self.ad.unloadFillTypeIndex);
+	setXMLInt(xmlFile, key.."#unloadFillTypeIndex", 		self.ad.unloadFillTypeIndex);
+	setXMLString(xmlFile, key.."#driverName", 				self.ad.driverName);
 end
 
 function AutoDrive.zoomSmoothly(self, superFunc, offset)

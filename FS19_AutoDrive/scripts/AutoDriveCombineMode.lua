@@ -95,7 +95,7 @@ end;
 
 function AutoDrive:handleReachedWayPointCombine(vehicle)
     if vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --register Driver as available unloader if target point is reached (Hopefully field position!)
-        --print("Registering " .. vehicle.name .. " as driver");
+        --print("Registering " .. vehicle.ad.driverName .. " as driver");
         AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
         vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
         vehicle.ad.isPaused = true;

@@ -17,7 +17,7 @@ AutoDrive.PP_CELL_Z = 8;
 AutoDrivePathFinder = {};
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
-    --print("startPathPlanningToCombine " .. driver.name );
+    --print("startPathPlanningToCombine " .. driver.ad.driverName );
     local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
     local combineVector = {x= math.sin(rx) ,z= math.sin(rz)};	
@@ -67,7 +67,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)       
-    --print("startPathPlanningToStartPosition " .. driver.name );
+    --print("startPathPlanningToStartPosition " .. driver.ad.driverName );
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
 	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
@@ -256,7 +256,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
                 if pf.currentCell.hasFruit ~= nil then
                     pf.driver.ad.combineUnloadInFruit = pf.currentCell.hasFruit;                        
                 end;
-                --print("Driver " .. pf.driver.name .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
+                --print("Driver " .. pf.driver.ad.driverName .. " is unloading combine in fruit: " .. ADBoolToString(pf.driver.ad.combineUnloadInFruit));
                 AutoDrivePathFinder:createWayPoints(pf);
             end;
 

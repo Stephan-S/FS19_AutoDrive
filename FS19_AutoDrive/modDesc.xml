@@ -66,7 +66,8 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="ADSilomode" 					category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADOpenGUI" 					category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADCallDriver" 				category="VEHICLE" ignoreComboMask="false"/>
-		<action name="ADGoToVehicle" 				category="VEHICLE" ignoreComboMask="false"/>		
+		<action name="ADGoToVehicle" 				category="VEHICLE" ignoreComboMask="false"/>	
+		<action name="ADNameDriver" 				category="VEHICLE" ignoreComboMask="false"/>		
 	</actions>
 
 	<inputBinding>

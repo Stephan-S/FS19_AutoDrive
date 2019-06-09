@@ -104,6 +104,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADGoToVehicle" then			
 		AutoDrive:InputHandling(self, "input_goToVehicle");
 	end;
+	if actionName == 'ADNameDriver' then
+		AutoDrive:InputHandling(self, 'input_nameDriver');
+	end;
 end;
 
 function AutoDrive:InputHandling(vehicle, input)
@@ -198,6 +201,11 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_openGUI" then
 		AutoDrive:onOpenSettings();
 	end;
+
+	if input == "input_nameDriver" then
+		AutoDrive:onOpenEnterDriverName();
+	end;
+	
 
 	if input == "input_goToVehicle" then
 		AutoDrive:inputSwitchToArrivedVehicle();

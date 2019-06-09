@@ -237,7 +237,7 @@ function AutoDrive:getTrailersOf(vehicle)
             AutoDrive:getTrailersOfImplement(implement.object);
         end;
     end;
-    --print("Vehicle: " .. vehicle.name .. " has " .. trailerCount .. " trailers");
+    --print("Vehicle: " .. vehicle.ad.driverName .. " has " .. trailerCount .. " trailers");
 
     return AutoDrive.tempTrailers, AutoDrive.tempTrailerCount;
 end;
