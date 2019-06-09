@@ -256,7 +256,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             --print("Shutting down");
             local target = vehicle.ad.nameOfSelectedTarget;
             for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
-                if mapMarker.id == vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id then
+                if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and mapMarker.id == vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id then
                     target = mapMarker.name;
                 end;
             end;
