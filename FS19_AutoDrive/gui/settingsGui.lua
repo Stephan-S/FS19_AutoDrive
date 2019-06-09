@@ -149,3 +149,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingSmoothField(element)
     self:onCreateAutoDriveSetting(element, "smoothField");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingRecalculationSpeed(element)
+    self:onCreateAutoDriveSetting(element, "recalculationSpeed");
+end;

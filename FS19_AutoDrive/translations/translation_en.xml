@@ -91,5 +91,7 @@
 		<text name="gui_ad_driverWages_tooltip"			     text="Driver wages will be multiplied with this value" />	
 		<text name="gui_ad_smoothField"					     text="Smoother field driving" />	
 		<text name="gui_ad_smoothField_tooltip"			     text="Generated field courses to and from combine will be smoothed (experimental)" />	
+		<text name="gui_ad_recalculationSpeed"				 text="Calculation speed" />	
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Higher values will lead to laggy gameplay while recalculating" />	
 	</texts>
 </l10n>

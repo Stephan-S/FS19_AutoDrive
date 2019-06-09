@@ -91,5 +91,7 @@
 		<text name="gui_ad_driverWages_tooltip"			     text="Mit diesem Faktor werden die Lohnkosten der Fahrer multipliziert" />	
 		<text name="gui_ad_smoothField"					     text="Feldstrecken glätten" />	
 		<text name="gui_ad_smoothField_tooltip"			     text="Strecken zu/vom Drescher werden geglättet - Experimental" />	
+		<text name="gui_ad_recalculationSpeed"				 text="Berechnungsgeschwindigkeit" />	
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Höhere Werte können zu einem ruckelnden Spiel führen" />	
 	</texts>
 </l10n>

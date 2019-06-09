@@ -39,7 +39,7 @@ function AutoDrive:ContiniousRecalculation()
 						end;
 					end;
 
-					local wayPointsToHandleThisFrame = 2000;
+					local wayPointsToHandleThisFrame = 2000 * AutoDrive:getSetting("recalculationSpeed");
 					while wayPointsToHandleThisFrame > 0  and recalcTable.handledWayPoints <= numberOfWayPoints do
 						wayPointsToHandleThisFrame = wayPointsToHandleThisFrame - 1;
 						local point = mapPoints[recalcTable.handledWayPoints];						
@@ -113,7 +113,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 	local workQ = workGraph.Q;
 
 	if recalcTable.dijkstraStep == 3 then
-		recalcTable.dijkstraAllowedIteratorQ = 200 / (math.max(1, (numberOfWayPoints/2000)));		
+		recalcTable.dijkstraAllowedIteratorQ = 200 / (math.max(1, (numberOfWayPoints/(2000 * AutoDrive:getSetting("recalculationSpeed")))));		
 
 		while recalcTable.dijkstraAllowedIteratorQ > 0 and next(workQ,nil) ~= nil do
 			recalcTable.dijkstraAllowedIteratorQ = recalcTable.dijkstraAllowedIteratorQ - 1;
