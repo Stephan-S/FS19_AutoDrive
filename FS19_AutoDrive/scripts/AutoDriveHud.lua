@@ -323,7 +323,7 @@ function AutoDriveHud:updateButtons(vehicle)
 		
 		if button.name == "input_recalculate" then
 			local buttonImg = "";
-			if AutoDrive:GetChanged() == true or (AutoDrive.handledRecalculation == false) then
+			if vehicle.ad.createMapPoints == true or AutoDrive:GetChanged() == true or (AutoDrive.handledRecalculation == false) then --for now i want this button always visible, since you might want to recalculate after editing the autodrive settings.
 				button.isVisible = true;
 			else
 				button.isVisible = false;
