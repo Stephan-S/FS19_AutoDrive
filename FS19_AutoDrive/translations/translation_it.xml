@@ -33,6 +33,7 @@
 		<text name="input_ADOpenGUI"						 text="AD: Apri menu" />
 		<text name="input_ADCallDriver"						 text="AD: Chiama autista" />
 		<text name="input_ADGoToVehicle"					 text="AD: Passa al veicolo arrivato" />
+		<text name="input_ADNameDriver" 					 text="AD: Assegna un nome all'autista" />
 		<text name="AD_Driver_of"							 text="L'autista di" />
 		<text name="AD_has_reached"							 text="ha raggiunto" />
 		<text name="AD_got_stuck"							 text="si è bloccato" />
