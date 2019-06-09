@@ -64,6 +64,15 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     driver.ad.pf.appendWayPointCount = 3;	   
     
     driver.ad.pf.goingToCombine = true;
+
+    if combine.spec_combine ~= nil then
+        if combine.spec_combine.fillUnitIndex ~= nil and combine.spec_combine.fillUnitIndex ~= 0 then
+            local fillType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex))
+            driver.ad.pf.fruitToCheck = fillType;
+            driver.ad.combineFruitToCheck = driver.ad.pf.fruitToCheck;
+            --print("Got fill type from combine: " .. driver.ad.pf.fruitToCheck .. ": " .. g_fillTypeManager:getFillTypeByIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex)).title);
+        end;
+    end;    
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)       
@@ -202,7 +211,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
                 for _,cellToVisit in pairs(pf.cellsToVisit) do
                     pf.currentCell = cellToVisit;
                     pf.cellsToVisit[_] = nil;
-                    print("Using bestRatio cell");
+                    --print("Using bestRatio cell");
                     break;
                 end;
             else
@@ -212,11 +221,11 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
 
                 local bestCellRatio = nil;
                 local minRatio = 0;
-                
-                for _,cell in pairs(pf.grid) do
+
+                local grid = pf.grid; 
+                for _,cell in pairs(grid) do
                     if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
                         local distance = cellDistance(pf, cell);
-                        local distanceWithTravel = distance + (cell.steps * AutoDrive.PP_CELL_X);
                         local originalDistance = cellDistance(pf, pf.startCell);
                         local ratio = (originalDistance - distance) / cell.steps;
 
@@ -242,7 +251,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
                     --table.insert(pf.cellsToVisit, bestCellRatio);
                 end;
             
-                if bestCellRatio ~= nil then
+                if bestCellRatio ~= nil and math.random() > 0.4 then
                     pf.currentCell = bestCellRatio;     
                 else
                     pf.currentCell = bestCell;
@@ -355,7 +364,8 @@ function AutoDrivePathFinder:testNextCells(pf, cell)
     local allResultsIn = true;
     for _,location in pairs(cell.out) do
         local createPoint = true;
-        for _, c in pairs(pf.grid) do
+        local grid = pf.grid;
+        for _, c in pairs(grid) do
             if c.x == location.x and c.z == location.z and c.direction == location.direction then
                 createPoint = false;
                 if c.steps > (cell.steps + 1) then --found shortcut
@@ -449,10 +459,14 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 cell.hasRequested = true;
             else
                 local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
-                if pf.fruitToCheck == 9 then
+                if pf.fruitToCheck == 9 or pf.fruitToCheck == 22 then
                     fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
                 end;
-                cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
+                if pf.fieldArea ~= nil then
+                    cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
+                else
+                    cell.isRestricted = fruitValue > 50;
+                end;
                 cell.hasFruit = cell.isRestricted;
 
                 --Allow fruit in the first few grid cells
@@ -681,10 +695,14 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             end;
  
             local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
-            if pf.fruitToCheck == 9 then
+            if pf.fruitToCheck == 9 or pf.fruitToCheck == 22 then
                 fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
             end;
-            hasCollision = hasCollision or (fruitValue > (0.3 * pf.fieldArea));
+            if pf.fieldArea ~= nil then
+                hasCollision = hasCollision or (fruitValue > (0.3 * pf.fieldArea));
+            else               
+                hasCollision = hasCollision or (fruitValue > 50);
+            end;
             hasCollision = hasCollision or AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);
             --hasCollision = hasCollision or AutoDrivePathFinder:checkVehicleCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);            
            

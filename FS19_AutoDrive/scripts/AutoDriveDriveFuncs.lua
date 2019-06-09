@@ -348,8 +348,9 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                                                 {x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
                 angle = math.abs(angle);
                 if AutoDrive:getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
-                                wp_ahead.x,                                         wp_ahead.z) 
-                    <= distanceToLookAhead then
+                                wp_ahead.x,                                         wp_ahead.z)
+                    <= distanceToLookAhead and AutoDrive:getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
+                    x,                                         z) <= distanceToLookAhead then
                     highestAngle = math.max(highestAngle, angle);
                 else
                     doneCheckingRoute = true;
