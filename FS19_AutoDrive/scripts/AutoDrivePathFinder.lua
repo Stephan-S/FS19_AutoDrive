@@ -1,6 +1,6 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 1500;
-AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
+AutoDrive.PATHFINDER_TARGET_DISTANCE = 12;
 AutoDrive.PATHFINDER_START_DISTANCE = 5;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
@@ -27,7 +27,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local pipeOffset = AutoDrive:getSetting("pipeOffset");
     local wpAhead = {x= (nodeX + 8*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - pipeOffset * combineNormalVector.z};
     local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
-    local wpBehind_close = {x= (nodeX - 5*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 5*rz - pipeOffset * combineNormalVector.z };
+    local wpBehind_close = {x= (nodeX - 7*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 7*rz - pipeOffset * combineNormalVector.z };
     
 	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
     
@@ -437,7 +437,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             cell.hasCollision = cell.hasCollision or (shapes > 0);    
 
             --allow collision in the first few grid. as it also detects the driver and trailer itself
-            if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 3 then --also allow collision at the end if other drivers are waiting in line
+            if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 1 then --also allow collision at the end if other drivers are waiting in line
                 cell.hasCollision = false;
             end;
 

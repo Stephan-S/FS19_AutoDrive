@@ -367,6 +367,21 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	if input == "input_continue" then
 		if vehicle.ad.isPaused == true then
 			vehicle.ad.isPaused = false;
+			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
+				local closest = AutoDrive:findClosestWayPoint(vehicle);
+				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+				vehicle.ad.wayPointsChanged = true;
+				vehicle.ad.currentWayPoint = 1;
+
+				vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+				vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+				if vehicle.ad.currentCombine ~= nil then
+					vehicle.ad.currentCombine.ad.currentDriver = nil;
+					vehicle.ad.currentCombine = nil;
+				end;
+				AutoDrive.waitingUnloadDrivers[vehicle] = nil;
+				vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+			end;
 		end;
 	end;
 
