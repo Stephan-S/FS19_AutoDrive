@@ -30,9 +30,10 @@
 		<text name="input_ADSelectNextFillType"				 text="AD: Sélect. prochain type de fruit" />
 		<text name="input_ADSelectPreviousFillType"			 text="AD: Sélect. précédent type de fruit" />
 		<text name="input_ADOpenGUI"						 text="AD: Ouvrir GUI" />
+		<text name="input_ADNameDriver"						 text="AD: Donnez un nom au chauffeur" />
 		<text name="input_ADCallDriver"						 text="AD: Appeler chauffeur" />
 		<text name="input_ADGoToVehicle"					 text="AD: Entrer dans le vehicule arrivé" />
-		<text name="AD_Driver_of"							 text="Le conducteur de" />
+		<text name="AD_Driver_of"							 text="Le chauffeur de" />
 		<text name="AD_has_reached"							 text="est arrivé à" />
 		<text name="AD_got_stuck"							 text="est bloqué" />
 		<text name="AD_cannot_reach"						 text="ne peut pas rejoindre" />
@@ -87,8 +88,10 @@
 		<text name="gui_ad_showHelp"					     text="Afficher l'aide" />
 		<text name="gui_ad_showHelp_tooltip"			     text="Afficher l'affectation des touches dans la fenêtre d'aide F1" />
 		<text name="gui_ad_driverWages"					     text="Salaire du chauffeur" />
-		<text name="gui_ad_driverWages_tooltip"			     text="Avec cette option, les coûts salariaux des conducteurs sont multipliés" />
+		<text name="gui_ad_driverWages_tooltip"			     text="Avec cette option, les coûts salariaux des chauffeurs sont multipliés" />
 		<text name="gui_ad_smoothField"					     text="Conduite adoucie au champ" />
 		<text name="gui_ad_smoothField_tooltip"			     text="Les itinéraires vers/depuis les moissoneuses sont lissés - Expérimental" />
+		<text name="gui_ad_recalculationSpeed"				 text="Vitesse de calcul" />
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Des valeurs plus élevées peuvent conduire à un jeu saccadé" />
 	</texts>
 </l10n>
