@@ -378,6 +378,12 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3] == nil then
         vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
     end;
+    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+4] == nil then
+        vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
+    end;
+    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] == nil then
+        vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
+    end;
 
     local wp_new = nil;
 
