@@ -32,6 +32,7 @@
 		<text name="input_ADOpenGUI"						 text="AD: Открыть GUI" />
 		<text name="input_ADCallDriver"						 text="AD: Вызвать водителя" />
 		<text name="input_ADGoToVehicle"					 text="AD: Перейти к прибывшему автомобилю" />
+		<text name="input_ADNameDriver"						 text="AD: Назначьте водителю имя" />
 		<text name="AD_Driver_of"							 text="Водитель на" />
 		<text name="AD_has_reached"							 text="прибыл к" />
 		<text name="AD_got_stuck"							 text="застрял" />
@@ -90,5 +91,7 @@
 		<text name="gui_ad_driverWages_tooltip"				 text="Заработная плата водителя будет умножена на указанное значение" />
 		<text name="gui_ad_smoothField"						 text="Сглаживать курсы на поле" />
 		<text name="gui_ad_smoothField_tooltip"				 text="Сгенерированные полевые курсы к комбайну и обратно будут сглаживаться (экспериментальная функция)" />
+		<text name="gui_ad_recalculationSpeed"				 text="Скорость расчета" />
+		<text name="gui_ad_recalculationSpeed_tooltip"		 text="Более высокие значения приведут к замедлению игрового процесса при пересчете" />
 	</texts>
 </l10n>
