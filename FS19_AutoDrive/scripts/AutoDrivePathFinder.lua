@@ -1,6 +1,6 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
-AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 1500;
-AutoDrive.PATHFINDER_TARGET_DISTANCE = 12;
+AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 300;
+AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
 AutoDrive.PATHFINDER_START_DISTANCE = 5;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
@@ -447,7 +447,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             --cell.hasCollision = cell.hasCollision or (shapes > 0);    
 
             --allow collision in the first few grid. as it also detects the driver and trailer itself
-            if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 1 then --also allow collision at the end if other drivers are waiting in line
+            if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then --also allow collision at the end if other drivers are waiting in line
                 cell.hasCollision = false;
             end;
 
