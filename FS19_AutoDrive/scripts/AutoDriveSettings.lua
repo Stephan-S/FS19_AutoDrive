@@ -11,8 +11,8 @@ AutoDrive.settings.pipeOffset = {
 };
 
 AutoDrive.settings.lookAheadTurning = {     
-    values= {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
-    texts= {"2 m", "3 m", "4 m", "5 m", "6 m", "7 m", "8 m", "9 m", "10 m", "11 m", "12 m", "13 m", "14 m", "15 m"},
+    values= {2, 3, 4, 5, 6, 7, 8},
+    texts= {"2 m", "3 m", "4 m", "5 m", "6 m", "7 m", "8 m"},
     default= 4,
     current= 4,
     text= "gui_ad_lookahead_turning",
@@ -183,6 +183,9 @@ AutoDrive.settings.recalculationSpeed = {
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
+        if setting.values[setting.current] == nil then
+            setting.current = setting.default;
+        end;
         return setting.values[setting.current];
     end;
 end;

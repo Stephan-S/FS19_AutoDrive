@@ -447,9 +447,9 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             --cell.hasCollision = cell.hasCollision or (shapes > 0);    
 
             --allow collision in the first few grid. as it also detects the driver and trailer itself
-            if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then --also allow collision at the end if other drivers are waiting in line
-                cell.hasCollision = false;
-            end;
+            --if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then --also allow collision at the end if other drivers are waiting in line
+                --cell.hasCollision = false;
+            --end;
 
             if pf.fruitToCheck == nil then
                 --make async query until fruittype is known
