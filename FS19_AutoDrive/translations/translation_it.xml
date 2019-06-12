@@ -95,3 +95,4 @@
 		<text name="gui_ad_recalculationSpeed"				 text="Velocità di calcolo" />	
 		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Valori più alti possono portare a un gioco a scatti" />			
 	</texts>
+</l10n>
