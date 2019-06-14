@@ -20,11 +20,11 @@ function AutoDrive:handleDriving(vehicle, dt)
 				AutoDrive:initializeAD(vehicle, dt)
             else
                 local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
-
+               
 				if AutoDrive:getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
                     AutoDrive:handleReachedWayPoint(vehicle);  
                 end;
-                
+                                
                 if vehicle.ad.isActive == true and vehicle.isServer then
                     vehicle.ad.trafficDetected =    AutoDrive:detectAdTrafficOnRoute(vehicle) or 
                                                     AutoDrive:detectTraffic(vehicle)

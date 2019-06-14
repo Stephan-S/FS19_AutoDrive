@@ -192,3 +192,18 @@ function streamWriteInt32OrEmpty(streamID, value)
 	end;
 	streamWriteInt32(streamID, value);
 end;
+
+function streamWriteInt16Or1337(streamID, value) 	
+	if value == nil then
+		value = 1337;
+	end;
+	streamWriteInt16(streamID, value);
+end;
+
+function streamReadInt16Or1337(streamID) 
+    local val = streamReadInt16(streamID);
+	if val == nil then
+		val = 1337;
+	end;
+	return val;
+end;

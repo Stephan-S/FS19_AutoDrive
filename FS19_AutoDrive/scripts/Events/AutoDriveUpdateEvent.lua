@@ -100,16 +100,16 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	
 	streamWriteBool(streamId, self.creationMode);
 	streamWriteBool(streamId, self.creationModeDual);
-	streamWriteInt16(streamId, self.currentWayPoint);
-	streamWriteInt16(streamId, self.targetSelected);
-	streamWriteInt16(streamId, self.mapMarkerSelected);
+	streamWriteInt16Or1337(streamId, self.currentWayPoint);
+	streamWriteInt16Or1337(streamId, self.targetSelected);
+	streamWriteInt16Or1337(streamId, self.mapMarkerSelected);
 	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget);
 		
 	streamWriteInt8(streamId, self.mode);
 	streamWriteInt16(streamId, self.targetSpeed);
 	streamWriteBool(streamId, self.createMapPoints);
 	streamWriteBool(streamId, self.showClosestPoint);
-	streamWriteInt16(streamId, self.selectedDebugPoint);
+	streamWriteInt16Or1337(streamId, self.selectedDebugPoint);
 	streamWriteBool(streamId, self.showSelectedDebugPoint);
 	streamWriteBool(streamId, self.changeSelectedDebugPoint);
 	
@@ -140,8 +140,8 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteBool(streamId, self.startedLoadingAtTrigger);
 	streamWriteInt8(streamId, self.combineState);
 
-	streamWriteInt16(streamId, self.targetSelected_Unload);
-	streamWriteInt16(streamId, self.mapMarkerSelected_Unload);
+	streamWriteInt16Or1337(streamId, self.targetSelected_Unload);
+	streamWriteInt16Or1337(streamId, self.mapMarkerSelected_Unload);
 	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
 	
 	streamWriteInt8(streamId, self.enableAI);
@@ -190,9 +190,9 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 	local creationMode = streamReadBool(streamId);
 	local creationModeDual = streamReadBool(streamId);
-	local currentWayPoint = streamReadInt16(streamId);
-	local targetSelected = streamReadInt16(streamId);
-	local mapMarkerSelected = streamReadInt16(streamId);
+	local currentWayPoint = streamReadInt16Or1337(streamId);
+	local targetSelected = streamReadInt16Or1337(streamId);
+	local mapMarkerSelected = streamReadInt16Or1337(streamId);
 	local nameOfSelectedTarget = streamReadStringOrEmpty(streamId);
 		
 	
@@ -200,7 +200,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local targetSpeed = streamReadInt16(streamId);
 	local createMapPoints = streamReadBool(streamId);
 	local showClosestPoint = streamReadBool(streamId);
-	local selectedDebugPoint = streamReadInt16(streamId);
+	local selectedDebugPoint = streamReadInt16Or1337(streamId);
 	local showSelectedDebugPoint = streamReadBool(streamId);
 	local changeSelectedDebugPoint = streamReadBool(streamId);
 
@@ -230,8 +230,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local startedLoadingAtTrigger = streamReadBool(streamId);
 	local combineState = streamReadInt8(streamId);
 	
-	local targetSelected_Unload = streamReadInt16(streamId);
-	local mapMarkerSelected_Unload = streamReadInt16(streamId);
+	local targetSelected_Unload = streamReadInt16Or1337(streamId);
+	local mapMarkerSelected_Unload = streamReadInt16Or1337(streamId);
 	local nameOfSelectedTarget_Unload = streamReadStringOrEmpty(streamId);
 	
 	local enableAI = streamReadInt8(streamId);
@@ -256,16 +256,24 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		end;
 		vehicle.ad.creationMode = creationMode;
 		vehicle.ad.creationModeDual = creationModeDual;
-		vehicle.ad.currentWayPoint = currentWayPoint;
-		vehicle.ad.targetSelected = targetSelected;	
-		vehicle.ad.mapMarkerSelected = mapMarkerSelected;
+		if currentWayPoint ~= 1337 then
+			vehicle.ad.currentWayPoint = currentWayPoint;
+		end;
+		if targetSelected ~= 1337 then
+			vehicle.ad.targetSelected = targetSelected;
+		end;
+		if mapMarkerSelected ~= 1337 then
+			vehicle.ad.mapMarkerSelected = mapMarkerSelected;
+		end;
 		vehicle.ad.nameOfSelectedTarget = nameOfSelectedTarget;
 			
 		vehicle.ad.mode = mode;
 		vehicle.ad.targetSpeed = targetSpeed;
 		vehicle.ad.createMapPoints = createMapPoints;
 		vehicle.ad.showClosestPoint = showClosestPoint;
-		vehicle.ad.selectedDebugPoint = selectedDebugPoint;
+		if selectedDebugPoint ~= 1337 then
+			vehicle.ad.selectedDebugPoint = selectedDebugPoint;
+		end;
 		vehicle.ad.showSelectedDebugPoint = showSelectedDebugPoint;
 		vehicle.ad.changeSelectedDebugPoint = changeSelectedDebugPoint;
 		vehicle.ad.iteratedDebugPoints = iteratedDebugPoints;
@@ -286,8 +294,12 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.startedLoadingAtTrigger = startedLoadingAtTrigger;
 		vehicle.ad.combineState = combineState;
 		
-		vehicle.ad.targetSelected_Unload = targetSelected_Unload;
-		vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
+		if targetSelected_Unload ~= 1337 then
+			vehicle.ad.targetSelected_Unload = targetSelected_Unload;
+		end;
+		if mapMarkerSelected_Unload ~= 1337 then
+			vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
+		end;
 		vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload;
 		
 		vehicle.ad.enableAI = enableAI;

@@ -281,3 +281,13 @@ function AutoDrive:combineStateToDescription(vehicle)
 
     return;
 end;
+
+function AutoDrive:isOnField(vehicle)
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.combineState ~= nil then
+        if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS  then
+            return true;
+        end;
+    end;
+
+    return false;
+end;

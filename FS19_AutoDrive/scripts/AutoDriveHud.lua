@@ -433,6 +433,21 @@ function AutoDriveHud:drawHud(vehicle)
 		setTextAlignment(RenderText.ALIGN_LEFT);
 		local textToShow = "AutoDrive";
 		textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle);
+
+		if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) then
+			local remainingTime = AutoDrive:getDriveTimeForWaypoints(vehicle.ad.wayPoints, vehicle.ad.currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed));
+			local remainingMinutes = math.floor(remainingTime / 60);
+			local remainingSeconds = remainingTime % 60;
+			if remainingTime ~= 0 then
+				if remainingMinutes > 0 then
+					textToShow = textToShow .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds) );
+				elseif remainingSeconds ~= 0 then
+					textToShow = textToShow .. " - " .. string.format("%2.0f", remainingSeconds) .. "s";
+				end;
+			end;
+		end;
+                
+
 		if vehicle.ad.sToolTip ~= "" and vehicle.ad.nToolTipWait <= 0 then
 			textToShow = textToShow .. " - " .. vehicle.ad.sToolTip;
 		end;

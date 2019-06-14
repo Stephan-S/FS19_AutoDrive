@@ -19,6 +19,7 @@ source(Utils.getFilename("scripts/Events/AutoDriveCreateMapMarkerEvent.lua", Aut
 source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
 source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", AutoDrive.directory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveUpdateNameEvent.lua", AutoDrive.directory))
 
 
 

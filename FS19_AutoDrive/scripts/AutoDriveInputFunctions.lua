@@ -83,6 +83,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "AD_import_routes" then
 		AutoDrive:InputHandling(self, "input_importRoutes");
 	end;
+	if actionName == "ADDebugForceUpdate" then
+		AutoDrive:InputHandling(self, "input_recalculate");
+	end;	
 	if actionName == "AD_upload_routes" then
 		AutoDrive:InputHandling(self, "input_uploadRoutes");
 	end;
