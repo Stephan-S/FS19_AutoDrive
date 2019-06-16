@@ -288,7 +288,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 
-                    if vehicle.ad.isUnloadingToBunkerSilo ~= true then
+                    if vehicle.ad.isUnloadingToBunkerSilo ~= true then               
                         vehicle.ad.isPaused = true;
                     end;
                     vehicle.ad.unloadSwitch = false;
@@ -319,7 +319,8 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     end;
                 end;
             end;
-            vehicle.ad.startedLoadingAtTrigger = false;
+            vehicle.ad.startedLoadingAtTrigger = false;            
+	        vehicle.ad.trailerStartedLoadingAtTrigger = false;
         end;
     end;
 end;

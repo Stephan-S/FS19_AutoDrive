@@ -77,6 +77,7 @@ function AutoDrive:callDriverToCombine(combine)
                     closestDriver.ad.isUnloading = false;
                     closestDriver.ad.isLoading = false;
                     closestDriver.ad.initialized = false 
+                    closestDriver.ad.designatedTrailerFillLevel = math.huge;
                     closestDriver.ad.wayPoints = {};        
                     
                     combine.ad.tryingToCallDriver = false; 
@@ -148,6 +149,7 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
             vehicle.ad.currentCombine.ad.currentDriver = nil;
             vehicle.ad.currentCombine = nil;
         end;
+        vehicle.ad.currentTrailer = 1;
     end;
 end;
 
@@ -161,34 +163,69 @@ function AutoDrive:initializeADCombine(vehicle, dt)
             return not AutoDrive:handlePathPlanning(vehicle)
         elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
             local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
-            
-            if doneUnloading or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER) then
-                if vehicle.ad.combineUnloadInFruit == true or true then
-                    --wait for combine to move away. Currently by fixed timer of 15s
-                    if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
-                        vehicle.ad.combineUnloadInFruitWaitTimer = vehicle.ad.combineUnloadInFruitWaitTimer - dt;
-                        if vehicle.ad.combineUnloadInFruitWaitTimer > 13000 then
-                            local finalSpeed = 8;
-                            local acc = 1;
-                            local allowedToDrive = true;
-                            
-                            local node = vehicle.components[1].node;					
-                            if vehicle.getAIVehicleDirectionNode ~= nil then
-                                node = vehicle:getAIVehicleDirectionNode();
-                            end;
-                            local x,y,z = getWorldTranslation(vehicle.components[1].node);   
-                            local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,-1);	
-                            x = x + rx;
-                            z = z + rz;
-                            local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
-                            AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1);
-                        else
-                            AutoDrive:getVehicleToStop(vehicle, false, dt);
-                        end;
+            local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle); 
 
-                        return true;
+            if trailers[vehicle.ad.currentTrailer+1] ~= nil then
+                local lastFillLevel = vehicle.ad.designatedTrailerFillLevel;
+                if trailers[vehicle.ad.currentTrailer+1].getFillUnits ~= nil then
+                    for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer+1]:getFillUnits()) do
+                        if trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                            maxCapacity = trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex);
+                            leftCapacity = trailers[vehicle.ad.currentTrailer+1]:getFillUnitFreeCapacity(fillUnitIndex)
+                        end;
+                    end
+                    vehicle.ad.designatedTrailerFillLevel = (maxCapacity - leftCapacity)/maxCapacity;
+                end;
+                if lastFillLevel < vehicle.ad.designatedTrailerFillLevel then
+                    vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
+                end;
+            end;
+
+            if trailerFillLevel > 0.99 and vehicle.ad.currentTrailer < trailerCount then
+                local finalSpeed = 8;
+                local acc = 1;
+                local allowedToDrive = true;
+                
+                local node = vehicle.components[1].node;					
+                if vehicle.getAIVehicleDirectionNode ~= nil then
+                    node = vehicle:getAIVehicleDirectionNode();
+                end;
+                local x,y,z = getWorldTranslation(vehicle.components[1].node);   
+                local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
+                x = x + rx;
+                z = z + rz;
+                local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
+                AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, nil, nil, finalSpeed, 1);
+            else
+                AutoDrive:getVehicleToStop(vehicle, false, dt);
+            end;
+
+            if (doneUnloading or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER)) or (trailerFillLevel >= 0.99 and vehicle.ad.currentTrailer == trailerCount) then
+                
+                --wait for combine to move away. Currently by fixed timer of 15s
+                if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
+                    vehicle.ad.combineUnloadInFruitWaitTimer = vehicle.ad.combineUnloadInFruitWaitTimer - dt;
+                    if vehicle.ad.combineUnloadInFruitWaitTimer > 13000 then
+                        local finalSpeed = 4;
+                        local acc = 1;
+                        local allowedToDrive = true;
+                        
+                        local node = vehicle.components[1].node;					
+                        if vehicle.getAIVehicleDirectionNode ~= nil then
+                            node = vehicle:getAIVehicleDirectionNode();
+                        end;
+                        local x,y,z = getWorldTranslation(vehicle.components[1].node);   
+                        local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,-1);	
+                        x = x + rx;
+                        z = z + rz;
+                        local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
+                        AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1);
+                    else
+                        AutoDrive:getVehicleToStop(vehicle, false, dt);
                     end;
-                end;                                       
+
+                    return true;
+                end;                                    
                 
                 if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel") or vehicle.ad.combineUnloadInFruit == true or (AutoDrive:getSetting("parkInField") == false) then
                     if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel") then
@@ -237,16 +274,14 @@ function AutoDrive:checkDoneUnloading(vehicle)
     local maxCapacity = 0;
     local leftCapacity = 0;
     local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
-    if trailerCount > 0 then        
-        for _,trailer in pairs(trailers) do
-            if trailer.getFillUnits ~= nil then
-                for fillUnitIndex,fillUnit in pairs(trailer:getFillUnits()) do
-                    if trailer:getFillUnitCapacity(fillUnitIndex) > 2000 then
-                        maxCapacity = maxCapacity + trailer:getFillUnitCapacity(fillUnitIndex);
-                        leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(fillUnitIndex)
-                    end;
-                end
-            end;
+    if trailerCount > 0 and trailers[vehicle.ad.currentTrailer] ~= nil then
+        if trailers[vehicle.ad.currentTrailer].getFillUnits ~= nil then
+            for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnits()) do
+                if trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                    maxCapacity = maxCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex);
+                    leftCapacity = leftCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitFreeCapacity(fillUnitIndex);
+                end;
+            end
         end;
     end;
 
@@ -261,7 +296,7 @@ function AutoDrive:checkDoneUnloading(vehicle)
         end
     end;
 
-    return ((combineMaxCapacity - combineLeftCapacity) < 100) or leftCapacity <= 500, (1-(leftCapacity/maxCapacity));
+    return ((combineMaxCapacity - combineLeftCapacity) < 100) , (1-(leftCapacity/maxCapacity));
 end;
 
 function AutoDrive:combineStateToDescription(vehicle)

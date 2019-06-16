@@ -5,6 +5,8 @@ function AutoDrive:handleTrailers(vehicle, dt)
         if trailerCount == 0 then
             return
         end;        
+
+        --print("vehicle.ad.startedLoadingAtTrigger: " .. ADBoolToString(vehicle.ad.startedLoadingAtTrigger));
         
         local leftCapacity = 0;
         local fillLevel = 0;
@@ -19,7 +21,9 @@ function AutoDrive:handleTrailers(vehicle, dt)
             vehicle.ad.isUnloading = false;
             vehicle.ad.isUnloadingToBunkerSilo = false;
             for _,trailer in pairs(trailers) do
-                trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF);
+                if trailer.setDischargeState then
+                    trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF);
+                end;
             end;
             
         end;
@@ -46,7 +50,22 @@ function AutoDrive:handleTrailers(vehicle, dt)
         end;
         local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);
         if distance < 100 then
-            for _,trailer in pairs(trailers) do
+            local allClosed = false;
+            for _,trailer in pairs(trailers) do 
+                local dischargeState = trailer:getDischargeState()
+                if dischargeState == Trailer.TIPSTATE_CLOSED and not vehicle.ad.isLoading then
+                    allClosed = true;
+                else
+                    allClosed = false;
+                end;
+            end;
+            if allClosed then
+                vehicle.ad.isPaused = false;
+                vehicle.ad.isUnloading = false;
+            end;
+
+            for _,trailer in pairs(trailers) do   
+
                 for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
                     if distance > 20 and trigger.bunkerSilo == nil then
                         break;
@@ -54,13 +73,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
                     if trailer.getCurrentDischargeNode == nil then
                         break;
-                    end;
-                    
-                    local dischargeState = trailer:getDischargeState()
-                    if dischargeState == Trailer.TIPSTATE_CLOSED and not vehicle.ad.isLoading then
-                        vehicle.ad.isPaused = false;
-                        vehicle.ad.isUnloading = false;
-                    end;
+                    end; 
 
                     if fillLevel == 0 then
                         break;
@@ -119,7 +132,8 @@ function AutoDrive:handleTrailers(vehicle, dt)
             end;
         end;
 
-        if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then 
+        if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then             
+            vehicle.ad.isCloseToTrigger = false;
             local x,y,z = getWorldTranslation(vehicle.components[1].node);
             local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
             if destination == nil then
@@ -130,18 +144,27 @@ function AutoDrive:handleTrailers(vehicle, dt)
                 for _,trailer in pairs(trailers) do
                     for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
                         local activate = false;
+                        vehicle.ad.isCloseToTrigger = true;
 			            if trigger.fillableObjects ~= nil then
                             for __,fillableObject in pairs(trigger.fillableObjects) do
                                 if fillableObject.object == trailer then   
-                                activate = true;    
+                                    activate = true;    
                                 end;
                             end;
                         end;
-                        if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.startedLoadingAtTrigger then --trigger must be empty by now. Drive on!
+
+                        local leftCapacityTrailer = 0;
+                        local fillLevelTrailer = 0;
+                        for _,fillUnit in pairs(trailer:getFillUnits()) do
+                            leftCapacityTrailer = leftCapacityTrailer + trailer:getFillUnitFreeCapacity(_);
+                            fillLevelTrailer = fillLevelTrailer + trailer:getFillUnitFillLevel(_);
+                        end
+
+                        if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.trailerStartedLoadingAtTrigger then --trigger must be empty by now. Drive on!
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
                             vehicle.ad.isLoading = false;
-                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) and (not vehicle.ad.startedLoadingAtTrigger) then -- and  and vehicle.ad.isLoading == false                      
+                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) and (not vehicle.ad.trailerStartedLoadingAtTrigger) then -- and  and vehicle.ad.isLoading == false                      
                             trigger.autoStart = true
                             trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
                             trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
@@ -152,11 +175,13 @@ function AutoDrive:handleTrailers(vehicle, dt)
                             vehicle.ad.isPaused = true;
                             vehicle.ad.isLoading = true;
                             vehicle.ad.startedLoadingAtTrigger = true;
+                            vehicle.ad.trailerStartedLoadingAtTrigger = true;
                             vehicle.ad.trigger = trigger;
-                        elseif leftCapacity == 0 and vehicle.ad.isPaused then
+                        elseif (leftCapacity == 0 or (leftCapacityTrailer == 0 and activate)) and vehicle.ad.isPaused then
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
                             vehicle.ad.isLoading = false;
+                            vehicle.ad.trailerStartedLoadingAtTrigger = false;
                         end;
                     end;
 
@@ -237,28 +262,27 @@ function AutoDrive:getTrailersOf(vehicle)
             AutoDrive:getTrailersOfImplement(implement.object);
         end;
     end;
-    --print("Vehicle: " .. vehicle.ad.driverName .. " has " .. trailerCount .. " trailers");
 
     return AutoDrive.tempTrailers, AutoDrive.tempTrailerCount;
 end;
 
 function AutoDrive:getTrailersOfImplement(attachedImplement)
-    if attachedImplement.getAttachedImplements ~= nil then
-        for _, implement in pairs(attachedImplement:getAttachedImplements()) do
-            AutoDrive:getTrailersOfImplement(implement.object);
-        end;
-    end;
-
     if (attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) and attachedImplement.getFillUnits ~= nil then
         trailer = attachedImplement;
-        AutoDrive.tempTrailerCount = 1;
+        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
         AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
     end;
     if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then     
         if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then    
             trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
-            AutoDrive.tempTrailerCount = 1;
+            AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+        end;
+    end;
+
+    if attachedImplement.getAttachedImplements ~= nil then
+        for _, implement in pairs(attachedImplement:getAttachedImplements()) do
+            AutoDrive:getTrailersOfImplement(implement.object);
         end;
     end;
 

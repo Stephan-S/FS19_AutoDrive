@@ -239,6 +239,7 @@ function init(self)
 	end;
 	self.ad.isPausedCauseTraffic = false;
 	self.ad.startedLoadingAtTrigger = false;
+	self.ad.trailerStartedLoadingAtTrigger = false;
 	self.ad.combineUnloadInFruit = false;
 	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
 	self.ad.combineFieldArea = nil;
@@ -246,6 +247,8 @@ function init(self)
 	self.ad.driverOnTheWay = false;
 	self.ad.tryingToCallDriver = false;
 	self.ad.stoppedTimer = 5000;
+	self.ad.isCloseToTrigger = false;
+	self.ad.currentTrailer = 1;
 
 	AutoDrive.Recalculation = {};
 	

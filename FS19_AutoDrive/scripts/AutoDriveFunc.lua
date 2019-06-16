@@ -2,6 +2,7 @@ function AutoDrive:startAD(vehicle)
     vehicle.ad.isActive = true;
 	vehicle.ad.creationMode = false;
 	vehicle.ad.startedLoadingAtTrigger = false;
+	vehicle.ad.trailerStartedLoadingAtTrigger = false;
     
     vehicle.forceIsActive = true;
     vehicle.spec_motorized.stopMotorOnLeave = false;
@@ -73,7 +74,8 @@ function AutoDrive:startAD(vehicle)
 
 	
 	vehicle.ad.driverOnTheWay = false;
-	vehicle.ad.tryingToCallDriver = false;
+	vehicle.ad.tryingToCallDriver = false;	
+	vehicle.ad.currentTrailer = 1;
 end;
 
 function AutoDrive:stopAD(vehicle)

@@ -7,7 +7,7 @@ AutoDrive.ItemFilterList = {
 	77, 78, 79, 80, --Chicken
 	61, 62, 63, 64, 65, 66, 67, 68, -- Cows
 	14, --Eggs
-	28, 29, --multiple grass
+	28, --29, --multiple grass
 	53, 54, 55, 56, 57, 58, 59, 60, --Horses
 	25, --Oilseed Radish
 	73, 74, 75, 76, --Pigs
