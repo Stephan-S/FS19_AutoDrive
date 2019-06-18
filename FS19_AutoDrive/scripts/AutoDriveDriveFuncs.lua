@@ -21,7 +21,16 @@ function AutoDrive:handleDriving(vehicle, dt)
             else
                 local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
                
-				if AutoDrive:getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
+                local closeToWayPoint = false;
+                if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                    if AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < min_distance then 
+                        closeToWayPoint = true;
+                    elseif vehicle.ad.currentWayPoint <= 3 and AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < (min_distance * 5) then
+                        closeToWayPoint = true;
+                    end;
+                end;
+
+                if closeToWayPoint or AutoDrive:getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
                     AutoDrive:handleReachedWayPoint(vehicle);  
                 end;
                                 
@@ -336,6 +345,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1];
         local highestAngle = 0;
         local distanceToLookAhead = AutoDrive:getSetting("lookAheadBraking");
+        
         local pointsToLookAhead = 20;
         local doneCheckingRoute = false;
         local currentLookAheadPoint = 1;
@@ -384,6 +394,10 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end;
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] == nil then
         vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
+    end;
+
+    if vehicle.ad.currentWayPoint <= 2 then
+        vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
     end;
 
     local wp_new = nil;
@@ -451,7 +465,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         if finalSpeed > vehicle.ad.lastUsedSpeed then
             finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*5, finalSpeed);
         elseif finalSpeed < vehicle.ad.lastUsedSpeed then
-            finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*10, finalSpeed);
+            finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*18, finalSpeed);
         end;
     end;
 
@@ -544,15 +558,19 @@ function AutoDrive:getLookAheadTarget(vehicle)
     local targetZ = vehicle.ad.targetZ;
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then
         local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint];
-        local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1];
 
         local lookAheadID = 1;
-        local lookAheadDistance = AutoDrive:getSetting("lookAheadTurning");
+        local lookAheadDistance = AutoDrive:getSetting("lookAheadTurning");        
         local distanceToCurrentTarget = AutoDrive:getDistance(x,z, wp_current.x, wp_current.z);
-        lookAheadDistance = lookAheadDistance - distanceToCurrentTarget;
-
+        --if vehicle.ad.currentWayPoint <= 2 then
+           --lookAheadDistance = 0;
+        --end;
         local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAheadID];
-        local distanceToNextTarget = AutoDrive:getDistance(x,z, wp_ahead.x, wp_ahead.z);
+        local distanceToNextTarget = AutoDrive:getDistance(x, z, wp_ahead.x, wp_ahead.z);
+        if distanceToCurrentTarget < distanceToNextTarget then
+            lookAheadDistance = lookAheadDistance - distanceToCurrentTarget;
+        end;
+
         while lookAheadDistance > distanceToNextTarget do
             lookAheadDistance = lookAheadDistance - distanceToNextTarget;
             lookAheadID = lookAheadID + 1;
@@ -577,7 +595,6 @@ function AutoDrive:getLookAheadTarget(vehicle)
             if distZ < 0 then
                 addZ = -addZ;
             end;
-
 
             targetX = wp_current.x + addX;
             targetZ = wp_current.z + addZ;
