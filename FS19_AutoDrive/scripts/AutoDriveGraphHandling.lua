@@ -321,6 +321,17 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, setToUse, maxDrivingS
 
 	driveTime = (drivingDistance) / (drivingSpeed * (1000/3600));
 
+	local isMapMarker = false;
+	for _,mapMarker in pairs(AutoDrive.mapMarker) do
+		if mapMarker.id == start then
+			isMapMarker = true;
+		end;
+	end;
+
+	if isMapMarker and AutoDrive:getSetting("avoidMarkers") == true then
+		driveTime = driveTime + AutoDrive:getSetting("mapMarkerDetour") / (40 * (1000/3600));
+	end;
+
 	return driveTime;
 end;
 
