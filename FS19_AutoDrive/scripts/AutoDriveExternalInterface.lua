@@ -16,8 +16,8 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     if options ~= nil and options.maxDistance ~= nil then
         maxDistance = options.maxDistance;
     end;
-    
-    local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, startYRot, minDistance, maxDistance);	
+    local directionVec = {x = math.cos(startYRot), z = math.sin(startYRot)};
+    local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
         bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance, maxDistance);
