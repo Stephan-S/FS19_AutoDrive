@@ -204,6 +204,7 @@ function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible)
 		self.Buttons[self.buttonCounter].img_3 =  AutoDrive.directory .. "textures/" .. "unload.dds";
 		self.Buttons[self.buttonCounter].img_4 =  AutoDrive.directory .. "textures/" .. "pickupAndDeliver.dds";
 		self.Buttons[self.buttonCounter].img_5 =  AutoDrive.directory .. "textures/" .. "combine.dds";
+		self.Buttons[self.buttonCounter].img_6 =  AutoDrive.directory .. "textures/" .. "silo_load.dds";
 	end;
 	if name == "input_record" then
 		self.Buttons[self.buttonCounter].img_dual = AutoDrive.directory .. "textures/" .. "record_dual.dds";
@@ -231,6 +232,8 @@ function AutoDriveHud:updateButtons(vehicle)
 				button.img_active = button.img_4;
 			elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
 				button.img_active = button.img_5;
+			elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
+				button.img_active = button.img_6;
 			else
 				button.img_active = button.img_off;
 			end;
@@ -520,8 +523,8 @@ function AutoDriveHud:drawHud(vehicle)
 			renderText(adPosX, posY, adFontSize, g_i18n:getText("AD_new_marker_helptext"));
 			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
-
-		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (vehicle.ad.pullDownList.active == false or (vehicle.ad.pullDownList.start and vehicle.ad.pullDownList.downwards == false)) then
+		
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) and (vehicle.ad.pullDownList.active == false or (vehicle.ad.pullDownList.start and vehicle.ad.pullDownList.downwards == false)) then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
@@ -627,8 +630,8 @@ function AutoDriveHud:drawMinimalHud(vehicle)
 				setTextAlignment(RenderText.ALIGN_LEFT);
 				renderText(adPosX, adPosY, adFontSize, text);
 			end;
-
-			if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (vehicle.ad.destinationPrintTimer > 0  or vehicle.ad.isActive) and vehicle.ad.pullDownList.active == false then
+			
+			if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) and (vehicle.ad.destinationPrintTimer > 0  or vehicle.ad.isActive) and vehicle.ad.pullDownList.active == false then
 				adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;
 				
 				local targetPoint = target == vehicle.ad.nameOfSelectedTarget_Unload;
@@ -754,7 +757,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end;
 		end;
 		
-		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER) then
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD) then
 			if posX > (self.Background.unloadOverlay.posX + (self.Background.Header.width/2) ) and posX < (self.Background.unloadOverlay.posX + self.Background.Header.width) and posY > (self.Background.unloadOverlay.posY) and posY < (self.Background.unloadOverlay.posY + self.Background.unloadOverlay.height) then
 				AutoDrive.Hud:createPullDownList(vehicle, false, false, true);
 				--AutoDrive:InputHandling(vehicle, "input_nextFillType");
@@ -774,7 +777,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         adPosY = self.Background.unloadOverlay.posY;
         height = self.buttonHeight;
 		width = self.Background.Header.width/2;
-		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) then
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) then
 			if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
 				AutoDrive.Hud:createPullDownList(vehicle, false, true, false);
 			end;
@@ -916,6 +919,8 @@ function AutoDriveHud:getModeName(vehicle)
 		return g_i18n:getText("AD_MODE_PICKUPANDDELIVER");
 	elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
 		return g_i18n:getText("AD_MODE_UNLOAD");
+	elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
+		return g_i18n:getText("AD_MODE_LOAD");
 	end;
 
 	return "";

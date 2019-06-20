@@ -397,7 +397,7 @@ end;
 
 function AutoDrive:inputSiloMode(vehicle)
     vehicle.ad.mode = vehicle.ad.mode + 1;
-    if vehicle.ad.mode > AutoDrive.MODE_UNLOAD then
+    if vehicle.ad.mode > AutoDrive.MODE_LOAD then
         vehicle.ad.mode = 1;
     end;
     AutoDrive:enableCurrentMode(vehicle);
@@ -411,6 +411,8 @@ function AutoDrive:enableCurrentMode(vehicle)
     elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
         vehicle.ad.drivingForward = true;  
     elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+        vehicle.ad.drivingForward = true;  
+    elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
         vehicle.ad.drivingForward = true;  
     end;
 end;

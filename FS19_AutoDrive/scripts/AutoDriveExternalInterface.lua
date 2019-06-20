@@ -91,7 +91,7 @@ function AutoDrive:isFinished(vehicle)
     --print("AutoDrive has finished it's route");
 
     --here we enter an endless loop and restart the course when finished
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then
         AutoDrive:StartDriving(vehicle, vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload, AutoDrive, AutoDrive.isFinished, vehicle);
     end;
 end;

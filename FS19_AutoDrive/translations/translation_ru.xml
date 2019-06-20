@@ -44,6 +44,7 @@
 		<text name="AD_MODE_DELIVERTO"						 text="Доставка" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Загрузка и доставка" />
 		<text name="AD_MODE_UNLOAD"							 text="Разгрузка комбайна" />
+		<text name="AD_MODE_LOAD"							 text="Загрузка" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Настройки" />
 		<text name="gui_ad_pipe_offset"						 text="Смещение трубы" />
 		<text name="gui_ad_lookahead_turning"				 text="Смотреть вперед на расстояние (поворот)" />

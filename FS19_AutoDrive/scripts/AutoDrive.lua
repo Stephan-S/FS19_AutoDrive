@@ -16,6 +16,7 @@ AutoDrive.MODE_DRIVETO = 1;
 AutoDrive.MODE_PICKUPANDDELIVER = 2;
 AutoDrive.MODE_DELIVERTO = 3;
 AutoDrive.MODE_UNLOAD = 4;
+AutoDrive.MODE_LOAD = 5;
 
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
 
@@ -69,6 +70,7 @@ end;
 function AutoDrive:loadMap(name)	
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrailerUtil.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveFillablesUtil.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
