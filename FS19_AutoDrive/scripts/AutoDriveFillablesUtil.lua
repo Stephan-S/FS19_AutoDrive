@@ -109,6 +109,7 @@ function AutoDrive:getFillablesOf(vehicle)
     return AutoDrive.tempTrailers, AutoDrive.tempTrailerCount;
 end;
 
+function AutoDrive:getFillablesOfImplement(attachedImplement)
     if attachedImplement.getFillUnits ~= nil then
         trailer = attachedImplement;
         AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
@@ -122,10 +123,9 @@ end;
         end;
     end;
 
-function AutoDrive:getFillablesOfImplement(attachedImplement)
     if attachedImplement.getAttachedImplements ~= nil then
         for _, implement in pairs(attachedImplement:getAttachedImplements()) do
-            AutoDrive:getTrailersOfImplement(implement.object);
+            AutoDrive:getFillablesOfImplement(implement.object);
         end;
     end;
     return;

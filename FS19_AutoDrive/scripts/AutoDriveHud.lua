@@ -552,7 +552,7 @@ function AutoDriveHud:drawHud(vehicle)
 				end;				
 				setTextAlignment(RenderText.ALIGN_LEFT);
 
-				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then
 					text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
 				end;
 
@@ -644,7 +644,7 @@ function AutoDriveHud:drawMinimalHud(vehicle)
 				--self.Background.unloadOverlay.ov:render();
 				setTextAlignment(RenderText.ALIGN_LEFT);
 				local text = vehicle.ad.nameOfSelectedTarget_Unload
-				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+				if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_Load then
 					text = text .. " - " .. g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
 				end;
 				renderText(adPosX, adPosY, adFontSize, text);
