@@ -3,10 +3,10 @@
 --destinationID: ID of marker to find path to
 --options (optional): options.minDistance, options.maxDistance (default 1m, 20m) define boundaries between the first AutoDrive waypoint and the starting location. 
 function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
-    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[markerID] == nil then
+    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil then
         return;
     end;
-    local markerName = AutoDrive.mapMarker[markerID].name;
+    local markerName = AutoDrive.mapMarker[destinationID].name;
     local startPoint = {x=startX, z=startZ};
     local minDistance = 1;
     local maxDistance = 20;
@@ -20,7 +20,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, startYRot, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
-        bestPoint = AutoDrive:GetClosestPointToLocation(x, z, minDistance, maxDistance);
+        bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance, maxDistance);
         if bestPoint == -1 then
             return;
         end;
@@ -31,7 +31,7 @@ end;
 
 function AutoDrive:GetAvailableDestinations()
     local destinations = {};
-    for markerID, marker in AutoDrive.mapMarker do
+    for markerID, marker in pairs(AutoDrive.mapMarker) do
         local point = AutoDrive.mapWayPoints[marker.id];
         destinations[markerID] = {name=marker.name, x=point.x, y=point.y, z=point.z, id=markerID};
     end;
