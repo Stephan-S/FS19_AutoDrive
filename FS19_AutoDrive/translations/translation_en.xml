@@ -44,6 +44,7 @@
 		<text name="AD_MODE_DELIVERTO"						 text="Deliver" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Pickup and Deliver" />
 		<text name="AD_MODE_UNLOAD"							 text="Unload Combine" />
+		<text name="AD_MODE_LOAD"							 text="Load" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Settings" />
 		<text name="gui_ad_pipe_offset"						 text="Pipe Offset" />
 		<text name="gui_ad_lookahead_turning"				 text="Look ahead distance (turn)" />

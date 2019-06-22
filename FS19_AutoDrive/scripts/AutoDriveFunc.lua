@@ -57,7 +57,7 @@ function AutoDrive:startAD(vehicle)
 			end;
 		end;
 				
-		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and leftCapacity < 5000 then
+		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) and leftCapacity < 5000 then
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
 				vehicle.ad.skipStart = true;
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);

@@ -45,6 +45,7 @@
 		<text name="AD_MODE_DELIVERTO"						 text="Consegna" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Carica e consegna" />
 		<text name="AD_MODE_UNLOAD"							 text="Scarica trebbia" />
+		<text name="AD_MODE_LOAD"							 text="Carica" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Impostazioni" />
 		<text name="gui_ad_pipe_offset"						 text="Distanza dal tubo" />
 		<text name="gui_ad_lookahead_turning"				 text="Distanza d'avanti (sterzata)" />

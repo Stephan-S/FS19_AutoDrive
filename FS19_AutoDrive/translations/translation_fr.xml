@@ -44,6 +44,7 @@
 		<text name="AD_MODE_DELIVERTO"						 text="Livraison" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Chargement et livraison" />
 		<text name="AD_MODE_UNLOAD"							 text="Décharger moissoneuse" />
+		<text name="AD_MODE_LOAD"							 text="Chargement" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"						 text="Décalage du tuyau" />
 		<text name="gui_ad_lookahead_turning"				 text="Distance devant vous (virage)" />

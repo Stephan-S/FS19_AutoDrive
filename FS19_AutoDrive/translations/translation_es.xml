@@ -43,6 +43,7 @@
 		<text name="AD_MODE_DELIVERTO"						 text="Transportar" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Carga y descarga" />
 		<text name="AD_MODE_UNLOAD"							 text="Descargar cosechadora" />
+		<text name="AD_MODE_LOAD"							 text="Cargar" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Configuración" />
 		<text name="gui_ad_pipe_offset"						 text="Distancia del tubo" />
 		<text name="gui_ad_lookahead_turning"				 text="Distacia hacia adelante (desvío)" />

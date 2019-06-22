@@ -3,6 +3,7 @@ function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkForDeadLock(vehicle, dt);   
 	AutoDrive:handlePrintMessage(vehicle, dt);
 	AutoDrive:handleTrailers(vehicle, dt)
+	AutoDrive:handleFillables(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
 
 	
@@ -268,7 +269,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
     else
         --print("Last waypoint reached");
-        if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD then            
+        if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
             --print("Shutting down");
             local target = vehicle.ad.nameOfSelectedTarget;
             for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
@@ -406,7 +407,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         xl,yl,zl = worldToLocal(vehicle.components[1].node, wp_new.x,y,wp_new.z);
     end;
 
-    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD then
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
         local start = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
         if destination ~= nil and start ~= nil then
