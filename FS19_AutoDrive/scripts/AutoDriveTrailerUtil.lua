@@ -49,6 +49,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
             return;
         end;
         local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);
+		local distance_unload = distance;
         if distance < 100 then
             local allClosed = false;
             for _,trailer in pairs(trailers) do 
@@ -194,6 +195,19 @@ function AutoDrive:handleTrailers(vehicle, dt)
                         end;
                     end;
                 end;
+			elseif distance ~= nil and distance_unload ~= nil then
+				if distance > 105 and distance_unload > 105 then
+					for _,trailer in pairs(trailers) do
+						if trailer.spec_cover ~= nil then
+							if trailer.spec_cover.state > 0 then
+								local newState = 0    
+								if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
+									trailer:setCoverState(newState,true);
+								end;
+							end;
+						end;
+					end;
+				end;
             end;
         end;
     end;
