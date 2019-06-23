@@ -90,7 +90,18 @@ function AutoDrive:handleFillables(vehicle, dt)
                         end;
                     end;
                 end;
-            end;
+            elseif distance > 50 then
+				for _,trailer in pairs(trailers) do
+					if trailer.spec_cover ~= nil then
+                        if trailer.spec_cover.state > 0 then
+                            local newState = 0    
+                            if trailer.spec_cover.state ~= newState and trailer:getIsNextCoverStateAllowed(newState) then
+                                trailer:setCoverState(newState,true);
+                            end
+                        end;
+                    end;
+				end;
+			end;
         end;
     end;
 end;
