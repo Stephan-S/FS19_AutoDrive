@@ -277,29 +277,24 @@ function AutoDrive:getDistanceBetweenNodes(start, target)
 	return distance;
 end;
 
-function AutoDrive:getDriveTimeBetweenNodes(start, target, setToUse, maxDrivingSpeed)
+function AutoDrive:getDriveTimeBetweenNodes(start, target, past, maxDrivingSpeed, arrivalTime)
+	--changed setToUse to defined 3 point for angle calculation														
 	local wp_ahead = AutoDrive.mapWayPoints[target];
 	local wp_current = AutoDrive.mapWayPoints[start];
-
+	
+	
 	if wp_ahead == nil or wp_current == nil then
 		return 0;
 	end;
 
 	local angle = 0;
-	if setToUse == "incoming" then
-		if wp_current.incoming ~= nil and wp_current.incoming[1] ~= nil then
-			local wp_ref = AutoDrive.mapWayPoints[wp_current.incoming[1]];
-			angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
-													{x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
-			angle = math.abs(angle);
+	
+	if past ~= nil then
+		local wp_ref = AutoDrive.mapWayPoints[past]
+		if wp_ref ~= nil then
+			angle = math.abs(AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
+														{x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } ));  
 		end; 
-	else
-		if wp_current.out ~= nil and wp_current.out[1] ~= nil then
-			local wp_ref = AutoDrive.mapWayPoints[wp_current.out[1]];
-			angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
-													{x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
-			angle = math.abs(angle);
-		end;
 	end;
 	
 	local driveTime = 0;
@@ -321,30 +316,37 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, setToUse, maxDrivingS
 
 	driveTime = (drivingDistance) / (drivingSpeed * (1000/3600));
 
-	local isMapMarker = false;
-	for _,mapMarker in pairs(AutoDrive.mapMarker) do
-		if mapMarker.id == start then
-			isMapMarker = true;
+	--avoid map marker
+	
+	if not arrivalTime == true then --only for djikstra, for live travel timer we ignore it
+		local isMapMarker = false;
+		for _,mapMarker in pairs(AutoDrive.mapMarker) do
+			if mapMarker.id == start then
+				isMapMarker = true;
+				break;
+			end;
 		end;
-	end;
-
-	if isMapMarker and AutoDrive:getSetting("avoidMarkers") == true then
-		driveTime = driveTime + AutoDrive:getSetting("mapMarkerDetour") / (40 * (1000/3600));
-	end;
-
+	
+		if isMapMarker and AutoDrive:getSetting("avoidMarkers") == true then
+			driveTime = driveTime + (AutoDrive:getSetting("mapMarkerDetour") / (20 / 3.6));
+		end;
+	end;												 
 	return driveTime;
 end;
 
 function AutoDrive:getDriveTimeForWaypoints(wps, currentWaypoint, maxDrivingSpeed)
 	local totalTime = 0;
 
+	if wps ~= nil and currentWaypoint ~= nil and wps[currentWaypoint+1] ~= nil and wps[currentWaypoint] ~= nil and wps[currentWaypoint-1] == nil then
+		totalTime = totalTime + AutoDrive:getDriveTimeBetweenNodes(wps[currentWaypoint].id, wps[currentWaypoint+1].id, nil , maxDrivingSpeed, true); --first segment, only 2 points, no angle
+	end;
 	while wps ~= nil and currentWaypoint ~= nil and wps[currentWaypoint+1] ~= nil do
 		if wps[currentWaypoint] ~= nil then
-			totalTime = totalTime + AutoDrive:getDriveTimeBetweenNodes(wps[currentWaypoint].id, wps[currentWaypoint+1].id, "incoming", maxDrivingSpeed);
+			totalTime = totalTime + AutoDrive:getDriveTimeBetweenNodes(wps[currentWaypoint].id, wps[currentWaypoint+1].id, wps[currentWaypoint-1].id, maxDrivingSpeed, true); --continuous segments, 3 points for angle
 		end;
 		currentWaypoint = currentWaypoint + 1;
 	end;
-	return totalTime * 1.25;
+	return totalTime * 1.15; --reduced the factor a little bit
 end;
 
 function AutoDrive:sortNodesByDistance(x, z, listOfNodes)

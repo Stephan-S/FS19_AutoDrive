@@ -152,7 +152,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 
 							local distanceToAdd = 0;
 							if AutoDrive:getSetting("useFastestRoute") == true then
-								distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(shortest_id, linkedNodeId);
+								distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(shortest_id, linkedNodeId, workPre[shortest_id],nil,true); --3 points for angle
 							else
 								distanceToAdd = AutoDrive:getDistanceBetweenNodes(shortest_id, linkedNodeId);
 							end;
@@ -232,7 +232,7 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 		for i, id in pairs(workQ[start]) do
 			local distanceToAdd = 0;
 			if AutoDrive:getSetting("useFastestRoute") == true then
-				distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(start, id);
+				distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(start, id, nil, nil, nil);	--first segments, only 2 points, no angle
 			else
 				distanceToAdd = AutoDrive:getDistanceBetweenNodes(start, id);
 			end;
