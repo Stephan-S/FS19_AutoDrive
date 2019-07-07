@@ -178,9 +178,12 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 end;
                 if lastFillLevel < vehicle.ad.designatedTrailerFillLevel then
                     vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
+                    --Reload trailerFillLevel when switching to next trailer
+                    doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
                 end;
             end;
 
+            local drivingEnabled = false;
             if trailerFillLevel > 0.99 and vehicle.ad.currentTrailer < trailerCount then
                 local finalSpeed = 8;
                 local acc = 1;
@@ -196,8 +199,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 z = z + rz;
                 local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
                 AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, nil, nil, finalSpeed, 1);
-            else
-                AutoDrive:getVehicleToStop(vehicle, false, dt);
+                drivingEnabled = true;
             end;
 
             if (doneUnloading or (vehicle.ad.combineUnloadInFruitWaitTimer < AutoDrive.UNLOAD_WAIT_TIMER)) or (trailerFillLevel >= 0.99 and vehicle.ad.currentTrailer == trailerCount) then
@@ -206,7 +208,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
                     vehicle.ad.combineUnloadInFruitWaitTimer = vehicle.ad.combineUnloadInFruitWaitTimer - dt;
                     if vehicle.ad.combineUnloadInFruitWaitTimer > 11500 then
-                        local finalSpeed = 4;
+                        local finalSpeed = 8;
                         local acc = 1;
                         local allowedToDrive = true;
                         
@@ -220,13 +222,14 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                         z = z + rz;
                         local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
                         AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1);
+                        drivingEnabled = true;
                     else
                         AutoDrive:getVehicleToStop(vehicle, false, dt);
                     end;
 
                     return true;
-                end;                                    
-                
+                end;                
+
                 if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel") or vehicle.ad.combineUnloadInFruit == true or (AutoDrive:getSetting("parkInField") == false) then
                     if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel") then
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
@@ -250,6 +253,10 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                         vehicle.ad.currentCombine = nil;
                     end;
                 end;
+            end;
+            
+            if drivingEnabled == false then
+                AutoDrive:getVehicleToStop(vehicle, false, dt);
             end;
 
             return true;          
