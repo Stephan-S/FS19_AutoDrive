@@ -20,7 +20,7 @@ function adEnterDriverNameGui:onOpen()
     adEnterDriverNameGui:superClass().onOpen(self);
     FocusManager:setFocus(self.textInputElement);
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-        self.textInputElement:setTexts(g_currentMission.controlledVehicle.ad.driverName);
+        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName);
         self.textInputElement:onFocusActivate()
     end;
 end;
@@ -32,7 +32,7 @@ function adEnterDriverNameGui:onClickOk()
     if enteredName:len() > 1 then
         if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then            
             g_currentMission.controlledVehicle.ad.driverName = self.textInputElement.text;        
-            AutoDriveUpdateNameEvent:sendEvent(vehicle);
+            AutoDriveUpdateNameEvent:sendEvent(g_currentMission.controlledVehicle);
         end;
     end;
     
