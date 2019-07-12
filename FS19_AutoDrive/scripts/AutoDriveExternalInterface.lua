@@ -78,6 +78,15 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
     end;
 end;
 
+function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive == false then
+        AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg);
+        vehicle.ad.usePathFinder = true;    
+        AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, true);   
+    end;
+
+end;
+
 --These are just here for example purposes on how to use the interface to start an AD driver and receive a callback when it's finished
 
 addConsoleCommand('adStartDriving', 'Start current course and callback', 'adStartDriving', AutoDrive);

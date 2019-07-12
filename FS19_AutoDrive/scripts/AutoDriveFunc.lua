@@ -67,7 +67,7 @@ function AutoDrive:startAD(vehicle)
 				vehicle.ad.skipStart = true;
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
 				vehicle.ad.wayPointsChanged = true;
-				vehicle.ad.unloadSwitch = true;   
+				vehicle.ad.unloadSwitch = true;
 			end;
 		else
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] ~= nil then
@@ -113,8 +113,9 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.combineUnloadInFruit = false;
 	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
 	vehicle.ad.combineFieldArea = nil;
-	vehicle.ad.combineFruitToCheck = nil; 
-	
+	vehicle.ad.combineFruitToCheck = nil; 	
+	vehicle.ad.usePathFinder = false; 
+
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
 		vehicle.ad.currentCombine = nil;
@@ -346,7 +347,7 @@ function AutoDrive:detectTraffic(vehicle)
     --AutoDrive:drawLine(boundingBox[3], boundingBox[4], 0, 0, 0, 1);
     --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 0, 0, 0, 1);	
 
-	for _,other in pairs(g_currentMission.vehicles) do --pairs(g_currentMission.nodeToVehicle) do
+	for _,other in pairs(g_currentMission.vehicles) do
 		if other ~= vehicle and other ~= vehicle.ad.currentCombine then
 			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
 			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE);		

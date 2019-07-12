@@ -204,6 +204,11 @@ function AutoDrive:initializeAD(vehicle, dt)
         if AutoDrive:initializeADCombine(vehicle, dt) == true then
             return;
         end;
+    elseif vehicle.ad.usePathFinder ~= nil and vehicle.ad.usePathFinder == true then
+        if AutoDrive:handlePathPlanning(vehicle) == false then
+            return;
+        end;
+        vehicle.ad.usePathFinder = false;
     else
         local closest = AutoDrive:findMatchingWayPointForVehicle(vehicle);
         if vehicle.ad.skipStart == true then
@@ -243,7 +248,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.initialized = true;
         vehicle.ad.drivingForward = true;
     else
-        print("Autodrive hat ein Problem beim Initialisieren festgestellt");
+        print("Autodrive encountered a problem during initialization - shuttong down");
         AutoDrive:stopAD(vehicle); 
     end;
 end;

@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.3.5";
+AutoDrive.Version = "1.0.3.6";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -251,6 +251,7 @@ function init(self)
 	self.ad.stoppedTimer = 5000;
 	self.ad.isCloseToTrigger = false;
 	self.ad.currentTrailer = 1;
+	self.ad.usePathFinder = false;
 
 	AutoDrive.Recalculation = {};
 	

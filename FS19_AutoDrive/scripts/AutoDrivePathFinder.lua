@@ -75,7 +75,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     end;    
 end;
 
-function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)       
+function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)       
     --print("startPathPlanningToStartPosition " .. driver.ad.driverName );
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
@@ -139,8 +139,32 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine)
 	driver.ad.pf.appendWayPoints[1] = preTargetPoint;
     driver.ad.pf.appendWayPoints[2] = targetPoint;
     driver.ad.pf.appendWayPointCount = 2;
-    
+
+    if driver.ad.mode ~= AutoDrive.MODE_UNLOAD then --add waypoints to actual target
+        local nextPoints = {};
+        if driver.ad.skipStart == true then
+            driver.ad.skipStart = false;
+            if AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload] == nil then
+                return;
+            end;
+            nextPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, targetPoint.id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id);
+        else
+            if AutoDrive.mapMarker[driver.ad.mapMarkerSelected] == nil then
+                return;
+            end;
+            nextPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, targetPoint.id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].name, driver.ad.targetSelected);
+        end;
+
+        local i = 2;
+        for _,point in pairs(nextPoints) do
+            driver.ad.pf.appendWayPoints[i] = point;
+            driver.ad.pf.appendWayPointCount = i;
+            i = i+1;
+        end;
+    end;
+
     driver.ad.pf.goingToCombine = false;
+    driver.ad.pf.ignoreFruit = ignoreFruit;
 end;
 
 function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine)    
@@ -451,29 +475,38 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 --cell.hasCollision = false;
             --end;
 
-            if pf.fruitToCheck == nil then
-                --make async query until fruittype is known
-                local callBack = PathFinderCallBack:new(pf, cell);
-                FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
-                local box = {}
-                cell.hasRequested = true;
-            else
-                local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
-                if pf.fruitToCheck == 9 or pf.fruitToCheck == 22 then
-                    fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
-                end;
-                if pf.fieldArea ~= nil then
-                    cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
+            if pf.ignoreFruit ~= nil and pf.ignoreFruit == false then
+                if pf.fruitToCheck == nil then
+                    --make async query until fruittype is known
+                    local callBack = PathFinderCallBack:new(pf, cell);
+                    FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
+                    local box = {}
+                    cell.hasRequested = true;
                 else
-                    cell.isRestricted = fruitValue > 50;
-                end;
-                cell.hasFruit = cell.isRestricted;
+                    local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+                    if pf.fruitToCheck == 9 or pf.fruitToCheck == 22 then
+                        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+                    end;
+                    if pf.fieldArea ~= nil then
+                        cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
+                    else
+                        cell.isRestricted = fruitValue > 50;
+                    end;
+                    cell.hasFruit = cell.isRestricted;
 
-                --Allow fruit in the first few grid cells
-                if (((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 2 then
-                    cell.isRestricted = false;
+                    --Allow fruit in the first few grid cells
+                    if (((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 2 then
+                        cell.isRestricted = false;
+                    end;
+                    cell.hasInfo = true;
                 end;
+            else
                 cell.hasInfo = true;
+                cell.isRestricted = false;
+            end;
+
+            if pf.driver.ad.currentCombine == nil then
+                return;
             end;
 
             local boundingBox = {};
@@ -489,7 +522,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             boundingBox[4] ={ 	x = corner4X,
                                 y = 0,
                                 z = corner4Z; };
-
+            
             for _,other in pairs(g_currentMission.vehicles) do
                 if other ~= pf.driver and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other)) then
                     if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
@@ -575,11 +608,7 @@ function AutoDrivePathFinder:createWayPoints(pf)
 
     index = index + ADTableLength(pf.chainStartToTarget);
 
-	if pf.appendWayPointCount ~= nil then
-		for i=1, pf.appendWayPointCount, 1 do
-			pf.wayPoints[index+i] = pf.appendWayPoints[i];
-		end;
-    end;
+	
     
     --print("Found path!");
     --DebugUtil.printTableRecursively(pf.wayPoints, ":::",0,1);
@@ -587,6 +616,12 @@ function AutoDrivePathFinder:createWayPoints(pf)
     AutoDrivePathFinder:smoothResultingPPPath(pf);
     if AutoDrive:getSetting("smoothField") == true then
         AutoDrivePathFinder:smoothResultingPPPath_Refined(pf);
+    end;
+
+    if pf.appendWayPointCount ~= nil then
+		for i=1, pf.appendWayPointCount, 1 do
+			pf.wayPoints[ADTableLength(pf.wayPoints)+1] = pf.appendWayPoints[i];
+		end;
     end;
 end;
 
