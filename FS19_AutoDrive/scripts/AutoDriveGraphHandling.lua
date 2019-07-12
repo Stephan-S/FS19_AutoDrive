@@ -341,7 +341,7 @@ function AutoDrive:getDriveTimeForWaypoints(wps, currentWaypoint, maxDrivingSpee
 		totalTime = totalTime + AutoDrive:getDriveTimeBetweenNodes(wps[currentWaypoint].id, wps[currentWaypoint+1].id, nil , maxDrivingSpeed, true); --first segment, only 2 points, no angle
 		currentWaypoint = currentWaypoint + 1;
 	end;
-	while wps ~= nil and currentWaypoint ~= nil and wps[currentWaypoint+1] ~= nil and wps[currentWaypoint-1] ~= nil do
+	while wps ~= nil and wps[currentWaypoint-1] ~= nil and currentWaypoint ~= nil and wps[currentWaypoint+1] ~= nil do
 		if wps[currentWaypoint] ~= nil then
 			totalTime = totalTime + AutoDrive:getDriveTimeBetweenNodes(wps[currentWaypoint].id, wps[currentWaypoint+1].id, wps[currentWaypoint-1].id, maxDrivingSpeed, true); --continuous segments, 3 points for angle
 		end;
