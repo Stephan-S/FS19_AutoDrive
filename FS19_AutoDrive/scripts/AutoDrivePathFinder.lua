@@ -1,7 +1,7 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 400;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
-AutoDrive.PATHFINDER_START_DISTANCE = 5;
+AutoDrive.PATHFINDER_START_DISTANCE = 15;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
 AutoDrive.PP_RIGHT = 2;
@@ -452,7 +452,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
 
             local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
             local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-            local shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X/2,2.5,AutoDrive.PP_CELL_Z/2, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+            local shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X/2,2.7,AutoDrive.PP_CELL_Z/2, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             cell.hasCollision = (shapes > 0);
 
             local previousCell = cell.incoming
@@ -718,9 +718,9 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             local corner4Z = nodeAhead.z + math.sin(rightAngle) * sideLength;
 
             local y = worldPos.y;
-            local shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,length, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+            local shapes = overlapBox(worldPos.x + vectorX/2,y,worldPos.z + vectorZ/2, 0,angleRad,0, AutoDrive.PP_CELL_X,2.7,length, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             hasCollision = hasCollision or (shapes > 0);
-            shapes = overlapBox(worldPos.x,y,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X,5,length, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
+            shapes = overlapBox(worldPos.x + vectorX/2,y,worldPos.z + vectorZ/2, 0,angleRad,0, AutoDrive.PP_CELL_X,2.7,length, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
             hasCollision = hasCollision or (shapes > 0);
             
             if (index > 1) then
