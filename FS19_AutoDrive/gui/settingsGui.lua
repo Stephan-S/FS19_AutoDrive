@@ -153,3 +153,15 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingRecalculationSpeed(element)
     self:onCreateAutoDriveSetting(element, "recalculationSpeed");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingShowNextPath(element)
+    self:onCreateAutoDriveSetting(element, "showNextPath");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingAvoidFruit(element)
+    self:onCreateAutoDriveSetting(element, "avoidFruit");
+end;
+
+function adSettingsGui:onCreateAutoDriveSettingPathFinderTime(element)
+    self:onCreateAutoDriveSetting(element, "pathFinderTime");
+end;

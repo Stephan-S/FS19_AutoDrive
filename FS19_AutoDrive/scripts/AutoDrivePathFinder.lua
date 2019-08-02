@@ -1,5 +1,5 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
-AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 300;
+AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 400;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 25;
 AutoDrive.PATHFINDER_START_DISTANCE = 5;
 AutoDrive.PP_UP = 0;
@@ -211,7 +211,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
         return;
     end;
 
-    if pf.steps > AutoDrive.MAX_PATHFINDER_STEPS_TOTAL then
+    if pf.steps > (AutoDrive.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive:getSetting("pathFinderTime")) then
         if not pf.fallBackMode then --look for path through fruit
             pf.fallBackMode = true;
             pf.steps = 0;
@@ -475,7 +475,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 --cell.hasCollision = false;
             --end;
 
-            if pf.ignoreFruit ~= nil and pf.ignoreFruit == false then
+            if (((pf.ignoreFruit == nil) or (pf.ignoreFruit ~= nil and pf.ignoreFruit == false)) and AutoDrive:getSetting("avoidFruit")) then
                 if pf.fruitToCheck == nil then
                     --make async query until fruittype is known
                     local callBack = PathFinderCallBack:new(pf, cell);

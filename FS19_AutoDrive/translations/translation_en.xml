@@ -94,5 +94,11 @@
 		<text name="gui_ad_smoothField_tooltip"			     text="Generated field courses to and from combine will be smoothed (experimental)" />	
 		<text name="gui_ad_recalculationSpeed"				 text="Calculation speed" />	
 		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Higher values will lead to laggy gameplay while recalculating" />	
+		<text name="gui_ad_showNextPath"				 	 text="Show next path" />	
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="En/Disable the display of the next two waypoints" />	
+		<text name="gui_ad_avoidFruit"				 	     text="Avoid fruit" />	
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Combine unloader tries to avoid fruit destruction" />	
+		<text name="gui_ad_pathFinderTime"				 	 text="Pathfinder-time (max)" />	
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Determines how long pathfinding algorithm is allowed to seach for collision free path to/from combine. (Potential fps-impact)" />
 	</texts>
 </l10n>

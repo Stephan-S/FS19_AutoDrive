@@ -180,6 +180,36 @@ AutoDrive.settings.recalculationSpeed = {
     translate= false
 };
 
+AutoDrive.settings.showNextPath = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 2,                                    
+    current= 2,                                             
+    text= "gui_ad_showNextPath",                                    
+    tooltip= "gui_ad_showNextPath_tooltip",
+    translate= true
+};
+
+AutoDrive.settings.avoidFruit = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 2,                                    
+    current= 2,                                             
+    text= "gui_ad_avoidFruit",                                    
+    tooltip= "gui_ad_avoidFruit_tooltip",
+    translate= true
+};
+
+AutoDrive.settings.pathFinderTime = {  
+    values= {0.25, 0.5, 1.0, 1.5, 2, 3, 4, 5, 10},                                    
+    texts= {"x0.25", "x0.5", "x1.0", "x1.5", "x2", "x3", "x4", "x5", "x10"},                                    
+    default= 3,                                    
+    current= 3,                                    
+    text= "gui_ad_pathFinderTime",                                    
+    tooltip= "gui_ad_pathFinderTime_tooltip",
+    translate= false
+};
+
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

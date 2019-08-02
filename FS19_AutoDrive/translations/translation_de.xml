@@ -94,5 +94,11 @@
 		<text name="gui_ad_smoothField_tooltip"			     text="Strecken zu/vom Drescher werden geglättet - Experimental" />	
 		<text name="gui_ad_recalculationSpeed"				 text="Berechnungsgeschwindigkeit" />	
 		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Höhere Werte können zu einem ruckelnden Spiel führen" />	
+		<text name="gui_ad_showNextPath"				 	 text="Zeige nächsten Pfad" />	
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="Anzeige der nächsten 2 Wegpunkte an/ausschalten" />	
+		<text name="gui_ad_avoidFruit"				 	     text="Fruchtumfahrung" />	
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Drescherabfahrer versucht möglichst die Frucht zu umfahren" />	
+		<text name="gui_ad_pathFinderTime"				 	 text="Pfadfindungs-Dauer (max)" />	
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Legt fest wie lange ein Abfahrer nach einer kollisionsfreien Strecke suchen darf. Hohe Werte können das Spiel verlangsamen" />	
 	</texts>
 </l10n>

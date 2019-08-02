@@ -143,7 +143,28 @@
 				<GuiElement type="text" profile="multiTextOptionSettingsText" />
 				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="recalculationSpeed" />
 				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
+			</GuiElement>		
+			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSettingShowNextPath" toolTipElementId="ingameMenuHelpBoxText" toolTipText="$l10n_gui_ad_showNextPath_tooltip">
+				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+				<GuiElement type="text" profile="multiTextOptionSettingsText" />
+				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="showNextPath" />
+				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+			</GuiElement>		
+			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSettingAvoidFruit" toolTipElementId="ingameMenuHelpBoxText" toolTipText="$l10n_gui_ad_avoidFruit_tooltip">
+				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+				<GuiElement type="text" profile="multiTextOptionSettingsText" />
+				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="avoidFruit" />
+				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+			</GuiElement>			
+			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSettingPathFinderTime" toolTipElementId="ingameMenuHelpBoxText" toolTipText="$l10n_gui_ad_pathFinderTime_tooltip">
+				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+				<GuiElement type="text" profile="multiTextOptionSettingsText" />
+				<GuiElement type="text" profile="multiTextOptionSettingsTitle" text="pathFinderTime" />
+				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+			</GuiElement>			
 		</GuiElement>
 
 		<GuiElement type="bitmap" profile="ingameMenuHelpRowBg" position="80px 50px" id="ingameMenuHelpBox" visible="true">

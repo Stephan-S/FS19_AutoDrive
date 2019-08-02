@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.3.6";
+AutoDrive.Version = "1.0.3.7";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -412,9 +412,11 @@ function AutoDrive:onDraw()
 		end
 	end;
 	
-	if self.ad.currentWayPoint > 0 and self.ad.wayPoints ~= nil then
-		if self.ad.wayPoints[self.ad.currentWayPoint+1] ~= nil then
-			AutoDrive:drawLine(self.ad.wayPoints[self.ad.currentWayPoint], self.ad.wayPoints[self.ad.currentWayPoint+1], 1, 1, 1, 1);
+	if AutoDrive:getSetting("showNextPath") == true then
+		if self.ad.currentWayPoint > 0 and self.ad.wayPoints ~= nil then
+			if self.ad.wayPoints[self.ad.currentWayPoint+1] ~= nil then
+				AutoDrive:drawLine(self.ad.wayPoints[self.ad.currentWayPoint], self.ad.wayPoints[self.ad.currentWayPoint+1], 1, 1, 1, 1);
+			end;
 		end;
 	end;
 
