@@ -248,7 +248,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.initialized = true;
         vehicle.ad.drivingForward = true;
     else
-        print("Autodrive encountered a problem during initialization - shuttong down");
+        print("Autodrive encountered a problem during initialization - shutting down");
         AutoDrive:stopAD(vehicle); 
     end;
 end;
