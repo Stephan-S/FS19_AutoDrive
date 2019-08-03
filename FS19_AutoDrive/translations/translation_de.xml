@@ -100,5 +100,9 @@
 		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Drescherabfahrer versucht möglichst die Frucht zu umfahren" />	
 		<text name="gui_ad_pathFinderTime"				 	 text="Pfadfindungs-Dauer (max)" />	
 		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Legt fest wie lange ein Abfahrer nach einer kollisionsfreien Strecke suchen darf. Hohe Werte können das Spiel verlangsamen" />	
+		<text name="gui_ad_lineHeight"				 	     text="Linienhöhe" />	
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Linienhöhe im Editormodus wahlweise überm oder unterm Traktor" />	
+		<text name="gui_ad_ground"				 	         text="Bodenhöhe" />	
+		<text name="gui_ad_aboveDriver"	     	             text="Über dem Traktor" />		
 	</texts>
 </l10n>

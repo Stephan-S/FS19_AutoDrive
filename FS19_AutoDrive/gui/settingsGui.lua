@@ -165,3 +165,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingPathFinderTime(element)
     self:onCreateAutoDriveSetting(element, "pathFinderTime");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingLineHeight(element)
+    self:onCreateAutoDriveSetting(element, "lineHeight");
+end;

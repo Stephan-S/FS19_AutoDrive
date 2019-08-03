@@ -39,6 +39,23 @@ function AutoDrive:handleTrailers(vehicle, dt)
             end; 
         end;
 
+        if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE and leftCapacity == 0 then
+            vehicle.ad.isPaused = false;
+            local closest = AutoDrive:findClosestWayPoint(vehicle);
+            vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+            vehicle.ad.wayPointsChanged = true;
+            vehicle.ad.currentWayPoint = 1;
+
+            vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+            vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+            if vehicle.ad.currentCombine ~= nil then
+                vehicle.ad.currentCombine.ad.currentDriver = nil;
+                vehicle.ad.currentCombine = nil;
+            end;
+            AutoDrive.waitingUnloadDrivers[vehicle] = nil;
+            vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+        end;
+
         --check distance to unloading destination, do not unload too far from it. You never know where the tractor might already drive over an unloading trigger before that
         local x,y,z = getWorldTranslation(vehicle.components[1].node);
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];        

@@ -210,6 +210,16 @@ AutoDrive.settings.pathFinderTime = {
     translate= false
 };
 
+AutoDrive.settings.lineHeight = {  
+    values= {0, 4},                                    
+    texts= {"gui_ad_ground", "gui_ad_aboveDriver"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_lineHeight",                                    
+    tooltip= "gui_ad_lineHeight_tooltip",
+    translate= true
+};
+
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

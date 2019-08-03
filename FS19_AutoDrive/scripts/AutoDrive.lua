@@ -533,7 +533,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
 		
 		if vehicle.ad.showClosestPoint == true then					
-			AutoDrive:drawLine(AutoDrive:createVector(x1,y1+4,z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1);
+			AutoDrive:drawLine(AutoDrive:createVector(x1,y1+3.5-AutoDrive:getSetting("lineHeight"),z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1);
 		end;
 	end;
 
@@ -542,7 +542,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
 		if vehicle.ad.showSelectedDebugPoint == true then
 			if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
-				AutoDrive:drawLine(AutoDrive:createVector(x1,y1+4,z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], 1, 1, 0, 1);
+				AutoDrive:drawLine(AutoDrive:createVector(x1,y1+3.5-AutoDrive:getSetting("lineHeight"),z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], 1, 1, 0, 1);
 			end;
 		end;
 	end;
