@@ -3,7 +3,7 @@
 	<translationContributors>Gonimy_Vetrom</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="НЕИЗВЕСТНО" />
-		<text name="input_ADToggleHud"						 text="AD: Включение HUD" />
+		<text name="input_ADToggleHud"						 text="AD: Отображение HUD" />
 		<text name="input_ADToggleMouse"					 text="AD: Отображение курсора" />
 		<text name="input_ADEnDisable"						 text="AD: Вкл/Выкл" />
 		<text name="input_ADSilomode"						 text="AD: Изменить режим" />
@@ -94,5 +94,15 @@
 		<text name="gui_ad_smoothField_tooltip"				 text="Сгенерированные полевые курсы к комбайну и обратно будут сглаживаться (экспериментальная функция)" />
 		<text name="gui_ad_recalculationSpeed"				 text="Скорость расчета" />
 		<text name="gui_ad_recalculationSpeed_tooltip"		 text="Более высокие значения приведут к замедлению игрового процесса при пересчете" />
+		<text name="gui_ad_showNextPath"					 text="Показать следующий путь" />
+		<text name="gui_ad_showNextPath_tooltip"			 text="Вкл/Отключить отображение следующих двух путевых точек" />	
+		<text name="gui_ad_avoidFruit"						 text="Избегать посевов" />
+		<text name="gui_ad_avoidFruit_tooltip"				 text="Разгружающий комбайн будет пытается избежать вытаптывания культур" />	
+		<text name="gui_ad_pathFinderTime"					 text="Время поиска пути (макс)" />
+		<text name="gui_ad_pathFinderTime_tooltip"			 text="Определяет, как долго алгоритму нахождения пути разрешается искать путь без столкновений к/от комбайна (большие значения могут влиять на FPS)" />
+		<text name="gui_ad_lineHeight"						 text="Высота линии" />
+		<text name="gui_ad_lineHeight_tooltip"				 text="Высота линии в режиме редактора. На уровне земли или над трактором" />
+		<text name="gui_ad_ground"							 text="На уровне земли" />
+		<text name="gui_ad_aboveDriver"						 text="Над трактором" />
 	</texts>
 </l10n>
