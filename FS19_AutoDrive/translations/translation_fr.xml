@@ -94,5 +94,15 @@
 		<text name="gui_ad_smoothField_tooltip"			     text="Les itinéraires vers/depuis les moissoneuses sont lissés - Expérimental" />
 		<text name="gui_ad_recalculationSpeed"				 text="Vitesse de calcul" />
 		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Des valeurs plus élevées peuvent conduire à un jeu saccadé" />
+		<text name="gui_ad_showNextPath"				 	 text="Montrer chemin suivant" />
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="Activer/Désactiver l'affichage des 2 prochains points de passage" />
+		<text name="gui_ad_avoidFruit"				 	     text="Éviter les cultures" />
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Les déchargements de moissonneuses tentent d'éviter les cultures autant que possible" />
+		<text name="gui_ad_pathFinderTime"				 	 text="Temps de recherche (max)" />
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Détermine combien de temps l'algorithme est autorisé à rechercher un itinéraire sans collision depuis/vers la moisonneuse. (Des valeurs élevées peuvent ralentir le jeu)" />
+		<text name="gui_ad_lineHeight"				 	     text="Hauteur de ligne" />
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Hauteur de ligne en mode d'édition, au-dessus ou au-dessous du tracteur" />
+		<text name="gui_ad_ground"				 	         text="Niveau du sol" />
+		<text name="gui_ad_aboveDriver"	     	             text="Au-dessus du tracteur" />
 	</texts>
 </l10n>
