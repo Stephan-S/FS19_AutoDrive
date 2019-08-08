@@ -60,7 +60,7 @@ function AutoDrive:handleFillables(vehicle, dt)
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;
                             vehicle.ad.isLoading = false;
-                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) and (not vehicle.ad.trailerStartedLoadingAtTrigger) then -- and  and vehicle.ad.isLoading == false                      
+                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) and ((not vehicle.ad.trailerStartedLoadingAtTrigger) or trigger ~= vehicle.ad.trigger) then -- and  and vehicle.ad.isLoading == false                      
                             trigger.autoStart = true
                             trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
                             trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
@@ -73,6 +73,35 @@ function AutoDrive:handleFillables(vehicle, dt)
                             vehicle.ad.startedLoadingAtTrigger = true;
                             vehicle.ad.trailerStartedLoadingAtTrigger = true;
                             vehicle.ad.trigger = trigger;
+                        elseif activate == true and not trigger.isLoading and leftCapacity > 0 and not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and trigger:getIsActivatable(trailer) and ((not vehicle.ad.trailerStartedLoadingAtTrigger) or trigger ~= vehicle.ad.trigger) then -- and  and vehicle.ad.isLoading == false                      
+                            local storedFillType = vehicle.ad.unloadFillTypeIndex;
+                            local matches = false;
+                            if storedFillType == 13 or storedFillType == 43 then
+                                if storedFillType == 13 then
+                                    vehicle.ad.unloadFillTypeIndex = 43;
+                                else
+                                    vehicle.ad.unloadFillTypeIndex = 13;
+                                end;
+                                
+                                matches = AutoDrive:fillTypesMatch(vehicle, trigger, trailer);
+                            end;
+
+                            if matches == true then
+                                trigger.autoStart = true
+                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex   
+                                trigger:onFillTypeSelection(vehicle.ad.unloadFillTypeIndex);
+                                trigger.selectedFillType = vehicle.ad.unloadFillTypeIndex 
+                                g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
+                                trigger.autoStart = false
+
+                                vehicle.ad.isPaused = true;
+                                vehicle.ad.isLoading = true;
+                                vehicle.ad.startedLoadingAtTrigger = true;
+                                vehicle.ad.trailerStartedLoadingAtTrigger = true;
+                                vehicle.ad.trigger = trigger;
+                            end;
+
+                            vehicle.ad.unloadFillTypeIndex = storedFillType;
                         elseif (leftCapacity == 0 or (leftCapacityTrailer == 0 and activate)) and vehicle.ad.isPaused then
                             vehicle.ad.isPaused = false;
                             vehicle.ad.isUnloading = false;

@@ -81,6 +81,7 @@ function AutoDrive:startAD(vehicle)
 	vehicle.ad.driverOnTheWay = false;
 	vehicle.ad.tryingToCallDriver = false;	
 	vehicle.ad.currentTrailer = 1;
+	vehicle.ad.loopCounterCurrent = 0;
 end;
 
 function AutoDrive:stopAD(vehicle)

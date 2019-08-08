@@ -32,7 +32,11 @@
 		<text name="input_ADOpenGUI"						 text="AD: Menü öffnen" />
 		<text name="input_ADNameDriver"						 text="AD: Vergebe Fahrer Namen" />
 		<text name="input_ADCallDriver"						 text="AD: Abfahrer rufen" />
-		<text name="input_ADGoToVehicle"					 text="AD: Zu angekommenem Fahrzeug wechseln" />>
+		<text name="input_ADGoToVehicle"					 text="AD: Zu angekommenem Fahrzeug wechseln" />
+		<text name="input_ADIncLoopCounter"					 text="AD: Anzahl Wiederholungen erhöhen" />
+		<text name="input_ADParkVehicle"					 text="AD: Fahrzeug parken" />		
+		<text name="AD_parkVehicle_noPosSet"		         text="Kein Parkplatz zugewiesen. Bitte mit rechter Maustaste auf Button festlegen. (Aktuelles Ziel)" />
+		<text name="AD_parkVehicle_selected"		         text="Als Parkplatz zugewiesen: " />
 		<text name="AD_Driver_of"							 text="Der Fahrer von" />
 		<text name="AD_has_reached"							 text="ist angekommen bei" />
 		<text name="AD_got_stuck"							 text="hat sich fest gefahren" />
@@ -104,5 +108,7 @@
 		<text name="gui_ad_lineHeight_tooltip"	     	     text="Linienhöhe im Editormodus wahlweise überm oder unterm Traktor" />	
 		<text name="gui_ad_ground"				 	         text="Bodenhöhe" />	
 		<text name="gui_ad_aboveDriver"	     	             text="Über dem Traktor" />		
+		<text name="gui_ad_allowConsoleStyle"				 text="Zieleingabe erlauben" />	
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Erweiterte Zieleingabe per Tastatur erlauben - Standard: Linke Maustaste auf Zielnamen" />
 	</texts>
 </l10n>

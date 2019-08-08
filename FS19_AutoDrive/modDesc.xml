@@ -31,7 +31,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 ]]>
 		</ru>
 	</description>
-	<version>1.0.3.8</version>
+	<version>1.0.3.9</version>
 	<multiplayer supported="true"/>
 	<iconFilename>store.dds</iconFilename>
     <extraSourceFiles>
@@ -67,7 +67,8 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="ADOpenGUI" 					category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADCallDriver" 				category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADGoToVehicle" 				category="VEHICLE" ignoreComboMask="false"/>	
-		<action name="ADNameDriver" 				category="VEHICLE" ignoreComboMask="false"/>		
+		<action name="ADNameDriver" 				category="VEHICLE" ignoreComboMask="false"/>
+		<action name="ADIncLoopCounter"				category="VEHICLE" ignoreComboMask="false"/>		
 	</actions>
 
 	<inputBinding>

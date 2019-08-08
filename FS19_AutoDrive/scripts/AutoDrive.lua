@@ -89,6 +89,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if AutoDrive_printedDebug ~= true then
@@ -325,20 +326,51 @@ function init(self)
 	self.ad.pullDownList.posY = 0;
 	self.ad.pullDownList.width = 0;
 	self.ad.pullDownList.height = 0;
+	self.ad.lastMouseState = false;
+	self.ad.loopCounterSelected = 0;
+	self.ad.loopCounterCurrent = 0;
+	self.ad.parkDestination = -1;
 end;
 
 function AutoDrive:onLeaveVehicle()	
 	local storedshowingHud = self.ad.showingHud;
-	local storedMouse = self.ad.showingMouse;
-	if (AutoDrive.showMouse) then
-		AutoDrive.Hud:toggleMouse(self);
+	if g_inputBinding:getShowMouseCursor() == true then
+		g_inputBinding:setShowMouseCursor(false);
+		AutoDrive:onToggleMouse(self);
 	end;
 	self.ad.showingHud = storedshowingHud
-	self.ad.showingMouse = storedMouse;
+end;
+
+function AutoDrive:onToggleMouse(vehicle) 
+	if g_inputBinding:getShowMouseCursor() == true then
+		if vehicle.spec_enterable ~= nil then
+			if vehicle.spec_enterable.cameras ~= nil then
+				for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
+					camera.allowTranslation = false;
+					camera.isRotatable = false;
+				end;
+			end;
+		end;
+	else
+		if vehicle.spec_enterable ~= nil then
+			if vehicle.spec_enterable.cameras ~= nil then
+				for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
+					camera.allowTranslation = true;
+					camera.isRotatable = true;
+				end;
+			end;
+		end;
+	end;
+
+	vehicle.ad.lastMouseState = g_inputBinding:getShowMouseCursor();
 end;
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 	local vehicle = g_currentMission.controlledVehicle;
+
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.lastMouseState ~= g_inputBinding:getShowMouseCursor() then
+		AutoDrive:onToggleMouse(vehicle);
+	end;
 
 	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button);
@@ -407,9 +439,6 @@ function AutoDrive:onDraw()
 		if self.ad.showingHud ~= AutoDrive.Hud.showHud then
 			AutoDrive.Hud:toggleHud(self);
 		end;
-		if self.ad.showingMouse ~= AutoDrive.showMouse then
-			AutoDrive.Hud:toggleMouse(self);
-		end
 	end;
 	
 	if AutoDrive:getSetting("showNextPath") == true then
@@ -601,6 +630,14 @@ function AutoDrive:onPostLoad(savegame)
 			if driverName ~= nil then
 				self.ad.driverName = driverName;
 			end;  
+			local selectedLoopCounter = getXMLInt(xmlFile, key.."#loopCounterSelected");
+			if selectedLoopCounter ~= nil then
+				self.ad.loopCounterSelected = selectedLoopCounter;
+			end;  
+			local parkDestination = getXMLInt(xmlFile, key.."#parkDestination");
+			if parkDestination ~= nil then
+				self.ad.parkDestination = parkDestination;
+			end; 
     end
 	end;
 end;
@@ -612,6 +649,8 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 	setXMLInt(xmlFile, key.."#mapMarkerSelected_Unload", 	self.ad.mapMarkerSelected_Unload);
 	setXMLInt(xmlFile, key.."#unloadFillTypeIndex", 		self.ad.unloadFillTypeIndex);
 	setXMLString(xmlFile, key.."#driverName", 				self.ad.driverName);
+	setXMLInt(xmlFile, key.."#loopCounterSelected", 		self.ad.loopCounterSelected);
+	setXMLInt(xmlFile, key.."#parkDestination", 		self.ad.parkDestination);
 end
 
 function AutoDrive.zoomSmoothly(self, superFunc, offset)

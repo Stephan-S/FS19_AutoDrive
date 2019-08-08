@@ -157,7 +157,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	
 	self:AddButton("input_start_stop", "on.dds", "off.dds", "input_ADEnDisable", false, true);
 	self:AddButton("input_previousTarget", "previousTarget.dds", "previousTarget.dds", "input_ADSelectPreviousTarget", true, true);
-	self:AddButton("input_nextTarget", "nextTarget.dds", "nextTarget.dds","input_ADSelectTarget", true, true);
+	self:AddButton("input_nextTarget", "nextTarget.dds", "nextTarget.dds","input_ADSelectTarget", true, true);	
 	self:AddButton("input_record", "record_on.dds", "record_off.dds","input_ADRecord", false, true);
 	self:AddButton("input_silomode", "silomode_on.dds", "silomode_off.dds","input_ADSilomode", false, true);
 	self:AddButton("input_decreaseSpeed", "decreaseSpeed.dds", "decreaseSpeed.dds","input_AD_Speed_down", true, true);
@@ -166,8 +166,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_debug", "debug_on.dds", "debug_off.dds","input_ADActivateDebug", false, true);
 
 	self:AddButton("input_recalculate", "recalculate.dds", "recalculate_on.dds","input_ADDebugForceUpdate", true, false);
-	self:AddButton("input_previousTarget_Unload", "previousTarget_Unload.dds", "previousTarget_Unload.dds", "input_ADSelectPreviousTargetUnload", true, true);
-	self:AddButton("input_nextTarget_Unload", "nextTarget_Unload.dds", "nextTarget_Unload.dds","input_ADSelectTargetUnload", true, true);
+	--self:AddButton("input_previousTarget_Unload", "previousTarget_Unload.dds", "previousTarget_Unload.dds", "input_ADSelectPreviousTargetUnload", true, true);
+	self:AddButton("input_parkVehicle", "park.dds", "park.dds","input_ADParkVehicle", false, true, "input_setParkDestination");
+	self:AddButton("input_incLoopCounter", "loop_0.dds", "loop_1.dds","input_ADIncLoopCounter", false, true, "input_decLoopCounter");
+	--self:AddButton("input_nextTarget_Unload", "nextTarget_Unload.dds", "nextTarget_Unload.dds","input_ADSelectTargetUnload", true, true);
 	self:AddButton("input_showNeighbor", "showNeighbor_on.dds", "showNeighbor_off.dds","input_ADDebugSelectNeighbor", false, false);
 	self:AddButton("input_nextNeighbor", "nextNeighbor.dds", "nextNeighbor.dds","input_ADDebugChangeNeighbor", true, false);
 	self:AddButton("input_toggleConnection", "toggleConnection.dds", "toggleConnection.dds","input_ADDebugCreateConnection", true, false);
@@ -176,7 +178,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_exportRoutes", "save_symbol.dds", "save_symbol.dds","input_AD_export_routes", true, false);
 end;
 
-function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible)	
+function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible, secondaryName)	
 	self.buttonCounter = self.buttonCounter + 1;	
 	self.colCurrent = self.buttonCounter % self.cols;
 	if self.colCurrent == 0 then
@@ -193,6 +195,7 @@ function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible)
 	self.Buttons[self.buttonCounter].img_on = AutoDrive.directory .. "textures/" .. img;
 	self.Buttons[self.buttonCounter].isVisible = visible;
 	self.Buttons[self.buttonCounter].toolTip = string.sub(g_i18n:getText(toolTip),4,string.len(g_i18n:getText(toolTip)))
+	self.Buttons[self.buttonCounter].secondaryName = secondaryName;
 	
 	if img2 ~= nil then
 		self.Buttons[self.buttonCounter].img_off = AutoDrive.directory .. "textures/" .. img2;
@@ -208,6 +211,16 @@ function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible)
 	end;
 	if name == "input_record" then
 		self.Buttons[self.buttonCounter].img_dual = AutoDrive.directory .. "textures/" .. "record_dual.dds";
+	end;
+	if name == "input_incLoopCounter" then
+		self.Buttons[self.buttonCounter].img_3 =  AutoDrive.directory .. "textures/" .. "loop_2.dds";
+		self.Buttons[self.buttonCounter].img_4 =  AutoDrive.directory .. "textures/" .. "loop_3.dds";
+		self.Buttons[self.buttonCounter].img_5 =  AutoDrive.directory .. "textures/" .. "loop_4.dds";
+		self.Buttons[self.buttonCounter].img_6 =  AutoDrive.directory .. "textures/" .. "loop_5.dds";
+		self.Buttons[self.buttonCounter].img_7 =  AutoDrive.directory .. "textures/" .. "loop_6.dds";
+		self.Buttons[self.buttonCounter].img_8 =  AutoDrive.directory .. "textures/" .. "loop_7.dds";
+		self.Buttons[self.buttonCounter].img_9 =  AutoDrive.directory .. "textures/" .. "loop_8.dds";
+		self.Buttons[self.buttonCounter].img_10 =  AutoDrive.directory .. "textures/" .. "loop_9.dds";
 	end;
 	
 	if on then
@@ -356,6 +369,36 @@ function AutoDriveHud:updateButtons(vehicle)
 			end;
 
 			button.ov = Overlay:new(button.img_active,button.posX ,button.posY , self.buttonWidth, self.buttonHeight);
+		end;
+
+		if button.name == "input_incLoopCounter" then
+			local buttonImg = "";
+			
+			if vehicle.ad.loopCounterSelected == 0 then 
+				button.img_active = button.img_on;
+			elseif vehicle.ad.loopCounterSelected == 1 then
+				button.img_active = button.img_off;
+			elseif vehicle.ad.loopCounterSelected == 2 then
+				button.img_active = button.img_3;
+			elseif vehicle.ad.loopCounterSelected == 3 then
+				button.img_active = button.img_4;
+			elseif vehicle.ad.loopCounterSelected == 4 then
+				button.img_active = button.img_5;
+			elseif vehicle.ad.loopCounterSelected == 5 then
+				button.img_active = button.img_6;
+			elseif vehicle.ad.loopCounterSelected == 6 then
+				button.img_active = button.img_7;
+			elseif vehicle.ad.loopCounterSelected == 7 then
+				button.img_active = button.img_8;
+			elseif vehicle.ad.loopCounterSelected == 8 then
+				button.img_active = button.img_9;
+			elseif vehicle.ad.loopCounterSelected == 9 then
+				button.img_active = button.img_10;
+			else
+				button.img_active = button.img_off;
+			end;
+			
+			button.ov = Overlay:new(button.img_active,button.posX ,button.posY , self.buttonWidth, self.buttonHeight);					
 		end;
 	end;
 
@@ -665,45 +708,12 @@ function AutoDriveHud:toggleHud(vehicle)
 		self.showHud = true;		
 		vehicle.ad.showingHud = true;
     else
-		if AutoDrive.showMouse then
-			AutoDrive.Hud:toggleMouse(vehicle);
-		end;
 		self.showHud = false;
 		vehicle.ad.showingHud = false;
+		g_inputBinding:setShowMouseCursor(false);
 	end;
 	
 	AutoDrive.showingHud = self.showHud;
-end;
-
-function AutoDriveHud:toggleMouse(vehicle)
-    if self.showHud == true then
-        if AutoDrive.showMouse == false then
-			AutoDrive.showMouse = true;		
-			vehicle.ad.showingMouse = true;			            
-            g_inputBinding:setShowMouseCursor(true);
-            vehicle.ad.camerasBackup = {};
-            if vehicle.spec_enterable ~= nil then
-                if vehicle.spec_enterable.cameras ~= nil then
-                    for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
-                        camera.allowTranslation = false;
-                        camera.isRotatable = false;
-                    end;
-                end;
-            end;
-        else
-            g_inputBinding:setShowMouseCursor(false);
-            AutoDrive.showMouse = false;	
-			vehicle.ad.showingMouse = false;				            
-            if vehicle.spec_enterable ~= nil then
-                if vehicle.spec_enterable.cameras ~= nil then
-                    for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
-                        camera.allowTranslation = true;
-                        camera.isRotatable = true;
-                    end;
-                end;
-            end;
-        end;
-    end;
 end;
 
 function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
@@ -711,7 +721,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	if pullDownHandledEvent then
 		return;
 	end;
-	if AutoDrive.showMouse then
+	local mouseActiveForAutoDrive = (g_gui.currentGui == nil) and (g_inputBinding:getShowMouseCursor() == true);
+	if mouseActiveForAutoDrive then
         local buttonHovered = false;
         for _,button in pairs(self.Buttons) do
 			if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible then
@@ -737,7 +748,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 		
-    if AutoDrive.showMouse and button == 1 and isDown then        
+    if mouseActiveForAutoDrive and button == 1 and isDown then        
         for _,button in pairs(self.Buttons) do            
             if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible then
                 AutoDrive:InputHandling(vehicle, button.name);
@@ -784,14 +795,14 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 	
-	if AutoDrive.showMouse and button == 2 and isDown then		
+	if mouseActiveForAutoDrive and button == 2 and isDown then		
 		local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.Background.destination.posY
         local height = self.buttonHeight;
         local width = self.Background.width - self.Background.destination.width;     
-					
+						
 		if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then			
-			if vehicle.ad.choosingDestination == false then
+			if vehicle.ad.choosingDestination == false and AutoDrive:getSetting("allowConsoleStyle") then
                 vehicle.ad.choosingDestination = true
                 g_currentMission.isPlayerFrozen = true;
 				vehicle.isBroken = true;
@@ -808,7 +819,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
         adPosY = self.Background.unloadOverlay.posY;
         height = self.buttonHeight;
         width = (self.Background.width - self.Background.destination.width);
-        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) then
+        if posX > (adPosX) and posX < (adPosX + width) and posY > (adPosY) and posY < (adPosY + height) and AutoDrive:getSetting("allowConsoleStyle")  then
 			if vehicle.ad.choosingDestinationUnload == false then
                 vehicle.ad.choosingDestinationUnload = true
                 g_currentMission.isPlayerFrozen = true;
@@ -823,6 +834,14 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 
+	if mouseActiveForAutoDrive and button == 3 and isDown then	
+		for _,button in pairs(self.Buttons) do            
+            if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible and button.secondaryName ~= nil then
+                AutoDrive:InputHandling(vehicle, button.secondaryName);
+            end;            
+		end;
+	end;
+	
 	local mouseWheelActive = false;
 	local adPosX = self.posX + self.Background.destination.width;
 	local adPosY = self.Background.destination.posY;
@@ -837,7 +856,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		mouseWheelActive = true;
 	end;
 
-	if AutoDrive.showMouse and button == 4 and isDown then     
+	if mouseActiveForAutoDrive and button == 4 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.Background.destination.posY;
         local height = self.buttonHeight;
@@ -847,7 +866,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 
-	if AutoDrive.showMouse and button == 5 and isDown then     
+	if mouseActiveForAutoDrive and button == 5 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.Background.destination.posY;
         local height = self.buttonHeight;
@@ -856,7 +875,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive:InputHandling(vehicle, "input_nextTarget");
 		end;
 	end;
-	if AutoDrive.showMouse and button == 4 and isDown then     
+	if mouseActiveForAutoDrive and button == 4 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.Background.unloadOverlay.posY;
         local height = self.buttonHeight;
@@ -871,7 +890,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 
-	if AutoDrive.showMouse and button == 5 and isDown then     
+	if mouseActiveForAutoDrive and button == 5 and isDown then     
         local adPosX = self.posX + self.Background.destination.width;
         local adPosY = self.Background.unloadOverlay.posY;
         local height = self.buttonHeight;
@@ -931,7 +950,7 @@ function AutoDriveHud:handleMouseEventForPullDownList(vehicle, posX, posY, isDow
 	if vehicle == nil or vehicle.ad == nil then
 		return false;
 	end;
-	if vehicle.ad.pullDownList.active == false or AutoDrive.showMouse == false then
+	if vehicle.ad.pullDownList.active == false or g_inputBinding:getShowMouseCursor() == false then
 		return false;
 	end;
 	local handledEvent = false;

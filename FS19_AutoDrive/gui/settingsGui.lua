@@ -169,3 +169,7 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingLineHeight(element)
     self:onCreateAutoDriveSetting(element, "lineHeight");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingAllowConsoleStyle(element)
+    self:onCreateAutoDriveSetting(element, "allowConsoleStyle");
+end;

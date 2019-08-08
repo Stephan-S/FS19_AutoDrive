@@ -29,11 +29,11 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_previousTarget_Unload");
 	end;
 
-	if actionName == "ADSelectTargetMouseWheel" and AutoDrive.showMouse then
+	if actionName == "ADSelectTargetMouseWheel" and g_inputBinding:getShowMouseCursor() then
 		AutoDrive:InputHandling(self, "input_nextTarget");
 	end;
 
-	if actionName == "ADSelectPreviousTargetMouseWheel" and AutoDrive.showMouse then
+	if actionName == "ADSelectPreviousTargetMouseWheel" and g_inputBinding:getShowMouseCursor() then
 		AutoDrive:InputHandling(self, "input_previousTarget");
 	end;
 	
@@ -70,8 +70,8 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_toggleHud");			
 	end;
 
-	if actionName == "ADToggleMouse" then
-		AutoDrive:InputHandling(self, "input_toggleMouse");
+	if actionName == "ADToggleMouse" then 
+		AutoDrive:InputHandling(self, "input_toggleMouse");			
 	end;
 
 	if actionName == "ADDebugDeleteWayPoint" then 
@@ -109,6 +109,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;
 	if actionName == 'ADNameDriver' then
 		AutoDrive:InputHandling(self, 'input_nameDriver');
+	end;	
+	if actionName == 'ADIncLoopCounter' then
+		AutoDrive:InputHandling(self, 'input_incLoopCounter');
 	end;
 end;
 
@@ -162,7 +165,11 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		if vehicle.ad.createMapPoints == false then
 			return;
 		end;
-		AutoDrive:inputCreateMapMarker(vehicle);
+		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+			return;
+		end;
+		AutoDrive:onOpenEnterTargetName();
+		--AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 
 	if input == "input_start_stop" then
@@ -196,9 +203,9 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_toggleHud" then
 		AutoDrive.Hud:toggleHud(vehicle);				
 	end;
-
+	
 	if input == "input_toggleMouse" then
-		AutoDrive.Hud:toggleMouse(vehicle);				
+		g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor());
 	end;
 	
 	if input == "input_openGUI" then
@@ -207,12 +214,49 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 
 	if input == "input_nameDriver" then
 		AutoDrive:onOpenEnterDriverName();
-	end;
-	
+	end;	
 
 	if input == "input_goToVehicle" then
 		AutoDrive:inputSwitchToArrivedVehicle();
 	end;
+
+	if input == "input_incLoopCounter" then
+		vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected + 1) % 10;
+	end;
+
+	if input == "input_decLoopCounter" then
+		if vehicle.ad.loopCounterSelected == 0 then
+			vehicle.ad.loopCounterSelected = 9;
+		else			
+			vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected - 1) % 10;
+		end;
+	end;
+	
+	if input == "input_setParkDestination" then
+		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
+			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected;
+			
+			AutoDrive:printMessage(vehicle, "" .. g_i18n:getText("AD_parkVehicle_selected") .. AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name);
+			AutoDrive.print.showMessageFor = 10000;
+		end;
+	end;
+
+	if input == "input_parkVehicle" then
+		if vehicle.ad.parkDestination ~= -1 and vehicle.ad.parkDestination ~= nil then
+			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination;
+            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+			if AutoDrive:isActive(vehicle) then
+				AutoDrive:InputHandling(vehicle, "input_start_stop"); --disable if already active
+			end;
+			vehicle.ad.mode = 1;
+			AutoDrive:InputHandling(vehicle, "input_start_stop");			
+		else
+			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"));
+			AutoDrive.print.showMessageFor = 10000;
+		end;
+	end;
+	
 end;
 
 function AutoDrive:InputHandlingServerOnly(vehicle, input)	
@@ -624,28 +668,28 @@ function AutoDrive:inputShowClosest(vehicle)
     vehicle.ad.showClosestPoint = not vehicle.ad.showClosestPoint;
 end;
 
-function AutoDrive:inputCreateMapMarker(vehicle)
-    if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
-        return;
-    end;
-    if vehicle.ad.showClosestPoint == true then
-        if vehicle.ad.creatingMapMarker == false then
-            vehicle.ad.creatingMapMarker  = true;
-            vehicle.ad.enteringMapMarker = true;
-            vehicle.ad.enteredMapMarkerString = "" .. AutoDrive.mapWayPointsCounter;
-            g_currentMission.isPlayerFrozen = true;
-            vehicle.isBroken = true;				
-            g_inputBinding:setContext("AutoDrive.Input_MapMarker", true, false);
-        else
-            vehicle.ad.creatingMapMarker  = false;
-            vehicle.ad.enteringMapMarker = false;
-            vehicle.ad.enteredMapMarkerString = "";
-            g_currentMission.isPlayerFrozen = false;
-            vehicle.isBroken = false;
-            g_inputBinding:revertContext(true);
-        end;
-    end;
-end;
+--function AutoDrive:inputCreateMapMarker(vehicle)
+--    if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+--        return;
+--    end;
+--    if vehicle.ad.showClosestPoint == true then
+--        if vehicle.ad.creatingMapMarker == false then
+--            vehicle.ad.creatingMapMarker  = true;
+--            vehicle.ad.enteringMapMarker = true;
+--            vehicle.ad.enteredMapMarkerString = "" .. AutoDrive.mapWayPointsCounter;
+--            g_currentMission.isPlayerFrozen = true;
+--            vehicle.isBroken = true;				
+--            g_inputBinding:setContext("AutoDrive.Input_MapMarker", true, false);
+--       else
+--            vehicle.ad.creatingMapMarker  = false;
+ --           vehicle.ad.enteringMapMarker = false;
+ --           vehicle.ad.enteredMapMarkerString = "";
+ --           g_currentMission.isPlayerFrozen = false;
+ --           vehicle.isBroken = false;
+ --           g_inputBinding:revertContext(true);
+ --       end;
+ --   end;
+--end;
 
 function AutoDrive:inputSwitchToArrivedVehicle()
 	if AutoDrive.print.referencedVehicle ~= nil then

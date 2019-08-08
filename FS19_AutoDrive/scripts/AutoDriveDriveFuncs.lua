@@ -274,7 +274,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
     else
         --print("Last waypoint reached");
-        if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
+        if (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
             --print("Shutting down");
             local target = vehicle.ad.nameOfSelectedTarget;
             for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
@@ -326,7 +326,8 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                        vehicle.ad.unloadSwitch = true;                        
+                        vehicle.ad.unloadSwitch = true; 
+                        vehicle.ad.loopCounterCurrent = vehicle.ad.loopCounterCurrent + 1;                       
                     end;
 
                     if vehicle.ad.startedLoadingAtTrigger == false then
