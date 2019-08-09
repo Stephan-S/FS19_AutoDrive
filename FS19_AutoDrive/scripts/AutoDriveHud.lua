@@ -567,7 +567,7 @@ function AutoDriveHud:drawHud(vehicle)
 			renderText(adPosX, adPosY, adFontSize, g_i18n:getText("AD_new_marker") .. " " .. vehicle.ad.enteredMapMarkerString);
 		end;
 		
-		if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) and (vehicle.ad.pullDownList.active == false or (vehicle.ad.pullDownList.start and vehicle.ad.pullDownList.downwards == false)) then
+		if vehicle.ad.nameOfSelectedTarget_Unload ~= nil and (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) and (vehicle.ad.pullDownList.active == false or (vehicle.ad.pullDownList.start and vehicle.ad.pullDownList.downwards == false)) then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.Background.destination.width;
 			local adPosY = self.Background.unloadOverlay.posY + (self.Background.unloadOverlay.height/2) - (adFontSize/2); --self.posY + 0.008 + (self.borderY + self.buttonHeight) * self.rowCurrent;

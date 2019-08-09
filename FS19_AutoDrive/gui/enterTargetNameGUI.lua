@@ -47,9 +47,7 @@ function adEnterTargetNameGui:onClickOk()
                 end;
             end;
         end;       
-    end;
-
-    
+    end;    
     
     self:onClickBack();
 end;
