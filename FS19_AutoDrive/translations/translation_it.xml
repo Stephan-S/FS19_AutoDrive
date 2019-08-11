@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-	<translationContributors>cristiancundari</translationContributors>
-	<translationContributors>Roby1164</translationContributors>
+	<translationContributors>cristiancundari/Roby1164</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="Sconosciuto" />
 		<text name="input_ADToggleHud"						 text="AD: Mostra/Nascondi HUD" />
@@ -35,6 +34,10 @@
 		<text name="input_ADGoToVehicle"					 text="AD: Passa al veicolo arrivato" />
 		<text name="input_ADNameDriver" 					 text="AD: Assegna un nome all'autista" />
 		<text name="AD_Driver_of"							 text="L'autista di" />
+		<text name="input_ADIncLoopCounter"					 text="AD: Aumenta contatore ciclo" />
+		<text name="input_ADParkVehicle"					 text="AD: Parcheggio Veicolo" />		
+		<text name="AD_parkVehicle_noPosSet"		         text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
+		<text name="AD_parkVehicle_selected"		         text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_has_reached"							 text="ha raggiunto" />
 		<text name="AD_got_stuck"							 text="si è bloccato" />
 		<text name="AD_cannot_reach"						 text="non può raggiungere" />
@@ -94,6 +97,18 @@
 		<text name="gui_ad_smoothField"					     text="Guida più fluida sul campo" />	
 		<text name="gui_ad_smoothField_tooltip"			     text="I percorsi generati da e verso la mietitrebbia saranno più rotondi (sperimentale)" />
 		<text name="gui_ad_recalculationSpeed"				 text="Velocità di calcolo" />	
-		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Valori più alti possono portare a un gioco a scatti" />			
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Valori più alti possono portare a un gioco a scatti" />
+		<text name="gui_ad_showNextPath"				 	 text="Mostra il percorso successivo" />	
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="Attiva/disattiva visualizzazione dei prossimi due waypoint" />	
+		<text name="gui_ad_avoidFruit"				 	     text="Evita raccolto" />	
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="La trebbia cerca di scaricare evitando il raccolto" />	
+		<text name="gui_ad_pathFinderTime"				 	 text="Esplorazione-tempo (max)" />	
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Determina per quanto tempo è consentito all'algoritmo di esplorazione di cercare il percorso libero da collisione da/verso la trebbia. (Potenziale impatto fps)" />
+		<text name="gui_ad_lineHeight"				 	     text="Altezza linea" />	
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Altezza della linea in modalità editor. A livello del suolo o sopra il trattore" />	
+		<text name="gui_ad_ground"				 	         text="Livello del suolo" />	
+		<text name="gui_ad_aboveDriver"	     	             text="Sopra il veicolo" />	
+		<text name="gui_ad_allowConsoleStyle"				 text="Consenti inserimento obbiettivo(testo)" />	
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Consenti Inserimento obbiettivo avanzato tramite tastiera: fai clic con il pulsante destro del mouse sul campo di testo obbiettivo" />		
 	</texts>
 </l10n>
