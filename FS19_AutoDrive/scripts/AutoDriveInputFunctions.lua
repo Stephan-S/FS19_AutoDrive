@@ -242,7 +242,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	end;
 
 	if input == "input_parkVehicle" then
-		if vehicle.ad.parkDestination ~= -1 and vehicle.ad.parkDestination ~= nil then
+		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 then
 			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination;
             vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
             vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
