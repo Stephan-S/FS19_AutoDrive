@@ -29,6 +29,48 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     return AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, destinationID);
 end;
 
+function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, options)
+    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil or viaID == nil or AutoDrive.mapMarker[viaID] == nil  then
+        return;
+    end;
+
+    local markerName = AutoDrive.mapMarker[viaID].name;
+    local startPoint = {x=startX, z=startZ};
+    local minDistance = 1;
+    local maxDistance = 20;
+    if options ~= nil and options.minDistance ~= nil then
+        minDistance = options.minDistance;
+    end;
+    if options ~= nil and options.maxDistance ~= nil then
+        maxDistance = options.maxDistance;
+    end;
+    local directionVec = {x = math.cos(startYRot), z = math.sin(startYRot)};
+    local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
+
+	if bestPoint == -1 then
+        bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance, maxDistance);
+        if bestPoint == -1 then
+            return;
+        end;
+	end;
+
+    local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, viaID);
+
+    if toViaID == nil or ADTableLength(toViaID) < 1 then
+        return;
+    end;
+
+    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,toViaID[ADTableLength(toViaID)], AutoDrive.mapMarker[destinationID].name, destinationID);
+
+    for i, wayPoint in pairs(fromViaID) do
+        if i > 1 then
+            table.insert(toViaID, wayPoint);
+        end;
+    end;
+
+    return toViaID;
+end;
+
 function AutoDrive:GetAvailableDestinations()
     local destinations = {};
     for markerID, marker in pairs(AutoDrive.mapMarker) do
@@ -89,11 +131,15 @@ end;
 
 --These are just here for example purposes on how to use the interface to start an AD driver and receive a callback when it's finished
 
-addConsoleCommand('adStartDriving', 'Start current course and callback', 'adStartDriving', AutoDrive);
+addConsoleCommand('adGetPath', 'Start current course and callback', 'adGetPath', AutoDrive);
 
-function AutoDrive:adStartDriving()
-    --print("AutoDrive:adStartDriving called")
-    AutoDrive:StartDriving(g_currentMission.controlledVehicle, g_currentMission.controlledVehicle.ad.mapMarkerSelected, g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload, AutoDrive, AutoDrive.isFinished, g_currentMission.controlledVehicle);
+function AutoDrive:adGetPath()
+    local veh = g_currentMission.controlledVehicle;
+    local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
+	local rx,ry,rz = localDirectionToWorld(veh.components[1].node, 0,0,1);
+	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz) };
+
+    veh.ad.testVar = AutoDrive:GetPathVia(x1, z1, rz, g_currentMission.controlledVehicle.ad.mapMarkerSelected, g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload);
 end;
 
 function AutoDrive:isFinished(vehicle)
