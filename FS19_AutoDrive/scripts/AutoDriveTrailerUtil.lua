@@ -231,7 +231,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
 end;
 
 function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFillUnit)
-	if fillTrigger ~= nil then
+    if fillTrigger ~= nil then
 		local typesMatch = false
 		local selectedFillType = vehicle.ad.unloadFillTypeIndex or FillType.UNKNOWN;
 		local fillUnits = workTool:getFillUnits()
@@ -248,16 +248,28 @@ function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFi
 					--loadTriggers
 					if fillTrigger.source ~= nil and fillTrigger.source.providedFillTypes[index] then
 						typesMatch = true
-						matchInThisUnit =true
+						matchInThisUnit = true
 					end
-					--fillTriggers
-					if fillTrigger.sourceObject ~= nil then
-						local fillTypes = fillTrigger.sourceObject:getFillUnitSupportedFillTypes(1)  
-						if fillTypes[index] then 
-							typesMatch = true
-							matchInThisUnit =true
-						end
-					end
+                    --fillTriggers
+                    if fillTrigger.source ~= nil and fillTrigger.source.productLines ~= nil then --is gc trigger
+                        for subIndex,subSource in pairs (fillTrigger.source.providedFillTypes) do
+                            if type(subSource)== 'table' then
+                                if subSource[index] ~= nil then					
+                                    typesMatch = true
+                                    matchInThisUnit =true
+                                end
+                            end						
+                        end	
+                    end;
+
+                    if fillTrigger.sourceObject ~= nil then                        
+                        local fillTypes = fillTrigger.sourceObject:getFillUnitSupportedFillTypes(1)  
+                        if fillTypes[index] then 
+                            typesMatch = true
+                            matchInThisUnit =true
+                        end
+                    end
+                    
 					if index == selectedFillType and selectedFillType ~= FillType.UNKNOWN then
 						selectedFillTypeIsNotInMyFillUnit = false;
 					end
@@ -272,8 +284,12 @@ function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFi
 			if selectedFillType == FillType.UNKNOWN then
 				return true;
 			else
-				if fillTrigger.source then
-					return fillTrigger.source.providedFillTypes[selectedFillType] or false;
+                if fillTrigger.source then
+                    if fillTrigger.source.productLines ~= nil then --is gc trigger                         	
+                        return true;
+                    else
+                        return fillTrigger.source.providedFillTypes[selectedFillType];
+                    end;
 				elseif fillTrigger.sourceObject ~= nil then
 					local fillType = fillTrigger.sourceObject:getFillUnitFillType(1)  
 					return fillType == selectedFillType;

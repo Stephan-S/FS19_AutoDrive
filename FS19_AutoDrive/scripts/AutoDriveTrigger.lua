@@ -154,6 +154,26 @@ function AutoDrive:getAllTriggers()
                 AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = trigger;				
 			end
 		end
-	end
+    end
+    
+    if g_company and g_company.loadedFactories then
+		for i=1,#g_company.loadedFactories do
+			local factory = g_company.loadedFactories[i];
+			if factory.registeredUnloadingTriggers then
+                for name, unloadingTrigger in pairs (factory.registeredUnloadingTriggers) do                    
+                    if unloadingTrigger.trigger then                                        
+                        AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1;
+                        AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadingTrigger;
+					end				
+				end
+				for name, loadingTrigger in pairs (factory.registeredLoadingTriggers) do
+                    if loadingTrigger.trigger then
+                        AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1;
+                        AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadingTrigger;              
+					end	
+				end
+			end
+        end        
+	end	
             
 end;
