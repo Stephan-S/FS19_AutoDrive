@@ -71,7 +71,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
             if fillType ~= nil then
                 driver.ad.pf.fruitToCheck = fillType;
                 driver.ad.combineFruitToCheck = driver.ad.pf.fruitToCheck;
-                print("Got fill type from combine: " .. driver.ad.pf.fruitToCheck .. ": " .. g_fillTypeManager:getFillTypeByIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex)).title);
+                --print("Got fill type from combine: " .. driver.ad.pf.fruitToCheck .. ": " .. g_fillTypeManager:getFillTypeByIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex)).title);
             end;
         end;
     end;    
@@ -198,7 +198,7 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     driver.ad.pf.fallBackMode = false;
     driver.ad.pf.combine = combine;
     driver.ad.pf.fruitToCheck = driver.ad.combineFruitToCheck;
-    if driver.ad.combineFruitToCheck == nil and driver.ad.pf.combine ~= nil then
+    if (driver.ad.combineFruitToCheck == nil) and (driver.ad.pf.combine ~= nil) then
         driver.ad.pf.fruitToCheck = 1;
     end;
     driver.ad.pf.fieldArea = driver.ad.combineFieldArea;

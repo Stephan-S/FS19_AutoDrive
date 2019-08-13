@@ -230,6 +230,17 @@ AutoDrive.settings.allowConsoleStyle = {
     translate= true
 };
 
+AutoDrive.settings.enableTrafficDetection = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_enableTrafficDetection",                                    
+    tooltip= "gui_ad_enableTrafficDetection_tooltip",
+    translate= true
+};
+
+
 function AutoDrive:getSetting(settingName)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

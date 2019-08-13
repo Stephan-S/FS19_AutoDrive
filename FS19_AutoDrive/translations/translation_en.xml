@@ -110,5 +110,7 @@
 		<text name="gui_ad_aboveDriver"	     	             text="Above tractor" />	
 		<text name="gui_ad_allowConsoleStyle"				 text="Allow target(text) input" />	
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Allow advanced target input via keyboard - default right click on target text field" />
+		<text name="gui_ad_enableTrafficDetection"			 text="Collision detection" />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Advanced collision detection, which also detects AI-traffic, signs, fences etc" />	
 	</texts>
 </l10n>

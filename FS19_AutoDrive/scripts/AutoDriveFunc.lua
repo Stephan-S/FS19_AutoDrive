@@ -23,7 +23,6 @@ function AutoDrive:startAD(vehicle)
        vehicle.steeringEnabled = false;
 	end
 	
-
 	--vehicle.spec_aiVehicle.aiTrafficCollision = nil;
 	--Code snippet from function AIVehicle:startAIVehicle(helperIndex, noEventSend, startedFarmId):
 	if vehicle.getAINeedsTrafficCollisionBox ~= nil then
@@ -314,6 +313,36 @@ function AutoDrive:detectTraffic(vehicle)
                         y = y+2,
 						z = z + (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z};
 	
+	if AutoDrive:getSetting("enableTrafficDetection") == true then
+		local box = {};
+		box.center = {};
+		box.size = {};
+		box.center[1] = 0;
+		box.center[2] = 3;
+		box.center[3] = length;
+		box.size[1] = width * 0.35;
+		box.size[2] = 0.75;
+		box.size[3] = (lookAheadDistance-2)/3;
+		box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
+		box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
+		box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
+		box.ry = math.atan2(box.zx, box.zz)
+		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
+												y = y+2,
+												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };
+
+		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK , true, true, true) --AIVehicleUtil.COLLISION_MASK
+		
+		local red = 0;
+		if shapes > 0 then
+			red = 1;
+		end;
+		DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], red, 0, 0);
+		
+		if shapes > 0 then
+			return true;
+		end;
+	end;
 
     --AutoDrive:drawLine(boundingBox[1], boundingBox[2], 0, 0, 0, 1);
     --AutoDrive:drawLine(boundingBox[2], boundingBox[3], 0, 0, 0, 1);

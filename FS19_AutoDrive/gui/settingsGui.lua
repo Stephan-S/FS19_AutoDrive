@@ -173,3 +173,8 @@ end;
 function adSettingsGui:onCreateAutoDriveSettingAllowConsoleStyle(element)
     self:onCreateAutoDriveSetting(element, "allowConsoleStyle");
 end;
+
+function adSettingsGui:onCreateAutoDriveSettingEnableTrafficDetection(element)
+    self:onCreateAutoDriveSetting(element, "enableTrafficDetection");
+end;
+

@@ -87,6 +87,7 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
         if vehicle.steeringEnabled == true then
             vehicle.steeringEnabled = false;
         end
+        vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 	end;
 	
 	if vehicle.startMotor and vehicle.stopMotor then

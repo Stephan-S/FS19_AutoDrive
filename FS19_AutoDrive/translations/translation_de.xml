@@ -110,5 +110,7 @@
 		<text name="gui_ad_aboveDriver"	     	             text="Über dem Traktor" />		
 		<text name="gui_ad_allowConsoleStyle"				 text="Zieleingabe erlauben" />	
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Erweiterte Zieleingabe per Tastatur erlauben - Standard: Linke Maustaste auf Zielnamen" />
+		<text name="gui_ad_enableTrafficDetection"			 text="Kollisionserkennung" />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Erweiterte Kollisionserkennung, die auch auf KI-Verkehr, Schilder, Zäune etc. reagiert." />	
 	</texts>
 </l10n>
