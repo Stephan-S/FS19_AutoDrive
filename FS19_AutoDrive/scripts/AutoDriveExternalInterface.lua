@@ -124,7 +124,7 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive == false then
         AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg);
         vehicle.ad.usePathFinder = true;    
-        AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, false);   
+        AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, true);   
     end;
 
 end;
