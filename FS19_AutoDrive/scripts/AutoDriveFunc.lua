@@ -92,7 +92,7 @@ function AutoDrive:stopVehicle(vehicle, dt)
 		vehicle.ad.isStopping = false;		
     end;
     
-    if vehicle.ad.isStopping then
+	if vehicle.ad.isStopping then
         AutoDrive:getVehicleToStop(vehicle, true, dt);
     else       
         AutoDrive:disableAutoDriveFunctions(vehicle);

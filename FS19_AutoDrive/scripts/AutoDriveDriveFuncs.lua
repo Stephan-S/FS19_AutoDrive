@@ -63,7 +63,7 @@ function AutoDrive:handleDriving(vehicle, dt)
             end;
         end;
 
-		if vehicle.ad.isPaused == true then
+        if vehicle.ad.isPaused == true then
 			AutoDrive:getVehicleToStop(vehicle, false, dt);
             vehicle.ad.timeTillDeadLock = 15000;
             vehicle.ad.inDeadLock = false;
