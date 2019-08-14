@@ -373,26 +373,26 @@ function AutoDriveHud:updateButtons(vehicle)
 
 		if button.name == "input_incLoopCounter" then
 			local buttonImg = "";
-			
-			if vehicle.ad.loopCounterSelected == 0 then 
+			local displayCounter = vehicle.ad.loopCounterSelected - vehicle.ad.loopCounterCurrent;
+			if displayCounter == 0 then 
 				button.img_active = button.img_on;
-			elseif vehicle.ad.loopCounterSelected == 1 then
+			elseif displayCounter == 1 then
 				button.img_active = button.img_off;
-			elseif vehicle.ad.loopCounterSelected == 2 then
+			elseif displayCounter == 2 then
 				button.img_active = button.img_3;
-			elseif vehicle.ad.loopCounterSelected == 3 then
+			elseif displayCounter == 3 then
 				button.img_active = button.img_4;
-			elseif vehicle.ad.loopCounterSelected == 4 then
+			elseif displayCounter == 4 then
 				button.img_active = button.img_5;
-			elseif vehicle.ad.loopCounterSelected == 5 then
+			elseif displayCounter == 5 then
 				button.img_active = button.img_6;
-			elseif vehicle.ad.loopCounterSelected == 6 then
+			elseif displayCounter == 6 then
 				button.img_active = button.img_7;
-			elseif vehicle.ad.loopCounterSelected == 7 then
+			elseif displayCounter == 7 then
 				button.img_active = button.img_8;
-			elseif vehicle.ad.loopCounterSelected == 8 then
+			elseif displayCounter == 8 then
 				button.img_active = button.img_9;
-			elseif vehicle.ad.loopCounterSelected == 9 then
+			elseif displayCounter == 9 then
 				button.img_active = button.img_10;
 			else
 				button.img_active = button.img_off;

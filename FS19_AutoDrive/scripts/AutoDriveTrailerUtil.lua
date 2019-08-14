@@ -77,7 +77,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
                     allClosed = false;
                 end;
             end;
-            if allClosed and vehicle.ad.isUnloading then --(vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS)
+            if allClosed and (vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS) then
                 vehicle.ad.isPaused = false;
                 vehicle.ad.isUnloading = false;
             end;

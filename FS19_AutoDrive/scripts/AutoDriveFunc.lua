@@ -114,7 +114,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
 	vehicle.ad.combineFieldArea = nil;
 	vehicle.ad.combineFruitToCheck = nil; 	
-	vehicle.ad.usePathFinder = false; 
+	vehicle.ad.usePathFinder = false;	
+	vehicle.ad.loopCounterCurrent = 0;
 
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
