@@ -3,7 +3,7 @@ function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkForDeadLock(vehicle, dt);   
 	AutoDrive:handlePrintMessage(vehicle, dt);
 	AutoDrive:handleTrailers(vehicle, dt)
-	AutoDrive:handleFillables(vehicle, dt)
+	--AutoDrive:handleFillables(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
 
 	
@@ -23,7 +23,7 @@ function AutoDrive:handleDriving(vehicle, dt)
                 local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
                
                 local closeToWayPoint = false;
-                if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then
                     if AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < min_distance then 
                         closeToWayPoint = true;
                     elseif vehicle.ad.currentWayPoint <= 3 and AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < (min_distance * 5) then

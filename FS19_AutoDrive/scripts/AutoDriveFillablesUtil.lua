@@ -1,6 +1,6 @@
 function AutoDrive:handleFillables(vehicle, dt)
     if vehicle.ad.isActive == true and vehicle.ad.mode == AutoDrive.MODE_LOAD then --and vehicle.isServer == true
-        local trailers, trailerCount = AutoDrive:getFillablesOf(vehicle);  		
+        local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle, false);  		
 
         if trailerCount == 0 then
             return
@@ -30,7 +30,6 @@ function AutoDrive:handleFillables(vehicle, dt)
         local distance = AutoDrive:getDistance(x,z, destination.x, destination.z);
  
         if vehicle.ad.mode == AutoDrive.MODE_LOAD then
-            vehicle.ad.isCloseToTrigger = false;
             local x,y,z = getWorldTranslation(vehicle.components[1].node);
             local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
             if destination == nil then
@@ -41,7 +40,6 @@ function AutoDrive:handleFillables(vehicle, dt)
                 for _,trailer in pairs(trailers) do
                     for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
                         local activate = false;
-                        vehicle.ad.isCloseToTrigger = true;
 			            if trigger.fillableObjects ~= nil then
                             for __,fillableObject in pairs(trigger.fillableObjects) do
                                 if fillableObject.object == trailer then   
@@ -133,41 +131,5 @@ function AutoDrive:handleFillables(vehicle, dt)
 			end;
         end;
     end;
-end;
-
-function AutoDrive:getFillablesOf(vehicle)
-    AutoDrive.tempTrailers = {};
-    AutoDrive.tempTrailerCount = 0;
-
-    if vehicle.getAttachedImplements ~= nil then
-        for _, implement in pairs(vehicle:getAttachedImplements()) do
-            AutoDrive:getFillablesOfImplement(implement.object);
-        end;
-    end;
-    --print("Vehicle: " .. vehicle.ad.driverName .. " has " .. trailerCount .. " trailers");
-
-    return AutoDrive.tempTrailers, AutoDrive.tempTrailerCount;
-end;
-
-function AutoDrive:getFillablesOfImplement(attachedImplement)
-    if attachedImplement.getFillUnits ~= nil then
-        trailer = attachedImplement;
-        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
-        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
-		
-    elseif attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then     
-        if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then    
-            trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
-            AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
-            AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
-        end;
-    end;
-
-    if attachedImplement.getAttachedImplements ~= nil then
-        for _, implement in pairs(attachedImplement:getAttachedImplements()) do
-            AutoDrive:getFillablesOfImplement(implement.object);
-        end;
-    end;
-    return;
 end;
 

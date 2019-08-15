@@ -101,10 +101,10 @@ AutoDrive.settings.parkInField = {
 };
 
 AutoDrive.settings.unloadFillLevel = {  
-    values= {0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.99, 1},                                    
+    values= {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.99, 1},                                    
     texts= {"50%", "60%", "70%", "80%", "85%", "90%", "95%", "99%", "100%"},                                    
-    default= 5,                                    
-    current= 5,                                    
+    default= 10,                                    
+    current= 10,                                    
     text= "gui_ad_unloadFillLevel",                                    
     tooltip= "gui_ad_unloadFillLevel_tooltip",
     translate= false

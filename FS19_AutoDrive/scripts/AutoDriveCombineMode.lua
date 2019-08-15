@@ -116,40 +116,10 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
             vehicle.ad.currentCombine.ad.currentDriver = nil;
             vehicle.ad.currentCombine = nil;
         end;
-    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-        --local closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
-        local closest = AutoDrive:findClosestWayPoint(vehicle);
-        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
-        vehicle.ad.wayPointsChanged = true;
-        vehicle.ad.currentWayPoint = 1;
-
-        vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-        vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-        if vehicle.ad.currentCombine ~= nil then
-            vehicle.ad.currentCombine.ad.currentDriver = nil;
-            vehicle.ad.currentCombine = nil;
-        end;
-        vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then        
+        AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, false);
     elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
-        vehicle.ad.timeTillDeadLock = 15000;
-
-        local closest = AutoDrive:findClosestWayPoint(vehicle); 
-        if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
-            closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
-        end;
-        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
-        vehicle.ad.wayPointsChanged = true;
-        vehicle.ad.currentWayPoint = 1;
-
-        vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-        vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-        vehicle.ad.isPaused = true;                    
-        vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;
-        if vehicle.ad.currentCombine ~= nil then
-            vehicle.ad.currentCombine.ad.currentDriver = nil;
-            vehicle.ad.currentCombine = nil;
-        end;
-        vehicle.ad.currentTrailer = 1;
+        AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, true);
     end;
 end;
 
@@ -332,4 +302,36 @@ function AutoDrive:isOnField(vehicle)
     end;
 
     return false;
+end;
+
+function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
+    if vehicle == nil then
+        return;
+    end;
+
+    local closest = AutoDrive:findClosestWayPoint(vehicle);
+    vehicle.ad.wayPointsChanged = true;
+
+    if toStart == false then --going to unload position
+        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);   
+        AutoDrive.waitingUnloadDrivers[vehicle] = nil;
+        vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+    else --going to start position
+        vehicle.ad.timeTillDeadLock = 15000;
+        if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then --Don't search starting waypoint if we were already driving to the unload pos. Just use this point.
+            closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
+        end;
+        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
+        vehicle.ad.isPaused = true;                    
+        vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;        
+        vehicle.ad.currentTrailer = 1;
+    end;
+    
+    vehicle.ad.currentWayPoint = 1;
+    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+    if vehicle.ad.currentCombine ~= nil then
+        vehicle.ad.currentCombine.ad.currentDriver = nil;
+        vehicle.ad.currentCombine = nil;
+    end;
 end;

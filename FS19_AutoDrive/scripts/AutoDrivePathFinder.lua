@@ -25,23 +25,19 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     
     local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
     local pipeOffset = AutoDrive:getSetting("pipeOffset");
-    local wpAhead = {x= (nodeX + 8*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + 8*rz  - pipeOffset * combineNormalVector.z};
+    local wpAhead = {x= (nodeX + (combine.sizeLength/2 + 5)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (combine.sizeLength/2 + 5)*rz  - pipeOffset * combineNormalVector.z};
     local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
     local wpBehind_close = {x= (nodeX - 7*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 7*rz - pipeOffset * combineNormalVector.z };
     
 	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
     
-
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
 	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
 	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
 	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
 	
-	local angleGrid = math.atan2(driverVector.z, driverVector.x);
-	angleGrid = normalizeAngle(angleGrid);
-
-    local atan = angleGrid;
+    local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
 	local cos = math.cos(atan);
@@ -85,10 +81,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
 	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
 	
-	local angleGrid = math.atan2(driverVector.z, driverVector.x);
-	angleGrid = normalizeAngle(angleGrid);
-
-	local atan = angleGrid;
+	local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
 	local cos = math.cos(atan);
@@ -180,11 +173,12 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     startCell.isRestricted = false;
     startCell.hasCollision = false;
     startCell.hasInfo = true;
+    startCell.hasFruit = false;
     startCell.steps = 0;
 
     driver.ad.pf = {};
     driver.ad.pf.driver = driver;    
-	driver.ad.combineUnloadInFruit = false;
+	--driver.ad.combineUnloadInFruit = false;
 	driver.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
     driver.ad.pf.grid = {};
     driver.ad.pf.startX = startX;
@@ -215,7 +209,7 @@ end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
     local pf = driver.ad.pf;
-    --AutoDrivePathFinder:drawDebugForPF(pf);
+    AutoDrivePathFinder:drawDebugForPF(pf);
     pf.steps = pf.steps + 1;
 
     if pf.isFinished and pf.smoothDone == true then
@@ -233,9 +227,13 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             pf.steps = 0;
             pf.grid = {};
             pf.startCell.visited = false;
+            pf.currentCell = nil;
             table.insert(pf.grid, pf.startCell)
             local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(pf, pf.targetVector)
-            AutoDrivePathFinder:determineBlockedCells(pf, targetDirection, pf.targetCell);
+            AutoDrivePathFinder:determineBlockedCells(pf, targetDirection, pf.targetCell); 
+            pf.cellsToVisit = {};
+            pf.smoothStep = 0;
+            smoothDone = false;
             print("Going into fallback mode - no fruit free path found in reasonable time");
         else
             --stop searching
@@ -322,6 +320,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             AutoDrivePathFinder:testNextCells(pf, pf.currentCell);
         end;
     end;
+    driver.ad.pf = pf;
 end;
 
 function AutoDrivePathFinder:isPathPlanningFinished(driver)
@@ -449,6 +448,7 @@ function AutoDrivePathFinder:createGridCells(pf, location)
     location.hasInfo=false;
     location.hasRequested=false;
     location.hasCollision = false;
+    location.hasFruit = true;
     table.insert(pf.grid, location);
 end;
 
@@ -474,7 +474,6 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
             angleRad = normalizeAngle(angleRad);
             local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-            --local shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X/1.7,2.85,AutoDrive.PP_CELL_Z/1.7, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             local shapes = overlapBox(shapeDefinition.x,shapeDefinition.y+3,shapeDefinition.z, 0,shapeDefinition.angleRad,0, shapeDefinition.widthX,shapeDefinition.height,shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
             
             cell.hasCollision = (shapes > 0);
@@ -499,31 +498,26 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                 --cell.hasCollision = false;
             --end;
 
-            if (((pf.ignoreFruit == nil) or (pf.ignoreFruit ~= nil and pf.ignoreFruit == false)) and AutoDrive:getSetting("avoidFruit")) then
+            if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit") then
                 if pf.fruitToCheck == nil then
                     --make async query until fruittype is known
-                    local callBack = PathFinderCallBack:new(pf, cell);
-                    FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
-                    local box = {}
-                    cell.hasRequested = true;
-                else
-                    local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
-                    if pf.fruitToCheck == 9 or pf.fruitToCheck == 22 then
-                        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
-                    end;
-                    if pf.fieldArea ~= nil then
-                        cell.isRestricted = fruitValue > (0.3 * pf.fieldArea);
-                    else
-                        cell.isRestricted = fruitValue > 50;
-                    end;
-                    cell.hasFruit = cell.isRestricted;
+                    --local callBack = PathFinderCallBack:new(pf, cell);
+                    --FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
+                    --local box = {}
+                    --cell.hasRequested = true;
 
-                    --Allow fruit in the first few grid cells
-                    if (((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 2 then
-                        cell.isRestricted = false;
+                    for i = 1, #g_fruitTypeManager.fruitTypes do
+                        if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
+                            local fruitType = g_fruitTypeManager.fruitTypes[i];                            
+                            if cell.isRestricted == false and pf.fruitToCheck == nil then --stop if cell is already restricted and/or fruit type is now known
+                                checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
+                            end;
+                        end;
                     end;
-                    cell.hasInfo = true;
-                end;
+                else
+                    checkForFruitTypeInArea(pf, cell, pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
+                end;                
+                cell.hasInfo = true;
             else
                 cell.hasInfo = true;
                 cell.isRestricted = false;
@@ -784,7 +778,16 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 local hasCollision = false;
                 if angle > 60 then
                     hasCollision = true;
-                end;            
+                end;        
+                
+                local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 0, worldPos.z)
+                local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeAhead.x, 0, nodeAhead.z)
+                local length = MathUtil.vector3Length(worldPos.x-nodeAhead.x, terrain1-terrain2, worldPos.z-nodeAhead.z)
+                local angleBetween = math.atan(math.abs(terrain1-terrain2)/length)
+
+                if (angleBetween*2) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then --be a bit more careful, since slopes will be less steep when combining path sections
+                    hasCollision = true;
+                end
 
                 local vectorX = nodeAhead.x - node.x;
                 local vectorZ = nodeAhead.z - node.z;
@@ -1168,6 +1171,32 @@ end;
 
 function cellDistance(pf, cell)
     return math.sqrt(math.pow(pf.targetCell.x - cell.x, 2) + math.pow(pf.targetCell.z - cell.z,2));
+end;
+
+function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+    local fruitValue = 0;
+    if fruitType == 9 or fruitType == 22 then
+        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+    else
+        fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+    end;
+    
+    if (pf.fruitToCheck == nil or pf.fruitToCheck < 1) and (fruitValue > 50) then
+        pf.fruitToCheck = fruitType;
+    end;
+
+    if pf.fieldArea ~= nil then
+        cell.isRestricted = cell.isRestricted or (fruitValue > (0.3 * pf.fieldArea));
+    else
+        cell.isRestricted = cell.isRestricted or (fruitValue > 50);
+    end;
+
+    cell.hasFruit = cell.isRestricted;
+
+    --Allow fruit in the first few grid cells
+    if (((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3 then
+        cell.isRestricted = false;
+    end;
 end;
 
 function AutoDrivePathFinder:drawDebugForPF(pf)	

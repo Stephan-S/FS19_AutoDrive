@@ -373,7 +373,7 @@ function AutoDriveHud:updateButtons(vehicle)
 
 		if button.name == "input_incLoopCounter" then
 			local buttonImg = "";
-			local displayCounter = vehicle.ad.loopCounterSelected - vehicle.ad.loopCounterCurrent;
+			local displayCounter = math.max(0, vehicle.ad.loopCounterSelected - vehicle.ad.loopCounterCurrent);
 			if displayCounter == 0 then 
 				button.img_active = button.img_on;
 			elseif displayCounter == 1 then
