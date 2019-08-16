@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.4.6";
+AutoDrive.Version = "1.0.4.7";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -70,7 +70,6 @@ end;
 function AutoDrive:loadMap(name)	
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrailerUtil.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveFillablesUtil.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
@@ -82,9 +81,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveUtilFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/FieldDataCallback.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/PathFinderCallBack.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
@@ -244,8 +241,7 @@ function init(self)
 	self.ad.startedLoadingAtTrigger = false;
 	self.ad.trailerStartedLoadingAtTrigger = false;
 	self.ad.combineUnloadInFruit = false;
-	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
-	self.ad.combineFieldArea = nil;
+	self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
 	self.ad.combineFruitToCheck = nil; 
 	self.ad.driverOnTheWay = false;
 	self.ad.tryingToCallDriver = false;
@@ -712,6 +708,8 @@ function AutoDrive:onPostLoad(savegame)
 			if parkDestination ~= nil then
 				self.ad.parkDestination = parkDestination;
 			end; 
+
+			AutoDrive:readVehicleSettingsFromXML(self, xmlFile, key);
     end
 	end;
 end;
@@ -725,6 +723,12 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 	setXMLString(xmlFile, key.."#driverName", 				self.ad.driverName);
 	setXMLInt(xmlFile, key.."#loopCounterSelected", 		self.ad.loopCounterSelected);
 	setXMLInt(xmlFile, key.."#parkDestination", 			self.ad.parkDestination);
+	
+	for settingName, setting in pairs(AutoDrive.settings) do
+		if setting.isVehicleSpecific then
+			setXMLInt(xmlFile, key.."#parkDestination", 			self.ad.settings[settingName].current);
+		end;
+	end;
 end
 
 function AutoDrive.zoomSmoothly(self, superFunc, offset)

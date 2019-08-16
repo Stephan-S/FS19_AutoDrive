@@ -25,7 +25,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     
     local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
     local pipeOffset = AutoDrive:getSetting("pipeOffset");
-    local wpAhead = {x= (nodeX + (combine.sizeLength/2 + 5)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (combine.sizeLength/2 + 5)*rz  - pipeOffset * combineNormalVector.z};
+    local wpAhead = {x= (nodeX + (driver.sizeLength/2 + 5)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (driver.sizeLength/2 + 5)*rz  - pipeOffset * combineNormalVector.z};
     local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
     local wpBehind_close = {x= (nodeX - 7*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 7*rz - pipeOffset * combineNormalVector.z };
     
@@ -195,21 +195,19 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     if (driver.ad.combineFruitToCheck == nil) and (driver.ad.pf.combine ~= nil) then
         driver.ad.pf.fruitToCheck = 1;
     end;
-    driver.ad.pf.fieldArea = driver.ad.combineFieldArea;
     
     driver.ad.pf.targetCell = AutoDrivePathFinder:worldLocationToGridLocation(driver.ad.pf, targetX, targetZ);
     local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
     AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, targetDirection, driver.ad.pf.targetCell);
 
-    table.insert(driver.ad.pf.grid, startCell)    
-    driver.ad.pf.cellsToVisit = {};
+    table.insert(driver.ad.pf.grid, startCell);
     driver.ad.pf.smoothStep = 0;
     driver.ad.pf.smoothDone = false;
 end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
     local pf = driver.ad.pf;
-    AutoDrivePathFinder:drawDebugForPF(pf);
+    --AutoDrivePathFinder:drawDebugForPF(pf);
     pf.steps = pf.steps + 1;
 
     if pf.isFinished and pf.smoothDone == true then
@@ -231,7 +229,6 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             table.insert(pf.grid, pf.startCell)
             local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(pf, pf.targetVector)
             AutoDrivePathFinder:determineBlockedCells(pf, targetDirection, pf.targetCell); 
-            pf.cellsToVisit = {};
             pf.smoothStep = 0;
             smoothDone = false;
             print("Going into fallback mode - no fruit free path found in reasonable time");
@@ -245,57 +242,43 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
     end;    
 
     for i=1,AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME,1 do
-        if pf.currentCell == nil then 
-            if ADTableLength(pf.cellsToVisit) > 0 then
-                for _,cellToVisit in pairs(pf.cellsToVisit) do
-                    pf.currentCell = cellToVisit;
-                    pf.cellsToVisit[_] = nil;
-                    --print("Using bestRatio cell");
-                    break;
-                end;
-            else
-                local minDistance = math.huge;
-                local bestCell = nil;
-                local bestSteps = math.huge;
+        if pf.currentCell == nil then            
+            local minDistance = math.huge;
+            local bestCell = nil;
+            local bestSteps = math.huge;
 
-                local bestCellRatio = nil;
-                local minRatio = 0;
+            local bestCellRatio = nil;
+            local minRatio = 0;
 
-                local grid = pf.grid; 
-                for _,cell in pairs(grid) do
-                    if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
-                        local distance = cellDistance(pf, cell);
-                        local originalDistance = cellDistance(pf, pf.startCell);
-                        local ratio = (originalDistance - distance) / cell.steps;
+            local grid = pf.grid; 
+            for _,cell in pairs(grid) do
+                if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
+                    local distance = cellDistance(pf, cell);
+                    local originalDistance = cellDistance(pf, pf.startCell);
+                    local ratio = (originalDistance - distance) / cell.steps;
 
-                        if distance < minDistance then
-                            minDistance = distance;
-                            bestCell = cell;
-                            bestSteps = cell.steps;
-                        elseif distance == minDistance and cell.steps < bestSteps then
-                            minDistance = distance;
-                            bestCell = cell;
-                            bestSteps = cell.steps;
-                        end;
+                    if distance < minDistance then
+                        minDistance = distance;
+                        bestCell = cell;
+                        bestSteps = cell.steps;
+                    elseif distance == minDistance and cell.steps < bestSteps then
+                        minDistance = distance;
+                        bestCell = cell;
+                        bestSteps = cell.steps;
+                    end;
 
-                        if ratio > minRatio then
-                            minRatio = ratio;
-                            bestCellRatio = cell;
-                        end;
+                    if ratio > minRatio then
+                        minRatio = ratio;
+                        bestCellRatio = cell;
                     end;
                 end;
-
-                --table.insert(pf.cellsToVisit, bestCell);
-                if bestCell ~= bestCellRatio then
-                    --table.insert(pf.cellsToVisit, bestCellRatio);
-                end;
-            
-                if bestCellRatio ~= nil and math.random() > 1 then --0.4 then
-                    pf.currentCell = bestCellRatio;     
-                else
-                    pf.currentCell = bestCell;
-                end;
-            end;           
+            end;
+        
+            if bestCellRatio ~= nil and math.random() > 1 then --0.4 then
+                pf.currentCell = bestCellRatio;     
+            else
+                pf.currentCell = bestCell;
+            end;         
 
             if pf.currentCell ~= nil and cellDistance(pf, pf.currentCell) == 0 then
                 pf.isFinished = true;
@@ -415,11 +398,16 @@ function AutoDrivePathFinder:testNextCells(pf, cell)
                     c.steps = cell.steps + 1;
                 end;
                 location.hasInfo = c.hasInfo;
+                location.isRestricted = c.isRestricted;
+                location.hasFruit = c.hasFruit;
+                location.hasCollision = c.hasCollision;
             end;
 
             if c.x == location.x and c.z == location.z and c.direction == -1 then
                 location.isRestricted = true;
                 location.hasInfo = true;
+                location.hasFruit = true;
+                location.hasCollision = true;
                 createPoint = false;
             end;
         end;
@@ -446,146 +434,133 @@ function AutoDrivePathFinder:createGridCells(pf, location)
     location.visited=false;
     location.isRestricted=false;
     location.hasInfo=false;
-    location.hasRequested=false;
     location.hasCollision = false;
     location.hasFruit = true;
     table.insert(pf.grid, location);
 end;
 
 function AutoDrivePathFinder:checkGridCell(pf, cell)
-    if cell.hasInfo == false then
-        if cell.hasRequested == false then            
-            local worldPos = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
+    if cell.hasInfo == false then           
+        local worldPos = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
 
-            local cornerX = worldPos.x + (-pf.vectorX.x - pf.vectorZ.x)/2
-            local cornerZ = worldPos.z + (-pf.vectorX.z - pf.vectorZ.z)/2
+        local cornerX = worldPos.x + (-pf.vectorX.x - pf.vectorZ.x)/2
+        local cornerZ = worldPos.z + (-pf.vectorX.z - pf.vectorZ.z)/2
 
-            local corner2X = worldPos.x + (pf.vectorX.x - pf.vectorZ.x)/2
-            local corner2Z = worldPos.z + (pf.vectorX.z - pf.vectorZ.z)/2
+        local corner2X = worldPos.x + (pf.vectorX.x - pf.vectorZ.x)/2
+        local corner2Z = worldPos.z + (pf.vectorX.z - pf.vectorZ.z)/2
 
-            local corner3X = worldPos.x + (-pf.vectorX.x + pf.vectorZ.x)/2
-            local corner3Z = worldPos.z + (-pf.vectorX.z + pf.vectorZ.z)/2
+        local corner3X = worldPos.x + (-pf.vectorX.x + pf.vectorZ.x)/2
+        local corner3Z = worldPos.z + (-pf.vectorX.z + pf.vectorZ.z)/2
 
-            local corner4X = worldPos.x + (pf.vectorX.x + pf.vectorZ.x)/2
-            local corner4Z = worldPos.z + (pf.vectorX.z + pf.vectorZ.z)/2
+        local corner4X = worldPos.x + (pf.vectorX.x + pf.vectorZ.x)/2
+        local corner4Z = worldPos.z + (pf.vectorX.z + pf.vectorZ.z)/2
 
-            local shapeDefinition = getShapeDefByDirectionType(pf, cell);
+        local shapeDefinition = getShapeDefByDirectionType(pf, cell);
 
-            local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
-            angleRad = normalizeAngle(angleRad);
-            local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-            local shapes = overlapBox(shapeDefinition.x,shapeDefinition.y+3,shapeDefinition.z, 0,shapeDefinition.angleRad,0, shapeDefinition.widthX,shapeDefinition.height,shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
-            
-            cell.hasCollision = (shapes > 0);
+        local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
+        angleRad = normalizeAngle(angleRad);
+        local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
+        local shapes = overlapBox(shapeDefinition.x,shapeDefinition.y+3,shapeDefinition.z, 0,shapeDefinition.angleRad,0, shapeDefinition.widthX,shapeDefinition.height,shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+        
+        cell.hasCollision = (shapes > 0);
 
-            local previousCell = cell.incoming
-            local worldPosPrevious = AutoDrivePathFinder:gridLocationToWorldLocation(pf, previousCell);
-            
-            local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 0, worldPos.z)
-            local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPosPrevious.x, 0, worldPosPrevious.z)
-            local length = MathUtil.vector3Length(worldPos.x-worldPosPrevious.x, terrain1-terrain2, worldPos.z-worldPosPrevious.z)
-            local angleBetween = math.atan(math.abs(terrain1-terrain2)/length)
+        local previousCell = cell.incoming
+        local worldPosPrevious = AutoDrivePathFinder:gridLocationToWorldLocation(pf, previousCell);
+        
+        local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 0, worldPos.z)
+        local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPosPrevious.x, 0, worldPosPrevious.z)
+        local length = MathUtil.vector3Length(worldPos.x-worldPosPrevious.x, terrain1-terrain2, worldPos.z-worldPosPrevious.z)
+        local angleBetween = math.atan(math.abs(terrain1-terrain2)/length)
 
-            if angleBetween > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
-                cell.hasCollision = true;
-            end
+        if angleBetween > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+            cell.hasCollision = true;
+        end  
 
-            --shapes = overlapBox(worldPos.x,y+3,worldPos.z, 0,angleRad,0, AutoDrive.PP_CELL_X/2,1.1,AutoDrive.PP_CELL_Z/2, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
-            --cell.hasCollision = cell.hasCollision or (shapes > 0);    
+        --allow collision in the first few grid. as it also detects the driver and trailer itself
+        --if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then --also allow collision at the end if other drivers are waiting in line
+            --cell.hasCollision = false;
+        --end;
 
-            --allow collision in the first few grid. as it also detects the driver and trailer itself
-            --if ((math.abs(cell.x) <= 2) and (math.abs(cell.z) <= 2)) or cellDistance(pf, cell) <= 2 then --also allow collision at the end if other drivers are waiting in line
-                --cell.hasCollision = false;
-            --end;
-
-            if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit") then
-                if pf.fruitToCheck == nil then
-                    --make async query until fruittype is known
-                    --local callBack = PathFinderCallBack:new(pf, cell);
-                    --FSDensityMapUtil.getFieldStatusAsync(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, callBack.onFieldDataUpdateFinished,  callBack);
-                    --local box = {}
-                    --cell.hasRequested = true;
-
-                    for i = 1, #g_fruitTypeManager.fruitTypes do
-                        if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
-                            local fruitType = g_fruitTypeManager.fruitTypes[i];                            
-                            if cell.isRestricted == false and pf.fruitToCheck == nil then --stop if cell is already restricted and/or fruit type is now known
-                                checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
-                            end;
-                        end;
-                    end;
-                else
-                    checkForFruitTypeInArea(pf, cell, pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
-                end;                
-                cell.hasInfo = true;
-            else
-                cell.hasInfo = true;
-                cell.isRestricted = false;
-            end;
-
-            if pf.driver.ad.currentCombine == nil then
-                return;
-            end;
-
-            local boundingBox = {};
-            boundingBox[1] ={ 	x = cornerX,
-                                y = 0,
-                                z = cornerZ; };
-            boundingBox[2] ={ 	x = corner2X,
-                                y = 0,
-                                z = corner2Z; };
-            boundingBox[3] ={ 	x = corner4X,
-                                y = 0,
-                                z = corner4Z; };
-            boundingBox[4] ={ 	x = corner3X,
-                                y = 0,
-                                z = corner3Z; };
-            
-            for _,other in pairs(g_currentMission.vehicles) do
-                if other ~= pf.driver and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other)) then
-                    if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
-                        local otherWidth = other.sizeWidth;
-                        local otherLength = other.sizeLength;
-                        local otherPos = {};
-                        otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( other.components[1].node ); 
-
-                        local rx,ry,rz = localDirectionToWorld(other.components[1].node, 0, 0, 1);
-
-                        local otherVectorToWp = {};
-                        otherVectorToWp.x = rx;
-                        otherVectorToWp.z = rz;
-
-                        local otherPos2 = {};
-                        otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
-                        otherPos2.y = 0;
-                        otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
-                        local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
-
-                        local otherBoundingBox = {};
-                        otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                                y = 0,
-                                                z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-
-                        otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                                y = 0,
-                                                z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-                        otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                                y = 0,
-                                                z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-
-                        otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                                y = 0,
-                                                z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-                        
-                        if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
-                            cell.isRestricted = true;
-                            cell.hasInfo = true;
-                            cell.hasCollision = true;
+        if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit") then
+            if pf.fruitToCheck == nil then
+                for i = 1, #g_fruitTypeManager.fruitTypes do
+                    if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
+                        local fruitType = g_fruitTypeManager.fruitTypes[i];                            
+                        if cell.isRestricted == false and pf.fruitToCheck == nil then --stop if cell is already restricted and/or fruit type is now known
+                            checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
                         end;
                     end;
                 end;
-            end;
+            else
+                checkForFruitTypeInArea(pf, cell, pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
+            end;                
+        else
+            cell.isRestricted = false;
+            cell.hasFruit = not AutoDrive:getSetting("avoidFruit"); --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
         end;
+        
+        cell.hasInfo = true;
+        if pf.driver.ad.currentCombine == nil then
+            return;
+        end;
+
+        local boundingBox = {};
+        boundingBox[1] ={ 	x = cornerX,
+                            y = 0,
+                            z = cornerZ; };
+        boundingBox[2] ={ 	x = corner2X,
+                            y = 0,
+                            z = corner2Z; };
+        boundingBox[3] ={ 	x = corner4X,
+                            y = 0,
+                            z = corner4Z; };
+        boundingBox[4] ={ 	x = corner3X,
+                            y = 0,
+                            z = corner3Z; };
+        
+        for _,other in pairs(g_currentMission.vehicles) do
+            if other ~= pf.driver and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other)) then
+                if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
+                    local otherWidth = other.sizeWidth;
+                    local otherLength = other.sizeLength;
+                    local otherPos = {};
+                    otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( other.components[1].node ); 
+
+                    local rx,ry,rz = localDirectionToWorld(other.components[1].node, 0, 0, 1);
+
+                    local otherVectorToWp = {};
+                    otherVectorToWp.x = rx;
+                    otherVectorToWp.z = rz;
+
+                    local otherPos2 = {};
+                    otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+                    otherPos2.y = 0;
+                    otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+                    local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
+
+                    local otherBoundingBox = {};
+                    otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                            y = 0,
+                                            z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+                    otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                            y = 0,
+                                            z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+                    otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                            y = 0,
+                                            z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+                    otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                            y = 0,
+                                            z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+                    
+                    if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
+                        cell.isRestricted = true;
+                        cell.hasCollision = true;
+                    end;
+                end;
+            end;
+        end;                    
     end;
 end;
 
@@ -825,17 +800,13 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                     end
                 end;
 
-                if pf.fruitToCheck ~= nil then
+                if pf.fruitToCheck ~= nil then                    
                     local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, nil, false);
                     if pf.fruitToCheck == 9 or pf.fruitToCheck == 22 then
                         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true);
                     end;
-                    if pf.fieldArea ~= nil then
-                        hasCollision = hasCollision or (fruitValue > (0.3 * pf.fieldArea));
-                    else               
-                        hasCollision = hasCollision or (fruitValue > 50);
-                    end;
-                    
+
+                    hasCollision = hasCollision or (fruitValue > 50);                    
                 end;
 
                 hasCollision = hasCollision or AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);                
@@ -1012,44 +983,6 @@ function AutoDrivePathFinder:checkVehicleCollision(pf, cornerX, cornerZ, corner2
     return false;
 end;
 
-function AutoDrivePathFinder:onFieldDataUpdateFinished(pf, fielddata, cell)
-    local totalFruitPixels = 0;
-    if fielddata ~= nil then
-		local maxAmount = 0;
-		local maxIndex = 0;
-		for fruitIndex,fruitAmount in pairs(fielddata.fruitPixels) do
-			if fruitIndex ~= 13 then --13 should be grass				
-                totalFruitPixels = totalFruitPixels + fruitAmount;
-                if fruitAmount > maxAmount then
-                    maxAmount = fruitAmount;
-                    maxIndex = fruitIndex;
-                end;
-			end;
-        end;
-        
-        cell.isRestricted = (maxAmount > (0.3 * fielddata.fieldArea) and (fielddata.fieldArea > 150))
-        cell.hasFruit = cell.isRestricted;
-
-        if maxIndex > 0 and maxAmount > (0.2 * fielddata.fieldArea) and pf.fruitToCheck == nil  and fielddata.fieldArea > 150 then
-            --print("Avoiding fruit: " .. maxIndex .. " from now on. FieldArea: " .. fielddata.fieldArea);
-			pf.fruitToCheck = maxIndex;
-            pf.fieldArea = fielddata.fieldArea;
-            pf.driver.ad.combineFieldArea = pf.fieldArea;
-            pf.driver.ad.combineFruitToCheck = pf.fruitToCheck; 
-		end;
-	
-		--Allow fruit in the first few grid cells
-		if (math.abs(cell.x) <= 2 and math.abs(cell.z) <= 2) or cellDistance(pf, cell) <= 3 then
-			cell.isRestricted = false;
-		end;
-	else
-        --Not on field == not restricted
-		cell.isRestricted = false;
-	end;	
-
-	cell.hasInfo = true;
-end;
-
 function AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell)
 	local result = {x= 0, z=0};
 
@@ -1185,13 +1118,9 @@ function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X
         pf.fruitToCheck = fruitType;
     end;
 
-    if pf.fieldArea ~= nil then
-        cell.isRestricted = cell.isRestricted or (fruitValue > (0.3 * pf.fieldArea));
-    else
-        cell.isRestricted = cell.isRestricted or (fruitValue > 50);
-    end;
-
-    cell.hasFruit = cell.isRestricted;
+    cell.isRestricted = cell.isRestricted or (fruitValue > 50);
+    
+    cell.hasFruit = (fruitValue > 50);
 
     --Allow fruit in the first few grid cells
     if (((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3 then

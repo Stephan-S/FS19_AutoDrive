@@ -10,6 +10,7 @@ adEnterTargetNameGui = {};
 local adEnterTargetNameGui_mt = Class(adEnterTargetNameGui, ScreenElement);
 
 function adEnterTargetNameGui:new(target, custom_mt)
+    --FocusManager.DEBUG = true;
     local self = ScreenElement:new(target,adEnterTargetNameGui_mt);
     self.returnScreenName = "";
     self.textInputElement = nil;
@@ -18,10 +19,13 @@ end;
 
 function adEnterTargetNameGui:onOpen()
     adEnterTargetNameGui:superClass().onOpen(self);
-    FocusManager:setFocus(self.textInputElement);
+    
+    self.textInputElement:onFocusActivate()
     self.textInputElement:setText("" .. AutoDrive.mapWayPointsCounter);
     self.textInputElement:onFocusActivate()
-    FocusManager:setFocus(self.textInputElement);
+    self.textInputElement:setCaptureInput(true);
+    self.textInputElement:setForcePressed(true);
+    --FocusManager:setFocus(self.textInputElement);
 end;
 
 function adEnterTargetNameGui:onClickOk()
@@ -39,7 +43,6 @@ function adEnterTargetNameGui:onClickOk()
                 AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= enteredName, node=node};
                 AutoDrive:MarkChanged();
 
-
                 if g_server ~= nil then
                     AutoDrive:broadCastUpdateToClients();
                 else
@@ -53,7 +56,7 @@ function adEnterTargetNameGui:onClickOk()
 end;
 
 function adEnterTargetNameGui:onClickResetButton()
-    self.textInputElement:setText("" .. AutoDrive.mapWayPointsCounter);
+    self.textInputElement:setText("");
 end;
 
 function adEnterTargetNameGui:onClose()
@@ -67,6 +70,8 @@ end;
 function adEnterTargetNameGui:onCreateInputElement(element)
     self.textInputElement = element;   
     element.text = "";
+    self.textInputElement:setCaptureInput(true);
+    self.textInputElement:setForcePressed(true);
 end;
 
 function adEnterTargetNameGui:onEnterPressed()
@@ -74,5 +79,5 @@ function adEnterTargetNameGui:onEnterPressed()
 end;
 
 function adEnterTargetNameGui:onEscPressed()
-    self:onClose()();
+    self:onClose();
 end;

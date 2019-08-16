@@ -177,8 +177,8 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 --wait for combine to move away. Currently by fixed timer of 15s
                 if vehicle.ad.combineUnloadInFruitWaitTimer > 0 then
                     vehicle.ad.combineUnloadInFruitWaitTimer = vehicle.ad.combineUnloadInFruitWaitTimer - dt;
-                    if vehicle.ad.combineUnloadInFruitWaitTimer > 11500 then
-                        local finalSpeed = 8;
+                    if vehicle.ad.combineUnloadInFruitWaitTimer > 10500 then
+                        local finalSpeed = 9;
                         local acc = 1;
                         local allowedToDrive = true;
                         

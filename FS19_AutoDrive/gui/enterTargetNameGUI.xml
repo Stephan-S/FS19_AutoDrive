@@ -2,13 +2,13 @@
 <GUI onOpen="onOpen" onClose="onClose" onCreate="onCreate">
 	<GuiElement type="bitmap" profile="uiFullInGameBackground" />
     <GuiElement type="bitmap" profile="dialogBg" id="dialogElement">
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" onEnterPressed="onEnterPressed" onEscPressed="onEscPressed" />
+        <GuiElement type="textInput" profile="dialogTextInput" focusId="1" focusChangeTop="4" focusChangeBottom="2" id="textInputElement" onCreate="onCreateInputElement" onEnterPressed="onEnterPressed" onEscPressed="onEscPressed"  focusInit="onOpen"/>
         
         <!-- bottom "back" + "ok"  -->
         <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
-            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="backButton" />
-            <GuiElement type="button" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" />
-            <GuiElement type="button" profile="buttonCancel" text="$l10n_button_reset" onClick="onClickResetButton" />	
+            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="backButton" focusId="2" focusChangeTop="1" focusChangeBottom="3" />
+            <GuiElement type="button" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" focusId="3" focusChangeTop="2" focusChangeBottom="4" />
+            <GuiElement type="button" profile="buttonCancel" text="$l10n_button_reset" onClick="onClickResetButton" focusId="4" focusChangeTop="3" focusChangeBottom="1" />	
         </GuiElement>
     </GuiElement>
 </GUI>

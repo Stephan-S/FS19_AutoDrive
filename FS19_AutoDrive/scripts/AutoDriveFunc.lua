@@ -108,8 +108,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.lastSpeed = 10;
 	vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;
 	vehicle.ad.combineUnloadInFruit = false;
-	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;	
-	vehicle.ad.combineFieldArea = nil;
+	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER;
 	vehicle.ad.combineFruitToCheck = nil; 	
 	vehicle.ad.usePathFinder = false;	
 	vehicle.ad.loopCounterCurrent = 0;

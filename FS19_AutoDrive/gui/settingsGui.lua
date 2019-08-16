@@ -19,9 +19,7 @@ end;
 function adSettingsGui:onOpen()
     adSettingsGui:superClass().onOpen(self);
     FocusManager:setFocus(self.backButton);
-    for settingName, setting in pairs(AutoDrive.settings) do
-        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.current);
-    end;
+    adSettingsGui:updateAllGUISettings();
 end;
 
 function adSettingsGui:onClose()
@@ -37,21 +35,20 @@ function adSettingsGui:onClickOk()
     adSettingsGui:superClass().onClickOk(self);
     for settingName, setting in pairs(AutoDrive.settings) do
         setting.current = self.settingElements[settingName]:getState();
+        if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
+            g_currentMission.controlledVehicle.ad.settings[settingName].current = self.settingElements[settingName]:getState();
+        end;
     end;
     AutoDriveUpdateSettingsEvent:sendEvent();
     self:onClickBack();
 end;
 
 function adSettingsGui:onClickResetButton()
-    for settingName, setting in AutoDrive.settings do
-        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.default);
-    end;
+    adSettingsGui:resetAllGUISettings(); 
 end;
 
 function AutoDrive:guiClosed()
-	for settingName, setting in pairs(AutoDrive.settings) do
-        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, setting.current);
-    end;
+    adSettingsGui:updateAllGUISettings();   
 end;
 
 function adSettingsGui:onIngameMenuHelpTextChanged(element)
@@ -61,9 +58,9 @@ function adSettingsGui:onCreateadSettingsGuiHeader(element)
 	element.text = g_i18n:getText('gui_ad_Setting');
 end;
 
-function adSettingsGui:onCreateAutoDriveSetting(element, settingName)    
-    self.settingElements[settingName] = element;
-    local setting = AutoDrive.settings[settingName];
+function adSettingsGui:onCreateAutoDriveSetting(element)     
+    self.settingElements[element.name] = element;
+    local setting = AutoDrive.settings[element.name];
 	element.labelElement.text = g_i18n:getText(setting.text);
 	element.toolTipText = g_i18n:getText(setting.tooltip);
 
@@ -78,103 +75,26 @@ function adSettingsGui:onCreateAutoDriveSetting(element, settingName)
     element:setTexts(labels);
 end;
 
+function adSettingsGui:updateAllGUISettings()
+    for settingName, setting in pairs(AutoDrive.settings) do
+        local value = setting.current;
+        if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
+            value = g_currentMission.controlledVehicle.ad.settings[settingName].current;
+        end;            
+        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, value);
+    end;
+end;
+
+function adSettingsGui:resetAllGUISettings()
+    for settingName, setting in pairs(AutoDrive.settings) do
+        local value = setting.default;
+        if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
+            value = g_currentMission.controlledVehicle.ad.settings[settingName].default;
+        end;            
+        AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, value);
+    end;
+end;
+
 function adSettingsGui:updateGUISettings(settingName, index)
     self.settingElements[settingName]:setState(index, false);
 end;
-
-function adSettingsGui:onCreateAutoDriveSettingPipeOffset(element)
-    self:onCreateAutoDriveSetting(element, "pipeOffset");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingLookAheadTurning(element)
-    self:onCreateAutoDriveSetting(element, "lookAheadTurning");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingLookAheadBraking(element)
-    self:onCreateAutoDriveSetting(element, "lookAheadBraking");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingUseFastestRoute(element)
-    self:onCreateAutoDriveSetting(element, "useFastestRoute");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingAvoidMarkers(element)
-    self:onCreateAutoDriveSetting(element, "avoidMarkers");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingMapMarkerDetour(element)
-    self:onCreateAutoDriveSetting(element, "mapMarkerDetour");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingContinueOnEmptySilo(element)
-    self:onCreateAutoDriveSetting(element, "continueOnEmptySilo");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingAutoConnectStart(element)
-    self:onCreateAutoDriveSetting(element, "autoConnectStart");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingAutoConnectEnd(element)
-    self:onCreateAutoDriveSetting(element, "autoConnectEnd");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingUnloadFillLevel(element)
-    self:onCreateAutoDriveSetting(element, "unloadFillLevel");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingParkInField(element)
-    self:onCreateAutoDriveSetting(element, "parkInField");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingFindDriver(element)
-    self:onCreateAutoDriveSetting(element, "findDriver");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingExitField(element)
-    self:onCreateAutoDriveSetting(element, "exitField");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingGUIScale(element)
-    self:onCreateAutoDriveSetting(element, "guiScale");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingShowHelp(element)
-    self:onCreateAutoDriveSetting(element, "showHelp");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingDriverWages(element)
-    self:onCreateAutoDriveSetting(element, "driverWages");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingSmoothField(element)
-    self:onCreateAutoDriveSetting(element, "smoothField");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingRecalculationSpeed(element)
-    self:onCreateAutoDriveSetting(element, "recalculationSpeed");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingShowNextPath(element)
-    self:onCreateAutoDriveSetting(element, "showNextPath");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingAvoidFruit(element)
-    self:onCreateAutoDriveSetting(element, "avoidFruit");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingPathFinderTime(element)
-    self:onCreateAutoDriveSetting(element, "pathFinderTime");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingLineHeight(element)
-    self:onCreateAutoDriveSetting(element, "lineHeight");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingAllowConsoleStyle(element)
-    self:onCreateAutoDriveSetting(element, "allowConsoleStyle");
-end;
-
-function adSettingsGui:onCreateAutoDriveSettingEnableTrafficDetection(element)
-    self:onCreateAutoDriveSetting(element, "enableTrafficDetection");
-end;
-

@@ -7,7 +7,8 @@ AutoDrive.settings.pipeOffset = {
     current= 4,
     text= "gui_ad_pipe_offset",
     tooltip= "gui_ad_pipe_offset",
-    translate= false
+    translate= false,
+    isVehicleSpecific = true
 };
 
 AutoDrive.settings.lookAheadTurning = {     
@@ -17,7 +18,8 @@ AutoDrive.settings.lookAheadTurning = {
     current= 4,
     text= "gui_ad_lookahead_turning",
     tooltip= "gui_ad_lookahead_turning_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.lookAheadBraking = {   
@@ -27,7 +29,8 @@ AutoDrive.settings.lookAheadBraking = {
     current= 7,
     text= "gui_ad_lookahead_braking",
     tooltip= "gui_ad_lookahead_braking_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.useFastestRoute = {  
@@ -37,7 +40,8 @@ AutoDrive.settings.useFastestRoute = {
     current= 1,                                    
     text= "gui_ad_useFastestRoute",                                    
     tooltip= "gui_ad_useFastestRoute_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.avoidMarkers = {  
@@ -47,7 +51,8 @@ AutoDrive.settings.avoidMarkers = {
     current= 1,                                    
     text= "gui_ad_avoidMarkers",                                    
     tooltip= "gui_ad_avoidMarkers_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.mapMarkerDetour = {  
@@ -57,7 +62,8 @@ AutoDrive.settings.mapMarkerDetour = {
     current= 1,                                    
     text= "gui_ad_mapMarkerDetour",                                    
     tooltip= "gui_ad_mapMarkerDetour_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.continueOnEmptySilo = {  
@@ -67,7 +73,8 @@ AutoDrive.settings.continueOnEmptySilo = {
     current= 1,                                    
     text= "gui_ad_siloEmpty",                                    
     tooltip= "gui_ad_siloEmpty_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.autoConnectStart = {  
@@ -77,7 +84,8 @@ AutoDrive.settings.autoConnectStart = {
     current= 2,                                    
     text= "gui_ad_autoConnect_start",                                    
     tooltip= "gui_ad_autoConnect_start_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.autoConnectEnd = {  
@@ -87,7 +95,8 @@ AutoDrive.settings.autoConnectEnd = {
     current= 1,                                    
     text= "gui_ad_autoConnect_end",                                    
     tooltip= "gui_ad_autoConnect_end_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.parkInField = {  
@@ -97,17 +106,19 @@ AutoDrive.settings.parkInField = {
     current= 2,                                    
     text= "gui_ad_parkInField",                                    
     tooltip= "gui_ad_parkInField_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.unloadFillLevel = {  
     values= {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.99, 1},                                    
-    texts= {"50%", "60%", "70%", "80%", "85%", "90%", "95%", "99%", "100%"},                                    
+    texts= {"0%", "10%", "20%", "40%", "50%", "60%", "70%", "80%", "85%", "90%", "95%", "99%", "100%"},                                    
     default= 10,                                    
     current= 10,                                    
     text= "gui_ad_unloadFillLevel",                                    
     tooltip= "gui_ad_unloadFillLevel_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = true
 };
 
 AutoDrive.settings.findDriver = {  
@@ -117,7 +128,8 @@ AutoDrive.settings.findDriver = {
     current= 2,                                    
     text= "gui_ad_findDriver",                                    
     tooltip= "gui_ad_findDriver_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.guiScale = {  
@@ -127,7 +139,8 @@ AutoDrive.settings.guiScale = {
     current= 1,
     text= "gui_ad_gui_scale",
     tooltip= "gui_ad_gui_scale_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.exitField = {  
@@ -137,7 +150,8 @@ AutoDrive.settings.exitField = {
     current= 1,                                    
     text= "gui_ad_exitField",                                    
     tooltip= "gui_ad_exitField_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.showHelp = {  
@@ -147,7 +161,8 @@ AutoDrive.settings.showHelp = {
     current= 2,                                    
     text= "gui_ad_showHelp",                                    
     tooltip= "gui_ad_showHelp_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.driverWages = {  
@@ -157,7 +172,8 @@ AutoDrive.settings.driverWages = {
     current= 3,
     text= "gui_ad_driverWages",
     tooltip= "gui_ad_driverWages_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.smoothField = {  
@@ -167,7 +183,8 @@ AutoDrive.settings.smoothField = {
     current= 2,                                    
     text= "gui_ad_smoothField",                                    
     tooltip= "gui_ad_smoothField_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.recalculationSpeed = {  
@@ -177,7 +194,8 @@ AutoDrive.settings.recalculationSpeed = {
     current= 2,                                    
     text= "gui_ad_recalculationSpeed",                                    
     tooltip= "gui_ad_recalculationSpeed_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.showNextPath = {  
@@ -187,7 +205,8 @@ AutoDrive.settings.showNextPath = {
     current= 2,                                             
     text= "gui_ad_showNextPath",                                    
     tooltip= "gui_ad_showNextPath_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.avoidFruit = {  
@@ -197,7 +216,8 @@ AutoDrive.settings.avoidFruit = {
     current= 2,                                             
     text= "gui_ad_avoidFruit",                                    
     tooltip= "gui_ad_avoidFruit_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = true
 };
 
 AutoDrive.settings.pathFinderTime = {  
@@ -207,7 +227,8 @@ AutoDrive.settings.pathFinderTime = {
     current= 3,                                    
     text= "gui_ad_pathFinderTime",                                    
     tooltip= "gui_ad_pathFinderTime_tooltip",
-    translate= false
+    translate= false,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.lineHeight = {  
@@ -217,7 +238,8 @@ AutoDrive.settings.lineHeight = {
     current= 1,                                    
     text= "gui_ad_lineHeight",                                    
     tooltip= "gui_ad_lineHeight_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.allowConsoleStyle = {  
@@ -227,7 +249,8 @@ AutoDrive.settings.allowConsoleStyle = {
     current= 1,                                             
     text= "gui_ad_allowConsoleStyle",                                    
     tooltip= "gui_ad_allowConsoleStyle_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 AutoDrive.settings.enableTrafficDetection = {  
@@ -237,16 +260,56 @@ AutoDrive.settings.enableTrafficDetection = {
     current= 1,                                    
     text= "gui_ad_enableTrafficDetection",                                    
     tooltip= "gui_ad_enableTrafficDetection_tooltip",
-    translate= true
+    translate= true,
+    isVehicleSpecific = false
 };
 
 
-function AutoDrive:getSetting(settingName)
+function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
+        if setting.isVehicleSpecific and vehicle ~= nil then --try loading vehicle specific setting first, if available
+            if vehicle.ad.settings[settingName] ~= nil then
+                setting = vehicle.ad.settings[settingName];
+            end;
+        end;
         if setting.values[setting.current] == nil then
             setting.current = setting.default;
         end;
         return setting.values[setting.current];
+    end;
+end;
+
+function AutoDrive:copySettingsToVehicle(vehicle)
+    for settingName, setting in pairs(AutoDrive.settings) do
+        if setting.isVehicleSpecific then
+            local settingVehicle = {};
+            settingVehicle.values = setting.values;
+            settingVehicle.texts = setting.texts;
+            settingVehicle.default = setting.default;
+            settingVehicle.current = setting.current;
+            settingVehicle.text = setting.text;
+            settingVehicle.tooltip = setting.tooltip;
+            settingVehicle.translate = setting.translate;
+            vehicle.ad.settings[settingName] = settingVehicle;
+        end;
+    end;
+end;
+
+function AutoDrive:readVehicleSettingsFromXML(vehicle, xmlFile, key)
+    vehicle.ad.settings = {}
+    for settingName, setting in pairs(AutoDrive.settings) do
+        if setting.isVehicleSpecific then
+            local settingVehicle = {};
+            settingVehicle.values = setting.values;
+            settingVehicle.default = setting.default;
+            settingVehicle.current = setting.current;
+            vehicle.ad.settings[settingName] = settingVehicle;
+
+            local storedSetting = getXMLInt(xmlFile, key.."#" .. settingName);
+			if storedSetting ~= nil then
+				vehicle.ad.settings[settingName].current = storedSetting;
+			end;
+        end;
     end;
 end;
