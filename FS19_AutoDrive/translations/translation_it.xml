@@ -24,6 +24,7 @@
 		<text name="input_ADDebugChangeNeighbor"			 text="AD: Prossimo punto vicino" />
 		<text name="input_ADDebugCreateConnection"			 text="AD: Connetti/Disconnetti" />
 		<text name="input_ADDebugCreateMapMarker"			 text="AD: Crea nuova destinazione" />
+		<text name="input_ADRenameMapMarker"			 	 text="AD: Rinomina destinazione corrente" />
 		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Elimina punto" />
 		<text name="input_ADDebugForceUpdate"				 text="AD: Ricalcola percorsi" />
 		<text name="input_ADDebugDeleteDestination"			 text="AD: Elimina destinazione" />
