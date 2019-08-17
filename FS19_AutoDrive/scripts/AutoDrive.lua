@@ -329,6 +329,10 @@ function init(self)
 	if self.ad.parkDestination == nil then
 		self.ad.parkDestination = -1;
 	end;
+
+	if self.ad.settings == nil then
+		AutoDrive:copySettingsToVehicle(self);
+	end;
 end;
 
 function AutoDrive:onLeaveVehicle()	
