@@ -159,7 +159,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_previousTarget", "previousTarget.dds", "previousTarget.dds", "input_ADSelectPreviousTarget", true, true);
 	self:AddButton("input_nextTarget", "nextTarget.dds", "nextTarget.dds","input_ADSelectTarget", true, true);	
 	self:AddButton("input_record", "record_on.dds", "record_off.dds","input_ADRecord", false, true);
-	self:AddButton("input_silomode", "silomode_on.dds", "silomode_off.dds","input_ADSilomode", false, true);
+	self:AddButton("input_silomode", "silomode_on.dds", "silomode_off.dds","input_ADSilomode", false, true, "input_previousMode");
 	self:AddButton("input_decreaseSpeed", "decreaseSpeed.dds", "decreaseSpeed.dds","input_AD_Speed_down", true, true);
 	self:AddButton("input_increaseSpeed", "increaseSpeed.dds", "increaseSpeed.dds","input_AD_Speed_up", true, true);
 	self:AddButton("input_continue", "continue.dds", "continue.dds","input_AD_continue", true, true);
@@ -171,10 +171,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_incLoopCounter", "loop_0.dds", "loop_1.dds","input_ADIncLoopCounter", false, true, "input_decLoopCounter");
 	--self:AddButton("input_nextTarget_Unload", "nextTarget_Unload.dds", "nextTarget_Unload.dds","input_ADSelectTargetUnload", true, true);
 	self:AddButton("input_showNeighbor", "showNeighbor_on.dds", "showNeighbor_off.dds","input_ADDebugSelectNeighbor", false, false);
-	self:AddButton("input_nextNeighbor", "nextNeighbor.dds", "nextNeighbor.dds","input_ADDebugChangeNeighbor", true, false);
+	self:AddButton("input_nextNeighbor", "nextNeighbor.dds", "nextNeighbor.dds","input_ADDebugChangeNeighbor", true, false, "input_previousNeighbor");
 	self:AddButton("input_toggleConnection", "toggleConnection.dds", "toggleConnection.dds","input_ADDebugCreateConnection", true, false);
-	self:AddButton("input_createMapMarker", "createMapMarker.dds", "createMapMarker.dds","input_ADDebugCreateMapMarker", true, false);
-	self:AddButton("input_removeWaypoint", "deleteWaypoint.dds", "deleteWaypoint.dds","input_ADDebugDeleteWayPoint", true, false);
+	self:AddButton("input_createMapMarker", "createMapMarker.dds", "createMapMarker.dds","input_ADDebugCreateMapMarker", true, false, "input_renameMapMarker");
+	self:AddButton("input_removeWaypoint", "deleteWaypoint.dds", "deleteWaypoint.dds","input_ADDebugDeleteWayPoint", true, false, "input_removeDestination");
 	self:AddButton("input_exportRoutes", "save_symbol.dds", "save_symbol.dds","input_AD_export_routes", true, false);
 end;
 
@@ -835,7 +835,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end;
 	end;
 
-	if mouseActiveForAutoDrive and button == 3 and isDown then	
+	if mouseActiveForAutoDrive and (button == 3 or button == 2) and isDown then	
 		for _,button in pairs(self.Buttons) do            
             if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible and button.secondaryName ~= nil then
                 AutoDrive:InputHandling(vehicle, button.secondaryName);

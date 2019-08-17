@@ -28,22 +28,32 @@ function adEnterTargetNameGui:onClickOk()
     local enteredName = self.textInputElement.text;
 
     if enteredName:len() > 1 then
-        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then    
-            local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle);
-            if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-                AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
-                local node = createTransformGroup(enteredName);
-                setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
-        
-                AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= enteredName, node=node};
-                AutoDrive:MarkChanged();
+        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+            if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
+                AutoDrive.mapMarker[g_currentMission.controlledVehicle.ad.mapMarkerSelected].name = enteredName;
+                for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
+                    mapPoint.marker[enteredName] = mapPoint.marker[g_currentMission.controlledVehicle.ad.nameOfSelectedTarget];
+                end;                
+                g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName;
+            else
+                local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle);
+                if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+                    AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
+                    local node = createTransformGroup(enteredName);
+                    setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
+            
+                    AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= enteredName, node=node};
+                    AutoDrive:MarkChanged();
 
-                if g_server ~= nil then
-                    AutoDrive:broadCastUpdateToClients();
-                else
-                    AutoDriveCreateMapMarkerEvent:sendEvent(g_currentMission.controlledVehicle, closest, enteredName);
+                    if g_server ~= nil then
+                        AutoDrive:broadCastUpdateToClients();
+                    else
+                        AutoDriveCreateMapMarkerEvent:sendEvent(g_currentMission.controlledVehicle, closest, enteredName);
+                    end;
                 end;
             end;
+
+            
         end;       
     end;    
     

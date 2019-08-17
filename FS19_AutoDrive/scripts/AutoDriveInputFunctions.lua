@@ -57,6 +57,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADDebugCreateMapMarker" then 
 		AutoDrive:InputHandling(self, "input_createMapMarker");			
 	end; 
+	if actionName == "ADRenameMapMarker" then 
+		AutoDrive:InputHandling(self, "input_renameMapMarker");			
+	end; 
 	
 	if actionName == "AD_Speed_up" then 
 		AutoDrive:InputHandling(self, "input_increaseSpeed");			
@@ -167,9 +170,18 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		end;
 		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
 			return;
-		end;
+		end;		
+		AutoDrive.renameCurrentMapMarker = false;
 		AutoDrive.openTargetGUINextFrame = 5;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
 		--AutoDrive:inputCreateMapMarker(vehicle);
+	end;
+
+	if input == "input_renameMapMarker" and (g_dedicatedServerInfo == nil) then
+		if vehicle.ad.createMapPoints == false then
+			return;
+		end;		
+		AutoDrive.renameCurrentMapMarker = true;
+		AutoDrive.openTargetGUINextFrame = 5;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
 	end;
 
 	if input == "input_start_stop" then
@@ -261,7 +273,11 @@ end;
 
 function AutoDrive:InputHandlingServerOnly(vehicle, input)	
 	if input == "input_silomode" then
-		AutoDrive:inputSiloMode(vehicle);
+		AutoDrive:inputSiloMode(vehicle, 1);
+	end;
+
+	if input == "input_previousMode" then
+		AutoDrive:inputSiloMode(vehicle, -1);
 	end;
 
 	if input == "input_record" then
@@ -311,8 +327,15 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if AutoDrive.requestedWaypoints == true then
 			return;
 		end;
-		AutoDrive:nextSelectedDebugPoint(vehicle);
-	end;	
+		AutoDrive:nextSelectedDebugPoint(vehicle, 1);
+	end;
+	
+	if input == "input_previousNeighbor" then
+		if AutoDrive.requestedWaypoints == true then
+			return;
+		end;
+		AutoDrive:nextSelectedDebugPoint(vehicle, -1);
+	end;
 
 	if input == "input_increaseSpeed" then
 		if vehicle.ad.targetSpeed < 100 then
@@ -439,11 +462,14 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 end;
 
-function AutoDrive:inputSiloMode(vehicle)
-    vehicle.ad.mode = vehicle.ad.mode + 1;
-    if vehicle.ad.mode > AutoDrive.MODE_LOAD then
-        vehicle.ad.mode = 1;
-    end;
+function AutoDrive:inputSiloMode(vehicle, increase)
+    vehicle.ad.mode = vehicle.ad.mode + increase;
+    if (vehicle.ad.mode > AutoDrive.MODE_LOAD) then
+        vehicle.ad.mode = AutoDrive.MODE_DRIVETO;
+	end;
+	if (vehicle.ad.mode < AutoDrive.MODE_DRIVETO) then
+		vehicle.ad.mode = AutoDrive.MODE_LOAD
+	end;
     AutoDrive:enableCurrentMode(vehicle);
 end;
 
@@ -590,8 +616,11 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
     AutoDriveCourseEditEvent:sendEvent(targetNode);		
 end;
 
-function AutoDrive:nextSelectedDebugPoint(vehicle)
-    vehicle.ad.selectedDebugPoint = vehicle.ad.selectedDebugPoint + 1;
+function AutoDrive:nextSelectedDebugPoint(vehicle, increase)
+	vehicle.ad.selectedDebugPoint = vehicle.ad.selectedDebugPoint + increase;
+	if vehicle.ad.selectedDebugPoint < 1 then
+		vehicle.ad.selectedDebugPoint = #vehicle.ad.iteratedDebugPoints;
+	end;
     if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] == nil then
         vehicle.ad.selectedDebugPoint = 1;
     end;

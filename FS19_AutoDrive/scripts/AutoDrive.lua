@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.4.7";
+AutoDrive.Version = "1.0.4.8";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -8,7 +8,8 @@ AutoDrive.actions   = { {'ADToggleMouse', true, 1}, {'ADToggleHud', true, 1}, {'
 						{'ADDebugSelectNeighbor', false, 0}, {'ADDebugChangeNeighbor', false, 0}, {'ADDebugCreateConnection', false, 0}, {'ADDebugCreateMapMarker', false, 0},
 						{'ADDebugDeleteWayPoint', false, 0},  {'ADDebugForceUpdate', false, 0}, {'ADDebugDeleteDestination', false, 3},  {'ADSilomode',false, 0}, {'ADOpenGUI', true, 2},
 						{'ADCallDriver', false, 3}, {'ADSelectNextFillType', false, 0}, {'ADSelectPreviousFillType', false, 0}, {'ADRecord', false, 0}, 
-						{'AD_export_routes', false, 0}, {'AD_import_routes', false, 0}, {'AD_upload_routes', false, 0}, {'ADGoToVehicle', false, 3}, {'ADNameDriver', false, 0} }
+						{'AD_export_routes', false, 0}, {'AD_import_routes', false, 0}, {'AD_upload_routes', false, 0}, {'ADGoToVehicle', false, 3}, {'ADNameDriver', false, 0},
+						{'ADRenameMapMarker', false, 0} }
 
 AutoDrive.drawHeight = 0.3;
 
@@ -399,7 +400,6 @@ function AutoDrive:onUpdate(dt)
 		AutoDrive.openTargetGUINextFrame = AutoDrive.openTargetGUINextFrame - 1;
 		if AutoDrive.openTargetGUINextFrame == 0 then
 			AutoDrive.openTargetGUINextFrame = nil;
-			print("opening on timer");
 			AutoDrive:onOpenEnterTargetName();
 		end;
 	end;
