@@ -395,6 +395,15 @@ function AutoDrive:onUpdate(dt)
 		init(self);
 	end;
 
+	if (AutoDrive.openTargetGUINextFrame ~= nil) and (AutoDrive.openTargetGUINextFrame > 0) and (AutoDrive.runThisFrame == false) then
+		AutoDrive.openTargetGUINextFrame = AutoDrive.openTargetGUINextFrame - 1;
+		if AutoDrive.openTargetGUINextFrame == 0 then
+			AutoDrive.openTargetGUINextFrame = nil;
+			print("opening on timer");
+			AutoDrive:onOpenEnterTargetName();
+		end;
+	end;
+
 	if self.ad.currentInput ~= "" and self.isServer then
 		AutoDrive:InputHandling(self, self.ad.currentInput);
 	end;
@@ -729,8 +738,8 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 	setXMLInt(xmlFile, key.."#parkDestination", 			self.ad.parkDestination);
 	
 	for settingName, setting in pairs(AutoDrive.settings) do
-		if setting.isVehicleSpecific then
-			setXMLInt(xmlFile, key.."#parkDestination", 			self.ad.settings[settingName].current);
+		if setting.isVehicleSpecific and self.ad.settings ~= nil and self.ad.settings[settingName] ~= nil then
+			setXMLInt(xmlFile, key.."#" .. settingName, 			self.ad.settings[settingName].current);
 		end;
 	end;
 end

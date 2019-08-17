@@ -750,8 +750,9 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		
     if mouseActiveForAutoDrive and button == 1 and isDown then        
         for _,button in pairs(self.Buttons) do            
-            if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible then
-                AutoDrive:InputHandling(vehicle, button.name);
+			if posX > button.posX and posX < (button.posX + button.width) and posY > button.posY and posY < (button.posY + button.height) and button.isVisible then
+				AutoDrive:InputHandling(vehicle, button.name);
+				return true;
             end;            
         end;
 

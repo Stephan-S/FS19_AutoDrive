@@ -29,12 +29,13 @@ function AutoDrive:onOpenEnterDriverName()
 end;
 
 function AutoDrive:onOpenEnterTargetName()
+	print("Opening gui target name");
 	if g_dedicatedServerInfo ~= nil then
 		return;	
 	end;
 	
 	if AutoDrive.gui.adEnterTargetNameGui.isOpen then
-		AutoDrive.gui.adEnterTargetNameGui:onClickBack()
+		--AutoDrive.gui.adEnterTargetNameGui:onClickBack()
 	elseif g_gui.currentGui == nil then
 		g_gui:showGui("adEnterTargetNameGui")
 	end;

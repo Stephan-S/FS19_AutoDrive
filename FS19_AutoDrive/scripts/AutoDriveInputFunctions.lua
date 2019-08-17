@@ -168,7 +168,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
 			return;
 		end;
-		AutoDrive:onOpenEnterTargetName();
+		AutoDrive.openTargetGUINextFrame = 5;	
 		--AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 

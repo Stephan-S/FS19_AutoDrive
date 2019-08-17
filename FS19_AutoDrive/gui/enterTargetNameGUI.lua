@@ -10,7 +10,6 @@ adEnterTargetNameGui = {};
 local adEnterTargetNameGui_mt = Class(adEnterTargetNameGui, ScreenElement);
 
 function adEnterTargetNameGui:new(target, custom_mt)
-    --FocusManager.DEBUG = true;
     local self = ScreenElement:new(target,adEnterTargetNameGui_mt);
     self.returnScreenName = "";
     self.textInputElement = nil;
@@ -19,13 +18,9 @@ end;
 
 function adEnterTargetNameGui:onOpen()
     adEnterTargetNameGui:superClass().onOpen(self);
-    
-    self.textInputElement:onFocusActivate()
-    self.textInputElement:setText("" .. AutoDrive.mapWayPointsCounter);
-    self.textInputElement:onFocusActivate()
-    self.textInputElement:setCaptureInput(true);
-    self.textInputElement:setForcePressed(true);
-    --FocusManager:setFocus(self.textInputElement);
+    FocusManager:setFocus(self.textInputElement);
+    self.textInputElement:setText(""); --adEnterTargetNameGui
+    self.textInputElement:onFocusActivate();
 end;
 
 function adEnterTargetNameGui:onClickOk()
@@ -60,24 +55,26 @@ function adEnterTargetNameGui:onClickResetButton()
 end;
 
 function adEnterTargetNameGui:onClose()
+    print("onClose");
     adEnterTargetNameGui:superClass().onClose(self);
 end;
 
 function adEnterTargetNameGui:onClickBack()
+    print("Onclickback called");
     adEnterTargetNameGui:superClass().onClickBack(self);
 end;
 
 function adEnterTargetNameGui:onCreateInputElement(element)
     self.textInputElement = element;   
     element.text = "";
-    self.textInputElement:setCaptureInput(true);
-    self.textInputElement:setForcePressed(true);
 end;
 
 function adEnterTargetNameGui:onEnterPressed()
-    --self:onClickOk();
+    print("onEnterPressed");
+    self:onClickOk();
 end;
 
 function adEnterTargetNameGui:onEscPressed()
+    print("Onclickesc");
     self:onClose();
 end;

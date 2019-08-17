@@ -268,7 +268,7 @@ AutoDrive.settings.enableTrafficDetection = {
 function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
-        if setting.isVehicleSpecific and vehicle ~= nil then --try loading vehicle specific setting first, if available
+        if setting.isVehicleSpecific and vehicle ~= nil and vehicle.ad.settings ~= nil then --try loading vehicle specific setting first, if available
             if vehicle.ad.settings[settingName] ~= nil then
                 setting = vehicle.ad.settings[settingName];
             end;
@@ -281,6 +281,9 @@ function AutoDrive:getSetting(settingName, vehicle)
 end;
 
 function AutoDrive:copySettingsToVehicle(vehicle)
+    if vehicle.ad.settings == nil then
+        vehicle.ad.settings = {};
+    end;
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting.isVehicleSpecific then
             local settingVehicle = {};

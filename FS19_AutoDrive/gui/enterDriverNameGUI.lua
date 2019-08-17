@@ -31,7 +31,8 @@ function adEnterDriverNameGui:onClickOk()
 
     if enteredName:len() > 1 then
         if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then            
-            g_currentMission.controlledVehicle.ad.driverName = self.textInputElement.text;        
+            g_currentMission.controlledVehicle.ad.driverName = self.textInputElement.text;    
+            g_currentMission.controlledVehicle.name = self.textInputElement.text;    
             AutoDriveUpdateNameEvent:sendEvent(g_currentMission.controlledVehicle);
         end;
     end;

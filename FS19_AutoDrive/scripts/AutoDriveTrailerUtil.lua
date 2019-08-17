@@ -347,32 +347,25 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
             AutoDrive:setTrailerCoverOpen(trailers, true);
             for _,trailer in pairs(trailers) do
                 local fillLevelTrailer, leftCapacityTrailer  = getFillLevelAndCapacityOf(trailer, vehicle.ad.unloadFillTypeIndex);
-                if vehicle.ad.trigger ~= nil and vehicle.ad.trigger.isLoading and vehicle.ad.trigger.selectedFillType ~= vehicle.ad.unloadFillTypeIndex then
+                if vehicle.ad.trigger ~= nil and vehicle.ad.trigger.isLoading and vehicle.ad.trigger.selectedFillType ~= vehicle.ad.unloadFillTypeIndex then --
                     fillLevelTrailer, leftCapacityTrailer  = getFillLevelAndCapacityOf(trailer, vehicle.ad.trigger.selectedFillType);
                 end;
                 for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-                    --if trigger.isLoading and trigger.selectedFillType ~= vehicle.ad.unloadFillTypeIndex then
-                        --fillLevelTrailer, leftCapacityTrailer  = getFillLevelAndCapacityOf(trailer, trigger.selectedFillType);
-                    --end;
                     if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.trailerStartedLoadingAtTrigger then --trigger must be empty by now. Drive on!                      
                         AutoDrive:continueAfterLoadOrUnload(vehicle);
                     elseif AutoDrive:trailerInTriggerRange(trailer, trigger) and not trigger.isLoading and leftCapacity > 0 and trigger:getIsActivatable(trailer) and ((not vehicle.ad.trailerStartedLoadingAtTrigger) or trigger ~= vehicle.ad.trigger) then -- and  and vehicle.ad.isLoading == false                      
                         if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) then  
                             local storedFillType = vehicle.ad.unloadFillTypeIndex;
-                            local matches = false;
-                            if storedFillType == 13 or storedFillType == 43 then
-                                if storedFillType == 13 then
-                                    vehicle.ad.unloadFillTypeIndex = 43;
-                                else
-                                    vehicle.ad.unloadFillTypeIndex = 13;
-                                end;
-                                
-                                matches = AutoDrive:fillTypesMatch(vehicle, trigger, trailer);
+                            local toCheck = {13, 43, 44};
+                            local matches = checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, toCheck);
 
-                                if matches then                                    
-                                    AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex); 
+                            if matches then                               
+                                AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex); 
+                                if vehicle.ad.trigger ~= nil then --and vehicle.ad.trigger.isLoading
+                                    fillLevelTrailer, leftCapacityTrailer  = getFillLevelAndCapacityOf(trailer, vehicle.ad.trigger.selectedFillType);
                                 end;
-                            end;   
+                            end;
+
                             vehicle.ad.unloadFillTypeIndex = storedFillType;
                         else
                             AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex); 
@@ -417,4 +410,21 @@ function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType)
     vehicle.ad.startedLoadingAtTrigger = true;
     vehicle.ad.trailerStartedLoadingAtTrigger = true;
     vehicle.ad.trigger = trigger;
+end;
+
+function checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, listOfFillTypes)
+    local matches = false;
+    local storedType = vehicle.ad.unloadFillTypeIndex;
+    for _,fillType in pairs(listOfFillTypes) do
+        if fillType ~= vehicle.ad.unloadFillTypeIndex then --now check all others
+            vehicle.ad.unloadFillTypeIndex = fillType;
+            matches = AutoDrive:fillTypesMatch(vehicle, trigger, trailer);
+            if matches then
+                print("Vehicle accepts: " .. fillType);
+                return true;
+            end;
+            vehicle.ad.unloadFillTypeIndex = storedFillType; --always reset to storedFillType before next check
+        end;
+    end;
+    return false;
 end;
