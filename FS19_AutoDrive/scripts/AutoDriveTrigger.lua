@@ -173,7 +173,7 @@ function AutoDrive:getAllTriggers()
 					end	
 				end
 			end
-        end        
+        end 
 	end	
             
 end;

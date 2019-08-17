@@ -310,7 +310,7 @@ function AutoDrive:detectTraffic(vehicle)
                         y = y+2,
 						z = z + (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z};
 	
-	if AutoDrive:getSetting("enableTrafficDetection") == true then
+	if AutoDrive:getSetting("enableTrafficDetection") == true and (getDistanceToTargetPosition(vehicle) > 15 and getDistanceToUnloadPosition(vehicle) > 15) then
 		local box = {};
 		box.center = {};
 		box.size = {};

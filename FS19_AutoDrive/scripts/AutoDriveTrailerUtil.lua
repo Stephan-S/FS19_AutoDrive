@@ -125,22 +125,28 @@ function AutoDrive:getTrailersOfImplement(attachedImplement, onlyDischargeable)
 end;
 
 function getDistanceToUnloadPosition(vehicle)
+    if vehicle.ad.targetSelected_Unload == nil or vehicle.ad.targetSelected == nil then
+        return math.huge;
+    end;
     local x,y,z = getWorldTranslation(vehicle.components[1].node);
     local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];        
     if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
         destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
     end;
     if destination == nil then
-        return;
+        return math.huge;
     end;
     return AutoDrive:getDistance(x,z, destination.x, destination.z);
 end;
 
 function getDistanceToTargetPosition(vehicle)
+    if vehicle.ad.targetSelected == nil then
+        return math.huge;
+    end;
     local x,y,z = getWorldTranslation(vehicle.components[1].node);
     local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
     if destination == nil then
-        return;
+        return math.huge;
     end;
     return AutoDrive:getDistance(x,z, destination.x, destination.z);
 end;

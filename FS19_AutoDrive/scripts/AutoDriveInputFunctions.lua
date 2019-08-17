@@ -168,7 +168,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
 			return;
 		end;
-		AutoDrive.openTargetGUINextFrame = 5;	
+		AutoDrive.openTargetGUINextFrame = 5;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
 		--AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 

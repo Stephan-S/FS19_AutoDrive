@@ -29,7 +29,6 @@ function AutoDrive:onOpenEnterDriverName()
 end;
 
 function AutoDrive:onOpenEnterTargetName()
-	print("Opening gui target name");
 	if g_dedicatedServerInfo ~= nil then
 		return;	
 	end;

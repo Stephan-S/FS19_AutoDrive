@@ -55,12 +55,10 @@ function adEnterTargetNameGui:onClickResetButton()
 end;
 
 function adEnterTargetNameGui:onClose()
-    print("onClose");
     adEnterTargetNameGui:superClass().onClose(self);
 end;
 
 function adEnterTargetNameGui:onClickBack()
-    print("Onclickback called");
     adEnterTargetNameGui:superClass().onClickBack(self);
 end;
 
@@ -70,11 +68,9 @@ function adEnterTargetNameGui:onCreateInputElement(element)
 end;
 
 function adEnterTargetNameGui:onEnterPressed()
-    print("onEnterPressed");
     self:onClickOk();
 end;
 
 function adEnterTargetNameGui:onEscPressed()
-    print("Onclickesc");
     self:onClose();
 end;
