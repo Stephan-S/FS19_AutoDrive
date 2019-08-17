@@ -78,8 +78,10 @@ end;
 function adSettingsGui:updateAllGUISettings()
     for settingName, setting in pairs(AutoDrive.settings) do
         local value = setting.current;
-        if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
-            value = g_currentMission.controlledVehicle.ad.settings[settingName].current;
+        if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and 
+            g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings ~= nil 
+            and g_currentMission.controlledVehicle.ad.settings[settingName] then
+                value = g_currentMission.controlledVehicle.ad.settings[settingName].current;
         end;            
         AutoDrive.gui.adSettingsGui:updateGUISettings(settingName, value);
     end;
