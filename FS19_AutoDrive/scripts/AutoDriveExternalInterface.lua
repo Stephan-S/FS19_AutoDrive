@@ -48,7 +48,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
     local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
-        bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance, maxDistance);
+        bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance);
         if bestPoint == -1 then
             return;
         end;
@@ -80,7 +80,7 @@ function AutoDrive:GetAvailableDestinations()
     return destinations;
 end;
 
-function AutoDrive:GetClosestPointToLocation(x, z, minDistance, maxDistance)
+function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
     local closest = -1;
     if AutoDrive.mapWayPoints[1] ~= nil then
 
@@ -88,7 +88,7 @@ function AutoDrive:GetClosestPointToLocation(x, z, minDistance, maxDistance)
         
         for i in pairs(AutoDrive.mapWayPoints) do
             local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x,AutoDrive.mapWayPoints[i].z,x,z);
-            if dis < distance and dis >= minDistance and dis <= maxDistance then
+            if dis < distance and dis >= minDistance then
                 closest = i;
                 distance = dis;
             end;
