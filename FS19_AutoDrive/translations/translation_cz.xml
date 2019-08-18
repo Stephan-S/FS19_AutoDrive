@@ -112,5 +112,7 @@
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     			 text="Umožňuje použít In-game GUI pro zadávaní názvu cílových bodů" />
 		<text name="gui_ad_enableTrafficDetection"			         text="Detekovat kolize" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 		 text="Pokročilá detekce překážek. Zahrnuje např. AI-provoz, značky, ploty,  atd." />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 	 text="Setí a hnojení" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 		 text="Umožnňuje naplnění osivem a hnojivem současně, pokud secí stroj umožňuje i hnojení" />
 	</texts>
 </l10n>
