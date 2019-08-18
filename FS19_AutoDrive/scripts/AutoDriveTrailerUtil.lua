@@ -360,7 +360,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
                     if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and not trigger.isLoading and vehicle.ad.trailerStartedLoadingAtTrigger then --trigger must be empty by now. Drive on!                      
                         AutoDrive:continueAfterLoadOrUnload(vehicle);
                     elseif AutoDrive:trailerInTriggerRange(trailer, trigger) and not trigger.isLoading and leftCapacity > 0 and trigger:getIsActivatable(trailer) and ((not vehicle.ad.trailerStartedLoadingAtTrigger) or (trigger ~= vehicle.ad.trigger and (not vehicle.ad.trigger.isLoading))) then -- and  and vehicle.ad.isLoading == false                      
-                        if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) then  
+                        if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and AutoDrive:getSetting("refillSeedAndFertilizer") then  
                             local storedFillType = vehicle.ad.unloadFillTypeIndex;
                             local toCheck = {13, 43, 44};
                             local matches = checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, toCheck);

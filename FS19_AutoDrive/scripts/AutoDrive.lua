@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.4.8";
+AutoDrive.Version = "1.0.4.9";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -68,7 +68,7 @@ end
 function AutoDrive:onDelete()		
 end;
 
-function AutoDrive:loadMap(name)	
+function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrailerUtil.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
@@ -88,7 +88,12 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("gui/settingsGui.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))	
+	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/vehicleSettingsPage.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/combineUnloadSettingsPage.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
+	AutoDrive:loadGUI();
 
 	if AutoDrive_printedDebug ~= true then
 		print("Map title: " .. g_currentMission.missionInfo.map.title);		
@@ -129,8 +134,6 @@ function AutoDrive:loadMap(name)
 	
 	AutoDrive.Hud = AutoDriveHud:new();
 	AutoDrive.Hud:loadHud();
-
-	AutoDrive:loadGUI();
 
 	-- Save Configuration when saving savegame
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame);

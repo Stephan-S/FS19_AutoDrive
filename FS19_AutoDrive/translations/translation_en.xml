@@ -113,5 +113,7 @@
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Allow advanced target input via keyboard - default right click on target text field" />
 		<text name="gui_ad_enableTrafficDetection"			 text="Collision detection" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Advanced collision detection, which also detects AI-traffic, signs, fences etc" />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 text="Seed and fertilizer" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Enables AutoDrive to refill both seed and fertilizer compartments, if one of these is selected as filltype." />	
 	</texts>
 </l10n>

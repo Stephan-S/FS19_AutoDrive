@@ -113,5 +113,7 @@
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Erweiterte Zieleingabe per Tastatur erlauben - Standard: Linke Maustaste auf Zielnamen" />
 		<text name="gui_ad_enableTrafficDetection"			 text="Kollisionserkennung" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Erweiterte Kollisionserkennung, die auch auf KI-Verkehr, Schilder, Zäune etc. reagiert." />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 text="Saatgut und Dünger" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Erlaubt es sowohl Saatgut als auch Dünger zu laden, wenn eins von beidem ausgewählt ist." />		
 	</texts>
 </l10n>
