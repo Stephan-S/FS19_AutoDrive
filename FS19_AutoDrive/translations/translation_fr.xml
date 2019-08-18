@@ -24,6 +24,7 @@
 		<text name="input_ADDebugChangeNeighbor"			 text="AD: Sélect. point suivant" />
 		<text name="input_ADDebugCreateConnection"			 text="AD: Connecter entre" />
 		<text name="input_ADDebugCreateMapMarker"			 text="AD: Créer nouvelle destination" />
+		<text name="input_ADRenameMapMarker"			 	 text="AD: Renommer destination actuelle" />
 		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Éffacer point de passage" />
 		<text name="input_ADDebugForceUpdate"				 text="AD: Màj des points" />
 		<text name="input_ADDebugDeleteDestination"			 text="AD: Éffacer point destination" />
@@ -31,8 +32,12 @@
 		<text name="input_ADSelectPreviousFillType"			 text="AD: Sélect. précédent type de fruit" />
 		<text name="input_ADOpenGUI"						 text="AD: Ouvrir GUI" />
 		<text name="input_ADNameDriver"						 text="AD: Donnez un nom au chauffeur" />
-		<text name="input_ADCallDriver"						 text="AD: Appeler chauffeur" />
+		<text name="input_ADCallDriver"						 text="AD: Appeler un chauffeur" />
 		<text name="input_ADGoToVehicle"					 text="AD: Entrer dans le vehicule arrivé" />
+		<text name="input_ADIncLoopCounter"					 text="AD: Augmenter le nombre de répétitions" />
+		<text name="input_ADParkVehicle"					 text="AD: Garer le véhicule" />
+		<text name="AD_parkVehicle_noPosSet"		         text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
+		<text name="AD_parkVehicle_selected"		         text="Parking assigné: " />
 		<text name="AD_Driver_of"							 text="Le chauffeur de" />
 		<text name="AD_has_reached"							 text="est arrivé à" />
 		<text name="AD_got_stuck"							 text="est bloqué" />
@@ -104,5 +109,11 @@
 		<text name="gui_ad_lineHeight_tooltip"	     	     text="Hauteur de ligne en mode d'édition, au-dessus ou au-dessous du tracteur" />
 		<text name="gui_ad_ground"				 	         text="Niveau du sol" />
 		<text name="gui_ad_aboveDriver"	     	             text="Au-dessus du tracteur" />
+		<text name="gui_ad_allowConsoleStyle"				 text="Autoriser l'entrée de texte" />	<!-- I can't get that work or what it must do Tutorial ? -->
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Autoriser la saisie de destination étendue via le clavier - Par défaut: Bouton gauche de la souris sur le nom de la destination" />
+		<text name="gui_ad_enableTrafficDetection"			 text="Détection de collision" />
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc.." />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 text="Semences et engrais" />
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Permet de choisir le chargement des semences et de l'engrais, si l'un ou l'autre est sélectionné." />
 	</texts>
 </l10n>
