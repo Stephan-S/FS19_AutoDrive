@@ -16,7 +16,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     if options ~= nil and options.maxDistance ~= nil then
         maxDistance = options.maxDistance;
     end;
-    local directionVec = {x = math.cos(startYRot), z = math.sin(startYRot)};
+    local directionVec = {x = -math.sin(startYRot), z = math.cos(startYRot)};
     local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
@@ -44,7 +44,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
     if options ~= nil and options.maxDistance ~= nil then
         maxDistance = options.maxDistance;
     end;
-    local directionVec = {x = math.cos(startYRot), z = math.sin(startYRot)};
+    local directionVec = {x = -math.sin(startYRot), z = math.cos(startYRot)};
     local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
@@ -60,7 +60,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
         return;
     end;
 
-    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,toViaID[ADTableLength(toViaID)], AutoDrive.mapMarker[destinationID].name, destinationID);
+    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[ADTableLength(toViaID)].id, AutoDrive.mapMarker[destinationID].name, destinationID);
 
     for i, wayPoint in pairs(fromViaID) do
         if i > 1 then
@@ -137,10 +137,10 @@ addConsoleCommand('adGetPath', 'Start current course and callback', 'adGetPath',
 function AutoDrive:adGetPath()
     local veh = g_currentMission.controlledVehicle;
     local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
-	local rx,ry,rz = localDirectionToWorld(veh.components[1].node, 0,0,1);
-	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz) };
+    local _, yRot, _ = getWorldRotation(veh.components[1].node)
 
-    veh.ad.testVar = AutoDrive:GetPathVia(x1, z1, rz, g_currentMission.controlledVehicle.ad.mapMarkerSelected, g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload);
+    veh.ad.testVar = AutoDrive:GetPathVia(x1, z1, yRot, g_currentMission.controlledVehicle.ad.mapMarkerSelected, g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload);
+    --DebugUtil.printTableRecursively(veh.ad.testVar, "::::", 0, 1);
 end;
 
 function AutoDrive:isFinished(vehicle)
