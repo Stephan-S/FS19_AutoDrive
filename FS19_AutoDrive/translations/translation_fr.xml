@@ -109,8 +109,8 @@
 		<text name="gui_ad_lineHeight_tooltip"	     	     text="Hauteur de ligne en mode d'édition, au-dessus ou au-dessous du tracteur" />
 		<text name="gui_ad_ground"				 	         text="Niveau du sol" />
 		<text name="gui_ad_aboveDriver"	     	             text="Au-dessus du tracteur" />
-		<text name="gui_ad_allowConsoleStyle"				 text="Autoriser l'entrée de texte" />	<!-- I can't get that work or what it must do Tutorial ? -->
-		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Autoriser la saisie de destination étendue via le clavier - Par défaut: Bouton gauche de la souris sur le nom de la destination" />
+		<text name="gui_ad_allowConsoleStyle"				 text="Autoriser la saisie de texte" />
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Autoriser la saisie de destination étendue de texte via le clavier - Par défaut: Bouton millieu de souris sur le nom de la destination" />
 		<text name="gui_ad_enableTrafficDetection"			 text="Détection de collision" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc.." />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Semences et engrais" />
