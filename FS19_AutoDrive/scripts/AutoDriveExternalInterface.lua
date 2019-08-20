@@ -6,6 +6,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil then
         return;
     end;
+    startYRot = normalizeAngleToPlusMinusPI(startYRot);
     local markerName = AutoDrive.mapMarker[destinationID].name;
     local startPoint = {x=startX, z=startZ};
     local minDistance = 1;
@@ -33,6 +34,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
     if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil or viaID == nil or AutoDrive.mapMarker[viaID] == nil  then
         return;
     end;
+    startYRot = normalizeAngleToPlusMinusPI(startYRot);
 
     local markerName = AutoDrive.mapMarker[viaID].name;
     local startPoint = {x=startX, z=startZ};
