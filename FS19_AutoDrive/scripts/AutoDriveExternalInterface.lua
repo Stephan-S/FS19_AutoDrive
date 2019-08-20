@@ -26,7 +26,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
         end;
 	end;
 
-    return AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, destinationID);
+    return AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, AutoDrive.mapMarker[destinationID].id);
 end;
 
 function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, options)
@@ -54,13 +54,13 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
         end;
 	end;
 
-    local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, viaID);
+    local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, AutoDrive.mapMarker[viaID].id);
 
     if toViaID == nil or ADTableLength(toViaID) < 1 then
         return;
     end;
 
-    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[ADTableLength(toViaID)].id, AutoDrive.mapMarker[destinationID].name, destinationID);
+    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[ADTableLength(toViaID)].id, AutoDrive.mapMarker[destinationID].name, AutoDrive.mapMarker[destinationID].id);
 
     for i, wayPoint in pairs(fromViaID) do
         if i > 1 then
