@@ -24,6 +24,7 @@
 		<text name="input_ADDebugChangeNeighbor"			 text="AD: Выбрать следующую соседнюю точку" />
 		<text name="input_ADDebugCreateConnection"			 text="AD: Установить/убрать связь между" />
 		<text name="input_ADDebugCreateMapMarker"			 text="AD: Создать новую цель" />
+		<text name="input_ADRenameMapMarker"			 	 text="AD: Переименовать текущую цель" />
 		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Удалить путевую точку" />
 		<text name="input_ADDebugForceUpdate"				 text="AD: Обновить пути" />
 		<text name="input_ADDebugDeleteDestination"			 text="AD: Удалить место назначения" />
@@ -33,6 +34,10 @@
 		<text name="input_ADCallDriver"						 text="AD: Вызвать водителя" />
 		<text name="input_ADGoToVehicle"					 text="AD: Перейти к прибывшему автомобилю" />
 		<text name="input_ADNameDriver"						 text="AD: Назначьте водителю имя" />
+		<text name="input_ADIncLoopCounter"					 text="AD: Увеличить счетчик повторений" />
+		<text name="input_ADParkVehicle"					 text="AD: Парковать автомобиль" />		
+		<text name="AD_parkVehicle_noPosSet"		         text="Места для парковки не назначены. Пожалуйста, назначьте текущую выбранную цель правой кнопкой мыши." />
+		<text name="AD_parkVehicle_selected"		         text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"							 text="Водитель на" />
 		<text name="AD_has_reached"							 text="прибыл к" />
 		<text name="AD_got_stuck"							 text="застрял" />
@@ -104,5 +109,9 @@
 		<text name="gui_ad_lineHeight_tooltip"				 text="Высота линии в режиме редактора. На уровне земли или над трактором" />
 		<text name="gui_ad_ground"							 text="На уровне земли" />
 		<text name="gui_ad_aboveDriver"						 text="Над трактором" />
+		<text name="gui_ad_allowConsoleStyle"				 text="Расширенный ввод цели" />	
+		<text name="gui_ad_allowConsoleStyle_tooltip"		 text="Разрешить расширенный ввод цели с клавиатуры - По умолчанию: ЛКМ на имени цели" />
+		<text name="gui_ad_enableTrafficDetection"			 text="Обнаружение столкновений" />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Продвинутое определение столкновений, которое также обнаруживает AI-трафик, знаки, заборы и т.д." />
 	</texts>
 </l10n>
