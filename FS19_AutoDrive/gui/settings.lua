@@ -72,10 +72,6 @@ adSettings.TAB_UV = {
     SETTINGS_NAVIGATION = { 0, 257, 128, 128 }
 }
 
-function adSettings:onCreateadSettingsGuiHeader(element)
-	element.text = g_i18n:getText('gui_ad_Setting');
-end;
-
 --- Define default properties and retrieval collections for menu buttons.
 function adSettings:setupMenuButtonInfo()
     local onButtonBackFunction = self.clickBackCallback
@@ -99,7 +95,6 @@ end
 
 function adSettings:onClickBack()
     adSettings:superClass().onClickBack(self);
-	AutoDrive:guiClosed();
 end;
 
 function adSettings:onClickOK()

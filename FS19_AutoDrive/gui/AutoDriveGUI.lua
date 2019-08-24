@@ -1,8 +1,6 @@
 function AutoDrive:loadGUI()
 	g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
-    AutoDrive.gui = {};
-    AutoDrive.gui["adSettingsGui"] = adSettingsGui:new();
-	g_gui:loadGui(AutoDrive.directory .. "gui/settingsGui.xml", "adSettingsGui", AutoDrive.gui.adSettingsGui);	
+    AutoDrive.gui = {};	
     AutoDrive.gui["adEnterDriverNameGui"] = adEnterDriverNameGui:new();
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "adEnterDriverNameGui", AutoDrive.gui.adEnterDriverNameGui);	
     AutoDrive.gui["adEnterTargetNameGui"] = adEnterTargetNameGui:new();
@@ -21,12 +19,6 @@ function AutoDrive:loadGUI()
 end;
 
 function AutoDrive:onOpenSettings()
-	-- if AutoDrive.gui.adSettingsGui.isOpen then
-	-- 	AutoDrive.gui.adSettingsGui:onClickBack()
-	-- elseif g_gui.currentGui == nil then
-	-- 	g_gui:showGui("adSettingsGui")
-	-- end;
-
 	if AutoDrive.gui.adSettings.isOpen then
 		AutoDrive.gui.adSettings:onClickBack()
 	elseif g_gui.currentGui == nil then

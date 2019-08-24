@@ -131,6 +131,13 @@ function AutoDrive:getAllTriggers()
                     AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadTrigger;
                 end                
             end
+
+            if placeable.bunkerSilos ~= nil then
+                for _,bunker in pairs(placeable.bunkerSilos) do
+                    AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1;
+                    AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = bunker;
+                end;
+            end;
         end;
     end;
 
@@ -145,11 +152,7 @@ function AutoDrive:getAllTriggers()
     
     if g_currentMission.bunkerSilos ~= nil then
 		for _, trigger in pairs(g_currentMission.bunkerSilos) do
-			if trigger.bunkerSilo then						
-				--local area = trigger.bunkerSiloArea
-				--local px,pz, pWidthX,pWidthZ, pHeightX,pHeightZ = Utils.getXZWidthAndHeight(detailId, area.sx,area.sz, area.wx, area.wz, area.hx, area.hz);
-				--local _ ,_,totalArea = getDensityParallelogram(detailId, px, pz, pWidthX, pWidthZ, pHeightX, pHeightZ, g_currentMission.terrainDetailTypeFirstChannel, g_currentMission.terrainDetailTypeNumChannels);
-				trigger.capacity = 10000000;                
+            if trigger.bunkerSilo then		                 
                 AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1;
                 AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = trigger;				
 			end

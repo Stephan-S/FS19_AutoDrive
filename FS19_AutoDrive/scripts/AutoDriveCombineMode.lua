@@ -159,10 +159,6 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 local acc = 1;
                 local allowedToDrive = true;
                 
-                local node = vehicle.components[1].node;					
-                if vehicle.getAIVehicleDirectionNode ~= nil then
-                    node = vehicle:getAIVehicleDirectionNode();
-                end;
                 local x,y,z = getWorldTranslation(vehicle.components[1].node);   
                 local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
                 x = x + rx;

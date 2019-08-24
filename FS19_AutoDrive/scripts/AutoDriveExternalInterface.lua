@@ -6,6 +6,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil then
         return;
     end;
+    startYRot = normalizeAngleToPlusMinusPI(startYRot);
     local markerName = AutoDrive.mapMarker[destinationID].name;
     local startPoint = {x=startX, z=startZ};
     local minDistance = 1;
@@ -16,7 +17,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     if options ~= nil and options.maxDistance ~= nil then
         maxDistance = options.maxDistance;
     end;
-    local directionVec = {x = -math.sin(startYRot), z = math.cos(startYRot)};
+    local directionVec = {x = math.sin(startYRot), z = math.cos(startYRot)};
     local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
@@ -26,13 +27,14 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
         end;
 	end;
 
-    return AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, destinationID);
+    return AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, AutoDrive.mapMarker[destinationID].id);
 end;
 
 function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, options)
     if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil or viaID == nil or AutoDrive.mapMarker[viaID] == nil  then
         return;
     end;
+    startYRot = normalizeAngleToPlusMinusPI(startYRot);
 
     local markerName = AutoDrive.mapMarker[viaID].name;
     local startPoint = {x=startX, z=startZ};
@@ -44,7 +46,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
     if options ~= nil and options.maxDistance ~= nil then
         maxDistance = options.maxDistance;
     end;
-    local directionVec = {x = -math.sin(startYRot), z = math.cos(startYRot)};
+    local directionVec = {x = math.sin(startYRot), z = math.cos(startYRot)};
     local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance);	
 
 	if bestPoint == -1 then
@@ -54,13 +56,13 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
         end;
 	end;
 
-    local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, viaID);
+    local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints,bestPoint,markerName, AutoDrive.mapMarker[viaID].id);
 
     if toViaID == nil or ADTableLength(toViaID) < 1 then
         return;
     end;
 
-    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[ADTableLength(toViaID)].id, AutoDrive.mapMarker[destinationID].name, destinationID);
+    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[ADTableLength(toViaID)].id, AutoDrive.mapMarker[destinationID].name, AutoDrive.mapMarker[destinationID].id);
 
     for i, wayPoint in pairs(fromViaID) do
         if i > 1 then
