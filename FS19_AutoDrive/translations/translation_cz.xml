@@ -5,7 +5,7 @@
 		<text name="UNKNOWN"							 text="Neznámý" />
 		<text name="input_ADToggleHud"						 text="AD: Zobrazit HUD" />
 		<text name="input_ADToggleMouse"					 text="AD: Zobrazit myš" />
-		<text name="input_ADEnDisable"						 text="AD: Vyp/Zapnout" />
+		<text name="input_ADEnDisable"						 text="AD: Vyp./Zapnout" />
 		<text name="input_ADSilomode"						 text="AD: Změnit mod" />
 		<text name="input_ADRecord"						 text="AD: Záznam" />
 		<text name="input_ADSelectTarget"					 text="AD: Následující cíl" />
@@ -38,22 +38,22 @@
 		<text name="AD_parkVehicle_noPosSet"		         		 text="Parkoviště neexistuje. Vytvoříte ho stisknutím pravého tlačítka myši." />
 		<text name="AD_parkVehicle_selected"		         		 text="Zvolená parkovací zóna: " />
 		<text name="AD_Driver_of"						 text="Řidič z" />
-		<text name="AD_has_reached"						 text="Dosažena" />
-		<text name="AD_got_stuck"						 text="Zablokována" />
+		<text name="AD_has_reached"						 text="Stojí" />
+		<text name="AD_got_stuck"						 text="Blokován" />
 		<text name="AD_cannot_reach"						 text="Nelze dosáhnout" />
 		<text name="AD_new_marker"						 text="Nový cíl:" />
 		<text name="AD_new_marker_helptext"					 text="Zadejte nový cíl (Zastavíte Enterem)" />
 		<text name="AD_Recalculationg_routes_status"		 		 text="Přepočítání trasy. Čekejte. Dokončeno:" />
 		<text name="AD_MODE_DRIVETO"						 text="Jízda" />
-		<text name="AD_MODE_DELIVERTO"						 text="Dovézt" />
-		<text name="AD_MODE_PICKUPANDDELIVER"				 	 text="Naložit a dovézt" />
+		<text name="AD_MODE_DELIVERTO"						 text="Vyložit" />
+		<text name="AD_MODE_PICKUPANDDELIVER"				 	 text="Naložit a odovézt" />
 		<text name="AD_MODE_UNLOAD"						 text="Vyložit kombajn" />
-		<text name="AD_MODE_LOAD"						 text="Nahrát" />
+		<text name="AD_MODE_LOAD"						 text="Naložit" />
 		<text name="gui_ad_Setting"						 text="AutoDrive - Nastavení" />
-		<text name="gui_ad_pipe_offset"						 text="Odstup od roury kombajnu" />
-		<text name="gui_ad_lookahead_turning"				 	 text="Sledování vzdálenosti vpřed (pro zatčení)" />
-		<text name="gui_ad_lookahead_turning_tooltip"		 		 text="Sledování trasy před sebou pro manévr zatáčení" />
-		<text name="gui_ad_lookahead_braking"				 	 text="Sledování vzdálenosti vzad (couvání)" />
+		<text name="gui_ad_pipe_offset"						 text="Odstup od kombajnu" />
+		<text name="gui_ad_lookahead_turning"				 	 text="Kontola vpřed" />
+		<text name="gui_ad_lookahead_turning_tooltip"		 		 text="Kontrola trasy pro rychlost zatáčení" />
+		<text name="gui_ad_lookahead_braking"				 	 text="Kontrola vzad" />
 		<text name="gui_ad_lookahead_braking_tooltip"		 		 text="Sledování trasy před sebou pro úpravu rychlosti při zatáčení" />
 		<text name="gui_ad_useFastestRoute"					 text="Použít nejkratší trasu" />
 		<text name="gui_ad_useFastestRoute_tooltip"			 	 text="Při výpočtu nejlepší trasy brát do úvahy rychlost jízdy místo nejkratší vzdálenosti" />
@@ -61,10 +61,10 @@
 		<text name="gui_ad_avoidMarkers_tooltip"			 	 text="Generátor trasy se snaží vyhnout okolním cílům tras a objet je. Vhodné pro zabranění kolizí v v jednotlivých bodech trasy." />
 		<text name="gui_ad_mapMarkerDetour"					 text="Rádius objíždění" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 	 text="Maximální rádius objíždění" />
-		<text name="gui_ad_siloEmpty"						 text="Pokud je silo prázdné" />
+		<text name="gui_ad_siloEmpty"						 text="Když je silo prázdné" />
 		<text name="gui_ad_siloEmpty_tooltip"				 	 text="Reakce vozidla na prázdné silo" />
 		<text name="gui_ad_wait"						 text="Čekat" />
-		<text name="gui_ad_drive"						 text="Pokračovat v trase" />
+		<text name="gui_ad_drive"						 text="Pokračovat" />
 		<text name="gui_ad_yes"							 text="Ano" />
 		<text name="gui_ad_no"							 text="Ne" />
 		<text name="ad_wait_for_combine"					 text="Čekám na kombajn" />
@@ -79,12 +79,12 @@
 		<text name="gui_ad_autoConnect_end_tooltip"			 	 text="Automaticky napojí novou trasu v místě ukončení záznamu trasy" />
 		<text name="gui_ad_parkInField"						 text="Čekat na poli" />
 		<text name="gui_ad_parkInField_tooltip"				 	 text="Po vyložení kombajnu čeká řidič na další nakládku na poli, pokud nestojí na nesklizené části pole nebo není plně naložený" />
-		<text name="gui_ad_unloadFillLevel"					 text="ˇUroveň naplnění nákladem" />
+		<text name="gui_ad_unloadFillLevel"					 text="Úroveň naplnění nákladem" />
 		<text name="gui_ad_unloadFillLevel_tooltip"			 	 text="Po vyložení kombajnu při dosažení této úrovně naplnění je hned vyložit náklad." />
 		<text name="gui_ad_findDriver"						 text="Najít volné řidiče" />
 		<text name="gui_ad_findDriver_tooltip"				 	 text="Hledá nejbližší řidiče (Ignoruje vzdálenost)" />
-		<text name="gui_ad_gui_scale"						 text="Měřítko ovládacího rozhraní HUD" />
-		<text name="gui_ad_gui_scale_tooltip"				 	 text="Pokud ponecháte DEFAULT, bude se řídit nastavením hry" />	
+		<text name="gui_ad_gui_scale"						 text="Měřítko rozhraní HUD" />
+		<text name="gui_ad_gui_scale_tooltip"				 	 text="Při volbě DEFAULT se řídí nastavením hry" />	
 		<text name="gui_ad_exitField"					     	 text="Výjezd z pole" />	
 		<text name="gui_ad_exitField_tooltip"			     		 text="Způsob napojení na trasu při výjezdu z pole" />	
 		<text name="gui_ad_default"			 			 text="Default" />	
@@ -100,17 +100,19 @@
 		<text name="gui_ad_recalculationSpeed_tooltip"	     			 text="Snižte hodnotu, pokud vám laguje hra" />	
 		<text name="gui_ad_showNextPath"				 	 text="Zobrazovat následující trasu" />	
 		<text name="gui_ad_showNextPath_tooltip"	     	 		 text="Zobrazuje směr k dalšímu bodu na trase" />	
-		<text name="gui_ad_avoidFruit"				 	         text="Vjíždění do porostu" />	
+		<text name="gui_ad_avoidFruit"				 	         text="Nevjíždět do porostu" />	
 		<text name="gui_ad_avoidFruit_tooltip"	     	     			 text="Řidič se bude snažit objet nesklizenou část pole" />	
-		<text name="gui_ad_pathFinderTime"				 	 text="Maximalní čas pro vyhledání trasy" />	
+		<text name="gui_ad_pathFinderTime"				 	 text="Max. čas pro vyhledání trasy" />	
 		<text name="gui_ad_pathFinderTime_tooltip"	     	 		 text="Rozhoduje o délce času, který bude potřeba k vyhledáni bezkolizní trasy od kombajnu. (Může mít vliv na FPS)" />
 		<text name="gui_ad_lineHeight"				 	     	 text="Zobrazení trasy" />	
-		<text name="gui_ad_lineHeight_tooltip"	     	     			 text="Trasu lze zobrazit v několika režimech" />	
+		<text name="gui_ad_lineHeight_tooltip"	     	     			 text="Režim zobrazení trasy" />	
 		<text name="gui_ad_ground"				 	         text="Na úrovni terénu" />	
-		<text name="gui_ad_aboveDriver"	     	             			 text="Nad vozidly" />	
+		<text name="gui_ad_aboveDriver"	     	             			 text="Nad vozidlem" />	
 		<text name="gui_ad_allowConsoleStyle"				 	 text="Povolit FS GUI pro zadávání textu" />	
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     			 text="Umožňuje použít In-game GUI pro zadávaní názvu cílových bodů" />
 		<text name="gui_ad_enableTrafficDetection"			         text="Detekovat kolize" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 		 text="Pokročilá detekce překážek. Zahrnuje např. AI-provoz, značky, ploty,  atd." />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 	 text="Setí a hnojení" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 		 text="Umožnňuje naplnění osivem a hnojivem současně, pokud secí stroj umožňuje i hnojení" />
 	</texts>
 </l10n>
