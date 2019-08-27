@@ -124,6 +124,6 @@
 		<text name="gui_ad_refillSeedAndFertilizer"			 	 text="Naplnit osivem i hnojivem" />	
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 		 text="Naplní i hnojivo, pokud secí stroj umožňuje hnojení a hnojivo je ve vzdálenosti 20m od osiva." />
 		<text name="gui_ad_shovelWidth"			 			 text="Šířka lžíce" />	
-		<text name="gui_ad_shovelWidth_tooltip"	 				 text="Pokud není šířka lopaty správně detekována, bude použita tato hodnota" />
+		<text name="gui_ad_shovelWidth_tooltip"	 				 text="Pokud není šířka lžíce správně detekována, bude použita tato hodnota" />
 	</texts>
 </l10n>
