@@ -14,6 +14,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
         handleTrailersUnload(vehicle, trailers, fillLevel);
 
         fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables);
+        AutoDrive:checkTrailerStatesAndAttributes(vehicle, allFillables); 
         handleTrailersLoad(vehicle, allFillables, fillLevel, leftCapacity);
     end;
 end;

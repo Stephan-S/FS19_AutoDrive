@@ -180,7 +180,12 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	end;
 
 	if vehicle.bga ~= nil then
-		vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
+		vehicle.bga.state = AutoDriveBGA.STATE_IDLE;		
+		vehicle.bga.targetTrailer = nil;
+		vehicle.bga.targetDriver = nil;
+		vehicle.bga.targetBunker = nil;
+		vehicle.bga.loadingSideP1 = nil;
+		vehicle.bga.loadingSideP2 = nil;
 	end;
 end
 

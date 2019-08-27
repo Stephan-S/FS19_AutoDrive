@@ -45,13 +45,19 @@
 		<text name="AD_new_marker"							 text="Nieuwe Bestemming:" />
 		<text name="AD_new_marker_helptext"					 text="Voer naam in (Sluit af met de Enter-toets)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Routes Herberekenen. Even wachten a.u.b. Voltooid:" />
+		<text name="AD_No_Trailer"							 text="geen trailer gevonden" />	
+		<text name="AD_No_Bunker"							 text="geen Silo Bunker gevonden" />		
+		<text name="AD_No_Shovel"							 text="geen shovel gevonden" />
 		<text name="AD_MODE_DRIVETO"						 text="Rijden" />
 		<text name="AD_MODE_DELIVERTO"						 text="Afleveren" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Ophalen en Afleveren" />
 		<text name="AD_MODE_UNLOAD"							 text="Combine Lossen" />
 		<text name="AD_MODE_LOAD"							 text="Ophalen" />
+		<text name="AD_MODE_BGA"							 text="Lossen in Bunker Silo" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Instellingen" />
 		<text name="gui_ad_pipe_offset"						 text="Afstand Pijp" />
+		<text name="gui_ad_trailerOffset"					 text="Trailer afstand" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Afstand van trailer naar lospositie - voor/achter" />
 		<text name="gui_ad_lookahead_turning"				 text="Vooruitkijk Afstand (Sturen)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="De afstand die het voertuig vooruit kijkt om de besturing aan te passen om het volgende segment te volgen" />
 		<text name="gui_ad_lookahead_braking"				 text="Vooruitkijk Afstand (Remmen)" />
@@ -74,6 +80,9 @@
 		<text name="ad_drive_to_parkpos"					 text="Parkeren" />
 		<text name="ad_drive_to_startpos"					 text="Naar Beginpunt Rijden" />
 		<text name="ad_drive_to_unloadpos"					 text="Naar AfleverPunt Rijden" />
+		<text name="ad_bga_init"					 		 text="Initialiseren" />
+		<text name="ad_bga_waiting"					 		 text="Wachten op trailer/silo" />
+		<text name="ad_bga_active"					 		 text="Actief" />
 		<text name="gui_ad_autoConnect_start"				 text="Automatisch Verbinden (Start)" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Automatisch Verbinden met het dichtstbijzijnde RoutePunt bij het starten van de Opname" />
 		<text name="gui_ad_autoConnect_end"					 text="Automatisch Verbinden (Einde)" />
@@ -115,5 +124,7 @@
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Geavanceerde botsingsdetectie, die ook AI-verkeer, borden, hekken enz. detecteert" />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Zaad en Kunstmest" />	
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Hiermee kunnen zowel Zaad als Kunstmest worden geladen als een van beide Vulling type is geselecteerd." />	
+		<text name="gui_ad_shovelWidth"			 			 text="Shovel breedte (Toevoeging)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Als de automatisch gedetecteerde shovel te klein is, kan dat met deze waarde worden verhoogd" />	
 	</texts>
 </l10n>

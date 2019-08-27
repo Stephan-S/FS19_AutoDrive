@@ -657,17 +657,16 @@ function AutoDriveBGA:getTargetBunker(vehicle)
             end;
         end;
     end;
-    
-    if closest ~= nil and vehicle.bga.shovelWidth ~= nil then
-        self:determineHighestShovelOffset(vehicle);
-    end;
 
     return closest;
 end;
 
 function AutoDriveBGA:getTargetBunkerLoadingSide(vehicle)
     if vehicle.bga.targetBunker == nil then
-        return;
+        self:getTargetBunker(vehicle)
+        if vehicle.bga.targetBunker == nil then 
+            return;
+        end;
     end;
 
     if vehicle.bga.loadingSideP1 ~= nil then
@@ -863,6 +862,9 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;
+        if vehicle.getAIVehicleDirectionNode ~= nil then
+            node = vehicle:getAIVehicleDirectionNode();
+        end;
         local offsetZ = 5;
         local offsetX = 5;
         if vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_FORWARD_LEFT then
@@ -880,9 +882,9 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;					
-        if vehicle.getAIVehicleDirectionNode ~= nil then
-            node = vehicle:getAIVehicleDirectionNode();
-        end;
+       -- if vehicle.getAIVehicleDirectionNode ~= nil then
+            --node = vehicle:getAIVehicleDirectionNode();
+        --end;
         local x,y,z = getWorldTranslation(node);
         local lx, lz = AIVehicleUtil.getDriveDirection(node, vehicle.bga.targetPoint.x, y, vehicle.bga.targetPoint.z);
         local driveForwards = true;
@@ -951,8 +953,8 @@ function AutoDriveBGA:getDriveStrategyByAngle(vehicle, angleToTarget, drivingFor
     local angleToCheckFor = 30;
     local newStrategy = vehicle.bga.lastAngleStrategy;
     local minimumAngleDiff = 9;
-    if vehicle.spec_articulatedAxis ~= nil then
-        minimumAngleDiff = 50;
+    if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
+        minimumAngleDiff = 40;
     end;
 
     if timeToChange or (angleDiffToLast > minimumAngleDiff) or (math.abs(angleToTarget) < 10) or (math.abs(angleToTarget) > 170) then
@@ -987,10 +989,16 @@ end;
 
 function AutoDriveBGA:getAngleToTarget(vehicle)
     local x,y,z = getWorldTranslation( vehicle.components[1].node );
-	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);
+    local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);
+    if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
+        rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));
+        rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime)/2,0,(1+math.cos(vehicle.rotatedTime))/2);
+    end;
 	local vehicleVector = {x= rx, z=rz };
 
     local vecToTrailer = {x=vehicle.bga.targetPoint.x - x, z=vehicle.bga.targetPoint.z - z};
+
+
 
     return AutoDrive:angleBetween(vehicleVector, vecToTrailer);
 end;
@@ -1010,13 +1018,6 @@ function AutoDriveBGA:loadFromBGA(vehicle, dt)
     end;
     
     self:handleDriveStrategy(vehicle, dt);
-end;
-
-function AutoDriveBGA:getBunkerSideCenter(vehicle)
-    local p1, p2 = self:getTargetBunkerLoadingSide(vehicle);
-    local center = {x=p1.x + (p2.x-p1.x)/2, z=p1.z + (p2.z-p1.z)/2};
-
-    return center;
 end;
 
 function AutoDriveBGA:getTargetForShovelOffset(vehicle, inFront)
@@ -1172,6 +1173,10 @@ function AutoDriveBGA:reverseFromBGAUnload(vehicle, dt)
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD;   
     vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
 
+    for _,shovelNode in pairs(vehicle.bga.shovel.spec_shovel.shovelNodes) do
+        shovelNode.litersToDrop  = 0;
+    end;
+
     if vehicle.bga.shovelState ~= vehicle.bga.shovelTarget then        
         AutoDrive:getVehicleToStop(vehicle, false, dt)
         return;
@@ -1260,7 +1265,7 @@ function AutoDriveBGA:driveInDirection(vehicle, dt, steeringAngleLimit, accelera
 			targetRotTime = vehicle.minRotTime*math.min(angle/steeringAngleLimit, 1);
 		end
         
-        if math.abs(targetRotTime - vehicle.rotatedTime) >= 0.1 and (vehicle.spec_articulatedAxis == nil) then
+        if math.abs(targetRotTime - vehicle.rotatedTime) >= 0.1 then--and (vehicle.spec_articulatedAxis == nil) then
             maxSpeed = 1;
         end;
 

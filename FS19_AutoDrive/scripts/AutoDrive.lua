@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.5.0";
+AutoDrive.Version = "1.0.5.1";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -343,7 +343,7 @@ function init(self)
 	if self.bga == nil then
         self.bga = {};
         self.bga.state = AutoDriveBGA.STATE_IDLE;
-        self.bga.isActive = false;
+		self.bga.isActive = false;
 	end;
 	self.ad.noMovementTimer = AutoDriveTON:new();
 end;
@@ -504,7 +504,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 		else
 			AutoDrive.Hud:drawMinimalHud(vehicle);
 		end;
-	end;	
+	end;
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)

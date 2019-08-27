@@ -242,34 +242,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		else			
 			vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected - 1) % 10;
 		end;
-	end;
-	
-	if input == "input_setParkDestination" then
-		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
-			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected;
-			
-			AutoDrive:printMessage(vehicle, "" .. g_i18n:getText("AD_parkVehicle_selected") .. AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name);
-			AutoDrive.print.showMessageFor = 10000;
-		end;
-	end;
-
-	if input == "input_parkVehicle" then
-		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
-			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination;
-            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-			if AutoDrive:isActive(vehicle) then
-				AutoDrive:InputHandling(vehicle, "input_start_stop"); --disable if already active
-			end;
-			vehicle.ad.mode = 1;			
-			AutoDrive:InputHandling(vehicle, "input_start_stop");	
-			vehicle.ad.onRouteToPark = true;		
-		else
-			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"));
-			AutoDrive.print.showMessageFor = 10000;
-		end;
-	end;
-	
+	end;		
 end;
 
 function AutoDrive:InputHandlingServerOnly(vehicle, input)	
@@ -459,6 +432,33 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	if input == "input_callDriver" then
 		if vehicle.typeName == "combineDrivable" or vehicle.typeName == "combineCutterFruitPreparer" then
 			AutoDrive:callDriverToCombine(vehicle);
+		end;
+	end;
+
+	
+	if input == "input_setParkDestination" then
+		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
+			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected;
+			
+			AutoDrive:printMessage(vehicle, "" .. g_i18n:getText("AD_parkVehicle_selected") .. AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name);
+			AutoDrive.print.showMessageFor = 10000;
+		end;
+	end;
+
+	if input == "input_parkVehicle" then
+		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
+			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination;
+            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+			if AutoDrive:isActive(vehicle) then
+				AutoDrive:InputHandling(vehicle, "input_start_stop"); --disable if already active
+			end;
+			vehicle.ad.mode = 1;			
+			AutoDrive:InputHandling(vehicle, "input_start_stop");	
+			vehicle.ad.onRouteToPark = true;		
+		else
+			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"));
+			AutoDrive.print.showMessageFor = 10000;
 		end;
 	end;
 end;
