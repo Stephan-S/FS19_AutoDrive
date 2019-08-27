@@ -18,7 +18,7 @@
 		<text name="input_AD_continue"						 text="AD: Pokračovat" />
 		<text name="input_ADSelectTargetUnload"					 text="AD: Následující vykládka" />
 		<text name="input_ADSelectPreviousTargetUnload" 	 		 text="AD: Předchozí vykládka" />
-		<text name="input_ADActivateDebug"					 text="AD: Editavat trasu" />
+		<text name="input_ADActivateDebug"					 text="AD: Editovat trasu" />
 		<text name="input_ADDebugShowClosest"				 	 text="AD: Ukázat nejbližší bod" />
 		<text name="input_ADDebugSelectNeighbor"			 	 text="AD: Vybrat sousední bod" />
 		<text name="input_ADDebugChangeNeighbor"			 	 text="AD: Změnit sousední bod" />
@@ -40,7 +40,7 @@
 		<text name="AD_Driver_of"						 text="Řidič" />
 		<text name="AD_has_reached"						 text="Stojí" />
 		<text name="AD_got_stuck"						 text="Blokován" />
-		<text name="AD_cannot_reach"						 text="Nelze najít, zkuste aktualizovat trasy." />
+		<text name="AD_cannot_reach"						 text="Nelze najít. Zkuste stisknout tlačítko Aktualizovat trasu" />
 		<text name="AD_new_marker"						 text="Nový cíl:" />
 		<text name="AD_new_marker_helptext"					 text="Zadejte nový cíl (Zastavíte Enterem)" />
 		<text name="AD_Recalculationg_routes_status"		 		 text="Přepočítání trasy. Čekejte. Dokončeno:" />
@@ -112,7 +112,7 @@
 		<text name="gui_ad_avoidFruit"				 	         text="Nevjíždět do porostu" />	
 		<text name="gui_ad_avoidFruit_tooltip"	     	     			 text="Řidič se bude snažit objet nesklizenou část pole" />	
 		<text name="gui_ad_pathFinderTime"				 	 text="Max. čas pro vyhledání trasy" />	
-		<text name="gui_ad_pathFinderTime_tooltip"	     	 		 text="Rozhoduje o délce času, který bude potřeba k vyhledáni bezkolizní trasy od kombajnu. (Může mít vliv na FPS)" />
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 		 text="Rozhoduje o délce času, který bude potřeba k vyhledáni bezkolizní trasy od kombajnu (Může mít vliv na FPS)" />
 		<text name="gui_ad_lineHeight"				 	     	 text="Zobrazení trasy" />	
 		<text name="gui_ad_lineHeight_tooltip"	     	     			 text="Režim zobrazení trasy" />	
 		<text name="gui_ad_ground"				 	         text="Na úrovni terénu" />	
@@ -121,9 +121,9 @@
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     			 text="Umožňuje použít In-game GUI pro zadávaní názvu cílových bodů" />
 		<text name="gui_ad_enableTrafficDetection"			         text="Detekovat kolize" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 		 text="Pokročilá detekce překážek. Zahrnuje např. AI-provoz, značky, ploty,  atd." />	
-		<text name="gui_ad_refillSeedAndFertilizer"			 	 text="Naplnit osivo i hnojivo" />	
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 		 text="Naplní i hnojivo, pokud secí stroj umožňuje hnojení a je ve vzdalenosti 20m od osiva." />
-		<text name="gui_ad_shovelWidth"			 			 text="Shovel width (Addition)" />	
-		<text name="gui_ad_shovelWidth_tooltip"	 				 text="If automatically detected shovel width is too small, it can be increased with this value" />
+		<text name="gui_ad_refillSeedAndFertilizer"			 	 text="Naplnit osivem i hnojivem" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 		 text="Naplní i hnojivo, pokud secí stroj umožňuje hnojení a hnojivo je ve vzdálenosti 20m od osiva." />
+		<text name="gui_ad_shovelWidth"			 			 text="Šířka lžíce" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 				 text="Pokud není šířka lopaty správně detekována, bude použita tato hodnota" />
 	</texts>
 </l10n>
