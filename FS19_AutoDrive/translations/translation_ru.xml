@@ -79,9 +79,9 @@
 		<text name="gui_ad_autoConnect_end"					 text="Автосоединение (конец)" />
 		<text name="gui_ad_autoConnect_end_tooltip"			 text="Автоматическое подключение подходящего узла в конце записи" />
 		<text name="gui_ad_parkInField"						 text="Стоянка на поле" />
-		<text name="gui_ad_parkInField_tooltip"				 text="После разгрузки комбайна - если не остановился на посевах" />
-		<text name="gui_ad_unloadFillLevel"					 text="Разгружать при уровне" />
-		<text name="gui_ad_unloadFillLevel_tooltip"			 text="После разгрузки комбайн. Непосредственно перейти к доставке при этом уровне заполнения" />
+		<text name="gui_ad_parkInField_tooltip"				 text="После разгрузки комбайна - если не припаркован на посевах" />
+		<text name="gui_ad_unloadFillLevel"					 text="Отвозить при уровне" />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 text="После разгрузки комбайна и заполнеия до этого уровня, перейти к доставке собранного на склад" />
 		<text name="gui_ad_findDriver"						 text="Найти водителя" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Поиск ближайших водителей (игнорировать пункт назначения)" />
 		<text name="gui_ad_gui_scale"						 text="Масштабирование интерфейса AutoDrive HUD" />
@@ -113,5 +113,7 @@
 		<text name="gui_ad_allowConsoleStyle_tooltip"		 text="Разрешить расширенный ввод цели с клавиатуры - По умолчанию: ЛКМ на имени цели" />
 		<text name="gui_ad_enableTrafficDetection"			 text="Обнаружение столкновений" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Продвинутое определение столкновений, которое также обнаруживает AI-трафик, знаки, заборы и т.д." />
+		<text name="gui_ad_refillSeedAndFertilizer"			 text="Посев и удобрение" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Разрешить AutoDrive наполнять отсеки для семян и удобрений, если один из них выбран в качестве типа заполнения." />	
 	</texts>
 </l10n>
