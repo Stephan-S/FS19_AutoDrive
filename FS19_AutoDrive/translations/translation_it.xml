@@ -45,13 +45,19 @@
 		<text name="AD_new_marker"							 text="Nuovo obbiettivo:" />
 		<text name="AD_new_marker_helptext"					 text="Inserisci il nome (Termina con invio)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Sto ricalcolando i percorsi. Attendere. Finito:" />
+		<text name="AD_No_Trailer"							 text="impossibile trovare il rimorchio" />	
+		<text name="AD_No_Bunker"							 text="impossibile trovare il bunker" />		
+		<text name="AD_No_Shovel"							 text="impossibile trovare una pala collegata" />
 		<text name="AD_MODE_DRIVETO"						 text="Guida" />
 		<text name="AD_MODE_DELIVERTO"						 text="Consegna" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Carica e consegna" />
 		<text name="AD_MODE_UNLOAD"							 text="Scarica trebbia" />
 		<text name="AD_MODE_LOAD"							 text="Carica" />
+		<text name="AD_MODE_BGA"							 text="Scarica il bunker" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Impostazioni" />
 		<text name="gui_ad_pipe_offset"						 text="Distanza dal tubo" />
+		<text name="gui_ad_trailerOffset"					 text="Rimorchio non in posizione" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Rimorchio di scrico fuori posizione - Davanti/Retro" />
 		<text name="gui_ad_lookahead_turning"				 text="Distanza d'avanti (sterzata)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso" />
 		<text name="gui_ad_lookahead_braking"				 text="Distanza d'avanti (frenata)" />
@@ -74,6 +80,9 @@
 		<text name="ad_drive_to_parkpos"					 text="Parcheggio" />
 		<text name="ad_drive_to_startpos"					 text="Vado all'inizio" />
 		<text name="ad_drive_to_unloadpos"					 text="Vado al punto di scarico" />
+		<text name="ad_bga_init"					 		 text="Inizializzazione" />
+		<text name="ad_bga_waiting"					 		 text="In attesa del rimorchio/Silos" />
+		<text name="ad_bga_active"					 		 text="Attivo" />
 		<text name="gui_ad_autoConnect_start"				 text="Connessione automatica (inizio)" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Connette automaticamente il nodo appropriato all'inizio della registrazione" />
 		<text name="gui_ad_autoConnect_end"					 text="Connessione automatica (fine)" />
@@ -114,6 +123,8 @@
 		<text name="gui_ad_enableTrafficDetection"			 text="Rileva collisioni" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Rilevamento di collisioni avanzato, che rileva anche traffico AI, segnali stradali, recinzioni ecc" />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Semi e Fertilizzante" />	
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Consente a AutoDrive di riempire sia i compartimenti di sementi che di fertilizzante, se uno di questi è selezionato come tipo di riempimento." />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Consente a AutoDrive di riempire sia i compartimenti di sementi che di fertilizzante, se uno di questi è selezionato come tipo di riempimento." />
+		<text name="gui_ad_shovelWidth"			 			 text="Larghezza della pala (aggiunta)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Se la larghezza della pala rilevata automaticamente è troppo piccola, può essere aumentata con questo valore" />
 	</texts>
 </l10n>
