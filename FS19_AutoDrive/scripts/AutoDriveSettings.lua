@@ -11,6 +11,21 @@ AutoDrive.settings.pipeOffset = {
     isVehicleSpecific = true
 };
 
+AutoDrive.settings.trailerOffset = {  
+    values= {-5.0, -4.75, -4.5, -4.25, -4.0, -3.75, -3.5, -3.25, -3.0, -2.75, -2.5, -2.25, -2.0, -1.75, -1.5, -1.25, -1.0, -0.75, -0.5, -0.25, 0,
+     0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0},
+    texts= {"-5.0m", "-4.75m", "-4.5m", "-4.25m", "-4.0m", "-3.75m", "-3.5m", "-3.25m", "-3.0m", "-2.75m", "-2.5m", "-2.25m", "-2.0m", "-1.75m", "-1.5m",
+     "-1.25m", "-1.0m", "-0.75m", "-0.5m", "-0.25m", "0 m",
+     "0.25 m", "0.5 m", "0.75 m", "1.0 m", "1.25 m", "1.5 m", "1.75 m", "2.0 m", "2.25 m", "2.5 m", "2.75 m", "3.0 m", "3.25 m",
+     "3.5 m", "3.75 m", "4.0 m", "4.25 m", "4.5 m", "4.75 m", "5.0 m"},
+    default= 21,
+    current= 21,
+    text= "gui_ad_trailerOffset",
+    tooltip= "gui_ad_trailerOffset_tooltip",
+    translate= false,
+    isVehicleSpecific = true
+};
+
 AutoDrive.settings.lookAheadTurning = {     
     values= {2, 3, 4, 5, 6, 7, 8},
     texts= {"2 m", "3 m", "4 m", "5 m", "6 m", "7 m", "8 m"},
@@ -112,7 +127,7 @@ AutoDrive.settings.parkInField = {
 
 AutoDrive.settings.unloadFillLevel = {  
     values= {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.99, 1},                                    
-    texts= {"0%", "10%", "20%", "40%", "50%", "60%", "70%", "80%", "85%", "90%", "95%", "99%", "100%"},                                    
+    texts= {"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "85%", "90%", "95%", "99%", "100%"},                                    
     default= 10,                                    
     current= 10,                                    
     text= "gui_ad_unloadFillLevel",                                    
@@ -273,6 +288,17 @@ AutoDrive.settings.refillSeedAndFertilizer = {
     tooltip= "gui_ad_refillSeedAndFertilizer_tooltip",
     translate= true,
     isVehicleSpecific = false
+};
+
+AutoDrive.settings.shovelWidth = {  
+    values= {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0},                                    
+    texts= {"0m", "0.1m", "0.2m", "0.3m", "0.4m", "0.5m", "0.6m", "0.7m", "0.8m", "0.9m", "1.0m", "1.1m", "1.2m", "1.3m", "1.4m", "1.5m", "1.6m", "1.7m", "1.8m", "1.9m", "2.0m"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_shovelWidth",                                    
+    tooltip= "gui_ad_shovelWidth_tooltip",
+    translate= false,
+    isVehicleSpecific = true
 };
 
 

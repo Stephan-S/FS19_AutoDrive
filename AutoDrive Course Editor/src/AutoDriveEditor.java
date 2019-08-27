@@ -364,6 +364,9 @@ public class AutoDriveEditor extends JFrame {
 
         if (image != null) {
             mapPanel.image = image;
+        }
+
+        if (mapPanel.image != null) {
             mapPanel.setPreferredSize(new Dimension(1024, 768));
             mapPanel.setMinimumSize(new Dimension(1024, 768));
             pack();

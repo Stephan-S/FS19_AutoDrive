@@ -45,13 +45,19 @@
 		<text name="AD_new_marker"							 text="Neues Ziel:" />
 		<text name="AD_new_marker_helptext"					 text="Namen eingeben - Beenden mit Enter-Taste" />
 		<text name="AD_Recalculationg_routes_status"		 text="Routen werden neuberechnet. Bitte warten. Berechnet:" />
+		<text name="AD_No_Trailer"							 text="konnte keinen Anhänger finden" />		
+		<text name="AD_No_Bunker"							 text="konnte kein Fahrsilo finden" />		
+		<text name="AD_No_Shovel"							 text="konnte keine Schaufel finden" />
 		<text name="AD_MODE_DRIVETO"						 text="Fahren" />
 		<text name="AD_MODE_DELIVERTO"						 text="Abladen" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Abholen und Abliefern" />
 		<text name="AD_MODE_UNLOAD"							 text="Drescher abfahren" />
 		<text name="AD_MODE_LOAD"							 text="Abholen" />
+		<text name="AD_MODE_BGA"							 text="Fahrsilo entladen" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Einstellungen" />
 		<text name="gui_ad_pipe_offset"						 text="Abstand Rohr" />
+		<text name="gui_ad_trailerOffset"					 text="Abstand Hänger" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Abstand Hänger - Längsachse" />
 		<text name="gui_ad_lookahead_turning"				 text="Distanz Vorausschauen (Lenkung)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken" />
 		<text name="gui_ad_lookahead_braking"				 text="Distanz Vorausschauen (Bremse)" />
@@ -74,6 +80,9 @@
 		<text name="ad_drive_to_parkpos"					 text="Parken" />
 		<text name="ad_drive_to_startpos"					 text="Fahre zum Start" />
 		<text name="ad_drive_to_unloadpos"					 text="Fahre abladen" />
+		<text name="ad_bga_init"					 		 text="Initialisieren" />
+		<text name="ad_bga_waiting"					 		 text="Warten auf Abfahrer/Silo" />
+		<text name="ad_bga_active"					 		 text="Aktiv" />
 		<text name="gui_ad_autoConnect_start"				 text="Automatisches verbinden (Start)" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Automatisch passenden Knoten beim Start der Aufnahme verbinden" />
 		<text name="gui_ad_autoConnect_end"					 text="Automatisches verbinden (Ende)" />
@@ -114,6 +123,8 @@
 		<text name="gui_ad_enableTrafficDetection"			 text="Kollisionserkennung" />	
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Erweiterte Kollisionserkennung, die auch auf KI-Verkehr, Schilder, Zäune etc. reagiert." />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Saatgut und Dünger" />	
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Erlaubt es sowohl Saatgut als auch Dünger zu laden, wenn eins von beidem ausgewählt ist." />		
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Erlaubt es sowohl Saatgut als auch Dünger zu laden, wenn eins von beidem ausgewählt ist." />	
+		<text name="gui_ad_shovelWidth"			 			 text="Schaufelbreite (Zusatz)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />		
 	</texts>
 </l10n>

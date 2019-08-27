@@ -37,7 +37,7 @@ function AutoDriveUpdateNameEvent:readStream(streamId, connection)
     local name = streamReadStringOrEmpty(streamId);
 	
 	if name ~= nil and name :len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
-		vehicle.ad.driverName = self.name;
+		vehicle.ad.driverName = name;
 
 		if g_server ~= nil then	
 			g_server:broadcastEvent(AutoDriveUpdateNameEvent:new(vehicle), nil, nil, vehicle);

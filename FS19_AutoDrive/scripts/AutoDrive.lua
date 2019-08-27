@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.4.9";
+AutoDrive.Version = "1.0.5.0";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -18,6 +18,7 @@ AutoDrive.MODE_PICKUPANDDELIVER = 2;
 AutoDrive.MODE_DELIVERTO = 3;
 AutoDrive.MODE_UNLOAD = 4;
 AutoDrive.MODE_LOAD = 5;
+AutoDrive.MODE_BGA = 6;
 
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
 
@@ -92,6 +93,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("gui/vehicleSettingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/combineUnloadSettingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveBGAUnloader.lua", AutoDrive.directory))
 	AutoDrive:loadGUI();
 
 	if AutoDrive_printedDebug ~= true then
@@ -250,7 +252,8 @@ function init(self)
 	self.ad.tryingToCallDriver = false;
 	self.ad.stoppedTimer = 5000;
 	self.ad.currentTrailer = 1;
-	self.ad.usePathFinder = false;
+	self.ad.usePathFinder = false;	
+	self.ad.onRouteToPark = false;	
 
 	AutoDrive.Recalculation = {};
 	
@@ -336,6 +339,13 @@ function init(self)
 	if self.ad.settings == nil then
 		AutoDrive:copySettingsToVehicle(self);
 	end;
+
+	if self.bga == nil then
+        self.bga = {};
+        self.bga.state = AutoDriveBGA.STATE_IDLE;
+        self.bga.isActive = false;
+	end;
+	self.ad.noMovementTimer = AutoDriveTON:new();
 end;
 
 function AutoDrive:onLeaveVehicle()	
@@ -400,7 +410,7 @@ function AutoDrive:onUpdate(dt)
 
 	if (AutoDrive.openTargetGUINextFrame ~= nil) and (AutoDrive.openTargetGUINextFrame > 0) and (AutoDrive.runThisFrame == false) then
 		AutoDrive.openTargetGUINextFrame = AutoDrive.openTargetGUINextFrame - 1;
-		if AutoDrive.openTargetGUINextFrame == 0 then
+		if AutoDrive.openTargetGUINextFrame <= 50 then
 			AutoDrive.openTargetGUINextFrame = nil;
 			AutoDrive:onOpenEnterTargetName();
 		end;
@@ -441,6 +451,10 @@ function AutoDrive:onUpdate(dt)
 		end;
 	end;
 
+	AutoDriveBGA:handleBGA(self, dt);
+
+	self.ad.noMovementTimer:timer((self.lastSpeedReal <= 0.0015), 3000, dt);
+
 	AutoDrive.runThisFrame = true;
 end;
 
@@ -455,7 +469,7 @@ function AutoDrive:onDraw()
 		end;
 	end;
 	
-	if AutoDrive:getSetting("showNextPath") == true then
+	if AutoDrive:getSetting("showNextPath") == true and (self.bga.isActive == false) then
 		if self.ad.currentWayPoint > 0 and self.ad.wayPoints ~= nil then
 			if self.ad.wayPoints[self.ad.currentWayPoint+1] ~= nil then
 				AutoDrive:drawLine(self.ad.wayPoints[self.ad.currentWayPoint], self.ad.wayPoints[self.ad.currentWayPoint+1], 1, 1, 1, 1);
@@ -469,10 +483,7 @@ function AutoDrive:onDraw()
 	
 	if self.ad.createMapPoints == true and self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawCreationMode(self);
-	end;
-
-	
-		
+	end;		
 end; 
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
@@ -493,76 +504,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 		else
 			AutoDrive.Hud:drawMinimalHud(vehicle);
 		end;
-	end;
-
-	--Debug draw collision checker
-	--local x,y,z = getWorldTranslation( vehicle.components[1].node );
-	-- local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
-	-- local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
-	-- local width = vehicle.sizeWidth;
-	-- local length = vehicle.sizeLength;
-	-- local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
-	-- local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
-
-	-- local box = {};
-	-- box.center = {};
-	-- box.size = {};
-	-- box.center[1] = 0;
-	-- box.center[2] = 3;
-	-- box.center[3] = length;
-	-- box.size[1] = width/2;
-	-- box.size[2] = 2.85;
-	-- box.size[3] = lookAheadDistance/2;
-	-- box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
-	-- box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
-	-- box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
-	-- box.ry = math.atan2(box.zx, box.zz)
-	-- local boxCenter = { x = x + (((length/2 + (lookAheadDistance/2)) * vehicleVector.x)),
-	-- 										y = y+3,
-	-- 										z = z + (((length/2 + (lookAheadDistance/2)) * vehicleVector.z)) };
-
-	-- local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
-	-- local red = 0;
-	-- if shapes > 0 then
-	-- 	red = 1;
-	-- end;
-	-- DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], red, 0, 0);
-
-
-	-- if vehicle.ad.currentWayPoint > 0 and vehicle.ad.wayPoints ~= nil then
-	-- 	if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then
-	-- 		local vectorX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1].x - vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-    --         local vectorZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1].z - vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-    --         local angleRad = math.atan2(-vectorZ, vectorX);
-    --         angleRad = normalizeAngle(angleRad);
-    --         local widthOfColBox = math.sqrt(math.pow(AutoDrive.PP_CELL_X, 2) + math.pow(AutoDrive.PP_CELL_Z, 2));
-    --         local sideLength = widthOfColBox/2;
-    --         local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox;
-            
-    --         local leftAngle = normalizeAngle(angleRad + math.rad(-90));
-    --         local rightAngle = normalizeAngle(angleRad + math.rad(90));
-
-    --         local cornerX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x + math.cos(leftAngle) * sideLength;
-    --         local cornerZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z + math.sin(leftAngle) * sideLength;
-
-    --         local corner2X = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1].x + math.cos(leftAngle) * sideLength;
-    --         local corner2Z = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1].z + math.sin(leftAngle) * sideLength;
-            
-    --         local corner3X = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1].x + math.cos(rightAngle) * sideLength;
-    --         local corner3Z = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1].z + math.sin(rightAngle) * sideLength;
-
-    --         local corner4X = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x + math.cos(rightAngle) * sideLength;
-    --         local corner4Z = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z + math.sin(rightAngle) * sideLength;
-
-
-    --         local y = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].y;
-    --         local shapes = overlapBox(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x + vectorX/2,y,vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
-    --         DebugUtil.drawOverlapBox(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x + vectorX/2,y,vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, 0, 1, 0);
-
-
-	-- 	end;
-	-- end;	
-	
+	end;	
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)

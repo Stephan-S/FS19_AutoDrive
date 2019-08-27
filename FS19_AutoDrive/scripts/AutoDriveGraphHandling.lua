@@ -73,22 +73,32 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	end;
 	
 	--adjust all mapmarkers
+	local deletedMarkerID = -1;
 	local deletedMarker = false;
-	for _,marker in pairs(AutoDrive.mapMarker) do
+	for markerID,marker in pairs(AutoDrive.mapMarker) do
 		if marker.id == toDelete.id then
 			deletedMarker = true;
+			deletedMarkerID = markerID;
 			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1;
 		end;
 		if deletedMarker then
-			if AutoDrive.mapMarker[_+1] ~= nil then
-				AutoDrive.mapMarker[_] =  AutoDrive.mapMarker[_+1];
+			if AutoDrive.mapMarker[markerID+1] ~= nil then
+				AutoDrive.mapMarker[markerID] =  AutoDrive.mapMarker[markerID+1];
 			else
-				AutoDrive.mapMarker[_] = nil;
+				AutoDrive.mapMarker[markerID] = nil;
 				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. _) ;
-			end;
+			end;			
 		end;
 		if marker.id > toDelete.id then
 			marker.id = marker.id -1;
+		end;
+	end;
+
+	for _, vehicle in pairs(g_currentMission.vehicles) do
+		if vehicle.ad ~= nil then
+			if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= deletedMarkerID then
+				vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1;
+			end;
 		end;
 	end;
 
@@ -100,10 +110,12 @@ end;
 
 function AutoDrive:removeMapMarker(toDelete)
 	--adjust all mapmarkers
+	local deletedMarkerID = -1;
 	local deletedMarker = false;
 	for _,marker in pairs(AutoDrive.mapMarker) do
 		if marker.id == toDelete.id then
 			deletedMarker = true;
+			deletedMarkerID = markerID;
 			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1;
 		end;
 		if deletedMarker then
@@ -115,6 +127,15 @@ function AutoDrive:removeMapMarker(toDelete)
 			end;
 		end;
 	end;
+
+	for _, vehicle in pairs(g_currentMission.vehicles) do
+		if vehicle.ad ~= nil then
+			if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= deletedMarkerID then
+				vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1;
+			end;
+		end;
+	end;
+
 	AutoDrive:MarkChanged()
 	
 	AutoDrive:broadCastUpdateToClients();	

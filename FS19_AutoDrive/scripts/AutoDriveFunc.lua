@@ -3,6 +3,7 @@ function AutoDrive:startAD(vehicle)
 	vehicle.ad.creationMode = false;
 	vehicle.ad.startedLoadingAtTrigger = false;
 	vehicle.ad.trailerStartedLoadingAtTrigger = false;
+	vehicle.ad.onRouteToPark = false;	
     
     vehicle.forceIsActive = true;
     vehicle.spec_motorized.stopMotorOnLeave = false;
@@ -58,7 +59,7 @@ function AutoDrive:startAD(vehicle)
 			end;
 		end;
 				
-		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and leftCapacity < (maxCapacity * 0.3)) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
+		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity < (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel"))))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
 				vehicle.ad.skipStart = true;
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
@@ -78,6 +79,10 @@ function AutoDrive:startAD(vehicle)
 	vehicle.ad.tryingToCallDriver = false;	
 	vehicle.ad.currentTrailer = 1;
 	vehicle.ad.loopCounterCurrent = 0;
+
+	if vehicle.ad.mode == AutoDrive.MODE_BGA then
+		vehicle.bga.state = AutoDriveBGA.STATE_INIT;
+	end;
 end;
 
 function AutoDrive:stopAD(vehicle)
@@ -112,7 +117,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.combineFruitToCheck = nil; 	
 	vehicle.ad.usePathFinder = false;	
 	vehicle.ad.loopCounterCurrent = 0;
-
+	
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
 		vehicle.ad.currentCombine = nil;
@@ -163,8 +168,19 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		if g_server ~= nil then
 			vehicle.ad.disableAI = 5;
 		end;	
+
+		if vehicle.ad.onRouteToPark == true then
+			vehicle:stopMotor(false);
+			if vehicle.spec_lights ~= nil then
+				vehicle:deactivateLights()
+			end;
+		end;
 		
 		vehicle:requestActionEventUpdate();
+	end;
+
+	if vehicle.bga ~= nil then
+		vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
 	end;
 end
 

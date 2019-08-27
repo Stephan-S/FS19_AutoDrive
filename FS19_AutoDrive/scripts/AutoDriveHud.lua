@@ -208,6 +208,7 @@ function AutoDriveHud:AddButton(name, img, img2, toolTip, on, visible, secondary
 		self.Buttons[self.buttonCounter].img_4 =  AutoDrive.directory .. "textures/" .. "pickupAndDeliver.dds";
 		self.Buttons[self.buttonCounter].img_5 =  AutoDrive.directory .. "textures/" .. "combine.dds";
 		self.Buttons[self.buttonCounter].img_6 =  AutoDrive.directory .. "textures/" .. "silo_load.dds";
+		self.Buttons[self.buttonCounter].img_7 =  AutoDrive.directory .. "textures/" .. "bgaUnloader.dds";		
 	end;
 	if name == "input_record" then
 		self.Buttons[self.buttonCounter].img_dual = AutoDrive.directory .. "textures/" .. "record_dual.dds";
@@ -247,6 +248,8 @@ function AutoDriveHud:updateButtons(vehicle)
 				button.img_active = button.img_5;
 			elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
 				button.img_active = button.img_6;
+			elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+				button.img_active = button.img_7;
 			else
 				button.img_active = button.img_off;
 			end;
@@ -480,7 +483,7 @@ function AutoDriveHud:drawHud(vehicle)
 		local textToShow = "AutoDrive";
 		textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle);
 
-		if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) then
+		if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
 			local remainingTime = AutoDrive:getDriveTimeForWaypoints(vehicle.ad.wayPoints, vehicle.ad.currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed));
 			local remainingMinutes = math.floor(remainingTime / 60);
 			local remainingSeconds = remainingTime % 60;
@@ -542,10 +545,19 @@ function AutoDriveHud:drawHud(vehicle)
 					if combineText ~= nil then
 						text = text .. " - " .. combineText;
 					end;
+				elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+					local bgaText = AutoDriveBGA:stateToText(vehicle)
+					if bgaText ~= nil then
+						text = bgaText;
+					else
+						text = "";
+					end;
 				end;
 
-				setTextAlignment(RenderText.ALIGN_LEFT);
-				renderText(adPosX, adPosY, adFontSize, text);
+				--if vehicle.ad.mode ~= AutoDrive.MODE_BGA then
+					setTextAlignment(RenderText.ALIGN_LEFT);
+					renderText(adPosX, adPosY, adFontSize, text);
+				--end;
 			end;
 		end;
 
@@ -554,9 +566,9 @@ function AutoDriveHud:drawHud(vehicle)
 		setTextAlignment(RenderText.ALIGN_LEFT);
 		local posX = self.posX - (0.0213 * (g_screenHeight/g_screenWidth)) + self.width; -- -0.012
 		local adPosY = self.Background.destination.posY + (self.Background.destination.height/2) - (adFontSize/2);
-		renderText(posX, adPosY, adFontSize, "" .. vehicle.ad.targetSpeed);
+		renderText(posX, adPosY, adFontSize, "" .. string.format("%1d", g_i18n:getSpeed(vehicle.ad.targetSpeed)));
 
-		if vehicle.ad.enteringMapMarker == true and vehicle.ad.pullDownList.active == false then
+		if vehicle.ad.enteringMapMarker == true and vehicle.ad.pullDownList.active == false and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
 			local adFontSize = AutoDrive.FONT_SCALE * uiScale;
 			local adPosX = self.posX + self.borderX;
 			local adPosY = self.posY + (0.0478 * (g_screenWidth / g_screenHeight)) + (self.borderY + self.buttonHeight) * self.rowCurrent; --0.085
@@ -941,6 +953,8 @@ function AutoDriveHud:getModeName(vehicle)
 		return g_i18n:getText("AD_MODE_UNLOAD");
 	elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
 		return g_i18n:getText("AD_MODE_LOAD");
+	elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+		return g_i18n:getText("AD_MODE_BGA");
 	end;
 
 	return "";
@@ -1118,8 +1132,8 @@ function AutoDriveHud:createPullDownList(vehicle, start, destination, fillType)
 
 	--local sort_func = function( a,b ) return a.displayName < b.displayName end
 	local sort_func = function(a, b)
-		a = tostring(a.displayName)
-		b = tostring(b.displayName)
+		a = tostring(a.displayName):lower();
+		b = tostring(b.displayName):lower();
 		local patt = '^(.-)%s*(%d+)$'
 		local _,_, col1, num1 = a:find(patt)
 		local _,_, col2, num2 = b:find(patt)

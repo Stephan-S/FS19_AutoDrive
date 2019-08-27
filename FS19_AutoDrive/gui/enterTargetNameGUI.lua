@@ -20,7 +20,7 @@ function adEnterTargetNameGui:onOpen()
     adEnterTargetNameGui:superClass().onOpen(self);
     FocusManager:setFocus(self.textInputElement);
     self.textInputElement:setText(""); --adEnterTargetNameGui
-    self.textInputElement:onFocusActivate();
+    --self.textInputElement:onFocusActivate();
 end;
 
 function adEnterTargetNameGui:onClickOk()
@@ -62,6 +62,11 @@ end;
 
 function adEnterTargetNameGui:onClickResetButton()
     self.textInputElement:setText("");
+    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+        if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
+            self.textInputElement:setText("" .. AutoDrive.mapMarker[g_currentMission.controlledVehicle.ad.mapMarkerSelected].name);
+        end;
+    end;
 end;
 
 function adEnterTargetNameGui:onClose()
@@ -77,10 +82,14 @@ function adEnterTargetNameGui:onCreateInputElement(element)
     element.text = "";
 end;
 
-function adEnterTargetNameGui:onEnterPressed()
-    self:onClickOk();
+function adEnterTargetNameGui:onEnterPressed()    
+    if AutoDrive.openTargetGUINextFrame == nil or AutoDrive.openTargetGUINextFrame <= 0 then
+        self:onClickOk();
+    end;
 end;
 
 function adEnterTargetNameGui:onEscPressed()
-    self:onClose();
+    if AutoDrive.openTargetGUINextFrame == nil or AutoDrive.openTargetGUINextFrame <= 0 then
+        self:onClose();
+    end;
 end;

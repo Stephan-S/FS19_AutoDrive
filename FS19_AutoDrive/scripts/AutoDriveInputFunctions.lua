@@ -172,7 +172,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			return;
 		end;		
 		AutoDrive.renameCurrentMapMarker = false;
-		AutoDrive.openTargetGUINextFrame = 5;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
+		AutoDrive.openTargetGUINextFrame = 60;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
 		--AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 
@@ -181,7 +181,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			return;
 		end;		
 		AutoDrive.renameCurrentMapMarker = true;
-		AutoDrive.openTargetGUINextFrame = 5;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
+		AutoDrive.openTargetGUINextFrame = 60;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
 	end;
 
 	if input == "input_start_stop" then
@@ -261,8 +261,9 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			if AutoDrive:isActive(vehicle) then
 				AutoDrive:InputHandling(vehicle, "input_start_stop"); --disable if already active
 			end;
-			vehicle.ad.mode = 1;
-			AutoDrive:InputHandling(vehicle, "input_start_stop");			
+			vehicle.ad.mode = 1;			
+			AutoDrive:InputHandling(vehicle, "input_start_stop");	
+			vehicle.ad.onRouteToPark = true;		
 		else
 			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"));
 			AutoDrive.print.showMessageFor = 10000;
@@ -464,11 +465,11 @@ end;
 
 function AutoDrive:inputSiloMode(vehicle, increase)
     vehicle.ad.mode = vehicle.ad.mode + increase;
-    if (vehicle.ad.mode > AutoDrive.MODE_LOAD) then
+    if (vehicle.ad.mode > AutoDrive.MODE_BGA) then
         vehicle.ad.mode = AutoDrive.MODE_DRIVETO;
 	end;
 	if (vehicle.ad.mode < AutoDrive.MODE_DRIVETO) then
-		vehicle.ad.mode = AutoDrive.MODE_LOAD
+		vehicle.ad.mode = AutoDrive.MODE_BGA
 	end;
     AutoDrive:enableCurrentMode(vehicle);
 end;

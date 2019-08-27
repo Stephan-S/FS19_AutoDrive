@@ -45,13 +45,19 @@
 		<text name="AD_new_marker"							 text="New Goal:" />
 		<text name="AD_new_marker_helptext"					 text="Please enter new name (Stop with enter key)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Recalculating routes. Please wait. Finished:" />
+		<text name="AD_No_Trailer"							 text="couldn't find trailer" />	
+		<text name="AD_No_Bunker"							 text="couldn't find silo bunker" />		
+		<text name="AD_No_Shovel"							 text="couldn't find a connected shovel" />
 		<text name="AD_MODE_DRIVETO"						 text="Drive" />
 		<text name="AD_MODE_DELIVERTO"						 text="Deliver" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Pickup and Deliver" />
 		<text name="AD_MODE_UNLOAD"							 text="Unload Combine" />
 		<text name="AD_MODE_LOAD"							 text="Load" />
+		<text name="AD_MODE_BGA"							 text="Unload bunker silo" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Settings" />
 		<text name="gui_ad_pipe_offset"						 text="Pipe Offset" />
+		<text name="gui_ad_trailerOffset"					 text="Trailer offset" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Offset of trailer unloading position - front/rear" />
 		<text name="gui_ad_lookahead_turning"				 text="Look ahead distance (turn)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="The distance the vehicle looks ahead to adjust steering to follow the next segment" />
 		<text name="gui_ad_lookahead_braking"				 text="Look ahead distance (brake)" />
@@ -74,6 +80,9 @@
 		<text name="ad_drive_to_parkpos"					 text="Parking" />
 		<text name="ad_drive_to_startpos"					 text="Drive to start" />
 		<text name="ad_drive_to_unloadpos"					 text="Drive to unload" />
+		<text name="ad_bga_init"					 		 text="Initializing" />
+		<text name="ad_bga_waiting"					 		 text="Waiting for trailer/silo" />
+		<text name="ad_bga_active"					 		 text="Active" />
 		<text name="gui_ad_autoConnect_start"				 text="Auto connect (start)" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Auto connect suitable node on start of recording" />
 		<text name="gui_ad_autoConnect_end"					 text="Auto connect (end)" />
@@ -115,5 +124,7 @@
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Advanced collision detection, which also detects AI-traffic, signs, fences etc" />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Seed and fertilizer" />	
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Enables AutoDrive to refill both seed and fertilizer compartments, if one of these is selected as filltype." />	
+		<text name="gui_ad_shovelWidth"			 			 text="Shovel width (Addition)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="If automatically detected shovel width is too small, it can be increased with this value" />	
 	</texts>
 </l10n>

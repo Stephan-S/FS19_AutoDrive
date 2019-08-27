@@ -190,8 +190,10 @@ function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
     local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers);
     
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then
-        if getDistanceToTargetPosition(vehicle) > 105 and getDistanceToUnloadPosition(vehicle) > 105 then
+        if getDistanceToTargetPosition(vehicle) > 25 and getDistanceToUnloadPosition(vehicle) > 25 then
             AutoDrive:setTrailerCoverOpen(trailers, false);
+        else
+            AutoDrive:setTrailerCoverOpen(trailers, true);
         end;
     end;
 
@@ -271,7 +273,7 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
     local distance = getDistanceToUnloadPosition(vehicle);
     if distance < 100 then
         continueIfAllTrailersClosed(vehicle, trailers); 
-        AutoDrive:setTrailerCoverOpen(trailers, true);
+        --AutoDrive:setTrailerCoverOpen(trailers, true);
 
         for _,trailer in pairs(trailers) do
             for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do                
@@ -286,7 +288,7 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
                         break;
                     end;                          
                 
-                    if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) then
+                    if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
                         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
                         vehicle.ad.isPaused = true;
                         vehicle.ad.isUnloading = true;
@@ -296,7 +298,7 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
                         vehicle.ad.isUnloading = true;
                     end;
                 else
-                    if isTrailerInBunkerSiloArea(trailer, trigger) then
+                    if isTrailerInBunkerSiloArea(trailer, trigger) and trailer.setDischargeState ~= nil then
                         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
                         vehicle.ad.isUnloadingToBunkerSilo = true;
                     end;
@@ -350,7 +352,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
             distance = getDistanceToUnloadPosition(vehicle);
         end;
         if distance < 20 then
-            AutoDrive:setTrailerCoverOpen(trailers, true);
+            --AutoDrive:setTrailerCoverOpen(trailers, true);
             for _,trailer in pairs(trailers) do
                 local fillLevelTrailer, leftCapacityTrailer  = getFillLevelAndCapacityOf(trailer, vehicle.ad.unloadFillTypeIndex);
                 if vehicle.ad.trigger ~= nil and vehicle.ad.trigger.isLoading and vehicle.ad.trigger.selectedFillType ~= vehicle.ad.unloadFillTypeIndex then --

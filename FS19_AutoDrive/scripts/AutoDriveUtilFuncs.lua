@@ -129,7 +129,6 @@ function AutoDrive:getWorldDirection(fromX, fromY, fromZ, toX, toY, toZ)
 end;
 
 AIVehicleUtil.driveInDirection = function (self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
-
 	local angle = 0;
     if lx ~= nil and lz ~= nil then
         local dot = lz;

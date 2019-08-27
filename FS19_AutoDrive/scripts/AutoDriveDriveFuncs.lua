@@ -11,6 +11,10 @@ function AutoDrive:handleDriving(vehicle, dt)
 		AutoDrive:stopVehicle(vehicle, dt)
 		return;
     end;
+
+    if vehicle.bga.isActive == true then
+        return;
+    end;
     
     if vehicle.components ~= nil and vehicle.isServer then	        
 		local x,y,z = getWorldTranslation( vehicle.components[1].node );
@@ -121,7 +125,7 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
 end;
 
 function AutoDrive:checkForDeadLock(vehicle, dt)
-    if vehicle.ad.isActive == true and vehicle.isServer and vehicle.ad.isStopping == false then		
+    if (vehicle.ad.isActive == true) and (vehicle.bga.isActive == false) and vehicle.isServer and vehicle.ad.isStopping == false then		
         local x,y,z = getWorldTranslation( vehicle.components[1].node );
         if (AutoDrive:getDistance(x,z, vehicle.ad.targetX, vehicle.ad.targetZ) < 15) then        
             vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt;

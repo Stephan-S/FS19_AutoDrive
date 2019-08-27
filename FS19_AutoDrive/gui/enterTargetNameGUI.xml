@@ -2,7 +2,7 @@
 <GUI onOpen="onOpen" onClose="onClose" onCreate="onCreate">
 	<GuiElement type="bitmap" profile="uiFullInGameBackground" />
     <GuiElement type="bitmap" profile="dialogBg" id="dialogElement">
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" onEnterPressed="onEnterPressed" onEscPressed="onEscPressed" />
+        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" onEnterPressed="onEnterPressed" />
         
         <!-- bottom "back" + "ok"  -->
         <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
