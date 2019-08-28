@@ -606,7 +606,7 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
                 local hasAttached, trailer = self:vehicleHasTrailerAttached(vehicle);
                 if trailer ~= nil then
                     trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
-                    if trailerLeftCapacity > 1 then
+                    if trailerLeftCapacity >= 0.01 then
                         closestDistance = self:getDistanceBetween(vehicle, bgaVehicle);
                         closest = vehicle;
                     end;
@@ -1120,7 +1120,12 @@ function AutoDriveBGA:driveToBGAUnloadInit(vehicle, dt)
 
     if math.sqrt(math.pow(vehicle.bga.targetPoint.x - x, 2) + math.pow(vehicle.bga.targetPoint.z - z,2)) <= 3 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOUNLOAD;
-    end;
+    end;    
+    if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
+        vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
+        vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD;
+        vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
+    end; 
 end;
 
 function AutoDriveBGA:driveToBGAUnload(vehicle, dt)
@@ -1147,6 +1152,11 @@ function AutoDriveBGA:driveToBGAUnload(vehicle, dt)
     if vehicle.bga.inShovelRangeTimer:timer(self:getShovelInTrailerRange(vehicle), 150, dt)  then
         vehicle.bga.action = AutoDriveBGA.ACTION_UNLOAD;
     end;
+    if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
+        vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
+        vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD;
+        vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
+    end; 
 end;
 
 function AutoDriveBGA:handleBGAUnload(vehicle, dt)
@@ -1156,12 +1166,14 @@ function AutoDriveBGA:handleBGAUnload(vehicle, dt)
     vehicle.bga.shovelUnloadPosition = {x=xV, z=zV};
 
     if vehicle.bga.shovelFillLevel <= 0.01 then        
-       vehicle.bga.strategyActiveTimer.elapsedTime = math.huge;
+        vehicle.bga.strategyActiveTimer.elapsedTime = math.huge;
+        vehicle.bga.shovelState = AutoDriveBGA.SHOVELSTATE_UNLOAD;
         vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
         vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end;
     if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
         vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
+        vehicle.bga.shovelState = AutoDriveBGA.SHOVELSTATE_UNLOAD;
         vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD;
         vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end; 
@@ -1213,8 +1225,19 @@ function AutoDriveBGA:getVehicleToPause(vehicle, dt)
     vehicle.bga.state = AutoDriveBGA.STATE_WAITING_FOR_RESTART;
 end;
 
-function AutoDriveBGA:getShovelInTrailerRange(vehicle)    
-    return vehicle.bga.shovel:getDischargeState() == Dischargeable.DISCHARGE_STATE_OBJECT;
+function AutoDriveBGA:getShovelInTrailerRange(vehicle)   
+    local x,y,z = getWorldTranslation(vehicle.components[1].node);  
+    local xT,yT,zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node);
+    local dischargeNode = vehicle.bga.shovel:getCurrentDischargeNode();
+    if dischargeNode ~= nil then
+        local dischargeTarget = dischargeNode.dischargeObject;
+        if dischargeTarget ~= nil then
+            local result = vehicle.bga.shovel:getDischargeState() == Dischargeable.DISCHARGE_STATE_OBJECT and dischargeTarget == vehicle.bga.targetTrailer;
+            --print("Result: " .. ADBoolToString(result));
+            return result;
+        end;
+    end;
+    return false;
 end;
 
 function AutoDriveBGA:determineHighestShovelOffset(vehicle)
