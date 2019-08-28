@@ -133,7 +133,7 @@ end;
 
 function AutoDriveBGA:getCurrentStates(vehicle)
     vehicle.bga.shovelFillLevel = self:getShovelFillLevel(vehicle);
-    vehicle.bga.trailerFillLevel, vehicle.bga.trailerCapacity  = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer);
+    vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity  = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer);
     vehicle.bga.bunkerFillLevel = 10000; --self:getBunkerFillLevel();
 
     if not self:checkCurrentTrailerStillValid(vehicle) then
@@ -145,13 +145,13 @@ end;
 function AutoDriveBGA:checkIfPossibleToRestart(vehicle, dt)
     if vehicle.bga.targetTrailer == nil then
         vehicle.bga.targetTrailer, vehicle.bga.targetDriver = self:findCloseTrailer(vehicle);
-        vehicle.bga.trailerFillLevel, vehicle.bga.trailerCapacity = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer);
+        vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer);
     end;
     if vehicle.bga.targetBunker == nil then
         vehicle.bga.targetBunker = self:getTargetBunker(vehicle);
     end;
 
-    if vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerFillLevel < vehicle.bga.trailerCapacity and vehicle.bga.targetBunker ~= nil and vehicle.bga.bunkerFillLevel > 0 then
+    if vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerLeftCapacity >= 0.1 and vehicle.bga.targetBunker ~= nil and vehicle.bga.bunkerFillLevel > 0 then
         return true;
     end;
 end;
@@ -420,9 +420,9 @@ end;
 
 function AutoDriveBGA:checkForUnloadCondition(vehicle) --can unload if shovel is filled and trailer available
     if vehicle.bga.action == AutoDriveBGA.ACTION_DRIVETOSILO_COMMON_POINT then
-        return vehicle.bga.shovelFillLevel > 0 and vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerFillLevel < vehicle.bga.trailerCapacity;
+        return vehicle.bga.shovelFillLevel > 0 and vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerLeftCapacity > 1;
     elseif vehicle.bga.action == AutoDriveBGA.ACTION_LOAD then
-        return vehicle.bga.shovelFillLevel >= 0.98 and vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerFillLevel < vehicle.bga.trailerCapacity;
+        return vehicle.bga.shovelFillLevel >= 0.98 and vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerLeftCapacity > 1;
     end;
     return false;
 end;
@@ -432,7 +432,7 @@ function AutoDriveBGA:checkForStopLoading(vehicle) --stop loading when shovel is
 end;
 
 function AutoDriveBGA:checkForIdleCondition(vehicle) --idle if shovel filled and no trailer available to fill;
-    if vehicle.bga.shovelFillLevel >= 0.98 and vehicle.bga.targetTrailer ~= nil or vehicle.bga.trailerFillLevel >= vehicle.bga.trailerCapacity then
+    if vehicle.bga.shovelFillLevel >= 0.98 and vehicle.bga.targetTrailer ~= nil or vehicle.bga.trailerLeftCapacity <= 1 then
         return true;
     end;
     return false;
@@ -481,7 +481,7 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
         end;
     elseif vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_UNLOAD then
         vehicle.bga.shovelTargetHeight = 4.7;
-        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.7;
+        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.7;        
         if vehicle.bga.armExtender ~= nil then 
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMax;
         end;
@@ -502,6 +502,11 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     local shovelTargetAngleReached = false;
     if math.abs(angle - vehicle.bga.shovelTargetAngle) <= 0.05 then
         shovelTargetAngleReached = true;
+    end;    
+    if vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_UNLOAD then
+        if (math.abs(vehicle.bga.shovelRotator.curRot[1] - vehicle.bga.shovelRotator.rotMax) <= 0.01 or math.abs(vehicle.bga.shovelRotator.curRot[1] - vehicle.bga.shovelRotator.rotMin) <= 0.01) then
+            shovelTargetAngleReached = true;
+        end;
     end;
     local targetFactorHorizontal = math.max(1, math.min(self:getAngleBetweenTwoRadValues(angle, vehicle.bga.shovelTargetAngle) * 100, 100));
 
@@ -600,8 +605,8 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
             if self:getDistanceBetween(vehicle, bgaVehicle) < closestDistance and vehicle.ad.noMovementTimer:done() then
                 local hasAttached, trailer = self:vehicleHasTrailerAttached(vehicle);
                 if trailer ~= nil then
-                    trailerFillLevel, trailerCapacity  = getFillLevelAndCapacityOf(trailer);
-                    if trailerFillLevel < trailerCapacity then
+                    trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
+                    if trailerLeftCapacity > 1 then
                         closestDistance = self:getDistanceBetween(vehicle, bgaVehicle);
                         closest = vehicle;
                     end;
@@ -1155,7 +1160,7 @@ function AutoDriveBGA:handleBGAUnload(vehicle, dt)
         vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
         vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end;
-    if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerFillLevel == vehicle.bga.trailerCapacity) then
+    if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
         vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
         vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD;
         vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
@@ -1269,7 +1274,7 @@ function AutoDriveBGA:checkForFillLevelInCurrentRow(vehicle)
         result = pointPositive;
     end;
 
-    local innerFillLevel1 = DensityMapHeightUtil.getFillLevelAtArea(vehicle.bga.targetBunker.fermentingFillType, targetPoint.x,targetPoint.z, targetPoint2.x,targetPoint2.z, result.x,result.z)
+    local innerFillLevel1 = 0; --DensityMapHeightUtil.getFillLevelAtArea(vehicle.bga.targetBunker.fermentingFillType, targetPoint.x,targetPoint.z, targetPoint2.x,targetPoint2.z, result.x,result.z)
 	local innerFillLevel2 = DensityMapHeightUtil.getFillLevelAtArea(vehicle.bga.targetBunker.outputFillType,     targetPoint.x,targetPoint.z, targetPoint2.x,targetPoint2.z, result.x,result.z)
     local innerFillLevel = innerFillLevel1 + innerFillLevel2
     
