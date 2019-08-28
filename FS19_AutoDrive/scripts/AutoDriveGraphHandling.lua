@@ -86,7 +86,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 				AutoDrive.mapMarker[markerID] =  AutoDrive.mapMarker[markerID+1];
 			else
 				AutoDrive.mapMarker[markerID] = nil;
-				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. _) ;
+				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. markerID) ;
 			end;			
 		end;
 		if marker.id > toDelete.id then
@@ -112,18 +112,18 @@ function AutoDrive:removeMapMarker(toDelete)
 	--adjust all mapmarkers
 	local deletedMarkerID = -1;
 	local deletedMarker = false;
-	for _,marker in pairs(AutoDrive.mapMarker) do
+	for markerID,marker in pairs(AutoDrive.mapMarker) do
 		if marker.id == toDelete.id then
 			deletedMarker = true;
 			deletedMarkerID = markerID;
 			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1;
 		end;
 		if deletedMarker then
-			if AutoDrive.mapMarker[_+1] ~= nil then
-				AutoDrive.mapMarker[_] =  AutoDrive.mapMarker[_+1];
+			if AutoDrive.mapMarker[markerID+1] ~= nil then
+				AutoDrive.mapMarker[markerID] =  AutoDrive.mapMarker[markerID+1];
 			else
-				AutoDrive.mapMarker[_] = nil;
-				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. _) ;
+				AutoDrive.mapMarker[markerID] = nil;
+				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. markerID) ;
 			end;
 		end;
 	end;
