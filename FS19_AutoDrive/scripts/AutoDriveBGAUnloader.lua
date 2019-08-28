@@ -1087,7 +1087,7 @@ function AutoDriveBGA:reverseFromBGALoad(vehicle, dt)
 
     if math.sqrt(math.pow(x-vehicle.bga.targetPointClose.x,2) + math.pow(z-vehicle.bga.targetPointClose.z,2)) < 5 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOUNLOAD_INIT
-        if vehicle.bga.shovelFillLevel <= 1 then
+        if vehicle.bga.shovelFillLevel <= 0.01 then
             vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOSILO_COMMON_POINT;
         end;
         if vehicle.bga.shovelOffsetCounter > vehicle.bga.highestShovelOffsetCounter then
