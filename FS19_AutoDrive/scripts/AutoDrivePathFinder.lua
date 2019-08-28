@@ -486,7 +486,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             if pf.fruitToCheck == nil then
                 for i = 1, #g_fruitTypeManager.fruitTypes do
                     if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
-                        local fruitType = g_fruitTypeManager.fruitTypes[i];                            
+                        local fruitType = g_fruitTypeManager.fruitTypes[i].index;                            
                         if cell.isRestricted == false and pf.fruitToCheck == nil then --stop if cell is already restricted and/or fruit type is now known
                             checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z);
                         end;

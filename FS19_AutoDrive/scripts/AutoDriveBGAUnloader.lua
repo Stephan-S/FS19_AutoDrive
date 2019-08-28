@@ -124,6 +124,7 @@ function AutoDriveBGA:handleBGA(vehicle, dt)
         vehicle.bga.strategyActiveTimer.elapsedTime = math.huge;
         vehicle.bga.storedDirection = nil;
         vehicle.bga.lastAngleStrategyChange = nil;
+        vehicle.bga.checkedCurrentRow = false;
     end;
 
     vehicle.bga.lastState = vehicle.bga.state;
@@ -418,7 +419,7 @@ function AutoDriveBGA:steerAxisToTrans(vehicle, translationObject, translationTa
 end;
 
 function AutoDriveBGA:checkForUnloadCondition(vehicle) --can unload if shovel is filled and trailer available
-    if vehicle.bga.action == AutoDriveBGA.ACTION_DRIVETOSILO then
+    if vehicle.bga.action == AutoDriveBGA.ACTION_DRIVETOSILO_COMMON_POINT then
         return vehicle.bga.shovelFillLevel > 0 and vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerFillLevel < vehicle.bga.trailerCapacity;
     elseif vehicle.bga.action == AutoDriveBGA.ACTION_LOAD then
         return vehicle.bga.shovelFillLevel >= 0.98 and vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerFillLevel < vehicle.bga.trailerCapacity;
@@ -755,7 +756,12 @@ function AutoDriveBGA:isAlmostInBunkerSiloArea(vehicle, distanceToCheck)
 end;
 
 function AutoDriveBGA:driveToSiloCommonPoint(vehicle, dt)
-    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 17);
+    if (vehicle.bga.checkedCurrentRow == nil or vehicle.bga.checkedCurrentRow == false) then
+        self:setShovelOffsetToNonEmptyRow(vehicle);
+        vehicle.bga.checkedCurrentRow = true;
+    end;    
+
+    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 14);
     local angleToSilo = self:getAngleToTarget(vehicle); -- in +/- 180°
 
     if vehicle.bga.storedDirection == nil then
@@ -1064,24 +1070,8 @@ end;
 function AutoDriveBGA:reverseFromBGALoad(vehicle, dt)
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_LOW;
     
-    local p1, p2 = self:getTargetBunkerLoadingSide(vehicle);
-    local center = {x=p1.x + (p2.x-p1.x)/2, z=p1.z + (p2.z-p1.z)/2};
-    local ortho = {x= -(p2.z-p1.z)/(math.abs(p2.z-p1.z) + math.abs(p2.x-p1.x)), z= (p2.x-p1.x)/(math.abs(p2.z-p1.z) + math.abs(p2.x-p1.x)) }
-    --aim really far away so we will not turn sharply and try to prevent hitting the wall
-    local pointPositive = {x=center.x + ortho.x * 200, z=center.z + ortho.z * 200};
-    local pointNegative = {x=center.x - ortho.x * 200, z=center.z - ortho.z * 200};
-    local pointPositiveClose = {x=center.x + ortho.x * 16, z=center.z + ortho.z * 16};
-    local pointNegativeClose = {x=center.x - ortho.x * 16, z=center.z - ortho.z * 16};
-    local bunkerCenter = {}
-    bunkerCenter.x, bunkerCenter.z = self:getBunkerCenter(vehicle.bga.targetBunker);
-
-    if math.sqrt(math.pow(bunkerCenter.x - pointPositive.x,2) + math.pow(bunkerCenter.z - pointPositive.z,2)) >= math.sqrt(math.pow(bunkerCenter.x - pointNegative.x,2) + math.pow(bunkerCenter.z - pointNegative.z,2)) then
-        vehicle.bga.targetPoint = pointPositive;
-        vehicle.bga.targetPointClose = pointPositiveClose;
-    else
-        vehicle.bga.targetPoint = pointNegative;
-        vehicle.bga.targetPointClose = pointNegativeClose;
-    end;
+    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 200);
+    vehicle.bga.targetPointClose = self:getTargetForShovelOffset(vehicle, 16);
     
     local finalSpeed = 30;
     local acc = 1;
@@ -1097,6 +1087,9 @@ function AutoDriveBGA:reverseFromBGALoad(vehicle, dt)
 
     if math.sqrt(math.pow(x-vehicle.bga.targetPointClose.x,2) + math.pow(z-vehicle.bga.targetPointClose.z,2)) < 5 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOUNLOAD_INIT
+        if vehicle.bga.shovelFillLevel <= 1 then
+            vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOSILO_COMMON_POINT;
+        end;
         if vehicle.bga.shovelOffsetCounter > vehicle.bga.highestShovelOffsetCounter then
             vehicle.bga.shovelOffsetCounter = 0;
         else
@@ -1244,6 +1237,64 @@ function AutoDriveBGA:stateToText(vehicle)
     return text;
 end;
 
+function AutoDriveBGA:checkForFillLevelInCurrentRow(vehicle)
+    local offsetToUse = vehicle.bga.shovelOffsetCounter;
+    local fromOtherSide = false;
+    if vehicle.bga.shovelOffsetCounter > vehicle.bga.highestShovelOffsetCounter then
+        offsetToUse = 0;
+        fromOtherSide = true;
+    end;
+    local inFront = 0;
+
+    local p1, p2 = self:getTargetBunkerLoadingSide(vehicle);
+    if fromOtherSide ~= nil and fromOtherSide == true then
+        p1, p2 = p2, p1;
+    end;
+    local normalizedVec = {x= (p2.x-p1.x)/(math.abs(p2.x-p1.x) + math.abs(p2.z-p1.z)), z= (p2.z-p1.z)/(math.abs(p2.x-p1.x) + math.abs(p2.z-p1.z)) }
+    --get ortho for 'inFront' parameter
+    local ortho = {x= -normalizedVec.z, z= normalizedVec.x };    
+    --get shovel offset correct position on silo line    
+    local offset = (vehicle.bga.shovelWidth * (0.0 + offsetToUse));
+    local targetPoint = {x=p1.x + normalizedVec.x * offset, z=p1.z + normalizedVec.z * offset };
+    offset = (vehicle.bga.shovelWidth * (1.0 + offsetToUse));
+    local targetPoint2 = {x=p1.x + normalizedVec.x * offset, z=p1.z + normalizedVec.z * offset };
+
+    local pointPositive = {x = targetPoint.x + vehicle.bga.vecH.x, z = targetPoint.z + vehicle.bga.vecH.z}
+    local pointNegative = {x = targetPoint.x - vehicle.bga.vecH.x, z = targetPoint.z - vehicle.bga.vecH.z}
+    local bunkerCenter = {}
+    bunkerCenter.x, bunkerCenter.z = self:getBunkerCenter(vehicle.bga.targetBunker);
+
+    local result = pointNegative;
+    if math.sqrt(math.pow(bunkerCenter.x - pointPositive.x,2) + math.pow(bunkerCenter.z - pointPositive.z,2)) <= math.sqrt(math.pow(bunkerCenter.x - pointNegative.x,2) + math.pow(bunkerCenter.z - pointNegative.z,2)) then
+        result = pointPositive;
+    end;
+
+    local innerFillLevel1 = DensityMapHeightUtil.getFillLevelAtArea(vehicle.bga.targetBunker.fermentingFillType, targetPoint.x,targetPoint.z, targetPoint2.x,targetPoint2.z, result.x,result.z)
+	local innerFillLevel2 = DensityMapHeightUtil.getFillLevelAtArea(vehicle.bga.targetBunker.outputFillType,     targetPoint.x,targetPoint.z, targetPoint2.x,targetPoint2.z, result.x,result.z)
+    local innerFillLevel = innerFillLevel1 + innerFillLevel2
+    
+    return innerFillLevel;
+end;
+
+function AutoDriveBGA:setShovelOffsetToNonEmptyRow(vehicle)
+    local currentFillLevel = self:checkForFillLevelInCurrentRow(vehicle);
+    local iterations = vehicle.bga.highestShovelOffsetCounter + 1;
+    while((currentFillLevel == 0) and (iterations >= 0)) do
+        iterations = iterations - 1;
+        if vehicle.bga.shovelOffsetCounter > vehicle.bga.highestShovelOffsetCounter then
+            vehicle.bga.shovelOffsetCounter = 0;
+        else
+            vehicle.bga.shovelOffsetCounter = vehicle.bga.shovelOffsetCounter + 1;
+        end;
+        currentFillLevel = self:checkForFillLevelInCurrentRow(vehicle);
+    end;
+    
+    if ((currentFillLevel == 0) and (iterations < 0)) then
+        AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
+        vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
+        AutoDrive:stopAD(vehicle);
+    end;
+end;
 
 function AutoDriveBGA:driveInDirection(vehicle, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
     if lx ~= nil and lz ~= nil then

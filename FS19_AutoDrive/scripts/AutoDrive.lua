@@ -453,7 +453,13 @@ function AutoDrive:onUpdate(dt)
 
 	AutoDriveBGA:handleBGA(self, dt);
 
-	self.ad.noMovementTimer:timer((self.lastSpeedReal <= 0.0015), 3000, dt);
+	if AutoDrive.runThisFrame == false then --run things that should run at least once per frame, independent of the vehicle
+		for _,vehicle in pairs(g_currentMission.vehicles) do
+			if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
+				vehicle.ad.noMovementTimer:timer((self.lastSpeedReal <= 0.0015), 3000, dt);
+			end;
+		end;
+	end;
 
 	AutoDrive.runThisFrame = true;
 end;
