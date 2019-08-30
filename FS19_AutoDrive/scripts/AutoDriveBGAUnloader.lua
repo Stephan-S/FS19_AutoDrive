@@ -541,7 +541,7 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
 
 
     if ((math.abs(self:getShovelHeight(vehicle) - vehicle.bga.shovelTargetHeight) <= 0.01) or
-    (allAxisFullyExtended and vehicle.bga.shovelTargetHeight > 4))
+    (allAxisFullyExtended and (vehicle.bga.shovelTargetHeight > 4 or vehicle.bga.shovelTargetHeight < 0.5)))
     and shovelTargetAngleReached then
         vehicle.bga.shovelState = vehicle.bga.shovelTarget;
     end;
@@ -601,7 +601,7 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
     local closestDistance = 50;
     local closest = nil;
     for _,vehicle in pairs(g_currentMission.vehicles) do
-        if vehicle ~= bgaVehicle and self:vehicleHasTrailerAttached(vehicle) then
+        if vehicle ~= bgaVehicle and self:vehicleHasTrailerAttached(vehicle) and vehicle.ad ~= nil then
             if self:getDistanceBetween(vehicle, bgaVehicle) < closestDistance and vehicle.ad.noMovementTimer:done() then
                 local hasAttached, trailer = self:vehicleHasTrailerAttached(vehicle);
                 if trailer ~= nil then
@@ -1002,8 +1002,8 @@ function AutoDriveBGA:getAngleToTarget(vehicle)
     local x,y,z = getWorldTranslation( vehicle.components[1].node );
     local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);
     if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
-        rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));
-        rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime)/2,0,(1+math.cos(vehicle.rotatedTime))/2);
+        rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, MathUtil.sign(vehicle.spec_articulatedAxis.rotSpeed) * math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));
+        rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, MathUtil.sign(vehicle.spec_articulatedAxis.rotSpeed) * math.sin(vehicle.rotatedTime)/2,0,(1+math.cos(vehicle.rotatedTime))/2);
     end;
 	local vehicleVector = {x= rx, z=rz };
 

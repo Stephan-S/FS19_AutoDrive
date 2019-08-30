@@ -52,14 +52,16 @@ function AutoDrive:startAD(vehicle)
 			for _,trailer in pairs(trailers) do
 				if trailer.getFillUnits ~= nil then
 					for _,fillUnit in pairs(trailer:getFillUnits()) do
-						leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
-						maxCapacity = maxCapacity + trailer:getFillUnitCapacity(_)
+						if trailer:getFillUnitCapacity(_) > 2000 then
+							leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
+							maxCapacity = maxCapacity + trailer:getFillUnitCapacity(_)
+						end;
 					end
 				end;
 			end;
 		end;
 				
-		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity < (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel"))))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
+		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel"))))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
 				vehicle.ad.skipStart = true;
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);

@@ -93,6 +93,11 @@ function AutoDrive:getTrailersOf(vehicle, onlyDischargeable)
     AutoDrive.tempTrailers = {};
     AutoDrive.tempTrailerCount = 0;
 
+    if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil and AutoDrive:checkIfLargeFillUnitExists(vehicle) then
+        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
+        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = vehicle;
+    end;
+
     if vehicle.getAttachedImplements ~= nil then
         for _, implement in pairs(vehicle:getAttachedImplements()) do
             AutoDrive:getTrailersOfImplement(implement.object, onlyDischargeable);
@@ -104,9 +109,11 @@ end;
 
 function AutoDrive:getTrailersOfImplement(attachedImplement, onlyDischargeable)
     if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
-        trailer = attachedImplement;
-        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
-        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+        if AutoDrive:checkIfLargeFillUnitExists(attachedImplement) then
+            trailer = attachedImplement;
+            AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
+            AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
+        end;
     end;
     if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then     
         if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then    
@@ -124,6 +131,17 @@ function AutoDrive:getTrailersOfImplement(attachedImplement, onlyDischargeable)
 
     return;
 end;
+
+function AutoDrive:checkIfLargeFillUnitExists(object)
+    if object ~= nil and object.getFillUnits ~= nil then
+        for fillUnitIndex,fillUnit in pairs(object:getFillUnits()) do
+            if object:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                return true;
+            end;
+        end
+    end;
+    return false;
+end
 
 function getDistanceToUnloadPosition(vehicle)
     if vehicle.ad.targetSelected_Unload == nil or vehicle.ad.targetSelected == nil then
@@ -175,8 +193,10 @@ function getFillLevelAndCapacityOf(trailer, selectedFillType)
     if trailer ~= nil then    
         for _,fillUnit in pairs(trailer:getFillUnits()) do
             if selectedFillType == nil or trailer:getFillUnitSupportedFillTypes(_)[selectedFillType] == true then
-                leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_);
-                fillLevel = fillLevel + trailer:getFillUnitFillLevel(_);
+                if trailer:getFillUnitCapacity(_) > 2000 then                   
+                    leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_);
+                    fillLevel = fillLevel + trailer:getFillUnitFillLevel(_);
+                end;
             end;
         end
     end;
@@ -277,15 +297,16 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
         --AutoDrive:setTrailerCoverOpen(trailers, true);
 
         for _,trailer in pairs(trailers) do
+            
+            findAndSetBestTipPoint(vehicle, trailer) 
             for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do                
                 if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
                     break;
                 end;
-
-                findAndSetBestTipPoint(vehicle, trailer)  
+ 
                 
                 if (trigger.bunkerSilo == nil)  then
-                    if (distance > 20) then
+                    if (distance > 30) then
                         break;
                     end;                          
                 
@@ -327,23 +348,28 @@ end;
 
 function findAndSetBestTipPoint(vehicle, trailer)
      if not trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) then
-        for i=1,#trailer.spec_dischargeable.dischargeNodes do
-            if trailer:getCanDischargeToObject(trailer.spec_dischargeable.dischargeNodes[i])then
-                trailer:setCurrentDischargeNodeIndex(trailer.spec_dischargeable.dischargeNodes[i]);
-                currentDischargeNode = trailer:getCurrentDischargeNode()
-                break
-            end
-        end
+        local spec = trailer.spec_trailer;        
+        if spec ~= nil then
+            local originalTipSide = spec.preferedTipSideIndex;
+            originalTipSide = originalTipSide + 1;
+            if originalTipSide > spec.tipSideCount then
+                originalTipSide = 1;
+            end;
+            trailer:setPreferedTipSide(originalTipSide);
+        end;
     end
 end;
 
-function isTrailerInBunkerSiloArea(trailer, trigger)    
-    local x,y,z = getWorldTranslation(trailer:getCurrentDischargeNode().node)
-    local tx,ty,tz = x,y,z+1
-    local x1,z1 = trigger.bunkerSiloArea.sx,trigger.bunkerSiloArea.sz
-    local x2,z2 = trigger.bunkerSiloArea.wx,trigger.bunkerSiloArea.wz
-    local x3,z3 = trigger.bunkerSiloArea.hx,trigger.bunkerSiloArea.hz
-    return MathUtil.hasRectangleLineIntersection2D(x1,z1,x2-x1,z2-z1,x3-x1,z3-z1,x,z,tx-x,tz-z)
+function isTrailerInBunkerSiloArea(trailer, trigger)
+    if trailer.getCurrentDischargeNode ~= nil then
+        local x,y,z = getWorldTranslation(trailer:getCurrentDischargeNode().node)
+        local tx,ty,tz = x,y,z+1
+        local x1,z1 = trigger.bunkerSiloArea.sx,trigger.bunkerSiloArea.sz
+        local x2,z2 = trigger.bunkerSiloArea.wx,trigger.bunkerSiloArea.wz
+        local x3,z3 = trigger.bunkerSiloArea.hx,trigger.bunkerSiloArea.hz
+        return MathUtil.hasRectangleLineIntersection2D(x1,z1,x2-x1,z2-z1,x3-x1,z3-z1,x,z,tx-x,tz-z)
+    end;
+    return false;
 end;
 
 function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)

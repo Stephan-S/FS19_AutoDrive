@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
     <translationContributors>Anonymous</translationContributors>
+    <translationContributors>Sam</translationContributors>
 	<texts>
 		<text name="UNKNOWN"								 text="Inconnu" />
 		<text name="input_ADToggleHud"						 text="AD: Montrer/cacher HUD" />
@@ -14,7 +15,7 @@
 		<text name="input_AD_Speed_down"					 text="AD: Réduire la vitesse" />
 		<text name="input_AD_export_routes"					 text="AD: Exporter routes" />
 		<text name="input_AD_import_routes"					 text="AD: Importer routes" />
-		<text name="input_AD_upload_routes"					 text="AD: Uploader routes" />
+		<text name="input_AD_upload_routes"					 text="AD: Télécharger routes" />
 		<text name="input_AD_continue"						 text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"				 text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"		 text="AD: Sélect. déchargement précédent" />
@@ -25,7 +26,7 @@
 		<text name="input_ADDebugCreateConnection"			 text="AD: Connecter entre" />
 		<text name="input_ADDebugCreateMapMarker"			 text="AD: Créer nouvelle destination" />
 		<text name="input_ADRenameMapMarker"			 	 text="AD: Renommer destination actuelle" />
-		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Éffacer point de passage" />
+		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Effacer point de passage" />
 		<text name="input_ADDebugForceUpdate"				 text="AD: Màj des points" />
 		<text name="input_ADDebugDeleteDestination"			 text="AD: Éffacer point destination" />
 		<text name="input_ADSelectNextFillType"				 text="AD: Sélect. prochain type de fruit" />
@@ -45,13 +46,19 @@
 		<text name="AD_new_marker"							 text="Nouvel objectif:" />
 		<text name="AD_new_marker_helptext"					 text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Recalcul des routes. Veuilllez patienter. Terminé:" />
+		<text name="AD_No_Trailer"							 text="Ne touve pas de remorque" />		
+		<text name="AD_No_Bunker"							 text="Ne touve pas le silo (bunker)" />		
+		<text name="AD_No_Shovel"							 text="Ne trouve pas de pelle" />
 		<text name="AD_MODE_DRIVETO"						 text="Conduite" />
 		<text name="AD_MODE_DELIVERTO"						 text="Livraison" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Chargement et livraison" />
 		<text name="AD_MODE_UNLOAD"							 text="Décharger moissoneuse" />
 		<text name="AD_MODE_LOAD"							 text="Chargement" />
+		<text name="AD_MODE_BGA"							 text="Vider silo (bunker)" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - paramètres" />
-		<text name="gui_ad_pipe_offset"						 text="Décalage du tuyau" />
+		<text name="gui_ad_pipe_offset"						 text="Décalage du tuyau (pipe)" />
+		<text name="gui_ad_trailerOffset"					 text="Décalage latéral (remorque)" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Décalage vertical (remorque)" />
 		<text name="gui_ad_lookahead_turning"				 text="Distance devant vous (virage)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant" />
 		<text name="gui_ad_lookahead_braking"				 text="Distance devant vous (frein)" />
@@ -74,6 +81,9 @@
 		<text name="ad_drive_to_parkpos"					 text="Stationnement" />
 		<text name="ad_drive_to_startpos"					 text="Conduire au départ" />
 		<text name="ad_drive_to_unloadpos"					 text="Conduire au déchargement" />
+		<text name="ad_bga_init"					 		 text="Initialiser" />
+		<text name="ad_bga_waiting"					 		 text="En attente de remorque / silo" />
+		<text name="ad_bga_active"					 		 text="Actif" />
 		<text name="gui_ad_autoConnect_start"				 text="Connexion automatique (départ)" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Connecter automatiquement le noeud approprié au début de l'enregistrement" />
 		<text name="gui_ad_autoConnect_end"					 text="Connexion automatique (fin)" />
@@ -115,5 +125,7 @@
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc.." />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Semences et engrais" />
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Permet de choisir le chargement des semences et de l'engrais, si l'un ou l'autre est sélectionné." />
+		<text name="gui_ad_shovelWidth"			 			 text="Largeur de la pelle (ajout)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée" />
 	</texts>
 </l10n>
