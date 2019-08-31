@@ -251,7 +251,7 @@ function handleUnloaderSpecificStates(vehicle, trailers, fillLevel, leftCapacity
     end;
 
     if (vehicle.ad.combineState ~= AutoDrive.DRIVE_TO_COMBINE and vehicle.ad.combineState ~= AutoDrive.WAIT_TILL_UNLOADED) then
-        if getDistanceToUnloadPosition(vehicle) < 20 then
+        if getDistanceToUnloadPosition(vehicle) < 35 then
             AutoDrive:setAugerPipeOpen(trailers, true); 
         end;
     end;
