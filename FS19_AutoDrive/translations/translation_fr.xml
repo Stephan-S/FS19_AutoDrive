@@ -15,7 +15,7 @@
 		<text name="input_AD_Speed_down"					 text="AD: Réduire la vitesse" />
 		<text name="input_AD_export_routes"					 text="AD: Exporter routes" />
 		<text name="input_AD_import_routes"					 text="AD: Importer routes" />
-		<text name="input_AD_upload_routes"					 text="AD: Télécharger routes" />
+		<text name="input_AD_upload_routes"					 text="AD: Téléverser routes" />
 		<text name="input_AD_continue"						 text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"				 text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"		 text="AD: Sélect. déchargement précédent" />
