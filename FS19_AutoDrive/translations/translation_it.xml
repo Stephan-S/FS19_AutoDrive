@@ -54,10 +54,10 @@
 		<text name="AD_MODE_UNLOAD"							 text="Scarica trebbia" />
 		<text name="AD_MODE_LOAD"							 text="Carica" />
 		<text name="AD_MODE_BGA"							 text="Scarica il bunker" />
-		<text name="gui_ad_Setting"							 text="AutoDrive - Impostazioni" />
+		<text name="gui_ad_Setting"							 text="Impostazioni Autodrive" />
 		<text name="gui_ad_pipe_offset"						 text="Distanza dal tubo" />
-		<text name="gui_ad_trailerOffset"					 text="Rimorchio non in posizione" />
-		<text name="gui_ad_trailerOffset_tooltip"			 text="Rimorchio di scrico fuori posizione - Davanti/Retro" />
+		<text name="gui_ad_trailerOffset"					 text="Regolazione posizione scarico" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Regola la posizione del rimorchio per lo scarico - Avanti/Dietro" />
 		<text name="gui_ad_lookahead_turning"				 text="Distanza d'avanti (sterzata)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso" />
 		<text name="gui_ad_lookahead_braking"				 text="Distanza d'avanti (frenata)" />
@@ -115,7 +115,7 @@
 		<text name="gui_ad_pathFinderTime"				 	 text="Esplorazione-tempo (max)" />	
 		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Determina per quanto tempo è consentito all'algoritmo di esplorazione di cercare il percorso libero da collisione da/verso la trebbia. (Potenziale impatto fps)" />
 		<text name="gui_ad_lineHeight"				 	     text="Altezza linea" />	
-		<text name="gui_ad_lineHeight_tooltip"	     	     text="Altezza della linea in modalità editor. A livello del suolo o sopra il trattore" />	
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Altezza della linea in modalità editor. A livello del suolo o sopra il veicolo" />	
 		<text name="gui_ad_ground"				 	         text="Livello del suolo" />	
 		<text name="gui_ad_aboveDriver"	     	             text="Sopra il veicolo" />	
 		<text name="gui_ad_allowConsoleStyle"				 text="Consenti inserimento obbiettivo(testo)" />	
