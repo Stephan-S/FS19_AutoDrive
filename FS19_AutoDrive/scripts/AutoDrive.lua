@@ -459,6 +459,13 @@ function AutoDrive:onUpdate(dt)
 				vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0015), 3000, dt);
 			end;
 		end;
+
+		for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+			if trigger.stoppedTimer == nil then
+				trigger.stoppedTimer = AutoDriveTON:new();
+			end;
+			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt);
+		end;
 	end;
 
 	AutoDrive.runThisFrame = true;
