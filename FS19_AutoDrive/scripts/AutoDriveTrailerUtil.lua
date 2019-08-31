@@ -308,7 +308,7 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
                 end;
  
                 
-                if (trigger.bunkerSilo == nil)  then
+                if (trigger.bunkerSiloArea == nil)  then
                     if (distance > 30) then
                         break;
                     end;                          
