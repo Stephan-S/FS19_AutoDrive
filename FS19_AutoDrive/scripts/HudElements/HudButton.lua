@@ -51,9 +51,9 @@ function ADHudButton:getNewState(vehicle)
         elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then 
             newState = 3;
         elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then 
-            newState = 4;
-        elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then 
             newState = 5;
+        elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then 
+            newState = 4;
         elseif vehicle.ad.mode == AutoDrive.MODE_BGA then 
             newState = 6;
         else 

@@ -355,20 +355,20 @@ function AutoDrive:detectTraffic(vehicle)
 		box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 		box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
 		box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
-		box.rx = math.atan2(box.zy, box.zz)
+		box.rx = math.atan2(box.zz, box.zy)
 		box.ry = math.atan2(box.zx, box.zz)
-		box.rz = math.atan2(box.zy, box.zx)
+		box.rz = math.atan2(box.zx, box.zy)
 		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
 												y = y+2,
 												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };
 
-		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, box.rx, box.ry, box.rz, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK , true, true, true) --AIVehicleUtil.COLLISION_MASK
+		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0, box.ry, 0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK , true, true, true) --AIVehicleUtil.COLLISION_MASK
 		
 		local red = 0;
 		if shapes > 0 then
 			red = 1;
 		end;
-		DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, box.rx, box.ry, box.rz, box.size[1],box.size[2],box.size[3], red, 0, 0);
+		DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0, box.ry, 0, box.size[1],box.size[2],box.size[3], red, 0, 0);
 		
 		if shapes > 0 then
 			return true;

@@ -425,7 +425,6 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     if hitElement.isFolder then
                         vehicle.ad.groups[hitElement.returnValue] = not vehicle.ad.groups[hitElement.returnValue];
                     else
-                        print("Moving element down");
                         self:moveSelectedElementDown(vehicle, hitElement);
                     end;
                 elseif hitIcon ~= nil and hitIcon == 2 then
@@ -438,7 +437,6 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                             AutoDrive:onOpenEnterGroupName();
                         end;
                     else
-                        print("Moving element up");
                         self:moveSelectedElementUp(vehicle, hitElement);
                     end;               
                 end;
