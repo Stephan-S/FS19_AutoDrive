@@ -20,13 +20,11 @@ AutoDriveBGA.ACTION_UNLOAD = 9;
 AutoDriveBGA.ACTION_REVERSEFROMUNLOAD = 10;
 
 AutoDriveBGA.SHOVELSTATE_UNKNOWN = 0;
-AutoDriveBGA.SHOVELSTATE_MOVING_UP = 1;
-AutoDriveBGA.SHOVELSTATE_MOVING_DOWN = 2;
-AutoDriveBGA.SHOVELSTATE_LOW = 3;
-AutoDriveBGA.SHOVELSTATE_LOADING = 4;
-AutoDriveBGA.SHOVELSTATE_TRANSPORT = 5;
-AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD = 6;
-AutoDriveBGA.SHOVELSTATE_UNLOAD = 7;
+AutoDriveBGA.SHOVELSTATE_LOW = 1;
+AutoDriveBGA.SHOVELSTATE_LOADING = 2;
+AutoDriveBGA.SHOVELSTATE_TRANSPORT = 3;
+AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD = 4;
+AutoDriveBGA.SHOVELSTATE_UNLOAD = 5;
 
 AutoDriveBGA.DRIVESTRATEGY_REVERSE_LEFT = 0;
 AutoDriveBGA.DRIVESTRATEGY_REVERSE_RIGHT = 1;
@@ -61,7 +59,7 @@ end;
 function AutoDriveBGA:stopBGA()
     if g_currentMission.controlledVehicle ~= nil then
         g_currentMission.controlledVehicle.bga.state = AutoDriveBGA.STATE_IDLE;
-        AutoDrive:stopAD(g_currentMission.controlledVehicle);
+        AutoDrive:stopAD(g_currentMission.controlledVehicle, false);
     end;
 end;
 
@@ -203,7 +201,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
         if vehicle.bga.shovel == nil then
             AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Shovel"));            
             vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
-            AutoDrive:stopAD(vehicle);
+            AutoDrive:stopAD(vehicle, true);
             return;
         end;
     end;
@@ -211,7 +209,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
     if vehicle.bga.targetBunker == nil then
         AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
         vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
-        AutoDrive:stopAD(vehicle);
+        AutoDrive:stopAD(vehicle, true);
     end;
 
     if self:checkForUnloadCondition(vehicle) then
@@ -456,8 +454,8 @@ end;
 
 function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     if vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_LOADING then
-        vehicle.bga.shovelTargetHeight = 0.03;
-        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.05;
+        vehicle.bga.shovelTargetHeight = 0.035;
+        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.025;
         if vehicle.bga.armExtender ~= nil then 
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMin;
         end;
@@ -481,7 +479,7 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
         end;
     elseif vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_UNLOAD then
         vehicle.bga.shovelTargetHeight = 4.7;
-        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.7;        
+        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.5;        
         if vehicle.bga.armExtender ~= nil then 
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMax;
         end;
@@ -1149,7 +1147,7 @@ function AutoDriveBGA:driveToBGAUnload(vehicle, dt)
 
     self:handleDriveStrategy(vehicle, dt);
         
-    if vehicle.bga.inShovelRangeTimer:timer(self:getShovelInTrailerRange(vehicle), 150, dt)  then
+    if vehicle.bga.inShovelRangeTimer:timer(self:getShovelInTrailerRange(vehicle), 250, dt)  then
         vehicle.bga.action = AutoDriveBGA.ACTION_UNLOAD;
     end;
     if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
@@ -1320,7 +1318,7 @@ function AutoDriveBGA:setShovelOffsetToNonEmptyRow(vehicle)
     if ((currentFillLevel == 0) and (iterations < 0)) then
         AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
         vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
-        AutoDrive:stopAD(vehicle);
+        AutoDrive:stopAD(vehicle, true);
     end;
 end;
 

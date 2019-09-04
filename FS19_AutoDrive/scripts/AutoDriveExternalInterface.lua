@@ -132,24 +132,20 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
 
 end;
 
---These are just here for example purposes on how to use the interface to start an AD driver and receive a callback when it's finished
-
-addConsoleCommand('adGetPath', 'Start current course and callback', 'adGetPath', AutoDrive);
-
-function AutoDrive:adGetPath()
-    local veh = g_currentMission.controlledVehicle;
-    local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
-    local _, yRot, _ = getWorldRotation(veh.components[1].node)
-
-    veh.ad.testVar = AutoDrive:GetPathVia(x1, z1, yRot, g_currentMission.controlledVehicle.ad.mapMarkerSelected, g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload);
-    --DebugUtil.printTableRecursively(veh.ad.testVar, "::::", 0, 1);
+function AutoDrive:registerDestinationListener(callBackObject, callBackFunction)
+    if AutoDrive.destinationListeners[callBackObject] == nil then
+        AutoDrive.destinationListeners[callBackObject] = callBackFunction;
+    end;
 end;
 
-function AutoDrive:isFinished(vehicle)
-    --print("AutoDrive has finished it's route");
+function AutoDrive:unRegisterDestinationListener(callBackObject)
+    if AutoDrive.destinationListeners[callBackObject] ~= nil then
+        AutoDrive.destinationListeners[callBackObject] = nil;
+    end;
+end;
 
-    --here we enter an endless loop and restart the course when finished
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then
-        AutoDrive:StartDriving(vehicle, vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload, AutoDrive, AutoDrive.isFinished, vehicle);
+function AutoDrive:notifyDestinationListeners()
+    for object, callBackFunction in pairs(AutoDrive.destinationListeners) do
+        callBackFunction(object, true);
     end;
 end;

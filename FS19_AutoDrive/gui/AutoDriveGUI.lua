@@ -5,6 +5,8 @@ function AutoDrive:loadGUI()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "adEnterDriverNameGui", AutoDrive.gui.adEnterDriverNameGui);	
     AutoDrive.gui["adEnterTargetNameGui"] = adEnterTargetNameGui:new();
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "adEnterTargetNameGui", AutoDrive.gui.adEnterTargetNameGui);	
+    AutoDrive.gui["adEnterGroupNameGui"] = adEnterGroupNameGui:new();
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGui.xml", "adEnterGroupNameGui", AutoDrive.gui.adEnterGroupNameGui);	
 
 	
     AutoDrive.gui["adSettingsPage"] = adSettingsPage:new();
@@ -48,5 +50,17 @@ function AutoDrive:onOpenEnterTargetName()
 		--AutoDrive.gui.adEnterTargetNameGui:onClickBack()
 	elseif g_gui.currentGui == nil then
 		g_gui:showGui("adEnterTargetNameGui")
+	end;
+end;
+
+function AutoDrive:onOpenEnterGroupName()
+	if g_dedicatedServerInfo ~= nil then
+		return;	
+	end;
+	
+	if AutoDrive.gui.adEnterGroupNameGui.isOpen then
+		AutoDrive.gui.adEnterGroupNameGui:onClickBack()
+	elseif g_gui.currentGui == nil then
+		g_gui:showGui("adEnterGroupNameGui")
 	end;
 end;

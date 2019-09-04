@@ -9,6 +9,11 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveHud.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveEventUtil.lua", AutoDrive.directory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateEvent.lua", AutoDrive.directory))

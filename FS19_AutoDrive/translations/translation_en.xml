@@ -70,6 +70,8 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Maximum detour when avoiding targets" />
 		<text name="gui_ad_siloEmpty"						 text="If silo empty" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="How a pickup and deliver driver reacts to an empty silo" />
+		<text name="gui_ad_useFolders"					 	 text="Use folders" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Use folders to structure destinations" />
 		<text name="gui_ad_wait"							 text="Wait" />
 		<text name="gui_ad_drive"							 text="Drive on" />
 		<text name="gui_ad_yes"								 text="Yes" />

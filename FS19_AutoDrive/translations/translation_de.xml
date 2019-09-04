@@ -70,6 +70,8 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Maximaler Umweg wenn Zielpunkte vermieden werden sollen" />
 		<text name="gui_ad_siloEmpty"						 text="Wenn Silo leer" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Legt fest, wie ein Abfahrer auf ein leeres Silo reagieren soll" />
+		<text name="gui_ad_useFolders"					 	 text="Ordner verwenden" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Zielpunkte in Ordner sortieren" />
 		<text name="gui_ad_wait"							 text="Warten" />
 		<text name="gui_ad_drive"							 text="Weiterfahren" />
 		<text name="gui_ad_yes"								 text="Ja" />

@@ -42,8 +42,9 @@ function adEnterTargetNameGui:onClickOk()
                     local node = createTransformGroup(enteredName);
                     setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
             
-                    AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= enteredName, node=node};
+                    AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= enteredName, node=node, group="All"};
                     AutoDrive:MarkChanged();
+                    
 
                     if g_server ~= nil then
                         AutoDrive:broadCastUpdateToClients();
@@ -52,8 +53,8 @@ function adEnterTargetNameGui:onClickOk()
                     end;
                 end;
             end;
-
             
+            AutoDrive:notifyDestinationListeners();            
         end;       
     end;    
     

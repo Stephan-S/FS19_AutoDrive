@@ -257,17 +257,6 @@ AutoDrive.settings.lineHeight = {
     isVehicleSpecific = false
 };
 
-AutoDrive.settings.allowConsoleStyle = {  
-    values= {false, true},                                    
-    texts= {"gui_ad_no", "gui_ad_yes"},                                    
-    default= 1,                                    
-    current= 1,                                             
-    text= "gui_ad_allowConsoleStyle",                                    
-    tooltip= "gui_ad_allowConsoleStyle_tooltip",
-    translate= true,
-    isVehicleSpecific = false
-};
-
 AutoDrive.settings.enableTrafficDetection = {  
     values= {false, true},                                    
     texts= {"gui_ad_no", "gui_ad_yes"},                                    
@@ -299,6 +288,17 @@ AutoDrive.settings.shovelWidth = {
     tooltip= "gui_ad_shovelWidth_tooltip",
     translate= false,
     isVehicleSpecific = true
+};
+
+AutoDrive.settings.useFolders = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_useFolders",                                    
+    tooltip= "gui_ad_useFolders_tooltip",
+    translate= true,
+    isVehicleSpecific = false
 };
 
 

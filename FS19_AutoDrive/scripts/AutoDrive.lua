@@ -16,8 +16,8 @@ AutoDrive.drawHeight = 0.3;
 AutoDrive.MODE_DRIVETO = 1;
 AutoDrive.MODE_PICKUPANDDELIVER = 2;
 AutoDrive.MODE_DELIVERTO = 3;
-AutoDrive.MODE_UNLOAD = 4;
-AutoDrive.MODE_LOAD = 5;
+AutoDrive.MODE_LOAD = 4;
+AutoDrive.MODE_UNLOAD = 5;
 AutoDrive.MODE_BGA = 6;
 
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
@@ -87,6 +87,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterGroupNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))	
 	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
@@ -113,7 +114,9 @@ function AutoDrive:loadMap(name)
 	AutoDrive.mapWayPointsCounter = 0;
 	AutoDrive.mapMarker = {};
 	AutoDrive.mapMarkerCounter = 0;
-	AutoDrive.showMouse = false;					
+	AutoDrive.showMouse = false;		
+	
+	AutoDrive.pullDownListExpanded = 0;
 		
 	AutoDrive.lastSetSpeed = 50;
 
@@ -152,7 +155,8 @@ function AutoDrive:loadMap(name)
 		AutoDrive.highestIndex = 1;
 	end;
 
-	AutoDrive.waitingUnloadDrivers = {}
+	AutoDrive.waitingUnloadDrivers = {};
+	AutoDrive.destinationListeners = {};
 end;
 
 function AutoDrive:saveSavegame()
@@ -174,6 +178,7 @@ function init(self)
 	 
 	self.ad.isActive = false;
 	self.ad.isStopping = false;
+	self.ad.isStoppingWithError = false;
 	self.ad.drivingForward = true;
 	self.ad.targetX = 0;
 	self.ad.targetZ = 0;
@@ -346,6 +351,15 @@ function init(self)
 		self.bga.isActive = false;
 	end;
 	self.ad.noMovementTimer = AutoDriveTON:new();
+
+	if self.ad.groups == nil then
+		self.ad.groups = {};
+	end;
+	for groupName, groupIds in pairs(AutoDrive.groups) do
+		if self.ad.groups[groupName] == nil then
+			self.ad.groups[groupName] = true;
+		end;
+	end;
 end;
 
 function AutoDrive:onLeaveVehicle()	
@@ -355,6 +369,7 @@ function AutoDrive:onLeaveVehicle()
 		AutoDrive:onToggleMouse(self);
 	end;
 	self.ad.showingHud = storedshowingHud
+	AutoDrive.Hud:closeAllPullDownLists(self);
 end;
 
 function AutoDrive:onToggleMouse(vehicle) 
@@ -514,8 +529,6 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 	if AutoDrive.Hud ~= nil then
 		if AutoDrive.Hud.showHud == true then
 			AutoDrive.Hud:drawHud(vehicle);
-		else
-			AutoDrive.Hud:drawMinimalHud(vehicle);
 		end;
 	end;
 end;
@@ -679,6 +692,23 @@ function AutoDrive:onPostLoad(savegame)
 				self.ad.parkDestination = parkDestination;
 			end; 
 
+			if self.ad.groups == nil then
+				self.ad.groups = {};
+			end;
+			local groupString = getXMLString(xmlFile, key.."#groups");
+			if groupString ~= nil then
+				local groupTable = groupString:split(";");
+				local temp = {}
+				for i, groupCombined in pairs(groupTable) do
+					local groupNameAndBool = groupCombined:split(",");
+					if tonumber(groupNameAndBool[2]) >= 1 then
+						self.ad.groups[groupNameAndBool[1]] = true;
+					else
+						self.ad.groups[groupNameAndBool[1]] = false;
+					end;
+				end;
+			end;
+
 			AutoDrive:readVehicleSettingsFromXML(self, xmlFile, key);
     end
 	end;
@@ -699,6 +729,25 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 			setXMLInt(xmlFile, key.."#" .. settingName, 			self.ad.settings[settingName].current);
 		end;
 	end;
+
+	if self.ad.groups ~= nil then
+		local combinedString = "";
+		for groupName, groupEntries in pairs(AutoDrive.groups) do
+			for myGroupName, value in pairs(self.ad.groups) do
+				if groupName == myGroupName then
+					if string.len(combinedString) > 0 then
+						combinedString = combinedString .. ";";
+					end;
+					if value == true then
+						combinedString = combinedString .. myGroupName .. ",1";
+					else
+						combinedString = combinedString .. myGroupName .. ",0";
+					end;
+				end;
+			end;
+		end;
+		setXMLString(xmlFile, key.."#groups", 				combinedString);
+	end;
 end
 
 function AutoDrive.zoomSmoothly(self, superFunc, offset)
@@ -706,6 +755,41 @@ function AutoDrive.zoomSmoothly(self, superFunc, offset)
 		superFunc(self, offset);
 	end
 end
+
+function AutoDrive:removeGroup(groupNameToDelete)
+	if groupNameToDelete:len() > 1 then
+		local deletedID = math.huge;
+		for groupName, groupID in pairs(AutoDrive.groups) do
+			if groupName == groupNameToDelete then
+				deletedID = groupID;
+				AutoDrive.groups[groupName] = nil;
+				
+				for _,vehicle in pairs(g_currentMission.vehicles) do
+					if (vehicle.ad ~= nil) then
+						if vehicle.ad.groups[groupName] ~= nil then
+							vehicle.ad.groups[groupName] = nil;
+						end;
+					end;
+				end;
+
+				for markerID, marker in pairs(AutoDrive.mapMarker) do					
+					if AutoDrive.mapMarker[markerID].group == groupName then
+						AutoDrive.mapMarker[markerID].group = "All";
+					end;
+				end;
+			end;		
+		end;
+
+		for groupName, groupID in pairs(AutoDrive.groups) do
+			if deletedID <= groupID then
+				groupID = groupID - 1;
+				AutoDrive.groups[groupName] = groupID;
+			end;
+		end;
+		AutoDrive.Hud.lastUIScale = 0;
+		AutoDrive.groupCounter = AutoDrive.groupCounter - 1;
+	end;
+end;
 
 function normalizeAngle(inputAngle)
 	if inputAngle > (2*math.pi) then

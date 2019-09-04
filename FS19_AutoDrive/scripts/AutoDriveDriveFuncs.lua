@@ -236,7 +236,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         if vehicle.ad.wayPoints ~= nil then
             if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1] ~= nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
                 AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
-                AutoDrive:stopAD(vehicle);
+                AutoDrive:stopAD(vehicle, true);
             end;
             
             if vehicle.ad.wayPoints[2] ~= nil then
@@ -254,7 +254,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.drivingForward = true;
     else
         print("Autodrive encountered a problem during initialization - shutting down");
-        AutoDrive:stopAD(vehicle); 
+        AutoDrive:stopAD(vehicle, true); 
     end;
 end;
 
@@ -265,6 +265,10 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
     end;
     if vehicle.typeDesc == "telehandler" then
         min_distance = 3;
+    end;
+    --ToDo: If vehicle is quadtrack then also min_distance = 6;
+    if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
+        min_distance = 6;
     end;
     return min_distance;
 end;
@@ -289,7 +293,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             end;
             
             AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
-            AutoDrive:stopAD(vehicle);           
+            AutoDrive:stopAD(vehicle, false);           
         else            
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
                 AutoDrive:handleReachedWayPointCombine(vehicle);
@@ -316,7 +320,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.timeTillDeadLock = 15000;
 
                     if vehicle.ad.callBackFunction ~= nil then
-                        AutoDrive:stopAD(vehicle); 
+                        AutoDrive:stopAD(vehicle, false); 
                         return;
                     end;
 
@@ -455,12 +459,16 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end;	
     local maxAngle = 60;
     if vehicle.maxRotation then
-        maxAngle = math.deg(vehicle.maxRotation);
+        if vehicle.maxRotation > (2*math.pi) then
+            maxAngle = vehicle.maxRotation;
+        else
+            maxAngle = math.deg(vehicle.maxRotation);
+        end;
 	end
 
     vehicle.ad.targetX, vehicle.ad.targetZ = AutoDrive:getLookAheadTarget(vehicle);    
 
-    local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
+    local lx, lz = AIVehicleUtil.getDriveDirection(node, vehicle.ad.targetX,y,vehicle.ad.targetZ); --vehicle.components[1].node
     
     if vehicle.ad.drivingForward == false then
         lz = -lz;
@@ -485,19 +493,25 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
     local acceleration = 1;
     if vehicle.ad.trafficDetected == true then
-        AutoDrive:getVehicleToStop(vehicle, false, dt);
         vehicle.ad.timeTillDeadLock = 15000;
-        if math.abs(vehicle.lastSpeedReal) < 0.002 then
-            vehicle.ad.isPaused = true;
-            vehicle.ad.isPausedCauseTraffic = true;
-        end;
+        if math.abs(vehicle.lastSpeedReal) > 0.05 then
+            finalSpeed = 0.001;
+            acceleration = -0.6;
+            AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.5);
+        else
+            AutoDrive:getVehicleToStop(vehicle, false, dt);
+            if math.abs(vehicle.lastSpeedReal) < 0.002 then
+                vehicle.ad.isPaused = true;
+                vehicle.ad.isPausedCauseTraffic = true;
+            end;
+        end;        
     else   
         if vehicle.ad.isPausedCauseTraffic == true then
             vehicle.ad.isPaused = false;
             vehicle.ad.isPausedCauseTraffic = false;
         end;
         vehicle.ad.allowedToDrive = true;
-        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.5);    
+        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.8, maxAngle/1.5, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.65);    
     end;
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
     
@@ -525,7 +539,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
 		--deadlock handling
 		if vehicle.ad.inDeadLockRepairCounter < 1 then
 			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"));
-            AutoDrive:stopAD(vehicle);
+            AutoDrive:stopAD(vehicle, true);
 		else
             --print("AD: Trying to recover from deadlock")
             local lookAhead = 3;

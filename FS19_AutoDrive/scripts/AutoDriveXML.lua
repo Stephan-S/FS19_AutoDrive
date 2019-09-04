@@ -102,10 +102,22 @@ function AutoDrive:readFromXML(xmlFile)
 		end;
 	end;
 
+	AutoDrive.groups = {};
+	AutoDrive.groups["All"] = 1;
+	AutoDrive.groupCounter = 1;
+
 	local mapMarker = {};
 	local mapMarkerCounter = 1;
 	mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
-	
+	mapMarker.group = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".group");
+	if mapMarker.group == nil then
+		mapMarker.group = "All";
+	end;
+	if AutoDrive.groups[mapMarker.group] == nil then		
+		AutoDrive.groupCounter = AutoDrive.groupCounter + 1;
+		AutoDrive.groups[mapMarker.group] = AutoDrive.groupCounter;
+	end;
+
 	AutoDrive.mapMarker = {};
 
 	while mapMarker.name ~= nil do
@@ -119,6 +131,14 @@ function AutoDrive:readFromXML(xmlFile)
 		mapMarkerCounter = mapMarkerCounter + 1;	
 		AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
 		mapMarker.name = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".name");
+		mapMarker.group = getXMLString(xmlFile,"AutoDrive." .. AutoDrive.loadedMap ..".mapmarker.mm"..mapMarkerCounter..".group");
+		if mapMarker.group == nil then
+			mapMarker.group = "All";
+		end;
+		if AutoDrive.groups[mapMarker.group] == nil then
+			AutoDrive.groupCounter = AutoDrive.groupCounter + 1;
+			AutoDrive.groups[mapMarker.group] = AutoDrive.groupCounter;
+		end;
 	end;
 		
 	local idString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id");
@@ -424,7 +444,8 @@ function AutoDrive:saveToXML(xmlFile)
 		
 	for i in pairs(AutoDrive.mapMarker) do
 		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. i ..".id", AutoDrive.mapMarker[i].id);
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. i ..".name", AutoDrive.mapMarker[i].name);		
+		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. i ..".name", AutoDrive.mapMarker[i].name);	
+		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. i ..".group", AutoDrive.mapMarker[i].group);		
 	end;
 	
 	saveXMLFile(xmlFile);

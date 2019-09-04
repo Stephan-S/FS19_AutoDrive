@@ -367,7 +367,9 @@ function findAndSetBestTipPoint(vehicle, trailer)
                     originalTipSide = 1;
                 end;
                 spec.lastChangedTipPoint = 0;
-                trailer:setPreferedTipSide(originalTipSide);
+                if trailer:getCanTogglePreferdTipSide() then
+                    trailer:setPreferedTipSide(originalTipSide);
+                end;
             else
                 spec.lastChangedTipPoint = spec.lastChangedTipPoint + 1;
             end;

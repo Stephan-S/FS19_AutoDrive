@@ -87,8 +87,9 @@ function AutoDrive:startAD(vehicle)
 	end;
 end;
 
-function AutoDrive:stopAD(vehicle)
-    vehicle.ad.isStopping = true;
+function AutoDrive:stopAD(vehicle, withError)
+	vehicle.ad.isStopping = true;
+	vehicle.ad.isStoppingWithError = withError;
 end;
 
 function AutoDrive:stopVehicle(vehicle, dt)
@@ -126,7 +127,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	end;
 	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
 	
-	if vehicle.ad.callBackFunction ~= nil then
+	if vehicle.ad.callBackFunction ~= nil and (vehicle.ad.isStoppingWithError == nil or vehicle.ad.isStoppingWithError == false) then
 		--work with copys, so we can remove the callBackObjects before calling the function
 		local callBackFunction = vehicle.ad.callBackFunction;
 		local callBackObject = vehicle.ad.callBackObject;
@@ -180,6 +181,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		
 		vehicle:requestActionEventUpdate();
 	end;
+
+	vehicle.ad.isStoppingWithError = false;
 
 	if vehicle.bga ~= nil then
 		vehicle.bga.state = AutoDriveBGA.STATE_IDLE;		
@@ -277,6 +280,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 				for _,other in pairs(g_currentMission.vehicles) do
 					if other ~= vehicle and other.ad ~= nil and other.ad.isActive == true then
 						local onSameRoute = false;
+						local sameDirection = false;
 						local window = 4;
 						local i = -window;
 						while i <= window do
@@ -284,13 +288,18 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 								for _,point in pairs(dualRoutePoints) do
 									if point == other.ad.wayPoints[other.ad.currentWayPoint+i].id then
 										onSameRoute = true;
+										if dualRoutePoints[_+1] ~= nil and other.ad.wayPoints[other.ad.currentWayPoint+i+1] ~= nil then --check if going in same direction
+											if dualRoutePoints[_+1] == other.ad.wayPoints[other.ad.currentWayPoint+i+1].id then
+												sameDirection = true;
+											end;
+										end;
 									end;
 								end;
 							end;
 							i = i + 1;
 						end;
 
-						if onSameRoute == true and other.ad.trafficVehicle == nil then
+						if onSameRoute == true and other.ad.trafficVehicle == nil and (sameDirection == false) then
 							trafficDetected = true;
 							vehicle.ad.trafficVehicle = other;
 						end;
@@ -346,18 +355,20 @@ function AutoDrive:detectTraffic(vehicle)
 		box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 		box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
 		box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
+		box.rx = math.atan2(box.zy, box.zz)
 		box.ry = math.atan2(box.zx, box.zz)
+		box.rz = math.atan2(box.zy, box.zx)
 		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
 												y = y+2,
 												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };
 
-		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK , true, true, true) --AIVehicleUtil.COLLISION_MASK
+		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, box.rx, box.ry, box.rz, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK , true, true, true) --AIVehicleUtil.COLLISION_MASK
 		
 		local red = 0;
 		if shapes > 0 then
 			red = 1;
 		end;
-		DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, 0,box.ry,0, box.size[1],box.size[2],box.size[3], red, 0, 0);
+		DebugUtil.drawOverlapBox(boxCenter.x,boxCenter.y,boxCenter.z, box.rx, box.ry, box.rz, box.size[1],box.size[2],box.size[3], red, 0, 0);
 		
 		if shapes > 0 then
 			return true;

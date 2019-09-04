@@ -189,13 +189,12 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			return;
 		end;
 		if AutoDrive:isActive(vehicle) then
+			vehicle.ad.isStoppingWithError = true;
 			AutoDrive:disableAutoDriveFunctions(vehicle)
-			--AutoDrive:stopAD(vehicle);
+			--AutoDrive:stopAD(vehicle, true);
 		else
 			AutoDrive:startAD(vehicle);
 		end;
-
-		AutoDrive.Hud:updateSingleButton("input_start_stop", vehicle.ad.isActive)
 	end;
 
 	if input == "input_exportRoutes" then
@@ -275,14 +274,10 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		else
 			vehicle.ad.createMapPoints = false;
 		end;
-
-		AutoDrive.Hud:updateSingleButton("input_debug", vehicle.ad.createMapPoints)
 	end;
 
 	if input == "input_showClosest" then
 		AutoDrive:inputShowClosest(vehicle);
-
-		AutoDrive.Hud:updateSingleButton("input_showClosest", vehicle.ad.showClosestPoint)
 	end;
 
 	if input == "input_showNeighbor" then
@@ -519,11 +514,8 @@ function AutoDrive:inputRecord(vehicle)
 					end;
 				end;
 			end;
-            --AutoDrive:inputNextTarget(vehicle);
         end;
     end;
-
-    AutoDrive.Hud:updateSingleButton("input_record", vehicle.ad.creationMode)
 end;
 
 function AutoDrive:inputNextTarget(vehicle)
@@ -690,8 +682,6 @@ function AutoDrive:inputShowNeighbors(vehicle)
 	else
 		vehicle.ad.showSelectedDebugPoint = false;
 	end;
-
-	AutoDrive.Hud:updateSingleButton("input_showNeighbor", vehicle.ad.showSelectedDebugPoint)
 end;
 
 function AutoDrive:inputShowClosest(vehicle)

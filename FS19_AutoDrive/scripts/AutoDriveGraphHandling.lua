@@ -98,6 +98,16 @@ function AutoDrive:removeMapWayPoint(toDelete)
 		if vehicle.ad ~= nil then
 			if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= deletedMarkerID then
 				vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1;
+			end;			
+			if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected >= deletedMarkerID then
+				vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1;				
+				vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+				vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+			end;
+			if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= deletedMarkerID then
+				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected - 1;
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
 			end;
 		end;
 	end;
@@ -106,6 +116,8 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	AutoDrive.mapWayPointsCounter = mapWayPointsCounter;
 
 	AutoDrive:broadCastUpdateToClients();
+	
+	AutoDrive:notifyDestinationListeners();
 end;
 
 function AutoDrive:removeMapMarker(toDelete)
@@ -133,10 +145,21 @@ function AutoDrive:removeMapMarker(toDelete)
 			if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= deletedMarkerID then
 				vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1;
 			end;
+			if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected >= deletedMarkerID then
+				vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1;				
+				vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+				vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+			end;
+			if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= deletedMarkerID then
+				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected - 1;
+				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			end;
 		end;
 	end;
 
-	AutoDrive:MarkChanged()
+	AutoDrive:MarkChanged();
+	AutoDrive:notifyDestinationListeners();
 	
 	AutoDrive:broadCastUpdateToClients();	
 end

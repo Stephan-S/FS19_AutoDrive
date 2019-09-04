@@ -116,6 +116,7 @@ function adSettings:onClickOK()
         end;
     end;
 
+    AutoDrive.Hud.lastUIScale = 0; 
     AutoDriveUpdateSettingsEvent:sendEvent();
     self:onClickBack();
 end;
