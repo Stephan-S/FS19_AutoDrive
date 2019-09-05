@@ -27,7 +27,14 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         local maxCapacity = 0;
         if vehicle.getFillUnits ~= nil then
             for fillUnitIndex,fillUnit in pairs(vehicle:getFillUnits()) do
-                if vehicle:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                local fillTypeIsProhibited = false;
+                for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                    if fillType == 1 or fillType == 34  then
+                        fillTypeIsProhibited = true;
+                    end;
+                end;
+
+                if trailer:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then    
                     maxCapacity = maxCapacity + vehicle:getFillUnitCapacity(fillUnitIndex);
                     leftCapacity = leftCapacity + vehicle:getFillUnitFreeCapacity(fillUnitIndex)
                 end;
@@ -139,7 +146,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 local lastFillLevel = vehicle.ad.designatedTrailerFillLevel;
                 if trailers[vehicle.ad.currentTrailer+1].getFillUnits ~= nil then
                     for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer+1]:getFillUnits()) do
-                        if trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                        if trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex) > 1200 then
                             maxCapacity = trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex);
                             leftCapacity = trailers[vehicle.ad.currentTrailer+1]:getFillUnitFreeCapacity(fillUnitIndex)
                         end;
@@ -250,7 +257,7 @@ function AutoDrive:checkDoneUnloading(vehicle)
     if trailerCount > 0 and trailers[vehicle.ad.currentTrailer] ~= nil then
         if trailers[vehicle.ad.currentTrailer].getFillUnits ~= nil then
             for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnits()) do
-                if trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex) > 2000 then
+                if trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex) > 1200 then
                     maxCapacity = maxCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex);
                     leftCapacity = leftCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitFreeCapacity(fillUnitIndex);
                 end;
@@ -262,7 +269,7 @@ function AutoDrive:checkDoneUnloading(vehicle)
     local combineMaxCapacity = 0;
     if vehicle.ad.currentCombine.getFillUnits ~= nil then
         for fillUnitIndex,fillUnit in pairs(vehicle.ad.currentCombine:getFillUnits()) do
-            if vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex) > 2000 then
+            if vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex) > 1200 then
                 combineMaxCapacity = combineMaxCapacity + vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex);
                 combineLeftCapacity = combineLeftCapacity + vehicle.ad.currentCombine:getFillUnitFreeCapacity(fillUnitIndex)
             end;

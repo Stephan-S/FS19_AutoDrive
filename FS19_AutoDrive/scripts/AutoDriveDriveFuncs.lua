@@ -454,9 +454,9 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     local finalAcceleration = true;
    
     local node = vehicle.components[1].node;	
-    if vehicle.getAIVehicleDirectionNode ~= nil then
-      node = vehicle:getAIVehicleDirectionNode();
-    end;	
+    -- if vehicle.getAIVehicleDirectionNode ~= nil then
+    --   node = vehicle:getAIVehicleDirectionNode();
+    -- end;	
     local maxAngle = 60;
     if vehicle.maxRotation then
         if vehicle.maxRotation > (2*math.pi) then

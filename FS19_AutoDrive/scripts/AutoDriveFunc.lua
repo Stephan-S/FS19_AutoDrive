@@ -52,7 +52,14 @@ function AutoDrive:startAD(vehicle)
 			for _,trailer in pairs(trailers) do
 				if trailer.getFillUnits ~= nil then
 					for _,fillUnit in pairs(trailer:getFillUnits()) do
-						if trailer:getFillUnitCapacity(_) > 2000 then
+						local fillTypeIsProhibited = false;
+						for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(_)) do
+							if fillType == 1 or fillType == 34  then
+								fillTypeIsProhibited = true;
+							end;
+						end;
+
+						if trailer:getFillUnitCapacity(_) > 1500 and (not fillTypeIsProhibited) then    
 							leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
 							maxCapacity = maxCapacity + trailer:getFillUnitCapacity(_)
 						end;
@@ -355,9 +362,10 @@ function AutoDrive:detectTraffic(vehicle)
 		box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 		box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
 		box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
-		box.rx = math.atan2(box.zz, box.zy)
+		box.dirX, box.dirY, box.dirZ = localDirectionToWorld(vehicle.components[1].node, 0,0,1)
+		box.rx = math.atan2(box.dirY, box.dirZ)
 		box.ry = math.atan2(box.zx, box.zz)
-		box.rz = math.atan2(box.zx, box.zy)
+		box.rz = math.atan2(box.dirX, box.dirY)
 		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
 												y = y+2,
 												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };

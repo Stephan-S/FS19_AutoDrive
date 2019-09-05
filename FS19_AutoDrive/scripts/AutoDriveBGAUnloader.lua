@@ -192,6 +192,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
 
     vehicle.bga.inShovelRangeTimer = AutoDriveTON:new();
     vehicle.bga.strategyActiveTimer = AutoDriveTON:new();
+    vehicle.bga.shovelActiveTimer = AutoDriveTON:new();
     vehicle.bga.strategyActiveTimer.elapsedTime = math.huge;
     vehicle.bga.shovelOffsetCounter = 0;
     vehicle.bga.reachedPreTargetLoadPoint = false;
@@ -441,12 +442,19 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
         vehicle.bga.shovelState = AutoDriveBGA.SHOVELSTATE_UNKNOWN;
     end;    
 
+    vehicle.bga.shovelActiveTimer:timer(((vehicle.bga.shovelState ~= vehicle.bga.shovelTarget) and (vehicle.bga.state > AutoDriveBGA.STATE_INIT_AXIS)) , 7000, dt);
+    
     if vehicle.bga.state > AutoDriveBGA.STATE_INIT_AXIS then
         if vehicle.bga.shovelState == AutoDriveBGA.SHOVELSTATE_UNKNOWN then
             self:moveShovelToTarget(vehicle, AutoDriveBGA.SHOVELSTATE_LOW, dt);
         else
             if vehicle.bga.shovelState ~= vehicle.bga.shovelTarget then
-                self:moveShovelToTarget(vehicle, vehicle.bga.shovelTarget, dt);
+                if not vehicle.bga.shovelActiveTimer:done() then
+                    self:moveShovelToTarget(vehicle, vehicle.bga.shovelTarget, dt);
+                else
+                    --After timeout, assume we reached desired position as good as possible
+                    vehicle.bga.shovelState = vehicle.bga.shovelTarget;
+                end;
             end;
         end;
     end;
@@ -517,7 +525,7 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
         self:steerAxisTo(vehicle, vehicle.bga.shovelRotator, targetRotation, targetFactorHorizontal, dt);
     end;
 
-    if shovelTargetAngleReached then
+    if shovelTargetAngleReached and (vehicle.bga.action ~= AutoDriveBGA.ACTION_UNLOAD) then
         if self:getShovelHeight(vehicle) >= vehicle.bga.shovelTargetHeight then 
             self:steerAxisTo(vehicle, vehicle.bga.armMain, vehicle.bga.armMain.moveDownSign * math.pi, targetFactorHeight, dt);
             if vehicle.bga.armExtender ~= nil then
@@ -539,7 +547,8 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
 
 
     if ((math.abs(self:getShovelHeight(vehicle) - vehicle.bga.shovelTargetHeight) <= 0.01) or
-    (allAxisFullyExtended and (vehicle.bga.shovelTargetHeight > 4 or vehicle.bga.shovelTargetHeight < 0.5)))
+    (allAxisFullyExtended and (vehicle.bga.shovelTargetHeight > 4 or vehicle.bga.shovelTargetHeight < 0.5)) or
+    (vehicle.bga.action == AutoDriveBGA.ACTION_UNLOAD))
     and shovelTargetAngleReached then
         vehicle.bga.shovelState = vehicle.bga.shovelTarget;
     end;
@@ -600,7 +609,7 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
     local closest = nil;
     for _,vehicle in pairs(g_currentMission.vehicles) do
         if vehicle ~= bgaVehicle and self:vehicleHasTrailerAttached(vehicle) and vehicle.ad ~= nil then
-            if self:getDistanceBetween(vehicle, bgaVehicle) < closestDistance and vehicle.ad.noMovementTimer:done() then
+            if self:getDistanceBetween(vehicle, bgaVehicle) < closestDistance and vehicle.ad.noMovementTimer:done() and (not vehicle.ad.isUnloading) then
                 local hasAttached, trailer = self:vehicleHasTrailerAttached(vehicle);
                 if trailer ~= nil then
                     trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
@@ -777,7 +786,7 @@ function AutoDriveBGA:driveToSiloCommonPoint(vehicle, dt)
     
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_LOW;
 
-    if self:getDistanceToTarget(vehicle) <= 3 then
+    if self:getDistanceToTarget(vehicle) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOSILO_CLOSE_POINT;
     end;
 
@@ -790,7 +799,7 @@ function AutoDriveBGA:driveToSiloClosePoint(vehicle, dt)
     
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_LOW;
 
-    if self:getDistanceToTarget(vehicle) <= 2 then
+    if self:getDistanceToTarget(vehicle) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOSILO_REVERSE_POINT;
     end;
 
@@ -837,7 +846,7 @@ function AutoDriveBGA:alignLoadFromBGA(vehicle, dt)
         return;
     end;
 
-    if self:getDistanceToTarget(vehicle) <= 2 then
+    if self:getDistanceToTarget(vehicle) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_LOAD;
     end;
 
@@ -851,9 +860,9 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;					
-        if vehicle.getAIVehicleDirectionNode ~= nil then
-            node = vehicle:getAIVehicleDirectionNode();
-        end;
+        -- if vehicle.getAIVehicleDirectionNode ~= nil then
+        --     node = vehicle:getAIVehicleDirectionNode();
+        -- end;
         local offsetZ = -5;
         local offsetX = 5;
         if vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_REVERSE_LEFT then
@@ -871,9 +880,9 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;
-        if vehicle.getAIVehicleDirectionNode ~= nil then
-            node = vehicle:getAIVehicleDirectionNode();
-        end;
+        -- if vehicle.getAIVehicleDirectionNode ~= nil then
+        --     node = vehicle:getAIVehicleDirectionNode();
+        -- end;
         local offsetZ = 5;
         local offsetX = 5;
         if vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_FORWARD_LEFT then
@@ -1022,7 +1031,7 @@ function AutoDriveBGA:loadFromBGA(vehicle, dt)
     vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, -MathUtil.vector2Length(vehicle.bga.vecH.x, vehicle.bga.vecH.z));
     vehicle.bga.driveStrategy =  AutoDriveBGA.DRIVESTRATEGY_FORWARDS
 
-    if self:getDistanceToTarget(vehicle) <= 2 then
+    if self:getDistanceToTarget(vehicle) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMLOAD;
     end;
     
@@ -1081,9 +1090,9 @@ function AutoDriveBGA:reverseFromBGALoad(vehicle, dt)
     local allowedToDrive = true;
 
     local node = vehicle.components[1].node;					
-    if vehicle.getAIVehicleDirectionNode ~= nil then
-        node = vehicle:getAIVehicleDirectionNode();
-    end;
+    -- if vehicle.getAIVehicleDirectionNode ~= nil then
+    --     node = vehicle:getAIVehicleDirectionNode();
+    -- end;
     local x,y,z = getWorldTranslation(node);
     local lx, lz = AIVehicleUtil.getDriveDirection(node, vehicle.bga.targetPoint.x, y, vehicle.bga.targetPoint.z);
     AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, -lx, -lz, finalSpeed, 1);
@@ -1116,7 +1125,7 @@ function AutoDriveBGA:driveToBGAUnloadInit(vehicle, dt)
         
     local x,y,z = getWorldTranslation( vehicle.components[1].node );
 
-    if math.sqrt(math.pow(vehicle.bga.targetPoint.x - x, 2) + math.pow(vehicle.bga.targetPoint.z - z,2)) <= 3 then
+    if math.sqrt(math.pow(vehicle.bga.targetPoint.x - x, 2) + math.pow(vehicle.bga.targetPoint.z - z,2)) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOUNLOAD;
     end;    
     if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
@@ -1195,9 +1204,9 @@ function AutoDriveBGA:reverseFromBGAUnload(vehicle, dt)
     local allowedToDrive = true;
     
     local node = vehicle.components[1].node;					
-    if vehicle.getAIVehicleDirectionNode ~= nil then
-        node = vehicle:getAIVehicleDirectionNode();
-    end;
+    -- if vehicle.getAIVehicleDirectionNode ~= nil then
+    --     node = vehicle:getAIVehicleDirectionNode();
+    -- end;
     local x,y,z = getWorldTranslation(node);   
     local rx,ry,rz = localDirectionToWorld(node, 0,0,-1);	
     x = x + rx;

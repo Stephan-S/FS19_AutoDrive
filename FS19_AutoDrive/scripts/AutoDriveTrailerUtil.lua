@@ -135,7 +135,7 @@ end;
 function AutoDrive:checkIfLargeFillUnitExists(object)
     if object ~= nil and object.getFillUnits ~= nil then
         for fillUnitIndex,fillUnit in pairs(object:getFillUnits()) do
-            if object:getFillUnitCapacity(fillUnitIndex) > 2000 then
+            if object:getFillUnitCapacity(fillUnitIndex) > 1200 then
                 return true;
             end;
         end
@@ -176,9 +176,21 @@ function getFillLevelAndCapacityOfAll(trailers)
 
     if trailers ~= nil then    
         for _,trailer in pairs(trailers) do
-            for _,fillUnit in pairs(trailer:getFillUnits()) do
-                leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_);
-                fillLevel = fillLevel + trailer:getFillUnitFillLevel(_);
+            for __,fillUnit in pairs(trailer:getFillUnits()) do
+                
+				--print("Trailer fillUnit " .. __ ..  " has :"); 
+                local fillTypeIsProhibited = false;
+                for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(__)) do
+                    if fillType == 1 or fillType == 34 then
+                        fillTypeIsProhibited = true;
+                    end;
+                    --print("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  capacity: " ..  trailer:getFillUnitFreeCapacity(__));
+                end;
+
+                if trailer:getFillUnitCapacity(__) > 1500 and (not fillTypeIsProhibited) then 
+                    leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(__);
+                    fillLevel = fillLevel + trailer:getFillUnitFillLevel(__);
+                end;
             end
         end;
     end;
@@ -194,7 +206,14 @@ function getFillLevelAndCapacityOf(trailer, selectedFillType)
     if trailer ~= nil then    
         for _,fillUnit in pairs(trailer:getFillUnits()) do
             if selectedFillType == nil or trailer:getFillUnitSupportedFillTypes(_)[selectedFillType] == true then
-                if trailer:getFillUnitCapacity(_) > 2000 then                   
+                local fillTypeIsProhibited = false;
+                for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(_)) do
+                    if fillType == 1 or fillType == 34 then
+                        fillTypeIsProhibited = true;
+                    end;
+                end;
+
+                if trailer:getFillUnitCapacity(_) > 1500 and (not fillTypeIsProhibited) then                  
                     leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_);
                     fillLevel = fillLevel + trailer:getFillUnitFillLevel(_);
                     if (leftCapacity <= 0.01) then
@@ -406,19 +425,19 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
                     fillLevelTrailer, leftCapacityTrailer, fullFillUnits  = getFillLevelAndCapacityOf(trailer, vehicle.ad.trigger.selectedFillType);                
                 end;                      
                 for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-                    trigger.stoppedTimer:timer(not trigger.isLoading, 300);
                     local triggerIsEmpty = false;
-                    if trigger.source ~= nil and trigger.source.sourceStorages ~= nil then
-                        triggerIsEmpty = true;
-                        for _, sourceStorage in pairs(trigger.source.sourceStorages) do
-                            if sourceStorage:getFillLevel(vehicle.ad.unloadFillTypeIndex) >= 0.001 then
-                                triggerIsEmpty = false;
-                            end;
-                        end;
-                    end;
+                    -- if trigger.source ~= nil and trigger.source.sourceStorages ~= nil then
+                    --     triggerIsEmpty = true;
+                    --     for _, sourceStorage in pairs(trigger.source.sourceStorages) do
+                    --         if sourceStorage:getFillLevel(trigger.selectedFillType) >= 0.001 then
+                    --             triggerIsEmpty = false;
+                    --         end;
+                    --     end;
+                    -- end;
 
                     if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and (trigger.stoppedTimer:done() or triggerIsEmpty) and vehicle.ad.trailerStartedLoadingAtTrigger then --trigger must be empty by now. Drive on!                      
                         AutoDrive:continueAfterLoadOrUnload(vehicle);
+                        --print("Continue on empty .. trigger:done: " .. ADBoolToString(trigger.stoppedTimer:done()) .. " triggerIsEmpty: " .. ADBoolToString(triggerIsEmpty));
                     elseif AutoDrive:trailerInTriggerRange(trailer, trigger) 
                     and (not trigger.isLoading) 
                     and (leftCapacity > 0) 
@@ -446,14 +465,19 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
                     elseif ((leftCapacity == 0) 
                     or (AutoDrive:trailerInTriggerRange(trailer, trigger)
                         and ((leftCapacityTrailer == 0)
-                            or AutoDrive:currentFillUnitIsFilled(trailer, trigger, fullFillUnits))))
+                        or AutoDrive:currentFillUnitIsFilled(trailer, trigger, fullFillUnits)    )))
                     and vehicle.ad.isPaused 
                     and trigger == vehicle.ad.trigger then
                         AutoDrive:continueAfterLoadOrUnload(vehicle);
+                        --print("Continue on empty trailer");
                         vehicle.ad.trailerStartedLoadingAtTrigger = false;
                     end;
                 end;
             end;			
+        end;
+
+        if vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity <= 0.01 and vehicle.ad.isPaused == true then
+            AutoDrive:continueAfterLoadOrUnload(vehicle);
         end;
     end;
 end;
@@ -498,6 +522,7 @@ function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType)
     trigger.selectedFillType = fillType 
     g_effectManager:setFillType(trigger.effects, trigger.selectedFillType)
     trigger.autoStart = false
+    trigger.stoppedTimer:timer(false, 300);
 
     vehicle.ad.isPaused = true;
     vehicle.ad.isLoading = true;

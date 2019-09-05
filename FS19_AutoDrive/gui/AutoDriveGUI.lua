@@ -6,7 +6,7 @@ function AutoDrive:loadGUI()
     AutoDrive.gui["adEnterTargetNameGui"] = adEnterTargetNameGui:new();
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "adEnterTargetNameGui", AutoDrive.gui.adEnterTargetNameGui);	
     AutoDrive.gui["adEnterGroupNameGui"] = adEnterGroupNameGui:new();
-	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGui.xml", "adEnterGroupNameGui", AutoDrive.gui.adEnterGroupNameGui);	
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "adEnterGroupNameGui", AutoDrive.gui.adEnterGroupNameGui);	
 
 	
     AutoDrive.gui["adSettingsPage"] = adSettingsPage:new();

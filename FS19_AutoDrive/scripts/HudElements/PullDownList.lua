@@ -457,7 +457,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             local oldSelected = self.selected;
             if self:getListElementByIndex(vehicle, self.selected + 1) ~= nil then
                 self.selected = self.selected + 1;
-                if self.hovered < self.selected then
+                if self:getListElementByIndex(vehicle, self.hovered + 1) ~= nil then
                     self.hovered = self.hovered + 1;
                 end;
             end;
@@ -517,6 +517,7 @@ function ADPullDownList:collapse(vehicle)
             end;
         end;
     end;
+    --AutoDrive.Hud.lastUIScale = 0;
 end;
 
 function ADPullDownList:setSelected(vehicle)
@@ -529,12 +530,18 @@ function ADPullDownList:setSelected(vehicle)
                 index = index + 1;
             end;
             for _,entry in pairs(entries) do
-                if entry.returnValue == vehicle.ad.mapMarkerSelected and vehicle.ad.groups[self:groupIDToGroupName(groupID)] then
+                if entry.returnValue == vehicle.ad.mapMarkerSelected then
                     self.selected = index;
                     self.hovered = self.selected;
-                    return;                 
+                    if not vehicle.ad.groups[self:groupIDToGroupName(groupID)] then
+                        vehicle.ad.groups[self:groupIDToGroupName(groupID)] = true;
+                    end;
+                    break;                 
                 end;
                 index = index + 1;
+            end;
+            if self.selected ~= 1 then
+                break;
             end;
         end;
     elseif self.type == ADPullDownList.TYPE_UNLOAD then
@@ -544,12 +551,19 @@ function ADPullDownList:setSelected(vehicle)
                 index = index + 1;
             end;
             for _,entry in pairs(entries) do
-                if entry.returnValue == vehicle.ad.mapMarkerSelected_Unload and vehicle.ad.groups[self:groupIDToGroupName(groupID)] then
+                if entry.returnValue == vehicle.ad.mapMarkerSelected_Unload then
                     self.selected = index;
                     self.hovered = self.selected;
-                    return;                 
+                    if not vehicle.ad.groups[self:groupIDToGroupName(groupID)] then
+                        vehicle.ad.groups[self:groupIDToGroupName(groupID)] = true;
+                    end;
+                    break;                 
                 end;
                 index = index + 1;
+            end;
+            
+            if self.selected ~= 1 then
+                break;
             end;
         end;
     elseif self.type == ADPullDownList.TYPE_FILLTYPE then
@@ -560,10 +574,22 @@ function ADPullDownList:setSelected(vehicle)
                 if entry.returnValue == vehicle.ad.unloadFillTypeIndex then
                     self.selected = index;
                     self.hovered = self.selected;
-                    return;                 
+                    break;                 
                 end;
                 index = index + 1;
+            end;            
+            if self.selected ~= 1 then
+                break;
             end;
+        end;
+    end;
+
+    local reachedTop = false
+    while (not reachedTop) and (self:getListElementByIndex(vehicle, ADPullDownList.MAX_SHOWN) ~= nil) do
+        if self:getListElementByIndex(vehicle, self.selected - 1) ~= nil and (self.hovered <= (self.selected + ADPullDownList.MAX_SHOWN-2)) then
+            self.selected = self.selected - 1;
+        else
+            reachedTop = true;
         end;
     end;
 end;
