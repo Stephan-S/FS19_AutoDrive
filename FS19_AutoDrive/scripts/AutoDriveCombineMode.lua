@@ -23,23 +23,8 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
     vehicle.ad.tryingToCallDriver = false;  
 
     if vehicle.spec_dischargeable ~= nil then
-        local leftCapacity = 0;
-        local maxCapacity = 0;
-        if vehicle.getFillUnits ~= nil then
-            for fillUnitIndex,fillUnit in pairs(vehicle:getFillUnits()) do
-                local fillTypeIsProhibited = false;
-                for fillType, isSupported in pairs(vehicle:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                    if fillType == 1 or fillType == 34  then
-                        fillTypeIsProhibited = true;
-                    end;
-                end;
-
-                if vehicle:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then    
-                    maxCapacity = maxCapacity + vehicle:getFillUnitCapacity(fillUnitIndex);
-                    leftCapacity = leftCapacity + vehicle:getFillUnitFreeCapacity(fillUnitIndex)
-                end;
-            end
-        end;
+        local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle);
+        local maxCapacity = fillLevel + leftCapacity;
 
         local cpIsCalling = false;
         if vehicle.cp and vehicle.cp.driver and vehicle.cp.driver.isWaitingForUnload then
@@ -144,22 +129,12 @@ function AutoDrive:initializeADCombine(vehicle, dt)
 
             if trailers[vehicle.ad.currentTrailer+1] ~= nil then
                 local lastFillLevel = vehicle.ad.designatedTrailerFillLevel;
-                if trailers[vehicle.ad.currentTrailer+1].getFillUnits ~= nil then
-                    for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer+1]:getFillUnits()) do
-                        local fillTypeIsProhibited = false;
-                        for fillType, isSupported in pairs(trailers[vehicle.ad.currentTrailer+1]:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                            if fillType == 1 or fillType == 34  then
-                                fillTypeIsProhibited = true;
-                            end;
-                        end;
+                                
+                local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer+1]);
+                local maxCapacity = fillLevel + leftCapacity;
+                
+                vehicle.ad.designatedTrailerFillLevel = (maxCapacity - leftCapacity)/maxCapacity;
 
-                        if trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then  
-                            maxCapacity = trailers[vehicle.ad.currentTrailer+1]:getFillUnitCapacity(fillUnitIndex);
-                            leftCapacity = trailers[vehicle.ad.currentTrailer+1]:getFillUnitFreeCapacity(fillUnitIndex)
-                        end;
-                    end
-                    vehicle.ad.designatedTrailerFillLevel = (maxCapacity - leftCapacity)/maxCapacity;
-                end;
                 if lastFillLevel < vehicle.ad.designatedTrailerFillLevel then
                     vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
                     --Reload trailerFillLevel when switching to next trailer
@@ -258,44 +233,12 @@ function AutoDrive:handlePathPlanning(vehicle)
 end;
 
 function AutoDrive:checkDoneUnloading(vehicle)
-    local maxCapacity = 0;
-    local leftCapacity = 0;
-    local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
-    if trailerCount > 0 and trailers[vehicle.ad.currentTrailer] ~= nil then
-        if trailers[vehicle.ad.currentTrailer].getFillUnits ~= nil then
-            for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnits()) do
-                local fillTypeIsProhibited = false;
-                for fillType, isSupported in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                    if fillType == 1 or fillType == 34  then
-                        fillTypeIsProhibited = true;
-                    end;
-                end;
+    local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);  
+    local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer]);
+    local maxCapacity = fillLevel + leftCapacity;      
 
-                if trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then  
-                        maxCapacity = maxCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex);
-                        leftCapacity = leftCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitFreeCapacity(fillUnitIndex);
-                    end;
-                end
-        end;
-    end;
-
-    local combineLeftCapacity = 0;
-    local combineMaxCapacity = 0;
-    if vehicle.ad.currentCombine.getFillUnits ~= nil then
-        for fillUnitIndex,fillUnit in pairs(vehicle.ad.currentCombine:getFillUnits()) do
-            local fillTypeIsProhibited = false;
-            for fillType, isSupported in pairs(vehicle.ad.currentCombine:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                if fillType == 1 or fillType == 34  then
-                    fillTypeIsProhibited = true;
-                end;
-            end;
-
-            if vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then  
-                combineMaxCapacity = combineMaxCapacity + vehicle.ad.currentCombine:getFillUnitCapacity(fillUnitIndex);
-                combineLeftCapacity = combineLeftCapacity + vehicle.ad.currentCombine:getFillUnitFreeCapacity(fillUnitIndex)
-            end;
-        end
-    end;
+    local combineFillLevel, combineLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle.ad.currentCombine);
+    local combineMaxCapacity = combineFillLevel + combineLeftCapacity;       
 
     return ((combineMaxCapacity - combineLeftCapacity) < 100) , (1-(leftCapacity/maxCapacity));
 end;

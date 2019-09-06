@@ -54,7 +54,8 @@ function adEnterTargetNameGui:onClickOk()
                 end;
             end;
             
-            AutoDrive:notifyDestinationListeners();            
+            AutoDrive:notifyDestinationListeners();  
+            AutoDrive.Hud.lastUIScale = 0;          
         end;       
     end;    
     

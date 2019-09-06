@@ -45,28 +45,9 @@ function AutoDrive:startAD(vehicle)
 	end;
 	
 	if g_server ~= nil then
-		local leftCapacity = 0;
-		local maxCapacity = 0;  
 		local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD));
-		if trailerCount > 0 then        
-			for _,trailer in pairs(trailers) do
-				if trailer.getFillUnits ~= nil then
-					for _,fillUnit in pairs(trailer:getFillUnits()) do
-						local fillTypeIsProhibited = false;
-						for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(_)) do
-							if fillType == 1 or fillType == 34  then
-								fillTypeIsProhibited = true;
-							end;
-						end;
-
-						if trailer:getFillUnitCapacity(_) > 1500 and (not fillTypeIsProhibited) then    
-							leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_)
-							maxCapacity = maxCapacity + trailer:getFillUnitCapacity(_)
-						end;
-					end
-				end;
-			end;
-		end;
+		local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers);
+		local maxCapacity = fillLevel + leftCapacity; 	
 				
 		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel"))))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then

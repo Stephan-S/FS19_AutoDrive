@@ -462,8 +462,8 @@ end;
 
 function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     if vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_LOADING then
-        vehicle.bga.shovelTargetHeight = 0.035;
-        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.025;
+        vehicle.bga.shovelTargetHeight = 0.04;
+        vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.02;
         if vehicle.bga.armExtender ~= nil then 
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMin;
         end;

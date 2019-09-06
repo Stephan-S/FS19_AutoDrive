@@ -8,6 +8,10 @@ function AutoDrive:loadStoredXML()
 		file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex  .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml";
 	end;
 	local tempXml = nil;
+
+	AutoDrive.groups = {};
+	AutoDrive.groups["All"] = 1;
+	AutoDrive.groupCounter = 1;
 	
 	if fileExists(file) then
 		print("AD: Loading xml file from " .. file);
@@ -101,10 +105,6 @@ function AutoDrive:readFromXML(xmlFile)
 			AutoDrive.settings[settingName].current = value;
 		end;
 	end;
-
-	AutoDrive.groups = {};
-	AutoDrive.groups["All"] = 1;
-	AutoDrive.groupCounter = 1;
 
 	local mapMarker = {};
 	local mapMarkerCounter = 1;

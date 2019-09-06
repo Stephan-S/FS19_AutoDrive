@@ -11,7 +11,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
         AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers);      
 
-        handleTrailersUnload(vehicle, trailers, fillLevel);
+        handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt);
 
         fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables);
         AutoDrive:checkTrailerStatesAndAttributes(vehicle, allFillables); 
@@ -176,22 +176,9 @@ function getFillLevelAndCapacityOfAll(trailers)
 
     if trailers ~= nil then    
         for _,trailer in pairs(trailers) do
-            for __,fillUnit in pairs(trailer:getFillUnits()) do
-                
-				--print("Trailer fillUnit " .. __ ..  " has :"); 
-                local fillTypeIsProhibited = false;
-                for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(__)) do
-                    if fillType == 1 or fillType == 34 then
-                        fillTypeIsProhibited = true;
-                    end;
-                    --print("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  capacity: " ..  trailer:getFillUnitFreeCapacity(__));
-                end;
-
-                if trailer:getFillUnitCapacity(__) > 1500 and (not fillTypeIsProhibited) then 
-                    leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(__);
-                    fillLevel = fillLevel + trailer:getFillUnitFillLevel(__);
-                end;
-            end
+            local trailerFillLevel, trailerLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailer);         
+            fillLevel = fillLevel + trailerFillLevel;
+            leftCapacity = leftCapacity + trailerLeftCapacity;   
         end;
     end;
     
@@ -204,27 +191,67 @@ function getFillLevelAndCapacityOf(trailer, selectedFillType)
     local fullFillUnits = {};
 
     if trailer ~= nil then    
-        for _,fillUnit in pairs(trailer:getFillUnits()) do
-            if selectedFillType == nil or trailer:getFillUnitSupportedFillTypes(_)[selectedFillType] == true then
-                local fillTypeIsProhibited = false;
-                for fillType, isSupported in pairs(trailer:getFillUnitSupportedFillTypes(_)) do
-                    if fillType == 1 or fillType == 34 then
-                        fillTypeIsProhibited = true;
-                    end;
-                end;
-
-                if trailer:getFillUnitCapacity(_) > 1500 and (not fillTypeIsProhibited) then                  
-                    leftCapacity = leftCapacity + trailer:getFillUnitFreeCapacity(_);
-                    fillLevel = fillLevel + trailer:getFillUnitFillLevel(_);
-                    if (leftCapacity <= 0.01) then
-                        fullFillUnits[_] = true;
-                    end;
+        for fillUnitIndex,fillUnit in pairs(trailer:getFillUnits()) do
+            if selectedFillType == nil or trailer:getFillUnitSupportedFillTypes(fillUnitIndex)[selectedFillType] == true then
+                local trailerFillLevel, trailerLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailer, selectedFillType);         
+                fillLevel = fillLevel + trailerFillLevel;
+                leftCapacity = leftCapacity + trailerLeftCapacity; 
+                if (trailerLeftCapacity <= 0.01) then
+                    fullFillUnits[fillUnitIndex] = true;
                 end;
             end;
         end
     end;
+    --print("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. ADTableLength(fullFillUnits));
     
     return fillLevel, leftCapacity, fullFillUnits;
+end;
+
+function getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFillType)
+    if object.getFillUnits == nil then
+        return 0,0;
+    end;
+    local leftCapacity = 0;
+    local fillLevel = 0;
+    local hasOnlyDieselForFuel = checkForDieselTankOnlyFuel(object);
+    for fillUnitIndex, fillUnit in pairs(object:getFillUnits()) do                
+        --print("object fillUnit " .. fillUnitIndex ..  " has :"); 
+        local fillTypeIsProhibited = false;
+        for fillType, isSupported in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+            if fillType == 1 or fillType == 32 or fillType == 33 or (fillType == 34 and hasOnlyDieselForFuel) then --1:UNKNOWN 32:AIR 33:AdBlue 34:Diesel
+                fillTypeIsProhibited = true;
+            end;
+            if selectedFillType ~= nil and fillType ~= selectedFillType then
+                fillTypeIsProhibited = true;
+            end;
+            --print("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  capacity: " ..  object:getFillUnitFreeCapacity(fillUnitIndex));
+        end;
+
+        if object:getFillUnitCapacity(fillUnitIndex) > 1000 and (not fillTypeIsProhibited) then 
+            leftCapacity = leftCapacity + object:getFillUnitFreeCapacity(fillUnitIndex);
+            fillLevel = fillLevel + object:getFillUnitFillLevel(fillUnitIndex);
+        end;
+    end
+    return fillLevel, leftCapacity;
+end;
+
+function checkForDieselTankOnlyFuel(object)
+    if object.getFillUnits == nil then
+        return true;
+    end;
+    local dieselFuelUnitCount = 0;
+    local adBlueUnitCount = 0;
+    for fillUnitIndex, fillUnit in pairs(object:getFillUnits()) do 
+        for fillType, isSupported in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+            if fillType == 33 then
+                adBlueUnitCount = adBlueUnitCount + 1;
+            end;
+            if fillType == 34 then
+                dieselFuelUnitCount = dieselFuelUnitCount + 1;
+            end;
+        end;
+    end;
+    return dieselFuelUnitCount == adBlueUnitCount;
 end;
 
 function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
@@ -310,13 +337,13 @@ function AutoDrive:setAugerPipeOpen(trailers, open)
     end;
 end;
 
-function handleTrailersUnload(vehicle, trailers, fillLevel)    
+function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)    
     if vehicle.ad.mode == AutoDrive.MODE_LOAD then
         return;
     end;
     local distance = getDistanceToUnloadPosition(vehicle);
-    if distance < 100 then
-        continueIfAllTrailersClosed(vehicle, trailers); 
+    if distance < 200 then
+        continueIfAllTrailersClosed(vehicle, trailers, dt); 
         --AutoDrive:setTrailerCoverOpen(trailers, true);
 
         for _,trailer in pairs(trailers) do                   
@@ -353,15 +380,20 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
 
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity <= 0.01 and vehicle.ad.isPaused == true and (getDistanceToTargetPosition(vehicle) <= 6) then
         AutoDrive:continueAfterLoadOrUnload(vehicle);
+    --else
+        --print("mode: " .. vehicle.ad.mode .. " leftCapacity: " .. leftCapacity .. " isPaused: " .. ADBoolToString(vehicle.ad.isPaused) .. " distance: " .. getDistanceToTargetPosition(vehicle));
     end;
 end;
 
-function continueIfAllTrailersClosed(vehicle, trailers)
+function continueIfAllTrailersClosed(vehicle, trailers, dt)
     local allClosed = true;
     for _,trailer in pairs(trailers) do
         if trailer.getDischargeState ~= nil then
             local dischargeState = trailer:getDischargeState()
-            if dischargeState ~= Trailer.TIPSTATE_CLOSED or vehicle.ad.isLoading then
+            if trailer.noDischargeTimer == nil then
+                trailer.noDischargeTimer = AutoDriveTON:new();
+            end;
+            if (not trailer.noDischargeTimer:timer((dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 500, dt)) or vehicle.ad.isLoading then
                 allClosed = false;
             end;
         end;
@@ -369,6 +401,7 @@ function continueIfAllTrailersClosed(vehicle, trailers)
     if allClosed and (vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED) then
         vehicle.ad.isPaused = false;
         vehicle.ad.isUnloading = false;
+        print("continueIfAllTrailersClosed");
     end;
 end;
 
@@ -473,7 +506,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
                     and vehicle.ad.isPaused 
                     and trigger == vehicle.ad.trigger then
                         AutoDrive:continueAfterLoadOrUnload(vehicle);
-                        --print("Continue on empty trailer");
+                        print("Continue on full trailer/fillUnit");
                         vehicle.ad.trailerStartedLoadingAtTrigger = false;
                     end;
                 end;
@@ -517,6 +550,7 @@ function AutoDrive:continueAfterLoadOrUnload(vehicle)
     vehicle.ad.isPaused = false;
     vehicle.ad.isUnloading = false;
     vehicle.ad.isLoading = false;
+    print("continueAfterLoadOrUnload");
 end;
 
 function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType)

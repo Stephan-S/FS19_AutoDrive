@@ -91,20 +91,23 @@ function ADPullDownList:onDraw(vehicle)
         local posX = self.position.x + AutoDrive.Hud.gapWidth;
         local posY = self.position.y + (self.size.height - textHeight)/2;
         if vehicle.ad.isActive then
-            local target = vehicle.ad.nameOfSelectedTarget;
-            if self.type == ADPullDownList.TYPE_UNLOAD then
-                target = vehicle.ad.nameOfSelectedTarget_Unload;
+            local targetToCheck = "nil";
+            if self.type == ADPullDownList.TYPE_TARGET then
+                targetToCheck = vehicle.ad.nameOfSelectedTarget;
+            elseif self.type == ADPullDownList.TYPE_UNLOAD then
+                targetToCheck = vehicle.ad.nameOfSelectedTarget_Unload;
             end;
+            local actualTarget = "";
 
             for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
                 if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)] ~= nil then
                     if mapMarker.id == vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id then
-                        target = mapMarker.name;
+                        actualTarget = mapMarker.name;
                     end;
                 end;
             end;
 
-            if self.text == target then
+            if actualTarget == targetToCheck then
                 setTextColor(0,1,0,1);
             end;
         end;
@@ -525,7 +528,7 @@ function ADPullDownList:collapse(vehicle)
             end;
         end;
     end;
-    --AutoDrive.Hud.lastUIScale = 0;
+    AutoDrive.Hud.lastUIScale = 0;
 end;
 
 function ADPullDownList:setSelected(vehicle)
