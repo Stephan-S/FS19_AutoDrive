@@ -377,7 +377,11 @@ function ADPullDownList:getNewState_Target(vehicle)
     local newSelection = self.selected;
     if self.state == ADPullDownList.STATE_COLLAPSED then
         local markerSelected = vehicle.ad.mapMarkerSelected;
-        self.text = AutoDrive.mapMarker[markerSelected].name;        
+        if markerSelected ~= nil and markerSelected >= 1 and AutoDrive.mapMarker[markerSelected] ~= nil then
+            self.text = AutoDrive.mapMarker[markerSelected].name;      
+        else
+            self.text = "";    
+        end;
     end;
     return newState, newSelection;
 end;
@@ -387,7 +391,11 @@ function ADPullDownList:getNewState_Unload(vehicle)
     local newSelection = self.selected;
     if self.state == ADPullDownList.STATE_COLLAPSED then
         local markerSelected = vehicle.ad.mapMarkerSelected_Unload;
-        self.text = AutoDrive.mapMarker[markerSelected].name;        
+        if markerSelected ~= nil and markerSelected >= 1 and AutoDrive.mapMarker[markerSelected] ~= nil then
+            self.text = AutoDrive.mapMarker[markerSelected].name;     
+        else
+            self.text = "";
+        end;
     end;
     return newState, newSelection;
 end;

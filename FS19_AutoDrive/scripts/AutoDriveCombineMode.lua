@@ -263,19 +263,19 @@ function AutoDrive:checkDoneUnloading(vehicle)
     local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);     
     if trailerCount > 0 and trailers[vehicle.ad.currentTrailer] ~= nil then
         if trailers[vehicle.ad.currentTrailer].getFillUnits ~= nil then
-            for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnits()) 
-            local fillTypeIsProhibited = false;
-            for fillType, isSupported in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                if fillType == 1 or fillType == 34  then
-                    fillTypeIsProhibited = true;
+            for fillUnitIndex,fillUnit in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnits()) do
+                local fillTypeIsProhibited = false;
+                for fillType, isSupported in pairs(trailers[vehicle.ad.currentTrailer]:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                    if fillType == 1 or fillType == 34  then
+                        fillTypeIsProhibited = true;
+                    end;
                 end;
-            end;
 
-            if trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then  
-                    maxCapacity = maxCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex);
-                    leftCapacity = leftCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitFreeCapacity(fillUnitIndex);
-                end;
-            end
+                if trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex) > 1500 and (not fillTypeIsProhibited) then  
+                        maxCapacity = maxCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitCapacity(fillUnitIndex);
+                        leftCapacity = leftCapacity + trailers[vehicle.ad.currentTrailer]:getFillUnitFreeCapacity(fillUnitIndex);
+                    end;
+                end
         end;
     end;
 
