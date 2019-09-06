@@ -350,6 +350,10 @@ function handleTrailersUnload(vehicle, trailers, fillLevel)
             end;              
         end;
     end;
+
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity <= 0.01 and vehicle.ad.isPaused == true and (getDistanceToTargetPosition(vehicle) <= 6) then
+        AutoDrive:continueAfterLoadOrUnload(vehicle);
+    end;
 end;
 
 function continueIfAllTrailersClosed(vehicle, trailers)
