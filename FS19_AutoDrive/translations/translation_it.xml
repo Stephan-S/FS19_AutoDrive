@@ -71,6 +71,8 @@
 		<text name="gui_ad_siloEmpty"						 text="Se il silo è vuoto" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Determina come l'autista deve reagire ad un silo vuoto" />
 		<text name="gui_ad_wait"							 text="Attendi" />
+		<text name="gui_ad_useFolders"					 	 text="Usa le cartelle" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Usa Le cartelle per le destinazioni edifici" />
 		<text name="gui_ad_drive"							 text="Continua" />
 		<text name="gui_ad_yes"								 text="Si" />
 		<text name="gui_ad_no"								 text="No" />
