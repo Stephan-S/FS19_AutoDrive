@@ -41,20 +41,26 @@
 		<text name="AD_Driver_of"							 text="Водитель на" />
 		<text name="AD_has_reached"							 text="прибыл к" />
 		<text name="AD_got_stuck"							 text="застрял" />
-		<text name="AD_cannot_reach"						 text="не может доехать до" />
+		<text name="AD_cannot_reach"						 text="не может доехать до цели " />
 		<text name="AD_new_marker"							 text="Новая цель:" />
 		<text name="AD_new_marker_helptext"					 text="Введите новое название (завершить по Enter)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Пересчитываются маршруты. Пожалуйста подождите. Завершено:" />
+		<text name="AD_No_Trailer"							 text="не могу найти прицеп" />	
+		<text name="AD_No_Bunker"							 text="не могу найти силосный бункер" />		
+		<text name="AD_No_Shovel"							 text="не могу найти присоединённый ковш" />
 		<text name="AD_MODE_DRIVETO"						 text="Перегон" />
 		<text name="AD_MODE_DELIVERTO"						 text="Доставка" />
 		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Загрузка и доставка" />
 		<text name="AD_MODE_UNLOAD"							 text="Разгрузка комбайна" />
 		<text name="AD_MODE_LOAD"							 text="Загрузка" />
+		<text name="AD_MODE_BGA"							 text="Разгрузка в бункер приёмник" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Настройки" />
 		<text name="gui_ad_pipe_offset"						 text="Смещение трубы" />
-		<text name="gui_ad_lookahead_turning"				 text="Смотреть вперед на расстояние (поворот)" />
+		<text name="gui_ad_trailerOffset"					 text="Смещение прицепа" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Продольное смещение позиции разгрузки прицепа" />
+		<text name="gui_ad_lookahead_turning"				 text="Просматривать на расстояние(поворот)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="Расстояние, на которое автомобиль смотрит вперед, чтобы управлять рулением, для следования к следующему сегменту" />
-		<text name="gui_ad_lookahead_braking"				 text="Смотреть вперед на расстояние (торможение)" />
+		<text name="gui_ad_lookahead_braking"				 text="Просматривать на расстояние(торможение)" />
 		<text name="gui_ad_lookahead_braking_tooltip"		 text="Расстояние, на которое автомобиль смотрит вперед, чтобы скорректировать скорость до ожидаемого радиуса поворота" />
 		<text name="gui_ad_useFastestRoute"					 text="Использовать самый быстрый маршрут" />
 		<text name="gui_ad_useFastestRoute_tooltip"			 text="При расчете лучших маршрутов учитывайте скорость движения, а не фактическое расстояния" />
@@ -75,13 +81,16 @@
 		<text name="ad_drive_to_startpos"					 text="Двигаюсь к старту" />
 		<text name="ad_drive_to_unloadpos"					 text="Еду на разгрузку" />
 		<text name="gui_ad_autoConnect_start"				 text="Автосоединение (начало)" />
+		<text name="ad_bga_init"					 		 text="Инициализация" />
+		<text name="ad_bga_waiting"					 		 text="В ожидании прицепа/бункера" />
+		<text name="ad_bga_active"					 		 text="Активно" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Автоматическое подключение подходящего узла в начале записи" />
 		<text name="gui_ad_autoConnect_end"					 text="Автосоединение (конец)" />
 		<text name="gui_ad_autoConnect_end_tooltip"			 text="Автоматическое подключение подходящего узла в конце записи" />
 		<text name="gui_ad_parkInField"						 text="Стоянка на поле" />
 		<text name="gui_ad_parkInField_tooltip"				 text="После разгрузки комбайна - если не припаркован на посевах" />
 		<text name="gui_ad_unloadFillLevel"					 text="Отвозить при уровне" />
-		<text name="gui_ad_unloadFillLevel_tooltip"			 text="После разгрузки комбайна и заполнеия до этого уровня, перейти к доставке собранного на склад" />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 text="После разгрузки комбайна и заполнения до этого уровня, перейти к доставке собранного на склад" />
 		<text name="gui_ad_findDriver"						 text="Найти водителя" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Поиск ближайших водителей (игнорировать пункт назначения)" />
 		<text name="gui_ad_gui_scale"						 text="Масштабирование интерфейса AutoDrive HUD" />
@@ -115,5 +124,7 @@
 		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Продвинутое определение столкновений, которое также обнаруживает AI-трафик, знаки, заборы и т.д." />
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Посев и удобрение" />	
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Разрешить AutoDrive наполнять отсеки для семян и удобрений, если один из них выбран в качестве типа заполнения." />	
+		<text name="gui_ad_shovelWidth"			 			 text="Ширина ковша (увеличение)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Если автоматически определенная ширина ковша слишком мала, ее можно увеличить с помощью этого значения" />	
 	</texts>
 </l10n>
