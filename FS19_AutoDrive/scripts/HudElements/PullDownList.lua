@@ -312,6 +312,8 @@ function ADPullDownList:updateVisibility(vehicle)
     if self.type == ADPullDownList.TYPE_TARGET then
         if vehicle.ad.mode == AutoDrive.MODE_BGA then
             newVisibility = false;
+        else
+            newVisibility = true;
         end;
     end;
 
