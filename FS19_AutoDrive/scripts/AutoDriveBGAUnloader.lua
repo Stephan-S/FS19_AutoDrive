@@ -434,7 +434,7 @@ function AutoDriveBGA:checkForStopLoading(vehicle) --stop loading when shovel is
 end;
 
 function AutoDriveBGA:checkForIdleCondition(vehicle) --idle if shovel filled and no trailer available to fill;
-    if vehicle.bga.shovelFillLevel >= 0.98 and (vehicle.bga.targetTrailer ~= nil or vehicle.bga.trailerLeftCapacity <= 1) or vehicle.bga.targetTrailer == nil then
+    if vehicle.bga.shovelFillLevel >= 0.98 and vehicle.bga.targetTrailer ~= nil or vehicle.bga.trailerLeftCapacity <= 1 then
         return true;
     end;
     return false;
@@ -679,8 +679,7 @@ function AutoDriveBGA:checkCurrentTrailerStillValid(vehicle)
         local trailerFillLevel = 0;
         local trailerLeftCapacity = 0;
         trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
-        local tooFull = trailerLeftCapacity <= 1;
-
+        local tooFull = trailerLeftCapacity <= 0.01;
         return not (tooFull or tooFast);
     end;
     
@@ -1159,7 +1158,7 @@ function AutoDriveBGA:driveToBGAUnloadInit(vehicle, dt)
     if math.sqrt(math.pow(vehicle.bga.targetPoint.x - x, 2) + math.pow(vehicle.bga.targetPoint.z - z,2)) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOUNLOAD;
     end;    
-    if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.001) then
+    if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then
         vehicle.bga.action = AutoDriveBGA.ACTION_REVERSEFROMUNLOAD;
         vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_BEFORE_UNLOAD;
         vehicle.bga.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
