@@ -153,8 +153,10 @@ function ADPullDownList:onDraw(vehicle)
                         listEntry.ovExpand:render(); 
                     end;
                     if (listEntry.displayName ~= "All") then 
-                        listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
-                        listEntry.ovMinus:render();
+                        if self:getItemCountForGroup(listEntry.displayName) <= 0 then
+                            listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                            listEntry.ovMinus:render();
+                        end;
                     else       
                         listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
                         listEntry.ovPlus:render();
@@ -449,8 +451,10 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                 elseif hitIcon ~= nil and hitIcon == 2 then
                     if hitElement.isFolder then
                         if (hitElement.displayName ~= "All") then 
-                            AutoDrive.pullDownListExpanded = 0;
-                            AutoDrive:removeGroup(hitElement.returnValue);
+                            if self:getItemCountForGroup(hitElement.displayName) <= 0 then
+                                AutoDrive.pullDownListExpanded = 0;
+                                AutoDrive:removeGroup(hitElement.returnValue);
+                            end;
                         else
                             self:collapse(vehicle, true);
                             AutoDrive:onOpenEnterGroupName();
@@ -694,4 +698,12 @@ function ADPullDownList:getItemCount()
         count = count + #list;
     end;
     return count;
+end;
+
+function ADPullDownList:getItemCountForGroup(groupName)
+    local groupID = AutoDrive.groups[groupName];
+    if groupID ~= nil and self.options[groupID] ~= nil then
+        return #self.options[groupID];
+    end;
+    return 0;
 end;

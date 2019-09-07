@@ -361,7 +361,12 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1];
         local highestAngle = 0;
         local distanceToLookAhead = AutoDrive:getSetting("lookAheadBraking");
-        
+
+        local totalMass = vehicle:getTotalMass(false);        
+        local massFactor = math.max(1, math.min(2, (totalMass-10)/20));
+        local speedFactor = math.max(1, math.min(3, ((vehicle.lastSpeedReal*3600)-20)/40))
+        local distanceToLookAhead = math.min(distanceToLookAhead*massFactor*speedFactor, 100);
+
         local pointsToLookAhead = 20;
         local doneCheckingRoute = false;
         local currentLookAheadPoint = 1;

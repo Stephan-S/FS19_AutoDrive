@@ -150,7 +150,7 @@ function AutoDriveBGA:checkIfPossibleToRestart(vehicle, dt)
         vehicle.bga.targetBunker = self:getTargetBunker(vehicle);
     end;
 
-    if vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerLeftCapacity >= 0.1 and vehicle.bga.targetBunker ~= nil and vehicle.bga.bunkerFillLevel > 0 then
+    if vehicle.bga.targetTrailer ~= nil and vehicle.bga.trailerLeftCapacity >= 1 and vehicle.bga.targetBunker ~= nil and vehicle.bga.bunkerFillLevel > 0 then
         return true;
     end;
 end;
@@ -635,8 +635,10 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
                 local hasAttached, trailers = self:vehicleHasTrailersAttached(vehicle);
                 for index, trailer in pairs(trailers) do
                     if trailer ~= nil then
+                        local trailerFillLevel = 0;
+                        local trailerLeftCapacity = 0;
                         trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
-                        if trailerLeftCapacity >= 0.01 then
+                        if trailerLeftCapacity >= 10 then
                             closestDistance = self:getDistanceBetween(trailer, bgaVehicle);
                             closest = vehicle;
                             closestTrailer = trailer;
@@ -647,6 +649,9 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
         end;
     end;
     if closest ~= nil then
+        local trailerFillLevel = 0;
+        local trailerLeftCapacity = 0;
+        trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(closestTrailer);
         return closestTrailer, closest;
     end;
     return;
@@ -664,7 +669,11 @@ function AutoDriveBGA:vehicleHasTrailersAttached(vehicle)
     local tipTrailers = {};
     if trailers ~= nil then
         for _,trailer in pairs(trailers) do
-            if trailer.typeName == "trailer" then
+            local trailerFillLevel = 0;
+            local trailerLeftCapacity = 0;
+            trailerFillLevel, trailerLeftCapacity = getFillLevelAndCapacityOf(trailer);
+            local maxCapacity = trailerFillLevel + trailerLeftCapacity;
+            if trailer.typeName == "trailer" or (maxCapacity >= 7000) then
                 table.insert(tipTrailers, trailer);
             end;
         end;
@@ -678,8 +687,8 @@ function AutoDriveBGA:checkCurrentTrailerStillValid(vehicle)
         local tooFast = math.abs(vehicle.bga.targetDriver.lastSpeedReal) > 0.002;
         local trailerFillLevel = 0;
         local trailerLeftCapacity = 0;
-        trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
-        local tooFull = trailerLeftCapacity <= 1;
+        trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer);
+        local tooFull = trailerLeftCapacity < 1;
 
         return not (tooFull or tooFast);
     end;
@@ -1271,7 +1280,6 @@ function AutoDriveBGA:getShovelInTrailerRange(vehicle)
         local dischargeTarget = dischargeNode.dischargeObject;
         if dischargeTarget ~= nil then
             local result = vehicle.bga.shovel:getDischargeState() == Dischargeable.DISCHARGE_STATE_OBJECT and dischargeTarget == vehicle.bga.targetTrailer;
-            --print("Result: " .. ADBoolToString(result));
             return result;
         end;
     end;
