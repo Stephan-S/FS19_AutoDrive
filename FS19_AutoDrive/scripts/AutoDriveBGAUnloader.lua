@@ -168,9 +168,9 @@ function AutoDriveBGA:getShovelFillLevel(vehicle)
             end;
         end;
         if vehicle.bga.shovelWidthTool ~= nil then
-            vehicle.bga.shovelWidth = vehicle.bga.shovelWidthTool + AutoDrive:getSetting("shovelWidth");            
+            vehicle.bga.shovelWidth = vehicle.bga.shovelWidthTool + AutoDrive:getSetting("shovelWidth", vehicle);            
         else
-            vehicle.bga.shovelWidth = 3.0 + AutoDrive:getSetting("shovelWidth");
+            vehicle.bga.shovelWidth = 3.0 + AutoDrive:getSetting("shovelWidth", vehicle);
         end;
 
         if vehicle.bga.targetBunker ~= nil then

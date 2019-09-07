@@ -24,8 +24,8 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
     
     local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
-    local pipeOffset = AutoDrive:getSetting("pipeOffset");     
-    local trailerOffset = AutoDrive:getSetting("trailerOffset");
+    local pipeOffset = AutoDrive:getSetting("pipeOffset", driver);     
+    local trailerOffset = AutoDrive:getSetting("trailerOffset", driver);
     local wpAhead = {x= (nodeX + (driver.sizeLength/2 + 5 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (driver.sizeLength/2 + 5 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z};
     local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
     local wpBehind_close = {x= (nodeX - 10*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 10*rz - pipeOffset * combineNormalVector.z };
