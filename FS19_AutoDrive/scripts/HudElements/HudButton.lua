@@ -176,7 +176,7 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
         return true;
     end;
 
-    if (not isDown) and (not isUp) then
+    if (not isDown) and (not isUp) and self.isVisible then
         if vehicle.ad.sToolTip ~= self.toolTip then
             vehicle.ad.sToolTip = self.toolTip;
             vehicle.ad.nToolTipTimer = 6000;

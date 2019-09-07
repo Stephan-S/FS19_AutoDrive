@@ -285,6 +285,10 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end;
 			layer = layer - 1;
 		end;
+
+		if (not mouseEventHandled) and (AutoDrive.pullDownListExpanded > 0) and (button >= 1 and button <= 3 and isDown) then
+			AutoDrive.Hud:closeAllPullDownLists(vehicle);
+		end;
 		
 		if self.isMoving then
 			if button == 1 and isUp then
@@ -347,11 +351,9 @@ function AutoDriveHud:has_value (tab, val)
 end
 
 function AutoDriveHud:closeAllPullDownLists(vehicle)
-	if AutoDrive.pullDownListExpanded > 0 then
-		for _, hudElement in pairs(self.hudElements) do
-			if hudElement.collapse ~= nil and hudElement.state ~= nil and hudElement.state == ADPullDownList.STATE_EXPANDED then
-				hudElement:collapse(vehicle);
-			end;
+	for _, hudElement in pairs(self.hudElements) do
+		if hudElement.collapse ~= nil and hudElement.state ~= nil and hudElement.state == ADPullDownList.STATE_EXPANDED then
+			hudElement:collapse(vehicle, false);
 		end;
 	end;
 end;

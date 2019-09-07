@@ -119,7 +119,8 @@ function ADPullDownList:onDraw(vehicle)
     else
         self.ovTop:render();
         self.ovStretch:render();
-        self.ovBottom:render();       
+        self.ovBottom:render();   
+        --AutoDrive.pullDownListExpanded = self.type;    
 
         for i = 1, ADPullDownList.MAX_SHOWN, 1 do
             local listEntry = self:getListElementByDisplayIndex(vehicle, i)
@@ -431,7 +432,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                 self:expand(vehicle);
             elseif self.state == ADPullDownList.STATE_EXPANDED then
                 if hitIcon == nil or hitIcon == 0 then
-                    self:collapse(vehicle);
+                    self:collapse(vehicle, true);
                 elseif hitIcon ~= nil and hitIcon == 1 then
                     if hitElement.isFolder then
                         vehicle.ad.groups[hitElement.returnValue] = not vehicle.ad.groups[hitElement.returnValue];
@@ -444,7 +445,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                             AutoDrive.pullDownListExpanded = 0;
                             AutoDrive:removeGroup(hitElement.returnValue);
                         else
-                            self:collapse(vehicle);
+                            self:collapse(vehicle, true);
                             AutoDrive:onOpenEnterGroupName();
                         end;
                     else
@@ -484,13 +485,15 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
 end;
 
 function ADPullDownList:expand(vehicle)
+    if self.state == ADPullDownList.STATE_COLLAPSED then
+        self.layer = self.layer + 1;
+    end;
     self.state = ADPullDownList.STATE_EXPANDED;
-    self.layer = self.layer + 1;
+
     AutoDrive.pullDownListExpanded = self.type;
 
     --possibly adjust height to number of elements (visible)
     self.expandedSize.height = math.min(self:getItemCount(), ADPullDownList.MAX_SHOWN) * AutoDrive.Hud.listItemHeight + self.size.height/2;
-
     
     if self.direction == ADPullDownList.EXPANDED_UP then
         self.ovTop = Overlay:new(self.imageBGTop, self.position.x, self.position.y + self.expandedSize.height - self.size.height/2, self.size.width, self.size.height/2);   
@@ -505,14 +508,14 @@ function ADPullDownList:expand(vehicle)
     self:setSelected(vehicle);
 end;
 
-function ADPullDownList:collapse(vehicle)    
+function ADPullDownList:collapse(vehicle, setItem)
+    if self.state == ADPullDownList.STATE_EXPANDED then
+        self.layer = self.layer - 1;
+    end;
     self.state = ADPullDownList.STATE_COLLAPSED;    
-    self.layer = self.layer - 1;
-    --if AutoDrive.pullDownListExpanded == self.type then 
-        AutoDrive.pullDownListExpanded = 0;
-    --end;
+    AutoDrive.pullDownListExpanded = 0;
 
-    if self.hovered ~= nil then
+    if self.hovered ~= nil and setItem ~= nil and setItem == true then
         local selectedEntry = self:getListElementByIndex(vehicle, self.hovered);
         if selectedEntry ~= nil and selectedEntry.returnValue ~= nil and selectedEntry.isFolder == false then
             if self.type == ADPullDownList.TYPE_TARGET then
