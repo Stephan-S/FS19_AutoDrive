@@ -55,8 +55,8 @@
 		<text name="AD_MODE_BGA"						 text="Vykládka silážní jámy" />
 		<text name="gui_ad_Setting"						 text="AutoDrive - Nastavení" />
 		<text name="gui_ad_pipe_offset"						 text="Odstup od kombajnu" />
-		<text name="gui_ad_trailerOffset"					 text="Trailer offset" />
-		<text name="gui_ad_trailerOffset_tooltip"			 	 text="Odstup od kombajnu vpřed/vzad" />
+		<text name="gui_ad_trailerOffset"					 text="Posun ke kombajnu vpřed/vzad" />
+		<text name="gui_ad_trailerOffset_tooltip"			 	 text="Posun vpřed/vzad vzhledem ke kombajnu, pokud kombajn nemůže vysypat odvozci" />
 		<text name="gui_ad_lookahead_turning"				 	 text="Kontola vpřed" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 		 text="Kontrola trasy pro rychlost zatáčení" />
 		<text name="gui_ad_lookahead_braking"				 	 text="Kontrola vzad" />
@@ -69,6 +69,8 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 	 text="Maximální rádius objíždění" />
 		<text name="gui_ad_siloEmpty"						 text="Silo je prázdné" />
 		<text name="gui_ad_siloEmpty_tooltip"				 	 text="Reakce řidiče na prázdné silo" />
+		<text name="gui_ad_useFolders"					 	 text="Použít adresáře" />
+		<text name="gui_ad_useFolders_tooltip"			 	 	 text="Umožní používání adresářů pro lepší orientaci v cílech tras" />
 		<text name="gui_ad_wait"						 text="Čekat" />
 		<text name="gui_ad_drive"						 text="Pokračovat" />
 		<text name="gui_ad_yes"							 text="Ano" />
