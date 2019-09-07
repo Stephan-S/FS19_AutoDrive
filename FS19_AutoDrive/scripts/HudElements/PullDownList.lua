@@ -519,13 +519,17 @@ function ADPullDownList:collapse(vehicle, setItem)
         local selectedEntry = self:getListElementByIndex(vehicle, self.hovered);
         if selectedEntry ~= nil and selectedEntry.returnValue ~= nil and selectedEntry.isFolder == false then
             if self.type == ADPullDownList.TYPE_TARGET then
-                vehicle.ad.mapMarkerSelected = selectedEntry.returnValue;
-                vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-                vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+                if AutoDrive.mapMarker[selectedEntry.returnValue] ~= nil then
+                    vehicle.ad.mapMarkerSelected = selectedEntry.returnValue;
+                    vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+                    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+                end;
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
-                vehicle.ad.mapMarkerSelected_Unload = selectedEntry.returnValue;
-                vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
-                vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+                if AutoDrive.mapMarker[selectedEntry.returnValue] ~= nil then
+                    vehicle.ad.mapMarkerSelected_Unload = selectedEntry.returnValue;
+                    vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+                    vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+                end;
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
                 vehicle.ad.unloadFillTypeIndex = selectedEntry.returnValue;
             end;

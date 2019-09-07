@@ -119,7 +119,8 @@ function AutoDrive:removeMapWayPoint(toDelete)
 
 	AutoDrive:broadCastUpdateToClients();
 	
-	AutoDrive:notifyDestinationListeners();
+	AutoDrive:notifyDestinationListeners();	
+	AutoDrive.Hud.lastUIScale = 0;
 end;
 
 function AutoDrive:removeMapMarker(toDelete)
@@ -165,7 +166,9 @@ function AutoDrive:removeMapMarker(toDelete)
 	AutoDrive:MarkChanged();
 	AutoDrive:notifyDestinationListeners();
 	
-	AutoDrive:broadCastUpdateToClients();	
+	AutoDrive:broadCastUpdateToClients();
+	
+	AutoDrive.Hud.lastUIScale = 0;	
 end
 
 function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
