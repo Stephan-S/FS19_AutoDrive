@@ -21,7 +21,7 @@ end;
 function ADHudButton:readImages()
     local images = {};
     local counter = 1;
-    while counter <= 10 do 
+    while counter <= 19 do 
         images[counter] = AutoDrive.directory .. "textures/" .. self.primaryAction .. "_" .. counter .. ".dds";
         counter = counter + 1;
     end;
@@ -161,7 +161,20 @@ function ADHudButton:getNewState(vehicle)
     end;
 
     if self.primaryAction == "input_incLoopCounter" then
-        newState = math.max(0, vehicle.ad.loopCounterSelected - vehicle.ad.loopCounterCurrent) + 1;			
+        newState = math.max(0, vehicle.ad.loopCounterSelected - vehicle.ad.loopCounterCurrent) + 1;	
+        if vehicle.ad.isActive and vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+            if newState > 1 then
+                newState = newState + 9;
+            end;
+        end;
+    end;
+
+    if self.primaryAction == "input_parkVehicle" then
+        if vehicle.ad.parkDestination == nil or vehicle.ad.parkDestination <= 1 then
+            newState = 2;
+        else
+            newState = 1;
+        end;
     end;
 
     return newState;
