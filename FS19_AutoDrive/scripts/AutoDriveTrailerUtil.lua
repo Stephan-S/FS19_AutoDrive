@@ -365,24 +365,21 @@ function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)
             for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do                
                 if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
                     break;
-                end;
- 
+                end; 
                 
                 if (trigger.bunkerSiloArea == nil)  then
-                    if (distance > 30) then
-                        break;
-                    end;                          
-                
-                    if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
-                        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
-                        vehicle.ad.isPaused = true;
-                        vehicle.ad.isUnloading = true;
-                    end;
-
-                    if trailer.getDischargeState ~= nil then
-                        local dischargeState = trailer:getDischargeState()
-                        if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING then
+                    if (distance < 30) then               
+                        if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
+                            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
+                            vehicle.ad.isPaused = true;
                             vehicle.ad.isUnloading = true;
+                        end;
+
+                        if trailer.getDischargeState ~= nil then
+                            local dischargeState = trailer:getDischargeState()
+                            if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING then
+                                vehicle.ad.isUnloading = true;
+                            end;
                         end;
                     end;
                 else
