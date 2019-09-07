@@ -426,8 +426,11 @@ function findAndSetBestTipPoint(vehicle, trailer)
     if trailer.getCanDischargeToObject ~= nil and trailer.getCurrentDischargeNode ~= nil then
         dischargeCondition = (not trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()));
     end;
-    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) then
+    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) then        
         local spec = trailer.spec_trailer;   
+        if spec == nil then
+            return;
+        end;
         originalTipSide = spec.preferedTipSideIndex;
         local suiteableTipSide = nil;
         for i=1, spec.tipSideCount, 1 do

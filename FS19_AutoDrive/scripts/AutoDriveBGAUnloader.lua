@@ -66,6 +66,7 @@ end;
 function AutoDriveBGA:handleBGA(vehicle, dt)    
     if vehicle.bga.state == AutoDriveBGA.STATE_IDLE then
         vehicle.bga.isActive = false;
+        vehicle.bga.shovel = nil;
         return;
     else
         vehicle.bga.isActive = true;
@@ -193,6 +194,8 @@ function AutoDriveBGA:initializeBGA(vehicle)
     vehicle.bga.inShovelRangeTimer = AutoDriveTON:new();
     vehicle.bga.strategyActiveTimer = AutoDriveTON:new();
     vehicle.bga.shovelActiveTimer = AutoDriveTON:new();
+    vehicle.bga.wheelsOnGround = AutoDriveTON:new();
+    vehicle.bga.wheelsOffGround = AutoDriveTON:new();
     vehicle.bga.strategyActiveTimer.elapsedTime = math.huge;
     vehicle.bga.shovelOffsetCounter = 0;
     vehicle.bga.reachedPreTargetLoadPoint = false;
@@ -455,6 +458,14 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
                     --After timeout, assume we reached desired position as good as possible
                     vehicle.bga.shovelState = vehicle.bga.shovelTarget;
                 end;
+            else
+                --make sure shovel hasnt't lifted wheels
+                local allWheelsOnGround = self:checkIfAllWheelsOnGround(vehicle);
+                local onGroundForLongTime = vehicle.bga.wheelsOnGround:timer(allWheelsOnGround, 300, dt)
+                local liftedForLongTime = vehicle.bga.wheelsOffGround:timer(not allWheelsOnGround, 300, dt)
+                if liftedForLongTime or (not onGroundForLongTime) and vehicle.bga.armMain ~= nil then
+                    self:steerAxisTo(vehicle, vehicle.bga.armMain, vehicle.bga.armMain.moveUpSign * math.pi, 33, dt);
+                end;
             end;
         end;
     end;
@@ -521,13 +532,13 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
         local targetRotation = vehicle.bga.shovelRotator.moveUpSign * math.pi;
         if (angle - vehicle.bga.shovelTargetAngle) >= 0 then
             targetRotation = vehicle.bga.shovelRotator.moveDownSign * math.pi;
-        end;  
+        end;
         self:steerAxisTo(vehicle, vehicle.bga.shovelRotator, targetRotation, targetFactorHorizontal, dt);
     end;
 
     if shovelTargetAngleReached and (vehicle.bga.action ~= AutoDriveBGA.ACTION_UNLOAD) then
         if self:getShovelHeight(vehicle) >= vehicle.bga.shovelTargetHeight then 
-            self:steerAxisTo(vehicle, vehicle.bga.armMain, vehicle.bga.armMain.moveDownSign * math.pi, targetFactorHeight, dt);
+            self:steerAxisTo(vehicle, vehicle.bga.armMain, vehicle.bga.armMain.moveDownSign * math.pi, targetFactorHeight, dt);           
             if vehicle.bga.armExtender ~= nil then
                 self:steerAxisToTrans(vehicle, vehicle.bga.armExtender, vehicle.bga.armExtender.moveDownSign * math.pi, targetFactorExtender, dt);
             end;
@@ -552,6 +563,16 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     and shovelTargetAngleReached then
         vehicle.bga.shovelState = vehicle.bga.shovelTarget;
     end;
+end;
+
+function AutoDriveBGA:checkIfAllWheelsOnGround(vehicle)
+    local spec = vehicle.spec_wheels
+    for _,wheel in pairs(spec.wheels) do
+        if wheel.contact ~= Wheels.WHEEL_GROUND_CONTACT then
+            return false
+        end
+    end;
+    return true;
 end;
 
 function AutoDriveBGA:getAngleBetweenTwoRadValues(valueOne, valueTwo)
@@ -607,23 +628,26 @@ end;
 function AutoDriveBGA:findCloseTrailer(bgaVehicle)
     local closestDistance = 50;
     local closest = nil;
+    local closestTrailer = nil;
     for _,vehicle in pairs(g_currentMission.vehicles) do
-        if vehicle ~= bgaVehicle and self:vehicleHasTrailerAttached(vehicle) and vehicle.ad ~= nil then
+        if vehicle ~= bgaVehicle and self:vehicleHasTrailersAttached(vehicle) and vehicle.ad ~= nil then
             if self:getDistanceBetween(vehicle, bgaVehicle) < closestDistance and vehicle.ad.noMovementTimer:done() and (not vehicle.ad.isUnloading) then
-                local hasAttached, trailer = self:vehicleHasTrailerAttached(vehicle);
-                if trailer ~= nil then
-                    trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
-                    if trailerLeftCapacity >= 0.01 then
-                        closestDistance = self:getDistanceBetween(vehicle, bgaVehicle);
-                        closest = vehicle;
+                local hasAttached, trailers = self:vehicleHasTrailersAttached(vehicle);
+                for index, trailer in pairs(trailers) do
+                    if trailer ~= nil then
+                        trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
+                        if trailerLeftCapacity >= 0.01 then
+                            closestDistance = self:getDistanceBetween(trailer, bgaVehicle);
+                            closest = vehicle;
+                            closestTrailer = trailer;
+                        end;
                     end;
                 end;
             end;
         end;
     end;
     if closest ~= nil then
-        local hasAttached, trailer = self:vehicleHasTrailerAttached(closest);
-        return trailer, closest;
+        return closestTrailer, closest;
     end;
     return;
 end;
@@ -635,22 +659,28 @@ function AutoDriveBGA:getDistanceBetween(vehicleOne, vehicleTwo)
     return math.sqrt(math.pow(x2-x1,2) + math.pow(z2-z1,2));
 end;
 
-function AutoDriveBGA:vehicleHasTrailerAttached(vehicle)
+function AutoDriveBGA:vehicleHasTrailersAttached(vehicle)
     local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle);
+    local tipTrailers = {};
     if trailers ~= nil then
         for _,trailer in pairs(trailers) do
             if trailer.typeName == "trailer" then
-                return true, trailer;
+                table.insert(tipTrailers, trailer);
             end;
         end;
     end;
     
-    return false;
+    return (#tipTrailers > 0), tipTrailers;
 end;
 
 function AutoDriveBGA:checkCurrentTrailerStillValid(vehicle)
     if vehicle.bga.targetTrailer ~= nil and vehicle.bga.targetDriver ~= nil then
-        return math.abs(vehicle.bga.targetDriver.lastSpeedReal) < 0.002;
+        local tooFast = math.abs(vehicle.bga.targetDriver.lastSpeedReal) > 0.002;
+        local trailerFillLevel = 0;
+        local trailerLeftCapacity = 0;
+        trailerFillLevel, trailerLeftCapacity  = getFillLevelAndCapacityOf(trailer);
+        local tooFull = trailerLeftCapacity <= 0.01;
+        return not (tooFull or tooFast);
     end;
     
     return false;
@@ -807,14 +837,14 @@ function AutoDriveBGA:driveToSiloClosePoint(vehicle, dt)
 end;
 
 function AutoDriveBGA:driveToSiloReversePoint(vehicle, dt)
-    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 22);
+    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 18);
     vehicle.bga.driveStrategy = self:getDriveStrategyToTarget(vehicle, false, dt);
     
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_LOW;
 
     local angleToSilo = self:getAngleToTarget(vehicle);
 
-    if self:getDistanceToTarget(vehicle) <= 13 or (math.abs(angleToSilo) >= 175) then
+    if self:getDistanceToTarget(vehicle) <= 9 or (math.abs(angleToSilo) >= 177) then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOSILO_REVERSE_STRAIGHT;
     end;
 
@@ -822,13 +852,13 @@ function AutoDriveBGA:driveToSiloReversePoint(vehicle, dt)
 end;
 
 function AutoDriveBGA:driveToSiloReverseStraight(vehicle, dt)
-    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 118);
+    vehicle.bga.targetPoint = self:getTargetForShovelOffset(vehicle, 68);
     vehicle.bga.driveStrategy = self:getDriveStrategyToTarget(vehicle, false, dt);
     
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_LOW;
 
     local angleToSilo = self:getAngleToTarget(vehicle);
-    if self:getDistanceToTarget(vehicle) <= 103  or (math.abs(angleToSilo) >= 175) then
+    if self:getDistanceToTarget(vehicle) <= 53  or (math.abs(angleToSilo) >= 177) then
         vehicle.bga.action = AutoDriveBGA.ACTION_LOAD_ALIGN;
     end;
 
