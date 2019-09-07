@@ -70,6 +70,8 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Maximale Omweg als Bestemmingen moeten worden vermeden" />
 		<text name="gui_ad_siloEmpty"						 text="Als de Silo leeg is" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Hoe een Chauffeur voor Ophalen en Afleveren reageert op een lege Silo" />
+		<text name="gui_ad_useFolders"					 	 text="Gebruik mappen" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Gebruik mappen om bestemmingen te structureren" />
 		<text name="gui_ad_wait"							 text="Wachten" />
 		<text name="gui_ad_drive"							 text="Doorrijden" />
 		<text name="gui_ad_yes"								 text="Ja" />
