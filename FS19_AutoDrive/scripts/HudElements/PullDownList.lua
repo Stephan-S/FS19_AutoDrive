@@ -522,7 +522,7 @@ function ADPullDownList:collapse(vehicle, setItem)
                 if AutoDrive.mapMarker[selectedEntry.returnValue] ~= nil then
                     vehicle.ad.mapMarkerSelected = selectedEntry.returnValue;
                     vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-                    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
+                    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;                    
                 end;
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
                 if AutoDrive.mapMarker[selectedEntry.returnValue] ~= nil then
@@ -533,6 +533,8 @@ function ADPullDownList:collapse(vehicle, setItem)
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
                 vehicle.ad.unloadFillTypeIndex = selectedEntry.returnValue;
             end;
+            
+            AutoDriveUpdateDestinationsEvent:sendEvent(vehicle);
         end;
     end;
     AutoDrive.Hud.lastUIScale = 0;
