@@ -427,30 +427,33 @@ function findAndSetBestTipPoint(vehicle, trailer)
         dischargeCondition = (not trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()));
     end;
     if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) then
-        local spec = trailer.spec_trailer;        
-        if spec ~= nil then
-            if spec.lastChangedTipPoint == nil then
-                spec.lastChangedTipPoint = 0;
+        local spec = trailer.spec_trailer;   
+        originalTipSide = spec.preferedTipSideIndex;
+        local suiteableTipSide = nil;
+        for i=1, spec.tipSideCount, 1 do
+            if trailer:getCanTogglePreferdTipSide() then
+                trailer:setPreferedTipSide(i);
+                trailer:updateRaycast(trailer:getCurrentDischargeNode());
             end;
-            if spec.lastChangedTipPoint > 10 then
-                local originalTipSide = spec.preferedTipSideIndex;
-                originalTipSide = originalTipSide + 1;
-                if originalTipSide > spec.tipSideCount then
-                    originalTipSide = 1;
+            local canDischarge = trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode());
+            if canDischarge then
+                if suiteableTipSide == nil or (i == originalTipSide) then
+                    suiteableTipSide = i;
                 end;
-                spec.lastChangedTipPoint = 0;
-                if trailer:getCanTogglePreferdTipSide() then
-                    trailer:setPreferedTipSide(originalTipSide);
-                end;
-            else
-                spec.lastChangedTipPoint = spec.lastChangedTipPoint + 1;
-            end;
-            local originalTipSide = spec.preferedTipSideIndex;
-            --print("counter: " .. spec.lastChangedTipPoint .. " tipPoint: " .. originalTipSide)
+            end;       
         end;
-    -- else
-    --     print("can discharge: " .. ADBoolToString(trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode())) .. " isLoading: " .. ADBoolToString(vehicle.ad.isLoading) .. " isUnloading: " .. ADBoolToString(vehicle.ad.isUnloading));
-    end
+        if suiteableTipSide ~= nil then
+            if trailer:getCanTogglePreferdTipSide() then
+                trailer:setPreferedTipSide(suiteableTipSide);
+                trailer:updateRaycast(trailer:getCurrentDischargeNode());
+            end;
+        else
+            if trailer:getCanTogglePreferdTipSide() then
+                trailer:setPreferedTipSide(originalTipSide);
+                trailer:updateRaycast(trailer:getCurrentDischargeNode());
+            end;
+        end;    
+    end;
 end;
 
 function isTrailerInBunkerSiloArea(trailer, trigger)
