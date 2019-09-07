@@ -57,6 +57,8 @@ function AutoDriveUpdateEvent:new(vehicle)
 	self.targetSelected_Unload = vehicle.ad.targetSelected_Unload;
 	self.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload;
 	self.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload;
+
+	self.onRouteToPark = vehicle.ad.onRouteToPark;
 	
 	self.enableAI = vehicle.ad.enableAI;
 	self.disableAI = vehicle.ad.disableAI;
@@ -143,6 +145,8 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt16Or1337(streamId, self.targetSelected_Unload);
 	streamWriteInt16Or1337(streamId, self.mapMarkerSelected_Unload);
 	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
+
+	streamWriteBool(streamId, self.onRouteToPark);
 	
 	streamWriteInt8(streamId, self.enableAI);
 	streamWriteInt8(streamId, self.disableAI);
@@ -234,6 +238,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local mapMarkerSelected_Unload = streamReadInt16Or1337(streamId);
 	local nameOfSelectedTarget_Unload = streamReadStringOrEmpty(streamId);
 	
+	local onRouteToPark = streamReadBool(streamId);
+	
 	local enableAI = streamReadInt8(streamId);
 	local disableAI = streamReadInt8(streamId);
 	
@@ -301,6 +307,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 			vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload;
 		end;
 		vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload;
+
+		vehicle.ad.onRouteToPark = onRouteToPark;
 		
 		vehicle.ad.enableAI = enableAI;
 		vehicle.ad.disableAI = disableAI;
@@ -478,6 +486,10 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	remained = remained and self.combineState == oldEvent.combineState;
 	if self.combineState ~= oldEvent.combineState then
 		reason = reason .. " combineState";
+	end;
+	remained = remained and self.onRouteToPark == oldEvent.onRouteToPark;
+	if self.onRouteToPark ~= oldEvent.onRouteToPark then
+		reason = reason .. " onRouteToPark";
 	end;
 
 	if reason ~= "" then
