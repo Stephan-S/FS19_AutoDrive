@@ -503,7 +503,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     local acceleration = 1;
     if vehicle.ad.trafficDetected == true then
         vehicle.ad.timeTillDeadLock = 15000;
-        if math.abs(vehicle.lastSpeedReal) > 0.05 then
+        if math.abs(vehicle.lastSpeedReal) > 0.0013 then
             finalSpeed = 0.001;
             acceleration = -0.6;
             AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.5);

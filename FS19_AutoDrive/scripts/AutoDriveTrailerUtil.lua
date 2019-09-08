@@ -234,7 +234,7 @@ function getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selecte
         if fillType == 1 or fillType == 32 or fillType == 33 or (fillType == 34 and hasOnlyDieselForFuel) then --1:UNKNOWN 32:AIR 33:AdBlue 34:Diesel
             fillTypeIsProhibited = true;
         end;
-        if selectedFillType ~= nil and fillType ~= selectedFillType then
+        if selectedFillType ~= nil and fillType == selectedFillType then
             isSelectedFillType = true;
         end;
         --print("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  free Capacity: " ..  object:getFillUnitFreeCapacity(fillUnitIndex));

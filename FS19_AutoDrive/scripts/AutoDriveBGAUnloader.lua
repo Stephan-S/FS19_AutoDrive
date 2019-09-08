@@ -896,7 +896,7 @@ end;
 function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
     if vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_REVERSE_LEFT or vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_REVERSE_RIGHT then
         local finalSpeed = 8;
-        local acc = 1;
+        local acc = 0.4;
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;					
@@ -916,7 +916,7 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         self:driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, lx, lz, finalSpeed, 1);
     elseif vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_FORWARD_LEFT or vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_FORWARD_RIGHT then
         local finalSpeed = 8;
-        local acc = 1;
+        local acc = 0.4;
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;
@@ -936,7 +936,7 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         self:driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1);      
     else        
         local finalSpeed = 10;
-        local acc = 1;
+        local acc = 0.6;
         local allowedToDrive = true;
 
         local node = vehicle.components[1].node;					
