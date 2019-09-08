@@ -7,13 +7,13 @@ function AutoDrive:handleTrailers(vehicle, dt)
             return
         end;     
                 
-        local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers);
+        local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex);
 
         AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers);      
 
         handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt);
 
-        fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables);
+        fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables, vehicle.ad.unloadFillTypeIndex);
         AutoDrive:checkTrailerStatesAndAttributes(vehicle, allFillables); 
         handleTrailersLoad(vehicle, allFillables, fillLevel, leftCapacity);
     end;
@@ -170,13 +170,13 @@ function getDistanceToTargetPosition(vehicle)
     return AutoDrive:getDistance(x,z, destination.x, destination.z);
 end;
 
-function getFillLevelAndCapacityOfAll(trailers) 
+function getFillLevelAndCapacityOfAll(trailers, selectedFillType) 
     local leftCapacity = 0;
     local fillLevel = 0;
 
     if trailers ~= nil then    
         for _,trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailer);         
+            local trailerFillLevel, trailerLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailer, selectedFillType);         
             fillLevel = fillLevel + trailerFillLevel;
             leftCapacity = leftCapacity + trailerLeftCapacity;   
         end;
@@ -232,9 +232,11 @@ function getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selecte
     local isSelectedFillType = false;
     for fillType, isSupported in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
         if fillType == 1 or fillType == 32 or fillType == 33 or (fillType == 34 and hasOnlyDieselForFuel) then --1:UNKNOWN 32:AIR 33:AdBlue 34:Diesel
+            --print("Found prohibited filltype: " .. fillType);
             fillTypeIsProhibited = true;
         end;
         if selectedFillType ~= nil and fillType == selectedFillType then
+            --print("Found selected filltype: " .. fillType);
             isSelectedFillType = true;
         end;
         --print("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  free Capacity: " ..  object:getFillUnitFreeCapacity(fillUnitIndex));
@@ -280,6 +282,7 @@ function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
         else
             AutoDrive:setTrailerCoverOpen(trailers, true);
         end;
+        fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex);
     end;
 
     stopDischargingWhenTrailerEmpty(vehicle, trailers, fillLevel);
