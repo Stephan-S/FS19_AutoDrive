@@ -280,7 +280,9 @@ function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
         if getDistanceToTargetPosition(vehicle) > 25 and getDistanceToUnloadPosition(vehicle) > 25 then
             AutoDrive:setTrailerCoverOpen(trailers, false);
         else
-            AutoDrive:setTrailerCoverOpen(trailers, true);
+            if vehicle.ad.mode ~= AutoDrive.MODE_LOAD or getDistanceToUnloadPosition(vehicle) <= 25 then
+                AutoDrive:setTrailerCoverOpen(trailers, true);
+            end;
         end;
         fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex);
     end;
