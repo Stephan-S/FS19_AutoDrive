@@ -363,9 +363,13 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local distanceToLookAhead = AutoDrive:getSetting("lookAheadBraking");
 
         local totalMass = vehicle:getTotalMass(false);        
-        local massFactor = math.max(1, math.min(2, (totalMass-10)/20));
-        local speedFactor = math.max(1, math.min(3, ((vehicle.lastSpeedReal*3600)-20)/40))
-        local distanceToLookAhead = math.min(distanceToLookAhead*massFactor*speedFactor, 100);
+        local massFactor = math.max(1, math.min(3, (totalMass+20)/30));
+        local speedFactor = math.max(0.5, math.min(4, (((vehicle.lastSpeedReal*3600)+10)/20.0) ))
+        if speedFactor <= 1 then
+            massFactor = 1;
+        end;
+        distanceToLookAhead = math.min(distanceToLookAhead*massFactor*speedFactor, 100);
+        --print("Default: " .. AutoDrive:getSetting("lookAheadBraking") .. " massFactor: " .. massFactor .. " speedFactor: " .. speedFactor .. " result: " .. distanceToLookAhead)
 
         local pointsToLookAhead = 20;
         local doneCheckingRoute = false;
