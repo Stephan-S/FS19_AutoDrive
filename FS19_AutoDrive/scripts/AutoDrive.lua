@@ -398,6 +398,16 @@ end;
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 	local vehicle = g_currentMission.controlledVehicle;
+	
+	if vehicle ~= nil then
+		if vehicle.ad.sToolTip ~= "" then
+			if vehicle.ad.nToolTipWait <= 0 then
+				vehicle.ad.sToolTip = "";
+			else
+				vehicle.ad.nToolTipWait = vehicle.ad.nToolTipWait - 1;
+			end;
+		end;
+	end;
 
 	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.lastMouseState ~= g_inputBinding:getShowMouseCursor() then
 		AutoDrive:onToggleMouse(vehicle);
@@ -406,6 +416,8 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button);
 	end;
+	
+	
 end; 
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown) 

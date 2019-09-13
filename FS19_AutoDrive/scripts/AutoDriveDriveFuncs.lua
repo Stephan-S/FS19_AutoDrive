@@ -186,19 +186,7 @@ function AutoDrive:handlePrintMessage(vehicle, dt)
                 AutoDrive.print.nextReferencedVehicle = nil;
                 AutoDrive.print.currentMessageActiveSince = 0;
             end;
-		end;
-
-		if vehicle.ad.sToolTip ~= "" then
-			if vehicle.ad.nToolTipWait <= 0 then
-				if vehicle.ad.nToolTipTimer > 0 then
-                    vehicle.ad.nToolTipTimer = vehicle.ad.nToolTipTimer - dt;
-				else
-					vehicle.ad.sToolTip = "";
-				end;
-			else
-				vehicle.ad.nToolTipWait = vehicle.ad.nToolTipWait - dt;
-			end;
-		end;		
+		end;	
 	end;
 end;
 

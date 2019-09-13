@@ -181,19 +181,18 @@ function ADHudButton:getNewState(vehicle)
 end;
 
 function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
-    if button == 1 and isDown then
-        AutoDrive:InputHandling(vehicle, self.primaryAction);
-        return true;
-    elseif (button == 3 or button == 2) and isDown then
-        AutoDrive:InputHandling(vehicle, self.secondaryAction);
-        return true;
-    end;
+    if self.isVisible then
+        if button == 1 and isDown then
+            AutoDrive:InputHandling(vehicle, self.primaryAction);
+            return true;
+        elseif (button == 3 or button == 2) and isDown then
+            AutoDrive:InputHandling(vehicle, self.secondaryAction);
+            return true;
+        end;
 
-    if (not isDown) and (not isUp) and self.isVisible then
-        if vehicle.ad.sToolTip ~= self.toolTip then
+        if (not isDown) and (not isUp) and self.isVisible then
             vehicle.ad.sToolTip = self.toolTip;
-            vehicle.ad.nToolTipTimer = 6000;
-            vehicle.ad.nToolTipWait = 300;            
+            vehicle.ad.nToolTipWait = 5;       
         end;
     end;
 

@@ -232,7 +232,7 @@ function AutoDriveHud:drawHud(vehicle)
 			end;
 		end;                
 
-		if vehicle.ad.sToolTip ~= "" and vehicle.ad.nToolTipWait <= 0 then
+		if vehicle.ad.sToolTip ~= "" then
 			textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip),4,string.len(g_i18n:getText(vehicle.ad.sToolTip)));
 		end;
 		

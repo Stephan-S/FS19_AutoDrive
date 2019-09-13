@@ -513,7 +513,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
                     and ((not vehicle.ad.trailerStartedLoadingAtTrigger) 
                         or  (trigger ~= vehicle.ad.trigger 
                             and (not vehicle.ad.trigger.isLoading))
-                        or  trigger.stoppedTimer.elapsedTime > 100) then -- and  and vehicle.ad.isLoading == false                      
+                        or  trigger.stoppedTimer.elapsedTime > 3000) then -- and  and vehicle.ad.isLoading == false                      
                         if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and AutoDrive:getSetting("refillSeedAndFertilizer") then  
                             local storedFillType = vehicle.ad.unloadFillTypeIndex;
                             local toCheck = {13, 43, 44};
@@ -585,6 +585,7 @@ function AutoDrive:continueAfterLoadOrUnload(vehicle)
 end;
 
 function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType)
+    --print("startLoadingAtTrigger");
     trigger.autoStart = true
     trigger.selectedFillType = fillType   
     trigger:onFillTypeSelection(fillType);
