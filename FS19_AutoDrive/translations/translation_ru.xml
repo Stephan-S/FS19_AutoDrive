@@ -70,6 +70,8 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Максимальный объезд при обходе целей" />
 		<text name="gui_ad_siloEmpty"						 text="Если бункер пуст" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Как водитель реагирует на пустой бункер в режиме 'Загрузка и доставка'" />
+		<text name="gui_ad_useFolders"					 	 text="Использовать папки" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Использовать папки, чтобы структурировать места назначения" />
 		<text name="gui_ad_wait"							 text="Ожидать" />
 		<text name="gui_ad_drive"							 text="Следовать к" />
 		<text name="gui_ad_yes"								 text="Да" />
@@ -80,10 +82,10 @@
 		<text name="ad_drive_to_parkpos"					 text="Еду на стоянку" />
 		<text name="ad_drive_to_startpos"					 text="Двигаюсь к старту" />
 		<text name="ad_drive_to_unloadpos"					 text="Еду на разгрузку" />
-		<text name="gui_ad_autoConnect_start"				 text="Автосоединение (начало)" />
 		<text name="ad_bga_init"					 		 text="Инициализация" />
 		<text name="ad_bga_waiting"					 		 text="В ожидании прицепа/бункера" />
 		<text name="ad_bga_active"					 		 text="Активно" />
+		<text name="gui_ad_autoConnect_start"				 text="Автосоединение (начало)" />
 		<text name="gui_ad_autoConnect_start_tooltip"		 text="Автоматическое подключение подходящего узла в начале записи" />
 		<text name="gui_ad_autoConnect_end"					 text="Автосоединение (конец)" />
 		<text name="gui_ad_autoConnect_end_tooltip"			 text="Автоматическое подключение подходящего узла в конце записи" />
