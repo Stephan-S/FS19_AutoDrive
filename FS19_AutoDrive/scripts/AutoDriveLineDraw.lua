@@ -93,5 +93,5 @@ function AutoDrive:parameterizeLine(line, startPoint, targetPoint, color, visibl
     setScale(line, 1, 1, distToNextPoint);
 
     --- Update line color
-    setShaderParameter(line, 'shapeColor', color.r, color.g, color.b, color.a, false);
+    setShaderParameter(line, 'shapeColor', color.r / 2, color.g / 2, color.b / 2, color.a, false);
 end;
