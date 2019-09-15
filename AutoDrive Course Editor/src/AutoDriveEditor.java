@@ -173,7 +173,7 @@ public class AutoDriveEditor extends JFrame {
         NodeList markerList = doc.getElementsByTagName("mapmarker");
         LinkedList<MapMarker> mapMarkers = new LinkedList<>();
 
-        TreeMap<Integer, String> mapMarkerTree = new TreeMap<>();
+        TreeMap<Integer, MapMarker> mapMarkerTree = new TreeMap<>();
         for (int temp = 0; temp < markerList.getLength(); temp++) {
             Node markerNode = markerList.item(temp);
             if (markerNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -181,6 +181,7 @@ public class AutoDriveEditor extends JFrame {
 
                 NodeList idNodeList = eElement.getElementsByTagName("id");
                 NodeList nameNodeList = eElement.getElementsByTagName("name");
+                NodeList groupNodeList = eElement.getElementsByTagName("group");
 
                 for (int markerIndex = 0; markerIndex<idNodeList.getLength(); markerIndex++ ) {
                     Node node = (Node) idNodeList.item(markerIndex).getChildNodes().item(0);
@@ -188,7 +189,13 @@ public class AutoDriveEditor extends JFrame {
 
                     node = (Node) nameNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerName = node.getNodeValue();
-                    mapMarkerTree.put((int)Double.parseDouble(markerNodeId), markerName);
+
+                    node = (Node) groupNodeList.item(markerIndex).getChildNodes().item(0);
+                    String markerGroup = node.getNodeValue();
+
+                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0);
+                    MapMarker mapMarker = new MapMarker(dummyNode, markerName, markerGroup);
+                    mapMarkerTree.put((int)Double.parseDouble(markerNodeId), mapMarker);
                 }
             }
         }
@@ -259,9 +266,9 @@ public class AutoDriveEditor extends JFrame {
                 }
 
 
-                for (Map.Entry<Integer, String> entry : mapMarkerTree.entrySet())
+                for (Map.Entry<Integer, MapMarker> entry : mapMarkerTree.entrySet())
                 {
-                    mapMarkers.add(new MapMarker(nodes.get(entry.getKey()-1), entry.getValue()));
+                    mapMarkers.add(new MapMarker(nodes.get(entry.getKey()-1), entry.getValue().name, entry.getValue().group));
                 }
 
                 for (int i=0; i<ids.length; i++) {
@@ -564,6 +571,10 @@ public class AutoDriveEditor extends JFrame {
                 Element markerName = doc.createElement("name");
                 markerName.appendChild(doc.createTextNode(mapMarker.name));
                 newMapMarker.appendChild(markerName);
+
+                Element markerGroup = doc.createElement("group");
+                markerGroup.appendChild(doc.createTextNode(mapMarker.group));
+                newMapMarker.appendChild(markerGroup);
 
                 markerNode.appendChild(newMapMarker);
                 mapMarkerCount += 1;

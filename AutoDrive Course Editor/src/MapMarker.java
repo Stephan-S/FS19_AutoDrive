@@ -5,10 +5,12 @@ public class MapMarker implements Comparable {
 
     public MapNode mapNode;
     public String name;
+    public String group;
 
-    public MapMarker (MapNode mapNode, String name) {
+    public MapMarker (MapNode mapNode, String name, String group) {
         this.name = name;
         this.mapNode = mapNode;
+        this.group = group;
     }
 
 

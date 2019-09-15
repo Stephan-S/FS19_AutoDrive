@@ -282,7 +282,7 @@ public class MapPanel extends JPanel{
 
     public void createDestinationAt(MapNode mapNode, String destinationName) {
         if (mapNode != null && destinationName != null && destinationName.length() > 0) {
-            MapMarker mapMarker = new MapMarker(mapNode, destinationName);
+            MapMarker mapMarker = new MapMarker(mapNode, destinationName, "All");
             this.roadMap.addMapMarker(mapMarker);
         }
     }
