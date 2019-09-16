@@ -399,7 +399,7 @@ end;
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 	local vehicle = g_currentMission.controlledVehicle;
 	
-	if vehicle ~= nil then
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.nToolTipWait ~= nil then
 		if vehicle.ad.sToolTip ~= "" then
 			if vehicle.ad.nToolTipWait <= 0 then
 				vehicle.ad.sToolTip = "";
