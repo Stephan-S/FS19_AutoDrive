@@ -87,5 +87,8 @@ public class EditorListener implements ActionListener {
         if (e.getActionCommand() == "FourTimesMap") {
             editor.isFourTimesMap = editor.fourTimesMap.isSelected();
         }
+        if (e.getActionCommand() == "SixteenTimesMap") {
+            editor.isSixteenTimesMap = editor.sixteenTimesMap.isSelected();
+        }
     }
 }

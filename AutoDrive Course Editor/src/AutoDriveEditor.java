@@ -48,10 +48,12 @@ public class AutoDriveEditor extends JFrame {
     public JToggleButton createNode;
     public JToggleButton createDestination;
     public JToggleButton fourTimesMap;
+    public JToggleButton sixteenTimesMap;
 
     public MapNode selected = null;
 
     public boolean isFourTimesMap = false;
+    public boolean isSixteenTimesMap = false;
 
     public int editorState = EDITORSTATE_MOVING;
 
@@ -120,10 +122,15 @@ public class AutoDriveEditor extends JFrame {
         createDestination.setActionCommand("Create Destinations");
         buttonPanel.add(createDestination);
 
-        fourTimesMap = new JToggleButton("Four times Map");
+        fourTimesMap = new JToggleButton(" 4x");
         fourTimesMap.addActionListener(this.editorListener);
         fourTimesMap.setActionCommand("FourTimesMap");
         buttonPanel.add(fourTimesMap);
+
+        sixteenTimesMap = new JToggleButton(" 16x");
+        sixteenTimesMap.addActionListener(this.editorListener);
+        sixteenTimesMap.setActionCommand("SixteenTimesMap");
+        buttonPanel.add(sixteenTimesMap);
 
         saveButton = new JButton("Save");
         saveButton.addActionListener(this.editorListener);
@@ -256,9 +263,13 @@ public class AutoDriveEditor extends JFrame {
                     double y = Double.parseDouble(yValues[i]);
                     double z = Double.parseDouble(zValues[i]);
 
-                    if (isFourTimesMap) {
+                    if (isFourTimesMap && !isSixteenTimesMap) {
                         x = (x)/2.0;
                         z = (z)/2.0;
+                    }
+                    if (isSixteenTimesMap && !isFourTimesMap) {
+                        x = (x)/4.0;
+                        z = (z)/4.0;
                     }
 
                     MapNode mapNode = new MapNode(id, x, y, z);
@@ -421,8 +432,13 @@ public class AutoDriveEditor extends JFrame {
                     String xPositions = "";
                     for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
                         MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        if (isFourTimesMap) {
-                            xPositions += mapNode.x * 2.0;
+                        if (isFourTimesMap || isSixteenTimesMap) {
+                            if (isFourTimesMap) {
+                                xPositions += mapNode.x * 2.0;
+                            }
+                            else {
+                                xPositions += mapNode.x * 4.0;
+                            }
                         }
                         else {
                             xPositions += mapNode.x;
