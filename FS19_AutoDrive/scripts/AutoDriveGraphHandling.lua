@@ -285,10 +285,12 @@ function AutoDrive:handleRecalculation(vehicle)
 				AutoDrive.recalculationPercentage = AutoDrive:ContiniousRecalculation();
 				AutoDrive.Recalculation.nextCalculationSkipFrames = 0;
 
+				AutoDrive.recalculationPercentage = math.min(AutoDrive.recalculationPercentage, 100);
+
 				AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%");
 				AutoDrive.print.showMessageFor = 500;
 				if AutoDrive.recalculationPercentage == 100 then
-					AutoDrive.print.showMessageFor = 12000;
+					AutoDrive.print.showMessageFor = 5000;
 				end;
 			else
 				AutoDrive.Recalculation.nextCalculationSkipFrames =  AutoDrive.Recalculation.nextCalculationSkipFrames - 1;

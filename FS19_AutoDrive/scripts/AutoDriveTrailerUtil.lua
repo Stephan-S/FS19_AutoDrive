@@ -245,7 +245,7 @@ function getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selecte
         fillTypeIsProhibited = false;
     end;
 
-    if object:getFillUnitCapacity(fillUnitIndex) > 1000 and (not fillTypeIsProhibited) then 
+    if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then 
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex);
     end;
     return 0, 0;
