@@ -180,6 +180,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                         drivingEnabled = true;
                     else
                         AutoDrive:getVehicleToStop(vehicle, false, dt);
+                        vehicle.ad.currentTrailer = 1;
                     end;
 
                     return true;
