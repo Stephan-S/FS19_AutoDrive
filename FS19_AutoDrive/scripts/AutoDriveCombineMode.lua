@@ -181,6 +181,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     else
                         AutoDrive:getVehicleToStop(vehicle, false, dt);
                         vehicle.ad.currentTrailer = 1;
+                        vehicle.ad.designatedTrailerFillLevel = math.huge;
                     end;
 
                     return true;
@@ -293,6 +294,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
         vehicle.ad.isPaused = true;                    
         vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;        
         vehicle.ad.currentTrailer = 1;
+        vehicle.ad.designatedTrailerFillLevel = math.huge;
     end;
     
     vehicle.ad.currentWayPoint = 1;
