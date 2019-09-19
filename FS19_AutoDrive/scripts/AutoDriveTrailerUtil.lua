@@ -466,12 +466,17 @@ end;
 
 function isTrailerInBunkerSiloArea(trailer, trigger)
     if trailer.getCurrentDischargeNode ~= nil then
-        local x,y,z = getWorldTranslation(trailer:getCurrentDischargeNode().node)
-        local tx,ty,tz = x,y,z+1
-        local x1,z1 = trigger.bunkerSiloArea.sx,trigger.bunkerSiloArea.sz
-        local x2,z2 = trigger.bunkerSiloArea.wx,trigger.bunkerSiloArea.wz
-        local x3,z3 = trigger.bunkerSiloArea.hx,trigger.bunkerSiloArea.hz
-        return MathUtil.hasRectangleLineIntersection2D(x1,z1,x2-x1,z2-z1,x3-x1,z3-z1,x,z,tx-x,tz-z)
+        local dischargeNode = trailer:getCurrentDischargeNode()
+        if dischargeNode ~= nil then            
+            local x,y,z = getWorldTranslation(dischargeNode.node)
+            local tx,ty,tz = x,y,z+1
+            if trigger ~= nil and trigger.bunkerSiloArea ~= nil then
+                local x1,z1 = trigger.bunkerSiloArea.sx,trigger.bunkerSiloArea.sz
+                local x2,z2 = trigger.bunkerSiloArea.wx,trigger.bunkerSiloArea.wz
+                local x3,z3 = trigger.bunkerSiloArea.hx,trigger.bunkerSiloArea.hz
+                return MathUtil.hasRectangleLineIntersection2D(x1,z1,x2-x1,z2-z1,x3-x1,z3-z1,x,z,tx-x,tz-z)
+            end;
+        end;
     end;
     return false;
 end;

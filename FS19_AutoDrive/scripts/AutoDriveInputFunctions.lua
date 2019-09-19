@@ -429,7 +429,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive:callDriverToCombine(vehicle);
 		end;
 	end;
-
 	
 	if input == "input_setParkDestination" then
 		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
