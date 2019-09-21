@@ -728,6 +728,10 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             stepsThisFrame = stepsThisFrame + 1;
 
             local node = pf.wayPoints[pf.smoothIndex];
+            local previousNode = nil;
+            if pf.smoothIndex > 1 then
+                previousNode = pf.wayPoints[pf.smoothIndex-1];
+            end;
             local worldPos = pf.wayPoints[pf.smoothIndex];
 
             if pf.totalEagerSteps == nil or pf.totalEagerSteps == 0 then
@@ -758,6 +762,14 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 if angle > 60 then
                     hasCollision = true;
                 end;        
+                if previousNode ~= nil then
+                    angle = AutoDrive:angleBetween( 	{x=	node.x	-	previousNode.x, z = node.z - previousNode.z },
+                                                    {x=	nodeAhead.x-	node.x, z = nodeAhead.z - node.z } )
+                    angle = math.abs(angle);
+                    if angle > 60 then
+                        hasCollision = true;
+                    end; 
+                end;
                 
                 local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 0, worldPos.z)
                 local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeAhead.x, 0, nodeAhead.z)
@@ -868,45 +880,58 @@ function AutoDrivePathFinder:checkForCombineCollision(pf, cornerX, cornerZ, corn
     boundingBox[4] ={ 	x = corner4X,
                         y = 0,
                         z = corner4Z; };
+    
+    local objectsToCheck = {};
+    table.insert(objectsToCheck, pf.combine);
+    if pf.combine ~= nil and pf.combine.getAttachedImplements ~= nil then
+        for i, implement in pairs(pf.combine:getAttachedImplements()) do
+		    if implement.object ~= nil then
+                table.insert(objectsToCheck, implement.object);
+            end;
+		end;
+    end;
+    
+    for _,object in pairs(objectsToCheck) do
+        if object ~= nil and object.components ~= nil and object.sizeWidth ~= nil and object.sizeLength ~= nil and object.rootNode ~= nil then     
+            local otherWidth = object.sizeWidth;
+            local otherLength = object.sizeLength;
+            local otherPos = {};
+            otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( object.components[1].node ); 
 
-    if pf.combine ~= nil and pf.combine.components ~= nil and pf.combine.sizeWidth ~= nil and pf.combine.sizeLength ~= nil and pf.combine.rootNode ~= nil then     
-        local otherWidth = pf.combine.sizeWidth;
-        local otherLength = pf.combine.sizeLength;
-        local otherPos = {};
-        otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( pf.combine.components[1].node ); 
+            local rx,ry,rz = localDirectionToWorld(object.components[1].node, 0, 0, 1);
 
-        local rx,ry,rz = localDirectionToWorld(pf.combine.components[1].node, 0, 0, 1);
+            local otherVectorToWp = {};
+            otherVectorToWp.x = rx;
+            otherVectorToWp.z = rz;
 
-        local otherVectorToWp = {};
-        otherVectorToWp.x = rx;
-        otherVectorToWp.z = rz;
+            local otherPos2 = {};
+            otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+            otherPos2.y = 0;
+            otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+            local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
 
-        local otherPos2 = {};
-        otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
-        otherPos2.y = 0;
-        otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
-        local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
+            local otherBoundingBox = {};
+            otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                    y = 0,
+                                    z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
 
-        local otherBoundingBox = {};
-        otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                y = 0,
-                                z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+            otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                    y = 0,
+                                    z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+            otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                    y = 0,
+                                    z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
 
-        otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                y = 0,
-                                z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-        otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                y = 0,
-                                z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-
-        otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-                                y = 0,
-                                z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-        
-        if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
-            return true;
+            otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                    y = 0,
+                                    z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+            
+            if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
+                return true;
+            end;
         end;
     end;
+
     return false;
 end;
 

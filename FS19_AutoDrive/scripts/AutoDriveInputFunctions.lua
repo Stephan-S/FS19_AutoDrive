@@ -407,19 +407,29 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.isPaused == true then
 			vehicle.ad.isPaused = false;
 			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
-				local closest = AutoDrive:findClosestWayPoint(vehicle);
-				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
-				vehicle.ad.wayPointsChanged = true;
-				vehicle.ad.currentWayPoint = 1;
+				if getDistanceToTargetPosition(vehicle) < 10 then
+					local closest = AutoDrive:findClosestWayPoint(vehicle);
+					vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
+					vehicle.ad.wayPointsChanged = true;
+					vehicle.ad.currentWayPoint = 1;
 
-				vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
-				vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-				if vehicle.ad.currentCombine ~= nil then
-					vehicle.ad.currentCombine.ad.currentDriver = nil;
-					vehicle.ad.currentCombine = nil;
+					vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
+					vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
+					if vehicle.ad.currentCombine ~= nil then
+						vehicle.ad.currentCombine.ad.currentDriver = nil;
+						vehicle.ad.currentCombine = nil;
+					end;
+					AutoDrive.waitingUnloadDrivers[vehicle] = nil;
+					vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+				else
+					--Drive to startpos with path finder
+					vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
+					AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
+					if vehicle.ad.currentCombine ~= nil then
+						vehicle.ad.currentCombine.ad.currentDriver = nil;
+						vehicle.ad.currentCombine = nil;
+					end;
 				end;
-				AutoDrive.waitingUnloadDrivers[vehicle] = nil;
-				vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
 			end;
 		end;
 	end;
