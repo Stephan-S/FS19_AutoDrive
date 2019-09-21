@@ -122,7 +122,7 @@ AutoDrive.settings.parkInField = {
     text= "gui_ad_parkInField",                                    
     tooltip= "gui_ad_parkInField_tooltip",
     translate= true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 };
 
 AutoDrive.settings.unloadFillLevel = {  

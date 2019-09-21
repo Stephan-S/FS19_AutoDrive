@@ -215,7 +215,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		AutoDrive.Hud:toggleHud(vehicle);				
 	end;
 	
-	if input == "input_toggleMouse" then
+	if input == "input_toggleMouse" and vehicle == g_currentMission.controlledVehicle then
 		g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor());
 	end;
 	

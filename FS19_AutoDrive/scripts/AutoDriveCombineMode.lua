@@ -126,6 +126,8 @@ function AutoDrive:initializeADCombine(vehicle, dt)
         elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
             local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
             local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle); 
+            vehicle.ad.trailerCount = trailerCount;
+            vehicle.ad.trailerFillLevel = trailerFillLevel;
 
             if trailers[vehicle.ad.currentTrailer+1] ~= nil then
                 local lastFillLevel = vehicle.ad.designatedTrailerFillLevel;
@@ -136,6 +138,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 vehicle.ad.designatedTrailerFillLevel = (maxCapacity - leftCapacity)/maxCapacity;
 
                 if lastFillLevel < vehicle.ad.designatedTrailerFillLevel then
+                    --print("lastFillLevel: " .. lastFillLevel .. " designated: " .. vehicle.ad.designatedTrailerFillLevel .. " currentTrailer: " .. vehicle.ad.currentTrailer .. " trailerCount: " .. trailerCount);
                     vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
                     --Reload trailerFillLevel when switching to next trailer
                     doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
@@ -180,8 +183,6 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                         drivingEnabled = true;
                     else
                         AutoDrive:getVehicleToStop(vehicle, false, dt);
-                        vehicle.ad.currentTrailer = 1;
-                        vehicle.ad.designatedTrailerFillLevel = math.huge;
                     end;
 
                     return true;

@@ -15,6 +15,8 @@ end;
 
 function ADHudIcon:onDraw(vehicle)
     self:updateVisibility(vehicle);
+
+    self:updateIcon(vehicle);
     
     if self.isVisible then
         self.ov:render();
@@ -44,6 +46,36 @@ function ADHudIcon:act(vehicle, posX, posY, isDown, isUp, button)
         end;
     end;
     return false;
+end;
+
+function ADHudIcon:updateIcon(vehicle)
+    local newIcon = self.image;
+    if self.name == "unloadOverlay" then
+        if vehicle.ad.mode == AutoDrive.MODE_LOAD then
+            newIcon = AutoDrive.directory .. "textures/tipper_load.dds";
+        elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+            newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds";
+        elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+            newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds";
+        else
+            newIcon = nil;
+        end;
+    elseif self.name == "destinationOverlay" then
+        if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+            newIcon = AutoDrive.directory .. "textures/tipper_load.dds";
+        elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+            newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds";
+        elseif vehicle.ad.mode ~= AutoDrive.MODE_BGA then
+            newIcon = AutoDrive.directory .. "textures/destination.dds";
+        else
+            newIcon = nil;
+        end;
+    end;
+
+    if newIcon ~= self.image then
+        self.image = newIcon
+        self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height);
+    end;
 end;
 
 

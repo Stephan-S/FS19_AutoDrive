@@ -90,6 +90,7 @@ function AutoDrive:writeMapMarkersToStream(streamId)
     while i <= markerCounter do
         streamWriteFloat32(streamId, AutoDrive.mapMarker[i].id);
         streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].name);
+        streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].group);
         i = i + 1;
     end;
 
@@ -152,6 +153,7 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
     while mapMarkerCount <= numberOfMapMarkers do
 		local markerId = streamReadFloat32(streamId);
 		local markerName = streamReadStringOrEmpty(streamId);
+		local markerGroup = streamReadStringOrEmpty(streamId);
 		local marker = {};
 
         if AutoDrive.mapWayPoints[markerId] ~= nil then
@@ -161,6 +163,7 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
 
 		    marker.id = markerId;
 		    marker.name = markerName;
+		    marker.group = markerGroup;
 
 		    AutoDrive.mapMarker[mapMarkerCount] = marker;
             mapMarkerCount = mapMarkerCount + 1;

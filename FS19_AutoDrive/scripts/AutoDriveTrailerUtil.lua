@@ -94,9 +94,14 @@ function AutoDrive:getTrailersOf(vehicle, onlyDischargeable)
     AutoDrive.tempTrailerCount = 0;
 
     if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil and AutoDrive:checkIfLargeFillUnitExists(vehicle) then
-        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
-        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = vehicle;
+        local vehicleFillLevel, vehicleLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle, nil)
+        --print("VehicleFillLevel: " .. vehicleFillLevel .. " vehicleLeftCapacity: " .. vehicleLeftCapacity); 
+        if not (vehicleFillLevel == 0 and vehicleLeftCapacity == 0) then
+            AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
+            AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = vehicle;
+        end;
     end;
+    --print("AutoDrive.tempTrailerCount after vehcile: "  .. AutoDrive.tempTrailerCount); 
 
     if vehicle.getAttachedImplements ~= nil then
         for _, implement in pairs(vehicle:getAttachedImplements()) do
@@ -219,10 +224,12 @@ function getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFillType)
     local hasOnlyDieselForFuel = checkForDieselTankOnlyFuel(object);
     for fillUnitIndex, fillUnit in pairs(object:getFillUnits()) do                
         --print("object fillUnit " .. fillUnitIndex ..  " has :"); 
-        local unitFillLevel, unitLeftCapacity = getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType);
+        local unitFillLevel, unitLeftCapacity = getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType);                     
+        --print("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity); 
         fillLevel = fillLevel + unitFillLevel;
         leftCapacity = leftCapacity + unitLeftCapacity;        
     end
+    --print("Total fillLevel: " .. fillLevel ..  " leftCapacity: " .. leftCapacity); 
     return fillLevel, leftCapacity;
 end;
 
@@ -231,7 +238,7 @@ function getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selecte
     local fillTypeIsProhibited = false;
     local isSelectedFillType = false;
     for fillType, isSupported in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-        if fillType == 1 or fillType == 32 or fillType == 33 or (fillType == 34 and hasOnlyDieselForFuel) then --1:UNKNOWN 32:AIR 33:AdBlue 34:Diesel
+        if fillType == 1 or fillType == 34 or fillType == 33 or (fillType == 32 and hasOnlyDieselForFuel) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
             --print("Found prohibited filltype: " .. fillType);
             fillTypeIsProhibited = true;
         end;
@@ -244,6 +251,7 @@ function getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selecte
     if isSelectedFillType then
         fillTypeIsProhibited = false;
     end;
+    --print("DieselForFuel: " .. ADBoolToString(hasOnlyDieselForFuel));
 
     if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then 
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex);
@@ -262,7 +270,7 @@ function checkForDieselTankOnlyFuel(object)
             if fillType == 33 then
                 adBlueUnitCount = adBlueUnitCount + 1;
             end;
-            if fillType == 34 then
+            if fillType == 32 then
                 dieselFuelUnitCount = dieselFuelUnitCount + 1;
             end;
         end;

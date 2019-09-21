@@ -197,6 +197,9 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
         driver.ad.pf.fruitToCheck = 1;
     end;
     
+    driver.ad.currentTrailer = 1;
+    driver.ad.designatedTrailerFillLevel = math.huge;
+    
     driver.ad.pf.targetCell = AutoDrivePathFinder:worldLocationToGridLocation(driver.ad.pf, targetX, targetZ);
     local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
     AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, targetDirection, driver.ad.pf.targetCell);
