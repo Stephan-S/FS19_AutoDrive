@@ -40,6 +40,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     self.imageDown = AutoDrive.directory .. "textures/arrowDown.dds";
     self.imagePlus = AutoDrive.directory .. "textures/plusSign.dds";
     self.imageMinus = AutoDrive.directory .. "textures/minusSign.dds";
+    self.imageRight = AutoDrive.directory .. "textures/arrowRight.dds";
         
     self.ovBG = Overlay:new(self.imageBG, self.position.x, self.position.y, self.size.width, self.size.height);    
     self.ovExpand = Overlay:new(self.imageExpand, self.rightIconPos.x, self.rightIconPos.y, self.iconSize.width, self.iconSize.height);
@@ -152,13 +153,17 @@ function ADPullDownList:onDraw(vehicle)
                         listEntry.ovExpand = Overlay:new(self.imageExpand, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height);
                         listEntry.ovExpand:render(); 
                     end;
-                    if (listEntry.displayName ~= "All") then 
+
+                    listEntry.ovAddHere = Overlay:new(self.imageRight, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                    listEntry.ovAddHere:render();
+
+                    if (listEntry.displayName ~= "All") then
                         if self:getItemCountForGroup(listEntry.displayName) <= 0 then
-                            listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                            listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
                             listEntry.ovMinus:render();
                         end;
                     else       
-                        listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                        listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
                         listEntry.ovPlus:render();
                     end;
                 else          
@@ -449,6 +454,12 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                         self:moveSelectedElementDown(vehicle, hitElement);
                     end;
                 elseif hitIcon ~= nil and hitIcon == 2 then
+                        if hitElement.isFolder then
+                            self:moveCurrentElementToFolder(vehicle, hitElement);
+                        else
+                            self:moveSelectedElementUp(vehicle, hitElement);
+                        end;   
+                elseif hitIcon ~= nil and hitIcon == 3 then
                     if hitElement.isFolder then
                         if (hitElement.displayName ~= "All") then 
                             if self:getItemCountForGroup(hitElement.displayName) <= 0 then
@@ -459,8 +470,6 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                             self:collapse(vehicle, true);
                             AutoDrive:onOpenEnterGroupName();
                         end;
-                    else
-                        self:moveSelectedElementUp(vehicle, hitElement);
                     end;               
                 end;
             end;
@@ -706,4 +715,28 @@ function ADPullDownList:getItemCountForGroup(groupName)
         return #self.options[groupID];
     end;
     return 0;
+end;
+
+function ADPullDownList:moveCurrentElementToFolder(vehicle, listElement)
+    local mapMarkerID = vehicle.ad.mapMarkerSelected;
+    local mapMarkerName = vehicle.ad.nameOfSelectedTarget;
+
+    local targetGroupName = listElement.returnValue;
+    local targetGroupID = AutoDrive.groups[targetGroupName];
+
+    local currentGroupName = AutoDrive.mapMarker[mapMarkerID].group
+    local currentGroupID = AutoDrive.groups[currentGroupName];
+
+    for groupID, entries in pairs(self.options) do
+        for i, entry in pairs(entries) do
+            if entry.returnValue == mapMarkerID then
+                table.remove(entries, i);
+            end;
+        end;
+    end;
+
+    table.insert(self.options[targetGroupID], {displayName= mapMarkerName, returnValue=mapMarkerID});
+    AutoDrive.mapMarker[mapMarkerID].group = self:groupIDToGroupName(targetGroupID);
+
+    self:sortCurrentItems();  
 end;
