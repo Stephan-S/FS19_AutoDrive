@@ -518,7 +518,7 @@ function AutoDrive:onDraw()
 		end;
 	end;
 
-	if self == g_currentMission.controlledVehicle then
+	if self == g_currentMission.controlledVehicle and (g_dedicatedServerInfo == nil) then
 		AutoDrive:onDrawControlledVehicle(self);
 	end;
 	

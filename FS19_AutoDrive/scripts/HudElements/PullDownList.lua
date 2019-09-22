@@ -201,6 +201,9 @@ end;
 
 function ADPullDownList:shortenTextToWidth(textInput, width)
     local text = textInput;
+    if textInput == nil then
+        return "";
+    end;
 
     local uiScale = g_gameSettings:getValue("uiScale")	
     if AutoDrive:getSetting("guiScale") ~= 0 then
@@ -348,6 +351,11 @@ function ADPullDownList:createSelection_Target()
             self.options[1] = {};
         end;
     end;
+   
+    if #self.options == 0 then
+        self.options[1] = {};
+    end;
+    
     for markerID, marker in pairs(AutoDrive.mapMarker) do
         if AutoDrive:getSetting("useFolders") then
             table.insert(self.options[AutoDrive.groups[marker.group]], {displayName= marker.name, returnValue=markerID})
