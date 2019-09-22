@@ -265,17 +265,27 @@ function checkForDieselTankOnlyFuel(object)
     end;
     local dieselFuelUnitCount = 0;
     local adBlueUnitCount = 0;
+    local otherFillUnitsCapacity = 0;
+    local dieselFillUnitCapacity = 0;
     for fillUnitIndex, fillUnit in pairs(object:getFillUnits()) do 
+        local dieselFillUnit = false;
         for fillType, isSupported in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
             if fillType == 33 then
                 adBlueUnitCount = adBlueUnitCount + 1;
             end;
             if fillType == 32 then
                 dieselFuelUnitCount = dieselFuelUnitCount + 1;
+                dieselFillUnit = true;
             end;
         end;
-    end;
-    return dieselFuelUnitCount == adBlueUnitCount;
+        if dieselFillUnit then
+            dieselFillUnitCapacity = dieselFillUnitCapacity + object:getFillUnitCapacity(fillUnitIndex);
+        else
+            otherFillUnitsCapacity = otherFillUnitsCapacity + object:getFillUnitCapacity(fillUnitIndex);
+        end;
+    end; 
+
+    return (dieselFuelUnitCount == adBlueUnitCount) or (dieselFillUnitCapacity < otherFillUnitsCapacity);
 end;
 
 function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
