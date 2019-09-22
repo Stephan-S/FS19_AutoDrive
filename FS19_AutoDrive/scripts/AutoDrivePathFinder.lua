@@ -1,7 +1,8 @@
 AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 400;
+AutoDrive.PATHFINDER_FOLLOW_DISTANCE = 44;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 14;
-AutoDrive.PATHFINDER_START_DISTANCE = 15;
+AutoDrive.PATHFINDER_START_DISTANCE = 4; --15;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
 AutoDrive.PP_RIGHT = 2;
@@ -23,20 +24,50 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local combineVector = {x= math.sin(rx) ,z= math.sin(rz)};	
     local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
     
-    local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
-    local pipeOffset = AutoDrive:getSetting("pipeOffset", driver);     
-    local trailerOffset = AutoDrive:getSetting("trailerOffset", driver);
-    local wpAhead = {x= (nodeX + (driver.sizeLength/2 + 5 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (driver.sizeLength/2 + 5 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z};
-    local wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
-    local wpBehind_close = {x= (nodeX - 10*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 10*rz - pipeOffset * combineNormalVector.z };
+    local wpAhead;
+    local wpCurrent;
+    local wpBehind_close;
+    local wpBehind;
+
+    if dischargeNode == nil then
+        local followDistance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE;
+        local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine);
+        local maxCapacity = fillLevel + leftCapacity;
+        local combineFillLevel = (fillLevel / maxCapacity);
+
+        if combineFillLevel <= 0.80 then
+            followDistance = 15;
+        end;
+
+        wpAhead = {x= (worldX - (followDistance-15)*rx), y = worldY, z = worldZ - (followDistance-15)*rz};
+        wpCurrent = {x= (worldX - (followDistance-5)*rx), y = worldY, z = worldZ - (followDistance-5)*rz};
+        wpBehind_close = {x= (worldX - (followDistance-3)*rx), y = worldY, z = worldZ - (followDistance-3)*rz};
+        
+        wpBehind = {x= (worldX - followDistance*rx), y = worldY, z = worldZ - followDistance*rz};
+        driver.ad.waitForPreDriveTimer = 10000;
+    else
+        local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
+        local pipeOffset = AutoDrive:getSetting("pipeOffset", driver);     
+        local trailerOffset = AutoDrive:getSetting("trailerOffset", driver);
+        wpAhead = {x= (nodeX + (driver.sizeLength/2 + 5 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (driver.sizeLength/2 + 5 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z};
+        wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
+        wpBehind_close = {x= (nodeX - 10*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 10*rz - pipeOffset * combineNormalVector.z };
+        
+        wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
+    end;
     
-	local wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
     
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
-	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
-	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
-	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
+    local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
+    
+    local startDistance = AutoDrive.PATHFINDER_START_DISTANCE;
+    if dischargeNode == nil then
+        startDistance = 4;
+    end;
+
+	local startX = driverWorldX + startDistance*driverRx;
+	local startZ = driverWorldZ + startDistance*driverRz;
 	
     local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
@@ -470,13 +501,18 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
 
         local previousCell = cell.incoming
         local worldPosPrevious = AutoDrivePathFinder:gridLocationToWorldLocation(pf, previousCell);
+        local vectorFromPrevious = {x=worldPos.x-worldPosPrevious.x, z=worldPos.z-worldPosPrevious.z}
+        local worldPosMiddle = {x=worldPosPrevious.x + vectorFromPrevious.x/2, z=worldPosPrevious.z + vectorFromPrevious.z/2}
         
         local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 0, worldPos.z)
         local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPosPrevious.x, 0, worldPosPrevious.z)
+        local terrain3 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPosMiddle.x, 0, worldPosMiddle.z)
         local length = MathUtil.vector3Length(worldPos.x-worldPosPrevious.x, terrain1-terrain2, worldPos.z-worldPosPrevious.z)
+        local lengthMiddle = MathUtil.vector3Length(worldPosMiddle.x-worldPosPrevious.x, terrain3-terrain2, worldPosMiddle.z-worldPosPrevious.z)
         local angleBetween = math.atan(math.abs(terrain1-terrain2)/length)
+        local angleBetweenCenter = math.atan(math.abs(terrain3-terrain2)/lengthMiddle)
 
-        if angleBetween > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+        if (angleBetween * 3) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 3) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
             cell.hasCollision = true;
         end  
 
@@ -485,7 +521,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             --cell.hasCollision = false;
         --end;
 
-        if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit") then
+        if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit", pf.driver) then
             if pf.fruitToCheck == nil then
                 for i = 1, #g_fruitTypeManager.fruitTypes do
                     if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
@@ -500,7 +536,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
             end;                
         else
             cell.isRestricted = false;
-            cell.hasFruit = not AutoDrive:getSetting("avoidFruit"); --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
+            cell.hasFruit = not AutoDrive:getSetting("avoidFruit", pf.driver); --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
         end;
         
         cell.hasInfo = true;
@@ -654,7 +690,7 @@ function AutoDrivePathFinder:createWayPoints(pf)
         end;
 
         index = index + ADTableLength(pf.chainStartToTarget);
-        AutoDrivePathFinder:smoothResultingPPPath(pf);
+        --AutoDrivePathFinder:smoothResultingPPPath(pf);
     end;
         
     
@@ -713,7 +749,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
         pf.filteredWPs = {};
     
         --add first few without filtering
-        while pf.smoothIndex < ADTableLength(pf.wayPoints) and pf.smoothIndex < 3 do
+        while pf.smoothIndex < ADTableLength(pf.wayPoints) and pf.smoothIndex < 5 do
             pf.filteredWPs[pf.filteredIndex] = pf.wayPoints[pf.smoothIndex];
             pf.filteredIndex = pf.filteredIndex + 1;
             pf.smoothIndex = pf.smoothIndex + 1;
@@ -728,14 +764,14 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             stepsThisFrame = stepsThisFrame + 1;
 
             local node = pf.wayPoints[pf.smoothIndex];
-            local previousNode = nil;
-            if pf.smoothIndex > 1 then
-                previousNode = pf.wayPoints[pf.smoothIndex-1];
-            end;
+            local previousNode = nil;            
             local worldPos = pf.wayPoints[pf.smoothIndex];
 
             if pf.totalEagerSteps == nil or pf.totalEagerSteps == 0 then
                 pf.filteredWPs[pf.filteredIndex] = node;
+                if pf.filteredIndex > 1 then
+                    previousNode = pf.filteredWPs[pf.filteredIndex-1]
+                end;
                 pf.filteredIndex = pf.filteredIndex + 1;
 
                 local foundCollision = false;
@@ -763,6 +799,12 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                     hasCollision = true;
                 end;        
                 if previousNode ~= nil then
+                    angle = AutoDrive:angleBetween( 	{x=	node.x	-	previousNode.x, z = node.z - previousNode.z },
+                                                    {x=	nodeTwoAhead.x-	node.x, z = nodeTwoAhead.z - node.z } )
+                    angle = math.abs(angle);                    
+                    if angle > 60 then
+                        hasCollision = true;
+                    end; 
                     angle = AutoDrive:angleBetween( 	{x=	node.x	-	previousNode.x, z = node.z - previousNode.z },
                                                     {x=	nodeAhead.x-	node.x, z = nodeAhead.z - node.z } )
                     angle = math.abs(angle);

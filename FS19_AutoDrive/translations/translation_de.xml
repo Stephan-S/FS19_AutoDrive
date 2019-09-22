@@ -127,6 +127,12 @@
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Saatgut und Dünger" />	
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Erlaubt es sowohl Saatgut als auch Dünger zu laden, wenn eins von beidem ausgewählt ist." />	
 		<text name="gui_ad_shovelWidth"			 			 text="Schaufelbreite (Zusatz)" />	
-		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />		
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />	
+		<text name="gui_ad_preCallDriver"			 		 text="Abfahrer früher rufen" />	
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />	
+		<text name="gui_ad_preCallLevel"			 		 text="Früher rufen ab" />	
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />	
+		<text name="gui_ad_chaseCombine"			 		 text="Drescher folgen" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Drescher verfolgen - nachdem der Abfahrer früher gerufen wurde" />		
 	</texts>
 </l10n>

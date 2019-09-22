@@ -100,6 +100,14 @@ function AutoDrive:writeMapMarkersToStream(streamId)
     end;
 end;
 
+function AutoDrive:writeGroupsToStream(streamID)
+    streamWriteFloat32(streamId, #AutoDrive.groups);
+    for groupName, groupID in pairs(AutoDrive.groups) do
+        streamWriteStringOrEmpty(streamId, groupName);
+        streamWriteFloat32(streamId, groupID);
+    end;
+end;
+
 function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
     local wp_counter = 0;
 	local highestId = 0;
@@ -172,6 +180,20 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
         end;		        
 	end;
 	AutoDrive.mapMarkerCounter = numberOfMapMarkers;
+end;
+
+function AutoDrive:readGroupsFromStream(streamID)
+    AutoDrive.groups = {};
+    local numberOfGroups = streamReadFloat32(streamId);
+    local loopCounter = 1;
+    while loopCounter <= numberOfGroups do
+		local groupName = streamReadStringOrEmpty(streamId);
+        local groupID = streamReadFloat32(streamId);
+        if groupName ~= nil and groupName ~= "" then
+            AutoDrive.groups[groupName] = groupID;
+        end;
+        loopCounter = loopCounter + 1;
+    end;
 end;
 
 function streamReadStringOrEmpty(streamID) 

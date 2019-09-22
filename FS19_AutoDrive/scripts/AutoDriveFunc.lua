@@ -111,6 +111,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
+		vehicle.ad.currentCombine.ad.preCalledDriver = false;
+		vehicle.ad.currentCombine.ad.driverOnTheWay = false;		
 		vehicle.ad.currentCombine = nil;
 	end;
 	AutoDrive.waitingUnloadDrivers[vehicle] = nil;
@@ -228,7 +230,7 @@ end;
 
 function AutoDrive:detectAdTrafficOnRoute(vehicle)
 	if vehicle.ad.isActive == true then
-		if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS and vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+		if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS and vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
 			return false;
 		end;
 
@@ -348,7 +350,7 @@ function AutoDrive:detectTraffic(vehicle)
 		local rotX = -MathUtil.getYRotationFromDirection(box.dirY, 1);
 
 		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
-												y = y+2,
+												y = y+2.2,
 												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };
 
 		local rx,ry,rz = getWorldRotation(vehicle.components[1].node)
@@ -373,7 +375,7 @@ function AutoDrive:detectTraffic(vehicle)
 	for _,other in pairs(g_currentMission.vehicles) do
 		if other ~= vehicle and other ~= vehicle.ad.currentCombine then
 			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
-			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE);		
+			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE);		
             
 			if isAttachedToMe == false and other.components ~= nil and isAttachedToMyCombine == false then
 				if other.sizeWidth == nil then

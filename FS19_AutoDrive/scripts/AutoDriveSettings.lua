@@ -301,6 +301,39 @@ AutoDrive.settings.useFolders = {
     isVehicleSpecific = false
 };
 
+AutoDrive.settings.preCallDriver = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_preCallDriver",                                    
+    tooltip= "gui_ad_preCallDriver_tooltip",
+    translate= true,
+    isVehicleSpecific = false
+};
+
+AutoDrive.settings.preCallLevel = {  
+    values= {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95},                                    
+    texts= {"10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "85%", "90%", "95%"},                                    
+    default= 7,                                    
+    current= 7,                                    
+    text= "gui_ad_preCallLevel",                                    
+    tooltip= "gui_ad_preCallLevel_tooltip",
+    translate= false,
+    isVehicleSpecific = false
+};
+
+AutoDrive.settings.chaseCombine = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_chaseCombine",                                    
+    tooltip= "gui_ad_chaseCombine_tooltip",
+    translate= true,
+    isVehicleSpecific = false
+};
+
 
 function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then

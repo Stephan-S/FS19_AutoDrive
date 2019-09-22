@@ -417,6 +417,8 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 					vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
 					if vehicle.ad.currentCombine ~= nil then
 						vehicle.ad.currentCombine.ad.currentDriver = nil;
+						vehicle.ad.currentCombine.ad.preCalledDriver = false;
+						vehicle.ad.currentCombine.ad.driverOnTheWay = false;
 						vehicle.ad.currentCombine = nil;
 					end;
 					AutoDrive.waitingUnloadDrivers[vehicle] = nil;
@@ -427,6 +429,8 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 					AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
 					if vehicle.ad.currentCombine ~= nil then
 						vehicle.ad.currentCombine.ad.currentDriver = nil;
+						vehicle.ad.currentCombine.ad.preCalledDriver = false;
+						vehicle.ad.currentCombine.ad.driverOnTheWay = false;
 						vehicle.ad.currentCombine = nil;
 					end;
 				end;

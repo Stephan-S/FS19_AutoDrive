@@ -144,10 +144,17 @@ function AutoDrive:checkForDeadLock(vehicle, dt)
 		vehicle.ad.inDeadLockRepairCounter = 4;
     end;
     
-    if vehicle.lastSpeedReal <= 0.0005 then
+    if math.abs(vehicle.lastSpeedReal) <= 0.0005 then
         vehicle.ad.stoppedTimer = math.max(0, vehicle.ad.stoppedTimer-dt);
     else
         vehicle.ad.stoppedTimer = 5000;
+    end;
+    
+    local vehicleSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 10);
+    if (not vehicleSteering) and ((vehicle.lastSpeedReal*vehicle.movingDirection) >= 0.0008) then
+        vehicle.ad.driveForwardTimer:timer(true, 12000, dt);
+    else
+        vehicle.ad.driveForwardTimer:timer(false);
     end;
 end;
 
@@ -198,7 +205,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             return;
         end;
     elseif vehicle.ad.usePathFinder ~= nil and vehicle.ad.usePathFinder == true then
-        if AutoDrive:handlePathPlanning(vehicle) == false then
+        if AutoDrive:handlePathPlanning(vehicle, dt) == false then
             return;
         end;
         vehicle.ad.usePathFinder = false;
@@ -436,6 +443,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             and 
             (  vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE 
             or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS
+            or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
             or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS ) then
             
                 vehicle.ad.speedOverride = math.min(28, vehicle.ad.speedOverride);

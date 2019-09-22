@@ -127,6 +127,12 @@
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Seed and fertilizer" />	
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Enables AutoDrive to refill both seed and fertilizer compartments, if one of these is selected as filltype." />	
 		<text name="gui_ad_shovelWidth"			 			 text="Shovel width (Addition)" />	
-		<text name="gui_ad_shovelWidth_tooltip"	 			 text="If automatically detected shovel width is too small, it can be increased with this value" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="If automatically detected shovel width is too small, it can be increased with this value" />		
+		<text name="gui_ad_preCallDriver"			 		 text="Pre call driver" />	
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Pre call unloader at the set fill level." />	
+		<text name="gui_ad_preCallLevel"			 		 text="Pre call level" />	
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Pre call unloader at the set fill level." />	
+		<text name="gui_ad_chaseCombine"			 		 text="Chase combine" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Unlaoder follows combine after being pre called" />	
 	</texts>
 </l10n>

@@ -38,7 +38,8 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 		end;
 
 		if (AutoDrive.requestedWaypointCount + AutoDrive.WAYPOINTS_PER_PACKET) >= AutoDrive.mapWayPointsCounter then
-			AutoDrive:writeMapMarkersToStream(streamId);			
+			AutoDrive:writeMapMarkersToStream(streamId);	
+			AutoDrive:writeGroupsToStream(streamId);		
 		else
 			streamWriteFloat32(streamId, 0);
 		end;		
@@ -84,6 +85,7 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 		--print("Received mapMarkers: " .. numberOfMapMarkers);
 		
 		AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
+		AutoDrive:readGroupsFromStream(streamID);
 	end;
 
 

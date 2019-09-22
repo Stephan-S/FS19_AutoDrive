@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.5.7";
+AutoDrive.Version = "1.0.5.8";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -256,6 +256,7 @@ function init(self)
 	self.ad.driverOnTheWay = false;
 	self.ad.tryingToCallDriver = false;
 	self.ad.stoppedTimer = 5000;
+	self.ad.driveForwardTimer = AutoDriveTON:new();
 	self.ad.currentTrailer = 1;
 	self.ad.usePathFinder = false;	
 	self.ad.onRouteToPark = false;	
