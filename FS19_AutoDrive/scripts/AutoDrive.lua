@@ -95,6 +95,9 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("gui/combineUnloadSettingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveBGAUnloader.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	AutoDrive:loadGUI();
 
 	if AutoDrive_printedDebug ~= true then
@@ -471,8 +474,8 @@ function AutoDrive:onUpdate(dt)
 
 	local driverWages = AutoDrive:getSetting("driverWages");
 	local spec = self.spec_aiVehicle
-  if self.isServer then
-    if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 then
+	if self.isServer and spec ~= nil then
+		if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 then
 			local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier;
 			local price = -dt * difficultyMultiplier * (driverWages -1) * spec.pricePerMS
 			g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
@@ -495,6 +498,43 @@ function AutoDrive:onUpdate(dt)
 			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt);
 		end;
 	end;
+
+	-- if self == g_currentMission.controlledVehicle then
+	-- 	if self.ad.sensors ~= nil then
+	-- 		for _, sensor in pairs(self.ad.sensors) do
+	-- 			sensor:updateSensor(dt);
+	-- 		end;
+	-- 	else
+	-- 		self.ad.sensors = {}
+	-- 		local sensorParameters = {}
+	-- 		sensorParameters.position = ADSensor.POS_FRONT;
+	-- 		local frontSensor = ADCollSensor:new(self, sensorParameters)
+	-- 		local frontSensorFruit = ADFruitSensor:new(self, sensorParameters)
+	-- 		table.insert(self.ad.sensors, frontSensor);
+	-- 		table.insert(self.ad.sensors, frontSensorFruit);
+	-- 		sensorParameters.position = ADSensor.POS_REAR;
+	-- 		local rearSensor = ADCollSensor:new(self, sensorParameters)
+	-- 		local rearSensorFruit = ADFruitSensor:new(self, sensorParameters)
+	-- 		table.insert(self.ad.sensors, rearSensor);
+	-- 		table.insert(self.ad.sensors, rearSensorFruit);
+	-- 		sensorParameters.position = ADSensor.POS_LEFT;
+	-- 		sensorParameters.dynamicLength = false;
+	-- 		sensorParameters.dynamicRotation = false;
+	-- 		sensorParameters.width = 5;
+	-- 		local leftSensor = ADCollSensor:new(self, sensorParameters)
+	-- 		local leftSensorFruit = ADFruitSensor:new(self, sensorParameters)
+	-- 		table.insert(self.ad.sensors, leftSensor);
+	-- 		table.insert(self.ad.sensors, leftSensorFruit);
+	-- 		sensorParameters.position = ADSensor.POS_RIGHT;
+	-- 		sensorParameters.dynamicLength = false;
+	-- 		sensorParameters.dynamicRotation = false;
+	-- 		sensorParameters.width = 5;
+	-- 		local rightSensor = ADCollSensor:new(self, sensorParameters)
+	-- 		local rightSensorFruit = ADFruitSensor:new(self, sensorParameters)
+	-- 		table.insert(self.ad.sensors, rightSensor);
+	-- 		table.insert(self.ad.sensors, rightSensorFruit);
+	-- 	end;
+	-- end;
 
 	AutoDrive.runThisFrame = true;
 end;

@@ -463,7 +463,7 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
                 local allWheelsOnGround = self:checkIfAllWheelsOnGround(vehicle);
                 local onGroundForLongTime = vehicle.bga.wheelsOnGround:timer(allWheelsOnGround, 300, dt)
                 local liftedForLongTime = vehicle.bga.wheelsOffGround:timer(not allWheelsOnGround, 300, dt)
-                if liftedForLongTime or (not onGroundForLongTime) and vehicle.bga.armMain ~= nil then
+                if liftedForLongTime and vehicle.bga.armMain ~= nil then --or (not onGroundForLongTime) 
                     self:steerAxisTo(vehicle, vehicle.bga.armMain, vehicle.bga.armMain.moveUpSign * math.pi, 33, dt);
                 end;
             end;
