@@ -128,10 +128,10 @@
 		<text name="gui_ad_shovelWidth"			 			 text="Largeur de la pelle (ajout)" />	
 		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée" />
 		<text name="gui_ad_preCallDriver"			 		 text="Appeler chauffeur plus tôt" />
-		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Appel le chauffeur au niveau de remplissage défini." />	<!--blur description ?-->
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Appel anticipé du chauffeur au niveau de remplissage défini" />
 		<text name="gui_ad_preCallLevel"			 		 text="Appeler chauffeur au niveau" />
-		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Appel le chauffeur au niveau de remplissage défini" />	<!--blur description ?-->
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Appel anticipé du chauffeur pour déchargement au niveau défini" />
 		<text name="gui_ad_chaseCombine"			 		 text="Suivre la moissoneuse" />
-		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Le chauffeur décharge et suit la moissoneuse après avoir été appelé plus tôt" />
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Le chauffeur décharge et suit la moissoneuse après avoir reçu un appel anticipé" />
 	</texts>
 </l10n>
