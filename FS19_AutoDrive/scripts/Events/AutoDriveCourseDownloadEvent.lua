@@ -86,6 +86,9 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 		
 		AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
 		AutoDrive:readGroupsFromStream(streamId);
+		if AutoDrive.Hud ~= nil then
+			AutoDrive.Hud.lastUIScale = 0;
+		end;
 	end;
 
 

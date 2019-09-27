@@ -652,6 +652,7 @@ function AutoDrive:finishCreatingMapMarker(vehicle)
 		else
 			AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, closest, vehicle.ad.enteredMapMarkerString);
 		end;
+		AutoDrive.Hud.lastUIScale = 0;
 	end;
 end;
 
