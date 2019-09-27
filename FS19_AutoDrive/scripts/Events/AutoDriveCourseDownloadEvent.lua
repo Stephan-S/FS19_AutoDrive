@@ -85,7 +85,7 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 		--print("Received mapMarkers: " .. numberOfMapMarkers);
 		
 		AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
-		AutoDrive:readGroupsFromStream(streamID);
+		AutoDrive:readGroupsFromStream(streamId);
 	end;
 
 

@@ -6,3 +6,28 @@ draw fsdensity query.txt
 draw fsdensity query_neu.txt
 empty.png
 Check Coll And fruit in front of tractor.txt
+AutoDrive Course Editor/.idea/AutoDrive Course Editor.iml
+AutoDrive Course Editor/.idea/misc.xml
+AutoDrive Course Editor/.idea/modules.xml
+AutoDrive Course Editor/.idea/vcs.xml
+AutoDrive Course Editor/.idea/workspace.xml
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/ADUtils.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/AutoDriveEditor$1.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/AutoDriveEditor.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/EditorListener.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Agrovation_Knezmost.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Estancia_Lapacho.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Felsbrunn.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/FS19_Dondiego_Map.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/FS19_Rolling_Hills_BETA_V_01.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Goeddenstedt.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Marwell_Manor_Farm.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/MarwellManor.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Multimap_2019.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/NF_Marsch_V1_4.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/mapImages/Ravenport.png
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/MapMarker.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/MapNode.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/MapPanel.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/MouseListener.class
+AutoDrive Course Editor/out/production/AutoDrive Course Editor/RoadMap.class

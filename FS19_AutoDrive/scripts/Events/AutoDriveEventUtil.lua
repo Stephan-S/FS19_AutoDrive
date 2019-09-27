@@ -100,7 +100,7 @@ function AutoDrive:writeMapMarkersToStream(streamId)
     end;
 end;
 
-function AutoDrive:writeGroupsToStream(streamID)
+function AutoDrive:writeGroupsToStream(streamId)
     streamWriteFloat32(streamId, #AutoDrive.groups);
     for groupName, groupID in pairs(AutoDrive.groups) do
         streamWriteStringOrEmpty(streamId, groupName);
@@ -182,13 +182,13 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
 	AutoDrive.mapMarkerCounter = numberOfMapMarkers;
 end;
 
-function AutoDrive:readGroupsFromStream(streamID)
+function AutoDrive:readGroupsFromStream(streamId)
     AutoDrive.groups = {};
-    local numberOfGroups = streamReadFloat32(streamID);
+    local numberOfGroups = streamReadFloat32(streamId);
     local loopCounter = 1;
     while loopCounter <= numberOfGroups do
-		local groupName = streamReadStringOrEmpty(streamID);
-        local groupID = streamReadFloat32(streamID);
+		local groupName = streamReadStringOrEmpty(streamId);
+        local groupID = streamReadFloat32(streamId);
         if groupName ~= nil and groupName ~= "" then
             AutoDrive.groups[groupName] = groupID;
         end;
@@ -196,37 +196,37 @@ function AutoDrive:readGroupsFromStream(streamID)
     end;
 end;
 
-function streamReadStringOrEmpty(streamID) 
-	local string = streamReadString(streamID);
+function streamReadStringOrEmpty(streamId) 
+	local string = streamReadString(streamId);
 	if string == nil or string == "nil" then
 		string = "";
 	end;
 	return string;
 end;
 
-function streamWriteStringOrEmpty(streamID, string) 	
+function streamWriteStringOrEmpty(streamId, string) 	
 	if string == nil or string == "" then
 		string = "nil";
 	end;
-	streamWriteString(streamID, string);
+	streamWriteString(streamId, string);
 end;
 
-function streamWriteInt32OrEmpty(streamID, value) 	
+function streamWriteInt32OrEmpty(streamId, value) 	
 	if value == nil then
 		value = 0;
 	end;
-	streamWriteInt32(streamID, value);
+	streamWriteInt32(streamId, value);
 end;
 
-function streamWriteInt16Or1337(streamID, value) 	
+function streamWriteInt16Or1337(streamId, value) 	
 	if value == nil then
 		value = 1337;
 	end;
-	streamWriteInt16(streamID, value);
+	streamWriteInt16(streamId, value);
 end;
 
-function streamReadInt16Or1337(streamID) 
-    local val = streamReadInt16(streamID);
+function streamReadInt16Or1337(streamId) 
+    local val = streamReadInt16(streamId);
 	if val == nil then
 		val = 1337;
 	end;
