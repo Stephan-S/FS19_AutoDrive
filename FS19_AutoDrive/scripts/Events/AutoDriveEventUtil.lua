@@ -184,11 +184,11 @@ end;
 
 function AutoDrive:readGroupsFromStream(streamID)
     AutoDrive.groups = {};
-    local numberOfGroups = streamReadFloat32(streamId);
+    local numberOfGroups = streamReadFloat32(streamID);
     local loopCounter = 1;
     while loopCounter <= numberOfGroups do
-		local groupName = streamReadStringOrEmpty(streamId);
-        local groupID = streamReadFloat32(streamId);
+		local groupName = streamReadStringOrEmpty(streamID);
+        local groupID = streamReadFloat32(streamID);
         if groupName ~= nil and groupName ~= "" then
             AutoDrive.groups[groupName] = groupID;
         end;
