@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 public class EditorListener implements ActionListener {
 
@@ -28,9 +30,6 @@ public class EditorListener implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 editor.savedFile = fc.getSelectedFile();
                 editor.saveMap(editor.loadedFile.getAbsolutePath(), editor.savedFile.getAbsolutePath());
-            }
-            else {
-                this.editor.saveMap("C:\\Users\\Stephan\\Downloads\\AutoDrive_config.xml", "C:\\Users\\Stephan\\Downloads\\AutoDrive_config_new.xml");
             }
         }
         if (e.getActionCommand() == "Move Nodes") {

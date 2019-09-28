@@ -21,7 +21,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -400,9 +402,22 @@ public class AutoDriveEditor extends JFrame {
         System.out.println("SaveMap called");
         try {
             String filepath = oldPath;
+            File file = null;
+            try {
+                filepath = URLDecoder.decode(filepath, "UTF-8");
+                file = new File(filepath);
+            } catch(UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.parse(filepath);
+            Document doc = null;
+            if (file != null) {
+                doc = docBuilder.parse(file);
+            }
+            else {
+                doc = docBuilder.parse(filepath);
+            }
 
             Node AutoDrive = doc.getFirstChild();
             Element root = doc.getDocumentElement();
@@ -410,6 +425,7 @@ public class AutoDriveEditor extends JFrame {
             recalculation.setTextContent("true");
 
             Node waypoints = doc.getElementsByTagName("waypoints").item(0);
+
 
             // loop the staff child node
             NodeList list = waypoints.getChildNodes();
@@ -595,6 +611,21 @@ public class AutoDriveEditor extends JFrame {
                 markerNode.appendChild(newMapMarker);
                 mapMarkerCount += 1;
             }
+
+
+            Node mapNameNode = waypoints.getParentNode();
+            String newMapName = mapNameNode.getNodeValue();
+            if (newPath.contains("AutoDrive_") && newPath.contains("_config")) {
+                int newPathStartIndex = newPath.lastIndexOf("AutoDrive_");
+                newPathStartIndex += "AutoDrive_".length();
+                int newPathEndIndex = newPath.lastIndexOf("_config");
+                if (newPath.endsWith("_init_config")) {
+                    newPathEndIndex = newPath.lastIndexOf("_init_config");
+                }
+                newMapName = newPath.substring(newPathStartIndex, newPathEndIndex);
+                System.out.println("Found new map name in: " + newPath + " : " + newMapName);
+            }
+            doc.renameNode(mapNameNode, null, newMapName);
 
             // write the content into xml file
             filepath = newPath;
