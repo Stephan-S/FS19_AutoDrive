@@ -379,8 +379,11 @@ function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)
         return;
     end;
     local distance = getDistanceToUnloadPosition(vehicle);
+    local distanceToTarget = getDistanceToTargetPosition(vehicle);
     if distance < 200 then
-        continueIfAllTrailersClosed(vehicle, trailers, dt); 
+        if (distance < distanceToTarget) then
+            continueIfAllTrailersClosed(vehicle, trailers, dt);
+        end;
         --AutoDrive:setTrailerCoverOpen(trailers, true);
 
         for _,trailer in pairs(trailers) do                   
@@ -391,7 +394,7 @@ function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)
                 end; 
                 
                 if (trigger.bunkerSiloArea == nil)  then
-                    if (distance < 30) then               
+                    if (distance < 50) then               
                         if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
                             trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
                             vehicle.ad.isPaused = true;

@@ -221,6 +221,19 @@ function AutoDrive:initializeAD(vehicle, dt)
             vehicle.ad.unloadSwitch = true;   
             vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
         else
+            if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --decide if we are already on field and are allowed to park on field then
+                local x,y,z = getWorldTranslation( vehicle.components[1].node );
+                local node = AutoDrive.mapWayPoints[closest];
+                if AutoDrive:getSetting("parkInField", vehicle) and AutoDrive:getDistance(x, z, node.x, node.z) > 20 then
+                    AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
+                    vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
+                    vehicle.ad.wayPoints = {};
+                    vehicle.ad.isPaused = true;
+                    vehicle.ad.initialized = true;
+                    return;
+                end;
+            end;                
+
             if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] == nil then
                 return;
             end;
@@ -355,7 +368,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint];
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint-1];
         local highestAngle = 0;
-        local distanceToLookAhead = AutoDrive:getSetting("lookAheadBraking");
+        local distanceToLookAhead = math.min(15, AutoDrive:getSetting("lookAheadBraking")); --restrict lookahead braking for now and see how it goes
 
         local totalMass = vehicle:getTotalMass(false);        
         local massFactor = math.max(1, math.min(3, (totalMass+20)/30));
@@ -396,8 +409,8 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         if highestAngle >= 3 and highestAngle < 5 then vehicle.ad.speedOverride = 38; end;
         if highestAngle >= 5 and highestAngle < 8 then vehicle.ad.speedOverride = 27; end;
         if highestAngle >= 8 and highestAngle < 12 then vehicle.ad.speedOverride = 20; end;
-        if highestAngle >= 12 and highestAngle < 15 then vehicle.ad.speedOverride = 13; end;
-        if highestAngle >= 15 and highestAngle < 20 then vehicle.ad.speedOverride = 13; end;
+        if highestAngle >= 12 and highestAngle < 15 then vehicle.ad.speedOverride = 17; end;
+        if highestAngle >= 15 and highestAngle < 20 then vehicle.ad.speedOverride = 16; end;
         if highestAngle >= 20 and highestAngle < 30 then vehicle.ad.speedOverride = 13; end;
         if highestAngle >= 30 and highestAngle < 90 then vehicle.ad.speedOverride = 13; end;
     end;
@@ -446,7 +459,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
             or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS ) then
             
-                vehicle.ad.speedOverride = math.min(28, vehicle.ad.speedOverride);
+                vehicle.ad.speedOverride = math.min(AutoDrive.SPEED_ON_FIELD, vehicle.ad.speedOverride);
         end;
 
     end;
@@ -556,7 +569,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
 
                 local x,y,z = getWorldTranslation( vehicle.components[1].node );
                 local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
-                local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
+                local vehicleVector = {x= rx ,z= rz};
 
                 local wpAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead-1]
                 local wpTwoAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead]

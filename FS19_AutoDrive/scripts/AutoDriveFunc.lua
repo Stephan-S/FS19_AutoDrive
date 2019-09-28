@@ -182,6 +182,13 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		vehicle.bga.loadingSideP1 = nil;
 		vehicle.bga.loadingSideP2 = nil;
 	end;
+
+	if vehicle.ad.sensors ~= nil then
+		for _, sensor in pairs(vehicle.ad.sensors) do
+			sensor:setEnabled(false);
+		end;
+	end;
+	vehicle.ad.reverseTimer = 0;
 end
 
 function AutoDrive:getVehicleToStop(vehicle, brake, dt)
@@ -313,7 +320,7 @@ function AutoDrive:detectTraffic(vehicle)
 	local x,y,z = getWorldTranslation( vehicle.components[1].node );
 	--create bounding box to check for vehicle
 	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
-	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
+	local vehicleVector = {x=rx ,z= rz};
 	local width = vehicle.sizeWidth;
 	local length = vehicle.sizeLength;
 	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
@@ -332,7 +339,7 @@ function AutoDrive:detectTraffic(vehicle)
                         y = y+2,
 						z = z + (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z};
 	
-	if AutoDrive:getSetting("enableTrafficDetection") == true and (getDistanceToTargetPosition(vehicle) > 15 and getDistanceToUnloadPosition(vehicle) > 15) then
+	if AutoDrive:getSetting("enableTrafficDetection") == true then --GC have now updated their triggers. so remove this: and (getDistanceToTargetPosition(vehicle) > 15 and getDistanceToUnloadPosition(vehicle) > 15)
 		local box = {};
 		box.center = {};
 		box.size = {};
@@ -377,7 +384,7 @@ function AutoDrive:detectTraffic(vehicle)
 	for _,other in pairs(g_currentMission.vehicles) do
 		if other ~= vehicle and other ~= vehicle.ad.currentCombine then
 			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
-			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE);		
+			local isAttachedToMyCombine = false; --AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE);	-- or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
             
 			if isAttachedToMe == false and other.components ~= nil and isAttachedToMyCombine == false then
 				if other.sizeWidth == nil then

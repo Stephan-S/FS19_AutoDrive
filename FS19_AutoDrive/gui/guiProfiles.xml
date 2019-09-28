@@ -57,14 +57,14 @@
     </Presets>
 
     <Traits>
-        <Trait name="debugging">
+        <Trait name="ADdebugging">
             <Value name="debugEnabled" value="true" />
         </Trait>
-        <Trait name="anchorTopLeft">
+        <Trait name="ADanchorTopLeft">
             <Value name="screenAlign" value="topLeft" />
             <Value name="positionOrigin" value="topLeft" />
         </Trait>
-        <Trait name="anchorTopCenter">
+        <Trait name="ADanchorTopCenter">
             <Value name="screenAlign" value="topCenter" />
             <Value name="positionOrigin" value="topCenter" />
         </Trait>
@@ -74,7 +74,7 @@
         <Value name="size" value="1800px 800px" />
     </Profile>
 
-    <Profile name="autoDriveMenuHeader" extends="emptyPanel" with="anchorTopCenter">
+    <Profile name="autoDriveMenuHeader" extends="emptyPanel" with="ADanchorTopCenter">
         <Value name="size" value="1800px 112px" />
         <Value name="alignmentX" value="left" />
         <Value name="alignmentY" value="bottom" />
@@ -100,7 +100,7 @@
     <Profile name="autoDriveMenuPageTabAlternate" extends="autoDriveMenuPageTab" with="alternateRow" />
 
 
-    <Profile name="autoDrivePagingTabList" extends="list" with="anchorTopLeft">
+    <Profile name="autoDrivePagingTabList" extends="list" with="ADanchorTopLeft">
         <Value name="size" value="1800px 112px" />
         <Value name="position" value="0px 0px" />
         <Value name="itemsPerRow" value="6" />
@@ -115,13 +115,13 @@
         <Value name="rowBackgroundProfileAlternate" value="autoDriveMenuPageTabAlternate" />
     </Profile>
 
-    <Profile name="autoDriveFullScreenSpanning" extends="uiElementContainerFullScreenSpanning" with="anchorTopLeft">
+    <Profile name="autoDriveFullScreenSpanning" extends="uiElementContainerFullScreenSpanning" with="ADanchorTopLeft">
         <Value name="size" value="1800px 720px" />
         <Value name="position" value="0px 0px" />        
         <Value name="margin" value="0px 0px 0px 0px" />
     </Profile>    
 
-    <Profile name="autoDriveIngameMenuSettingsBox" extends="ingameMenuSettingsBox" with="anchorTopLeft">
+    <Profile name="autoDriveIngameMenuSettingsBox" extends="ingameMenuSettingsBox" with="ADanchorTopLeft">
         <Value name="hasFrame" value="false" />
     </Profile>  
 

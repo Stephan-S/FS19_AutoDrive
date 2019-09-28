@@ -43,13 +43,16 @@ end;
 
 function ADFruitSensor:checkForFruitTypeInArea(fruitType, corners)
     local fruitValue = 0;
+    local fruitValue2 = 0;
     if fruitType == 9 or fruitType == 22 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true);
+        --fruitValue2, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[3].x, corners[3].z, corners[4].x, corners[4].z, true, true);
     else
         fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false);
+        --fruitValue2, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[3].x, corners[3].z, corners[4].x, corners[4].z, nil, false);
     end;
     
-    return (fruitValue > 50);
+    return ((fruitValue + fruitValue2) > 50);
 end;
 
 function ADFruitSensor:setFruitType(newFruitType)

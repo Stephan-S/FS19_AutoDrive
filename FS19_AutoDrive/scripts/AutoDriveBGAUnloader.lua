@@ -473,7 +473,7 @@ end;
 
 function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     if vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_LOADING then
-        vehicle.bga.shovelTargetHeight = 0.04;
+        vehicle.bga.shovelTargetHeight = 0.00;
         vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.02;
         if vehicle.bga.armExtender ~= nil then 
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMin;
@@ -786,7 +786,7 @@ function AutoDriveBGA:isAlmostInBunkerSiloArea(vehicle, distanceToCheck)
     local x,y,z = getWorldTranslation( vehicle.components[1].node );
 	--create bounding box to check for vehicle
 	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
-	local vehicleVector = {x= math.sin(rx) ,z= math.sin(rz)};
+	local vehicleVector = {x= rx ,z= rz};
 	local width = vehicle.sizeWidth;
 	local length = vehicle.sizeLength;
 	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };

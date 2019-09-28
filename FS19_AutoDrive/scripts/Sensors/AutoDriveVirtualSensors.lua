@@ -25,6 +25,65 @@ ADSensor.WIDTH_FACTOR = 0.7;
 --       v  O-O
 --
 
+function ADSensor:handleSensors(vehicle, dt)
+    if vehicle.ad.sensors == nil then
+        ADSensor:addSensorsToVehicle(vehicle);
+    end;
+
+    for _, sensor in pairs(vehicle.ad.sensors) do
+        sensor:updateSensor(dt);
+    end;
+end;
+
+function ADSensor:addSensorsToVehicle(vehicle)
+    vehicle.ad.sensors = {}
+    local sensorParameters = {}
+    sensorParameters.position = ADSensor.POS_FRONT;
+    local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
+    local frontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["frontSensor"] = frontSensor;
+    vehicle.ad.sensors["frontSensorFruit"] = frontSensorFruit;
+    sensorParameters.position = ADSensor.POS_REAR;
+    local rearSensor = ADCollSensor:new(vehicle, sensorParameters)
+    local rearSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["rearSensor"] = rearSensor;
+    vehicle.ad.sensors["rearSensorFruit"] = rearSensorFruit;
+    sensorParameters.position = ADSensor.POS_LEFT;
+    sensorParameters.dynamicLength = false;
+    sensorParameters.dynamicRotation = false;
+    sensorParameters.width = 5;
+    local leftSensor = ADCollSensor:new(vehicle, sensorParameters)
+    local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["leftSensor"] = leftSensor;
+    vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit;
+    sensorParameters.position = ADSensor.POS_RIGHT;
+    sensorParameters.dynamicLength = false;
+    sensorParameters.dynamicRotation = false;
+    sensorParameters.width = 5;
+    local rightSensor = ADCollSensor:new(vehicle, sensorParameters)
+    local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["rightSensor"] = rightSensor;
+    vehicle.ad.sensors["rightSensorFruit"] = rightSensorFruit;
+    sensorParameters.position = ADSensor.POS_FRONT_LEFT;
+    sensorParameters.dynamicLength = false;
+    sensorParameters.dynamicRotation = false;
+    sensorParameters.width = 13;
+    sensorParameters.length = vehicle.sizeLength * 2;
+    local leftFrontSensor = ADCollSensor:new(vehicle, sensorParameters)
+    local leftFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["leftFrontSensor"] = leftFrontSensor;
+    vehicle.ad.sensors["leftFrontSensorFruit"] = leftFrontSensorFruit;
+    sensorParameters.position = ADSensor.POS_FRONT_RIGHT;
+    sensorParameters.dynamicLength = false;
+    sensorParameters.dynamicRotation = false;
+    sensorParameters.width = 13;
+    sensorParameters.length = vehicle.sizeLength * 2;
+    local rightFrontSensor = ADCollSensor:new(vehicle, sensorParameters)
+    local rightFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["rightFrontSensor"] = rightFrontSensor;
+    vehicle.ad.sensors["rightFrontSensorFruit"] = rightFrontSensorFruit;
+end;
+
 function ADSensor:init(vehicle, sensorType, sensorParameters)
     --o = {}
     --setmetatable(o, self)
@@ -32,10 +91,10 @@ function ADSensor:init(vehicle, sensorType, sensorParameters)
     self.vehicle = vehicle;
     self.sensorType = sensorType;
     self.sensorParameters = sensorParameters;
-    self.enabled = true;
+    self.enabled = false;
     self.triggered = false;
     self.initialized = false;
-    self.drawDebug = true;
+    self.drawDebug = false;
     
     self:loadBaseParameters();
     self:loadDynamicParameters(sensorParameters);
@@ -106,6 +165,12 @@ function ADSensor:getLocationByPosition()
     elseif self.position == ADSensor.POS_LEFT then
         location.x = vehicle.sizeWidth/2 + 1 + self.width/2; 
         location.z = -vehicle.sizeLength/2;
+    elseif self.position == ADSensor.POS_FRONT_LEFT then
+        location.x = vehicle.sizeWidth/2 + 1 + self.width/2; 
+        location.z = vehicle.sizeLength/2;
+    elseif self.position == ADSensor.POS_FRONT_RIGHT then
+        location.x = -vehicle.sizeWidth/2 - 1 - self.width/2; 
+        location.z = vehicle.sizeLength/2;
     elseif self.position == ADSensor.POS_FIXED and self.location ~= nil then
         return self.location; 
     end;
@@ -125,9 +190,7 @@ function ADSensor:getBoxShape()
         vecZ.x, vecZ.z = math.sin(vehicle.rotatedTime), math.cos(vehicle.rotatedTime);
     end;	    
     local vecX = {x=vecZ.z, z=-vecZ.x};
-    if self.sideFactor == -1 then
-        vecX = {x=-vecX.x, z=-vecX.z};
-    end;
+   
     if self.frontFactor == -1 then
         vecZ = {x=vecZ.x, z=-vecZ.z};
     end;
@@ -145,13 +208,41 @@ function ADSensor:getBoxShape()
     box.center[1] = box.offset[1]  + vecZ.x * box.size[3]; --+ (vecX.x * box.size[1])
     box.center[2] = 2.2;                -- fixed y pos for now
     box.center[3] = box.offset[3] + vecZ.z * box.size[3]; -- + vecX.z * box.size[1]
+
+    box.topLeft = {};
+    box.topLeft[1] = box.center[1] - vecX.x * box.size[1] + vecZ.x * box.size[3];
+    box.topLeft[2] = 2.2;
+    box.topLeft[3] = box.center[3] - vecX.z * box.size[1] + vecZ.z * box.size[3];
+
+    box.topRight = {};
+    box.topRight[1] = box.center[1] + vecX.x * box.size[1] + vecZ.x * box.size[3];
+    box.topRight[2] = 2.2;
+    box.topRight[3] = box.center[3] + vecX.z * box.size[1] + vecZ.z * box.size[3];
+
+    box.downRight = {};
+    box.downRight[1] = box.center[1] + vecX.x * box.size[1] - vecZ.x * box.size[3];
+    box.downRight[2] = 2.2;
+    box.downRight[3] = box.center[3] + vecX.z * box.size[1] - vecZ.z * box.size[3];
+
+    box.downLeft = {};
+    box.downLeft[1] = box.center[1] - vecX.x * box.size[1] - vecZ.x * box.size[3];
+    box.downLeft[2] = 2.2;
+    box.downLeft[3] = box.center[3] - vecX.z * box.size[1] - vecZ.z * box.size[3];
+    
+    if self.sideFactor == -1 then
+        vecX = {x=-vecX.x, z=-vecX.z};
+    end;
+
     box.dirX, box.dirY, box.dirZ = localDirectionToWorld(vehicle.components[1].node, 0,0,1)
     box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, vecZ.x, 0, vecZ.z)
     box.ry = math.atan2(box.zx, box.zz)
     box.rx = -MathUtil.getYRotationFromDirection(box.dirY, 1) * self.frontFactor;
     box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3]);
 
-    box.vector = { x=vecZ.x*box.size[3] + vecX.x*box.size[1], z=vecZ.z*box.size[3] + vecX.z*box.size[1] };
+    box.topLeft.x, box.topLeft.y, box.topLeft.z = localToWorld(vehicle.components[1].node, box.topLeft[1], box.topLeft[2], box.topLeft[3]);
+    box.topRight.x, box.topRight.y, box.topRight.z = localToWorld(vehicle.components[1].node, box.topRight[1], box.topRight[2], box.topRight[3]);
+    box.downRight.x, box.downRight.y, box.downRight.z = localToWorld(vehicle.components[1].node, box.downRight[1], box.downRight[2], box.downRight[3]);
+    box.downLeft.x, box.downLeft.y, box.downLeft.z = localToWorld(vehicle.components[1].node, box.downLeft[1], box.downLeft[2], box.downLeft[3]);
 
     return box;
 end;
@@ -163,10 +254,10 @@ function ADSensor:getCorners(box)
     end;
 
     local corners = {};
-    corners[1] = { x=box.x + box.vector.x, z=box.z + box.vector.z } --"cornerRightUp"
-    corners[2] = { x=box.x + box.vector.x, z=box.z - box.vector.z } --"cornerRightDown"
-    corners[3] = { x=box.x - box.vector.x, z=box.z - box.vector.z } --"cornerLeftDown"
-    corners[4] = { x=box.x - box.vector.x, z=box.z + box.vector.z } --"cornerLeftUp"
+    corners[2] = { x=box.topLeft.x, z=box.topLeft.z };
+    corners[4] = { x=box.topRight.x, z=box.topRight.z };
+    corners[3] = { x=box.downRight.x, z=box.downRight.z };
+    corners[1] = { x=box.downLeft.x, z=box.downLeft.z };
 
     return corners;
 end;
@@ -187,17 +278,51 @@ end;
 function ADSensor:onDrawDebug(box)
     if self.drawDebug then
         local red = 0;
+        local blue = 0;
         if self:isTriggered() then
-            red = 1;
+            if self.sensorType == ADSensor.TYPE_FRUIT then
+                blue = 1;
+            else
+                red = 1;
+            end;
         end;
 
-        DebugUtil.drawOverlapBox(box.x,box.y,box.z, box.rx, box.ry, 0, box.size[1],box.size[2],box.size[3], red, 0, 0);   
+        DebugUtil.drawOverlapBox(box.x,box.y,box.z, box.rx, box.ry, 0, box.size[1],box.size[2],box.size[3], red, blue, 0);   
+        
+        if self.sensorType == ADSensor.TYPE_FRUIT then
+            local corners = self:getCorners(box);
+            corners[1].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[1].x, 1, corners[1].z);
+            corners[2].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[2].x, 1, corners[2].z);
+            corners[3].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[3].x, 1, corners[3].z);
+            corners[4].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[4].x, 1, corners[4].z);
+            
+            AutoDrive:drawLine(corners[1], corners[2], 1, blue, 0, 1);
+            AutoDrive:drawLine(corners[2], corners[3], 1, blue, 0, 1);
+            AutoDrive:drawLine(corners[3], corners[1], 1, blue, 0, 1);
+
+            
+            AutoDrive:drawLine(corners[1], corners[3], 1, blue, 1, 1);
+            AutoDrive:drawLine(corners[3], corners[4], 1, blue, 1, 1);
+            AutoDrive:drawLine(corners[4], corners[1], 1, blue, 1, 1);
+        end;
     end;
+end;
+
+function ADSensor:pollInfo()
+    local wasEnabled = self.enabled;
+    self:setEnabled(true);
+    if not wasEnabled then
+        self:setEnabled(false);
+    end;
+    return self:isTriggered();
 end;
 
 function ADSensor:setEnabled(enabled)
     if enabled ~= nil and enabled == true then
-        self.enabled = true;
+        if self.enabled == false then
+            self.enabled = true;
+            self:updateSensor(16);
+        end;
     else
         self.enabled = false;
     end;

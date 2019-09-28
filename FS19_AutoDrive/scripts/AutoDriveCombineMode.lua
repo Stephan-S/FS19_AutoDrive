@@ -36,7 +36,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
             vehicle.ad.tryingToCallDriver = true;  
             AutoDrive:callDriverToCombine(vehicle);  
-        elseif (fillLevel / maxCapacity) >= AutoDrive:getSetting("preCallLevel") and (not vehicle.ad.preCalledDriver) and AutoDrive:getSetting("preCallDriver") then
+        elseif ((fillLevel / maxCapacity) >= AutoDrive:getSetting("preCallLevel") or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) and AutoDrive:getSetting("preCallDriver") then
             vehicle.ad.tryingToCallDriver = true;  
             AutoDrive:preCallDriverToCombine(vehicle);
         end;
@@ -296,39 +296,58 @@ end;
 function AutoDrive:chaseCombine(vehicle, dt)
     local keepFollowing = true;
     local pauseFollowing = false;
-    local combine = vehicle.ad.currentCombine;
+    local combine = vehicle.ad.currentCombine;  
 
     local combineWorldX, combineWorldY, combineWorldZ = getWorldTranslation( combine.components[1].node );    
     local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
 
     local angleToCombineHeading = AutoDrive:getAngleToCombineHeading(vehicle, combine);
-    if angleToCombineHeading > 20 then
+    if vehicle.ad.combineHeadingDiff == nil then
+        vehicle.ad.combineHeadingDiff = AutoDriveTON:new();
+    end;
+    if vehicle.ad.combineHeadingDiff:timer((angleToCombineHeading > 20), 5000, dt) then        
+        --print("Chasing combine - stopped - angleToCombineHeading > 20");
         keepFollowing = false;
     end;
 
     local combineSpeed = combine.lastSpeedReal;
-    if combineSpeed < 0 then
-        pauseFollowing = true;
+    --if combineSpeed < 0 then
+        --pauseFollowing = true;
+    --end;
+    
+    local isChopper = combine:getIsBufferCombine()
+    local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo();
+    local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo();
+    local chasePos = AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked, rightBlocked);
+    if leftBlocked and (not isChopper) then
+        chasePos = AutoDrive:getCombineChasePosition(vehicle, combine);
     end;
 
     local distanceToCombine = MathUtil.vector2Length(combineWorldX - worldX, combineWorldZ - worldZ);
-    if distanceToCombine < 30 then
-        pauseFollowing = true;
-    elseif distanceToCombine > 100 then
+    local distanceToChasePos = MathUtil.vector2Length(chasePos.x - worldX, chasePos.z - worldZ);
+    --if distanceToChasePos < 30 then
+        --pauseFollowing = true;
+    --else
+    if distanceToChasePos > 60 then
+        --print("Chasing combine - stopped - distanceToChasePos > 60");
         keepFollowing = false;
+    end;
+
+    if vehicle.ad.sensors.frontSensor:pollInfo() then
+        --print("Traffic collision triggered - pausing");
+        pauseFollowing = true;
     end;
 
     local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine);
     local maxCapacity = fillLevel + leftCapacity;
     local combineFillLevel = (fillLevel / maxCapacity);
 
-    if combineFillLevel >= 0.98 or combine.ad.noMovementTimer.elapsedTime > 10000 then
+    if (combineFillLevel >= 0.98 or combine.ad.noMovementTimer.elapsedTime > 10000) and (not isChopper) then
         --print("Chasing combine - stopped - park in Field now");
         AutoDrive:getVehicleToStop(vehicle, false, dt);
 
         AutoDrive.waitingUnloadDrivers[vehicle] = vehicle;
         vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE;
-        --vehicle.ad.initialized = false;
         vehicle.ad.wayPoints = {};
         vehicle.ad.isPaused = true;
         if vehicle.ad.currentCombine ~= nil then
@@ -341,46 +360,143 @@ function AutoDrive:chaseCombine(vehicle, dt)
         return;
     end;
 
+    if AutoDrive:combineIsTurning(vehicle, combine, isChopper) then        
+        --print("Chasing combine - stopped - combineIsTurning");
+        pauseFollowing = true;
+    end;
+
     if not pauseFollowing and keepFollowing then
         --print("Chasing combine")
-        local finalSpeed = 15;
+        local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
+        --AutoDrive:drawLine(AutoDrive:createVector(x1,y1+3.5-AutoDrive:getSetting("lineHeight"),z1), chasePos, 1, 0, 0, 1);
+        
+        local finalSpeed = 25;
         local acc = 1;
         local allowedToDrive = true;
 
-        if distanceToCombine < 40 then
+        if distanceToChasePos < 5 then
             finalSpeed = (combine.lastSpeedReal * 3600);
         end;
-        
-        local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, combineWorldX, combineWorldY, combineWorldZ);
+
+        local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, chasePos.x, chasePos.y, chasePos.z);
         AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1);
         drivingEnabled = true;
-    else        
-        --print("Chasing combine - paused")
-        AutoDrive:getVehicleToStop(vehicle, false, dt);
+    else    
+        if pauseFollowing and keepFollowing then
+            if vehicle.ad.reverseTimer == nil then
+                vehicle.ad.reverseTimer = 0;
+            end;
+            if vehicle.ad.reverseTimer < 2000 or distanceToCombine < 10 then
+                --print("Reversing from combine")
+                --print("Chasing combine - paused")
+                --AutoDrive:getVehicleToStop(vehicle, false, dt);
+                --reverse a little to make room for turn maneuvers
+                local finalSpeed = 9;
+                local acc = 1;
+                local allowedToDrive = true;
+                
+                local node = vehicle.components[1].node;					
+                if vehicle.getAIVehicleDirectionNode ~= nil then
+                    node = vehicle:getAIVehicleDirectionNode();
+                end;
+                local x,y,z = getWorldTranslation(vehicle.components[1].node);   
+                local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,-1);	
+                x = x + rx;
+                z = z + rz;
+                local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z);
+                AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1);
+                drivingEnabled = true;
+                vehicle.ad.reverseTimer = vehicle.ad.reverseTimer + dt;
+            else
+                AutoDrive:getVehicleToStop(vehicle, false, dt);
+                keepFollowing = false;
+            end;
+        else
+            AutoDrive:getVehicleToStop(vehicle, false, dt);
+        end;
     end;
 
+    local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle);
+    if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel", vehicle) then
+        vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
+        AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
+        if vehicle.ad.currentCombine ~= nil then
+            vehicle.ad.currentCombine.ad.currentDriver = nil;
+            vehicle.ad.currentCombine.ad.preCalledDriver = false;
+            vehicle.ad.currentCombine.ad.driverOnTheWay = false;
+            vehicle.ad.currentCombine = nil;
+            return;
+        end;
+    end;   
+    
     if keepFollowing == false then
         --print("Chasing combine - stopped - recalculating new path when combine ready")
-        local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStag ~= nil and combine.cp.turnStage > 0)) ;
-        local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true);
-        local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
-        local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering;
+        AutoDrive:getVehicleToStop(vehicle, false, dt);
         local pausedForSomeTime = vehicle.ad.noMovementTimer:done();
-        if combine.ad.driveForwardTimer:done() and (not combineIsTurning) and pausedForSomeTime then
+        if (not AutoDrive:combineIsTurning(vehicle, combine, isChopper)) and pausedForSomeTime then
             --print("Chasing combine - stopped - recalculating new path");
             AutoDrivePathFinder:startPathPlanningToCombine(vehicle, combine, nil);
             vehicle.ad.currentCombine = combine;
             AutoDrive.waitingUnloadDrivers[vehicle] = nil;
             vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE;
-        -- else
-        --     if combine.getAIIsTurning ~= nil then
-        --         print("Combine is turning: " .. ADBoolToString(combine:getAIIsTurning()));
-        --     else
-        --         print("Combine is not turning or nil");
-        --     end;
-        --     print("No movement timer done: " .. ADBoolToString(combine.ad.driveForwardTimer:done()));
+            vehicle.ad.reverseTimer = 0;
         end;
     end;
+end;
+
+function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
+    local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStag ~= nil and combine.cp.turnStage > 0)) ;
+    local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true);
+    local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
+    local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering;    
+    --print("cpIsTurning: " .. ADBoolToString(cpIsTurning) .. " aiIsTurning: " .. ADBoolToString(aiIsTurning) .. " combineSteering: " .. ADBoolToString(combineSteering) .. " isChopper: " .. ADBoolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. ADBoolToString(combine.ad.driveForwardTimer:done()));
+    if (combine.ad.driveForwardTimer:done() or isChopper) and (not combineIsTurning) then
+       return false;
+    end;
+    return true;
+end;
+
+function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked, rightBlocked)    
+    local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
+	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
+    local combineVector = {x= rx ,z= rz};	
+    local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
+    local nodeX,nodeY,nodeZ = worldX, worldY, worldZ;
+    if isChopper and (not leftBlocked) then
+        --print("Taking left side");
+        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 10, worldY, worldZ - combineNormalVector.z * 10;
+    elseif isChopper and (not rightBlocked) then
+        --print("Taking right side");
+        nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 10, worldY, worldZ + combineNormalVector.z * 10;
+    elseif isChopper then
+        --print("Taking rear side");
+        nodeX,nodeY,nodeZ = worldX - combineVector.x * 10, worldY, worldZ - combineVector.z * 10;
+    else        
+        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 10, worldY, worldZ - combineNormalVector.z * 10; --default aim left on combine harvesters
+        local spec = combine.spec_pipe
+        if (spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer")) and (not isChopper) then
+            local dischargeNode = nil;
+            for _,dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
+                dischargeNode = dischargeNodeIter;
+            end;
+        
+            local pipeOffset = AutoDrive:getSetting("pipeOffset", vehicle);     
+            local trailerOffset = AutoDrive:getSetting("trailerOffset", vehicle);
+
+            nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
+            nodeX,nodeY,nodeZ = (nodeX + (vehicle.sizeLength/2 + 5 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength/2 + 5 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z;
+        end;
+    end;
+
+    return {x= nodeX, y = nodeY, z = nodeZ};
+end;
+
+function AutoDrive:getCombineChasePosition(vehicle, combine)    
+    local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
+	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
+    local combineVector = {x= rx ,z= rz};	
+       
+    return {x= worldX - (AutoDrive.PATHFINDER_FOLLOW_DISTANCE-35)*rx, y = worldY, z = worldZ + (AutoDrive.PATHFINDER_FOLLOW_DISTANCE-35)*rz};
 end;
 
 function AutoDrive:getAngleToCombineHeading(vehicle, combine)
@@ -412,7 +528,7 @@ function AutoDrive:handlePathPlanning(vehicle, dt)
         vehicle.ad.currentWayPoint = 1;
 
         if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-            if #vehicle.ad.wayPoints <= 8 then
+            if #vehicle.ad.wayPoints <= 5 then
                 vehicle.ad.wayPoints = nil;
                 if vehicle.ad.waitForPreDriveTimer <= 0 then
                     if not AutoDrive:restartPathFinder(vehicle) then

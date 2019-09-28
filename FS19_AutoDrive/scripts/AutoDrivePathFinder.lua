@@ -21,7 +21,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     --print("startPathPlanningToCombine " .. driver.ad.driverName );
     local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
-    local combineVector = {x= math.sin(rx) ,z= math.sin(rz)};	
+    local combineVector = {x= rx ,z=rz};	
     local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
     
     local wpAhead;
@@ -559,7 +559,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                             z = corner3Z; };
         
         for _,other in pairs(g_currentMission.vehicles) do
-            if other ~= pf.driver and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other)) then
+            if other ~= pf.driver then --try this with every vehicle from now on --and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other))
                 if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
                     local otherWidth = other.sizeWidth;
                     local otherLength = other.sizeLength;
@@ -690,7 +690,7 @@ function AutoDrivePathFinder:createWayPoints(pf)
         end;
 
         index = index + ADTableLength(pf.chainStartToTarget);
-        --AutoDrivePathFinder:smoothResultingPPPath(pf);
+        AutoDrivePathFinder:smoothResultingPPPath(pf);
     end;
         
     

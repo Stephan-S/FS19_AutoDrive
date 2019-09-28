@@ -582,7 +582,7 @@ function AutoDrive:findMatchingWayPointForReverseDirection(veh)
 	--returns waypoint closest to vehicle position and with the most suited heading
 	local x1,y1,z1 = getWorldTranslation(veh.components[1].node);
 	local rx,ry,rz = localDirectionToWorld(veh.components[1].node, 0,0,1);
-	local vehicleVector = {x= -math.sin(rx) ,z= -math.sin(rz) };
+	local vehicleVector = {x= -rx ,z= -rz };
 	local point = {x=x1, z=z1};
 
 	local bestPoint = AutoDrive:findMatchingWayPoint(point, vehicleVector, 0.1, 5);	

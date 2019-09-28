@@ -21,6 +21,7 @@ AutoDrive.MODE_UNLOAD = 5;
 AutoDrive.MODE_BGA = 6;
 
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
+AutoDrive.SPEED_ON_FIELD = 38;
 
 function AutoDrive:prerequisitesPresent(specializations)
     return true;
@@ -364,6 +365,7 @@ function init(self)
 			self.ad.groups[groupName] = true;
 		end;
 	end;
+	self.ad.reverseTimer = 0;
 end;
 
 function AutoDrive:onLeaveVehicle()	
@@ -454,7 +456,8 @@ function AutoDrive:onUpdate(dt)
 	self.ad.closest = nil;
 	
 	AutoDrive:handleRecalculation(self);	
-	AutoDrive:handleRecording(self);
+	AutoDrive:handleRecording(self);	
+	ADSensor:handleSensors(self, dt)
 	AutoDrive:handleDriving(self, dt);
 	AutoDrive:handleYPositionIntegrityCheck(self);
 	AutoDrive:handleClientIntegrity(self);
@@ -498,43 +501,6 @@ function AutoDrive:onUpdate(dt)
 			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt);
 		end;
 	end;
-
-	-- if self == g_currentMission.controlledVehicle then
-	-- 	if self.ad.sensors ~= nil then
-	-- 		for _, sensor in pairs(self.ad.sensors) do
-	-- 			sensor:updateSensor(dt);
-	-- 		end;
-	-- 	else
-	-- 		self.ad.sensors = {}
-	-- 		local sensorParameters = {}
-	-- 		sensorParameters.position = ADSensor.POS_FRONT;
-	-- 		local frontSensor = ADCollSensor:new(self, sensorParameters)
-	-- 		local frontSensorFruit = ADFruitSensor:new(self, sensorParameters)
-	-- 		table.insert(self.ad.sensors, frontSensor);
-	-- 		table.insert(self.ad.sensors, frontSensorFruit);
-	-- 		sensorParameters.position = ADSensor.POS_REAR;
-	-- 		local rearSensor = ADCollSensor:new(self, sensorParameters)
-	-- 		local rearSensorFruit = ADFruitSensor:new(self, sensorParameters)
-	-- 		table.insert(self.ad.sensors, rearSensor);
-	-- 		table.insert(self.ad.sensors, rearSensorFruit);
-	-- 		sensorParameters.position = ADSensor.POS_LEFT;
-	-- 		sensorParameters.dynamicLength = false;
-	-- 		sensorParameters.dynamicRotation = false;
-	-- 		sensorParameters.width = 5;
-	-- 		local leftSensor = ADCollSensor:new(self, sensorParameters)
-	-- 		local leftSensorFruit = ADFruitSensor:new(self, sensorParameters)
-	-- 		table.insert(self.ad.sensors, leftSensor);
-	-- 		table.insert(self.ad.sensors, leftSensorFruit);
-	-- 		sensorParameters.position = ADSensor.POS_RIGHT;
-	-- 		sensorParameters.dynamicLength = false;
-	-- 		sensorParameters.dynamicRotation = false;
-	-- 		sensorParameters.width = 5;
-	-- 		local rightSensor = ADCollSensor:new(self, sensorParameters)
-	-- 		local rightSensorFruit = ADFruitSensor:new(self, sensorParameters)
-	-- 		table.insert(self.ad.sensors, rightSensor);
-	-- 		table.insert(self.ad.sensors, rightSensorFruit);
-	-- 	end;
-	-- end;
 
 	AutoDrive.runThisFrame = true;
 end;
@@ -584,6 +550,18 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 			AutoDrive.Hud:drawHud(vehicle);
 		end;
 	end;
+
+	-- local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
+	-- local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
+	-- local vehicleVector = {x= rx ,z= rz};	
+	-- local ahead = {x=worldX + 20*rx, y=worldY+5, z=worldZ + 20*rz};
+	-- local current = {x=worldX, y=worldY+5, z=worldZ };
+	
+    -- local vehicleNormalVector = {x= -vehicleVector.z ,z= vehicleVector.x};
+	-- local right = {x=worldX + 20*vehicleNormalVector.x, y=worldY+5, z=worldZ + 20*vehicleNormalVector.z};
+
+	-- AutoDrive:drawLine(ahead, current, 0, 1, 0, 1);
+	-- AutoDrive:drawLine(right, current, 0, 0, 1, 1);
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)
