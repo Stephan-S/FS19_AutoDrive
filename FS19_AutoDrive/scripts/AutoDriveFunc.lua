@@ -382,7 +382,7 @@ function AutoDrive:detectTraffic(vehicle)
     --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 0, 0, 0, 1);	
 
 	for _,other in pairs(g_currentMission.vehicles) do
-		if other ~= vehicle and other ~= vehicle.ad.currentCombine then
+		if other ~= vehicle then --and other ~= vehicle.ad.currentCombine
 			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
 			local isAttachedToMyCombine = false; --AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE);	-- or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
             

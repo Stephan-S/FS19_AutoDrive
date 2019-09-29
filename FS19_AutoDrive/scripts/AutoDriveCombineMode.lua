@@ -440,6 +440,7 @@ function AutoDrive:chaseCombine(vehicle, dt)
             AutoDrive.waitingUnloadDrivers[vehicle] = nil;
             vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE;
             vehicle.ad.reverseTimer = 0;
+            vehicle.ad.combineHeadingDiff:timer(false);
         end;
     end;
 end;
@@ -470,7 +471,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
         nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 10, worldY, worldZ + combineNormalVector.z * 10;
     elseif isChopper then
         --print("Taking rear side");
-        nodeX,nodeY,nodeZ = worldX - combineVector.x * 10, worldY, worldZ - combineVector.z * 10;
+        nodeX,nodeY,nodeZ = worldX - combineVector.x * 6, worldY, worldZ - combineVector.z * 6;
     else        
         nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 10, worldY, worldZ - combineNormalVector.z * 10; --default aim left on combine harvesters
         local spec = combine.spec_pipe

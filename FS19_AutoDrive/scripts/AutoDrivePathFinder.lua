@@ -17,6 +17,7 @@ AutoDrive.PP_CELL_X = 6;
 AutoDrive.PP_CELL_Z = 6;
 AutoDrivePathFinder = {};
 
+
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
     --print("startPathPlanningToCombine " .. driver.ad.driverName );
     local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
@@ -74,17 +75,23 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 	local sin = math.sin(atan);
 	local cos = math.cos(atan);
 
+    local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
+    if minTurnRadius < 0 then --default for no implement == -1
+        minTurnRadius = PP_CELL_X;
+    end;
+
 	local vectorX = {};
-	vectorX.x = cos * AutoDrive.PP_CELL_X;
-	vectorX.z = sin * AutoDrive.PP_CELL_X;
+	vectorX.x = cos * minTurnRadius; --AutoDrive.PP_CELL_X;
+	vectorX.z = sin * minTurnRadius; --AutoDrive.PP_CELL_X;
 
 	local vectorZ = {};
-	vectorZ.x = -sin * AutoDrive.PP_CELL_Z;
-    vectorZ.z = cos * AutoDrive.PP_CELL_Z;
+	vectorZ.x = -sin * minTurnRadius; --AutoDrive.PP_CELL_Z;
+    vectorZ.z = cos * minTurnRadius; --AutoDrive.PP_CELL_Z;
     
     -- AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetY, targetVector, vectorX, vectorZ)
     AutoDrivePathFinder:init(driver, startX, startZ, wpBehind.x, wpBehind.z, combineVector, vectorX, vectorZ, combine) 
     
+    driver.ad.pf.minTurnRadius = minTurnRadius;
     driver.ad.pf.appendWayPoints = {};
 	driver.ad.pf.appendWayPoints[1] = wpBehind_close;
 	driver.ad.pf.appendWayPoints[2] = wpCurrent;
@@ -116,15 +123,20 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 	local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
-	local cos = math.cos(atan);
+    local cos = math.cos(atan);
+    
+    local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
+    if minTurnRadius < 0 then --default for no implement == -1
+        minTurnRadius = PP_CELL_X;
+    end;
 
 	local vectorX = {};
-	vectorX.x = cos * AutoDrive.PP_CELL_X;
-	vectorX.z = sin * AutoDrive.PP_CELL_X;
+	vectorX.x = cos * minTurnRadius;
+	vectorX.z = sin * minTurnRadius;
 
 	local vectorZ = {};
-	vectorZ.x = -sin * AutoDrive.PP_CELL_Z;
-    vectorZ.z = cos * AutoDrive.PP_CELL_Z;
+	vectorZ.x = -sin * minTurnRadius;
+    vectorZ.z = cos * minTurnRadius;
 
     local targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id]
 	local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]];
@@ -166,6 +178,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     -- AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetY, targetVector, vectorX, vectorZ)
     AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine) 
     
+    driver.ad.pf.minTurnRadius = minTurnRadius;
 	driver.ad.pf.appendWayPoints = {};
 	driver.ad.pf.appendWayPoints[1] = preTargetPoint;
     driver.ad.pf.appendWayPoints[2] = targetPoint;
@@ -242,7 +255,9 @@ end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
     local pf = driver.ad.pf;
-    --AutoDrivePathFinder:drawDebugForPF(pf);
+    --if driver.ad.createMapPoints then
+      --  AutoDrivePathFinder:drawDebugForPF(pf);
+    --end;
     pf.steps = pf.steps + 1;
 
     if pf.isFinished and pf.smoothDone == true then
@@ -559,7 +574,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
                             z = corner3Z; };
         
         for _,other in pairs(g_currentMission.vehicles) do
-            if other ~= pf.driver then --try this with every vehicle from now on --and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other))
+            if other ~= pf.driver and not AutoDrive:checkIsConnected(pf.driver, other) then --try this with every vehicle from now on --and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other))
                 if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
                     local otherWidth = other.sizeWidth;
                     local otherLength = other.sizeLength;
@@ -616,38 +631,38 @@ function getShapeDefByDirectionType(pf, cell)
         --default size:
         shapeDefinition.x = worldPos.x;
         shapeDefinition.z = worldPos.z;
-        shapeDefinition.widthX = AutoDrive.PP_CELL_X/2;
-        shapeDefinition.widthZ = AutoDrive.PP_CELL_Z/2;
+        shapeDefinition.widthX = pf.minTurnRadius/2;
+        shapeDefinition.widthZ = pf.minTurnRadius/2;
     elseif cell.direction == AutoDrive.PP_UP_RIGHT then
         local offsetX = (-pf.vectorX.x)/2 + (-pf.vectorZ.x)/4;     
         local offsetZ = (-pf.vectorX.z)/2 + (-pf.vectorZ.z)/4;    
         shapeDefinition.x = worldPos.x + offsetX;
         shapeDefinition.z = worldPos.z + offsetZ;
-        shapeDefinition.widthX = AutoDrive.PP_CELL_X/2 + math.abs(offsetX);
-        shapeDefinition.widthZ = AutoDrive.PP_CELL_Z/2 + math.abs(offsetZ);
+        shapeDefinition.widthX = pf.minTurnRadius/2 + math.abs(offsetX);
+        shapeDefinition.widthZ = pf.minTurnRadius/2 + math.abs(offsetZ);
     elseif cell.direction == AutoDrive.PP_UP_LEFT then
         local offsetX = (-pf.vectorX.x)/2 + (pf.vectorZ.x)/4;     
         local offsetZ = (-pf.vectorX.z)/2 + (pf.vectorZ.z)/4;    
         shapeDefinition.x = worldPos.x + offsetX;
         shapeDefinition.z = worldPos.z + offsetZ;
-        shapeDefinition.widthX = AutoDrive.PP_CELL_X/2 + math.abs(offsetX);
-        shapeDefinition.widthZ = AutoDrive.PP_CELL_Z/2 + math.abs(offsetZ);
+        shapeDefinition.widthX = pf.minTurnRadius/2 + math.abs(offsetX);
+        shapeDefinition.widthZ = pf.minTurnRadius/2 + math.abs(offsetZ);
     elseif cell.direction == AutoDrive.PP_DOWN_RIGHT then 
         local offsetX = (pf.vectorX.x)/2 + (-pf.vectorZ.x)/4;     
         local offsetZ = (pf.vectorX.z)/2 + (-pf.vectorZ.z)/4;    
         shapeDefinition.x = worldPos.x + offsetX;
         shapeDefinition.z = worldPos.z + offsetZ;
-        shapeDefinition.widthX = AutoDrive.PP_CELL_X/2 + math.abs(offsetX);
-        shapeDefinition.widthZ = AutoDrive.PP_CELL_Z/2 + math.abs(offsetZ);
+        shapeDefinition.widthX = pf.minTurnRadius/2 + math.abs(offsetX);
+        shapeDefinition.widthZ = pf.minTurnRadius/2 + math.abs(offsetZ);
     elseif cell.direction == AutoDrive.PP_DOWN_LEFT then
         local offsetX = (pf.vectorX.x)/2 + (pf.vectorZ.x)/4;     
         local offsetZ = (pf.vectorX.z)/2 + (pf.vectorZ.z)/4;     
         shapeDefinition.x = worldPos.x + offsetX;
         shapeDefinition.z = worldPos.z + offsetZ;
-        shapeDefinition.widthX = AutoDrive.PP_CELL_X/2 + math.abs(offsetX);
-        shapeDefinition.widthZ = AutoDrive.PP_CELL_Z/2 + math.abs(offsetZ);
+        shapeDefinition.widthX = pf.minTurnRadius/2 + math.abs(offsetX);
+        shapeDefinition.widthZ = pf.minTurnRadius/2 + math.abs(offsetZ);
     else
-        print("No cell driection given!");
+        print("No cell direction given!");
     end;
     
     return shapeDefinition;
@@ -780,7 +795,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 pf.totalEagerSteps = 0;
             end;
 
-            local widthOfColBox = math.sqrt(math.pow(AutoDrive.PP_CELL_X, 2) + math.pow(AutoDrive.PP_CELL_Z, 2));
+            local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2));
             local sideLength = widthOfColBox/2;
             local y = worldPos.y;
 
@@ -1118,6 +1133,11 @@ end;
 function AutoDrivePathFinder:determineBlockedCells(pf, endDirection, cell)
     local x = cell.x;
     local z = cell.z;
+
+    if (math.abs(cell.x)<2 and math.abs(cell.z)<2) then
+        return;
+    end;
+
 	--block cells which would result in bad angles to the end/start point
 	-- \|/  x|/  xx/  xxx  xxx  xxx  \xx  \|x
 	-- x|x  x/-  x>-  x\-  x|x  -/x  -<x  -\x
@@ -1305,7 +1325,7 @@ function drawDebugForCreatedRoute(pf)
                 local vectorZ = worldPos_cell.z - worldPos_incoming.z;
                 local angleRad = math.atan2(-vectorZ, vectorX);
                 angleRad = normalizeAngle(angleRad);
-                local widthOfColBox = math.sqrt(math.pow(AutoDrive.PP_CELL_X, 2) + math.pow(AutoDrive.PP_CELL_Z, 2));
+                local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2));
                 local sideLength = widthOfColBox/2;
                 local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox;
                 

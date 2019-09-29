@@ -562,6 +562,8 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 
 	-- AutoDrive:drawLine(ahead, current, 0, 1, 0, 1);
 	-- AutoDrive:drawLine(right, current, 0, 0, 1, 1);
+	--print("TurnRadius: " .. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(vehicle));
+	
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)
