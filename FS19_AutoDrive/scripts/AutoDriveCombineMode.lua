@@ -316,8 +316,8 @@ function AutoDrive:chaseCombine(vehicle, dt)
     --end;
     
     local isChopper = combine:getIsBufferCombine()
-    local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo();
-    local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo();
+    local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo();
+    local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo();
     local chasePos = AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked, rightBlocked);
     if leftBlocked and (not isChopper) then
         chasePos = AutoDrive:getCombineChasePosition(vehicle, combine);
@@ -433,7 +433,7 @@ function AutoDrive:chaseCombine(vehicle, dt)
         --print("Chasing combine - stopped - recalculating new path when combine ready")
         AutoDrive:getVehicleToStop(vehicle, false, dt);
         local pausedForSomeTime = vehicle.ad.noMovementTimer:done();
-        if (not AutoDrive:combineIsTurning(vehicle, combine, isChopper)) and pausedForSomeTime then
+        if ((not AutoDrive:combineIsTurning(vehicle, combine, isChopper)) and pausedForSomeTime) or (vehicle.ad.noMovementTimer.elapsedTime > 15000) then
             --print("Chasing combine - stopped - recalculating new path");
             AutoDrivePathFinder:startPathPlanningToCombine(vehicle, combine, nil);
             vehicle.ad.currentCombine = combine;
@@ -465,15 +465,15 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
     local nodeX,nodeY,nodeZ = worldX, worldY, worldZ;
     if isChopper and (not leftBlocked) then
         --print("Taking left side");
-        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 10, worldY, worldZ - combineNormalVector.z * 10;
+        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 8, worldY, worldZ - combineNormalVector.z * 8;
     elseif isChopper and (not rightBlocked) then
         --print("Taking right side");
-        nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 10, worldY, worldZ + combineNormalVector.z * 10;
+        nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 8, worldY, worldZ + combineNormalVector.z * 8;
     elseif isChopper then
         --print("Taking rear side");
         nodeX,nodeY,nodeZ = worldX - combineVector.x * 6, worldY, worldZ - combineVector.z * 6;
     else        
-        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 10, worldY, worldZ - combineNormalVector.z * 10; --default aim left on combine harvesters
+        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9, worldY, worldZ - combineNormalVector.z * 9; --default aim left on combine harvesters
         local spec = combine.spec_pipe
         if (spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer")) and (not isChopper) then
             local dischargeNode = nil;
@@ -485,7 +485,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
             local trailerOffset = AutoDrive:getSetting("trailerOffset", vehicle);
 
             nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
-            nodeX,nodeY,nodeZ = (nodeX + (vehicle.sizeLength/2 + 5 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength/2 + 5 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z;
+            nodeX,nodeY,nodeZ = (nodeX + (vehicle.sizeLength/2 + 8 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength/2 + 8 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z;
         end;
     end;
 
@@ -529,7 +529,7 @@ function AutoDrive:handlePathPlanning(vehicle, dt)
         vehicle.ad.currentWayPoint = 1;
 
         if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-            if #vehicle.ad.wayPoints <= 5 then
+            if #vehicle.ad.wayPoints <= 1 then
                 vehicle.ad.wayPoints = nil;
                 if vehicle.ad.waitForPreDriveTimer <= 0 then
                     if not AutoDrive:restartPathFinder(vehicle) then

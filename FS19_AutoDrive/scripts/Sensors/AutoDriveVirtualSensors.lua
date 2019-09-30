@@ -51,7 +51,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_LEFT;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
-    sensorParameters.width = 5;
+    sensorParameters.width = 13;
     local leftSensor = ADCollSensor:new(vehicle, sensorParameters)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["leftSensor"] = leftSensor;
@@ -59,7 +59,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_RIGHT;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
-    sensorParameters.width = 5;
+    sensorParameters.width = 13;
     local rightSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightSensor"] = rightSensor;

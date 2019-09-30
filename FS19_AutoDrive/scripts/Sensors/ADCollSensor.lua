@@ -35,8 +35,10 @@ end;
 function ADCollSensor:collisionTestCallback(transformId)
     self.collisionHits = math.max(0, self.collisionHits - 1);
     if g_currentMission.nodeToObject[transformId] ~= nil or g_currentMission.players[transformId] ~= nil or g_currentMission:getNodeObject(transformId) ~= nil then
-        if g_currentMission.nodeToObject[transformId] ~= self and not AutoDrive:checkIsConnected(self.vehicle, g_currentMission.nodeToObject[transformId]) then
-            self.newHit = true;          
+        if g_currentMission.nodeToObject[transformId] ~= self and g_currentMission.nodeToObject[transformId] ~= self.vehicle and not AutoDrive:checkIsConnected(self.vehicle, g_currentMission.nodeToObject[transformId]) then
+            if self.vehicle.ad.currentDriver == nil or ( g_currentMission.nodeToObject[transformId] ~= self.vehicle.ad.currentDriver and (not AutoDrive:checkIsConnected(self.vehicle.ad.currentDriver, g_currentMission.nodeToObject[transformId]))) then
+                self.newHit = true;     
+            end;
         end
     end
 end

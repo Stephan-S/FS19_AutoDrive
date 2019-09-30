@@ -77,7 +77,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 
     local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
     if minTurnRadius < 0 then --default for no implement == -1
-        minTurnRadius = PP_CELL_X;
+        minTurnRadius = AutoDrive.PP_CELL_X;
     end;
 
 	local vectorX = {};
@@ -103,13 +103,15 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     if combine.spec_combine ~= nil then
         if combine.spec_combine.fillUnitIndex ~= nil and combine.spec_combine.fillUnitIndex ~= 0 then
             local fillType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex))
-            if fillType ~= nil then
+            if fillType ~= nil and (not combine:getIsBufferCombine()) then
                 driver.ad.pf.fruitToCheck = fillType;
                 driver.ad.combineFruitToCheck = driver.ad.pf.fruitToCheck;
                 --print("Got fill type from combine: " .. driver.ad.pf.fruitToCheck .. ": " .. g_fillTypeManager:getFillTypeByIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex)).title);
             end;
         end;
     end;    
+    
+    driver.ad.pf.quickCheckActive = true;
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)       
@@ -127,7 +129,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     
     local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
     if minTurnRadius < 0 then --default for no implement == -1
-        minTurnRadius = PP_CELL_X;
+        minTurnRadius = AutoDrive.PP_CELL_X;
     end;
 
 	local vectorX = {};
@@ -238,7 +240,7 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     driver.ad.pf.combine = combine;
     driver.ad.pf.fruitToCheck = driver.ad.combineFruitToCheck;
     if (driver.ad.combineFruitToCheck == nil) and (driver.ad.pf.combine ~= nil) then
-        driver.ad.pf.fruitToCheck = 1;
+        driver.ad.pf.fruitToCheck = nil;
     end;
     
     driver.ad.currentTrailer = 1;
@@ -251,6 +253,207 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     table.insert(driver.ad.pf.grid, startCell);
     driver.ad.pf.smoothStep = 0;
     driver.ad.pf.smoothDone = false;
+    driver.ad.pf.target = {x=targetX, z=targetZ};
+end;
+
+function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
+    local driverX, driverY, driverZ = getWorldTranslation( driver.components[1].node );
+    local distance = MathUtil.vector2Length(driverX - target.x, driverZ - target.z);
+
+    local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
+
+    local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
+	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
+    local combineVector = {x= rx ,z=rz};	
+    
+    local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
+    if minTurnRadius < 0 then --default for no implement == -1
+        minTurnRadius = AutoDrive.PP_CELL_X;
+    end;
+    local widthOfColBox = math.sqrt(math.pow(minTurnRadius, 2) + math.pow(minTurnRadius, 2));
+    local sideLength = widthOfColBox/2;
+
+
+    local vectorX = target.x - driverX;
+    local vectorZ = target.z - driverZ;
+    local angleRad = math.atan2(-vectorZ, vectorX);
+    angleRad = normalizeAngle(angleRad);
+
+    local driverFrontOffset = driver.sizeLength/2 + 2;
+    local combineRearOffset = -combine.sizeLength/2 - 2;
+
+    local offsetPointDriver = {x = driverX + driverRx * driverFrontOffset, z=driverZ + driverRz * driverFrontOffset }
+    local offsetPointCombine = {x = target.x + targetVector.x * combineRearOffset, z=worldZ + targetVector.z * combineRearOffset }
+    local offsetPointCombinePreTarget = {x = target.x - targetVector.x * 6, z=worldZ + targetVector.z * 6}
+    
+    --check angle to target
+    local angleTarget = math.atan2(-targetVector.z, targetVector.x);
+    local angleBetween = AutoDriveBGA:getAngleBetweenTwoRadValues(angleRad, angleTarget);
+    --print("Found angle between driver and target vector: " .. angleBetween);
+    --required distance = minRadius * math.pi
+    if distance < (minTurnRadius * (angleBetween/math.pi)) then
+        --print("quick check angle is too steep");
+        return;
+    end;
+
+    vectorX = offsetPointCombine.x - offsetPointDriver.x;
+    vectorZ = offsetPointCombine.z - offsetPointDriver.z;
+
+    angleRad = math.atan2(-vectorZ, vectorX);
+    angleRad = normalizeAngle(angleRad);
+
+    local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)); -- + widthOfColBox;
+    
+    local leftAngle = normalizeAngle(angleRad + math.rad(-90));
+    local rightAngle = normalizeAngle(angleRad + math.rad(90));
+
+    local cornerX = offsetPointDriver.x - math.cos(leftAngle) * sideLength;
+    local cornerZ = offsetPointDriver.z + math.sin(leftAngle) * sideLength;
+
+    local corner2X = offsetPointCombine.x - math.cos(leftAngle) * sideLength;
+    local corner2Z = offsetPointCombine.z + math.sin(leftAngle) * sideLength;
+    
+    local corner3X = offsetPointCombine.x - math.cos(rightAngle) * sideLength;
+    local corner3Z = offsetPointCombine.z + math.sin(rightAngle) * sideLength;
+
+    local corner4X = offsetPointDriver.x - math.cos(rightAngle) * sideLength;
+    local corner4Z = offsetPointDriver.z + math.sin(rightAngle) * sideLength;
+
+    local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointDriver.x + vectorX/2, 1, offsetPointDriver.z + vectorZ/2);
+
+    local shapes = overlapBox(offsetPointDriver.x + vectorX/2,y+3,offsetPointDriver.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+    local red = 0;    
+    if (shapes > 0) then
+        --print("quickCheck coll test triggered collision!");
+        red = 1;
+    end;
+    --DebugUtil.drawOverlapBox(offsetPointDriver.x + vectorX/2,y+3,offsetPointDriver.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, red, 0, 0);
+    
+    local point1 = { x=cornerX, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, cornerX, 1, cornerZ), z=cornerZ };
+    local point2 = { x=corner2X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner2X, 1, corner2Z), z=corner2Z };
+    local point3 = { x=corner3X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner3X, 1, corner3Z), z=corner3Z };
+    local point4 = { x=corner4X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner4X, 1, corner4Z), z=corner4Z };
+
+    --AutoDrive:drawLine(point1, point2, red, 1, 1, 1);
+    --AutoDrive:drawLine(point2, point3, red, 1, 1, 1);
+    --AutoDrive:drawLine(point3, point4, red, 1, 1, 1);
+    --AutoDrive:drawLine(point4, point1, red, 1, 1, 1);
+    local driverHead = { x=offsetPointDriver.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointDriver.x, 1, offsetPointDriver.z), z=offsetPointDriver.z };
+    local combineRear = { x=offsetPointCombine.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombine.x, 1, offsetPointCombine.z), z=offsetPointCombine.z };
+
+    --AutoDrive:drawLine(driverHead, combineRear, red, 1, 0, 1);
+
+    local pf = driver.ad.pf;
+
+    local foundFruit = false;
+    if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit", pf.driver) then
+        if pf.fruitToCheck == nil then
+            for i = 1, #g_fruitTypeManager.fruitTypes do
+                if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
+                    local fruitType = g_fruitTypeManager.fruitTypes[i].index;      
+
+                    local fruitValue = 0;
+                    if fruitType == 9 or fruitType == 22 then
+                        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+                    else
+                        fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+                    end;
+                    
+                    if (fruitValue > 50) then
+                        foundFruit = true;
+                    end;
+                end;
+            end;
+        else
+            local fruitValue = 0;
+            if fruitType == 9 or fruitType == 22 then
+                fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+            else
+                fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+            end;
+            
+            if (fruitValue > 50) then
+                foundFruit = true;
+            end;
+        end;  
+    end;
+
+    --if foundFruit then
+       -- print("Quick check found fruit");
+    --end;
+
+    local foundVehicleColl = false;
+    local boundingBox = {};
+    boundingBox[1] ={ 	x = cornerX,
+                        y = 0,
+                        z = cornerZ; };
+    boundingBox[2] ={ 	x = corner2X,
+                        y = 0,
+                        z = corner2Z; };
+    boundingBox[3] ={ 	x = corner4X,
+                        y = 0,
+                        z = corner4Z; };
+    boundingBox[4] ={ 	x = corner3X,
+                        y = 0,
+                        z = corner3Z; };
+    
+    for _,other in pairs(g_currentMission.vehicles) do
+        if other ~= pf.driver and not AutoDrive:checkIsConnected(pf.driver, other) and other ~= combine and not AutoDrive:checkIsConnected(combine, other) then --try this with every vehicle from now on --and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other))
+            if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
+                local otherWidth = other.sizeWidth;
+                local otherLength = other.sizeLength;
+                local otherPos = {};
+                otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( other.components[1].node ); 
+
+                local rx,ry,rz = localDirectionToWorld(other.components[1].node, 0, 0, 1);
+
+                local otherVectorToWp = {};
+                otherVectorToWp.x = rx;
+                otherVectorToWp.z = rz;
+
+                local otherPos2 = {};
+                otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+                otherPos2.y = 0;
+                otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
+                local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
+
+                local otherBoundingBox = {};
+                otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                        y = 0,
+                                        z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+                otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                        y = 0,
+                                        z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+                otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                        y = 0,
+                                        z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+
+                otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
+                                        y = 0,
+                                        z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
+                
+                if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
+                    foundVehicleColl = true;
+                end;
+            end;
+        end;
+    end;         
+
+    --if foundVehicleColl then
+        --print("Quick check found vehicle coll");
+    --end;
+
+    --print("Quick check distance: " .. distance);
+    if (shapes <= 0 and (not foundFruit) and (not foundVehicleColl)) then
+        --print("Quick check would release direct course");
+        pf.wayPoints = {};
+        pf.wayPoints[1] = {x=driverX, y=driverY, z=driverZ};        
+        pf.wayPoints[2] = {x=offsetPointCombinePreTarget.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombinePreTarget.x, 1, offsetPointCombinePreTarget.z), z=offsetPointCombinePreTarget.z};
+        pf.wayPoints[2] = {x=target.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, target.x, 1, target.z), z=target.z};
+        pf.isFinished = true;
+        pf.smoothDone = true;
+    end;
 end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
@@ -268,6 +471,13 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
         AutoDrivePathFinder:createWayPoints(pf);
         return;
     end;
+
+    if pf.quickCheckActive then
+        AutoDrivePathFinder:quickCheck(driver, pf.target, pf.targetVector, pf.combine);
+        pf.quickCheckActive = false;
+        return;
+    end;
+        
 
     if pf.steps > (AutoDrive.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive:getSetting("pathFinderTime")) then
         if not pf.fallBackMode then --look for path through fruit
@@ -555,9 +765,9 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         end;
         
         cell.hasInfo = true;
-        if pf.driver.ad.currentCombine == nil then
-            return;
-        end;
+        --if pf.driver.ad.currentCombine == nil then
+            --return;
+        --end;
 
         local boundingBox = {};
         boundingBox[1] ={ 	x = cornerX,
@@ -1008,7 +1218,7 @@ function AutoDrivePathFinder:checkVehicleCollision(pf, cornerX, cornerZ, corner2
                         z = corner4Z; };
 
     for _,other in pairs(g_currentMission.vehicles) do
-		if other ~= pf.driver and other ~= pf.driver.ad.currentCombine then
+		if other ~= pf.driver then -- and other ~= pf.driver.ad.currentCombine
 			local isAttachedToMe = AutoDrive:checkIsConnected(pf.driver, other);				
             
 			if isAttachedToMe == false and other.components ~= nil then
@@ -1207,6 +1417,7 @@ function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X
     
     if (pf.fruitToCheck == nil or pf.fruitToCheck < 1) and (fruitValue > 50) then
         pf.fruitToCheck = fruitType;
+        pf.driver.ad.combineFruitToCheck = fruitType;
     end;
 
     cell.isRestricted = cell.isRestricted or (fruitValue > 50);
