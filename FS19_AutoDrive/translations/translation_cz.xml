@@ -22,7 +22,7 @@
 		<text name="input_ADDebugShowClosest"				 	 text="AD: Ukázat nejbližší bod" />
 		<text name="input_ADDebugSelectNeighbor"			 	 text="AD: Vybrat sousední bod" />
 		<text name="input_ADDebugChangeNeighbor"			 	 text="AD: Změnit sousední bod" />
-		<text name="input_ADDebugCreateConnection"			 	 text="AD: Vytvořit propojení" />
+		<text name="input_ADDebugCreateConnection"			 	 text="AD: Vytvořit spojení" />
 		<text name="input_ADDebugCreateMapMarker"			 	 text="AD: Vytvořit nový cíl" />
 		<text name="input_ADDebugDeleteWayPoint"			 	 text="AD: Smazat cíl" />
 		<text name="input_ADDebugForceUpdate"				 	 text="AD: Aktualizovat trasu" />
@@ -60,11 +60,11 @@
 		<text name="gui_ad_lookahead_turning"				 	 text="Kontola vpřed" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 		 text="Kontrola trasy pro rychlost zatáčení" />
 		<text name="gui_ad_lookahead_braking"				 	 text="Kontrola vzad" />
-		<text name="gui_ad_lookahead_braking_tooltip"		 		 text="Sledování trasy před sebou pro úpravu rychlosti při zatáčení" />
+		<text name="gui_ad_lookahead_braking_tooltip"		 		 text="Sledování trasy vzad pro couvání" />
 		<text name="gui_ad_useFastestRoute"					 text="Použít nejkratší trasu" />
 		<text name="gui_ad_useFastestRoute_tooltip"			 	 text="Při výpočtu nejlepší trasy brát do úvahy rychlost jízdy místo nejkratší vzdálenosti" />
 		<text name="gui_ad_avoidMarkers"					 text="Objíždět sousedící cíle tras" />
-		<text name="gui_ad_avoidMarkers_tooltip"			 	 text="Generátor trasy se snaží vyhnout okolním cílům tras a objet je. Vhodné pro zabranění kolizí v v jednotlivých bodech trasy." />
+		<text name="gui_ad_avoidMarkers_tooltip"			 	 text="Generátor trasy se snaží vyhnout okolním cílům tras a objet je. Vhodné pro zabranění kolizí v jednotlivých bodech trasy" />
 		<text name="gui_ad_mapMarkerDetour"					 text="Rádius objíždění" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 	 text="Maximální rádius objíždění" />
 		<text name="gui_ad_siloEmpty"						 text="Silo je prázdné" />
@@ -91,7 +91,7 @@
 		<text name="gui_ad_parkInField"						 text="Čekat na poli" />
 		<text name="gui_ad_parkInField_tooltip"				 	 text="Po vyložení kombajnu čeká řidič na další nakládku na poli, pokud nestojí na nesklizené části pole nebo není plně naložený" />
 		<text name="gui_ad_unloadFillLevel"					 text="Úroveň naplnění nákladem" />
-		<text name="gui_ad_unloadFillLevel_tooltip"			 	 text="Po vyložení kombajnu při dosažení této úrovně naplnění je hned vyložit náklad." />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 	 text="Po vyložení kombajnu při dosažení této úrovně naplnění je hned vyložit náklad" />
 		<text name="gui_ad_findDriver"						 text="Najít volné řidiče" />
 		<text name="gui_ad_findDriver_tooltip"				 	 text="Hledá nejbližší řidiče (Ignoruje vzdálenost)" />
 		<text name="gui_ad_gui_scale"						 text="Měřítko HUD" />
@@ -108,7 +108,7 @@
 		<text name="gui_ad_smoothField"					     	 text="Vylepšené řízení na poli" />	
 		<text name="gui_ad_smoothField_tooltip"			     		 text="Generovaná trasa k a od kombajnu bude pravidelnější" />	
 		<text name="gui_ad_recalculationSpeed"				 	 text="Rychlost generování trasy" />	
-		<text name="gui_ad_recalculationSpeed_tooltip"	     			 text="Snižte hodnotu, pokud vám laguje hra" />	
+		<text name="gui_ad_recalculationSpeed_tooltip"	     			 text="Snižte hodnotu, pokud Vám laguje hra" />	
 		<text name="gui_ad_showNextPath"				 	 text="Zobrazovat následující trasu" />	
 		<text name="gui_ad_showNextPath_tooltip"	     	 		 text="Zobrazuje směr k dalšímu bodu na trase" />	
 		<text name="gui_ad_avoidFruit"				 	         text="Nevjíždět do porostu" />	
@@ -127,5 +127,11 @@
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 		 text="Naplní i hnojivo, pokud secí stroj umožňuje hnojení a hnojivo je ve vzdálenosti 20m od osiva." />
 		<text name="gui_ad_shovelWidth"			 			 text="Šířka lžíce" />	
 		<text name="gui_ad_shovelWidth_tooltip"	 				 text="Pokud není šířka lžíce správně detekována, bude použita tato hodnota" />
+		<text name="gui_ad_preCallDriver"			 		 text="Zavolat odvozce předem" />	
+		<text name="gui_ad_preCallDriver_tooltip"	 		 	 text="Zavolá odovzce při dosažení nastavené hodnoty naplnění" />	
+		<text name="gui_ad_preCallLevel"			 		 text="Zavolat odvozce při naplnění" />	
+		<text name="gui_ad_preCallLevel_tooltip"	 		 	 text="Zavolá odvozce při naplnění nastavené úrovně" />	
+		<text name="gui_ad_chaseCombine"			 		 text="Sledovat kombajn" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 	 text="Odvozce sleduje kombajn, který ho předem zavoal pro vykládku" />
 	</texts>
 </l10n>
