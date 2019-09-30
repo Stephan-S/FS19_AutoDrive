@@ -450,7 +450,14 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
         pf.wayPoints = {};
         pf.wayPoints[1] = {x=driverX, y=driverY, z=driverZ};        
         pf.wayPoints[2] = {x=offsetPointCombinePreTarget.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombinePreTarget.x, 1, offsetPointCombinePreTarget.z), z=offsetPointCombinePreTarget.z};
-        pf.wayPoints[2] = {x=target.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, target.x, 1, target.z), z=target.z};
+        pf.wayPoints[3] = {x=target.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, target.x, 1, target.z), z=target.z};
+        
+        if pf.appendWayPointCount ~= nil then
+            for i=1, pf.appendWayPointCount, 1 do
+                pf.wayPoints[ADTableLength(pf.wayPoints)+1] = pf.appendWayPoints[i];
+            end;
+        end;
+
         pf.isFinished = true;
         pf.smoothDone = true;
     end;
