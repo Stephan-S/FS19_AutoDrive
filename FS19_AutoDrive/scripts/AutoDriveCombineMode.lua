@@ -309,7 +309,7 @@ function AutoDrive:chaseCombine(vehicle, dt)
         --print("Chasing combine - stopped - angleToCombineHeading > 20");
         keepFollowing = false;
     end;
-
+    
     local combineSpeed = combine.lastSpeedReal;
     --if combineSpeed < 0 then
         --pauseFollowing = true;
@@ -325,9 +325,15 @@ function AutoDrive:chaseCombine(vehicle, dt)
 
     local distanceToCombine = MathUtil.vector2Length(combineWorldX - worldX, combineWorldZ - worldZ);
     local distanceToChasePos = MathUtil.vector2Length(chasePos.x - worldX, chasePos.z - worldZ);
-    --if distanceToChasePos < 30 then
-        --pauseFollowing = true;
-    --else
+    
+    --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
+    if getAngleToChasePos(vehicle, chasePos) > 60 then
+        pauseFollowing = true;
+        if combineSpeed < 0.0008 then --no, if combine is stopping, we have to fallback to pathfinding
+            keepFollowing = false;
+        end;
+    end;
+
     if distanceToChasePos > 60 then
         --print("Chasing combine - stopped - distanceToChasePos > 60");
         keepFollowing = false;
@@ -365,7 +371,7 @@ function AutoDrive:chaseCombine(vehicle, dt)
         pauseFollowing = true;
     end;
 
-    if not pauseFollowing and keepFollowing then
+    if (not pauseFollowing) and keepFollowing then
         --print("Chasing combine")
         local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
         --AutoDrive:drawLine(AutoDrive:createVector(x1,y1+3.5-AutoDrive:getSetting("lineHeight"),z1), chasePos, 1, 0, 0, 1);
@@ -514,6 +520,17 @@ function AutoDrive:getAngleToCombineHeading(vehicle, combine)
     return math.abs(AutoDrive:angleBetween( {x=rx, z=rz}, {x=combineRx, z=combineRz} ));
 end;
 
+function AutoDrive:getAngleToChasePos(vehicle, chasePos) {
+    if vehicle == nil or chasePos == nil then
+        return math.huge;
+    end;
+
+    local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
+    local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
+
+    return math.abs(AutoDrive:angleBetween( {x=rx, z=rz}, {x=chasePos.x - worldX, z=chasePos.z - worldZ} ));
+}
+
 function AutoDrive:handlePathPlanning(vehicle, dt)
     local storedPathFinderTime = AutoDrive.settings["pathFinderTime"].current;
     if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
@@ -630,5 +647,40 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
 		vehicle.ad.currentCombine.ad.preCalledDriver = false;
 		vehicle.ad.currentCombine.ad.driverOnTheWay = false;
         vehicle.ad.currentCombine = nil;
+    end;
+end;
+
+function AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt)
+    if vehicle.ad.checkShortcutTimer == nil then
+        vehicle.ad.checkShortcutTimer = AutoDriveTON:new();
+    end;
+
+    vehicle.ad.checkShortcutTimer:timer(true, 5000, dt);
+
+    if vehicle.ad.checkShortcutTimer:done() then
+        vehicle.ad.checkShortcutTimer:timer(false);    
+
+        AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil);
+        AutoDrivePathFinder:updatePathPlanning(vehicle);
+        if AutoDrivePathFinder:isPathPlanningFinished(vehicle) then
+            vehicle.ad.wayPoints = vehicle.ad.pf.wayPoints;
+            vehicle.ad.currentWayPoint = 1;
+
+            if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+                if #vehicle.ad.wayPoints <= 1 then
+                    vehicle.ad.wayPoints = nil;
+                    if vehicle.ad.waitForPreDriveTimer <= 0 then
+                        if not AutoDrive:restartPathFinder(vehicle) then
+                            return true; --error
+                        end;
+                    else
+                        vehicle.ad.waitForPreDriveTimer = vehicle.ad.waitForPreDriveTimer - dt;
+                    end;
+                    return false;
+                end;
+            end;
+
+            return true
+        end;
     end;
 end;

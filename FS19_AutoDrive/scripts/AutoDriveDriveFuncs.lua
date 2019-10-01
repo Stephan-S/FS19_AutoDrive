@@ -49,7 +49,10 @@ function AutoDrive:handleDriving(vehicle, dt)
                     end;
                                                     
                     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then                
-                        AutoDrive:driveToNextWayPoint(vehicle, dt);                    
+                        AutoDrive:driveToNextWayPoint(vehicle, dt);        
+                        if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+                            AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt);
+                        end;
                     else
                         AutoDrive:driveToLastWaypoint(vehicle, dt);                    
                     end;	                			
