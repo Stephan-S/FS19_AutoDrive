@@ -327,7 +327,7 @@ function AutoDrive:chaseCombine(vehicle, dt)
     local distanceToChasePos = MathUtil.vector2Length(chasePos.x - worldX, chasePos.z - worldZ);
     
     --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
-    if getAngleToChasePos(vehicle, chasePos) > 60 then
+    if AutoDrive:getAngleToChasePos(vehicle, chasePos) > 60 then
         pauseFollowing = true;
         if combineSpeed < 0.0008 then --no, if combine is stopping, we have to fallback to pathfinding
             keepFollowing = false;
@@ -520,7 +520,7 @@ function AutoDrive:getAngleToCombineHeading(vehicle, combine)
     return math.abs(AutoDrive:angleBetween( {x=rx, z=rz}, {x=combineRx, z=combineRz} ));
 end;
 
-function AutoDrive:getAngleToChasePos(vehicle, chasePos) {
+function AutoDrive:getAngleToChasePos(vehicle, chasePos)
     if vehicle == nil or chasePos == nil then
         return math.huge;
     end;
@@ -529,7 +529,7 @@ function AutoDrive:getAngleToChasePos(vehicle, chasePos) {
     local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
 
     return math.abs(AutoDrive:angleBetween( {x=rx, z=rz}, {x=chasePos.x - worldX, z=chasePos.z - worldZ} ));
-}
+end;
 
 function AutoDrive:handlePathPlanning(vehicle, dt)
     local storedPathFinderTime = AutoDrive.settings["pathFinderTime"].current;
@@ -654,13 +654,27 @@ function AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt)
     if vehicle.ad.checkShortcutTimer == nil then
         vehicle.ad.checkShortcutTimer = AutoDriveTON:new();
     end;
+    if vehicle.ad.currentCombine == nil then
+        return;
+    end;
 
+    
     vehicle.ad.checkShortcutTimer:timer(true, 5000, dt);
 
     if vehicle.ad.checkShortcutTimer:done() then
         vehicle.ad.checkShortcutTimer:timer(false);    
 
-        AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil);
+        local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
+        local distanceToLastWayPoint = math.huge;
+        if vehicle.ad.wayPoints ~= nil then
+            distanceToLastWayPoint = MathUtil.vector2Length(worldX - vehicle.ad.wayPoints[#vehicle.ad.wayPoints].x, worldZ - vehicle.ad.wayPoints[#vehicle.ad.wayPoints].z);
+        end;
+
+        if distanceToLastWayPoint < 15 then
+            return;
+        end;
+
+        AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil);
         AutoDrivePathFinder:updatePathPlanning(vehicle);
         if AutoDrivePathFinder:isPathPlanningFinished(vehicle) then
             vehicle.ad.wayPoints = vehicle.ad.pf.wayPoints;

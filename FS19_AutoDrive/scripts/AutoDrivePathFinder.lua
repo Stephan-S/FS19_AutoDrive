@@ -327,7 +327,7 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
         --print("quickCheck coll test triggered collision!");
         red = 1;
     end;
-    --DebugUtil.drawOverlapBox(offsetPointDriver.x + vectorX/2,y+3,offsetPointDriver.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, red, 0, 0);
+    DebugUtil.drawOverlapBox(offsetPointDriver.x + vectorX/2,y+3,offsetPointDriver.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, red, 0, 0);
     
     local point1 = { x=cornerX, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, cornerX, 1, cornerZ), z=cornerZ };
     local point2 = { x=corner2X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner2X, 1, corner2Z), z=corner2Z };
@@ -379,7 +379,7 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
     end;
 
     --if foundFruit then
-       -- print("Quick check found fruit");
+       --print("Quick check found fruit");
     --end;
 
     local foundVehicleColl = false;
@@ -398,7 +398,7 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
                         z = corner3Z; };
     
     for _,other in pairs(g_currentMission.vehicles) do
-        if other ~= pf.driver and not AutoDrive:checkIsConnected(pf.driver, other) and other ~= combine and not AutoDrive:checkIsConnected(combine, other) then --try this with every vehicle from now on --and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other))
+        if other ~= pf.driver and not AutoDrive:checkIsConnected(pf.driver, other) then -- and other ~= combine and not AutoDrive:checkIsConnected(combine, other) --try this with every vehicle from now on --and (other == pf.driver.ad.currentCombine or AutoDrive:checkIsConnected(pf.driver.ad.currentCombine, other))
             if other.components ~= nil and other.sizeWidth ~= nil and other.sizeLength ~= nil and other.rootNode ~= nil then     
                 local otherWidth = other.sizeWidth;
                 local otherLength = other.sizeLength;

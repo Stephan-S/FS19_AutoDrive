@@ -539,8 +539,8 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 end;
 
 function AutoDrive:driveToLastWaypoint(vehicle, dt)
-	--print("Reaching last waypoint - slowing down"); 
-	local x,y,z = getWorldTranslation(vehicle.components[1].node);   
+    --print("Reaching last waypoint - slowing down"); 
+    local x,y,z = getWorldTranslation(vehicle.components[1].node);   
     local finalSpeed = 8;	
     local maxAngle = 50;				
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
@@ -550,7 +550,29 @@ function AutoDrive:driveToLastWaypoint(vehicle, dt)
         maxAngle = 5;
         finalSpeed = finalSpeed / 2;
     end;
-    AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, 1, 0.2, maxAngle, true, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.4);
+
+    if vehicle.ad.trafficDetected == true then
+        vehicle.ad.timeTillDeadLock = 15000;
+        if math.abs(vehicle.lastSpeedReal) > 0.0013 then
+            finalSpeed = 0.001;
+            acceleration = -0.6;
+            AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle/2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.5);
+        else
+            AutoDrive:getVehicleToStop(vehicle, false, dt);
+            if math.abs(vehicle.lastSpeedReal) < 0.002 then
+                vehicle.ad.isPaused = true;
+                vehicle.ad.isPausedCauseTraffic = true;
+            end;
+        end;        
+    else   
+        if vehicle.ad.isPausedCauseTraffic == true then
+            vehicle.ad.isPaused = false;
+            vehicle.ad.isPausedCauseTraffic = false;
+        end;
+        vehicle.ad.allowedToDrive = true;
+        
+        AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, 1, 0.2, maxAngle, true, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.4);
+    end;	
 end;
 
 function AutoDrive:handleDeadlock(vehicle, dt)

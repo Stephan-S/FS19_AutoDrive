@@ -325,6 +325,13 @@ function AutoDrive:detectTraffic(vehicle)
 	local length = vehicle.sizeLength;
 	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
 	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
+	
+	local approachingLastWayPoints = false;
+	if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] == nil then
+		width = width * 2 / 3;
+		approachingLastWayPoints = true;
+	end;
+	
 	local boundingBox = {};
     boundingBox[1] ={ 	x = x + (width/2) * ortho.x,
                         y = y+2,
@@ -356,8 +363,14 @@ function AutoDrive:detectTraffic(vehicle)
 		box.ry = math.atan2(box.zx, box.zz)
 		local rotX = -MathUtil.getYRotationFromDirection(box.dirY, 1);
 
+		local heightOffset = 2.2;
+		if approachingLastWayPoints then
+			box.size[2] = 0.25;
+			heightOffset = 1.2;
+		end;
+
 		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
-												y = y+2.2,
+												y = y+heightOffset,
 												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };
 												
 
@@ -384,7 +397,7 @@ function AutoDrive:detectTraffic(vehicle)
 	for _,other in pairs(g_currentMission.vehicles) do
 		if other ~= vehicle then --and other ~= vehicle.ad.currentCombine
 			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
-			local isAttachedToMyCombine = false; --AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE);	-- or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
+			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE);	-- 
             
 			if isAttachedToMe == false and other.components ~= nil and isAttachedToMyCombine == false then
 				if other.sizeWidth == nil then
