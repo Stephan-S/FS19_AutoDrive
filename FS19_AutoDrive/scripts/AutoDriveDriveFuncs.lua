@@ -614,7 +614,12 @@ function AutoDrive:handleDeadlock(vehicle, dt)
                     vehicle.ad.timeTillDeadLock = 15000;
                     vehicle.ad.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter - 1;
                 end;
-			end;
+            end;
+            
+            if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+                AutoDrive:disableAutoDriveFunctions(vehicle);
+                AutoDrive:startAD(vehicle);
+            end;
 		end;
 	end;
 end;

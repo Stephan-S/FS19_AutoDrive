@@ -194,6 +194,7 @@ function AutoDrive:readGroupsFromStream(streamId)
         end;
         loopCounter = loopCounter + 1;
     end;
+    AutoDrive.groups["All"] = 1;
 end;
 
 function streamReadStringOrEmpty(streamId) 

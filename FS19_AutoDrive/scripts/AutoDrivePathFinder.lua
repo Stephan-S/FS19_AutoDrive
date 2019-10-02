@@ -260,6 +260,10 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
     local driverX, driverY, driverZ = getWorldTranslation( driver.components[1].node );
     local distance = MathUtil.vector2Length(driverX - target.x, driverZ - target.z);
 
+    if distance > 100 then
+        return;
+    end;
+
     local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
 
     local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
@@ -271,7 +275,7 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
         minTurnRadius = AutoDrive.PP_CELL_X;
     end;
     local widthOfColBox = math.sqrt(math.pow(minTurnRadius, 2) + math.pow(minTurnRadius, 2));
-    local sideLength = widthOfColBox/2;
+    local sideLength = widthOfColBox/4;
 
 
     local vectorX = target.x - driverX;
@@ -283,8 +287,8 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
     local combineRearOffset = -combine.sizeLength/2 - 2;
 
     local offsetPointDriver = {x = driverX + driverRx * driverFrontOffset, z=driverZ + driverRz * driverFrontOffset }
-    local offsetPointCombine = {x = target.x + targetVector.x * combineRearOffset, z=worldZ + targetVector.z * combineRearOffset }
-    local offsetPointCombinePreTarget = {x = target.x - targetVector.x * 6, z=worldZ + targetVector.z * 6}
+    local offsetPointCombine = {x = worldX + targetVector.x * combineRearOffset, z=worldZ + targetVector.z * combineRearOffset }
+    local offsetPointCombinePreTarget = {x = target.x - targetVector.x * 6, z=target.z - targetVector.z * 6}
     
     --check angle to target
     local angleTarget = math.atan2(-targetVector.z, targetVector.x);
@@ -327,21 +331,23 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
         --print("quickCheck coll test triggered collision!");
         red = 1;
     end;
-    DebugUtil.drawOverlapBox(offsetPointDriver.x + vectorX/2,y+3,offsetPointDriver.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, red, 0, 0);
+    --DebugUtil.drawOverlapBox(offsetPointDriver.x + vectorX/2,y+3,offsetPointDriver.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, red, 0, 0);
     
-    local point1 = { x=cornerX, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, cornerX, 1, cornerZ), z=cornerZ };
-    local point2 = { x=corner2X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner2X, 1, corner2Z), z=corner2Z };
-    local point3 = { x=corner3X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner3X, 1, corner3Z), z=corner3Z };
-    local point4 = { x=corner4X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner4X, 1, corner4Z), z=corner4Z };
+    --local point1 = { x=cornerX, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, cornerX, 1, cornerZ), z=cornerZ };
+    --local point2 = { x=corner2X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner2X, 1, corner2Z), z=corner2Z };
+    --local point3 = { x=corner3X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner3X, 1, corner3Z), z=corner3Z };
+    --local point4 = { x=corner4X, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner4X, 1, corner4Z), z=corner4Z };
 
     --AutoDrive:drawLine(point1, point2, red, 1, 1, 1);
     --AutoDrive:drawLine(point2, point3, red, 1, 1, 1);
     --AutoDrive:drawLine(point3, point4, red, 1, 1, 1);
     --AutoDrive:drawLine(point4, point1, red, 1, 1, 1);
-    local driverHead = { x=offsetPointDriver.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointDriver.x, 1, offsetPointDriver.z), z=offsetPointDriver.z };
-    local combineRear = { x=offsetPointCombine.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombine.x, 1, offsetPointCombine.z), z=offsetPointCombine.z };
+    --local driverHead = { x=offsetPointDriver.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointDriver.x, 1, offsetPointDriver.z), z=offsetPointDriver.z };
+    --local combineRear = { x=offsetPointCombine.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombine.x, 1, offsetPointCombine.z), z=offsetPointCombine.z };
+    --local combinePreTarget = { x=offsetPointCombinePreTarget.x, y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombinePreTarget.x, 1, offsetPointCombinePreTarget.z), z=offsetPointCombinePreTarget.z };
 
     --AutoDrive:drawLine(driverHead, combineRear, red, 1, 0, 1);
+    --AutoDrive:drawLine(driverHead, combinePreTarget, red, 1, 0, 1);
 
     local pf = driver.ad.pf;
 
@@ -452,9 +458,15 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
         pf.wayPoints[2] = {x=offsetPointCombinePreTarget.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, offsetPointCombinePreTarget.x, 1, offsetPointCombinePreTarget.z), z=offsetPointCombinePreTarget.z};
         pf.wayPoints[3] = {x=target.x, y=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, target.x, 1, target.z), z=target.z};
         
-        if pf.appendWayPointCount ~= nil then
+        if pf.appendWayPointCount ~= nil and (pf.driver.ad.combineState ~= AutoDrive.PREDRIVE_COMBINE) then
             for i=1, pf.appendWayPointCount, 1 do
                 pf.wayPoints[ADTableLength(pf.wayPoints)+1] = pf.appendWayPoints[i];
+            end;
+        end;
+
+        for i, waypoint in pairs(pf.wayPoints) do
+            if i>1 then
+                AutoDrive:drawLine(waypoint, pf.wayPoints[i-1], 0, 1, 1, 1);
             end;
         end;
 
@@ -1426,14 +1438,14 @@ function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X
         pf.fruitToCheck = fruitType;
         pf.driver.ad.combineFruitToCheck = fruitType;
     end;
-
+    local wasRestricted = cell.isRestricted;
     cell.isRestricted = cell.isRestricted or (fruitValue > 50);
     
     cell.hasFruit = (fruitValue > 50);
 
     --Allow fruit in the first few grid cells
     if (((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3 then
-        cell.isRestricted = false;
+        cell.isRestricted = false or wasRestricted;
     end;
 end;
 

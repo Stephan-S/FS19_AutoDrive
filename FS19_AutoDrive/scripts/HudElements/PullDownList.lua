@@ -139,6 +139,8 @@ function ADPullDownList:onDraw(vehicle)
                 end;
                 if listEntry.isFolder then
                     textTargetWidth = math.abs(self.rightIconPos3.x - self.position.x) - AutoDrive.Hud.gapWidth;
+                else
+                    textTargetWidth = math.abs(self.rightIconPos.x - self.position.x) + AutoDrive.Hud.gapWidth;
                 end;
                 text = self:shortenTextToWidth(text, textTargetWidth);                
 
@@ -166,13 +168,13 @@ function ADPullDownList:onDraw(vehicle)
                         listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
                         listEntry.ovPlus:render();
                     end;
-                else          
-                    if self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive:getSetting("useFolders") then
-                        listEntry.ovUp = Overlay:new(self.imageUp, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
-                        listEntry.ovUp:render();
-                        listEntry.ovDown = Overlay:new(self.imageDown, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height);
-                        listEntry.ovDown:render();       
-                    end;
+                --else          
+                    --if self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive:getSetting("useFolders") then
+                        --listEntry.ovUp = Overlay:new(self.imageUp, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                        --listEntry.ovUp:render();
+                        --listEntry.ovDown = Overlay:new(self.imageDown, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                        --listEntry.ovDown:render();       
+                    --end;
                 end;
         
                 
@@ -230,11 +232,11 @@ function ADPullDownList:getListElementByIndex(vehicle, index)
         for groupID, entries in pairs(self.options) do
             if AutoDrive:getSetting("useFolders") then
                 if counter == index then
-                    return {displayName=self:groupIDToGroupName(groupID), returnValue=self:groupIDToGroupName(groupID), isFolder=true};
+                    return {displayName=self:groupIDToGroupName(self.fakeGroupIDs[groupID]), returnValue=self:groupIDToGroupName(self.fakeGroupIDs[groupID]), isFolder=true};
                 end;    
                 counter = counter + 1; 
             end;
-            if vehicle.ad.groups[self:groupIDToGroupName(groupID)] == true or (not AutoDrive:getSetting("useFolders")) then
+            if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not AutoDrive:getSetting("useFolders")) then
                 for id, entry in pairs(entries) do
                     if counter == index then
                         return {displayName=entry.displayName, returnValue=entry.returnValue, isFolder=false};
@@ -344,12 +346,10 @@ end;
 
 function ADPullDownList:createSelection_Target()
     self.options = {};
-    for groupName, groupId in pairs(AutoDrive.groups) do
-        if AutoDrive:getSetting("useFolders") then
-            self.options[groupId] = {};
-        else
-            self.options[1] = {};
-        end;
+    if AutoDrive:getSetting("useFolders") then
+        self:sortGroups();
+    else
+        self.options[1] = {};
     end;
    
     if #self.options == 0 then
@@ -358,9 +358,48 @@ function ADPullDownList:createSelection_Target()
     
     for markerID, marker in pairs(AutoDrive.mapMarker) do
         if AutoDrive:getSetting("useFolders") then
-            table.insert(self.options[AutoDrive.groups[marker.group]], {displayName= marker.name, returnValue=markerID})
+            table.insert(self.options[self.groups[marker.group]], {displayName= marker.name, returnValue=markerID})
         else
             table.insert(self.options[1], {displayName= marker.name, returnValue=markerID})
+        end;
+    end;
+end;
+
+function ADPullDownList:sortGroups()
+    self.options =  {};
+    
+    local sort_func = function(a, b)
+        a = tostring(a):lower();
+        b = tostring(b):lower();
+        local patt = '^(.-)%s*(%d+)$'
+        local _,_, col1, num1 = a:find(patt)
+        local _,_, col2, num2 = b:find(patt)
+        if (col1 and col2) and col1 == col2 then
+           return tonumber(num1) < tonumber(num2)
+        end
+        return a < b
+	end
+	
+	local inverseTable = {}
+	for groupName, groupID in pairs(AutoDrive.groups) do
+		inverseTable[groupID] = groupName;
+	end;
+   
+	table.sort(inverseTable, sort_func );    
+	
+    self.options[1] = {};
+    self.groups = {};
+    self.groups["All"] = 1;
+    self.fakeGroupIDs = {};
+    self.fakeGroupIDs[1] = 1;
+
+    local i = 2;
+    for groupID, groupName in pairs(inverseTable) do
+        if groupName ~= "All" then
+            self.options[i] = {};            
+            self.groups[groupName] = i;
+            self.fakeGroupIDs[i] = AutoDrive.groups[groupName];
+            i = i + 1;
         end;
     end;
 end;
@@ -458,14 +497,14 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                 elseif hitIcon ~= nil and hitIcon == 1 then
                     if hitElement.isFolder then
                         vehicle.ad.groups[hitElement.returnValue] = not vehicle.ad.groups[hitElement.returnValue];
-                    else
-                        self:moveSelectedElementDown(vehicle, hitElement);
+                    --else
+                        --self:moveSelectedElementDown(vehicle, hitElement);
                     end;
                 elseif hitIcon ~= nil and hitIcon == 2 then
                         if hitElement.isFolder then
                             self:moveCurrentElementToFolder(vehicle, hitElement);
-                        else
-                            self:moveSelectedElementUp(vehicle, hitElement);
+                        --else
+                            --self:moveSelectedElementUp(vehicle, hitElement);
                         end;   
                 elseif hitIcon ~= nil and hitIcon == 3 then
                     if hitElement.isFolder then
@@ -581,8 +620,8 @@ function ADPullDownList:setSelected(vehicle)
                 if entry.returnValue == vehicle.ad.mapMarkerSelected then
                     self.selected = index;
                     self.hovered = self.selected;
-                    if not vehicle.ad.groups[self:groupIDToGroupName(groupID)] then
-                        vehicle.ad.groups[self:groupIDToGroupName(groupID)] = true;
+                    if not vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] then
+                        vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] = true;
                     end;
                     break;                 
                 end;
@@ -602,8 +641,8 @@ function ADPullDownList:setSelected(vehicle)
                 if entry.returnValue == vehicle.ad.mapMarkerSelected_Unload then
                     self.selected = index;
                     self.hovered = self.selected;
-                    if not vehicle.ad.groups[self:groupIDToGroupName(groupID)] then
-                        vehicle.ad.groups[self:groupIDToGroupName(groupID)] = true;
+                    if not vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] then
+                        vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] = true;
                     end;
                     break;                 
                 end;
@@ -642,43 +681,6 @@ function ADPullDownList:setSelected(vehicle)
     end;
 end;
 
-function ADPullDownList:moveSelectedElementDown(vehicle, listElement)
-    for groupID, entries in pairs(self.options) do
-        for i, entry in pairs(entries) do
-            if entry.returnValue == listElement.returnValue then
-                if self.options[groupID+1] ~= nil then
-                    table.remove(entries, i);
-                    table.insert(self.options[groupID+1], listElement);
-                    AutoDrive.mapMarker[listElement.returnValue].group = self:groupIDToGroupName(groupID+1);
-                    
-                    self:sortCurrentItems();
-
-                    return;
-                end;
-            end;
-        end;
-    end;
-    
-end;
-
-function ADPullDownList:moveSelectedElementUp(vehicle, listElement)
-    for groupID, entries in pairs(self.options) do
-        for i, entry in pairs(entries) do
-            if entry.returnValue == listElement.returnValue then
-                if self.options[groupID-1] ~= nil then
-                    table.remove(entries, i);
-                    table.insert(self.options[groupID-1], listElement);
-                    AutoDrive.mapMarker[listElement.returnValue].group = self:groupIDToGroupName(groupID-1);
-
-                    self:sortCurrentItems();                 
-
-                    return;
-                end;
-            end;
-        end;
-    end;
-end;
-
 function ADPullDownList:groupIDToGroupName(id)
     for groupName, groupId in pairs(AutoDrive.groups) do
         if groupId == id then
@@ -706,6 +708,8 @@ function ADPullDownList:sortCurrentItems()
     end;
 end;
 
+
+
 function ADPullDownList:getItemCount()
     local count = #self.options;
     if AutoDrive:getSetting("useFolders") == false or self.type == ADPullDownList.TYPE_FILLTYPE then
@@ -718,7 +722,7 @@ function ADPullDownList:getItemCount()
 end;
 
 function ADPullDownList:getItemCountForGroup(groupName)
-    local groupID = AutoDrive.groups[groupName];
+    local groupID = self.groups[groupName];
     if groupID ~= nil and self.options[groupID] ~= nil then
         return #self.options[groupID];
     end;
@@ -743,8 +747,8 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, listElement)
         end;
     end;
 
-    table.insert(self.options[targetGroupID], {displayName= mapMarkerName, returnValue=mapMarkerID});
-    AutoDrive.mapMarker[mapMarkerID].group = self:groupIDToGroupName(targetGroupID);
+    table.insert(self.options[self.groups[targetGroupName]], {displayName= mapMarkerName, returnValue=mapMarkerID});
+    AutoDrive.mapMarker[mapMarkerID].group = targetGroupName;
 
     self:sortCurrentItems();  
 end;
