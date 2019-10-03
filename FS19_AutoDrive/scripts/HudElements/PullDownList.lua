@@ -333,6 +333,8 @@ function ADPullDownList:updateVisibility(vehicle)
 end;
 
 function ADPullDownList:createSelection()
+    self.fakeGroupIDs = {};
+    self.fakeGroupIDs[1] = 1;
     if self.type == ADPullDownList.TYPE_TARGET then
         self:createSelection_Target();
     elseif self.type == ADPullDownList.TYPE_UNLOAD then
