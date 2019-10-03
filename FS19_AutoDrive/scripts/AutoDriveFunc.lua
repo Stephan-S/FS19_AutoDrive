@@ -73,6 +73,8 @@ function AutoDrive:startAD(vehicle)
 	if vehicle.ad.mode == AutoDrive.MODE_BGA then
 		vehicle.bga.state = AutoDriveBGA.STATE_INIT;
 	end;
+
+	AutoDriveHud:createMapHotspot(vehicle);
 end;
 
 function AutoDrive:stopAD(vehicle, withError)
@@ -189,6 +191,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		end;
 	end;
 	vehicle.ad.reverseTimer = 0;
+	AutoDriveHud:deleteMapHotspot(vehicle);
 end
 
 function AutoDrive:getVehicleToStop(vehicle, brake, dt)

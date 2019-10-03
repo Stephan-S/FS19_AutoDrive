@@ -327,6 +327,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                         vehicle.ad.isPaused = true;
                     end;
                     vehicle.ad.unloadSwitch = false;
+                    vehicle.ad.loopCounterCurrent = vehicle.ad.loopCounterCurrent + 1; 
                 else
                     vehicle.ad.timeTillDeadLock = 15000;
 
@@ -346,8 +347,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                        vehicle.ad.unloadSwitch = true; 
-                        vehicle.ad.loopCounterCurrent = vehicle.ad.loopCounterCurrent + 1;                       
+                        vehicle.ad.unloadSwitch = true;                       
                     end;
 
                     if vehicle.ad.startedLoadingAtTrigger == false then
