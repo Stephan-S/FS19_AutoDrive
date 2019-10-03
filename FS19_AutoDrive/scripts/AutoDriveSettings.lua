@@ -236,8 +236,8 @@ AutoDrive.settings.avoidFruit = {
 };
 
 AutoDrive.settings.pathFinderTime = {  
-    values= {0.25, 0.5, 1.0, 1.5, 2, 3, 4, 5, 10},                                    
-    texts= {"x0.25", "x0.5", "x1.0", "x1.5", "x2", "x3", "x4", "x5", "x10"},                                    
+    values= {0.25, 0.5, 1.0, 1.5, 2, 3},                                    
+    texts= {"x0.25", "x0.5", "x1.0", "x1.5", "x2", "x3"},                                    
     default= 3,                                    
     current= 3,                                    
     text= "gui_ad_pathFinderTime",                                    
@@ -332,6 +332,17 @@ AutoDrive.settings.chaseCombine = {
     tooltip= "gui_ad_chaseCombine_tooltip",
     translate= true,
     isVehicleSpecific = false
+};
+
+AutoDrive.settings.distributeToFolder = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_distributeToFolder",                                    
+    tooltip= "gui_ad_distributeToFolder_tooltip",
+    translate= true,
+    isVehicleSpecific = true
 };
 
 

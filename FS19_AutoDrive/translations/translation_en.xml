@@ -133,6 +133,8 @@
 		<text name="gui_ad_preCallLevel"			 		 text="Pre call level" />	
 		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Pre call unloader at the set fill level." />	
 		<text name="gui_ad_chaseCombine"			 		 text="Chase combine" />	
-		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Unlaoder follows combine after being pre called" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Unlaoder follows combine after being pre called" />
+		<text name="gui_ad_distributeToFolder"			 	text="Multiple targets" />	
+		<text name="gui_ad_distributeToFolder_tooltip"	 	text="All targets in same folder will be rotated as unload targets." />		
 	</texts>
 </l10n>

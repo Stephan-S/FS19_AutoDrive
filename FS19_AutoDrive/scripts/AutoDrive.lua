@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.6.0";
+AutoDrive.Version = "1.0.6.1";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -365,17 +365,21 @@ function init(self)
 			self.ad.groups[groupName] = true;
 		end;
 	end;
-	self.ad.reverseTimer = 0;
+	self.ad.reverseTimer = 3000;
+	self.ad.ccMode = AutoDrive.CC_MODE_IDLE;
+	self.ccInfos = {};
 end;
 
 function AutoDrive:onLeaveVehicle()	
 	local storedshowingHud = self.ad.showingHud;
-	if g_inputBinding:getShowMouseCursor() == true and vehicle == g_currentMission.controlledVehicle then
+	if g_inputBinding:getShowMouseCursor() == true and (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
 		g_inputBinding:setShowMouseCursor(false);
 		AutoDrive:onToggleMouse(self);
 	end;
 	self.ad.showingHud = storedshowingHud
-	AutoDrive.Hud:closeAllPullDownLists(self);
+	if (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
+		AutoDrive.Hud:closeAllPullDownLists(self);
+	end;
 end;
 
 function AutoDrive:onToggleMouse(vehicle) 

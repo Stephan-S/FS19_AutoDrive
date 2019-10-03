@@ -190,8 +190,9 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 			sensor:setEnabled(false);
 		end;
 	end;
-	vehicle.ad.reverseTimer = 0;
-	AutoDriveHud:deleteMapHotspot(vehicle);
+	vehicle.ad.reverseTimer = 3000;
+	AutoDriveHud:deleteMapHotspot(vehicle);	
+    vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE;
 end
 
 function AutoDrive:getVehicleToStop(vehicle, brake, dt)

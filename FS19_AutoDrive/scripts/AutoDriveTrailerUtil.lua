@@ -540,7 +540,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
                         or  (trigger ~= vehicle.ad.trigger 
                             and (not vehicle.ad.trigger.isLoading))
                         or  trigger.stoppedTimer.elapsedTime > 3000) then -- and  and vehicle.ad.isLoading == false                      
-                        if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) and AutoDrive:getSetting("refillSeedAndFertilizer") then  
+                        if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) then --and AutoDrive:getSetting("refillSeedAndFertilizer") then  
                             local storedFillType = vehicle.ad.unloadFillTypeIndex;
                             local toCheck = {13, 43, 44};
                             local matches = checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, toCheck);

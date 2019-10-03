@@ -38,16 +38,20 @@ end;
 function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors = {}
     local sensorParameters = {}
-    sensorParameters.position = ADSensor.POS_FRONT;
-    local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
+    sensorParameters.position = ADSensor.POS_FRONT;   
+    local frontSensor = ADCollSensor:new(vehicle, sensorParameters) 
+    sensorParameters.dynamicLength = false;
+    sensorParameters.length = vehicle.sizeLength / 2;
     local frontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["frontSensor"] = frontSensor;
     vehicle.ad.sensors["frontSensorFruit"] = frontSensorFruit;
+    sensorParameters = {}
     sensorParameters.position = ADSensor.POS_REAR;
     local rearSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rearSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rearSensor"] = rearSensor;
     vehicle.ad.sensors["rearSensorFruit"] = rearSensorFruit;
+    sensorParameters = {}
     sensorParameters.position = ADSensor.POS_LEFT;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
@@ -61,6 +65,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.dynamicRotation = false;
     sensorParameters.width = 13;
     local rightSensor = ADCollSensor:new(vehicle, sensorParameters)
+    --rightSensor:setEnabled(true);
     local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightSensor"] = rightSensor;
     vehicle.ad.sensors["rightSensorFruit"] = rightSensorFruit;
@@ -285,9 +290,7 @@ function ADSensor:onDrawDebug(box)
             else
                 red = 1;
             end;
-        end;
-
-        DebugUtil.drawOverlapBox(box.x,box.y,box.z, box.rx, box.ry, 0, box.size[1],box.size[2],box.size[3], red, blue, 0);   
+        end;        
         
         if self.sensorType == ADSensor.TYPE_FRUIT then
             local corners = self:getCorners(box);
@@ -304,6 +307,8 @@ function ADSensor:onDrawDebug(box)
             AutoDrive:drawLine(corners[1], corners[3], 1, blue, 1, 1);
             AutoDrive:drawLine(corners[3], corners[4], 1, blue, 1, 1);
             AutoDrive:drawLine(corners[4], corners[1], 1, blue, 1, 1);
+        else
+            DebugUtil.drawOverlapBox(box.x,box.y,box.z, box.rx, box.ry, 0, box.size[1],box.size[2],box.size[3], red, blue, 0); 
         end;
     end;
 end;
