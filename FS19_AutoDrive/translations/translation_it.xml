@@ -133,6 +133,8 @@
 		<text name="gui_ad_preCallLevel"			 		 text="Anticipa chiamata per scarico" />	
 		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Anticipa chiamata per scarico al livello impostato" />	
 		<text name="gui_ad_chaseCombine"			 		 text="Segui la mietitrebbia in scarico" />	
-		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Il mezzo per lo scarico segue la mietitrebbia se è stata anticipata chiamata" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Il mezzo per lo scarico segue la mietitrebbia se è stata anticipata chiamata" />
+		<text name="gui_ad_distributeToFolder"			 	 text="Obiettivi multipli" />	
+		<text name="gui_ad_distributeToFolder_tooltip"	 	 text="Tutte le destinazioni nella stessa cartella verranno ruotate come destinazioni di scarico." />		
 	</texts>
 </l10n>
