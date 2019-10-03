@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<l10n>
+    <translationContributors>Criss20ster</translationContributors>
+	<texts>
+		<text name="UNKNOWN"								 text="Nieznany" />
+		<text name="input_ADToggleHud"						 text="AD: Pokaż / ukryj HUD" />
+		<text name="input_ADToggleMouse"					 text="AD: Pokaż / ukryj mysz" />
+		<text name="input_ADEnDisable"						 text="AD: ON / OFF" />
+		<text name="input_ADSilomode"						 text="AD: Zmień tryb" />
+		<text name="input_ADRecord"							 text="AD: Nagrywanie" />
+		<text name="input_ADSelectTarget"					 text="AD: Wybierz miejsce docelowe" />
+		<text name="input_ADSelectPreviousTarget"			 text="AD: Wybierz poprzedni cel podróży" />
+		<text name="input_AD_Speed_up"						 text="AD: Zwiększyć prędkość" />
+		<text name="input_AD_Speed_down"					 text="AD: Zmniejszyć prędkość" />
+		<text name="input_AD_export_routes"					 text="AD: Eksportuj trasy" />
+		<text name="input_AD_import_routes"					 text="AD: Importuj trasy" />
+		<text name="input_AD_upload_routes"					 text="AD: Prześlij trasy" />
+		<text name="input_AD_continue"						 text="AD: Kontynuować" />
+		<text name="input_ADSelectTargetUnload"				 text="AD: Następny punkt rozładunku" />
+		<text name="input_ADSelectPreviousTargetUnload" 	 text="AD: Poprzedni punkt rozładunku" />
+		<text name="input_ADActivateDebug"					 text="AD: Tryb edytora" />
+		<text name="input_ADDebugShowClosest"				 text="AD: Pokaż najbardziej oczywisty punkt" />
+		<text name="input_ADDebugSelectNeighbor"			 text="AD: Wybierz punkt sąsiedni" />
+		<text name="input_ADDebugChangeNeighbor"			 text="AD: Wybierz następny punkt sąsiedni" />
+		<text name="input_ADDebugCreateConnection"			 text="AD: Połączenie włączone / wyłączone" />
+		<text name="input_ADDebugCreateMapMarker"			 text="AD: Utwórz nowy cel podróży" />
+		<text name="input_ADRenameMapMarker"			 	 text="AD: Zmień nazwę bieżącego miejsca docelowego" />
+		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Usuń punkt trasy" />
+		<text name="input_ADDebugForceUpdate"				 text="AD: Przelicz ścieżki" />
+		<text name="input_ADDebugDeleteDestination"			 text="AD: Usuń miejsce docelowe" />
+		<text name="input_ADSelectNextFillType"				 text="AD: Następny rodzaj owoców" />
+		<text name="input_ADSelectPreviousFillType"			 text="AD: Poprzedni rodzaj owoców" />
+		<text name="input_ADOpenGUI"						 text="AD: Otwórz menu" />
+		<text name="input_ADCallDriver"						 text="AD: Zadzwoń do kierowcy" />
+		<text name="input_ADGoToVehicle"					 text="AD: Zmień na przyjechany pojazd" />
+		<text name="input_ADNameDriver"						 text="AD: Podaj nazwę kierowcy" />
+		<text name="input_ADIncLoopCounter"					 text="AD: Zwiększ liczbę powtórzeń" />
+		<text name="input_ADParkVehicle"					 text="AD: Zaparkować pojazd" />		
+		<text name="AD_parkVehicle_noPosSet"		         text="Nie przydzielono parkingu. Napraw za pomocą prawego przycisku myszy na przycisku. (Aktualny cel)." />
+		<text name="AD_parkVehicle_selected"		         text="Przypisany jako parking: " />
+		<text name="AD_Driver_of"							 text="Kierowca" />
+		<text name="AD_has_reached"							 text="przybył do" />
+		<text name="AD_got_stuck"							 text="utknął" />
+		<text name="AD_cannot_reach"						 text="nie znalazł drogi do" />
+		<text name="AD_new_marker"							 text="Nowy cel:" />
+		<text name="AD_new_marker_helptext"					 text="Wprowadź nazwę - Wyjdź za pomocą klawisza Enter" />
+		<text name="AD_Recalculationg_routes_status"		 text="Trasy są ponownie obliczane. Proszę czekać obliczony:" />
+		<text name="AD_No_Trailer"							 text="nie mogłem znaleźć przyczepy" />	
+		<text name="AD_No_Bunker"							 text="nie mogłem znaleźć silosu" />		
+		<text name="AD_No_Shovel"							 text="nie mogłem znaleźć łopaty" />
+		<text name="AD_MODE_DRIVETO"						 text="Jechać" />
+		<text name="AD_MODE_DELIVERTO"						 text="Wyładować" />
+		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Odbierz i dostarcz" />
+		<text name="AD_MODE_UNLOAD"							 text="Rozładuj kombajn" />
+		<text name="AD_MODE_LOAD"							 text="Podnieść" />
+		<text name="AD_MODE_BGA"							 text="Rozładuj silos" />
+		<text name="gui_ad_Setting"							 text="AutoDrive - ustawienia" />
+		<text name="gui_ad_pipe_offset"						 text="Rura dystansowa" />
+		<text name="gui_ad_trailerOffset"					 text="Przesunięcie przyczepy" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Przesunięcie pozycji rozładunku przyczepy - przód / tył" />
+		<text name="gui_ad_lookahead_turning"				 text="Patrz w dal odległość (skręt)" />
+		<text name="gui_ad_lookahead_turning_tooltip"		 text="Odległość, na którą pojazd patrzy przed siebie, w celu dostosowania układu kierowniczego do następnego segmentu" />
+		<text name="gui_ad_lookahead_braking"				 text="Odległość wyprzedzenia (hamulec)" />
+		<text name="gui_ad_lookahead_braking_tooltip"		 text="Odległość, na którą pojazd patrzy przed siebie, w celu dostosowania prędkości do oczekiwanego promienia skrętu" />
+		<text name="gui_ad_useFastestRoute"					 text="Użyj najszybszej trasy" />
+		<text name="gui_ad_useFastestRoute_tooltip"			 text="Obliczając najlepsze trasy, weź pod uwagę prędkość jazdy zamiast prostych odległości" />
+		<text name="gui_ad_avoidMarkers"					 text="Unikaj innych celów" />
+		<text name="gui_ad_avoidMarkers_tooltip"			 text="Wyszukiwanie ścieżek próbuje znaleźć objazdy wokół celów. Przydatne, aby uniknąć zacięć" />
+		<text name="gui_ad_mapMarkerDetour"					 text="Maksymalny objazd" />
+		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Maksymalny objazd podczas omijania celów" />
+		<text name="gui_ad_siloEmpty"						 text="Jeśli silos jest pusty" />
+		<text name="gui_ad_siloEmpty_tooltip"				 text="Jak kierowca odbiera i dostarcza pojazd reaguje na pusty silos" />
+		<text name="gui_ad_useFolders"					 	 text="Użyj folderów" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Użyj folderów, aby uporządkować miejsca docelowe" />
+		<text name="gui_ad_wait"							 text="Czekaj" />
+		<text name="gui_ad_drive"							 text="Jechać dalej" />
+		<text name="gui_ad_yes"								 text="Tak" />
+		<text name="gui_ad_no"								 text="Nie" />
+		<text name="ad_wait_for_combine"					 text="Czekaj na kombajn" />
+		<text name="ad_drive_to_combine"					 text="Jedź do kombajnu" />
+		<text name="ad_unloading_combine"					 text="Rozładuj kombajn" />
+		<text name="ad_drive_to_parkpos"					 text="Parking" />
+		<text name="ad_drive_to_startpos"					 text="Jedź, aby rozpocząć" />
+		<text name="ad_drive_to_unloadpos"					 text="Jedź do rozładunku" />
+		<text name="ad_bga_init"					 		 text="Zainicjować" />
+		<text name="ad_bga_waiting"					 		 text="Oczekiwanie na przyczepę / silos" />
+		<text name="ad_bga_active"					 		 text="Aktywny" />
+		<text name="gui_ad_autoConnect_start"				 text="Automatyczne połączenie (start)" />
+		<text name="gui_ad_autoConnect_start_tooltip"		 text="Automatycznie podłącz odpowiedni węzeł na początku nagrywania" />
+		<text name="gui_ad_autoConnect_end"					 text="Automatyczne połączenie (koniec)" />
+		<text name="gui_ad_autoConnect_end_tooltip"			 text="Automatycznie podłącz odpowiedni węzeł na końcu nagrywania" />
+		<text name="gui_ad_parkInField"						 text="Parking na polu" />
+		<text name="gui_ad_parkInField_tooltip"				 text="Po rozładowaniu kombajnu - jeśli nie zaparkowany w owocach" />
+		<text name="gui_ad_unloadFillLevel"					 text="Rozładuj poziom napełnienia" />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 text="Po rozładowaniu połączyć. Bezpośrednio przejdź do dostawy na tym poziomie wypełnienia." />
+		<text name="gui_ad_findDriver"						 text="Znajdź odjazdy" />
+		<text name="gui_ad_findDriver_tooltip"				 text="Szukaj blisko kierowców (Ignoruj cel)" />
+		<text name="gui_ad_gui_scale"						 text="Skalowanie GUI interfejsu AutoDrive" />
+		<text name="gui_ad_gui_scale_tooltip"				 text="Ustaw na Domyślny, aby użyć ustawienia skalowania w grze" />	
+		<text name="gui_ad_exitField"					     text="Wyjście z pola" />	
+		<text name="gui_ad_exitField_tooltip"			     text="Strategia wyjścia z pola po rozładunku - start, krótko po punkcie startowym, najbliższy punkt" />	
+		<text name="gui_ad_default"			 				 text="Domyślna" />	
+		<text name="gui_ad_after_start"			 			 text="Za początkiem" />	
+		<text name="gui_ad_closest"			 				 text="Najbliższy punkt" />
+		<text name="gui_ad_showHelp"					     text="Wyświetl pomoc" />	
+		<text name="gui_ad_showHelp_tooltip"			     text="Wyświetl skrót klawiszowy w oknie F1" />	
+		<text name="gui_ad_driverWages"					     text="Wynagrodzenie kierowcy" />	
+		<text name="gui_ad_driverWages_tooltip"			     text="Dzięki temu czynnikowi koszty płacy kierowcy są mnożone" />	
+		<text name="gui_ad_smoothField"					     text="Płynniejsza jazda w polu" />	
+		<text name="gui_ad_smoothField_tooltip"			     text="Wygenerowane kursy terenowe do i z kombajnu zostaną wygładzone (eksperymentalne)" />	
+		<text name="gui_ad_recalculationSpeed"				 text="Szybkość obliczeń" />	
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Wyższe wartości doprowadzą do opóźnionej rozgrywki podczas ponownego obliczania" />	
+		<text name="gui_ad_showNextPath"				 	 text="Pokaż następną ścieżkę" />	
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="Włącz / wyłącz wyświetlanie kolejnych 2 punktów trasy" />	
+		<text name="gui_ad_avoidFruit"				 	     text="Unikaj owoców" />	
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Kombajn rozładowujący próbuje uniknąć zniszczenia owoców" />	
+		<text name="gui_ad_pathFinderTime"				 	 text="Czas odnajdywania ścieżki (maks.)" />	
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Określa, jak długo algorytm wyszukiwania ścieżki może wyszukiwać ścieżkę wolną od kolizji do / z kombajnu. (Potencjalny wpływ fps)" />
+		<text name="gui_ad_lineHeight"				 	     text="Wysokość linii" />	
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Wysokość linii w trybie edytora. Na poziomie gruntu lub nad ciągnikiem" />	
+		<text name="gui_ad_ground"				 	         text="Poziom ziemi" />	
+		<text name="gui_ad_aboveDriver"	     	             text="Powyżej ciągnika" />	
+		<text name="gui_ad_allowConsoleStyle"				 text="Zezwól na wprowadzanie celu (tekstu)" />	
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Zezwól na zaawansowane wprowadzanie celu za pomocą klawiatury - domyślne pole tekstowe kliknij prawym przyciskiem myszy" />
+		<text name="gui_ad_enableTrafficDetection"			 text="Wykrywanie kolizji" />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Zaawansowane wykrywanie kolizji, które wykrywa również ruch AI, znaki, ogrodzenia itp" />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 text="Nasiona i nawóz" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Umożliwia AutoDrive napełnianie zarówno przedziału nasion, jak i nawozu, jeśli jeden z nich zostanie wybrany jako rodzaj wypełnienia." />	
+		<text name="gui_ad_shovelWidth"			 			 text="Szerokość łopaty (dodatek)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Jeśli automatycznie wykryta szerokość łopaty jest zbyt mała, można ją zwiększyć o tę wartość" />		
+		<text name="gui_ad_preCallDriver"			 		 text="Zadzwoń wcześniej do kierowcy" />	
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Kierowca jest już wywoływany na ustalonym poziomie napełnienia." />	
+		<text name="gui_ad_preCallLevel"			 		 text="Wcześniejsze połączenie" />	
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Kierowca jest już wywoływany na ustalonym poziomie napełnienia." />	
+		<text name="gui_ad_chaseCombine"			 		 text="Śledzić kombajn" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Unloader śledzi połączenie po uprzednim wywołaniu" />	
+	</texts>
+</l10n>
