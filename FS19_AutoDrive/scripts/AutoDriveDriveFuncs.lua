@@ -417,18 +417,19 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         if highestAngle >= 20 and highestAngle < 30 then vehicle.ad.speedOverride = 13; end;
         if highestAngle >= 30 and highestAngle < 90 then vehicle.ad.speedOverride = 13; end;
     end;
+
+    local distanceToTarget = AutoDrive:getDistanceToLastWaypoint(vehicle, 10);
+
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
-    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] == nil then
+
+    if distanceToTarget < 5 then
         vehicle.ad.speedOverride = math.min(12, vehicle.ad.speedOverride);
     end;
-    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+3] == nil then
+    if distanceToTarget < 12 then
         vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
     end;
-    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+4] == nil then
-        vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
-    end;
-    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] == nil then
+    if distanceToTarget < 16 == nil then
         vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
     end;
 
@@ -536,6 +537,26 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end;
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
     
+end;
+
+function AutoDrive:getDistanceToLastWaypoint(vehicle, maxLookAheadPar)
+    local distance = 0;
+    local maxLookAhead = maxLookAheadPar;
+    if maxLookAhead == nil then
+        maxLookAhead = 10;
+    end;
+    if vehicle ~= nil and vehicle.ad.wayPoints ~= nil and vehicle.ad.currentWayPoint ~= nil then
+        local lookAhead = 1;
+        while vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead] ~= nil and lookAhead < maxLookAhead do
+            local p1 = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead];
+            local p2 = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+lookAhead - 1];
+            distance = distance + MathUtil.vector2Length(p2.x - p1.x, p2.z - p1.z);
+
+            lookAhead = lookAhead + 1;
+        end;
+    end;
+
+    return distance;
 end;
 
 function AutoDrive:driveToLastWaypoint(vehicle, dt)

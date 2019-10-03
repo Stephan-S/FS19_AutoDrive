@@ -211,7 +211,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		AutoDrive:ImportRoutes();
 	end;
 	
-	if input == "input_toggleHud" then
+	if input == "input_toggleHud" and vehicle == g_currentMission.controlledVehicle then
 		AutoDrive.Hud:toggleHud(vehicle);				
 	end;
 	
@@ -219,7 +219,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor());
 	end;
 	
-	if input == "input_openGUI" then
+	if input == "input_openGUI" and vehicle == g_currentMission.controlledVehicle then
 		AutoDrive:onOpenSettings();
 	end;
 

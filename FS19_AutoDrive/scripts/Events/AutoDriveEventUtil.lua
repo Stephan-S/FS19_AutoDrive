@@ -101,7 +101,7 @@ function AutoDrive:writeMapMarkersToStream(streamId)
 end;
 
 function AutoDrive:writeGroupsToStream(streamId)
-    streamWriteFloat32(streamId, #AutoDrive.groups);
+    streamWriteFloat32(streamId, ADTableLength(AutoDrive.groups));
     for groupName, groupID in pairs(AutoDrive.groups) do
         streamWriteStringOrEmpty(streamId, groupName);
         streamWriteFloat32(streamId, groupID);

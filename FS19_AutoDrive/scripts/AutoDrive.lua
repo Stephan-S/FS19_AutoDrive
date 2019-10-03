@@ -370,7 +370,7 @@ end;
 
 function AutoDrive:onLeaveVehicle()	
 	local storedshowingHud = self.ad.showingHud;
-	if g_inputBinding:getShowMouseCursor() == true then
+	if g_inputBinding:getShowMouseCursor() == true and vehicle == g_currentMission.controlledVehicle then
 		g_inputBinding:setShowMouseCursor(false);
 		AutoDrive:onToggleMouse(self);
 	end;
