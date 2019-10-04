@@ -469,7 +469,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end;
 
     if vehicle.ad.isUnloadingToBunkerSilo == true and vehicle.ad.isPaused == false then
-        vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride);
+        vehicle.ad.speedOverride = math.min(AutoDrive:getBunkerSiloSpeed(vehicle), vehicle.ad.speedOverride);
     end;
 
     local finalSpeed = vehicle.ad.speedOverride;
@@ -691,8 +691,10 @@ function AutoDrive:getLookAheadTarget(vehicle)
                 addZ = -addZ;
             end;
 
-            targetX = wp_current.x + addX;
-            targetZ = wp_current.z + addZ;
+            if (math.abs(distX) + math.abs(distZ)) > 0 then
+                targetX = wp_current.x + addX;
+                targetZ = wp_current.z + addZ;
+            end;
         end;        
     end;
 

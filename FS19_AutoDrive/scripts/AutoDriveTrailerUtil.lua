@@ -411,7 +411,12 @@ function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)
                 else
                     if isTrailerInBunkerSiloArea(trailer, trigger) and trailer.setDischargeState ~= nil then
                         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
+                        if vehicle.ad.isUnloadingToBunkerSilo == false then
+                            vehicle.ad.bunkerStartFillLevel = fillLevel;
+                        end;
                         vehicle.ad.isUnloadingToBunkerSilo = true;
+                        vehicle.ad.bunkerTrigger = trigger;
+                        vehicle.ad.bunkerTrailer = trailer;
                     end;
                 end;
             end;              
@@ -648,4 +653,34 @@ function checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, listOfFillTypes)
         end;
     end;
     return false;
+end;
+
+function AutoDrive:getBunkerSiloSpeed(vehicle)
+    local trailer = vehicle.ad.bunkerTrailer;
+    local trigger = vehicle.ad.bunkerTrigger;
+    local fillLevel = vehicle.ad.bunkerStartFillLevel;
+
+    if trailer ~= nil and trailer.getCurrentDischargeNode ~= nil and fillLevel ~= nil then
+        local dischargeNode = trailer:getCurrentDischargeNode()
+        if dischargeNode ~= nil and trigger ~= nil and trigger.bunkerSiloArea ~= nil then
+            local dischargeSpeed = dischargeNode.emptySpeed;            
+                                                                                --        vecW
+            local x1,z1 = trigger.bunkerSiloArea.sx,trigger.bunkerSiloArea.sz   --      1 ---- 2
+            local x2,z2 = trigger.bunkerSiloArea.wx,trigger.bunkerSiloArea.wz   -- vecH | ---- |
+            local x3,z3 = trigger.bunkerSiloArea.hx,trigger.bunkerSiloArea.hz   --      | ---- |
+            local x4,z4 = x2+(x3-x1), z2+(z3-z1);                               --      3 ---- 4    4 = 2 + vecH
+            
+            local vecH = {x= (x3 - x1) , z= (z3 - z1)};
+            local vecHLength = MathUtil.vector2Length(vecH.x, vecH.z);
+
+
+            local unloadTimeInMS = fillLevel / dischargeSpeed;
+
+            local speed = ((vecHLength / unloadTimeInMS) * 1000) * 3.6 * 0.95;
+            
+            --print("Calculated unloadTime: " .. unloadTimeInMS .. " speed: " .. speed .. " vecHLength: " .. vecHLength .. " dischargeSpeed: " .. dischargeSpeed);
+            return speed;
+        end;
+    end;
+    return 8;
 end;

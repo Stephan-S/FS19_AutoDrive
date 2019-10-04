@@ -356,6 +356,7 @@ function init(self)
 		self.bga.isActive = false;
 	end;
 	self.ad.noMovementTimer = AutoDriveTON:new();
+	self.ad.noTurningTimer = AutoDriveTON:new();
 
 	if self.ad.groups == nil then
 		self.ad.groups = {};
@@ -494,7 +495,10 @@ function AutoDrive:onUpdate(dt)
 	if AutoDrive.runThisFrame == false then --run things that should run at least once per frame, independent of the vehicle
 		for _,vehicle in pairs(g_currentMission.vehicles) do
 			if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
-				vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0015), 3000, dt);
+				vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt);
+			end;
+			if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then				
+				vehicle.ad.noTurningTimer:timer((vehicle.getAIIsTurning == nil or (vehicle:getAIIsTurning() == false or vehicle:getAIIsTurning() == nil)), 1000, dt);
 			end;
 		end;
 

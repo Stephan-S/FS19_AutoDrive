@@ -40,9 +40,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
             followDistance = 15;
         end;
 
-        wpAhead = {x= (worldX - (followDistance-15)*rx), y = worldY, z = worldZ - (followDistance-15)*rz};
-        wpCurrent = {x= (worldX - (followDistance-5)*rx), y = worldY, z = worldZ - (followDistance-5)*rz};
-        wpBehind_close = {x= (worldX - (followDistance-3)*rx), y = worldY, z = worldZ - (followDistance-3)*rz};
+        wpAhead = {x= (worldX - (followDistance-12)*rx), y = worldY, z = worldZ - (followDistance-12)*rz};
         
         wpBehind = {x= (worldX - followDistance*rx), y = worldY, z = worldZ - followDistance*rz};
         driver.ad.waitForPreDriveTimer = 10000;
@@ -93,10 +91,19 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     
     driver.ad.pf.minTurnRadius = minTurnRadius;
     driver.ad.pf.appendWayPoints = {};
-	driver.ad.pf.appendWayPoints[1] = wpBehind_close;
-	driver.ad.pf.appendWayPoints[2] = wpCurrent;
-	driver.ad.pf.appendWayPoints[3] = wpAhead;
-    driver.ad.pf.appendWayPointCount = 3;	   
+    local appendCount = 1;
+    if wpBehind_close ~= nil then
+        driver.ad.pf.appendWayPoints[appendCount] = wpBehind_close;
+        appendCount = appendCount + 1;
+    end;
+    if wpCurrent ~= nil then
+        driver.ad.pf.appendWayPoints[appendCount] = wpCurrent;
+        appendCount = appendCount + 1;
+    end;
+    if wpAhead ~= nil then
+        driver.ad.pf.appendWayPoints[appendCount] = wpAhead;
+    end;
+    driver.ad.pf.appendWayPointCount = appendCount;	   
     
     driver.ad.pf.goingToCombine = true;
 
@@ -588,7 +595,7 @@ end;
 function AutoDrivePathFinder:isPathPlanningFinished(driver)
 	if driver.ad.pf ~= nil then
         if driver.ad.pf.isFinished == true and driver.ad.pf.smoothDone == true then
-            --if AutoDrive:getSetting("showHelp") then
+            --if driver.ad.createMapPoints then
                 --drawDebugForCreatedRoute(driver.ad.pf);
             --else
                 return true;
@@ -850,7 +857,7 @@ end;
 
 function getShapeDefByDirectionType(pf, cell)
     local shapeDefinition = {};
-    shapeDefinition.angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
+    shapeDefinition.angleRad = math.atan2(-pf.targetVector.z, pf.targetVector.x);
     shapeDefinition.angleRad = normalizeAngle(shapeDefinition.angleRad);
     local worldPos = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
@@ -867,7 +874,7 @@ function getShapeDefByDirectionType(pf, cell)
         local offsetZ = (-pf.vectorX.z)/2 + (-pf.vectorZ.z)/4;    
         shapeDefinition.x = worldPos.x + offsetX;
         shapeDefinition.z = worldPos.z + offsetZ;
-        shapeDefinition.widthX = pf.minTurnRadius/2 + math.abs(offsetX);
+        shapeDefinition.widthX = (pf.minTurnRadius/2) + math.abs(offsetX);
         shapeDefinition.widthZ = pf.minTurnRadius/2 + math.abs(offsetZ);
     elseif cell.direction == AutoDrive.PP_UP_LEFT then
         local offsetX = (-pf.vectorX.x)/2 + (pf.vectorZ.x)/4;     
@@ -1075,16 +1082,16 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 local leftAngle = normalizeAngle(angleRad + math.rad(-90));
                 local rightAngle = normalizeAngle(angleRad + math.rad(90));
 
-                local cornerX = node.x + math.cos(leftAngle) * sideLength;
+                local cornerX = node.x - math.cos(leftAngle) * sideLength;
                 local cornerZ = node.z + math.sin(leftAngle) * sideLength;
 
-                local corner2X = nodeAhead.x + math.cos(leftAngle) * sideLength;
+                local corner2X = nodeAhead.x - math.cos(leftAngle) * sideLength;
                 local corner2Z = nodeAhead.z + math.sin(leftAngle) * sideLength;
                 
-                local corner3X = nodeAhead.x + math.cos(rightAngle) * sideLength;
+                local corner3X = nodeAhead.x - math.cos(rightAngle) * sideLength;
                 local corner3Z = nodeAhead.z + math.sin(rightAngle) * sideLength;
 
-                local corner4X = node.x + math.cos(rightAngle) * sideLength;
+                local corner4X = node.x - math.cos(rightAngle) * sideLength;
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength;
 
                 local shapes = overlapBox(worldPos.x + vectorX/2,y+3,worldPos.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
@@ -1537,10 +1544,14 @@ function drawDebugForCreatedRoute(pf)
     if pf.chainStartToTarget ~= nil then
         for chainIndex, cell in pairs(pf.chainStartToTarget) do
             local shape = getShapeDefByDirectionType(pf, cell);
-            local pointA = { x=shape.x + shape.widthX, y=shape.y, z=shape.z + shape.widthZ }
-            local pointB = { x=shape.x - shape.widthX, y=shape.y, z=shape.z + shape.widthZ }
-            local pointC = { x=shape.x - shape.widthX, y=shape.y, z=shape.z - shape.widthZ }
-            local pointD = { x=shape.x + shape.widthX, y=shape.y, z=shape.z - shape.widthZ }
+            local pointA = { x=shape.x + shape.widthX*math.cos(shape.angleRad) + shape.widthZ*math.sin(shape.angleRad), y=shape.y,
+             z=shape.z + shape.widthZ*math.cos(shape.angleRad) + shape.widthX*math.sin(shape.angleRad) }
+            local pointB = { x=shape.x - shape.widthX*math.cos(shape.angleRad) - shape.widthZ*math.sin(shape.angleRad), y=shape.y,
+             z=shape.z + shape.widthZ*math.cos(shape.angleRad) + shape.widthX*math.sin(shape.angleRad) }
+            local pointC = { x=shape.x - shape.widthX*math.cos(shape.angleRad) - shape.widthZ*math.sin(shape.angleRad), y=shape.y, z=shape.z
+            - shape.widthZ*math.cos(shape.angleRad) - shape.widthX*math.sin(shape.angleRad) }
+            local pointD = { x=shape.x + shape.widthX*math.cos(shape.angleRad) + shape.widthZ*math.sin(shape.angleRad), y=shape.y, z=shape.z
+            - shape.widthZ*math.cos(shape.angleRad) - shape.widthX*math.sin(shape.angleRad) }
             
             AutoDrive:drawLine(pointA, pointC, 1, 1, 1, 1);
             AutoDrive:drawLine(pointB, pointD, 1, 1, 1, 1);
@@ -1562,16 +1573,16 @@ function drawDebugForCreatedRoute(pf)
                 local leftAngle = normalizeAngle(angleRad + math.rad(-90));
                 local rightAngle = normalizeAngle(angleRad + math.rad(90));
 
-                local cornerX = worldPos_incoming.x + math.cos(leftAngle) * sideLength;
+                local cornerX = worldPos_incoming.x - math.cos(leftAngle) * sideLength;
                 local cornerZ = worldPos_incoming.z + math.sin(leftAngle) * sideLength;
 
-                local corner2X = worldPos_cell.x + math.cos(leftAngle) * sideLength;
+                local corner2X = worldPos_cell.x - math.cos(leftAngle) * sideLength;
                 local corner2Z = worldPos_cell.z + math.sin(leftAngle) * sideLength;
                 
-                local corner3X = worldPos_cell.x + math.cos(rightAngle) * sideLength;
+                local corner3X = worldPos_cell.x - math.cos(rightAngle) * sideLength;
                 local corner3Z = worldPos_cell.z + math.sin(rightAngle) * sideLength;
 
-                local corner4X = worldPos_incoming.x + math.cos(rightAngle) * sideLength;
+                local corner4X = worldPos_incoming.x - math.cos(rightAngle) * sideLength;
                 local corner4Z = worldPos_incoming.z + math.sin(rightAngle) * sideLength;
 
                 local inY =  getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_incoming.x, 1, worldPos_incoming.z) + 1;
@@ -1582,6 +1593,12 @@ function drawDebugForCreatedRoute(pf)
                 AutoDrive:drawLine({x = corner3X, y= currentY, z=corner3Z}, {x = corner4X, y= inY, z=corner4Z}, 1, 0, 0, 1);
                 AutoDrive:drawLine({x = corner4X, y= inY, z=corner4Z}, {x = cornerX, y= inY, z=cornerZ}, 1, 0, 0, 1);
             end;
+        end;
+    end;
+
+    for i, waypoint in pairs(pf.wayPoints) do
+        if i>1 then
+            AutoDrive:drawLine(waypoint, pf.wayPoints[i-1], 0, 1, 1, 1);
         end;
     end;
 end;
