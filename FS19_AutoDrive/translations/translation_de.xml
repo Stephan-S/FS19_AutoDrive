@@ -134,7 +134,7 @@
 		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />	
 		<text name="gui_ad_chaseCombine"			 		 text="Drescher folgen" />	
 		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Drescher verfolgen - nachdem der Abfahrer früher gerufen wurde" />	
-		<text name="gui_ad_distributeToFolder"			 	text="Mehrer Ziele" />	
+		<text name="gui_ad_distributeToFolder"			 	text="Mehrere Ziele" />	
 		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Alle Ziele im selben Ordner werden als Abladeziel durchrotiert." />	
 	</texts>
 </l10n>

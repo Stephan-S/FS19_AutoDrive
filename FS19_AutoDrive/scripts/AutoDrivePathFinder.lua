@@ -36,13 +36,28 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         local maxCapacity = fillLevel + leftCapacity;
         local combineFillLevel = (fillLevel / maxCapacity);
 
-        if combineFillLevel <= 0.80 then
-            followDistance = 15;
+        if combineFillLevel <= 0.80 or combine:getIsBufferCombine() then
+            followDistance = 0;
         end;
 
-        wpAhead = {x= (worldX - (followDistance-12)*rx), y = worldY, z = worldZ - (followDistance-12)*rz};
+        local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo();
+        local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo();      
+
+        local leftFrontBlocked = combine.ad.sensors.leftFrontSensorFruit:pollInfo();
+        local rightFrontBlocked = combine.ad.sensors.rightFrontSensorFruit:pollInfo();
+
+        if (not leftBlocked) and (not rightBlocked) then
+            if (not leftFrontBlocked) and rightFrontBlocked then
+                rightBlocked = true;
+            elseif leftFrontBlocked and (not rightFrontBlocked) then
+                leftBlocked = true;
+            end;
+        end;
+
+        local pipeChasePos, _ = AutoDrive:getPipeChasePosition(driver, combine, combine:getIsBufferCombine(), leftBlocked, rightBlocked)
+        wpAhead = {x= pipeChasePos.x, y = pipeChasePos.y, z = pipeChasePos.z};
         
-        wpBehind = {x= (worldX - followDistance*rx), y = worldY, z = worldZ - followDistance*rz};
+        wpBehind = {x= pipeChasePos.x - 7 * rx, y = pipeChasePos.y, z = pipeChasePos.z - 7 * rz};
         driver.ad.waitForPreDriveTimer = 10000;
     else
         local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
@@ -359,37 +374,37 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
     local pf = driver.ad.pf;
 
     local foundFruit = false;
-    if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit", pf.driver) then
-        if pf.fruitToCheck == nil then
-            for i = 1, #g_fruitTypeManager.fruitTypes do
-                if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
-                    local fruitType = g_fruitTypeManager.fruitTypes[i].index;      
+    -- if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit", pf.driver) then
+    --     if pf.fruitToCheck == nil then
+    --         for i = 1, #g_fruitTypeManager.fruitTypes do
+    --             if i ~= g_fruitTypeManager.nameToIndex['GRASS'] and i ~= g_fruitTypeManager.nameToIndex['DRYGRASS'] then 
+    --                 local fruitType = g_fruitTypeManager.fruitTypes[i].index;      
 
-                    local fruitValue = 0;
-                    if fruitType == 9 or fruitType == 22 then
-                        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
-                    else
-                        fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
-                    end;
+    --                 local fruitValue = 0;
+    --                 if fruitType == 9 or fruitType == 22 then
+    --                     fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+    --                 else
+    --                     fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+    --                 end;
                     
-                    if (fruitValue > 50) then
-                        foundFruit = true;
-                    end;
-                end;
-            end;
-        else
-            local fruitValue = 0;
-            if fruitType == 9 or fruitType == 22 then
-                fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
-            else
-                fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
-            end;
+    --                 if (fruitValue > 50) then
+    --                     foundFruit = true;
+    --                 end;
+    --             end;
+    --         end;
+    --     else
+    --         local fruitValue = 0;
+    --         if fruitType == 9 or fruitType == 22 then
+    --             fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true);
+    --         else
+    --             fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
+    --         end;
             
-            if (fruitValue > 50) then
-                foundFruit = true;
-            end;
-        end;  
-    end;
+    --         if (fruitValue > 50) then
+    --             foundFruit = true;
+    --         end;
+    --     end;  
+    -- end;
 
     --if foundFruit then
        --print("Quick check found fruit");
@@ -484,9 +499,9 @@ end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
     local pf = driver.ad.pf;
-    --if driver.ad.createMapPoints then
-      --  AutoDrivePathFinder:drawDebugForPF(pf);
-    --end;
+    if driver.ad.createMapPoints then
+      AutoDrivePathFinder:drawDebugForPF(pf);
+    end;
     pf.steps = pf.steps + 1;
 
     if pf.isFinished and pf.smoothDone == true then
@@ -726,7 +741,15 @@ function AutoDrivePathFinder:createGridCells(pf, location)
 end;
 
 function AutoDrivePathFinder:checkGridCell(pf, cell)
-    if cell.hasInfo == false then           
+    if cell.hasInfo == false then       
+        if cell.x == pf.targetCell.x and cell.z == pf.targetCell.z then
+            cell.isRestricted = false;
+            cell.hasCollision = false;
+            cell.hasFruit = false;
+            cell.hasInfo = true;
+            return;
+        end;
+
         local worldPos = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
 
         local cornerX = worldPos.x + (-pf.vectorX.x - pf.vectorZ.x)/2
@@ -909,6 +932,8 @@ function AutoDrivePathFinder:createWayPoints(pf)
         local currentCell = pf.targetCell;
         pf.chainTargetToStart = {};
         local index = 1;
+        pf.chainTargetToStart[index] = currentCell;
+        index = index + 1;
         while currentCell.x ~= 0 or currentCell.z ~= 0 do
             pf.chainTargetToStart[index] = currentCell.incoming;
             currentCell = currentCell.incoming;
@@ -1462,6 +1487,17 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
 	--else
 		--if AutoDrive.drawCounter <= 0 then
             --AutoDrive.drawCounter = 120;
+            local pointTarget = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.targetCell);
+            local pointTargetUp = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.targetCell);
+            pointTarget.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTarget.x, 1, pointTarget.z) + 3;
+            pointTargetUp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTargetUp.x, 1, pointTargetUp.z) + 6;
+            AutoDrive:drawLine(pointTarget, pointTargetUp, 0, 0, 1, 1);
+            local pointStart = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.startCell);
+            local pointStartUp = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.startCell);
+            pointStart.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointStart.x, 1, pointStart.z) + 3;
+            pointStartUp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointStartUp.x, 1, pointStartUp.z) + 6;
+            AutoDrive:drawLine(pointStart, pointStartUp, 0, 0, 1, 1);
+
             for _, cell in pairs(pf.grid) do
                 local size = 0.3;
                 local pointA = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
@@ -1542,56 +1578,58 @@ end;
 
 function drawDebugForCreatedRoute(pf)
     if pf.chainStartToTarget ~= nil then
-        for chainIndex, cell in pairs(pf.chainStartToTarget) do
+        for chainIndex, cell in pairs(pf.chainStartToTarget) do 
             local shape = getShapeDefByDirectionType(pf, cell);
-            local pointA = { x=shape.x + shape.widthX*math.cos(shape.angleRad) + shape.widthZ*math.sin(shape.angleRad), y=shape.y,
-             z=shape.z + shape.widthZ*math.cos(shape.angleRad) + shape.widthX*math.sin(shape.angleRad) }
-            local pointB = { x=shape.x - shape.widthX*math.cos(shape.angleRad) - shape.widthZ*math.sin(shape.angleRad), y=shape.y,
-             z=shape.z + shape.widthZ*math.cos(shape.angleRad) + shape.widthX*math.sin(shape.angleRad) }
-            local pointC = { x=shape.x - shape.widthX*math.cos(shape.angleRad) - shape.widthZ*math.sin(shape.angleRad), y=shape.y, z=shape.z
-            - shape.widthZ*math.cos(shape.angleRad) - shape.widthX*math.sin(shape.angleRad) }
-            local pointD = { x=shape.x + shape.widthX*math.cos(shape.angleRad) + shape.widthZ*math.sin(shape.angleRad), y=shape.y, z=shape.z
-            - shape.widthZ*math.cos(shape.angleRad) - shape.widthX*math.sin(shape.angleRad) }
-            
-            AutoDrive:drawLine(pointA, pointC, 1, 1, 1, 1);
-            AutoDrive:drawLine(pointB, pointD, 1, 1, 1, 1);
-
-
-            if cell.incoming ~= nil then
-
-                local worldPos_cell = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
-                local worldPos_incoming = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell.incoming);
-
-                local vectorX = worldPos_cell.x - worldPos_incoming.x;
-                local vectorZ = worldPos_cell.z - worldPos_incoming.z;
-                local angleRad = math.atan2(-vectorZ, vectorX);
-                angleRad = normalizeAngle(angleRad);
-                local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2));
-                local sideLength = widthOfColBox/2;
-                local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox;
+            if shape.x ~= nil then
+                local pointA = { x=shape.x + shape.widthX*math.cos(shape.angleRad) + shape.widthZ*math.sin(shape.angleRad), y=shape.y,
+                z=shape.z + shape.widthZ*math.cos(shape.angleRad) + shape.widthX*math.sin(shape.angleRad) }
+                local pointB = { x=shape.x - shape.widthX*math.cos(shape.angleRad) - shape.widthZ*math.sin(shape.angleRad), y=shape.y,
+                z=shape.z + shape.widthZ*math.cos(shape.angleRad) + shape.widthX*math.sin(shape.angleRad) }
+                local pointC = { x=shape.x - shape.widthX*math.cos(shape.angleRad) - shape.widthZ*math.sin(shape.angleRad), y=shape.y, z=shape.z
+                - shape.widthZ*math.cos(shape.angleRad) - shape.widthX*math.sin(shape.angleRad) }
+                local pointD = { x=shape.x + shape.widthX*math.cos(shape.angleRad) + shape.widthZ*math.sin(shape.angleRad), y=shape.y, z=shape.z
+                - shape.widthZ*math.cos(shape.angleRad) - shape.widthX*math.sin(shape.angleRad) }
                 
-                local leftAngle = normalizeAngle(angleRad + math.rad(-90));
-                local rightAngle = normalizeAngle(angleRad + math.rad(90));
+                AutoDrive:drawLine(pointA, pointC, 1, 1, 1, 1);
+                AutoDrive:drawLine(pointB, pointD, 1, 1, 1, 1);
 
-                local cornerX = worldPos_incoming.x - math.cos(leftAngle) * sideLength;
-                local cornerZ = worldPos_incoming.z + math.sin(leftAngle) * sideLength;
 
-                local corner2X = worldPos_cell.x - math.cos(leftAngle) * sideLength;
-                local corner2Z = worldPos_cell.z + math.sin(leftAngle) * sideLength;
-                
-                local corner3X = worldPos_cell.x - math.cos(rightAngle) * sideLength;
-                local corner3Z = worldPos_cell.z + math.sin(rightAngle) * sideLength;
+                if cell.incoming ~= nil then
 
-                local corner4X = worldPos_incoming.x - math.cos(rightAngle) * sideLength;
-                local corner4Z = worldPos_incoming.z + math.sin(rightAngle) * sideLength;
+                    local worldPos_cell = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
+                    local worldPos_incoming = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell.incoming);
 
-                local inY =  getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_incoming.x, 1, worldPos_incoming.z) + 1;
-                local currentY =  getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_cell.x, 1, worldPos_cell.z) + 1;
-                
-                AutoDrive:drawLine({x = cornerX, y= inY, z=cornerZ}, {x = corner2X, y= currentY, z=corner2Z}, 1, 0, 0, 1);
-                AutoDrive:drawLine({x = corner2X, y= currentY, z=corner2Z}, {x = corner3X, y= currentY, z=corner3Z}, 1, 0, 0, 1);
-                AutoDrive:drawLine({x = corner3X, y= currentY, z=corner3Z}, {x = corner4X, y= inY, z=corner4Z}, 1, 0, 0, 1);
-                AutoDrive:drawLine({x = corner4X, y= inY, z=corner4Z}, {x = cornerX, y= inY, z=cornerZ}, 1, 0, 0, 1);
+                    local vectorX = worldPos_cell.x - worldPos_incoming.x;
+                    local vectorZ = worldPos_cell.z - worldPos_incoming.z;
+                    local angleRad = math.atan2(-vectorZ, vectorX);
+                    angleRad = normalizeAngle(angleRad);
+                    local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2));
+                    local sideLength = widthOfColBox/2;
+                    local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox;
+                    
+                    local leftAngle = normalizeAngle(angleRad + math.rad(-90));
+                    local rightAngle = normalizeAngle(angleRad + math.rad(90));
+
+                    local cornerX = worldPos_incoming.x - math.cos(leftAngle) * sideLength;
+                    local cornerZ = worldPos_incoming.z + math.sin(leftAngle) * sideLength;
+
+                    local corner2X = worldPos_cell.x - math.cos(leftAngle) * sideLength;
+                    local corner2Z = worldPos_cell.z + math.sin(leftAngle) * sideLength;
+                    
+                    local corner3X = worldPos_cell.x - math.cos(rightAngle) * sideLength;
+                    local corner3Z = worldPos_cell.z + math.sin(rightAngle) * sideLength;
+
+                    local corner4X = worldPos_incoming.x - math.cos(rightAngle) * sideLength;
+                    local corner4Z = worldPos_incoming.z + math.sin(rightAngle) * sideLength;
+
+                    local inY =  getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_incoming.x, 1, worldPos_incoming.z) + 1;
+                    local currentY =  getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_cell.x, 1, worldPos_cell.z) + 1;
+                    
+                    AutoDrive:drawLine({x = cornerX, y= inY, z=cornerZ}, {x = corner2X, y= currentY, z=corner2Z}, 1, 0, 0, 1);
+                    AutoDrive:drawLine({x = corner2X, y= currentY, z=corner2Z}, {x = corner3X, y= currentY, z=corner3Z}, 1, 0, 0, 1);
+                    AutoDrive:drawLine({x = corner3X, y= currentY, z=corner3Z}, {x = corner4X, y= inY, z=corner4Z}, 1, 0, 0, 1);
+                    AutoDrive:drawLine({x = corner4X, y= inY, z=corner4Z}, {x = cornerX, y= inY, z=cornerZ}, 1, 0, 0, 1);
+                end;
             end;
         end;
     end;

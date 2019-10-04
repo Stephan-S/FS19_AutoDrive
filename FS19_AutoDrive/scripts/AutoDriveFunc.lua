@@ -285,7 +285,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 						local window = 4;
 						local i = -window;
 						while i <= window do
-							if other.ad.wayPoints[other.ad.currentWayPoint+i] ~= nil then
+							if other.ad.wayPoints ~= nil and other.ad.wayPoints[other.ad.currentWayPoint+i] ~= nil then
 								for _,point in pairs(dualRoutePoints) do
 									if point == other.ad.wayPoints[other.ad.currentWayPoint+i].id then
 										onSameRoute = true;

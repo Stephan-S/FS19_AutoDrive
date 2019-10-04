@@ -344,7 +344,6 @@ function AutoDrive:updateChaseModeInfos(vehicle, dt)
     vehicle.ccInfos.isChopper = combine:getIsBufferCombine()
     vehicle.ccInfos.leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo();
     vehicle.ccInfos.rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo();
-
     vehicle.ccInfos.chasePos, vehicle.ccInfos.chaseSide = AutoDrive:getPipeChasePosition(vehicle, combine, vehicle.ccInfos.isChopper, vehicle.ccInfos.leftBlocked, vehicle.ccInfos.rightBlocked);
     vehicle.ccInfos.distanceToCombine = MathUtil.vector2Length(vehicle.ccInfos.combineWorldX - vehicle.ccInfos.worldX, vehicle.ccInfos.combineWorldZ - vehicle.ccInfos.worldZ);
     vehicle.ccInfos.distanceToChasePos = MathUtil.vector2Length(vehicle.ccInfos.chasePos.x - vehicle.ccInfos.worldX, vehicle.ccInfos.chasePos.z - vehicle.ccInfos.worldZ);
@@ -376,13 +375,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
     if not keepFollowing and (vehicle.ad.ccMode ~= AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY and vehicle.ad.ccMode ~= AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN) then
         AutoDrive:retriggerPreDrive(vehicle, dt)
     end;
-
-    if (vehicle.ccInfos.combineFillLevel >= 0.98 or vehicle.ad.currentCombine.ad.noMovementTimer.elapsedTime > 10000) and (not vehicle.ccInfos.isChopper) then
-        --print("Chasing combine - stopped - park in Field now");
-        AutoDrive:getVehicleToStop(vehicle, false, dt);
-        AutoDrive:registerDriverAsAvailableUnloader(vehicle)
-    end;
-
+    
     if AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) then        
         --print("Chasing combine - stopped - combineIsTurning");
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN;
@@ -393,6 +386,14 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
         AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine);
         AutoDrive:unregisterDriverAsUnloader(vehicle)        
     end;  
+
+    if vehicle.ad.currentCombine ~= nil then
+        if (vehicle.ccInfos.combineFillLevel >= 0.98 or vehicle.ad.currentCombine.ad.noMovementTimer.elapsedTime > 10000) and (not vehicle.ccInfos.isChopper) then
+            --print("Chasing combine - stopped - park in Field now");
+            AutoDrive:getVehicleToStop(vehicle, false, dt);
+            AutoDrive:registerDriverAsAvailableUnloader(vehicle)
+        end;
+    end;
 end;
 
 function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
@@ -427,7 +428,7 @@ end;
 
 function AutoDrive:driveToChasePosition(vehicle, dt)
     --print("Chasing combine")        
-    local finalSpeed = 25;
+    local finalSpeed = AutoDrive.SPEED_ON_FIELD;
     local acc = 1;
     local allowedToDrive = true;
 
@@ -557,33 +558,45 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
     local combineNormalVector = {x= -combineVector.z ,z= combineVector.x};	
     local nodeX,nodeY,nodeZ = worldX, worldY, worldZ;
     local sideIndex = AutoDrive.ccSIDE_REAR;
-    if isChopper and (not leftBlocked) then
-        --print("Taking left side");
-        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 3;
-        sideIndex = AutoDrive.ccSIDE_LEFT;
-    elseif isChopper and (not rightBlocked) then
-        --print("Taking right side");
-        nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 9.5 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 9.5 + combineVector.z * 3;
-        sideIndex = AutoDrive.ccSIDE_RIGHT;
-    elseif isChopper then
-        --print("Taking rear side");
-        nodeX,nodeY,nodeZ = worldX - combineVector.x * 6, worldY, worldZ - combineVector.z * 6;
-        sideIndex = AutoDrive.ccSIDE_REAR;
-    else        
-        nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9, worldY, worldZ - combineNormalVector.z * 9; --default aim left on combine harvesters
-        sideIndex = AutoDrive.ccSIDE_LEFT;
-        local spec = combine.spec_pipe
-        if (spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer")) and (not isChopper) then
-            local dischargeNode = nil;
-            for _,dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
-                dischargeNode = dischargeNodeIter;
-            end;
-        
-            local pipeOffset = AutoDrive:getSetting("pipeOffset", vehicle);     
-            local trailerOffset = AutoDrive:getSetting("trailerOffset", vehicle);
+    if isChopper then
+        if (not leftBlocked) then
+            --print("Taking left side");
+            nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 3;
+            sideIndex = AutoDrive.ccSIDE_LEFT;
+        elseif (not rightBlocked) then
+            --print("Taking right side");
+            nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 9.5 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 9.5 + combineVector.z * 3;
+            sideIndex = AutoDrive.ccSIDE_RIGHT;
+        else
+            --print("Taking rear side");
+            nodeX,nodeY,nodeZ = worldX - combineVector.x * 6, worldY, worldZ - combineVector.z * 6;
+            sideIndex = AutoDrive.ccSIDE_REAR;
+        end;
+    else 
+        if (not leftBlocked) then    
+            nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 6, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 6;
+             
+            local spec = combine.spec_pipe
+            if (spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer")) and (not isChopper) then
+                local dischargeNode = nil;
+                for _,dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
+                    dischargeNode = dischargeNodeIter;
+                end;
+            
+                local pipeOffset = AutoDrive:getSetting("pipeOffset", vehicle);     
+                local trailerOffset = AutoDrive:getSetting("trailerOffset", vehicle);
 
-            nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
-            nodeX,nodeY,nodeZ = (nodeX + (vehicle.sizeLength/2 + 8 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength/2 + 8 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z;
+                nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
+                nodeX,nodeY,nodeZ = (nodeX + (vehicle.sizeLength/2 + 8 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength/2 + 8 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z;
+                
+                sideIndex = AutoDrive.ccSIDE_LEFT;
+            end;
+        else
+            sideIndex = AutoDrive.ccSIDE_REAR;
+            local chaseCombinePos = AutoDrive:getCombineChasePosition(vehicle, combine);
+            nodeX = chaseCombinePos.x;
+            nodeY = chaseCombinePos.y;
+            nodeZ = chaseCombinePos.z; 
         end;
     end;
 
@@ -806,7 +819,7 @@ function AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt)
             distanceToLastWayPoint = MathUtil.vector2Length(worldX - vehicle.ad.wayPoints[#vehicle.ad.wayPoints].x, worldZ - vehicle.ad.wayPoints[#vehicle.ad.wayPoints].z);
         end;
 
-        if distanceToLastWayPoint < 15 then
+        if distanceToLastWayPoint < 35 then
             return;
         end;
 

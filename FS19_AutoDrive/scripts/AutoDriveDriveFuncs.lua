@@ -337,6 +337,10 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     end;
 
                     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+                        if AutoDrive:getSetting("distributeToFolder") and AutoDrive:getSetting("useFolders") then
+                            AutoDrive:setNextTargetInFolder(vehicle);
+                        end;
+
                         local closest = AutoDrive:findClosestWayPoint(vehicle); 
                         if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
                             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id;
@@ -422,20 +426,23 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
-
+    
     if distanceToTarget < 5 then
         vehicle.ad.speedOverride = math.min(12, vehicle.ad.speedOverride);
     end;
-    if distanceToTarget < 12 then
-        vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
-    end;
-    if distanceToTarget < 16 == nil then
-        vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
+
+    if vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then
+        if distanceToTarget < 12 then
+            vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
+        end;
+        if distanceToTarget < 16 == nil then
+            vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
+        end;
     end;
 
-    if vehicle.ad.currentWayPoint <= 2 then
-        vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
-    end;
+    --if vehicle.ad.currentWayPoint <= 2 then
+        --vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
+    --end;
 
     local wp_new = nil;
 
@@ -443,7 +450,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         xl,yl,zl = worldToLocal(vehicle.components[1].node, wp_new.x,y,wp_new.z);
     end;
 
-    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD then
+    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then --or vehicle.ad.mode == AutoDrive.MODE_UNLOAD
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload];
         local start = AutoDrive.mapWayPoints[vehicle.ad.targetSelected];
         if destination ~= nil and start ~= nil then
@@ -505,7 +512,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] ~= nil then --allow hard braking when getting close to destination
         if finalSpeed > vehicle.ad.lastUsedSpeed then
-            finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*5, finalSpeed);
+            finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*10, finalSpeed);
         elseif finalSpeed < vehicle.ad.lastUsedSpeed then
             finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*18, finalSpeed);
         end;
@@ -563,6 +570,9 @@ function AutoDrive:driveToLastWaypoint(vehicle, dt)
     --print("Reaching last waypoint - slowing down"); 
     local x,y,z = getWorldTranslation(vehicle.components[1].node);   
     local finalSpeed = 8;	
+    if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+        finalSpeed = vehicle.ad.lastUsedSpeed;
+    end;
     local maxAngle = 50;				
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
     if vehicle.ad.drivingForward == false then

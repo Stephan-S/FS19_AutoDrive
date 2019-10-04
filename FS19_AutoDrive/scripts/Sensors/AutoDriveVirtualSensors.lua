@@ -171,10 +171,10 @@ function ADSensor:getLocationByPosition()
         location.x = vehicle.sizeWidth/2 + 1 + self.width/2; 
         location.z = -vehicle.sizeLength/2;
     elseif self.position == ADSensor.POS_FRONT_LEFT then
-        location.x = vehicle.sizeWidth/2 + 1 + self.width/2; 
+        location.x = vehicle.sizeWidth + 1 + self.width/2; 
         location.z = vehicle.sizeLength/2;
     elseif self.position == ADSensor.POS_FRONT_RIGHT then
-        location.x = -vehicle.sizeWidth/2 - 1 - self.width/2; 
+        location.x = -vehicle.sizeWidth - 1 - self.width/2; 
         location.z = vehicle.sizeLength/2;
     elseif self.position == ADSensor.POS_FIXED and self.location ~= nil then
         return self.location; 
