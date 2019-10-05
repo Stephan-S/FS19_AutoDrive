@@ -24,13 +24,16 @@ function AutoDrive:handleDriving(vehicle, dt)
 			if vehicle.ad.initialized == false then
 				AutoDrive:initializeAD(vehicle, dt)
             else
-                local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);				
+                local min_distance  = AutoDrive:defineMinDistanceByVehicleType(vehicle);	
+                if AutoDrive:isOnField(vehicle) then
+                    min_distance = math.max(1, min_distance - 3);
+                end;
                
                 local closeToWayPoint = false;
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then
                     if AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < min_distance then 
                         closeToWayPoint = true;
-                    elseif vehicle.ad.currentWayPoint <= 3 and AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < (min_distance * 5) then
+                    elseif (not AutoDrive:isOnField(vehicle)) and vehicle.ad.currentWayPoint <= 3 and AutoDrive:getDistance(x,z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < (min_distance * 5) then
                         closeToWayPoint = true;
                     end;
                 end;
@@ -50,9 +53,9 @@ function AutoDrive:handleDriving(vehicle, dt)
                                                     
                     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+1] ~= nil then                
                         AutoDrive:driveToNextWayPoint(vehicle, dt);        
-                        if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-                            AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt);
-                        end;
+                        --if vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+                            --AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt);
+                        --end;
                     else
                         AutoDrive:driveToLastWaypoint(vehicle, dt);                    
                     end;	                			
@@ -429,10 +432,13 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     
     if distanceToTarget < 5 then
-        vehicle.ad.speedOverride = math.min(12, vehicle.ad.speedOverride);
+        vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride);
     end;
 
     if vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then
+        if distanceToTarget < 9 then
+            vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
+        end;
         if distanceToTarget < 12 then
             vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
         end;
@@ -463,17 +469,16 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 end;
             end;
         end;
+    end;
 
-        if  vehicle.ad.mode == AutoDrive.MODE_UNLOAD 
-            and 
-            (  vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE 
-            or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS
-            or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
-            or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS ) then
-            
-                vehicle.ad.speedOverride = math.min(AutoDrive.SPEED_ON_FIELD, vehicle.ad.speedOverride);
-        end;
-
+    if  vehicle.ad.mode == AutoDrive.MODE_UNLOAD 
+        and 
+        (  vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE 
+        or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS
+        or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE
+        or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS ) then
+        
+            vehicle.ad.speedOverride = math.min(AutoDrive.SPEED_ON_FIELD, vehicle.ad.speedOverride);
     end;
 
     if vehicle.ad.isUnloadingToBunkerSilo == true and vehicle.ad.isPaused == false then

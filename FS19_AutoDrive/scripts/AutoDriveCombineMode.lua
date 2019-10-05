@@ -397,15 +397,18 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
 end;
 
 function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
+    if vehicle.ad.currentCombine == nil then
+        return;
+    end;
     if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN;
     end;
 
     --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
-    --if AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) > 60 then        
+    if AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) > 60 then        
         --print("Angle to chase pos too high: " .. AutoDrive:getAngleToChasePos(vehicle, chasePos));
-        --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY;        
-    --end;
+        vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY;        
+    end;
 
     if vehicle.ad.sensors.frontSensor:pollInfo() then
         --print("Front sensor collision");
@@ -418,11 +421,11 @@ function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
     if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
         vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION;
     end;
-    if vehicle.ad.noMovementTimer.elapsedTime > 20000 then
-        AutoDrive:registerDriverAsAvailableUnloader(vehicle)
-    end;
     if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 60 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING;
+    end;
+    if vehicle.ad.noMovementTimer.elapsedTime > 20000 then
+        AutoDrive:registerDriverAsAvailableUnloader(vehicle)
     end;
 end;
 
@@ -540,9 +543,9 @@ function AutoDrive:chaseCombine(vehicle, dt)
 end;
 
 function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
-    local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStag ~= nil and combine.cp.turnStage > 0)) ;
+    local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStage ~= nil and combine.cp.turnStage > 0)) ;
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true);
-    local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
+    local combineSteering = false; --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
     local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering;    
     --print("cpIsTurning: " .. ADBoolToString(cpIsTurning) .. " aiIsTurning: " .. ADBoolToString(aiIsTurning) .. " combineSteering: " .. ADBoolToString(combineSteering) .. " isChopper: " .. ADBoolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. ADBoolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. ADBoolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
     if ((isChopper and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not isChopper))) and (not combineIsTurning) then
@@ -561,11 +564,11 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
     if isChopper then
         if (not leftBlocked) then
             --print("Taking left side");
-            nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 3;
+            nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 7.5 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 7.5 + combineVector.z * 3;
             sideIndex = AutoDrive.ccSIDE_LEFT;
         elseif (not rightBlocked) then
             --print("Taking right side");
-            nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 9.5 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 9.5 + combineVector.z * 3;
+            nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 7.5 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 7.5 + combineVector.z * 3;
             sideIndex = AutoDrive.ccSIDE_RIGHT;
         else
             --print("Taking rear side");
@@ -717,7 +720,7 @@ end;
 
 function AutoDrive:isOnField(vehicle)
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.combineState ~= nil then
-        if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS  then
+        if vehicle.ad.combineState == AutoDrive.CHASE_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS  then
             return true;
         end;
     end;

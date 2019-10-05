@@ -382,7 +382,7 @@ function AutoDriveHud:createMapHotspot(vehicle)
 end
 
 function AutoDriveHud:deleteMapHotspot(vehicle)
-	if vehicle.ad.mapHotspot then
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.mapHotspot then
 		g_currentMission:removeMapHotspot(vehicle.ad.mapHotspot)
 		vehicle.ad.mapHotspot:delete()
 		vehicle.ad.mapHotspot = nil

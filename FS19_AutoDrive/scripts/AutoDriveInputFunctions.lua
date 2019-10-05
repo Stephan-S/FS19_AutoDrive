@@ -639,7 +639,7 @@ function AutoDrive:finishCreatingMapMarker(vehicle)
 		local node = createTransformGroup(vehicle.ad.enteredMapMarkerString);
 		setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
 
-		AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= vehicle.ad.enteredMapMarkerString, node=node};
+		AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= vehicle.ad.enteredMapMarkerString, node=node, group="All"};
 		vehicle.ad.creatingMapMarker = false;
 		AutoDrive:MarkChanged();
 		g_currentMission.isPlayerFrozen = false;

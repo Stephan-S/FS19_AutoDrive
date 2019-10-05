@@ -88,7 +88,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 	local sin = math.sin(atan);
 	local cos = math.cos(atan);
 
-    local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
+    local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
     if minTurnRadius < 0 then --default for no implement == -1
         minTurnRadius = AutoDrive.PP_CELL_X;
     end;
@@ -133,7 +133,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         end;
     end;    
     
-    driver.ad.pf.quickCheckActive = true;
+    driver.ad.pf.quickCheckActive = false;
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)       
@@ -149,7 +149,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 	local sin = math.sin(atan);
     local cos = math.cos(atan);
     
-    local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
+    local minTurnRadius =  (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
     if minTurnRadius < 0 then --default for no implement == -1
         minTurnRadius = AutoDrive.PP_CELL_X;
     end;
@@ -292,7 +292,7 @@ function AutoDrivePathFinder:quickCheck(driver, target, targetVector, combine)
 	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
     local combineVector = {x= rx ,z=rz};	
     
-    local minTurnRadius = AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver);
+    local minTurnRadius =  (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
     if minTurnRadius < 0 then --default for no implement == -1
         minTurnRadius = AutoDrive.PP_CELL_X;
     end;
@@ -499,9 +499,9 @@ end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
     local pf = driver.ad.pf;
-    if driver.ad.createMapPoints then
-      AutoDrivePathFinder:drawDebugForPF(pf);
-    end;
+    --if driver.ad.createMapPoints then
+      --AutoDrivePathFinder:drawDebugForPF(pf);
+    --end;
     pf.steps = pf.steps + 1;
 
     if pf.isFinished and pf.smoothDone == true then
@@ -920,8 +920,6 @@ function getShapeDefByDirectionType(pf, cell)
         shapeDefinition.z = worldPos.z + offsetZ;
         shapeDefinition.widthX = pf.minTurnRadius/2 + math.abs(offsetX);
         shapeDefinition.widthZ = pf.minTurnRadius/2 + math.abs(offsetZ);
-    else
-        print("No cell direction given!");
     end;
     
     return shapeDefinition;
@@ -951,21 +949,12 @@ function AutoDrivePathFinder:createWayPoints(pf)
 
         --Now build actual world coordinates as waypoints and include pre and append points
         pf.wayPoints = {};  
-        local index = 0
-        if pf.prependWayPointCount ~= nil then
-            for i=1, pf.prependWayPointCount, 1 do
-                index = index + 1;
-                pf.wayPoints[i] = pf.prependWayPoints[i];
-            end;
-        end;
-
         for chainIndex, cell in pairs(pf.chainStartToTarget) do
-            pf.wayPoints[index+chainIndex] = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
-            pf.wayPoints[index+chainIndex].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pf.wayPoints[index+chainIndex].x, 1, pf.wayPoints[index+chainIndex].z);
-            pf.wayPoints[index+chainIndex].lastDirection = cell.direction;
+            pf.wayPoints[chainIndex] = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
+            pf.wayPoints[chainIndex].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pf.wayPoints[chainIndex].x, 1, pf.wayPoints[chainIndex].z);
+            pf.wayPoints[chainIndex].lastDirection = cell.direction;
         end;
 
-        index = index + ADTableLength(pf.chainStartToTarget);
         AutoDrivePathFinder:smoothResultingPPPath(pf);
     end;
         
@@ -982,6 +971,7 @@ function AutoDrivePathFinder:createWayPoints(pf)
             for i=1, pf.appendWayPointCount, 1 do
                 pf.wayPoints[ADTableLength(pf.wayPoints)+1] = pf.appendWayPoints[i];
             end;
+            pf.smoothStep = 3;
         end;
     end;
 end;
@@ -1635,6 +1625,10 @@ function drawDebugForCreatedRoute(pf)
     end;
 
     for i, waypoint in pairs(pf.wayPoints) do
+        local node = createTransformGroup("Node " .. i);
+		setTranslation(node, waypoint.x, waypoint.y + 4 , waypoint.z  );
+		DebugUtil.drawDebugNode(node, "Node " .. i);
+
         if i>1 then
             AutoDrive:drawLine(waypoint, pf.wayPoints[i-1], 0, 1, 1, 1);
         end;

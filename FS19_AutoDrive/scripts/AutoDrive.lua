@@ -67,7 +67,8 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 	end
 end
 
-function AutoDrive:onDelete()		
+function AutoDrive:onDelete()	
+	AutoDriveHud:deleteMapHotspot(self);		
 end;
 
 function AutoDrive:loadMap(name)
@@ -497,8 +498,12 @@ function AutoDrive:onUpdate(dt)
 			if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
 				vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt);
 			end;
-			if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then				
-				vehicle.ad.noTurningTimer:timer((vehicle.getAIIsTurning == nil or (vehicle:getAIIsTurning() == false or vehicle:getAIIsTurning() == nil)), 1000, dt);
+			if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then	
+				local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0)) ;
+				local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true);
+				local combineSteering = false; --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
+				local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering; 			
+				vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt);
 			end;
 		end;
 

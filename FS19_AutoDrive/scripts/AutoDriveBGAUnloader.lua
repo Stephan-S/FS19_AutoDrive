@@ -445,7 +445,7 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
         vehicle.bga.shovelState = AutoDriveBGA.SHOVELSTATE_UNKNOWN;
     end;    
 
-    vehicle.bga.shovelActiveTimer:timer(((vehicle.bga.shovelState ~= vehicle.bga.shovelTarget) and (vehicle.bga.state > AutoDriveBGA.STATE_INIT_AXIS)) , 13000, dt);
+    vehicle.bga.shovelActiveTimer:timer(((vehicle.bga.shovelState ~= vehicle.bga.shovelTarget) and (vehicle.bga.state > AutoDriveBGA.STATE_INIT_AXIS)) , 7000, dt);
     
     if vehicle.bga.state > AutoDriveBGA.STATE_INIT_AXIS then
         if vehicle.bga.shovelState == AutoDriveBGA.SHOVELSTATE_UNKNOWN then
@@ -511,7 +511,7 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
         if math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[3]) >= 0.01 then
             extenderTargetReached = false;
         end;
-        targetFactorExtender = math.max(5, math.min((math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[3]) * 33), 40));
+        targetFactorExtender = math.max(5, math.min((math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[3]) * 100), 70));
     end;
 
     local _,dy,_ = localDirectionToWorld(vehicle.bga.shovel.spec_shovel.shovelDischargeInfo.node, 0,0,1)
