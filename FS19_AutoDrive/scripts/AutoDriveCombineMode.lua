@@ -449,7 +449,7 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
 end;
 
 function AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
-    if vehicle.ccInfos.distanceToCombine < 10 or ((not vehicle.ad.currentCombine:getIsBufferCombine()) and vehicle.ad.reverseTimer > 4000) then
+    if vehicle.ccInfos.distanceToCombine < 10 or (vehicle.ad.reverseTimer > 4000) then --(not vehicle.ad.currentCombine:getIsBufferCombine()) and 
         AutoDrive:reverseVehicle(vehicle, dt)
         vehicle.ad.reverseTimer = vehicle.ad.reverseTimer - dt;
     else
