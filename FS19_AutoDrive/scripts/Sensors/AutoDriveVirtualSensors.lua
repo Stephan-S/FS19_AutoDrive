@@ -41,7 +41,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_FRONT;   
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters) 
     sensorParameters.dynamicLength = false;
-    sensorParameters.length = vehicle.sizeLength / 2;
+    sensorParameters.length = vehicle.sizeLength;    
+    sensorParameters.width = vehicle.sizeWidth * 2;
     local frontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["frontSensor"] = frontSensor;
     vehicle.ad.sensors["frontSensorFruit"] = frontSensorFruit;

@@ -421,7 +421,7 @@ function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
     if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
         vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION;
     end;
-    if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 60 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
+    if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 40 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING;
     end;
     if vehicle.ad.noMovementTimer.elapsedTime > 20000 then
@@ -449,15 +449,18 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
 end;
 
 function AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
-    if vehicle.ccInfos.distanceToCombine < 10 then
+    if vehicle.ccInfos.distanceToCombine < 10 or ((not vehicle.ad.currentCombine:getIsBufferCombine()) and vehicle.ad.reverseTimer > 4000) then
         AutoDrive:reverseVehicle(vehicle, dt)
+        vehicle.ad.reverseTimer = vehicle.ad.reverseTimer - dt;
     else
         AutoDrive:getVehicleToStop(vehicle, false, dt);
     end;
 
     local pausedForSomeTime = vehicle.ad.noMovementTimer:done();
-    if ((not AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper)) and pausedForSomeTime and vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo()) or (vehicle.ad.noMovementTimer.elapsedTime > 60000) then
-        AutoDrive:retriggerPreDrive(vehicle);
+    if vehicle.ad.currentCombine ~= nil then
+        if ((not AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper)) and pausedForSomeTime and vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo()) or (vehicle.ad.noMovementTimer.elapsedTime > 60000) then
+            AutoDrive:retriggerPreDrive(vehicle);
+        end;
     end;
 end;
 
@@ -466,7 +469,7 @@ function AutoDrive:retriggerPreDrive(vehicle)
     AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil);
     AutoDrive.waitingUnloadDrivers[vehicle] = nil;
     vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE;
-    vehicle.ad.reverseTimer = 3000;
+    vehicle.ad.reverseTimer = 11000;
     vehicle.ccInfos.combineHeadingDiff:timer(false);
     vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE;
 end;
