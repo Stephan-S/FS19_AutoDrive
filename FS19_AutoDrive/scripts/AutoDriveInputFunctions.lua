@@ -205,7 +205,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	end;
 
 	if input == "input_importRoutes" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+		if vehicle.ad.createMapPoints == false then
 			return;
 		end;
 		AutoDrive:ImportRoutes();
