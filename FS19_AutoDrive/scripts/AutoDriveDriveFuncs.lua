@@ -435,7 +435,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride);
     end;
 
-    if vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then
+    --if vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then
         if distanceToTarget < 9 then
             vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
         end;
@@ -445,7 +445,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         if distanceToTarget < 16 == nil then
             vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
         end;
-    end;
+    --end;
 
     --if vehicle.ad.currentWayPoint <= 2 then
         --vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
