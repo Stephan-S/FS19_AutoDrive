@@ -1,2 +1,2 @@
-java.exe -jar .\AD.Jar -Xms1024m -Xmx1024m
+java.exe -jar -Xms1024m -Xmx1024m .\AD.Jar
 pause
