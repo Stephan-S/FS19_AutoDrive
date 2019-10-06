@@ -431,16 +431,16 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     
-    if distanceToTarget < 16 == nil then
-        vehicle.ad.speedOverride = math.min(30, vehicle.ad.speedOverride);
+    if distanceToTarget < 45 then
+        vehicle.ad.speedOverride = math.min(distanceToTarget, vehicle.ad.speedOverride);
     end;
-    if distanceToTarget < 12 then
-        vehicle.ad.speedOverride = math.min(24, vehicle.ad.speedOverride);
+    if distanceToTarget < 24 then
+        vehicle.ad.speedOverride = math.min(distanceToTarget, vehicle.ad.speedOverride);
     end;
-    if distanceToTarget < 9 then
+    if distanceToTarget < 15 then
         vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
     end;
-    if distanceToTarget < 5 then
+    if distanceToTarget < 8 then
         vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride);
     end;
     --if vehicle.ad.currentWayPoint <= 2 then
@@ -512,13 +512,13 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         vehicle.ad.lastUsedSpeed = finalSpeed;
     end;
 
-    if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] ~= nil then --allow hard braking when getting close to destination
-        if finalSpeed > vehicle.ad.lastUsedSpeed then
-            finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*10, finalSpeed);
-        elseif finalSpeed < vehicle.ad.lastUsedSpeed then
-            finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*18, finalSpeed);
-        end;
-    end;
+    -- if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+5] ~= nil then --allow hard braking when getting close to destination
+    --     if finalSpeed > vehicle.ad.lastUsedSpeed then
+    --         finalSpeed = math.min(vehicle.ad.lastUsedSpeed + (dt/1000)*10, finalSpeed);
+    --     elseif finalSpeed < vehicle.ad.lastUsedSpeed then
+    --         finalSpeed = math.max(vehicle.ad.lastUsedSpeed - (dt/1000)*18, finalSpeed);
+    --     end;
+    -- end;
 
     vehicle.ad.lastUsedSpeed = finalSpeed;
 
@@ -572,9 +572,9 @@ function AutoDrive:driveToLastWaypoint(vehicle, dt)
     --print("Reaching last waypoint - slowing down"); 
     local x,y,z = getWorldTranslation(vehicle.components[1].node);   
     local finalSpeed = 8;	
-    if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-        finalSpeed = vehicle.ad.lastUsedSpeed;
-    end;
+    -- if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+    --     finalSpeed = vehicle.ad.lastUsedSpeed;
+    -- end;
     local maxAngle = 50;				
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.targetX,y,vehicle.ad.targetZ);
     if vehicle.ad.drivingForward == false then
