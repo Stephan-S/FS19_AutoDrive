@@ -75,7 +75,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	--adjust all mapmarkers
 	local deletedMarkerID = -1;
 	local deletedMarker = false;
-	for markerID,marker in pairs(AutoDrive.mapMarker) do
+	for markerID, marker in pairs(AutoDrive.mapMarker) do
 		if marker.id == toDelete.id then
 			deletedMarker = true;
 			deletedMarkerID = markerID;
@@ -106,7 +106,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 					vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
 				end;
 				if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= deletedMarkerID then
-					vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected - 1;
+					vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1;
 					vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
 					vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
 				end;
@@ -155,7 +155,7 @@ function AutoDrive:removeMapMarker(toDelete)
 					vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
 				end;
 				if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= deletedMarkerID then
-					vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected - 1;
+					vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1;
 					vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
 					vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
 				end;
