@@ -468,7 +468,7 @@ end;
 
 function AutoDrive:retriggerPreDrive(vehicle)
     --print("Chasing combine - stopped - recalculating new path");
-    if vehicla.ad.currentCombine ~= nil then
+    if vehicle.ad.currentCombine ~= nil then
         AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil);
         AutoDrive.waitingUnloadDrivers[vehicle] = nil;
         vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE;
