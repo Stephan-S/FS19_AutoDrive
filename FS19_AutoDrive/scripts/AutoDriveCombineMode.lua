@@ -373,7 +373,9 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
     end;
 
     if not keepFollowing and (vehicle.ad.ccMode ~= AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY and vehicle.ad.ccMode ~= AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN) then
-        AutoDrive:retriggerPreDrive(vehicle, dt)
+        if vehicle.ad.currentCombine ~= nil then
+            AutoDrive:retriggerPreDrive(vehicle, dt);
+        end;
     end;
     
     if AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) then        
@@ -466,12 +468,14 @@ end;
 
 function AutoDrive:retriggerPreDrive(vehicle)
     --print("Chasing combine - stopped - recalculating new path");
-    AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil);
-    AutoDrive.waitingUnloadDrivers[vehicle] = nil;
-    vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE;
-    vehicle.ad.reverseTimer = 11000;
-    vehicle.ccInfos.combineHeadingDiff:timer(false);
-    vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE;
+    if vehicla.ad.currentCombine ~= nil then
+        AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil);
+        AutoDrive.waitingUnloadDrivers[vehicle] = nil;
+        vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE;
+        vehicle.ad.reverseTimer = 11000;
+        vehicle.ccInfos.combineHeadingDiff:timer(false);
+        vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE;
+    end;
 end;
 
 function AutoDrive:chaseModeReverse(vehicle, dt)

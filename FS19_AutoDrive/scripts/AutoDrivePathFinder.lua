@@ -1109,7 +1109,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 local corner4X = node.x - math.cos(rightAngle) * sideLength;
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength;
 
-                local shapes = overlapBox(worldPos.x + vectorX/2,y+3,worldPos.z + vectorZ/2, 0,angleRad,0, length/2,2.85,widthOfColBox/2, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+                local shapes = overlapBox(worldPos.x + vectorX/2,y+3,worldPos.z + vectorZ/2, 0,angleRad,0, length/2 + 2.5, 2.85, widthOfColBox/2 + 1.5, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
                 hasCollision = hasCollision or (shapes > 0);
                 --shapes = overlapBox(worldPos.x + vectorX/2,y+3,worldPos.z + vectorZ/2, 0,angleRad,0, widthOfColBox/4,2.85,length/2, "collisionTestCallbackIgnore", nil, Player.COLLISIONMASK_TRIGGER, true, true, true)
                 --hasCollision = hasCollision or (shapes > 0);
