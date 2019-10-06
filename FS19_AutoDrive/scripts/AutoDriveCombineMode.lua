@@ -546,6 +546,9 @@ function AutoDrive:chaseCombine(vehicle, dt)
 end;
 
 function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
+    if combine == nil then
+        return false;
+    end;
     local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStage ~= nil and combine.cp.turnStage > 0)) ;
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true);
     local combineSteering = false; --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
@@ -567,11 +570,11 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
     if isChopper then
         if (not leftBlocked) then
             --print("Taking left side");
-            nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 7.5 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 7.5 + combineVector.z * 3;
+            nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 7 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 7 + combineVector.z * 3;
             sideIndex = AutoDrive.ccSIDE_LEFT;
         elseif (not rightBlocked) then
             --print("Taking right side");
-            nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 7.5 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 7.5 + combineVector.z * 3;
+            nodeX,nodeY,nodeZ = worldX + combineNormalVector.x * 7 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 7 + combineVector.z * 3;
             sideIndex = AutoDrive.ccSIDE_RIGHT;
         else
             --print("Taking rear side");

@@ -1141,7 +1141,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 if foundCollision then
                     pf.eagerLookAhead = pf.eagerLookAhead + 1;
                 else
-                    pf.lookAheadIndex = pf.totalEagerSteps;--lookAheadIndex + 1 + eagerLookAhead;
+                    pf.lookAheadIndex = pf.totalEagerSteps+1;--lookAheadIndex + 1 + eagerLookAhead;
                     pf.eagerLookAhead = 0;
                 end;
 
@@ -1149,7 +1149,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             end;
 
             if pf.totalEagerSteps >= 30 or ((pf.smoothIndex+pf.totalEagerSteps) >= (ADTableLength(pf.wayPoints) - 6)) then
-                pf.smoothIndex = pf.smoothIndex + math.max(1,(pf.lookAheadIndex-2));
+                pf.smoothIndex = pf.smoothIndex + math.max(1,(pf.lookAheadIndex)); --(pf.lookAheadIndex-2)
                 pf.totalEagerSteps = 0;
             end;
         end;  
