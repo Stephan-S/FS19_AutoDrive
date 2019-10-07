@@ -362,9 +362,9 @@ end;
 function AutoDriveHud:createMapHotspot(vehicle)
 	if vehicle.ad.isActive and vehicle.ad.mapHotSpot == nil then
 		local hotspotX, _, hotspotZ = getWorldTranslation(vehicle.rootNode)
-		local _, textSize = getNormalizedScreenValues(0, 9)
-		local _, textOffsetY = getNormalizedScreenValues(0, 24)
-		local width, height = getNormalizedScreenValues(18, 18)
+		local _, textSize = getNormalizedScreenValues(0, 6) --Textsize local _, textSize = getNormalizedScreenValues(0, 9)
+		local _, textOffsetY = getNormalizedScreenValues(0, 10) --Distance to icon -- local _, textOffsetY = getNormalizedScreenValues(0, 24)
+		local width, height = getNormalizedScreenValues(10, 10) --Triggersize -- local width, height = getNormalizedScreenValues(18, 18)
 		vehicle.ad.mapHotspot = MapHotspot:new("adDriver", MapHotspot.CATEGORY_AI)
 		vehicle.ad.mapHotspot:setSize(width, height)
 		vehicle.ad.mapHotspot:setLinkedNode(vehicle.components[1].node)
@@ -374,9 +374,10 @@ function AutoDriveHud:createMapHotspot(vehicle)
 		end;
 		vehicle.ad.mapHotspot:setImage(nil, getNormalizedUVs(MapHotspot.UV.HELPER), {0.052, 0.1248, 0.672, 1})
 		vehicle.ad.mapHotspot:setBackgroundImage(nil, getNormalizedUVs(MapHotspot.UV.HELPER))
-		vehicle.ad.mapHotspot:setIconScale(0.7)
+		vehicle.ad.mapHotspot:setIconScale(0.4) --Iconsize vehicle.ad.mapHotspot:setIconScale(0.7)
 		vehicle.ad.mapHotspot:setTextOptions(textSize, nil, textOffsetY, {1, 1, 1, 1}, Overlay.ALIGN_VERTICAL_MIDDLE)
 		vehicle.ad.mapHotspot:setColor({0.0, 0.569, 0.835, 1});
+		
 		g_currentMission:addMapHotspot(vehicle.ad.mapHotspot)
 	end;
 end

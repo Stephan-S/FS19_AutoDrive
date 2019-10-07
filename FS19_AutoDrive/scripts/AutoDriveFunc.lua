@@ -322,33 +322,16 @@ end
 
 function AutoDrive:detectTraffic(vehicle)
 	local x,y,z = getWorldTranslation( vehicle.components[1].node );
-	--create bounding box to check for vehicle
 	local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime));	
 	local vehicleVector = {x=rx ,z= rz};
 	local width = vehicle.sizeWidth;
 	local length = vehicle.sizeLength;
-	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
 	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
 	
 	local approachingLastWayPoints = false;
 	if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] == nil then
-		width = width * 2 / 3;
 		approachingLastWayPoints = true;
 	end;
-	
-	local boundingBox = {};
-    boundingBox[1] ={ 	x = x + (width/2) * ortho.x,
-                        y = y+2,
-						z = z + (width/2) * ortho.z};
-	boundingBox[2] ={ 	x = x - (width/2) * ortho.x,
-                        y = y+2,
-						z = z - (width/2) * ortho.z};
-	boundingBox[3] ={ 	x = x - (width/2) * ortho.x +  (length/2 + lookAheadDistance) * vehicleVector.x,
-                        y = y+2,
-						z = z - (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z };
-	boundingBox[4] ={ 	x = x + (width/2) * ortho.x +  (length/2 + lookAheadDistance) * vehicleVector.x,
-                        y = y+2,
-						z = z + (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z};
 	
 	if AutoDrive:getSetting("enableTrafficDetection") == true then --GC have now updated their triggers. so remove this: and (getDistanceToTargetPosition(vehicle) > 15 and getDistanceToUnloadPosition(vehicle) > 15)
 		local box = {};
@@ -375,8 +358,7 @@ function AutoDrive:detectTraffic(vehicle)
 
 		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
 												y = y+heightOffset,
-												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };
-												
+												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };												
 
 		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 1, boxCenter.z), y) + 2.2;
 		local rx,ry,rz = getWorldRotation(vehicle.components[1].node)
@@ -393,77 +375,8 @@ function AutoDrive:detectTraffic(vehicle)
 		end;
 	end;
 
-    --AutoDrive:drawLine(boundingBox[1], boundingBox[2], 0, 0, 0, 1);
-    --AutoDrive:drawLine(boundingBox[2], boundingBox[3], 0, 0, 0, 1);
-    --AutoDrive:drawLine(boundingBox[3], boundingBox[4], 0, 0, 0, 1);
-    --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 0, 0, 0, 1);	
-
-	for _,other in pairs(g_currentMission.vehicles) do
-		if other ~= vehicle then --and other ~= vehicle.ad.currentCombine
-			local isAttachedToMe = AutoDrive:checkIsConnected(vehicle, other);		
-			local isAttachedToMyCombine = AutoDrive:checkIsConnected(vehicle.ad.currentCombine, other) and (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE);	-- 
-            
-			if isAttachedToMe == false and other.components ~= nil and isAttachedToMyCombine == false then
-				if other.sizeWidth == nil then
-					--print("vehicle " .. other.configFileName .. " has no width");
-				else
-					if other.sizeLength == nil then
-						--print("vehicle " .. other.configFileName .. " has no length");
-					else
-						if other.rootNode == nil then
-							--print("vehicle " .. other.configFileName .. " has no root node");
-						else
-
-							local otherWidth = other.sizeWidth;
-							local otherLength = other.sizeLength;
-							local otherPos = {};
-							otherPos.x,otherPos.y,otherPos.z = getWorldTranslation( other.components[1].node ); 
-
-							local distance = AutoDrive:getDistance(x,z,otherPos.x,otherPos.z);
-							if distance < 100 then
-								local rx,ry,rz = localDirectionToWorld(other.components[1].node, 0, 0, 1);
-
-								local otherVectorToWp = {};
-								otherVectorToWp.x = rx;
-								otherVectorToWp.z = rz;
-
-								local otherPos2 = {};
-								otherPos2.x = otherPos.x + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
-								otherPos2.y = y;
-								otherPos2.z = otherPos.z + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)));
-								local otherOrtho = { x=-otherVectorToWp.z, z=otherVectorToWp.x };
-
-								local otherBoundingBox = {};
-								otherBoundingBox[1] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-														y = y,
-														z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-
-								otherBoundingBox[2] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-														y = y,
-														z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) + (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-								otherBoundingBox[3] ={ 	x = otherPos.x - (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-														y = y,
-														z = otherPos.z - (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-
-								otherBoundingBox[4] ={ 	x = otherPos.x + (otherWidth/2) * ( otherOrtho.x / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.x/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z))),
-														y = y,
-														z = otherPos.z + (otherWidth/2) * ( otherOrtho.z / (math.abs(otherOrtho.x)+math.abs(otherOrtho.z))) - (otherLength/2) * (otherVectorToWp.z/(math.abs(otherVectorToWp.x)+math.abs(otherVectorToWp.z)))};
-
-								
-								--AutoDrive:drawLine(otherBoundingBox[1], otherBoundingBox[2], 0, 0, 1, 1);
-								--AutoDrive:drawLine(otherBoundingBox[2], otherBoundingBox[3], 0, 0, 1, 1);
-								--AutoDrive:drawLine(otherBoundingBox[3], otherBoundingBox[4], 0, 0, 1, 1);
-								--AutoDrive:drawLine(otherBoundingBox[4], otherBoundingBox[1], 0, 0, 1, 1);							
-
-								if AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox) == true then
-									return true;
-								end;
-							end;
-						end;
-					end;
-				end;
-			end;
-		end;
+	if AutoDrive:checkForVehicleCollision(vehicle, {}, true) then
+		return true;
 	end;
 
 	return false;

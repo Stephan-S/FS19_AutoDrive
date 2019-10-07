@@ -259,10 +259,10 @@ function ADSensor:getCorners(box)
     end;
 
     local corners = {};
-    corners[2] = { x=box.topLeft.x, z=box.topLeft.z };
-    corners[4] = { x=box.topRight.x, z=box.topRight.z };
-    corners[3] = { x=box.downRight.x, z=box.downRight.z };
     corners[1] = { x=box.downLeft.x, z=box.downLeft.z };
+    corners[2] = { x=box.topLeft.x, z=box.topLeft.z };
+    corners[3] = { x=box.downRight.x, z=box.downRight.z };
+    corners[4] = { x=box.topRight.x, z=box.topRight.z };
 
     return corners;
 end;

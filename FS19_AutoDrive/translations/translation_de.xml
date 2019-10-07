@@ -42,6 +42,7 @@
 		<text name="AD_has_reached"							 text="ist angekommen bei" />
 		<text name="AD_got_stuck"							 text="hat sich fest gefahren" />
 		<text name="AD_cannot_reach"						 text="hat keinen Weg gefunden zu" />
+		<text name="AD_cannot_find_path"					 text="hat keinen Pfad zum Ziel berechnen können" />
 		<text name="AD_new_marker"							 text="Neues Ziel:" />
 		<text name="AD_new_marker_helptext"					 text="Namen eingeben - Beenden mit Enter-Taste" />
 		<text name="AD_Recalculationg_routes_status"		 text="Routen werden neuberechnet. Bitte warten. Berechnet:" />

@@ -121,8 +121,6 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
     
     if vehicle.ad.isActive == false then       
         if vehicle.currentHelper == nil then
-            --vehicle.spec_aiVehicle.isActive = false;
-
             if vehicle.steeringEnabled == false then
                 vehicle.steeringEnabled = true;
             end

@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.6.1";
+AutoDrive.Version = "1.0.6.2";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -289,9 +289,6 @@ function init(self)
 	self.ad.nToolTipWait = 300;
 	self.ad.nToolTipTimer = 6000;
 	self.ad.sToolTip = "";
-
-	self.ad.destinationPrintTimer = 0;
-	self.ad.lastPrintedModeTimer = 0;
 	
 	self.ad.choosingDestination = false;
 	self.ad.chosenDestination = "";
@@ -473,14 +470,6 @@ function AutoDrive:onUpdate(dt)
 		AutoDrive:handleCombineHarvester(self, dt)
 	end;
 
-	if self.ad.destinationPrintTimer > 0 then
-		self.ad.destinationPrintTimer = self.ad.destinationPrintTimer - dt;
-	end;
-
-	if self.ad.lastPrintedModeTimer > 0 then
-		self.ad.lastPrintedModeTimer = self.ad.lastPrintedModeTimer - dt;
-	end;
-
 	local driverWages = AutoDrive:getSetting("driverWages");
 	local spec = self.spec_aiVehicle
 	if self.isServer and spec ~= nil then
@@ -562,21 +551,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 		if AutoDrive.Hud.showHud == true then
 			AutoDrive.Hud:drawHud(vehicle);
 		end;
-	end;
-
-	-- local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
-	-- local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
-	-- local vehicleVector = {x= rx ,z= rz};	
-	-- local ahead = {x=worldX + 20*rx, y=worldY+5, z=worldZ + 20*rz};
-	-- local current = {x=worldX, y=worldY+5, z=worldZ };
-	
-    -- local vehicleNormalVector = {x= -vehicleVector.z ,z= vehicleVector.x};
-	-- local right = {x=worldX + 20*vehicleNormalVector.x, y=worldY+5, z=worldZ + 20*vehicleNormalVector.z};
-
-	-- AutoDrive:drawLine(ahead, current, 0, 1, 0, 1);
-	-- AutoDrive:drawLine(right, current, 0, 0, 1, 1);
-	--print("TurnRadius: " .. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(vehicle));
-	
+	end;	
 end;
 
 function AutoDrive:onDrawCreationMode(vehicle)

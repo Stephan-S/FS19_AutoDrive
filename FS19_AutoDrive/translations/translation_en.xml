@@ -42,6 +42,7 @@
 		<text name="AD_has_reached"							 text="has reached" />
 		<text name="AD_got_stuck"							 text="got stuck" />
 		<text name="AD_cannot_reach"						 text="can't reach" />
+		<text name="AD_cannot_find_path"					 text="can't calculate a path" />
 		<text name="AD_new_marker"							 text="New Goal:" />
 		<text name="AD_new_marker_helptext"					 text="Please enter new name (Stop with enter key)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Recalculating routes. Please wait. Finished:" />
