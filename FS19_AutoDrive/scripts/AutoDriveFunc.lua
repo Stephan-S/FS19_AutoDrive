@@ -375,7 +375,14 @@ function AutoDrive:detectTraffic(vehicle)
 		end;
 	end;
 
-	if AutoDrive:checkForVehicleCollision(vehicle, {}, true) then
+	local excludedList = {};
+	if (vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE or vehicle.ad.combineState == AutoDrive.CHASE_COMBINE) then
+		if vehicle.ad.currentCombine ~= nil then
+			table.insert(excludedList, vehicle.ad.currentCombine);
+		end;
+	end;
+		
+	if AutoDrive:checkForVehicleCollision(vehicle, excludedList, true) then
 		return true;
 	end;
 

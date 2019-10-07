@@ -429,10 +429,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if vehicle.ad.speedOverride == -1 then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     if vehicle.ad.speedOverride > vehicle.ad.targetSpeed then vehicle.ad.speedOverride = vehicle.ad.targetSpeed; end;
     
-    if distanceToTarget < 45 then
-        vehicle.ad.speedOverride = math.min(distanceToTarget, vehicle.ad.speedOverride);
-    end;
-    if distanceToTarget < 24 then
+    if distanceToTarget < 45 and distanceToTarget >= 15 then
         vehicle.ad.speedOverride = math.min(distanceToTarget, vehicle.ad.speedOverride);
     end;
     if distanceToTarget < 15 then
