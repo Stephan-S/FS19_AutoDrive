@@ -137,5 +137,7 @@
 		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Drescher verfolgen - nachdem der Abfahrer früher gerufen wurde" />	
 		<text name="gui_ad_distributeToFolder"			 	text="Mehrere Ziele" />	
 		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Alle Ziele im selben Ordner werden als Abladeziel durchrotiert." />	
+		<text name="gui_ad_maxTriggerDistance"			 	text="Maximaler Siloabstand" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Bis zu dieser Entfernung zum Zielpunkt wird beladen/entladen bei erkanntem Trigger." />	
 	</texts>
 </l10n>

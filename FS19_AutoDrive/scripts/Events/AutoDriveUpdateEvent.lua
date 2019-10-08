@@ -48,7 +48,7 @@ function AutoDriveUpdateEvent:new(vehicle)
 
 	self.isUnloading = vehicle.ad.isUnloading;
 	self.isPaused = vehicle.ad.isPaused;
-	self.unloadSwitch = vehicle.ad.unloadSwitch;
+	self.onRouteToSecondTarget = vehicle.ad.onRouteToSecondTarget;
 	self.isLoading = vehicle.ad.isLoading;
 	self.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex;
 	self.startedLoadingAtTrigger = vehicle.ad.startedLoadingAtTrigger;
@@ -136,7 +136,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 
 	streamWriteBool(streamId, self.isUnloading);
 	streamWriteBool(streamId, self.isPaused);
-	streamWriteBool(streamId, self.unloadSwitch);
+	streamWriteBool(streamId, self.onRouteToSecondTarget);
 	streamWriteBool(streamId, self.isLoading);
 	streamWriteInt8(streamId, self.unloadFillTypeIndex);
 	streamWriteBool(streamId, self.startedLoadingAtTrigger);
@@ -228,7 +228,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	
 	local isUnloading = streamReadBool(streamId);	
 	local isPaused = streamReadBool(streamId);
-	local unloadSwitch = streamReadBool(streamId);
+	local onRouteToSecondTarget = streamReadBool(streamId);
 	local isLoading = streamReadBool(streamId);
 	local unloadFillTypeIndex = streamReadInt8(streamId);
 	local startedLoadingAtTrigger = streamReadBool(streamId);
@@ -294,7 +294,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 		vehicle.ad.isUnloading = isUnloading;
 		vehicle.ad.isPaused = isPaused;
-		vehicle.ad.unloadSwitch = unloadSwitch;
+		vehicle.ad.onRouteToSecondTarget = onRouteToSecondTarget;
 		vehicle.ad.isLoading = isLoading;
 		vehicle.ad.unloadFillTypeIndex = unloadFillTypeIndex;		
 		vehicle.ad.startedLoadingAtTrigger = startedLoadingAtTrigger;
@@ -447,9 +447,9 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	if self.isPaused ~= oldEvent.isPaused then
 		reason = reason .. " isPaused";
 	end;
-	remained = remained and self.unloadSwitch == oldEvent.unloadSwitch;
-	if self.unloadSwitch ~= oldEvent.unloadSwitch then
-		reason = reason .. " unloadSwitch";
+	remained = remained and self.onRouteToSecondTarget == oldEvent.onRouteToSecondTarget;
+	if self.onRouteToSecondTarget ~= oldEvent.onRouteToSecondTarget then
+		reason = reason .. " onRouteToSecondTarget";
 	end;
 	remained = remained and self.isLoading == oldEvent.isLoading;
 	if self.isLoading ~= oldEvent.isLoading then

@@ -345,6 +345,17 @@ AutoDrive.settings.distributeToFolder = {
     isVehicleSpecific = true
 };
 
+AutoDrive.settings.maxTriggerDistance = {     
+    values= {10, 25, 50, 100, 200},
+    texts= {"10 m", "25 m", "50 m", "100 m", "200 m"},
+    default= 2,
+    current= 2,
+    text= "gui_ad_maxTriggerDistance",
+    tooltip= "gui_ad_maxTriggerDistance_tooltip",
+    translate= false,
+    isVehicleSpecific = false
+};
+
 
 function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then

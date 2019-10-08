@@ -246,7 +246,7 @@ function init(self)
 
 	self.ad.isUnloading = false;
 	self.ad.isPaused = false;
-	self.ad.unloadSwitch = false;
+	self.ad.onRouteToSecondTarget = false;
 	self.ad.isLoading = false;
 	self.ad.isUnloadingToBunkerSilo = false;
 	if self.ad.unloadFillTypeIndex == nil then

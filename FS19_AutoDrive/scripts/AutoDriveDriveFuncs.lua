@@ -222,7 +222,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             end;
             vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
             vehicle.ad.wayPointsChanged = true;
-            vehicle.ad.unloadSwitch = true;   
+            vehicle.ad.onRouteToSecondTarget = true;   
             vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
         else
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --decide if we are already on field and are allowed to park on field then
@@ -310,7 +310,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
                 AutoDrive:handleReachedWayPointCombine(vehicle);
             else
-                if vehicle.ad.unloadSwitch == true then
+                if vehicle.ad.onRouteToSecondTarget == true then
                     vehicle.ad.timeTillDeadLock = 15000;
 
                     local closest = AutoDrive:findClosestWayPoint(vehicle); 
@@ -327,7 +327,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then               
                         vehicle.ad.isPaused = true;
                     end;
-                    vehicle.ad.unloadSwitch = false;
+                    vehicle.ad.onRouteToSecondTarget = false;
                 else
                     vehicle.ad.timeTillDeadLock = 15000;
 
@@ -351,7 +351,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
                         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
-                        vehicle.ad.unloadSwitch = true;                       
+                        vehicle.ad.onRouteToSecondTarget = true;                       
                     end;
 
                     if vehicle.ad.startedLoadingAtTrigger == false then
@@ -441,6 +441,9 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     --if vehicle.ad.currentWayPoint <= 2 then
         --vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
     --end;
+    if AutoDrive:checkForTriggerProximity(vehicle) then
+        vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride);
+    end;
 
     local wp_new = nil;
 

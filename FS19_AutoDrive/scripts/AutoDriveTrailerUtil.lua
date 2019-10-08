@@ -6,6 +6,8 @@ function AutoDrive:handleTrailers(vehicle, dt)
         if trailerCount == 0 and fillableCount == 0 then
             return
         end;     
+
+        local triggerProximity = AutoDrive:checkForTriggerProximity(vehicle);
                 
         local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex);
 
@@ -19,12 +21,24 @@ function AutoDrive:handleTrailers(vehicle, dt)
     end;
 end;
 
-function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFillUnit)
+function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTypes)
     if fillTrigger ~= nil then
 		local typesMatch = false
 		local selectedFillType = vehicle.ad.unloadFillTypeIndex or FillType.UNKNOWN;
 		local fillUnits = workTool:getFillUnits()
-		local checkOnly = onlyCheckThisFillUnit or 0;
+        local checkOnly = onlyCheckThisFillUnit or 0;
+        
+        local fillTypesToCheck = {};
+        if allowedFillTypes ~= nil then
+            fillTypesToCheck = allowedFillTypes;
+        else
+            if vehicle.ad.unloadFillTypeIndex == nil then
+                table.insert(fillTypesToCheck, FillType.UNKNOWN);
+            else
+                table.insert(fillTypesToCheck, vehicle.ad.unloadFillTypeIndex);
+            end;
+        end;
+
 		-- go throught the single fillUnits and check:
 		-- does the trigger support the tools filltype ?
 		-- does the trigger support the single fillUnits filltype ?
@@ -59,9 +73,11 @@ function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFi
                         end
                     end
                     
-					if index == selectedFillType and selectedFillType ~= FillType.UNKNOWN then
-						selectedFillTypeIsNotInMyFillUnit = false;
-					end
+                    for _, allowedFillType in pairs(fillTypesToCheck) do
+                        if index == allowedFillType and allowedFillType ~= FillType.UNKNOWN then
+                            selectedFillTypeIsNotInMyFillUnit = false;
+                        end
+                    end;
 				end
 				if matchInThisUnit and selectedFillTypeIsNotInMyFillUnit then
 					return false;
@@ -69,21 +85,30 @@ function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool,onlyCheckThisFi
 			end
 		end	
 		
-		if typesMatch then
-			if selectedFillType == FillType.UNKNOWN then
-				return true;
-			else
+        if typesMatch then
+            for _, allowedFillType in pairs(fillTypesToCheck) do
+                if allowedFillType == FillType.UNKNOWN then
+                    return true;
+                end
+            end;
+
+            
+            local isFillType = false;
+            for _, allowedFillType in pairs(fillTypesToCheck) do
                 if fillTrigger.source then
                     if fillTrigger.source.productLines ~= nil then --is gc trigger                         	
                         return true;
                     else
-                        return fillTrigger.source.providedFillTypes[selectedFillType];
+                        if fillTrigger.source.providedFillTypes[allowedFillType] then
+                            return true;
+                        end;
                     end;
-				elseif fillTrigger.sourceObject ~= nil then
-					local fillType = fillTrigger.sourceObject:getFillUnitFillType(1)  
-					return fillType == selectedFillType;
-				end
-			end		
+                elseif fillTrigger.sourceObject ~= nil then
+                    local fillType = fillTrigger.sourceObject:getFillUnitFillType(1)  
+                    isFillType = (fillType == selectedFillType);
+                end
+            end;
+            return isFillType;
 		end
 	end
 	return false;
@@ -293,12 +318,13 @@ function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
         return;
     end;
     local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers);
+    vehicle.ad.inTriggerProximity = AutoDrive:checkForTriggerProximity(vehicle);
     
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then
-        if getDistanceToTargetPosition(vehicle) > 25 and getDistanceToUnloadPosition(vehicle) > 25 then
+        if getDistanceToTargetPosition(vehicle) > 25 and getDistanceToUnloadPosition(vehicle) > 25 and (not vehicle.ad.inTriggerProximity) then
             AutoDrive:setTrailerCoverOpen(trailers, false);
         else
-            if vehicle.ad.mode ~= AutoDrive.MODE_LOAD or getDistanceToUnloadPosition(vehicle) <= 25 then
+            if vehicle.ad.mode ~= AutoDrive.MODE_LOAD or getDistanceToUnloadPosition(vehicle) <= 25 or vehicle.ad.inTriggerProximity then
                 AutoDrive:setTrailerCoverOpen(trailers, true);
             end;
         end;
@@ -336,7 +362,12 @@ function handleUnloaderSpecificStates(vehicle, trailers, fillLevel, leftCapacity
     if (vehicle.ad.combineState ~= AutoDrive.DRIVE_TO_COMBINE and vehicle.ad.combineState ~= AutoDrive.WAIT_TILL_UNLOADED) then
         if getDistanceToUnloadPosition(vehicle) < 35 then
             AutoDrive:setAugerPipeOpen(trailers, true); 
+            AutoDrive:setTrailerCoverOpen(trailers, true);
         end;
+    end;
+
+    if vehicle.ad.combineState ~= AutoDrive.DRIVE_TO_COMBINE and getDistanceToUnloadPosition(vehicle) > 25 then
+        AutoDrive:setTrailerCoverOpen(trailers, false);
     end;
 end;
 
@@ -513,7 +544,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
         if vehicle.ad.mode == AutoDrive.MODE_LOAD then
             distance = getDistanceToUnloadPosition(vehicle);
         end;
-        if distance < 30 then
+        if distance < 30 or vehicle.ad.inTriggerProximity then
             --AutoDrive:setTrailerCoverOpen(trailers, true);      
             for _,trailer in pairs(trailers) do
                 if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or getDistanceToUnloadPosition(vehicle) > 30 then
@@ -652,6 +683,99 @@ function checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, listOfFillTypes)
             vehicle.ad.unloadFillTypeIndex = storedFillType; --always reset to storedFillType before next check
         end;
     end;
+    return false;
+end;
+
+function AutoDrive:checkForTriggerProximity(vehicle)
+    local shouldLoad = AutoDrive:shouldLoadOnTrigger(vehicle);
+    local shouldUnload = AutoDrive:shouldUnloadAtTrigger(vehicle);
+    if (not shouldUnload) and (not shouldLoad) then
+        return false;
+    end;
+
+    local x,y,z = getWorldTranslation(vehicle.components[1].node);
+    local allFillables, fillableCount =  AutoDrive:getTrailersOf(vehicle, false);
+
+    if shouldUnload then
+        --print("Should unload");
+        for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
+            local triggerX, triggerY, triggerZ = AutoDrive:getTriggerPos(trigger);
+            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
+            if distance < 25 then
+                --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                return true;
+            end;
+        end;
+    end;
+
+    if shouldLoad then
+        --print("Should load");
+        for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+            local triggerX, triggerY, triggerZ = AutoDrive:getTriggerPos(trigger);
+            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
+
+            local hasRequiredFillType = false;            
+            local allowedFillTypes = {vehicle.ad.unloadFillTypeIndex};
+            if vehicle.ad.unloadFillTypeIndex == 13 or vehicle.ad.unloadFillTypeIndex == 43 or vehicle.ad.unloadFillTypeIndex == 44 then
+                allowedFillTypes = {};
+                table.insert(allowedFillTypes, 13);
+                table.insert(allowedFillTypes, 43);
+                table.insert(allowedFillTypes, 44);
+            end;
+
+            for _,trailer in pairs(allFillables) do
+                hasRequiredFillType = hasRequiredFillType or AutoDrive:fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes);
+            end;
+            if distance < 25 and hasRequiredFillType then
+                --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                return true;
+            end;
+        end;
+    end;
+
+    return false;
+end;
+
+function AutoDrive:getTriggerPos(trigger)
+    local x,y,z = 0, 0, 0;
+    if trigger.exactFillRootNode ~= nil then
+        x,y,z = getWorldTranslation(trigger.exactFillRootNode);
+        --print("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
+    end;
+    if trigger.triggerNode ~= nil then
+        x,y,z = getWorldTranslation(trigger.triggerNode);
+        --print("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
+    end;
+    return x, y, z;
+end;
+
+function AutoDrive:shouldLoadOnTrigger(vehicle)
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        if (not vehicle.ad.onRouteToSecondTarget) and (getDistanceToTargetPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then
+            return true;
+        end;
+    end;
+
+    if vehicle.ad.mode == AutoDrive.MODE_LOAD then
+        if (vehicle.ad.onRouteToSecondTarget and getDistanceToUnloadPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then
+            return true;
+        end;
+    end;
+
+    return false;
+end;
+
+function AutoDrive:shouldUnloadAtTrigger(vehicle)
+    if (vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS) then
+        return true;
+    end;
+
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        if (vehicle.ad.onRouteToSecondTarget) and (getDistanceToUnloadPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then
+            return true;
+        end;
+    end;
+
     return false;
 end;
 

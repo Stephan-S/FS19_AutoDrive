@@ -54,7 +54,7 @@ function AutoDrive:startAD(vehicle)
 				vehicle.ad.skipStart = true;
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);
 				vehicle.ad.wayPointsChanged = true;
-				vehicle.ad.unloadSwitch = true;
+				vehicle.ad.onRouteToSecondTarget = true;
 			end;
 		else
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] ~= nil then

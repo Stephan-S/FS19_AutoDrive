@@ -137,5 +137,7 @@
 		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Unlaoder follows combine after being pre called" />
 		<text name="gui_ad_distributeToFolder"			 	text="Multiple targets" />	
 		<text name="gui_ad_distributeToFolder_tooltip"	 	text="All targets in same folder will be rotated as unload targets." />		
+		<text name="gui_ad_maxTriggerDistance"			 	text="Maximum trigger distance" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Distance to target at which triggers are detected and activated." />
 	</texts>
 </l10n>
