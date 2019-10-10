@@ -57,8 +57,8 @@
 		<text name="AD_MODE_BGA"							 text="Vider silo (bunker)" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"						 text="Décalage du tuyau (pipe)" />
-		<text name="gui_ad_trailerOffset"					 text="Décalage latéral (remorque)" />
-		<text name="gui_ad_trailerOffset_tooltip"			 text="Décalage vertical (remorque)" />
+		<text name="gui_ad_trailerOffset"					 text="Décalage vertical (remorque)" />
+		<text name="gui_ad_trailerOffset_tooltip"			 text="Avancer / reculer (remorque), par rapport à la moissonneuse lorsque celle-ci est décentrée." />
 		<text name="gui_ad_lookahead_turning"				 text="Distance devant vous (virage)" />
 		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant" />
 		<text name="gui_ad_lookahead_braking"				 text="Distance devant vous (frein)" />
@@ -85,53 +85,57 @@
 		<text name="ad_bga_waiting"					 		 text="En attente de remorque / silo" />
 		<text name="ad_bga_active"					 		 text="Actif" />
 		<text name="gui_ad_autoConnect_start"				 text="Connexion automatique (départ)" />
-		<text name="gui_ad_autoConnect_start_tooltip"		 text="Connecter automatiquement le noeud approprié au début de l'enregistrement" />
+		<text name="gui_ad_autoConnect_start_tooltip"		 text="Connecter automatiquement le noeud approprié au début de l'enregistrement." />
 		<text name="gui_ad_autoConnect_end"					 text="Connexion automatique (fin)" />
-		<text name="gui_ad_autoConnect_end_tooltip"			 text="Connecter automatiquement le noeud approprié en fin d'enregistrement" />
+		<text name="gui_ad_autoConnect_end_tooltip"			 text="Connecter automatiquement le noeud approprié en fin d'enregistrement." />
 		<text name="gui_ad_parkInField"						 text="Garer au champ" />
-		<text name="gui_ad_parkInField_tooltip"				 text="Après avoir déchargé une moissonneuse - si pas garé en fruit" />
+		<text name="gui_ad_parkInField_tooltip"				 text="Après avoir déchargé une moissonneuse - Le chauffeur attend le chargement suivant au champ, à moins qu’il ne se trouve sur la partie non exploitée du champ ou complètement chargé." />
 		<text name="gui_ad_unloadFillLevel"					 text="Décharger le contenu" />
-		<text name="gui_ad_unloadFillLevel_tooltip"			 text="Après avoir déchargé une moissonneuse - Partir tout de suite et ne pas attendre le prochain remplissage" />
+		<text name="gui_ad_unloadFillLevel_tooltip"			 text="Après avoir déchargé une moissonneuse - Partir tout de suite et ne pas attendre le prochain remplissage." />
 		<text name="gui_ad_findDriver"						 text="Trouver un chauffeur" />
-		<text name="gui_ad_findDriver_tooltip"				 text="Recherche du chauffeur le plus proche (Ignore la destination)" />
+		<text name="gui_ad_findDriver_tooltip"				 text="Recherche du chauffeur le plus proche (Ignore la destination)." />
 		<text name="gui_ad_gui_scale"						 text="Taille du HUD AutoDrive" />
-		<text name="gui_ad_gui_scale_tooltip"				 text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu" />
+		<text name="gui_ad_gui_scale_tooltip"				 text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu." />
 		<text name="gui_ad_exitField"					     text="Sortie de champ" />
-		<text name="gui_ad_exitField_tooltip"			     text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche" />
+		<text name="gui_ad_exitField_tooltip"			     text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche." />
 		<text name="gui_ad_default"			 				 text="Par défaut" />
 		<text name="gui_ad_after_start"			 			 text="Après le départ" />
 		<text name="gui_ad_closest"							 text="Le plus proche" />
 		<text name="gui_ad_showHelp"					     text="Afficher l'aide" />
-		<text name="gui_ad_showHelp_tooltip"			     text="Afficher l'affectation des touches dans la fenêtre d'aide F1" />
+		<text name="gui_ad_showHelp_tooltip"			     text="Afficher l'affectation des touches dans la fenêtre d'aide F1." />
 		<text name="gui_ad_driverWages"					     text="Salaire du chauffeur" />
-		<text name="gui_ad_driverWages_tooltip"			     text="Avec cette option, les coûts salariaux des chauffeurs sont multipliés" />
+		<text name="gui_ad_driverWages_tooltip"			     text="Avec cette option, les coûts salariaux des chauffeurs sont multipliés." />
 		<text name="gui_ad_smoothField"					     text="Conduite adoucie au champ" />
-		<text name="gui_ad_smoothField_tooltip"			     text="Les itinéraires vers/depuis les moissoneuses sont lissés - Expérimental" />
+		<text name="gui_ad_smoothField_tooltip"			     text="Les itinéraires vers/depuis les moissoneuses sont lissés - Expérimental." />
 		<text name="gui_ad_recalculationSpeed"				 text="Vitesse de calcul" />
-		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Des valeurs plus élevées peuvent conduire à un jeu saccadé" />
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Des valeurs plus élevées peuvent conduire à un jeu saccadé." />
 		<text name="gui_ad_showNextPath"				 	 text="Montrer chemin suivant" />
-		<text name="gui_ad_showNextPath_tooltip"	     	 text="Activer/Désactiver l'affichage des 2 prochains points de passage" />
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="Activer/Désactiver l'affichage des 2 prochains points de passage." />
 		<text name="gui_ad_avoidFruit"				 	     text="Éviter les cultures" />
-		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Les déchargements de moissonneuses tentent d'éviter les cultures autant que possible" />
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Les déchargements de moissonneuses tentent d'éviter les cultures autant que possible." />
 		<text name="gui_ad_pathFinderTime"				 	 text="Temps de recherche (max)" />
-		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Détermine combien de temps l'algorithme est autorisé à rechercher un itinéraire sans collision depuis/vers la moisonneuse. (Des valeurs élevées peuvent ralentir le jeu)" />
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Détermine combien de temps l'algorithme est autorisé à rechercher un itinéraire sans collision depuis/vers la moisonneuse. (Des valeurs élevées peuvent ralentir le jeu)." />
 		<text name="gui_ad_lineHeight"				 	     text="Hauteur de ligne" />
-		<text name="gui_ad_lineHeight_tooltip"	     	     text="Hauteur de ligne en mode d'édition, au-dessus ou au-dessous du tracteur" />
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Hauteur de ligne en mode d'édition, au-dessus ou au-dessous du tracteur." />
 		<text name="gui_ad_ground"				 	         text="Niveau du sol" />
 		<text name="gui_ad_aboveDriver"	     	             text="Au-dessus du tracteur" />
 		<text name="gui_ad_allowConsoleStyle"				 text="Autoriser la saisie de texte" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Autoriser la saisie de destination étendue de texte via le clavier - Par défaut: Bouton millieu de souris sur le nom de la destination" />
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Autoriser la saisie de destination étendue de texte via le clavier - Par défaut: Bouton millieu de souris sur le nom de la destination." />
 		<text name="gui_ad_enableTrafficDetection"			 text="Détection de collision" />
-		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc.." />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc..." />	
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Semences et engrais" />
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Permet de choisir le chargement des semences et de l'engrais, si l'un ou l'autre est sélectionné." />
 		<text name="gui_ad_shovelWidth"			 			 text="Largeur de la pelle (ajout)" />	
-		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée" />
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée." />
 		<text name="gui_ad_preCallDriver"			 		 text="Appeler chauffeur plus tôt" />
-		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Appel anticipé du chauffeur au niveau de remplissage défini" />
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Appel anticipé du chauffeur au niveau de remplissage défini." />
 		<text name="gui_ad_preCallLevel"			 		 text="Appeler chauffeur au niveau" />
-		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Appel anticipé du chauffeur pour déchargement au niveau défini" />
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Appel anticipé du chauffeur pour déchargement au niveau défini." />
 		<text name="gui_ad_chaseCombine"			 		 text="Suivre la moissoneuse" />
-		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Le chauffeur décharge et suit la moissoneuse après avoir reçu un appel anticipé" />
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Le chauffeur décharge et suit la moissoneuse après avoir reçu un appel anticipé." />
+		<text name="gui_ad_distributeToFolder"			 	text="Objectifs multiples" />
+		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Toutes les cibles d'un même dossier deviendront des cibles de déchargement les unes après les autres." />
+		<text name="gui_ad_maxTriggerDistance"			 	text="Zone maxi du silo" />
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Définis la distance jusqu'où le déclencheur est détecté lorsque le point de destination est chargé/déchargé." />
 	</texts>
 </l10n>
