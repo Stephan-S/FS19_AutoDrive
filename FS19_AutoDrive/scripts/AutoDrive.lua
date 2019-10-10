@@ -367,6 +367,7 @@ function init(self)
 	self.ad.reverseTimer = 3000;
 	self.ad.ccMode = AutoDrive.CC_MODE_IDLE;
 	self.ccInfos = {};
+	self.ad.distanceToCombine = math.huge
 end;
 
 function AutoDrive:onLeaveVehicle()	
