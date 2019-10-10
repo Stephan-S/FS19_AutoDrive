@@ -132,6 +132,8 @@
 		<text name="gui_ad_preCallLevel"			 		 text="Zavolat odvozce při naplnění" />	
 		<text name="gui_ad_preCallLevel_tooltip"	 		 	 text="Zavolá odvozce při naplnění nastavené úrovně" />	
 		<text name="gui_ad_chaseCombine"			 		 text="Sledovat kombajn" />	
-		<text name="gui_ad_chaseCombine_tooltip"	 		 	 text="Odvozce sleduje kombajn, který ho předem zavoal pro vykládku" />
+		<text name="gui_ad_chaseCombine_tooltip"	 		 	 text="Odvozce sleduje kombajn, který ho předem zavolal pro vykládku" />
+		<text name="gui_ad_maxTriggerDistance"			 		 text="Rozsah detekce triggerů" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 			 text="Rozsah, ve kterém jsou detekovány aktivní triggery (např. osivo a hnojivo)." />
 	</texts>
 </l10n>
