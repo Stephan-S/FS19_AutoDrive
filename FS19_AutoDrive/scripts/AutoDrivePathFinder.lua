@@ -13,8 +13,8 @@ AutoDrive.PP_LEFT = 6;
 AutoDrive.PP_UP_LEFT = 7;
 
 AutoDrive.PP_MIN_DISTANCE = 20;
-AutoDrive.PP_CELL_X = 6;
-AutoDrive.PP_CELL_Z = 6;
+AutoDrive.PP_CELL_X = 7;
+AutoDrive.PP_CELL_Z = 7;
 AutoDrivePathFinder = {};
 
 
@@ -85,12 +85,17 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
-	local cos = math.cos(atan);
+	local cos = math.cos(atan);  
 
     local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
-    if minTurnRadius < 0 then --default for no implement == -1
-        minTurnRadius = AutoDrive.PP_CELL_X;
-    end;
+    minTurnRadius = math.max(minTurnRadius, AutoDrive.PP_CELL_X);
+
+    local maxToolRadius = 0
+    for _,implement in pairs(driver:getAttachedAIImplements()) do
+        maxToolRadius = math.max(maxToolRadius, AIVehicleUtil.getMaxToolRadius(implement))
+    end
+
+    minTurnRadius = math.max(minTurnRadius, maxToolRadius);
 
 	local vectorX = {};
 	vectorX.x = cos * minTurnRadius;
@@ -145,10 +150,15 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 	local sin = math.sin(atan);
     local cos = math.cos(atan);
     
-    local minTurnRadius =  (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
-    if minTurnRadius < 0 then --default for no implement == -1
-        minTurnRadius = AutoDrive.PP_CELL_X;
-    end;
+    local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
+    minTurnRadius = math.max(minTurnRadius, AutoDrive.PP_CELL_X);
+    
+    local maxToolRadius = 0
+    for _,implement in pairs(driver:getAttachedAIImplements()) do
+        maxToolRadius = math.max(maxToolRadius, AIVehicleUtil.getMaxToolRadius(implement))
+    end
+
+    minTurnRadius = math.max(minTurnRadius, maxToolRadius);
 
 	local vectorX = {};
 	vectorX.x = cos * minTurnRadius;
