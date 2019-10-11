@@ -42,6 +42,7 @@
 		<text name="AD_has_reached"							 text="ha raggiunto" />
 		<text name="AD_got_stuck"							 text="si è bloccato" />
 		<text name="AD_cannot_reach"						 text="non può raggiungere" />
+		<text name="AD_cannot_find_path"					 text="impossibile calcolare un percorso" />
 		<text name="AD_new_marker"							 text="Nuovo obbiettivo:" />
 		<text name="AD_new_marker_helptext"					 text="Inserisci il nome (Termina con invio)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Sto ricalcolando i percorsi. Attendere. Finito:" />
@@ -70,9 +71,9 @@
 		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Deviazione massima quando si sceglie di evitare le destinazioni" />
 		<text name="gui_ad_siloEmpty"						 text="Se il silo è vuoto" />
 		<text name="gui_ad_siloEmpty_tooltip"				 text="Determina come l'autista deve reagire ad un silo vuoto" />
-		<text name="gui_ad_wait"							 text="Attendi" />
 		<text name="gui_ad_useFolders"					 	 text="Usa le cartelle" />
 		<text name="gui_ad_useFolders_tooltip"			 	 text="Usa Le cartelle per le destinazioni edifici" />
+		<text name="gui_ad_wait"							 text="Attendi" />
 		<text name="gui_ad_drive"							 text="Continua" />
 		<text name="gui_ad_yes"								 text="Si" />
 		<text name="gui_ad_no"								 text="No" />
@@ -135,6 +136,8 @@
 		<text name="gui_ad_chaseCombine"			 		 text="Segui la mietitrebbia in scarico" />	
 		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Il mezzo per lo scarico segue la mietitrebbia se è stata anticipata chiamata" />
 		<text name="gui_ad_distributeToFolder"			 	 text="Obiettivi multipli" />	
-		<text name="gui_ad_distributeToFolder_tooltip"	 	 text="Tutte le destinazioni nella stessa cartella verranno ruotate come destinazioni di scarico." />		
+		<text name="gui_ad_distributeToFolder_tooltip"	 	 text="Tutte le destinazioni nella stessa cartella verranno ruotate come destinazioni di scarico." />
+		<text name="gui_ad_maxTriggerDistance"				 text="Distanza massima dal trigger" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"		 text="Distanza dall'obiettivo in cui i trigger vengono rilevati e attivati." />		
 	</texts>
 </l10n>
