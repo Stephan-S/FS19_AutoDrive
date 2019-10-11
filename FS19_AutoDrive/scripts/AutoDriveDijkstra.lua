@@ -42,7 +42,19 @@ function AutoDrive:ContiniousRecalculation()
 					local wayPointsToHandleThisFrame = 2000 * AutoDrive:getSetting("recalculationSpeed");
 					while wayPointsToHandleThisFrame > 0  and recalcTable.handledWayPoints <= numberOfWayPoints do
 						wayPointsToHandleThisFrame = wayPointsToHandleThisFrame - 1;
-						local point = mapPoints[recalcTable.handledWayPoints];						
+						local point = mapPoints[recalcTable.handledWayPoints];		
+						-- if point == null then
+						-- 	print("point " .. recalcTable.handledWayPoints .. " is not null: " .. ADBoolToString(point ~= null));
+						-- end;
+						-- if tempAD.pre[point.id] == null then
+						-- 	print("tempAD.pre " .. point.id .. " is not null: " .. ADBoolToString(tempAD.pre[point.id] ~= null));
+						-- end;	
+						-- if marker == null then
+						-- 	print("marker is not null: " .. ADBoolToString(marker ~= null));
+						-- end;
+						-- if marker ~= null and marker.name == null then
+						-- 	print("marker name is not null: " .. ADBoolToString(marker ~= null));
+						-- end;						
 						point.marker[marker.name] = tempAD.pre[point.id];
 						recalcTable.handledWayPoints = recalcTable.handledWayPoints + 1;
 					end;
