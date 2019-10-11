@@ -338,7 +338,7 @@ function AutoDrive:detectTraffic(vehicle)
 		box.center = {};
 		box.size = {};
 		box.center[1] = 0;
-		box.center[2] = 3;
+		box.center[2] = 1.5;
 		box.center[3] = length;
 		box.size[1] = width * 0.35;
 		box.size[2] = 0.75;
@@ -349,6 +349,9 @@ function AutoDrive:detectTraffic(vehicle)
 		box.dirX, box.dirY, box.dirZ = localDirectionToWorld(vehicle.components[1].node, 0,0,1)
 		box.ry = math.atan2(box.zx, box.zz)
 		local rotX = -MathUtil.getYRotationFromDirection(box.dirY, 1);
+		rotX = rotX + math.rad(-5);
+
+		local offsetCompensation = -math.tan(math.rad(-5)) * box.size[3];
 
 		local heightOffset = 2.2;
 		if approachingLastWayPoints then
@@ -360,7 +363,7 @@ function AutoDrive:detectTraffic(vehicle)
 												y = y+heightOffset,
 												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };												
 
-		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 1, boxCenter.z), y) + 2.2;
+		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 300, boxCenter.z), y) + 1.5 + offsetCompensation;
 		local rx,ry,rz = getWorldRotation(vehicle.components[1].node)
 		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, rotX, box.ry, 0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK , true, true, true) --AIVehicleUtil.COLLISION_MASK
 		
