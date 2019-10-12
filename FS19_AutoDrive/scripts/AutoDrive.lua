@@ -474,7 +474,7 @@ function AutoDrive:onUpdate(dt)
 	local driverWages = AutoDrive:getSetting("driverWages");
 	local spec = self.spec_aiVehicle
 	if self.isServer and spec ~= nil then
-		if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 then
+		if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and self.ad.isActive then
 			local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier;
 			local price = -dt * difficultyMultiplier * (driverWages -1) * spec.pricePerMS
 			g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
