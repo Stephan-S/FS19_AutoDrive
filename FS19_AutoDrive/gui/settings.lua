@@ -30,6 +30,11 @@ function adSettings:onGuiSetupFinished()
     self:setupPages()
 end
 
+function adSettings:onClose()
+    self:applySettings();
+    adSettings:superClass().onClose(self);
+end;
+
 function adSettings:onOpen()
     adSettings:superClass().onOpen(self)
 
@@ -93,12 +98,17 @@ function adSettings:setupMenuButtonInfo()
     --}
 end
 
-function adSettings:onClickBack()
+function adSettings:onClickBack()    
+    self:applySettings();
     adSettings:superClass().onClickBack(self);
 end;
 
 function adSettings:onClickOK()
-    --adSettings:superClass().onClickOk(self);    
+    --adSettings:superClass().onClickOk(self);
+    self:onClickBack();
+end;
+
+function adSettings:applySettings()
     local page = self:getActivePage()
     if page == nil then
         return;
@@ -118,7 +128,6 @@ function adSettings:onClickOK()
 
     AutoDrive.Hud.lastUIScale = 0; 
     AutoDriveUpdateSettingsEvent:sendEvent();
-    self:onClickBack();
 end;
 
 function adSettings:onClickReset()

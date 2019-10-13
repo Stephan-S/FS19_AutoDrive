@@ -24,7 +24,8 @@ end;
 function adCombineUnloadSettingsPage:onFrameOpen()
     adCombineUnloadSettingsPage:superClass().onFrameOpen(self);
     FocusManager:setFocus(self.backButton);
-    self:updateMyGUISettings();    
+    self:updateMyGUISettings();   
+    self.callBackParent:applySettings(); 
     self.callBackParent.activePageID = self.callBackParentWithID;
 end;
 

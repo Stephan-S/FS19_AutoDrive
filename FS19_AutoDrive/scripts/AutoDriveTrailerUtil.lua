@@ -322,10 +322,10 @@ function AutoDrive:checkTrailerStatesAndAttributes(vehicle, trailers)
     
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then
         if getDistanceToTargetPosition(vehicle) > 25 and getDistanceToUnloadPosition(vehicle) > 25 and (not vehicle.ad.inTriggerProximity) and (vehicle.ad.distanceToCombine > 40) then
-            AutoDrive:setTrailerCoverOpen(trailers, false);
+            AutoDrive:setTrailerCoverOpen(vehicle, trailers, false);
         else
             if vehicle.ad.mode ~= AutoDrive.MODE_LOAD or getDistanceToUnloadPosition(vehicle) <= 25 or vehicle.ad.inTriggerProximity or (vehicle.ad.distanceToCombine < 35) then
-                AutoDrive:setTrailerCoverOpen(trailers, true);
+                AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);
             end;
         end;
         fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex);
@@ -358,7 +358,7 @@ function handleUnloaderSpecificStates(vehicle, trailers, fillLevel, leftCapacity
     end;
 
     if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED or (vehicle.ad.distanceToCombine < 30) then 
-        AutoDrive:setTrailerCoverOpen(trailers, true); --open
+        AutoDrive:setTrailerCoverOpen(vehicle, trailers, true); --open
         AutoDrive:setAugerPipeOpen(trailers, false);        
     end;  
 
@@ -369,22 +369,28 @@ function handleUnloaderSpecificStates(vehicle, trailers, fillLevel, leftCapacity
     if (vehicle.ad.combineState ~= AutoDrive.DRIVE_TO_COMBINE and vehicle.ad.combineState ~= AutoDrive.WAIT_TILL_UNLOADED) then
         if getDistanceToUnloadPosition(vehicle) < 35 then
             AutoDrive:setAugerPipeOpen(trailers, true); 
-            AutoDrive:setTrailerCoverOpen(trailers, true);
+            AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);
         end;
     end;
 
     if vehicle.ad.combineState ~= AutoDrive.DRIVE_TO_COMBINE and getDistanceToUnloadPosition(vehicle) > 25 and (vehicle.ad.distanceToCombine > 40) then
-        AutoDrive:setTrailerCoverOpen(trailers, false);
+        AutoDrive:setTrailerCoverOpen(vehicle, trailers, false);
     end;
 end;
 
-function AutoDrive:setTrailerCoverOpen(trailers, open)
+function AutoDrive:setTrailerCoverOpen(vehicle, trailers, open)
     if trailers == nil then
         return;
     end;
 
     local targetState = 0;
     if open then targetState = 1; end; 
+    
+    vehicle.ad.closeCoverTimer:timer(not open, 2000, 16);
+
+    if (not open) and (not vehicle.ad.closeCoverTimer:done()) then
+        return;
+    end;
 
     for _, trailer in pairs(trailers) do
         if trailer.spec_cover ~= nil then
@@ -422,7 +428,7 @@ function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)
         if (distance < distanceToTarget) then
             continueIfAllTrailersClosed(vehicle, trailers, dt);
         end;
-        --AutoDrive:setTrailerCoverOpen(trailers, true);
+        --AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);
 
         for _,trailer in pairs(trailers) do                   
             findAndSetBestTipPoint(vehicle, trailer) 
@@ -552,7 +558,7 @@ function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
             distance = getDistanceToUnloadPosition(vehicle);
         end;
         if distance < 30 or vehicle.ad.inTriggerProximity then
-            --AutoDrive:setTrailerCoverOpen(trailers, true);      
+            --AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);      
             for _,trailer in pairs(trailers) do
                 if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or getDistanceToUnloadPosition(vehicle) > 30 then
                     findAndSetBestTipPoint(vehicle, trailer);

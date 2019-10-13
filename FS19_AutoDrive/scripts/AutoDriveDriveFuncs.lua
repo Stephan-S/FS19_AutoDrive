@@ -337,7 +337,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     end;
 
                     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-                        if AutoDrive:getSetting("distributeToFolder") and AutoDrive:getSetting("useFolders") then
+                        if AutoDrive:getSetting("distributeToFolder", vehicle) and AutoDrive:getSetting("useFolders") then
                             AutoDrive:setNextTargetInFolder(vehicle);
                         end;
 

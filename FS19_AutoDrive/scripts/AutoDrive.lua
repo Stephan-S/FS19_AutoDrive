@@ -262,6 +262,7 @@ function init(self)
 	self.ad.tryingToCallDriver = false;
 	self.ad.stoppedTimer = 5000;
 	self.ad.driveForwardTimer = AutoDriveTON:new();
+	self.ad.closeCoverTimer = AutoDriveTON:new();
 	self.ad.currentTrailer = 1;
 	self.ad.usePathFinder = false;	
 	self.ad.onRouteToPark = false;	
