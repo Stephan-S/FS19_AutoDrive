@@ -725,23 +725,25 @@ function AutoDrive:checkForTriggerProximity(vehicle)
         --print("Should load");
         for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive:getTriggerPos(trigger);
-            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
+            if triggerX ~= nil then
+                local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
 
-            local hasRequiredFillType = false;            
-            local allowedFillTypes = {vehicle.ad.unloadFillTypeIndex};
-            if vehicle.ad.unloadFillTypeIndex == 13 or vehicle.ad.unloadFillTypeIndex == 43 or vehicle.ad.unloadFillTypeIndex == 44 then
-                allowedFillTypes = {};
-                table.insert(allowedFillTypes, 13);
-                table.insert(allowedFillTypes, 43);
-                table.insert(allowedFillTypes, 44);
-            end;
+                local hasRequiredFillType = false;            
+                local allowedFillTypes = {vehicle.ad.unloadFillTypeIndex};
+                if vehicle.ad.unloadFillTypeIndex == 13 or vehicle.ad.unloadFillTypeIndex == 43 or vehicle.ad.unloadFillTypeIndex == 44 then
+                    allowedFillTypes = {};
+                    table.insert(allowedFillTypes, 13);
+                    table.insert(allowedFillTypes, 43);
+                    table.insert(allowedFillTypes, 44);
+                end;
 
-            for _,trailer in pairs(allFillables) do
-                hasRequiredFillType = hasRequiredFillType or AutoDrive:fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes);
-            end;
-            if distance < 25 and hasRequiredFillType then
-                --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
-                return true;
+                for _,trailer in pairs(allFillables) do
+                    hasRequiredFillType = hasRequiredFillType or AutoDrive:fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes);
+                end;
+                if distance < 25 and hasRequiredFillType then
+                    --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                    return true;
+                end;
             end;
         end;
     end;
