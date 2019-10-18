@@ -170,7 +170,7 @@ function AutoDrive:checkIfLargeFillUnitExists(object)
             end;
         end
     end;
-    return false;
+    return true; --for now
 end
 
 function getDistanceToUnloadPosition(vehicle)
