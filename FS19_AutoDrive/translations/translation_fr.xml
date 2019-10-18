@@ -43,6 +43,7 @@
 		<text name="AD_has_reached"							 text="est arrivé à" />
 		<text name="AD_got_stuck"							 text="est bloqué" />
 		<text name="AD_cannot_reach"						 text="ne peut pas rejoindre" />
+		<text name="AD_cannot_find_path"					 text="n'a pas pu calculer un chemin d'accès à la destination" />
 		<text name="AD_new_marker"							 text="Nouvel objectif:" />
 		<text name="AD_new_marker_helptext"					 text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Recalcul des routes. Veuilllez patienter. Terminé:" />
@@ -60,17 +61,19 @@
 		<text name="gui_ad_trailerOffset"					 text="Décalage vertical (remorque)" />
 		<text name="gui_ad_trailerOffset_tooltip"			 text="Avancer / reculer (remorque), par rapport à la moissonneuse lorsque celle-ci est décentrée." />
 		<text name="gui_ad_lookahead_turning"				 text="Distance devant vous (virage)" />
-		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant" />
+		<text name="gui_ad_lookahead_turning_tooltip"		 text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant." />
 		<text name="gui_ad_lookahead_braking"				 text="Distance devant vous (frein)" />
-		<text name="gui_ad_lookahead_braking_tooltip"		 text="Distance du véhicule pour ralentir plus tôt avant le virage" />
+		<text name="gui_ad_lookahead_braking_tooltip"		 text="Distance du véhicule pour ralentir plus tôt avant le virage." />
 		<text name="gui_ad_useFastestRoute"					 text="Préférer les routes rapide" />
-		<text name="gui_ad_useFastestRoute_tooltip"			 text="Lors du calcul de l'itinéraire, la vitesse de conduite privilégiée est prise en compte, pas seulement la distance" />
+		<text name="gui_ad_useFastestRoute_tooltip"			 text="Lors du calcul de l'itinéraire, la vitesse de conduite privilégiée est prise en compte, pas seulement la distance." />
 		<text name="gui_ad_avoidMarkers"					 text="Éviter de traverser les destinations" />
-		<text name="gui_ad_avoidMarkers_tooltip"			 text="La recherche de destination essaie d'éviter de passer par d'autres destinations" />
+		<text name="gui_ad_avoidMarkers_tooltip"			 text="La recherche de destination essaie d'éviter de passer par d'autres destinations." />
 		<text name="gui_ad_mapMarkerDetour"					 text="Détour maximum" />
-		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Détour maximum quand des destinations doivent être évités" />
+		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Détour maximum quand des destinations doivent être évités." />
 		<text name="gui_ad_siloEmpty"						 text="Quand le silo est vide" />
-		<text name="gui_ad_siloEmpty_tooltip"				 text="Détermine comment un transporteur devrait réagir à un silo vide" />
+		<text name="gui_ad_siloEmpty_tooltip"				 text="Détermine comment un transporteur devrait réagir à un silo vide." />
+		<text name="gui_ad_useFolders"					 	 text="Utiliser des dossiers" />
+		<text name="gui_ad_useFolders_tooltip"			 	 text="Trier les points de destination dans des dossiers." />
 		<text name="gui_ad_wait"							 text="Attente" />
 		<text name="gui_ad_drive"							 text="Continuer" />
 		<text name="gui_ad_yes"								 text="Oui" />
