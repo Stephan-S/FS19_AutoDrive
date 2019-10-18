@@ -98,6 +98,14 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
             vehicle.steeringEnabled = false;
         end
         vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
+
+        if vehicle.setBeaconLightsVisibility ~= nil and AutoDrive:getSetting("useBeaconLights") then
+            if not AutoDrive:isOnField(vehicle) then
+                vehicle:setBeaconLightsVisibility(true)
+            else
+                vehicle:setBeaconLightsVisibility(false)
+            end;
+        end;
 	end;
 	
 	if vehicle.startMotor and vehicle.stopMotor then

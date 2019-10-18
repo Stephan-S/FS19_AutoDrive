@@ -356,6 +356,16 @@ AutoDrive.settings.maxTriggerDistance = {
     isVehicleSpecific = false
 };
 
+AutoDrive.settings.useBeaconLights = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_useBeaconLights",                                    
+    tooltip= "gui_ad_useBeaconLights_tooltip",
+    translate= true,
+    isVehicleSpecific = false
+};
 
 function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then

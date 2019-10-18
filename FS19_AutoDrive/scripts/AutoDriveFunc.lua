@@ -192,7 +192,11 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	end;
 	vehicle.ad.reverseTimer = 3000;
 	AutoDriveHud:deleteMapHotspot(vehicle);	
-    vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE;
+	vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE;
+	
+	if vehicle.setBeaconLightsVisibility ~= nil then
+		vehicle:setBeaconLightsVisibility(false);
+	end;
 end
 
 function AutoDrive:getVehicleToStop(vehicle, brake, dt)
