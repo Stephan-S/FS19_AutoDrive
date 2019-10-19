@@ -116,7 +116,7 @@
 		<text name="gui_ad_avoidFruit"				 	     text="Unikaj upraw" />	
 		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Kierowca rozładowujący kombajn próbuje unikać niszczenia upraw" />	
 		<text name="gui_ad_pathFinderTime"				 	 text="Czas odnajdywania trasy (maks.)" />	
-		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Określa, jak długo algorytm wyszukiwania może poszukiwać bezkolizyjnej trasy do/od kombajnu. (Ma potencjalny wpływ FPSy)" />
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Określa, jak długo algorytm wyszukiwania może poszukiwać bezkolizyjnej trasy do/od kombajnu. (Ma potencjalny wpływ na FPSy)" />
 		<text name="gui_ad_lineHeight"				 	     text="Wysokość linii" />	
 		<text name="gui_ad_lineHeight_tooltip"	     	     text="Wysokość linii w trybie edycji. Na poziomie gruntu lub nad ciągnikiem" />	
 		<text name="gui_ad_ground"				 	         text="Poziom gruntu" />	
@@ -139,6 +139,7 @@
 		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Wszytkie cele w jednym folderze będą używane jedne pod drugim jak miejsca wyładunku." />		
 		<text name="gui_ad_maxTriggerDistance"			 	text="Maksywalna odległość do triggerów" />	
 		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Odłegłość do celów, przy której są wykrywane i aktywowane triggery." />
-	</texts>
+		<text name="gui_ad_useBeaconLights"			 		text="Światła ostrzegawcze" />	
+		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Używaj świateł ostrzegawczych na drodze." />	
 	</texts>
 </l10n>
