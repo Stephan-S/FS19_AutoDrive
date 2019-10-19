@@ -30,6 +30,12 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local wpBehind_close;
     local wpBehind;
 
+    local firstBinIsOnDriver = false;
+    local trailers, trailerCount = AutoDrive:getTrailersOf(driver);
+    if trailers[1] ~= nil and driver == trailers[1] then
+        firstBinIsOnDriver = true;
+    end;
+
     if dischargeNode == nil then
         local followDistance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE;
         local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine);
@@ -63,7 +69,14 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
         local pipeOffset = AutoDrive:getSetting("pipeOffset", driver);     
         local trailerOffset = AutoDrive:getSetting("trailerOffset", driver);
-        wpAhead = {x= (nodeX + (driver.sizeLength/2 + 5 + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (driver.sizeLength/2 + 5 + trailerOffset)*rz  - pipeOffset * combineNormalVector.z};
+        local lengthOffset = 5 + driver.sizeLength/2;
+        if firstBinIsOnDriver then
+            lengthOffset = 0;
+        end;
+
+        if lengthOffset ~= 0 or trailerOffset ~= 0 then
+            wpAhead = {x= (nodeX + (lengthOffset + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (lengthOffset + trailerOffset)*rz  - pipeOffset * combineNormalVector.z};
+        end;
         wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
         wpBehind_close = {x= (nodeX - 10*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 10*rz - pipeOffset * combineNormalVector.z };
         
