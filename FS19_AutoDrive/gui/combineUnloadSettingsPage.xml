@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <GUI name="autoDriveCombineUnloadSettings">		
-	<GuiElement type="empty" profile="autoDriveIngameMenuSettingsBox" size="1800px 720px" position="0px -130px" id="container">
+	<GuiElement type="empty" profile="autoDriveIngameMenuSettingsBox" id="container">
 		<!-- column 1 -->
 		<GuiElement type="boxLayout" profile="ingameMenuSettingsLayout" position="50px 0px" >				
 			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="findDriver" toolTipElementId="ingameMenuHelpBoxText">
@@ -61,7 +61,7 @@
 			</GuiElement>		
 		</GuiElement>		
 
-		<GuiElement type="bitmap" profile="ingameMenuHelpRowBg" position="80px 80px" id="ingameMenuHelpBox" visible="true">
+		<GuiElement type="bitmap" profile="autoDriveingameMenuHelpRowBg" id="ingameMenuHelpBox" visible="true">
 			<GuiElement type="bitmap" profile="ingameMenuHelpRowIcon" />
 			<GuiElement type="text" profile="ingameMenuHelpRowText" id="ingameMenuHelpBoxText" text="" onTextChanged="onIngameMenuHelpTextChanged"/>
 		</GuiElement>		
