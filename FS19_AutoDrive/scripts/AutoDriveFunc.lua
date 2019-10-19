@@ -165,6 +165,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		end;	
 
 		if vehicle.ad.onRouteToPark == true then
+			vehicle.ad.onRouteToPark = false;
 			vehicle:stopMotor(false);
 			if vehicle.spec_lights ~= nil then
 				vehicle:deactivateLights()
