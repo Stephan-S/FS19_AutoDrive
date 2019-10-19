@@ -139,5 +139,7 @@
 		<text name="gui_ad_distributeToFolder_tooltip"		 text="Все цели в одной папке будут становиться как цели выгрузки." />
 		<text name="gui_ad_maxTriggerDistance"				 text="Макс. расстояние триггера" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"		 text="Расстояние до цели, на котором обнаруживаются и активируются триггеры." />
+		<text name="gui_ad_useBeaconLights"					 text="Маячёк" />
+		<text name="gui_ad_useBeaconLights_tooltip"			 text="Включать маячёк при движении по дороге." />
 	</texts>
 </l10n>
