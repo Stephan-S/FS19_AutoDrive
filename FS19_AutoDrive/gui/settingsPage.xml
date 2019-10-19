@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <GUI name="autoDriveSettings">		
-	<GuiElement type="empty" profile="autoDriveIngameMenuSettingsBox" size="1800px 720px" position="0px -130px" id="container">
+	<GuiElement type="empty" profile="autoDriveIngameMenuSettingsBox" id="container">
 		<!-- column 1 -->
 		<GuiElement type="boxLayout" profile="ingameMenuSettingsLayout" position="50px 0px" >
 			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="lookAheadTurning" toolTipElementId="ingameMenuHelpBoxText">
@@ -10,13 +10,6 @@
 				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
 				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
 			</GuiElement>
-			<!-- <GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="lookAheadBraking" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>				 -->
 			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useFastestRoute" toolTipElementId="ingameMenuHelpBoxText">
 				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
 				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
@@ -108,13 +101,6 @@
 				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
 				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
 			</GuiElement>	
-			<!-- <GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="refillSeedAndFertilizer" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement> -->
 			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useFolders" toolTipElementId="ingameMenuHelpBoxText">
 				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
 				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
@@ -139,7 +125,7 @@
 		</GuiElement>
 		
 
-		<GuiElement type="bitmap" profile="autoDriveingameMenuHelpRowBg" position="80px 80px" id="ingameMenuHelpBox" visible="true">
+		<GuiElement type="bitmap" profile="autoDriveingameMenuHelpRowBg" id="ingameMenuHelpBox" visible="true">
 			<GuiElement type="bitmap" profile="ingameMenuHelpRowIcon" />
 			<GuiElement type="text" profile="ingameMenuHelpRowText" id="ingameMenuHelpBoxText" text="" onTextChanged="onIngameMenuHelpTextChanged"/>
 		</GuiElement>		

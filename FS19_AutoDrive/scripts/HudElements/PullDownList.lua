@@ -113,8 +113,8 @@ function ADPullDownList:onDraw(vehicle)
             end;
         end;
 
-        if not (AutoDrive.pullDownListExpanded == 2 and self.type == ADPullDownList.TYPE_TARGET and self.direction == ADPullDownList.EXPANDED_UP) and
-        not (AutoDrive.pullDownListExpanded == 1 and self.type == ADPullDownList.TYPE_UNLOAD and self.direction == ADPullDownList.EXPANDED_DOWN) then
+        if not (AutoDrive.pullDownListExpanded > self.type and self.direction == ADPullDownList.EXPANDED_UP) and
+        not (AutoDrive.pullDownListExpanded < self.type and self.direction == ADPullDownList.EXPANDED_DOWN) then
             renderText(posX, posY, adFontSize, text);
         end;
     else

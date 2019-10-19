@@ -19,8 +19,8 @@
         </GuiElement>
 
         <!-- Body - Central -->
-        <GuiElement type="bitmap" profile="autoDriveFullScreenSpanning" size="1800px 720px">
-            <GuiElement type="paging" profile="uiInGameMenuPaging" size="1800px 720px" position="0px 0px" onPageChange="onPageChange" onPageUpdate="onPageUpdate" id="pagingElement">
+        <GuiElement type="bitmap" profile="autoDriveFullScreenSpanning">
+            <GuiElement type="paging" profile="autoDriveuiInGameMenuPaging" onPageChange="onPageChange" onPageUpdate="onPageUpdate" id="pagingElement">
                 <GuiElement type="frameReference" ref="autoDriveSettings" name="autoDriveSettings" id="autoDriveSettings" />
                 <GuiElement type="frameReference" ref="autoDriveVehicleSettings" name="autoDriveVehicleSettings" id="autoDriveVehicleSettings" />
                 <GuiElement type="frameReference" ref="autoDriveCombineUnloadSettings" name="autoDriveCombineUnloadSettings" id="autoDriveCombineUnloadSettings" />
@@ -29,7 +29,7 @@
     </GuiElement>
 
     <!-- screenAlign="bottomLeft" positionOrigin="bottomLeft" -->
-    <GuiElement type="flowLayout" profile="autoDriveButtonBoxDocked"  id="buttonsPanel" position="-130px 0px">
+    <GuiElement type="flowLayout" profile="autoDriveButtonBoxDocked"  id="buttonsPanel">
         <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="menuButton[1]" />
         <GuiElement type="button" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" id="menuButton[2]"  />
         <GuiElement type="button" profile="buttonCancel" text="$l10n_button_reset" onClick="onClickResetButton" id="menuButton[3]"  />	

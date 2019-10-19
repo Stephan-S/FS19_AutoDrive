@@ -68,6 +68,10 @@
             <Value name="screenAlign" value="topCenter" />
             <Value name="positionOrigin" value="topCenter" />
         </Trait>
+        <Trait name="ADCenterScreen">
+            <Value name="screenAlign" value="middleCenter" />
+            <Value name="positionOrigin" value="middleCenter" />
+        </Trait>                
     </Traits>
 
     <Profile name="autoDriveDialogBg" extends="dialogBg">
@@ -100,7 +104,7 @@
     <Profile name="autoDriveMenuPageTabAlternate" extends="autoDriveMenuPageTab" with="alternateRow" />
 
 
-    <Profile name="autoDrivePagingTabList" extends="list" with="ADanchorTopLeft">
+    <Profile name="autoDrivePagingTabList" extends="list" with="ADCenterScreen">
         <Value name="size" value="1800px 112px" />
         <Value name="position" value="0px 0px" />
         <Value name="itemsPerRow" value="6" />
@@ -115,22 +119,32 @@
         <Value name="rowBackgroundProfileAlternate" value="autoDriveMenuPageTabAlternate" />
     </Profile>
 
-    <Profile name="autoDriveFullScreenSpanning" extends="uiElementContainerFullScreenSpanning" with="ADanchorTopLeft">
-        <Value name="size" value="1800px 720px" />
-        <Value name="position" value="0px 0px" />        
+    <Profile name="autoDriveFullScreenSpanning" extends="uiElementContainerFullScreenSpanning" with="ADCenterScreen">
+        <Value name="size" value="1800px 680px" />
+        <Value name="position" value="0px -60px" />        
         <Value name="margin" value="0px 0px 0px 0px" />
     </Profile>    
 
-    <Profile name="autoDriveIngameMenuSettingsBox" extends="ingameMenuSettingsBox" with="ADanchorTopLeft">
+    <Profile name="autoDriveuiInGameMenuPaging" extends="uiInGameMenuPaging">
+        <Value name="size" value="1800px 680px" />
+        <Value name="position" value="0px 0px" />        
+        <Value name="margin" value="0px 0px 0px 0px" />
+    </Profile> 
+    
+
+    <Profile name="autoDriveIngameMenuSettingsBox" extends="ingameMenuSettingsBox" with="ADCenterScreen">
         <Value name="hasFrame" value="false" />
+        <Value name="size" value="1800px 680px" />
+        <Value name="position" value="0px 0px" />
     </Profile>  
 
     <Profile name="autoDriveButtonBoxDocked" extends="buttonBoxDocked" >
-        <Value name="position" value="-130px 50px" /> 
+        <Value name="position" value="10px 20px" /> 
     </Profile> 
 
     <Profile name="autoDriveingameMenuHelpRowBg" extends="ingameMenuHelpRowBg" >
         <Value name="size" value="1700px 50px" />
+        <Value name="position" value="80px 20px" /> 
     </Profile> 
     
 </GUIProfiles>

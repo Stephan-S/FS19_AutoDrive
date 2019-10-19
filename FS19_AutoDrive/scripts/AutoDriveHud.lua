@@ -34,13 +34,13 @@ function AutoDriveHud:loadHud()
 		if AutoDrive:getSetting("guiScale") ~= 0 then
 			uiScale = AutoDrive:getSetting("guiScale");
 		end;
-		local numButtons = 9
+		local numButtons = 7
 		local numButtonRows = 2
 		local buttonSize = 32
 		local iconSize = 32
 		local gapSize = 3
 		
-		self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + 30)*uiScale)	
+		self.width,        self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (3 * (gapSize+iconSize)) + 30)*uiScale)	
 		self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
 		self.posX   = 1 - self.width - self.gapWidth;
 		self.posY   = 0.285926;
@@ -59,7 +59,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive:getSetting("guiScale") ~= 0 then
 		uiScale = AutoDrive:getSetting("guiScale");
 	end;
-	local numButtons = 9
+	local numButtons = 7
 	local numButtonRows = 2
 	local buttonSize = 32
 	local iconSize = 32
@@ -70,7 +70,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	
 	self.borderX,      	self.borderY       = getNormalizedScreenValues(uiScale * gapSize,    uiScale * gapSize)
 	self.buttonWidth,  	self.buttonHeight  = getNormalizedScreenValues(uiScale * buttonSize, uiScale * buttonSize)
-	self.width,        	self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (2 * (gapSize+iconSize)) + gapSize)*uiScale + self.headerHeight)	
+	self.width,        	self.height        = getNormalizedScreenValues((numButtons * (gapSize+buttonSize) + gapSize)*uiScale, ((numButtonRows * (gapSize+buttonSize)) + (3 * (gapSize+iconSize)) + gapSize)*uiScale + self.headerHeight)	
 	self.gapWidth, 		self.gapHeight	  = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize);
 	self.iconWidth, 	self.iconHeight	  = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize);
 	self.listItemWidth, self.listItemHeight	  = getNormalizedScreenValues(uiScale * listItemSize, uiScale * listItemSize);
@@ -95,12 +95,13 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.buttonCounter = 0;
 	self.rows = 1;	
 	self.rowCurrent = 1;
-	self.cols = 9;
+	self.cols = 7;
 	self.colCurrent = 1;
 	
-	self.row3 = self.posY + 3 * self.borderY + 2 * self.buttonHeight;
-	self.row4 = self.posY + 4 * self.borderY + 3 * self.buttonHeight;
-	self.rowHeader = self.posY + 5 * self.borderY + 4 * self.buttonHeight;
+	self.row2 = self.posY + 3 * self.borderY + 2 * self.buttonHeight;
+	self.row3 = self.posY + 4 * self.borderY + 3 * self.buttonHeight;
+	self.row4 = self.posY + 5 * self.borderY + 4 * self.buttonHeight;
+	self.rowHeader = self.posY + 6 * self.borderY + 5 * self.buttonHeight;
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.posY, self.width, self.height, AutoDrive.directory .. "textures/Background.dds", 0, "background"));
 
@@ -126,10 +127,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		
 	table.insert(self.hudElements, ADPullDownList:new(self.posX + 2*self.gapWidth + self.buttonWidth,
 		self.row4,
-		self.iconWidth * 5 + self.gapWidth*4, self.listItemHeight, ADPullDownList.TYPE_TARGET ,1));
-
-	local speedX = self.posX + self.cols * self.borderX + (self.cols - 1) * self.buttonWidth;
-	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, self.row4, self.buttonWidth, self.buttonHeight));
+		self.iconWidth * 6 + self.gapWidth*5, self.listItemHeight, ADPullDownList.TYPE_TARGET ,1));
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX + self.gapWidth,
 		self.row3,
@@ -137,31 +135,47 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		
 	table.insert(self.hudElements, ADPullDownList:new(self.posX + 2*self.gapWidth + self.buttonWidth,
 		self.row3,
-		self.iconWidth * 5 + self.gapWidth*4, self.listItemHeight, ADPullDownList.TYPE_UNLOAD ,1));
+		self.iconWidth * 6 + self.gapWidth*5, self.listItemHeight, ADPullDownList.TYPE_UNLOAD ,1));
 
-	table.insert(self.hudElements, ADPullDownList:new(self.posX + 2*self.gapWidth + self.buttonWidth + self.iconWidth * 5 + self.gapWidth*5,
-		self.row3,
-		self.iconWidth * 3 + self.gapWidth*2, self.listItemHeight, ADPullDownList.TYPE_FILLTYPE ,1));
+	table.insert(self.hudElements, ADPullDownList:new(self.posX + 2*self.gapWidth + self.buttonWidth , --+ self.iconWidth * 5 + self.gapWidth*5
+		self.row2,
+		self.iconWidth * 6 + self.gapWidth*5, self.listItemHeight, ADPullDownList.TYPE_FILLTYPE ,1));
+
+
 
 	self:AddButton("input_start_stop", nil, "input_ADEnDisable", 1, true);
-	self:AddButton("input_previousTarget", nil, "input_ADSelectPreviousTarget", 1, true);
-	self:AddButton("input_nextTarget", nil,"input_ADSelectTarget", 1, true);	
-	self:AddButton("input_record", nil, "input_ADRecord", 1, true);
 	self:AddButton("input_silomode", "input_previousMode","input_ADSilomode", 1, true);
-	self:AddButton("input_decreaseSpeed", nil,"input_AD_Speed_down", 1, true);
-	self:AddButton("input_increaseSpeed", nil,"input_AD_Speed_up", 1, true);
 	self:AddButton("input_continue", nil,"input_AD_continue", 1, true);
+	self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true);
+	self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true);
+	self.buttonCounter = self.buttonCounter + 1
 	self:AddButton("input_debug", nil, "input_ADActivateDebug", 1, true);
 
 	self:AddButton("input_recalculate", nil, "input_ADDebugForceUpdate", 1, false);
-	self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true);
-	self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true);
+	self:AddButton("input_record", nil, "input_ADRecord", 1, true);
 	self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false);
 	self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false);
-	self:AddButton("input_toggleConnection", nil, "input_ADDebugCreateConnection", 1, false);
+	self:AddButton("input_toggleConnection", nil, "input_ADDebugCreateConnection", 1, false);	
 	self:AddButton("input_createMapMarker", "input_renameMapMarker", "input_ADDebugCreateMapMarker", 1, false);
 	self:AddButton("input_removeWaypoint", "input_removeDestination", "input_ADDebugDeleteWayPoint", 1, false);
-	self:AddButton("input_exportRoutes", nil, "input_AD_export_routes", 1, false);
+		
+	
+	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth;
+	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight;
+	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight));
+	--self:AddButton("input_continue", nil,"input_AD_continue", 1, true);
+	--self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true);
+	--self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true);
+	--self:AddButton("input_exportRoutes", nil, "input_AD_export_routes", 1, false);
+
+	--local parkX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth;
+	--table.insert(self.hudElements, ADHudButton:new(parkX, self.row4, self.buttonWidth, self.buttonHeight, "input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true));
+		
+	--local incCounterX = self.posX + (self.cols - 2) * self.borderX + (self.cols - 3) * self.buttonWidth;
+	--table.insert(self.hudElements, ADHudButton:new(incCounterX, self.row4, self.buttonWidth, self.buttonHeight, "input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true));
+
+	--local continueX = self.posX + (self.cols - 3) * self.borderX + (self.cols - 4) * self.buttonWidth;
+	--table.insert(self.hudElements, ADHudButton:new(continueX, self.row4, self.buttonWidth, self.buttonHeight, "input_continue", nil, "input_AD_continue", 1, true));
 end;
 
 function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, visible)	

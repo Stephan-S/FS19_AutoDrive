@@ -35,7 +35,7 @@ function adEnterGroupNameGui:onClickOk()
             for _,vehicle in pairs(g_currentMission.vehicles) do
                 if (vehicle.ad ~= nil) then
                     if vehicle.ad.groups[enteredName] == nil then
-                        vehicle.ad.groups[enteredName] = true;
+                        vehicle.ad.groups[enteredName] = false;
                     end;
                 end;
             end;  

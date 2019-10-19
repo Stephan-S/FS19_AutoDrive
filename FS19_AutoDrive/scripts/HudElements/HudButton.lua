@@ -70,6 +70,11 @@ function ADHudButton:getNewState(vehicle)
         else        
             newState = 1;
         end;
+        if vehicle.ad.createMapPoints == true then            
+            self.isVisible = true				
+        else
+            self.isVisible = false;	
+        end;
     end;
     
     if self.primaryAction == "input_start_stop" then

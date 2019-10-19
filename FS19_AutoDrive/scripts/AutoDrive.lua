@@ -362,7 +362,7 @@ function init(self)
 	end;
 	for groupName, groupIds in pairs(AutoDrive.groups) do
 		if self.ad.groups[groupName] == nil then
-			self.ad.groups[groupName] = true;
+			self.ad.groups[groupName] = false;
 		end;
 	end;
 	self.ad.reverseTimer = 3000;
