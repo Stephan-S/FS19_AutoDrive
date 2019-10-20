@@ -29,7 +29,7 @@ function ADHudSpeedmeter:onDraw(vehicle)
     local textWidth = getTextWidth(adFontSize, text)
     local posX = self.position.x + (self.size.width - textWidth)/2; -- -0.012
     local posY = self.position.y +  AutoDrive.Hud.gapHeight;
-    if AutoDrive.pullDownListExpanded ~= 3 then
+    if AutoDrive.pullDownListExpanded == 0 or AutoDrive.Hud.targetPullDownList.direction == ADPullDownList.EXPANDED_UP then
         renderText(posX, posY, adFontSize, text);
     end;
 end;

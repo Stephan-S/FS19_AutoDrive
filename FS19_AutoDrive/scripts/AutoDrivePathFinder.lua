@@ -139,6 +139,12 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     
     driver.ad.pf.goingToCombine = true;
 
+    if dischargeNode == nil then
+        driver.ad.pf.preDriveCombine = true;
+    else        
+        driver.ad.pf.preDriveCombine = false;
+    end;
+
     if combine.spec_combine ~= nil then
         if combine.spec_combine.fillUnitIndex ~= nil and combine.spec_combine.fillUnitIndex ~= 0 then
             local fillType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex))
@@ -1056,7 +1062,7 @@ function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X
     cell.hasFruit = (fruitValue > 50);
 
     --Allow fruit in the first few grid cells
-    if (((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3 then
+    if ((((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3) and (not pf.preDriveCombine) then
         cell.isRestricted = false or wasRestricted;
     end;
 end;

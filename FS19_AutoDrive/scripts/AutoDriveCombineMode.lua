@@ -264,8 +264,8 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     return true;
                 end;                
 
-                if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel", vehicle) or vehicle.ad.combineUnloadInFruit == true or (AutoDrive:getSetting("parkInField", vehicle) == false) then
-                    if trailerFillLevel > AutoDrive:getSetting("unloadFillLevel", vehicle) then
+                if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.combineUnloadInFruit == true or (AutoDrive:getSetting("parkInField", vehicle) == false) then
+                    if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) then
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
                     else
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS;
