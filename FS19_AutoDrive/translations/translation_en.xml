@@ -140,6 +140,8 @@
 		<text name="gui_ad_maxTriggerDistance"			 	text="Maximum trigger distance" />	
 		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Distance to target at which triggers are detected and activated." />
 		<text name="gui_ad_useBeaconLights"			 		text="Beacon lights" />	
-		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Use beacon lights on the road." />		
+		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Use beacon lights on the road." />	
+		<text name="gui_ad_restrictToField"			 		text="Restrict pathfinder to field" />	
+		<text name="gui_ad_restrictToField_tooltip"	 		text="If unloader is already parked in the field, he will limit the pathfinder to field boundaries." />		
 	</texts>
 </l10n>

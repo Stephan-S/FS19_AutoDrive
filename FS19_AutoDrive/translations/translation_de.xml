@@ -141,5 +141,7 @@
 		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Bis zu dieser Entfernung zum Zielpunkt wird beladen/entladen bei erkanntem Trigger." />	
 		<text name="gui_ad_useBeaconLights"			 		text="Rundumleuchten" />	
 		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Werden außerhalb des Felds genutzt." />		
+		<text name="gui_ad_restrictToField"			 		text="Pfadplanung begrenzt" />	
+		<text name="gui_ad_restrictToField_tooltip"	 		text="Falls der Abfahrer bereits im Feld steht, wird ein Pfad im Feld gesucht." />		
 	</texts>
 </l10n>

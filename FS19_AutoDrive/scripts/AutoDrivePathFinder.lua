@@ -18,7 +18,7 @@ AutoDrive.PP_CELL_Z = 7;
 AutoDrivePathFinder = {};
 
 
-function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode)       
+function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode, alreadyOnField)       
     --print("startPathPlanningToCombine " .. driver.ad.driverName );
     local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
 	local rx,ry,rz = localDirectionToWorld(combine.components[1].node, 0,0,1);	
@@ -143,6 +143,13 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         driver.ad.pf.preDriveCombine = true;
     else        
         driver.ad.pf.preDriveCombine = false;
+    end;
+
+    if alreadyOnField or (getDistanceToTargetPosition(driver) > 10) then
+        driver.ad.pf.alreadyOnField = true;
+        print("Restricting path finder to field limits");
+    else
+        driver.ad.pf.alreadyOnField = false;
     end;
 
     if combine.spec_combine ~= nil then
@@ -587,6 +594,8 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         
         cell.hasInfo = true;
 
+        cell.isRestricted = cell.isRestricted or (not AutoDrivePathFinder:checkIsOnField(pf, worldPos.x, y, worldPos.z));
+
         local boundingBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);
         if AutoDrive:checkForVehiclesInBox(boundingBox) then
             cell.isRestricted = true;
@@ -594,6 +603,18 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         end;
                     
     end;
+end;
+
+function AutoDrivePathFinder:checkIsOnField(pf, worldX, worldY, worldZ)
+    local densityBits = 0
+
+    local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ);
+    densityBits = bitOR(densityBits, bits)
+    if densityBits ~= 0 or (AutoDrive:getSetting("restrictToField") == false) then
+        return true
+    end;
+
+    return false;
 end;
 
 function AutoDrivePathFinder:checkSlopeAngle(x1, z1, x2, z2)
