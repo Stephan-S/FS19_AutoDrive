@@ -147,7 +147,6 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 
     if alreadyOnField or (getDistanceToTargetPosition(driver) > 10) then
         driver.ad.pf.alreadyOnField = true;
-        print("Restricting path finder to field limits");
     else
         driver.ad.pf.alreadyOnField = false;
     end;
