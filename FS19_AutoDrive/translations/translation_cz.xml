@@ -24,6 +24,7 @@
 		<text name="input_ADDebugChangeNeighbor"			 	 text="AD: Změnit sousední bod" />
 		<text name="input_ADDebugCreateConnection"			 	 text="AD: Vytvořit spojení" />
 		<text name="input_ADDebugCreateMapMarker"			 	 text="AD: Vytvořit nový cíl" />
+		<text name="input_ADRenameMapMarker"			 	 	 text="AD: Přejmenovat cíl" />
 		<text name="input_ADDebugDeleteWayPoint"			 	 text="AD: Smazat cíl" />
 		<text name="input_ADDebugForceUpdate"				 	 text="AD: Aktualizovat trasu" />
 		<text name="input_ADDebugDeleteDestination"			 	 text="AD: Smazat cíl" />
