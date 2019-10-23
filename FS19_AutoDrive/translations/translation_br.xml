@@ -39,7 +39,7 @@
 		<text name="AD_parkVehicle_noPosSet"		         text="Nenhum destino de estacionamento atribuído. Atribua o destino atualmente selecionado com o botão direito do mouse." />
 		<text name="AD_parkVehicle_selected"		         text="Destino de estacionamento escolhido:" />
 		<text name="AD_Driver_of"							 text="Motorista de" />
-		<text name="AD_has_reached"							 text="chegou" />
+		<text name="AD_has_reached"							 text="chegou a" />
 		<text name="AD_got_stuck"							 text="está bloqueado" />
 		<text name="AD_cannot_reach"						 text="não consegue chegar a" />
 		<text name="AD_cannot_find_path"					 text="não é possível calcular um caminho" />
