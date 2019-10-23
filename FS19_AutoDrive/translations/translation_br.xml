@@ -33,7 +33,7 @@
 		<text name="input_ADOpenGUI"						 text="AD: Mostrar menu" />
 		<text name="input_ADCallDriver"						 text="AD: Chamar motorista" />
 		<text name="input_ADGoToVehicle"					 text="AD: Ir para o veículo que chegou" />
-		<text name="AD_Driver_of"							 text="Atribuir nome do motorista" />
+		<text name="AD_Driver_of"							 text="Motorista de" />
 		<text name="input_ADIncLoopCounter"					 text="AD: Aumentar contador de loop" />
 		<text name="input_ADParkVehicle"					 text="AD: Estacionar veículo" />		
 		<text name="AD_parkVehicle_noPosSet"		         text="Nenhum destino de estacionamento atribuído. Atribua o destino atualmente selecionado com o botão direito do mouse." />
@@ -51,10 +51,10 @@
 		<text name="AD_No_Shovel"							 text="não foi possível encontrar uma pá conectada" />
 		<text name="AD_MODE_DRIVETO"						 text="Dirigir" />
 		<text name="AD_MODE_DELIVERTO"						 text="Transportar" />
-		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Carga e descarga" />
+		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Carregar e Descarregar" />
 		<text name="AD_MODE_UNLOAD"							 text="Descarregar colheitadeira" />
 		<text name="AD_MODE_LOAD"							 text="Carregar" />
-		<text name="AD_MODE_BGA"							 text="Descarregar silo" />
+		<text name="AD_MODE_BGA"							 text="Descarga no silo" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Configuração" />
 		<text name="gui_ad_pipe_offset"						 text="Distancia do tubo" />
 		<text name="gui_ad_trailerOffset"					 text="Deslocamento do reboque" />
@@ -78,8 +78,8 @@
 		<text name="gui_ad_yes"								 text="Sim" />
 		<text name="gui_ad_no"								 text="Não" />
 		<text name="ad_wait_for_combine"					 text="Esperar pela colheitadeira" />
-		<text name="ad_drive_to_combine"					 text="Dirigir a colheitadeira" />
-		<text name="ad_unloading_combine"					 text="Descarregar a colheitadeira" />
+		<text name="ad_drive_to_combine"					 text="Dirigir até colheitadeira" />
+		<text name="ad_unloading_combine"					 text="Descarregar colheitadeira" />
 		<text name="ad_drive_to_parkpos"					 text="Estacionado" />
 		<text name="ad_drive_to_startpos" 					 text="Dirigir até o início" />
 		<text name="ad_drive_to_unloadpos"					 text="Dirigir até a descarga" />
