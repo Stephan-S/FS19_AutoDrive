@@ -24,6 +24,7 @@
 		<text name="input_ADDebugChangeNeighbor"			 	 text="AD: Změnit sousední bod" />
 		<text name="input_ADDebugCreateConnection"			 	 text="AD: Vytvořit spojení" />
 		<text name="input_ADDebugCreateMapMarker"			 	 text="AD: Vytvořit nový cíl" />
+		<text name="input_ADRenameMapMarker"			 	 	 text="AD: Přejmenovat cíl" />
 		<text name="input_ADDebugDeleteWayPoint"			 	 text="AD: Smazat cíl" />
 		<text name="input_ADDebugForceUpdate"				 	 text="AD: Aktualizovat trasu" />
 		<text name="input_ADDebugDeleteDestination"			 	 text="AD: Smazat cíl" />
@@ -133,7 +134,13 @@
 		<text name="gui_ad_preCallLevel_tooltip"	 		 	 text="Zavolá odvozce při naplnění nastavené úrovně" />	
 		<text name="gui_ad_chaseCombine"			 		 text="Sledovat kombajn" />	
 		<text name="gui_ad_chaseCombine_tooltip"	 		 	 text="Odvozce sleduje kombajn, který ho předem zavolal pro vykládku" />
+		<text name="gui_ad_distributeToFolder"			 		 text="Více cílů vykládky" />	
+		<text name="gui_ad_distributeToFolder_tooltip"	 			 text="Všechny cíle v jednom adresáři budou použity pro vykládku" />	
 		<text name="gui_ad_maxTriggerDistance"			 		 text="Rozsah detekce triggerů" />	
 		<text name="gui_ad_maxTriggerDistance_tooltip"	 			 text="Rozsah, ve kterém jsou detekovány aktivní triggery (např. osivo a hnojivo)." />
+		<text name="gui_ad_useBeaconLights"			 		 text="Zapnout maják" />	
+		<text name="gui_ad_useBeaconLights_tooltip"	 			 text="Použití majáku na silnici" />	
+		<text name="gui_ad_restrictToField"			 		 text="Vyhledávat cestu jen na poli" />	
+		<text name="gui_ad_restrictToField_tooltip"	 			 text="Pokud odvozce parkuje na poli, bude vyhledávaní cesty omezeno je na pole vymezené okrajem tohoto pole" />	
 	</texts>
 </l10n>
