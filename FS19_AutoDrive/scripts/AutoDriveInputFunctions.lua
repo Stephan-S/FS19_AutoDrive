@@ -439,7 +439,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;
 
 	if input == "input_callDriver" then
-		if vehicle.typeName == "combineDrivable" or vehicle.typeName == "combineCutterFruitPreparer" then
+		if vehicle.typeName == "combineDrivable" or vehicle.typeName == "combineCutterFruitPreparer" or vehicle.typeName == "pdlc_claasPack.combineDrivableCrawlers" then
 			AutoDrive:callDriverToCombine(vehicle);
 		end;
 	end;

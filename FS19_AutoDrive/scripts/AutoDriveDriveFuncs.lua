@@ -280,7 +280,7 @@ end;
 
 function AutoDrive:defineMinDistanceByVehicleType(vehicle)
     local min_distance = 1.8;
-    if vehicle.typeDesc == "combine" or  vehicle.typeDesc == "harvester" or vehicle.typeName == "combineDrivable" or vehicle.typeName == "selfPropelledMower" or vehicle.typeName == "woodHarvester" or vehicle.typeName == "combineCutterFruitPreparer" or vehicle.typeName == "drivableMixerWagon" or vehicle.typeName == "cottonHarvester" then
+    if vehicle.typeDesc == "combine" or  vehicle.typeDesc == "harvester" or vehicle.typeName == "combineDrivable" or vehicle.typeName == "selfPropelledMower" or vehicle.typeName == "woodHarvester" or vehicle.typeName == "combineCutterFruitPreparer" or vehicle.typeName == "drivableMixerWagon" or vehicle.typeName == "cottonHarvester" or vehicle.typeName == "pdlc_claasPack.combineDrivableCrawlers" then
         min_distance = 6;
     end;
     if vehicle.typeDesc == "telehandler" then

@@ -468,7 +468,7 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleClientIntegrity(self);
 	AutoDrive:handleMultiplayer(self, dt);
 	
-	if self.typeName == "combineDrivable" or self.typeName == "combineCutterFruitPreparer" then
+	if self.typeName == "combineDrivable" or self.typeName == "combineCutterFruitPreparer" or self.typeName == "pdlc_claasPack.combineDrivableCrawlers" then
 		AutoDrive:handleCombineHarvester(self, dt)
 	end;
 
