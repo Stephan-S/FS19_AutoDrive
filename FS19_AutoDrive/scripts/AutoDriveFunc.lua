@@ -173,6 +173,9 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		end;
 		
 		vehicle:requestActionEventUpdate();
+		if vehicle.raiseAIEvent ~= nil then
+			vehicle:raiseAIEvent("onAIEnd", "onAIImplementEnd");
+		end;
 	end;
 
 	vehicle.ad.isStoppingWithError = false;
