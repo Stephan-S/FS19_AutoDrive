@@ -36,7 +36,7 @@
 		<text name="input_ADNameDriver"						 text="AD: Назначьте водителю имя" />
 		<text name="input_ADIncLoopCounter"					 text="AD: Увеличить счетчик повторений" />
 		<text name="input_ADParkVehicle"					 text="AD: Припарковать автомобиль" />
-		<text name="AD_parkVehicle_noPosSet"		         text="Места для парковки не назначены. Пожалуйста, назначьте текущую выбранную цель правой кнопкой мыши." />
+		<text name="AD_parkVehicle_noPosSet"		         text="Места для парковки не назначены. Пожалуйста, правой кнопкой мыши назначьте текущую выбранную цель." />
 		<text name="AD_parkVehicle_selected"		         text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"							 text="Водитель на" />
 		<text name="AD_has_reached"							 text="прибыл к" />
@@ -111,7 +111,7 @@
 		<text name="gui_ad_smoothField_tooltip"				 text="Сгенерированые полевые курсы к комбайну и обратно будут сглаживаться (экспериментальная функция)." />
 		<text name="gui_ad_recalculationSpeed"				 text="Скорость расчета" />
 		<text name="gui_ad_recalculationSpeed_tooltip"		 text="Более высокие значения приведут к замедлению игрового процесса при пересчете." />
-		<text name="gui_ad_showNextPath"					 text="Показать следующий путь" />
+		<text name="gui_ad_showNextPath"					 text="Показать дальнейший путь" />
 		<text name="gui_ad_showNextPath_tooltip"			 text="Вкл/Отключить отображение следующих двух путевых точек." />
 		<text name="gui_ad_avoidFruit"						 text="Избегать посевов" />
 		<text name="gui_ad_avoidFruit_tooltip"				 text="Водитель, разгружающий комбайн, будет пытается избегать вытаптывания культур." />
@@ -141,5 +141,8 @@
 		<text name="gui_ad_maxTriggerDistance_tooltip"		 text="Расстояние до цели, на котором обнаруживаются и активируются триггеры." />
 		<text name="gui_ad_useBeaconLights"					 text="Маячёк" />
 		<text name="gui_ad_useBeaconLights_tooltip"			 text="Включать маячёк при движении по дороге." />
+		<text name="gui_ad_restrictToField"					 text="Поиск пути ограничить полем" />
+		<text name="gui_ad_restrictToField_tooltip"			 text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск пути границами поля." />
+
 	</texts>
 </l10n>
