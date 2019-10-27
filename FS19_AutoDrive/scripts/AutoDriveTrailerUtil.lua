@@ -49,7 +49,7 @@ function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTyp
 				local matchInThisUnit = false
 				for index,_ in pairs(workTool:getFillUnitSupportedFillTypes(i))do 
 					--loadTriggers
-					if fillTrigger.source ~= nil and fillTrigger.source.providedFillTypes[index] then
+					if fillTrigger.source ~= nil and fillTrigger.source.providedFillTypes ~= nil and fillTrigger.source.providedFillTypes[index] then
 						typesMatch = true
 						matchInThisUnit = true
 					end
