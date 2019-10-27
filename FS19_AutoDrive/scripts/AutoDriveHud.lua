@@ -145,7 +145,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_debug", nil, "input_ADActivateDebug", 1, true);
 
 	self:AddButton("input_recalculate", nil, "input_ADDebugForceUpdate", 1, false);
-	self:AddButton("input_record", nil, "input_ADRecord", 1, true);
+	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, true);
 	self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false);
 	self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false);
 	self:AddButton("input_toggleConnection", nil, "input_ADDebugCreateConnection", 1, false);	

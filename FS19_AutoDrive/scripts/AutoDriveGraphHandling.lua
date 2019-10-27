@@ -190,7 +190,7 @@ function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 			AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].incoming[1] = AutoDrive.mapWayPointsCounter-1;
 		end;
 	end;
-	if vehicle.ad.creationModeDual == true then
+	if vehicle.ad.creationModeDual == true and connectPrevious then
 		local incomingNodes = 1;
 		for _,__ in pairs(AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter-1].incoming) do
 			incomingNodes = incomingNodes + 1;
@@ -237,6 +237,17 @@ function AutoDrive:handleRecording(vehicle)
 					if AutoDrive:getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
 						startNode.out[ADTableLength(startNode.out)+1] = vehicle.ad.wayPoints[i].id;
 						vehicle.ad.wayPoints[i].incoming[ADTableLength(vehicle.ad.wayPoints[i].incoming)+1] = startNode.id;
+
+						if vehicle.ad.creationModeDual then
+							local incomingNodes = 1;
+							for _,__ in pairs(AutoDrive.mapWayPoints[startPoint].incoming) do
+								incomingNodes = incomingNodes + 1;
+							end;
+							AutoDrive.mapWayPoints[startPoint].incoming[incomingNodes] = AutoDrive.mapWayPointsCounter;
+							--edit current point
+							vehicle.ad.wayPoints[i].out[1] = startPoint;
+						end;
+
 						AutoDriveCourseEditEvent:sendEvent(startNode);
 					end;
 				end;

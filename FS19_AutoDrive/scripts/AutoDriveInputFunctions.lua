@@ -8,6 +8,10 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADRecord" then
 		AutoDrive:InputHandling(self, "input_record");			
 	end; 
+		
+	if actionName == "ADRecord_Dual" then
+		AutoDrive:InputHandling(self, "input_record_dual");			
+	end; 
 	
 	if actionName == "ADEnDisable" then
 		AutoDrive:InputHandling(self, "input_start_stop");			
@@ -257,7 +261,14 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return;
 		end;
-		AutoDrive:inputRecord(vehicle)
+		AutoDrive:inputRecord(vehicle, false)
+	end;
+
+	if input == "input_record_dual" then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+			return;
+		end;
+		AutoDrive:inputRecord(vehicle, true)
 	end;
 	
 	if input == "input_nextTarget" then
@@ -497,38 +508,34 @@ function AutoDrive:enableCurrentMode(vehicle)
     end;
 end;
 
-function AutoDrive:inputRecord(vehicle)
+function AutoDrive:inputRecord(vehicle, dual)
     if vehicle.ad.creationMode == false then
         vehicle.ad.creationMode = true;
-        vehicle.ad.creationModeDual = false;
+        vehicle.ad.creationModeDual = dual;
         vehicle.ad.currentWayPoint = 0;
         vehicle.ad.isActive = false;
 		vehicle.ad.wayPoints = {};
 		vehicle.ad.wayPointsChanged = true;
-
+		
         AutoDrive:disableAutoDriveFunctions(vehicle)
     else
-        if vehicle.ad.creationModeDual == false then
-            vehicle.ad.creationModeDual = true;
-        else
-            vehicle.ad.creationMode = false;
-			vehicle.ad.creationModeDual = false;
-			
-			if AutoDrive:getSetting("autoConnectEnd") then 
-				if vehicle.ad.wayPoints ~= nil and ADTableLength(vehicle.ad.wayPoints) > 0 then
-					local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle);
-					if targetID ~= nil then
-						local targetNode = AutoDrive.mapWayPoints[targetID];
-						if targetNode ~= nil then
-							targetNode.incoming[ADTableLength(targetNode.incoming)+1] = vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id;
-							vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out[ADTableLength(vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out)+1] = targetNode.id;
-							
-							AutoDriveCourseEditEvent:sendEvent(targetNode);
-						end;
+		vehicle.ad.creationMode = false;
+		vehicle.ad.creationModeDual = false;
+		
+		if AutoDrive:getSetting("autoConnectEnd") then 
+			if vehicle.ad.wayPoints ~= nil and ADTableLength(vehicle.ad.wayPoints) > 0 then
+				local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle);
+				if targetID ~= nil then
+					local targetNode = AutoDrive.mapWayPoints[targetID];
+					if targetNode ~= nil then
+						targetNode.incoming[ADTableLength(targetNode.incoming)+1] = vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id;
+						vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out[ADTableLength(vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out)+1] = targetNode.id;
+						
+						AutoDriveCourseEditEvent:sendEvent(targetNode);
 					end;
 				end;
 			end;
-        end;
+		end;
     end;
 end;
 
