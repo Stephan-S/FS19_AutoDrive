@@ -737,7 +737,7 @@ function AutoDrivePathFinder:smoothResultingPPPath(pf)
 	local filteredIndex = 1;
 	local filteredWPs = {};
 
-	while index < ADTableLength(pf.wayPoints) - 2 do
+	while index < ADTableLength(pf.wayPoints) - 1 do
 		local node = pf.wayPoints[index];
 		local nodeAhead = pf.wayPoints[index+1];
 		local nodeTwoAhead = pf.wayPoints[index+2];
@@ -771,7 +771,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
         pf.filteredWPs = {};
     
         --add first few without filtering
-        while pf.smoothIndex < ADTableLength(pf.wayPoints) and pf.smoothIndex < 5 do
+        while pf.smoothIndex < ADTableLength(pf.wayPoints) and pf.smoothIndex < 1 do
             pf.filteredWPs[pf.filteredIndex] = pf.wayPoints[pf.smoothIndex];
             pf.filteredIndex = pf.filteredIndex + 1;
             pf.smoothIndex = pf.smoothIndex + 1;
@@ -782,7 +782,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
     
     if pf.smoothStep == 1 then
         local stepsThisFrame = 0;
-        while pf.smoothIndex < ADTableLength(pf.wayPoints) - 6 and stepsThisFrame < 1 do
+        while pf.smoothIndex < ADTableLength(pf.wayPoints) - 3 and stepsThisFrame < 1 do
             stepsThisFrame = stepsThisFrame + 1;
 
             local node = pf.wayPoints[pf.smoothIndex];

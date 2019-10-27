@@ -103,15 +103,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.row4 = self.posY + 5 * self.borderY + 4 * self.buttonHeight;
 	self.rowHeader = self.posY + 6 * self.borderY + 5 * self.buttonHeight;
 
-	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.posY, self.width, self.height, AutoDrive.directory .. "textures/Background.dds", 0, "background"));
-
-	self.Background.pullDownBG = {};
-	self.Background.pullDownBG.img = AutoDrive.directory .. "textures/Background.dds";
-	self.Background.pullDownBG.ov = Overlay:new(AutoDrive.directory .. "textures/Background.dds", self.posX, self.posY , self.width, self.height);
-	self.Background.pullDownBG.posX = self.posX;
-	self.Background.pullDownBG.posY = self.posY;
-	self.Background.pullDownBG.width = self.width;
-	self.Background.pullDownBG.height = self.height;
+	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.posY - 2 * self.gapHeight, self.width, self.height + 5*self.gapHeight, AutoDrive.directory .. "textures/Background.dds", 0, "background"));
 	
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.rowHeader,
 		self.width, self.headerHeight, AutoDrive.directory .. "textures/Header.dds", 1, "header"));
