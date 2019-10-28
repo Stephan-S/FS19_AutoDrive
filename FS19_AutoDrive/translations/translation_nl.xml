@@ -41,7 +41,8 @@
 		<text name="AD_Driver_of"							 text="De bestuurder van" />
 		<text name="AD_has_reached"							 text="is aangekomen op" />
 		<text name="AD_got_stuck"							 text="is vastgelopen" />
-		<text name="AD_cannot_reach"						 text="heeft geen weg gevonden naar" />
+		<text name="AD_cannot_reach"						 text="heeft geen route gevonden naar" />
+		<text name="AD_cannot_find_path"					 text="kan geen route calculeren" />
 		<text name="AD_new_marker"							 text="Nieuwe Bestemming:" />
 		<text name="AD_new_marker_helptext"					 text="Voer naam in (Sluit af met de Enter-toets)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Routes Herberekenen. Even wachten a.u.b. Voltooid:" />
@@ -128,5 +129,19 @@
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Hiermee kunnen zowel Zaad als Kunstmest worden geladen als een van beide Vulling type is geselecteerd." />	
 		<text name="gui_ad_shovelWidth"			 			 text="Shovel breedte (Toevoeging)" />	
 		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Als de automatisch gedetecteerde shovel te klein is, kan dat met deze waarde worden verhoogd" />	
+		<text name="gui_ad_preCallDriver"			 		 text="Bestuurder eerder oproepen" />	
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Bestuurder eerder oproepen op het ingestelde vulniveau." />	
+		<text name="gui_ad_preCallLevel"			 		 text="Vulniveau eerder oproepen" />	
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Bestuurder eerder oproepen op het ingestelde vulniveau." />	
+		<text name="gui_ad_chaseCombine"			 		 text="Combine volgen" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Bestuurder volgt de combine nadat deze eerder is opgeroepen." />
+		<text name="gui_ad_distributeToFolder"			   	 text="Meerdere bestemmingen" />	
+		<text name="gui_ad_distributeToFolder_tooltip"	 	 text="Alle bestemmingen in dezelfde folder worden geroteerd als los bestemming." />		
+		<text name="gui_ad_maxTriggerDistance"			 	 text="Maximale trigger afstand" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 	 text="Afstand tot los/laad bestemming waar de trigger wordt gevonden en geactiveerd." />
+		<text name="gui_ad_useBeaconLights"			 		 text="Zwaailichten" />	
+		<text name="gui_ad_useBeaconLights_tooltip"	 		 text="Gebruik zwaailampen buiten de velden." />	
+		<text name="gui_ad_restrictToField"			 		 text="Route zoeken beperken tot veld" />	
+		<text name="gui_ad_restrictToField_tooltip"	 		 text="Als de chauffeur is geparkeerd in het veld, dan wordt de route binnen het veld gezocht." />		
 	</texts>
 </l10n>
