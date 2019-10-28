@@ -714,7 +714,7 @@ function AutoDrive:checkForTriggerProximity(vehicle)
         for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive:getTriggerPos(trigger);
             local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
-            if distance < 25 then
+            if distance < AutoDrive:getSetting("maxTriggerDistance") then
                 --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                 return true;
             end;
@@ -740,7 +740,7 @@ function AutoDrive:checkForTriggerProximity(vehicle)
                 for _,trailer in pairs(allFillables) do
                     hasRequiredFillType = hasRequiredFillType or AutoDrive:fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes);
                 end;
-                if distance < 25 and hasRequiredFillType then
+                if distance < AutoDrive:getSetting("maxTriggerDistance") and hasRequiredFillType then
                     --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true;
                 end;
