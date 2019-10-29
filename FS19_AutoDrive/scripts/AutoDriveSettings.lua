@@ -1,10 +1,14 @@
 AutoDrive.settings = {};
 
-AutoDrive.settings.pipeOffset = {  
-    values= {0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0},
-    texts= {"0 m", "0.25 m", "0.5 m", "0.75 m", "1.0 m", "1.25 m", "1.5 m", "1.75 m", "2.0 m", "2.25 m", "2.5 m", "2.75 m", "3.0 m", "3.25 m", "3.5 m", "3.75 m", "4.0 m", "4.25 m", "4.5 m", "4.75 m", "5.0 m"},
-    default= 4,
-    current= 4,
+AutoDrive.settings.pipeOffset = {
+    values= {-5.0, -4.75, -4.5, -4.25, -4.0, -3.75, -3.5, -3.25, -3.0, -2.75, -2.5, -2.25, -2.0, -1.75, -1.5, -1.25, -1.0, -0.75, -0.5, -0.25, 0,
+    0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0},
+    texts= {"-5.0m", "-4.75m", "-4.5m", "-4.25m", "-4.0m", "-3.75m", "-3.5m", "-3.25m", "-3.0m", "-2.75m", "-2.5m", "-2.25m", "-2.0m", "-1.75m", "-1.5m",
+    "-1.25m", "-1.0m", "-0.75m", "-0.5m", "-0.25m", "0 m",
+    "0.25 m", "0.5 m", "0.75 m", "1.0 m", "1.25 m", "1.5 m", "1.75 m", "2.0 m", "2.25 m", "2.5 m", "2.75 m", "3.0 m", "3.25 m",
+    "3.5 m", "3.75 m", "4.0 m", "4.25 m", "4.5 m", "4.75 m", "5.0 m"},
+    default= 24,
+    current= 24,
     text= "gui_ad_pipe_offset",
     tooltip= "gui_ad_pipe_offset",
     translate= false,
@@ -378,6 +382,17 @@ AutoDrive.settings.restrictToField = {
     isVehicleSpecific = false
 };
 
+AutoDrive.settings.showTooltips = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 2,                                    
+    current= 2,                                    
+    text= "gui_ad_showTooltips",                                    
+    tooltip= "gui_ad_showTooltips_tooltip",
+    translate= true,
+    isVehicleSpecific = false
+};
+
 function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
@@ -423,7 +438,14 @@ function AutoDrive:readVehicleSettingsFromXML(vehicle, xmlFile, key)
             vehicle.ad.settings[settingName] = settingVehicle;
 
             local storedSetting = getXMLInt(xmlFile, key.."#" .. settingName);
-			if storedSetting ~= nil then
+            if storedSetting ~= nil then                
+                
+                if AutoDrive.versionUpdate then
+                    if settingName == "pipeOffset" then
+                        storedSetting = math.min(41, storedSetting + 20);
+                    end;
+                end;
+
 				vehicle.ad.settings[settingName].current = storedSetting;
 			end;
         end;

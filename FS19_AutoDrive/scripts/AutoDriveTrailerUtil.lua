@@ -362,7 +362,9 @@ function handleUnloaderSpecificStates(vehicle, trailers, fillLevel, leftCapacity
         AutoDrive:setAugerPipeOpen(trailers, false);        
     end;  
 
-    if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE and leftCapacity == 0 then --was filled up manually
+    
+
+    if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE and fillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) then --was filled up manually
         AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, false);
     end;
 

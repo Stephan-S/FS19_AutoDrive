@@ -19,6 +19,9 @@ function AutoDrive:loadStoredXML()
 		adXml = loadXMLFile("AutoDrive_XML", file);
 		
 		local VersionCheck = getXMLString(adXml, "AutoDrive.version");
+		if VersionCheck ~= AutoDrive.Version then
+			AutoDrive.versionUpdate = true;
+		end;
 		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap);
 		if VersionCheck == nil or MapCheck == false then
 			print("AD: Version Check or Map check failed - Loading init config");

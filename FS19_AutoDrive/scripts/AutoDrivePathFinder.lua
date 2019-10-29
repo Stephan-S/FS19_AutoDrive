@@ -771,7 +771,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
         pf.filteredWPs = {};
     
         --add first few without filtering
-        while pf.smoothIndex < ADTableLength(pf.wayPoints) and pf.smoothIndex < 1 do
+        while pf.smoothIndex < ADTableLength(pf.wayPoints) and pf.smoothIndex < 3 do
             pf.filteredWPs[pf.filteredIndex] = pf.wayPoints[pf.smoothIndex];
             pf.filteredIndex = pf.filteredIndex + 1;
             pf.smoothIndex = pf.smoothIndex + 1;
@@ -807,7 +807,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             local y = worldPos.y;
 
             local stepsOfLookAheadThisFrame = 0;
-            while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex+pf.totalEagerSteps) < (ADTableLength(pf.wayPoints) - 6)) and stepsOfLookAheadThisFrame < 3 do
+            while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex+pf.totalEagerSteps) < (ADTableLength(pf.wayPoints) - 3)) and stepsOfLookAheadThisFrame < 3 do
                 stepsOfLookAheadThisFrame = stepsOfLookAheadThisFrame + 1;
                 local nodeAhead = pf.wayPoints[pf.smoothIndex+pf.totalEagerSteps+1];
                 local nodeTwoAhead = pf.wayPoints[pf.smoothIndex+pf.totalEagerSteps+2];
@@ -895,13 +895,13 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 pf.totalEagerSteps = pf.totalEagerSteps + 1;
             end;
 
-            if pf.totalEagerSteps >= 30 or ((pf.smoothIndex+pf.totalEagerSteps) >= (ADTableLength(pf.wayPoints) - 6)) then
+            if pf.totalEagerSteps >= 30 or ((pf.smoothIndex+pf.totalEagerSteps) >= (ADTableLength(pf.wayPoints) - 3)) then
                 pf.smoothIndex = pf.smoothIndex + math.max(1,(pf.lookAheadIndex)); --(pf.lookAheadIndex-2)
                 pf.totalEagerSteps = 0;
             end;
         end;  
         
-        if pf.smoothIndex >= ADTableLength(pf.wayPoints) - 6 then
+        if pf.smoothIndex >= ADTableLength(pf.wayPoints) - 3 then
             pf.smoothStep = 2;
         end;
     end;

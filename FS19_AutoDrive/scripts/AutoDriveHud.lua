@@ -212,53 +212,7 @@ function AutoDriveHud:drawHud(vehicle)
 				end;
 			end;
 			layer = layer + 1;
-		end;		
-
-		
-		local adFontSize = 0.009 * uiScale;		
-		local textHeight = getTextHeight(adFontSize, "text");
-		local adPosX = self.posX + self.borderX;
-		local adPosY = self.rowHeader + (self.headerHeight - textHeight)/2;
-
-		setTextBold(false);
-		setTextColor(1,1,1,1);
-		setTextAlignment(RenderText.ALIGN_LEFT);
-		local textToShow = "AutoDrive";
-		textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle);
-
-		if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
-			local remainingTime = AutoDrive:getDriveTimeForWaypoints(vehicle.ad.wayPoints, vehicle.ad.currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed));
-			local remainingMinutes = math.floor(remainingTime / 60);
-			local remainingSeconds = remainingTime % 60;
-			if remainingTime ~= 0 then
-				if remainingMinutes > 0 then
-					textToShow = textToShow .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds) );
-				elseif remainingSeconds ~= 0 then
-					textToShow = textToShow .. " - " .. string.format("%2.0f", remainingSeconds) .. "s";
-				end;
-			end;
-		end;                
-
-		if vehicle.ad.sToolTip ~= "" then
-			textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip),4,string.len(g_i18n:getText(vehicle.ad.sToolTip)));
 		end;
-		
-		if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
-			local combineText = AutoDrive:combineStateToDescription(vehicle)
-			if combineText ~= nil then
-				textToShow = textToShow .. " - " .. combineText;
-			end;
-		elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
-			local bgaText = AutoDriveBGA:stateToText(vehicle)
-			if bgaText ~= nil then
-				textToShow = textToShow .. " - " .. bgaText;
-			end;
-		end;
-		
-		if AutoDrive.pullDownListExpanded == 0 then
-			renderText(adPosX, adPosY, adFontSize, textToShow);
-		end;
-		
 	end;	
 end;
 

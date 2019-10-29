@@ -373,7 +373,7 @@ function AutoDrive:detectTraffic(vehicle)
 
 		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 300, boxCenter.z), y) + 1.7 + offsetCompensation;
 		local rx,ry,rz = getWorldRotation(vehicle.components[1].node)
-		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, rotX, box.ry, 0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK - 12 , true, true, true) --AIVehicleUtil.COLLISION_MASK
+		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, rotX, box.ry, 0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK, true, true, true) --AIVehicleUtil.COLLISION_MASK
 		
 		local red = 0;
 		if shapes > 0 then

@@ -143,5 +143,7 @@
 		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Werden außerhalb des Felds genutzt." />		
 		<text name="gui_ad_restrictToField"			 		text="Pfadplanung begrenzt" />	
 		<text name="gui_ad_restrictToField_tooltip"	 		text="Falls der Abfahrer bereits im Feld steht, wird ein Pfad im Feld gesucht." />		
+		<text name="gui_ad_showTooltips"			 		text="Tooltips zeigen" />	
+		<text name="gui_ad_showTooltips_tooltip"	 		text="Tooltips der Buttons im HUD anzeigen." />				
 	</texts>
 </l10n>

@@ -143,5 +143,7 @@
 		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Use beacon lights on the road." />	
 		<text name="gui_ad_restrictToField"			 		text="Restrict pathfinder to field" />	
 		<text name="gui_ad_restrictToField_tooltip"	 		text="If unloader is already parked in the field, he will limit the pathfinder to field boundaries." />		
+		<text name="gui_ad_showTooltips"			 		text="Show tooltips" />	
+		<text name="gui_ad_showTooltips_tooltip"	 		text="Show tooltips of buttons in the HUD." />		
 	</texts>
 </l10n>

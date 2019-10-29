@@ -17,10 +17,119 @@ function ADHudIcon:onDraw(vehicle)
     self:updateVisibility(vehicle);
 
     self:updateIcon(vehicle);
+
+    if self.name == "header" then
+        self:onDrawHeader(vehicle);
+    end;
     
     if self.isVisible then
         self.ov:render();
     end;
+end;
+
+function ADHudIcon:onDrawHeader(vehicle)
+    local uiScale = g_gameSettings:getValue("uiScale")
+	if AutoDrive:getSetting("guiScale") ~= 0 then
+		uiScale = AutoDrive:getSetting("guiScale");
+	end;
+    local adFontSize = 0.009 * uiScale;		
+    local textHeight = getTextHeight(adFontSize, "text");
+    local adPosX = self.position.x + AutoDrive.Hud.gapWidth;
+    local adPosY = self.position.y + (self.size.height - textHeight)/2;
+
+    setTextBold(false);
+    setTextColor(1,1,1,1);
+    setTextAlignment(RenderText.ALIGN_LEFT);
+    local firstLineText = "";
+    local secondLineText = "";
+
+    local textToShow = "AutoDrive";
+    textToShow = textToShow .. " - " .. AutoDrive.Version;
+    textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle);
+
+    if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
+        local remainingTime = AutoDrive:getDriveTimeForWaypoints(vehicle.ad.wayPoints, vehicle.ad.currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed));
+        local remainingMinutes = math.floor(remainingTime / 60);
+        local remainingSeconds = remainingTime % 60;
+        if remainingTime ~= 0 then
+            if remainingMinutes > 0 then
+                textToShow = textToShow .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds) );
+            elseif remainingSeconds ~= 0 then
+                textToShow = textToShow .. " - " .. string.format("%2.0f", remainingSeconds) .. "s";
+            end;
+        end;
+    end;                
+
+    if vehicle.ad.sToolTip ~= "" and AutoDrive:getSetting("showTooltips") then
+        textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip),4,string.len(g_i18n:getText(vehicle.ad.sToolTip)));
+    end;
+    
+    if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+        local combineText = AutoDrive:combineStateToDescription(vehicle)
+        if combineText ~= nil then
+            textToShow = textToShow .. " - " .. combineText;
+        end;
+    elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+        local bgaText = AutoDriveBGA:stateToText(vehicle)
+        if bgaText ~= nil then
+            textToShow = textToShow .. " - " .. bgaText;
+        end;
+    end;
+    
+    local textWidth = getTextWidth(adFontSize, textToShow);
+    if textWidth > self.size.width - 4*AutoDrive.Hud.gapWidth then
+        --expand header bar and split text
+        if self.isExpanded == nil or self.isExpanded == false then
+            self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height + textHeight + AutoDrive.Hud.gapHeight);
+            self.isExpanded = true;
+        end;
+
+        local textParts = textToShow:split("-");
+
+        local width = 0;
+        local textIndex = 1;
+        while (width < self.size.width - 2*AutoDrive.Hud.gapWidth) and textParts[textIndex] ~= nil do
+            local textToAdd = "";
+            if textIndex > 1 then
+                textToAdd = textToAdd .. "-";
+            end;
+            textToAdd = textToAdd .. textParts[textIndex];
+            width = getTextWidth(adFontSize, firstLineText .. textToAdd);
+
+            if (width < self.size.width - 2*AutoDrive.Hud.gapWidth) then
+                firstLineText = firstLineText .. textToAdd;
+                textIndex = textIndex + 1;
+            end;            
+        end;
+
+        local secondLineIndex = 1;
+        while textParts[textIndex] ~= nil do
+            if secondLineIndex > 1 then
+                secondLineText = secondLineText .. "-";
+            end;
+            secondLineText = secondLineText .. textParts[textIndex];
+            if secondLineIndex == 1 then
+                secondLineText = textParts[textIndex]:sub(3);
+            end;
+            secondLineIndex = secondLineIndex + 1;
+            textIndex = textIndex + 1;
+        end;
+
+        if AutoDrive.pullDownListExpanded == 0 then
+            renderText(adPosX, adPosY, adFontSize, firstLineText);
+            adPosY = adPosY + textHeight + AutoDrive.Hud.gapHeight;
+            renderText(adPosX, adPosY, adFontSize, secondLineText);
+        end;
+    else
+        if self.isExpanded ~= nil and self.isExpanded == true then
+            self.isExpanded = false;
+            self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height);
+        end;
+
+        if AutoDrive.pullDownListExpanded == 0 then
+            renderText(adPosX, adPosY, adFontSize, textToShow);
+        end;
+    end;    
 end;
 
 function ADHudIcon:updateVisibility(vehicle)
