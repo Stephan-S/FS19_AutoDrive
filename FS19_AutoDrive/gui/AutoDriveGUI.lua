@@ -1,6 +1,6 @@
 function AutoDrive:loadGUI()
-	g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
-    AutoDrive.gui = {};	
+	--g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
+    AutoDrive.gui = {};
     AutoDrive.gui["adEnterDriverNameGui"] = adEnterDriverNameGui:new();
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "adEnterDriverNameGui", AutoDrive.gui.adEnterDriverNameGui);	
     AutoDrive.gui["adEnterTargetNameGui"] = adEnterTargetNameGui:new();

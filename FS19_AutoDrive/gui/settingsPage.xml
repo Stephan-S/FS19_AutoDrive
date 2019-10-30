@@ -1,140 +1,147 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<GUI name="autoDriveSettings">		
-	<GuiElement type="empty" profile="autoDriveIngameMenuSettingsBox" id="container">
-		<!-- column 1 -->
-		<GuiElement type="boxLayout" profile="ingameMenuSettingsLayout" position="50px 0px" >
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="lookAheadTurning" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useFastestRoute" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="avoidMarkers" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="mapMarkerDetour" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>		
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="continueOnEmptySilo" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>		
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="autoConnectStart" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>		
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="autoConnectEnd" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="guiScale" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="showHelp" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="driverWages" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="recalculationSpeed" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>		
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="showNextPath" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>		
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="lineHeight" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="enableTrafficDetection" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useFolders" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="maxTriggerDistance" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useBeaconLights" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
-			<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="showTooltips" toolTipElementId="ingameMenuHelpBoxText">
-				<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-				<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-				<GuiElement type="text" profile="multiTextOptionSettingsText" />
-				<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
-				<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-			</GuiElement>	
+<GUI name="autoDriveSettings">
+	<GuiElement type="empty" profile="uiInGameMenuFrame" id="container">
+		<!-- Static page header -->
+		<GuiElement type="empty" profile="ingameMenuFrameHeaderPanel" position="130px -60px">
+			<GuiElement type="text" profile="ingameMenuFrameHeaderText" position="80px 0px" text="Settings - AutoDrive"/>
 		</GuiElement>
-		
 
-		<GuiElement type="bitmap" profile="autoDriveingameMenuHelpRowBg" id="ingameMenuHelpBox" visible="true">
+		<GuiElement type="bitmap" profile="ingameMenuSettingsBox" position="130px -124px" id="settingsContainer">
+			<GuiElement type="boxLayout" profile="ingameMenuSettingsLayout" position="50px -50px" id="boxLayout">
+
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="lookAheadTurning" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useFastestRoute" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="avoidMarkers" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="mapMarkerDetour" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="continueOnEmptySilo" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="autoConnectStart" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="autoConnectEnd" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="guiScale" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="showHelp" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="driverWages" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="recalculationSpeed" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="showNextPath" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="lineHeight" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="enableTrafficDetection" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useFolders" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="maxTriggerDistance" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="useBeaconLights" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="showTooltips" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
+
+			</GuiElement>
+		</GuiElement>
+
+		<GuiElement type="bitmap" profile="ingameMenuHelpRowBg" position="210px 64px" id="ingameMenuHelpBox" visible="true">
 			<GuiElement type="bitmap" profile="ingameMenuHelpRowIcon" />
 			<GuiElement type="text" profile="ingameMenuHelpRowText" id="ingameMenuHelpBoxText" text="" onTextChanged="onIngameMenuHelpTextChanged"/>
-		</GuiElement>		
+		</GuiElement>
 	</GuiElement>
 </GUI>

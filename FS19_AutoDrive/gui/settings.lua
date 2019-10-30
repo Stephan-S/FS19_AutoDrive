@@ -83,8 +83,8 @@ function adSettings:setupMenuButtonInfo()
 
     self.defaultMenuButtonInfo = {
         { inputAction = InputAction.MENU_BACK, text = self.l10n:getText("button_back"), callback = onButtonBackFunction, showWhenPaused = true },
-        { inputAction = InputAction.MENU_ACCEPT, text = self.l10n:getText("button_ok"), callback = self.onClickOK, showWhenPaused = true},
-        { inputAction = InputAction.MENU_CANCEL, text = self.l10n:getText("button_reset"), callback = self.onClickReset, showWhenPaused = true }
+        { inputAction = InputAction.MENU_ACCEPT, text = self.l10n:getText("button_ok"), callback = self:makeSelfCallback(self.onClickOK), showWhenPaused = true},
+        { inputAction = InputAction.MENU_CANCEL, text = self.l10n:getText("button_reset"), callback = self:makeSelfCallback(self.onClickReset), showWhenPaused = true }
     }
 
     --self.defaultMenuButtonInfoByActions[InputAction.MENU_BACK] = self.defaultMenuButtonInfo[1]
