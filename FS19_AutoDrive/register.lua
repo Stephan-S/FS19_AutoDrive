@@ -2,9 +2,9 @@
 -- Mod: AutoDrive_Register
 --
 -- Author: Stephan
--- email: Stephan910@web.de
--- @Date: 02.02.2019
--- @Version: 1.0.0.0 
+-- Email: Stephan910@web.de
+-- Date: 02.02.2019
+-- Version: 1.0.0.0
 
 -- #############################################################################
 
@@ -26,76 +26,54 @@ source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.l
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", AutoDrive.directory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateNameEvent.lua", AutoDrive.directory))
 
+AutoDrive_Register = {}
+AutoDrive_Register.modDirectory = g_currentModDirectory
 
-
-AutoDrive_Register = {};
-AutoDrive_Register.modDirectory = g_currentModDirectory;
-
-local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
-AutoDrive_Register.version = getXMLString(modDesc, "modDesc.version");
+AutoDrive_Register.version = g_modManager:getModByName(g_currentModName).version
 
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
-	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua",  g_currentModDirectory), nil)
-	
+	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
+
+	if AutoDrive == nil then
+		print("ERROR: Unable to add specialization 'AutoDrive'")
+		return
+	end
+
 	local ADSpecName = g_currentModName .. ".AutoDrive"
-	
-	if AutoDrive == nil then 
-	  print("ERROR: unable to add specialization 'AutoDrive'")
-	else 
-	  for i, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-			if typeDef ~= nil and i ~= "locomotive" then 
-				local isDrivable  = false
-				local isEnterable = false
-				local hasMotor    = false 
-				for name, spec in pairs(typeDef.specializationsByName) do
-					if name == "drivable"  then 
-						isDrivable = true 
-					elseif name == "motorized" then 
-						hasMotor = true 
-					elseif name == "enterable" then 
-						isEnterable = true 
-					end 
-				end 
-				
-				if isDrivable and isEnterable and hasMotor then 
-					print("INFO: attached specialization 'AutoDrive' to vehicleType '" .. tostring(i) .. "'")
-					if typeDef.specializationsByName["AutoDrive"] == nil then
-						--typeDef.specializationsByName["AutoDrive"] = AutoDrive
-						--table.insert(typeDef.specializationNames, "AutoDrive")
-						--table.insert(typeDef.specializations, AutoDrive)  
-						g_vehicleTypeManager:addSpecialization(i, ADSpecName)
-						typeDef.hasADSpec = true;
-					end;
-				end 
-			end 
-	  end   
-	end 
-end 
-  
+
+	for i, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
+		if typeDef ~= nil and i ~= "locomotive" then
+			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
+				print(string.format("  Attached AutoDrive to vehicleType %s", i))
+				if typeDef.specializationsByName["AutoDrive"] == nil then
+					g_vehicleTypeManager:addSpecialization(i, ADSpecName)
+					typeDef.hasADSpec = true
+				end
+			end
+		end
+	end
+end
+
 function AutoDrive_Register:loadMap(name)
-	print("--> loaded AutoDrive version " .. self.version .. " (by Stephan) <--");
-end;
+	print(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
+end
 
 function AutoDrive_Register:deleteMap()
-
-end;
+end
 
 function AutoDrive_Register:keyEvent(unicode, sym, modifier, isDown)
-
-end;
+end
 
 function AutoDrive_Register:mouseEvent(posX, posY, isDown, isUp, button)
-
-end;
+end
 
 function AutoDrive_Register:update(dt)
 	if AutoDrive ~= nil then
-		AutoDrive.runThisFrame = false;
-	end;
-end;
+		AutoDrive.runThisFrame = false
+	end
+end
 
 function AutoDrive_Register:draw()
+end
 
-end;
-
-addModEventListener(AutoDrive_Register);
+addModEventListener(AutoDrive_Register)
