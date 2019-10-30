@@ -55,6 +55,7 @@
 		<text name="AD_MODE_UNLOAD"							 text="Scarica trebbia" />
 		<text name="AD_MODE_LOAD"							 text="Carica" />
 		<text name="AD_MODE_BGA"							 text="Scarica il bunker" />
+		<text name="AD_synchronizing"						 text="Caricamento Percorsi dal server.." />
 		<text name="gui_ad_Setting"							 text="Impostazioni Autodrive" />
 		<text name="gui_ad_pipe_offset"						 text="Distanza dal tubo" />
 		<text name="gui_ad_trailerOffset"					 text="Regolazione posizione scarico" />
