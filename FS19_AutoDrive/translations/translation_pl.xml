@@ -56,6 +56,7 @@
 		<text name="AD_MODE_LOAD"							 text="Załadunek" />
 		<text name="AD_MODE_BGA"							 text="Rozładunek do silosu" />
 		<text name="gui_ad_Setting"							 text="AutoDrive - ustawienia" />
+		<text name="AD_synchronizing"						 text="wczytywanie tras z serwera..." />
 		<text name="gui_ad_pipe_offset"						 text="Przesunięcie rury" />
 		<text name="gui_ad_trailerOffset"					 text="Przesunięcie przyczepy" />
 		<text name="gui_ad_trailerOffset_tooltip"			 text="Przesunięcie pozycji rozładunku przyczepy - przód/tył" />
