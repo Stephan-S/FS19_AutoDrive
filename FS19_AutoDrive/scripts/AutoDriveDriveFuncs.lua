@@ -272,6 +272,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
         vehicle.ad.initialized = true;
         vehicle.ad.drivingForward = true;
+        vehicle.ad.isPaused = false;
     else
         print("Autodrive encountered a problem during initialization - shutting down");
         AutoDrive:stopAD(vehicle, true); 
@@ -302,7 +303,6 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x;
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z;
     else
-        --print("Last waypoint reached");
         if (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
             --print("Shutting down");
             local target = vehicle.ad.nameOfSelectedTarget;
@@ -317,7 +317,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         else            
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
                 AutoDrive:handleReachedWayPointCombine(vehicle);
-            else
+            else                
                 if vehicle.ad.onRouteToSecondTarget == true then
                     vehicle.ad.timeTillDeadLock = 15000;
 
@@ -334,6 +334,12 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then               
                         vehicle.ad.isPaused = true;
+                        fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables);   
+                        local maxCapacity = fillLevel + leftCapacity;       
+
+                        if vehicle.ad.mode == AutoDrive.MODE_LOAD and (leftCapacity <= (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel", vehicle)+0.001))) then
+                            vehicle.ad.isPaused = false;
+                        end;
                     end;
                     vehicle.ad.onRouteToSecondTarget = false;
                 else

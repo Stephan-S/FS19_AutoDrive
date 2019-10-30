@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.6.6a";
+AutoDrive.Version = "1.0.6.6b";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
@@ -218,6 +218,7 @@ function init(self)
 		self.ad.targetSpeed = AutoDrive.lastSetSpeed;
 	end;	
 	self.ad.createMapPoints = false;
+	self.ad.displayMapPoints = false;
 	self.ad.showClosestPoint = true;
 	self.ad.selectedDebugPoint = -1;
 	self.ad.showSelectedDebugPoint = false;
@@ -532,7 +533,7 @@ function AutoDrive:onDraw()
 		AutoDrive:onDrawControlledVehicle(self);
 	end;
 	
-	if self.ad.createMapPoints == true and self == g_currentMission.controlledVehicle then
+	if (self.ad.createMapPoints or self.ad.displayMapPoints) and self == g_currentMission.controlledVehicle then
 		AutoDrive:onDrawCreationMode(self);
 	end;		
 end; 
@@ -633,7 +634,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 		end;
 	end;
 
-	if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
+	if vehicle.ad.createMapPoints and vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 		local closest = AutoDrive:findClosestWayPoint(vehicle);
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
 		
@@ -642,7 +643,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 		end;
 	end;
 
-	if vehicle.ad.showSelectedDebugPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
+	if vehicle.ad.createMapPoints and vehicle.ad.showSelectedDebugPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
 		local closest = AutoDrive:findClosestWayPoint(vehicle);
 		local x1,y1,z1 = getWorldTranslation(vehicle.components[1].node);
 		if vehicle.ad.showSelectedDebugPoint == true then

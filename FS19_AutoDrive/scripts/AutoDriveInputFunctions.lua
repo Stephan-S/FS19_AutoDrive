@@ -286,6 +286,10 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			vehicle.ad.createMapPoints = false;
 		end;
 	end;
+	
+	if input == "input_displayMapPoints"  then
+		vehicle.ad.displayMapPoints = not vehicle.ad.displayMapPoints;
+	end;
 
 	if input == "input_showClosest" then
 		AutoDrive:inputShowClosest(vehicle);

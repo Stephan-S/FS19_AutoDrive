@@ -142,7 +142,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true);
 	self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true);
 	self.buttonCounter = self.buttonCounter + 1
-	self:AddButton("input_debug", nil, "input_ADActivateDebug", 1, true);
+	self:AddButton("input_debug", "input_displayMapPoints", "input_ADActivateDebug", 1, true);
 
 	self:AddButton("input_recalculate", nil, "input_ADDebugForceUpdate", 1, false);
 	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, true);

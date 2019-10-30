@@ -46,9 +46,9 @@ function AutoDrive:startAD(vehicle)
 	
 	if g_server ~= nil then
 		local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD));
-		local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex);
+		local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers);
 		local maxCapacity = fillLevel + leftCapacity; 	
-				
+		
 		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel", vehicle)+0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
 				vehicle.ad.skipStart = true;
@@ -299,6 +299,11 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 										onSameRoute = true;
 										if dualRoutePoints[_+1] ~= nil and other.ad.wayPoints[other.ad.currentWayPoint+i+1] ~= nil then --check if going in same direction
 											if dualRoutePoints[_+1] == other.ad.wayPoints[other.ad.currentWayPoint+i+1].id then
+												sameDirection = true;
+											end;
+										end;
+										if dualRoutePoints[_-1] ~= nil and other.ad.wayPoints[other.ad.currentWayPoint+i-1] ~= nil then --check if going in same direction
+											if dualRoutePoints[_-1] == other.ad.wayPoints[other.ad.currentWayPoint+i-1].id then
 												sameDirection = true;
 											end;
 										end;

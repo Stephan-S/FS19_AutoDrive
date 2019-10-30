@@ -22,8 +22,8 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     AutoDrive.pullDownListExpanded = 0;
 
     self.rightIconPos = {x = self.position.x + self.size.width - AutoDrive.Hud.buttonWidth/2 - AutoDrive.Hud.gapWidth, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight/2)/2 };
-    self.rightIconPos2 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth/2)*2 - AutoDrive.Hud.gapWidth, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight/2)/2 };   
-    self.rightIconPos3 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth/2)*3 - AutoDrive.Hud.gapWidth, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight/2)/2 };   
+    self.rightIconPos2 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth/2)*2 - AutoDrive.Hud.gapWidth * 3, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight/2)/2 };   
+    self.rightIconPos3 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth/2)*3 - AutoDrive.Hud.gapWidth * 5, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight/2)/2 };   
     
     self.iconSize = {width = AutoDrive.Hud.buttonWidth/2, height = AutoDrive.Hud.buttonHeight/2};
     self.rowSize = {width = AutoDrive.Hud.buttonWidth/2, height = AutoDrive.Hud.listItemHeight/2};
@@ -156,17 +156,19 @@ function ADPullDownList:onDraw(vehicle)
                         listEntry.ovExpand:render(); 
                     end;
 
-                    listEntry.ovAddHere = Overlay:new(self.imageRight, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
-                    listEntry.ovAddHere:render();
+                    if vehicle.ad.createMapPoints == true then
+                        listEntry.ovAddHere = Overlay:new(self.imageRight, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                        listEntry.ovAddHere:render();
 
-                    if (listEntry.displayName ~= "All") then
-                        if self:getItemCountForGroup(listEntry.displayName) <= 0 then
-                            listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
-                            listEntry.ovMinus:render();
+                        if (listEntry.displayName ~= "All") then
+                            if self:getItemCountForGroup(listEntry.displayName) <= 0 then
+                                listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                                listEntry.ovMinus:render();
+                            end;
+                        else       
+                            listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
+                            listEntry.ovPlus:render();
                         end;
-                    else       
-                        listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height);
-                        listEntry.ovPlus:render();
                     end;
                 --else          
                     --if self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive:getSetting("useFolders") then
@@ -502,13 +504,13 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     --else
                         --self:moveSelectedElementDown(vehicle, hitElement);
                     end;
-                elseif hitIcon ~= nil and hitIcon == 2 then
+                elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.createMapPoints == true then
                         if hitElement.isFolder then
                             self:moveCurrentElementToFolder(vehicle, hitElement);
                         --else
                             --self:moveSelectedElementUp(vehicle, hitElement);
                         end;   
-                elseif hitIcon ~= nil and hitIcon == 3 then
+                elseif hitIcon ~= nil and hitIcon == 3 and vehicle.ad.createMapPoints == true then
                     if hitElement.isFolder then
                         if (hitElement.displayName ~= "All") then 
                             if self:getItemCountForGroup(hitElement.displayName) <= 0 then

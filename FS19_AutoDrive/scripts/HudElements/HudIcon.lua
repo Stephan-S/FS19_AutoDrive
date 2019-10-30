@@ -61,7 +61,7 @@ function ADHudIcon:onDrawHeader(vehicle)
     end;                
 
     if vehicle.ad.sToolTip ~= "" and AutoDrive:getSetting("showTooltips") then
-        textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip),4,string.len(g_i18n:getText(vehicle.ad.sToolTip)));
+        textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip),5,string.len(g_i18n:getText(vehicle.ad.sToolTip)));
     end;
     
     if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
@@ -74,6 +74,10 @@ function ADHudIcon:onDrawHeader(vehicle)
         if bgaText ~= nil then
             textToShow = textToShow .. " - " .. bgaText;
         end;
+    end;
+
+    if AutoDrive.requestedWaypoints then
+        textToShow = textToShow .. " - " .. g_i18n:getText("AD_synchronizing");
     end;
     
     local textWidth = getTextWidth(adFontSize, textToShow);
@@ -109,7 +113,7 @@ function ADHudIcon:onDrawHeader(vehicle)
             end;
             secondLineText = secondLineText .. textParts[textIndex];
             if secondLineIndex == 1 then
-                secondLineText = textParts[textIndex]:sub(3);
+                secondLineText = textParts[textIndex]:sub(2);
             end;
             secondLineIndex = secondLineIndex + 1;
             textIndex = textIndex + 1;

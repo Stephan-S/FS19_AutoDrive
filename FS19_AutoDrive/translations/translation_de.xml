@@ -55,6 +55,7 @@
 		<text name="AD_MODE_UNLOAD"							 text="Drescher abfahren" />
 		<text name="AD_MODE_LOAD"							 text="Abholen" />
 		<text name="AD_MODE_BGA"							 text="Fahrsilo entladen" />
+		<text name="AD_synchronizing"						 text="Kurse vom Server laden.." />
 		<text name="gui_ad_Setting"							 text="AutoDrive - Einstellungen" />
 		<text name="gui_ad_pipe_offset"						 text="Abstand Rohr" />
 		<text name="gui_ad_trailerOffset"					 text="Abstand Hänger" />

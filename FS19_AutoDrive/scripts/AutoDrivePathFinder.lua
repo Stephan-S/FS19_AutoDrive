@@ -160,6 +160,11 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
             end;
         end;
     end;
+
+    local startIsOnField = AutoDrivePathFinder:checkIsOnField(worldX, worldY, worldZ);
+    local endIsOnField = AutoDrivePathFinder:checkIsOnField(wpBehind.x, worldY, wpBehind.z);
+
+    driver.ad.pf.restrictToField = startIsOnField and endIsOnField;
 end;
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)       
@@ -264,6 +269,11 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 
     driver.ad.pf.goingToCombine = false;
     driver.ad.pf.ignoreFruit = ignoreFruit;
+
+    local startIsOnField = AutoDrivePathFinder:checkIsOnField(driverWorldX, driverWorldY, driverWorldZ);
+    local endIsOnField = AutoDrivePathFinder:checkIsOnField(targetX, driverWorldY, targetZ);
+
+    driver.ad.pf.restrictToField = startIsOnField and endIsOnField;
 end;
 
 function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine)    
@@ -593,18 +603,17 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         
         cell.hasInfo = true;
 
-        cell.isRestricted = cell.isRestricted or (not AutoDrivePathFinder:checkIsOnField(pf, worldPos.x, y, worldPos.z));
+        cell.isRestricted = cell.isRestricted or (pf.restrictToField and (not AutoDrivePathFinder:checkIsOnField(worldPos.x, y, worldPos.z)));
 
         local boundingBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);
         if AutoDrive:checkForVehiclesInBox(boundingBox) then
             cell.isRestricted = true;
             cell.hasCollision = true;
-        end;
-                    
+        end;                    
     end;
 end;
 
-function AutoDrivePathFinder:checkIsOnField(pf, worldX, worldY, worldZ)
+function AutoDrivePathFinder:checkIsOnField(worldX, worldY, worldZ)
     local densityBits = 0
 
     local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ);
@@ -780,9 +789,10 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
         pf.smoothStep = 1;
     end;
     
+    local unfilteredEndPointCount = 5;
     if pf.smoothStep == 1 then
         local stepsThisFrame = 0;
-        while pf.smoothIndex < ADTableLength(pf.wayPoints) - 3 and stepsThisFrame < 1 do
+        while pf.smoothIndex < ADTableLength(pf.wayPoints) - unfilteredEndPointCount and stepsThisFrame < 1 do
             stepsThisFrame = stepsThisFrame + 1;
 
             local node = pf.wayPoints[pf.smoothIndex];
@@ -807,7 +817,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             local y = worldPos.y;
 
             local stepsOfLookAheadThisFrame = 0;
-            while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex+pf.totalEagerSteps) < (ADTableLength(pf.wayPoints) - 3)) and stepsOfLookAheadThisFrame < 3 do
+            while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex+pf.totalEagerSteps) < (ADTableLength(pf.wayPoints) - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < unfilteredEndPointCount do
                 stepsOfLookAheadThisFrame = stepsOfLookAheadThisFrame + 1;
                 local nodeAhead = pf.wayPoints[pf.smoothIndex+pf.totalEagerSteps+1];
                 local nodeTwoAhead = pf.wayPoints[pf.smoothIndex+pf.totalEagerSteps+2];
@@ -895,13 +905,13 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 pf.totalEagerSteps = pf.totalEagerSteps + 1;
             end;
 
-            if pf.totalEagerSteps >= 30 or ((pf.smoothIndex+pf.totalEagerSteps) >= (ADTableLength(pf.wayPoints) - 3)) then
+            if pf.totalEagerSteps >= 30 or ((pf.smoothIndex+pf.totalEagerSteps) >= (ADTableLength(pf.wayPoints) - unfilteredEndPointCount)) then
                 pf.smoothIndex = pf.smoothIndex + math.max(1,(pf.lookAheadIndex)); --(pf.lookAheadIndex-2)
                 pf.totalEagerSteps = 0;
             end;
         end;  
         
-        if pf.smoothIndex >= ADTableLength(pf.wayPoints) - 3 then
+        if pf.smoothIndex >= ADTableLength(pf.wayPoints) - unfilteredEndPointCount then
             pf.smoothStep = 2;
         end;
     end;
