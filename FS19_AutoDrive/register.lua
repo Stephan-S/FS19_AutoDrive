@@ -29,8 +29,7 @@ source(Utils.getFilename("scripts/Events/AutoDriveUpdateNameEvent.lua", AutoDriv
 AutoDrive_Register = {}
 AutoDrive_Register.modDirectory = g_currentModDirectory
 
-local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml")
-AutoDrive_Register.version = getXMLString(modDesc, "modDesc.version")
+AutoDrive_Register.version = g_modManager:getModByName(g_currentModName).version
 
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
@@ -45,7 +44,7 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	for i, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
 		if typeDef ~= nil and i ~= "locomotive" then
 			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
-				print(string.format("Attached AutoDrive to vehicleType %s", i))
+				print(string.format("  Attached AutoDrive to vehicleType %s", i))
 				if typeDef.specializationsByName["AutoDrive"] == nil then
 					g_vehicleTypeManager:addSpecialization(i, ADSpecName)
 					typeDef.hasADSpec = true
