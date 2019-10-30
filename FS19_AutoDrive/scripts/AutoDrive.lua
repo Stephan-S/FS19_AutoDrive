@@ -23,9 +23,9 @@ AutoDrive.MODE_BGA = 6;
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
 AutoDrive.SPEED_ON_FIELD = 38;
 
-function AutoDrive:prerequisitesPresent(specializations)
-    return true;
-end;
+function AutoDrive.prerequisitesPresent(specializations)
+    return SpecializationUtil.hasSpecialization(Motorized, specializations) and SpecializationUtil.hasSpecialization(Drivable, specializations) and SpecializationUtil.hasSpecialization(Enterable, specializations)
+end
 
 function AutoDrive.registerEventListeners(vehicleType)    
 	for _,n in pairs( { "load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onLeaveVehicle", "onPostLoad", "saveToXMLFile"} ) do
