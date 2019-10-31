@@ -32,8 +32,8 @@ end
 function adEnterGroupNameGui:onOpen()
     adEnterGroupNameGui:superClass().onOpen(self)
     FocusManager:setFocus(self.textInputElement)
-    self.textInputElement:setText("")
     self.textInputElement:onFocusActivate()
+    self.textInputElement:setText("")
 end
 
 function adEnterGroupNameGui:onClickOk()
