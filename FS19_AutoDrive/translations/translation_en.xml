@@ -150,5 +150,7 @@
 		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Edit Target" />
 		<text name="gui_ad_enterTargetNameText" 			text="Insert target name:" />
 		<text name="gui_ad_createButtonText" 				text="Create" />
+		<text name="gui_ad_enterDriverNameTitle" 			text="Edit Driver" />
+		<text name="gui_ad_enterDriverNameText" 			text="Insert driver name:" />
 	</texts>
 </l10n>
