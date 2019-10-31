@@ -1,5 +1,5 @@
 AutoDrive = {};
-AutoDrive.Version = "1.0.6.6b";
+AutoDrive.Version = "1.0.6.6c";
 AutoDrive.config_changed = false;
 
 AutoDrive.directory = g_currentModDirectory;
