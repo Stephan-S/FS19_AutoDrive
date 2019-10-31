@@ -342,7 +342,7 @@ function getFillLevelAndCapacityOf(trailer, selectedFillType)
 end;
 
 function getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFillType)
-    if object.getFillUnits == nil then
+    if object == nil or object.getFillUnits == nil then
         return 0,0;
     end;
     local leftCapacity = 0;

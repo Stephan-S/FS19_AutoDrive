@@ -91,8 +91,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_CENTER;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
-    sensorParameters.width = vehicle.sizeWidth;
-    sensorParameters.length = vehicle.sizeLength;
+    sensorParameters.width = vehicle.sizeWidth * 1.3;
+    sensorParameters.length = vehicle.sizeLength * 1.3;
     local centerSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["centerSensorFruit"] = centerSensorFruit;
 end;
