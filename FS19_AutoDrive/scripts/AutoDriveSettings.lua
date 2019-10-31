@@ -438,14 +438,7 @@ function AutoDrive:readVehicleSettingsFromXML(vehicle, xmlFile, key)
             vehicle.ad.settings[settingName] = settingVehicle;
 
             local storedSetting = getXMLInt(xmlFile, key.."#" .. settingName);
-            if storedSetting ~= nil then                
-                
-                if AutoDrive.versionUpdate then
-                    if settingName == "pipeOffset" then
-                        storedSetting = math.min(41, storedSetting + 20);
-                    end;
-                end;
-
+            if storedSetting ~= nil then
 				vehicle.ad.settings[settingName].current = storedSetting;
 			end;
         end;
