@@ -176,7 +176,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			return;
 		end;		
 		AutoDrive.renameCurrentMapMarker = false;
-		AutoDrive.openTargetGUINextFrame = 60;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
+		AutoDrive:onOpenEnterTargetName();	 --the workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui have been moved to delayedCallBacks
 		--AutoDrive:inputCreateMapMarker(vehicle);
 	end;
 
@@ -185,7 +185,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			return;
 		end;		
 		AutoDrive.renameCurrentMapMarker = true;
-		AutoDrive.openTargetGUINextFrame = 60;	 --some workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui. Probably something to do with the mouse event not being properly caught by AutoDrive alone
+		AutoDrive:onOpenEnterTargetName();	 --the workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui have been moved to delayedCallBacks
 	end;
 
 	if input == "input_start_stop" then

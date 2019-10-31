@@ -9,6 +9,7 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveDelayedCallBack.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))

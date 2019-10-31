@@ -162,6 +162,26 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.waitingUnloadDrivers = {};
 	AutoDrive.destinationListeners = {};
+
+	AutoDrive.delayedCallBacks = {};
+	AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
+        DelayedCallBack:new(
+        function()
+            g_gui:showGui("adEnterDriverNameGui")
+        end
+	)
+	AutoDrive.delayedCallBacks.openEnterTargetNameGUI =
+        DelayedCallBack:new(
+        function()
+            g_gui:showGui("adEnterTargetNameGui")
+        end
+	)
+	AutoDrive.delayedCallBacks.openEnterGroupNameGUI =
+        DelayedCallBack:new(
+        function()
+            g_gui:showGui("adEnterGroupNameGui")
+        end
+    )
 end;
 
 function AutoDrive:saveSavegame()
@@ -447,13 +467,10 @@ function AutoDrive:onUpdate(dt)
 		init(self);
 	end;
 
-	if (AutoDrive.openTargetGUINextFrame ~= nil) and (AutoDrive.openTargetGUINextFrame > 0) and (AutoDrive.runThisFrame == false) then
-		AutoDrive.openTargetGUINextFrame = AutoDrive.openTargetGUINextFrame - 1;
-		if AutoDrive.openTargetGUINextFrame <= 50 then
-			AutoDrive.openTargetGUINextFrame = nil;
-			AutoDrive:onOpenEnterTargetName();
-		end;
-	end;
+	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
+	for k, v in pairs(AutoDrive.delayedCallBacks) do
+		v:update(dt);
+	end
 
 	if self.ad.currentInput ~= "" and self.isServer then
 		AutoDrive:InputHandling(self, self.ad.currentInput);
