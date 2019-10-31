@@ -47,8 +47,8 @@
 		<text name="AD_new_marker"							 text="Nouvel objectif:" />
 		<text name="AD_new_marker_helptext"					 text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
 		<text name="AD_Recalculationg_routes_status"		 text="Recalcul des routes. Veuilllez patienter. Terminé:" />
-		<text name="AD_No_Trailer"							 text="Ne touve pas de remorque" />		
-		<text name="AD_No_Bunker"							 text="Ne touve pas le silo (bunker)" />		
+		<text name="AD_No_Trailer"							 text="Ne touve pas de remorque" />	
+		<text name="AD_No_Bunker"							 text="Ne touve pas le silo (bunker)" />
 		<text name="AD_No_Shovel"							 text="Ne trouve pas de pelle" />
 		<text name="AD_MODE_DRIVETO"						 text="Conduite" />
 		<text name="AD_MODE_DELIVERTO"						 text="Livraison" />
@@ -56,6 +56,7 @@
 		<text name="AD_MODE_UNLOAD"							 text="Décharger moissoneuse" />
 		<text name="AD_MODE_LOAD"							 text="Chargement" />
 		<text name="AD_MODE_BGA"							 text="Vider silo (bunker)" />
+		<text name="AD_synchronizing"						 text="Chargement des routes du serveur .." />
 		<text name="gui_ad_Setting"							 text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"						 text="Décalage du tuyau (pipe)" />
 		<text name="gui_ad_trailerOffset"					 text="Décalage vertical (remorque)" />
@@ -125,10 +126,10 @@
 		<text name="gui_ad_allowConsoleStyle"				 text="Autoriser la saisie de texte" />
 		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Autoriser la saisie de destination étendue de texte via le clavier - Par défaut: Bouton millieu de souris sur le nom de la destination." />
 		<text name="gui_ad_enableTrafficDetection"			 text="Détection de collision" />
-		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc..." />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc..." />
 		<text name="gui_ad_refillSeedAndFertilizer"			 text="Semences et engrais" />
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Permet de choisir le chargement des semences et de l'engrais, si l'un ou l'autre est sélectionné." />
-		<text name="gui_ad_shovelWidth"			 			 text="Largeur de la pelle (ajout)" />	
+		<text name="gui_ad_shovelWidth"			 			 text="Largeur de la pelle (ajout)" />
 		<text name="gui_ad_shovelWidth_tooltip"	 			 text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée." />
 		<text name="gui_ad_preCallDriver"			 		 text="Appeler chauffeur plus tôt" />
 		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Appel anticipé du chauffeur au niveau de remplissage défini." />
@@ -140,5 +141,11 @@
 		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Toutes les cibles d'un même dossier deviendront des cibles de déchargement les unes après les autres." />
 		<text name="gui_ad_maxTriggerDistance"			 	text="Zone maxi du silo" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Définis la distance jusqu'où le déclencheur est détecté lorsque le point de destination est chargé/déchargé." />
+		<text name="gui_ad_useBeaconLights"			 		text="Gyrophares" />
+		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Utiliser les gyrophares sur la route." />
+		<text name="gui_ad_restrictToField"			 		text="Recherche de parcours limitée" />
+		<text name="gui_ad_restrictToField_tooltip"	 		text="Si le déchargeur est déjà garé sur le champ, il limitera la recherche aux limites du champ." />
+		<text name="gui_ad_showTooltips"			 		text="Afficher les info-bulles" />
+		<text name="gui_ad_showTooltips_tooltip"	 		text="Afficher les info-bulles des boutons dans le HUD." />
 	</texts>
 </l10n>
