@@ -50,6 +50,7 @@ end
 function adEnterTargetNameGui:onOpen()
     adEnterTargetNameGui:superClass().onOpen(self)
     FocusManager:setFocus(self.textInputElement)
+    self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
 
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then

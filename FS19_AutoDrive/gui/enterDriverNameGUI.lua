@@ -32,6 +32,7 @@ end
 function adEnterDriverNameGui:onOpen()
     adEnterDriverNameGui:superClass().onOpen(self)
     FocusManager:setFocus(self.textInputElement)
+    self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
         self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
