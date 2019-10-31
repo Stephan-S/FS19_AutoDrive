@@ -264,7 +264,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     return true;
                 end;                
 
-                if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.combineUnloadInFruit == true or (AutoDrive:getSetting("parkInField", vehicle) == false) then
+                if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.sensors.centerSensorFruit:pollInfo() or (AutoDrive:getSetting("parkInField", vehicle) == false) then
                     if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) then
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
                     else
@@ -586,7 +586,12 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
             sideIndex = AutoDrive.ccSIDE_REAR;
         end;
     else 
-        if (not leftBlocked) then    
+        local combineFillLevel, combineLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle.ad.currentCombine);
+        local combineMaxCapacity = combineFillLevel + combineLeftCapacity;       
+    
+        local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100;
+
+        if (not leftBlocked) and combineFillPercent < 90 then    
             nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 6, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 6;
              
             local spec = combine.spec_pipe

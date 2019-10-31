@@ -12,21 +12,30 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
             local fillUnits = trailer:getFillUnits();
             for i=1,#fillUnits do
-                if trailer:getFillUnitFillLevelPercentage(i)*100 <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999 and (not vehicle.ad.isLoading) and (not trigger.isLoading) then
-                    AutoDrive:startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigger, i);                    
-                    --print(vehicle.ad.driverName .. " - started loading with fillUnit: " .. i);
+                --print("unit: " .. i .. " : " .. trailer:getFillUnitFillLevelPercentage(i)*100 .. " ad.isLoading: " .. ADBoolToString(vehicle.ad.isLoading) .. " trigger.isLoading: " .. ADBoolToString(trigger.isLoading))
+                if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999 and (not vehicle.ad.isLoading) and (not trigger.isLoading) then
+                    if trigger:getIsActivatable(trailer)  then
+                        AutoDrive:startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigger, i);                    
+                        --print(vehicle.ad.driverName .. " - started loading with fillUnit: " .. i);
+                    end;
                 end;
             end;
             isLoading = isLoading or trigger.isLoading;
             --print(vehicle.ad.driverName .. " - isLoading : " .. ADBoolToString(trigger.isLoading) .. " ad: " .. ADBoolToString(isLoading));
         end;        
     end;
-
+    
     if vehicle.ad.isLoading and (vehicle.ad.trigger == nil or (not vehicle.ad.trigger.isLoading)) then
-        --print(vehicle.ad.driverName .. " - done loading");
-        vehicle.ad.isLoading = false;
-        vehicle.ad.isLoadingToFillUnitIndex = nil;
-        vehicle.ad.isPaused = false;
+        local vehicleFull, trailerFull, fillUnitFull = AutoDrive:getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex);
+
+        if fillUnitFull or AutoDrive:getSetting("continueOnEmptySilo") then
+            --print(vehicle.ad.driverName .. " - done loading");
+            vehicle.ad.isLoading = false;
+            vehicle.ad.isLoadingToFillUnitIndex = nil;
+            vehicle.ad.isLoadingToTrailer = nil;
+            vehicle.ad.trigger = nil;
+            vehicle.ad.isPaused = false;
+        end;
     end;
 
     --legacy code from here on
@@ -47,6 +56,85 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
     fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables, vehicle.ad.unloadFillTypeIndex);
     AutoDrive:checkTrailerStatesAndAttributes(vehicle, allFillables); 
+end;
+
+function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)    
+    if vehicle.ad.mode == AutoDrive.MODE_LOAD then
+        return;
+    end;
+    local distance = getDistanceToUnloadPosition(vehicle);
+    local distanceToTarget = getDistanceToTargetPosition(vehicle);
+    if distance < 200 then
+        if (distance < distanceToTarget) then
+            continueIfAllTrailersClosed(vehicle, trailers, dt);
+        end;
+        --AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);
+
+        for _,trailer in pairs(trailers) do                   
+            findAndSetBestTipPoint(vehicle, trailer) 
+            for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do                
+                if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
+                    break;
+                end; 
+                
+                if (trigger.bunkerSiloArea == nil)  then
+                    if (distance < 50) then               
+                        if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
+                            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
+                            vehicle.ad.isPaused = true;
+                            vehicle.ad.isUnloading = true;
+                        end;
+
+                        if trailer.getDischargeState ~= nil then
+                            local dischargeState = trailer:getDischargeState()
+                            if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING then
+                                vehicle.ad.isUnloading = true;
+                            end;
+                        end;
+                    end;
+                else
+                    if isTrailerInBunkerSiloArea(trailer, trigger) and trailer.setDischargeState ~= nil then
+                        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
+                        if vehicle.ad.isUnloadingToBunkerSilo == false then
+                            vehicle.ad.bunkerStartFillLevel = fillLevel;
+                        end;
+                        vehicle.ad.isUnloadingToBunkerSilo = true;
+                        vehicle.ad.bunkerTrigger = trigger;
+                        vehicle.ad.bunkerTrailer = trailer;
+                    end;
+                end;
+            end;              
+        end;
+    end;
+
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity <= 0.01 and vehicle.ad.isPaused == true and (getDistanceToTargetPosition(vehicle) <= 6) then
+        AutoDrive:continueAfterLoadOrUnload(vehicle);
+    end;
+end;
+
+function AutoDrive:getIsFilled(vehicle, trailer, fillUnitIndex)
+    local vehicleFull = false;
+    local trailerFull = false;
+    local fillUnitFull = false;
+
+    if vehicle ~= nil then
+        local allFillables, fillableCount =  AutoDrive:getTrailersOf(vehicle, false);
+        local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables); 
+        local maxCapacity = fillLevel + leftCapacity;     
+        vehicleFull = (leftCapacity <= (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel", vehicle)+0.001)))
+    end;
+
+    if trailer ~= nil then
+        local trailerFillLevel, trailerLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailer);
+        local maxCapacity = trailerFillLevel + trailerLeftCapacity;     
+        trailerFull = (trailerLeftCapacity <= (maxCapacity * (1-AutoDrive:getSetting("unloadFillLevel", vehicle)+0.001)))
+    end;
+
+    if fillUnitIndex ~= nil then
+        fillUnitFull = trailer:getFillUnitFillLevelPercentage(fillUnitIndex) <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999
+    end;
+
+    return vehicleFull, trailerFull, fillUnitFull;
 end;
 
 function AutoDrive:fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTypes, fillTypeIndex)
@@ -144,7 +232,7 @@ function AutoDrive:getTrailersOf(vehicle, onlyDischargeable)
     AutoDrive.tempTrailers = {};
     AutoDrive.tempTrailerCount = 0;
 
-    if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil and AutoDrive:checkIfLargeFillUnitExists(vehicle) then
+    if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil then
         local vehicleFillLevel, vehicleLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle, nil)
         --print("VehicleFillLevel: " .. vehicleFillLevel .. " vehicleLeftCapacity: " .. vehicleLeftCapacity); 
         if not (vehicleFillLevel == 0 and vehicleLeftCapacity == 0) then
@@ -165,11 +253,9 @@ end;
 
 function AutoDrive:getTrailersOfImplement(attachedImplement, onlyDischargeable)
     if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
-        if AutoDrive:checkIfLargeFillUnitExists(attachedImplement) then
-            trailer = attachedImplement;
-            AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
-            AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
-        end;
+        trailer = attachedImplement;
+        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1;
+        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer;
     end;
     if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then     
         if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then    
@@ -187,17 +273,6 @@ function AutoDrive:getTrailersOfImplement(attachedImplement, onlyDischargeable)
 
     return;
 end;
-
-function AutoDrive:checkIfLargeFillUnitExists(object)
-    if object ~= nil and object.getFillUnits ~= nil then
-        for fillUnitIndex,fillUnit in pairs(object:getFillUnits()) do
-            if object:getFillUnitCapacity(fillUnitIndex) > 1200 then
-                return true;
-            end;
-        end
-    end;
-    return true; --for now
-end
 
 function getDistanceToUnloadPosition(vehicle)
     if vehicle.ad.targetSelected_Unload == nil or vehicle.ad.targetSelected == nil then
@@ -445,62 +520,6 @@ function AutoDrive:setAugerPipeOpen(trailers, open)
     end;
 end;
 
-function handleTrailersUnload(vehicle, trailers, fillLevel, leftCapacity, dt)    
-    if vehicle.ad.mode == AutoDrive.MODE_LOAD then
-        return;
-    end;
-    local distance = getDistanceToUnloadPosition(vehicle);
-    local distanceToTarget = getDistanceToTargetPosition(vehicle);
-    if distance < 200 then
-        if (distance < distanceToTarget) then
-            continueIfAllTrailersClosed(vehicle, trailers, dt);
-        end;
-        --AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);
-
-        for _,trailer in pairs(trailers) do                   
-            findAndSetBestTipPoint(vehicle, trailer) 
-            for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do                
-                if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
-                    break;
-                end; 
-                
-                if (trigger.bunkerSiloArea == nil)  then
-                    if (distance < 50) then               
-                        if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
-                            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
-                            vehicle.ad.isPaused = true;
-                            vehicle.ad.isUnloading = true;
-                        end;
-
-                        if trailer.getDischargeState ~= nil then
-                            local dischargeState = trailer:getDischargeState()
-                            if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING then
-                                vehicle.ad.isUnloading = true;
-                            end;
-                        end;
-                    end;
-                else
-                    if isTrailerInBunkerSiloArea(trailer, trigger) and trailer.setDischargeState ~= nil then
-                        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND);
-                        if vehicle.ad.isUnloadingToBunkerSilo == false then
-                            vehicle.ad.bunkerStartFillLevel = fillLevel;
-                        end;
-                        vehicle.ad.isUnloadingToBunkerSilo = true;
-                        vehicle.ad.bunkerTrigger = trigger;
-                        vehicle.ad.bunkerTrailer = trailer;
-                    end;
-                end;
-            end;              
-        end;
-    end;
-
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity <= 0.01 and vehicle.ad.isPaused == true and (getDistanceToTargetPosition(vehicle) <= 6) then
-        AutoDrive:continueAfterLoadOrUnload(vehicle);
-    --else
-        --print("mode: " .. vehicle.ad.mode .. " leftCapacity: " .. leftCapacity .. " isPaused: " .. ADBoolToString(vehicle.ad.isPaused) .. " distance: " .. getDistanceToTargetPosition(vehicle));
-    end;
-end;
-
 function continueIfAllTrailersClosed(vehicle, trailers, dt)
     local allClosed = true;
     for _,trailer in pairs(trailers) do
@@ -578,80 +597,6 @@ function isTrailerInBunkerSiloArea(trailer, trigger)
     return false;
 end;
 
-function handleTrailersLoad(vehicle, trailers, fillLevel, leftCapacity)
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then     
-        local distance = getDistanceToTargetPosition(vehicle);
-        if vehicle.ad.mode == AutoDrive.MODE_LOAD then
-            distance = getDistanceToUnloadPosition(vehicle);
-        end;
-        if distance < 30 or vehicle.ad.inTriggerProximity then
-            --AutoDrive:setTrailerCoverOpen(vehicle, trailers, true);      
-            for _,trailer in pairs(trailers) do
-                if vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or getDistanceToUnloadPosition(vehicle) > 30 then
-                    findAndSetBestTipPoint(vehicle, trailer);
-                end;
-                local fillLevelTrailer, leftCapacityTrailer, fullFillUnits  = getFillLevelAndCapacityOf(trailer, vehicle.ad.unloadFillTypeIndex);
-                if vehicle.ad.trigger ~= nil and vehicle.ad.trigger.isLoading and vehicle.ad.trigger.selectedFillType ~= vehicle.ad.unloadFillTypeIndex then --
-                    fillLevelTrailer, leftCapacityTrailer, fullFillUnits  = getFillLevelAndCapacityOf(trailer, vehicle.ad.trigger.selectedFillType);                
-                end;                      
-                for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-                    local triggerIsEmpty = false;
-                    -- if trigger.source ~= nil and trigger.source.sourceStorages ~= nil then
-                    --     triggerIsEmpty = true;
-                    --     for _, sourceStorage in pairs(trigger.source.sourceStorages) do
-                    --         if sourceStorage:getFillLevel(trigger.selectedFillType) >= 0.001 then
-                    --             triggerIsEmpty = false;
-                    --         end;
-                    --     end;
-                    -- end;
-
-                    if AutoDrive:getSetting("continueOnEmptySilo") and trigger == vehicle.ad.trigger and vehicle.ad.isLoading and vehicle.ad.isPaused and (trigger.stoppedTimer:done() or triggerIsEmpty) and vehicle.ad.trailerStartedLoadingAtTrigger then --trigger must be empty by now. Drive on!                      
-                        AutoDrive:continueAfterLoadOrUnload(vehicle);
-                        --print("Continue on empty .. trigger:done: " .. ADBoolToString(trigger.stoppedTimer:done()) .. " triggerIsEmpty: " .. ADBoolToString(triggerIsEmpty));
-                    elseif AutoDrive:trailerInTriggerRange(trailer, trigger) 
-                    and (not trigger.isLoading) 
-                    and (leftCapacity > 0) 
-                    and trigger:getIsActivatable(trailer) 
-                    and ((not vehicle.ad.trailerStartedLoadingAtTrigger) 
-                        or  (trigger ~= vehicle.ad.trigger 
-                            and (not vehicle.ad.trigger.isLoading))
-                        or  trigger.stoppedTimer.elapsedTime > 3000) then -- and  and vehicle.ad.isLoading == false                      
-                        if not AutoDrive:fillTypesMatch(vehicle, trigger, trailer) then --and AutoDrive:getSetting("refillSeedAndFertilizer") then  
-                            local storedFillType = vehicle.ad.unloadFillTypeIndex;
-                            local toCheck = {13, 43, 44};
-                            local matches = checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, toCheck);
-
-                            if matches then    
-                                AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex); 
-                                if vehicle.ad.trigger ~= nil then --and vehicle.ad.trigger.isLoading
-                                    fillLevelTrailer, leftCapacityTrailer  = getFillLevelAndCapacityOf(trailer, vehicle.ad.trigger.selectedFillType);
-                                end;
-                            end;
-
-                            vehicle.ad.unloadFillTypeIndex = storedFillType;
-                        else
-                            AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex); 
-                        end;                        
-                    elseif ((leftCapacity == 0) 
-                    or (AutoDrive:trailerInTriggerRange(trailer, trigger)
-                        and ((leftCapacityTrailer == 0)
-                            or AutoDrive:currentFillUnitIsFilled(trailer, trigger, fullFillUnits)    )))
-                    and vehicle.ad.isPaused 
-                    and trigger == vehicle.ad.trigger then
-                        AutoDrive:continueAfterLoadOrUnload(vehicle);
-                        --print("Continue on full trailer/fillUnit");
-                        vehicle.ad.trailerStartedLoadingAtTrigger = false;
-                    end;
-                end;
-            end;			
-        end;
-
-        if vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity <= 0.01 and vehicle.ad.isPaused == true then
-            AutoDrive:continueAfterLoadOrUnload(vehicle);
-        end;
-    end;
-end;
-
 function AutoDrive:currentFillUnitIsFilled(trailer, trigger, fullFillUnits)
     local spec = trailer.spec_fillUnit
     if spec ~= nil and trigger.getFillTargetNode ~= nil then
@@ -671,7 +616,7 @@ end;
 function AutoDrive:trailerInTriggerRange(trailer, trigger)
     if trigger.fillableObjects ~= nil then
         for __,fillableObject in pairs(trigger.fillableObjects) do
-            if fillableObject.object == trailer then   
+            if fillableObject.object == trailer and trigger:getIsActivatable(trailer) then   
                 return true;    
             end;
         end;
@@ -686,8 +631,8 @@ function AutoDrive:continueAfterLoadOrUnload(vehicle)
     --print("continueAfterLoadOrUnload");
 end;
 
-function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitIndex)
-    --print("startLoadingAtTrigger");
+function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitIndex, trailer)
+    print("AutoDrive:startLoadingAtTrigger");
     trigger.autoStart = true
     trigger.selectedFillType = fillType   
     trigger:onFillTypeSelection(fillType);
@@ -702,29 +647,7 @@ function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitInd
     vehicle.ad.trailerStartedLoadingAtTrigger = true;
     vehicle.ad.trigger = trigger;
     vehicle.ad.isLoadingToFillUnitIndex = fillUnitIndex;
-end;
-
-function checkIfTrailerAcceptsAlso(vehicle, trailer, trigger, listOfFillTypes)
-    local matches = false;
-    local storedType = vehicle.ad.unloadFillTypeIndex;
-    local isInList = false;
-    for _,fillType in pairs(listOfFillTypes) do
-        if fillType == vehicle.ad.unloadFillTypeIndex then
-            isInList = true;
-            break;
-        end;
-    end;
-    for _,fillType in pairs(listOfFillTypes) do
-        if fillType ~= vehicle.ad.unloadFillTypeIndex then --now check all others
-            vehicle.ad.unloadFillTypeIndex = fillType;
-            matches = AutoDrive:fillTypesMatch(vehicle, trigger, trailer);
-            if matches and isInList then
-                return true;
-            end;
-            vehicle.ad.unloadFillTypeIndex = storedFillType; --always reset to storedFillType before next check
-        end;
-    end;
-    return false;
+    vehicle.ad.isLoadingToTrailer = trailer;
 end;
 
 function AutoDrive:checkForTriggerProximity(vehicle)
@@ -885,22 +808,25 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
 
                     local fillLevels, capacity = trigger.source:getAllFillLevels(g_currentMission:getFarmId())
                     local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and fillLevels[vehicle.ad.unloadFillTypeIndex] > 0);
-                    local trailerIsInRange = AutoDrive:trailerIsInTriggerList(trailer, trigger); 
+                    
                     local hasRequiredFillType = false;
                     local fillUnits = trailer:getFillUnits();
                     for i=1,#fillUnits do   
                         hasRequiredFillType = AutoDrive:fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes, i);
-                        local isNotFilled = trailer:getFillUnitFillLevelPercentage(i)*100 <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999;
+                        local isNotFilled = trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999;
 
                         for _,allowedFillType in pairs(allowedFillTypes) do
-                            if allowedFillType == trailer:getFillUnitFirstSupportedFillType(i) then
+                            if trailer:getFillUnitSupportsFillType(i,allowedFillType) then
                                 hasCapacity = hasCapacity or (fillLevels[allowedFillType] ~= nil and fillLevels[allowedFillType] > 0);
                             end;
                         end;
+
+                        local trailerIsInRange = AutoDrive:trailerIsInTriggerList(trailer, trigger, i); 
                                            
-                        --print(vehicle.ad.driverName .. " - checking trailer: hasRequiredFillType " .. ADBoolToString(hasRequiredFillType));
-                        --print(vehicle.ad.driverName .. " - checking trailer: hasCapacity " .. ADBoolToString(hasCapacity));
-                        --print(vehicle.ad.driverName .. " - checking trailer: trailerIsInRange " .. ADBoolToString(trailerIsInRange));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasRequiredFillType " .. ADBoolToString(hasRequiredFillType));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasCapacity " .. ADBoolToString(hasCapacity));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. ADBoolToString(trailerIsInRange));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: isNotFilled " .. ADBoolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999) );
     
                         if trailerIsInRange and hasRequiredFillType and hasCapacity and isNotFilled then
                             local pair = {trailer=trailer, trigger=trigger};
@@ -916,9 +842,9 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
     return trailerTriggerPairs;
 end;
 
-function AutoDrive:trailerIsInTriggerList(trailer, trigger) 
+function AutoDrive:trailerIsInTriggerList(trailer, trigger, fillUnitIndex) 
     for _, fillableObject in pairs(trigger.fillableObjects) do
-        if fillableObject == trailer or (fillableObject.object ~= nil and fillableObject.object == trailer) then
+        if fillableObject == trailer or (fillableObject.object ~= nil and fillableObject.object == trailer and fillableObject.fillUnitIndex == fillUnitIndex) then
             return true;
         end;
     end;
@@ -933,7 +859,7 @@ function AutoDrive:startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigge
         for _, fillType in pairs(toCheck) do
             vehicle.ad.unloadFillTypeIndex = fillType;
             if AutoDrive:fillTypesMatch(vehicle, trigger, trailer) then
-                AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex, fillUnitIndex);
+                AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex, fillUnitIndex, trailer);
                 vehicle.ad.unloadFillTypeIndex = storedFillType;
                 return;
             end;
@@ -941,6 +867,6 @@ function AutoDrive:startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigge
 
         vehicle.ad.unloadFillTypeIndex = storedFillType;
     else
-        AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex, fillUnitIndex); 
+        AutoDrive:startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex, fillUnitIndex, trailer); 
     end;    
 end;

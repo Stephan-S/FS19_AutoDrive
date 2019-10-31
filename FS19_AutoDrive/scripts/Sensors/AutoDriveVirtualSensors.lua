@@ -15,6 +15,7 @@ ADSensor.POS_FRONT_RIGHT = 6;
 ADSensor.POS_REAR_LEFT = 7;
 ADSensor.POS_REAR_RIGHT = 8;
 ADSensor.POS_FIXED = 9;
+ADSensor.POS_CENTER = 10;
 
 ADSensor.WIDTH_FACTOR = 0.7;
 
@@ -87,6 +88,13 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local rightFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightFrontSensor"] = rightFrontSensor;
     vehicle.ad.sensors["rightFrontSensorFruit"] = rightFrontSensorFruit;
+    sensorParameters.position = ADSensor.POS_CENTER;
+    sensorParameters.dynamicLength = false;
+    sensorParameters.dynamicRotation = false;
+    sensorParameters.width = vehicle.sizeWidth;
+    sensorParameters.length = vehicle.sizeLength;
+    local centerSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["centerSensorFruit"] = centerSensorFruit;
 end;
 
 function ADSensor:init(vehicle, sensorType, sensorParameters)
@@ -178,6 +186,8 @@ function ADSensor:getLocationByPosition()
         location.z = vehicle.sizeLength/2;
     elseif self.position == ADSensor.POS_FIXED and self.location ~= nil then
         return self.location; 
+    elseif self.position == ADSensor.POS_CENTER then
+        return location;
     end;
 
     return location;

@@ -110,6 +110,9 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.combineFruitToCheck = nil; 	
 	vehicle.ad.usePathFinder = false;	
 	vehicle.ad.loopCounterCurrent = 0;
+	vehicle.ad.isLoadingToFillUnitIndex = nil;
+	vehicle.ad.isLoadingToTrailer = nil;
+	vehicle.ad.trigger = nil;
 	
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil;
