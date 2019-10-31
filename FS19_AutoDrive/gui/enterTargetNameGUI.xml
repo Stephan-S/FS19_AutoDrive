@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <GUI onOpen="onOpen" onClose="onClose" onCreate="onCreate">
-    <GuiElement type="bitmap" profile="uiFullInGameBackground" />
-    <GuiElement type="bitmap" profile="dialogBg" id="dialogElement">
+    <GuiElement type="empty" profile="newLayer" />
+    <GuiElement type="bitmap" profile="dialogFullscreenBg" />
+
+    <GuiElement type="bitmap" profile="yesNoDialogBg" id="dialogElement">
         <GuiElement type="bitmap" profile="dialogHeaderDocked">
             <GuiElement type="text" profile="dialogHeaderText" text="" onCreate="onCreateTitleElement" id="dialogTitleElement" />
         </GuiElement>
 
         <GuiElement type="text" profile="sleepDialogText" text="" onCreate="onCreateTextElement" id="dialogTextElement" />
 
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" onEnterPressed="onEnterPressed" />
+        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" />
 
         <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
             <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="backButton" />

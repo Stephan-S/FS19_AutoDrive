@@ -61,9 +61,10 @@ function adEnterTargetNameGui:onOpen()
     end
     if self.edit then
         self.titleElement:setText(g_i18n:getText("gui_ad_enterTargetNameTitle_edit"))
-        self.textInputElement:setText("" .. AutoDrive.mapMarker[g_currentMission.controlledVehicle.ad.mapMarkerSelected].name)
+        self.textInputElement:setText(AutoDrive.mapMarker[g_currentMission.controlledVehicle.ad.mapMarkerSelected].name)
     else
         self.titleElement:setText(g_i18n:getText("gui_ad_enterTargetNameTitle_add"))
+        self.textInputElement:setText("")
     end
     self.createButtonElement:setDisabled(self.edit)
     self.renameButtonElement:setDisabled(not self.edit)
@@ -123,20 +124,10 @@ end
 --function adEnterTargetNameGui:onClickDeleteButton()
 --end
 
-function adEnterTargetNameGui:onClose()
-    adEnterTargetNameGui:superClass().onClose(self)
-end
-
 function adEnterTargetNameGui:onClickBack()
     adEnterTargetNameGui:superClass().onClickBack(self)
 end
 
-function adEnterTargetNameGui:onEnterPressed()
-    if AutoDrive.openTargetGUINextFrame == nil or AutoDrive.openTargetGUINextFrame <= 0 then
-        if self.edit then
-            self:onClickRenameButton()
-        else
-            self:onClickCreateButton()
-        end
-    end
+function adEnterTargetNameGui:onClose()
+    adEnterTargetNameGui:superClass().onClose(self)
 end
