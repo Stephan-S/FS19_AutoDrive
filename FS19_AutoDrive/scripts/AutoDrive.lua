@@ -164,24 +164,24 @@ function AutoDrive:loadMap(name)
 	AutoDrive.destinationListeners = {};
 
 	AutoDrive.delayedCallBacks = {};
-	AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
-        DelayedCallBack:new(
-        function()
-            g_gui:showGui("adEnterDriverNameGui")
-        end
-	)
-	AutoDrive.delayedCallBacks.openEnterTargetNameGUI =
-        DelayedCallBack:new(
-        function()
-            g_gui:showGui("adEnterTargetNameGui")
-        end
-	)
-	AutoDrive.delayedCallBacks.openEnterGroupNameGUI =
-        DelayedCallBack:new(
-        function()
-            g_gui:showGui("adEnterGroupNameGui")
-        end
-    )
+	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
+    --    DelayedCallBack:new(
+    --    function()
+    --        g_gui:showGui("adEnterDriverNameGui")
+    --    end
+	--)
+	--AutoDrive.delayedCallBacks.openEnterTargetNameGUI =
+    --    DelayedCallBack:new(
+    --    function()
+    --        g_gui:showGui("adEnterTargetNameGui")
+    --    end
+	--)
+	--AutoDrive.delayedCallBacks.openEnterGroupNameGUI =
+    --    DelayedCallBack:new(
+    --    function()
+    --        g_gui:showGui("adEnterGroupNameGui")
+    --    end
+    --)
 end;
 
 function AutoDrive:saveSavegame()

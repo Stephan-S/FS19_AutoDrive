@@ -37,7 +37,8 @@ function AutoDrive:onOpenEnterDriverName()
 	if AutoDrive.gui.adEnterDriverNameGui.isOpen then
 		AutoDrive.gui.adEnterDriverNameGui:onClickBack()
 	elseif g_gui.currentGui == nil then
-		AutoDrive.delayedCallBacks.openEnterDriverNameGUI:call(200)
+		--AutoDrive.delayedCallBacks.openEnterDriverNameGUI:call(200)
+		g_gui:showGui("adEnterDriverNameGui")
 	end;
 end;
 
@@ -49,7 +50,8 @@ function AutoDrive:onOpenEnterTargetName()
 	if AutoDrive.gui.adEnterTargetNameGui.isOpen then
 		--AutoDrive.gui.adEnterTargetNameGui:onClickBack()
 	elseif g_gui.currentGui == nil then
-		AutoDrive.delayedCallBacks.openEnterTargetNameGUI:call(200)
+		--AutoDrive.delayedCallBacks.openEnterTargetNameGUI:call(200)
+		g_gui:showGui("adEnterTargetNameGui")
 	end;
 end;
 
@@ -61,6 +63,7 @@ function AutoDrive:onOpenEnterGroupName()
 	if AutoDrive.gui.adEnterGroupNameGui.isOpen then
 		AutoDrive.gui.adEnterGroupNameGui:onClickBack()
 	elseif g_gui.currentGui == nil then
-		AutoDrive.delayedCallBacks.openEnterGroupNameGUI:call(200)
+		--AutoDrive.delayedCallBacks.openEnterGroupNameGUI:call(200)
+		g_gui:showGui("adEnterGroupNameGui")
 	end;
 end;

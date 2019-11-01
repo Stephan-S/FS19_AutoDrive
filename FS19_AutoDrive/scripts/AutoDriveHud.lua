@@ -247,7 +247,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			layer = layer - 1;
 		end;
 
-		if (not mouseEventHandled) and (AutoDrive.pullDownListExpanded > 0) and (button >= 1 and button <= 3 and isDown) then
+		if (not mouseEventHandled) and (AutoDrive.pullDownListExpanded > 0) and (button >= 1 and button <= 3 and isUp) then
 			AutoDrive.Hud:closeAllPullDownLists(vehicle);
 		end;
 		

@@ -492,7 +492,7 @@ end;
 function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
     if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.mode == AutoDrive.MODE_LOAD or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
         local hitElement, hitIndex, hitIcon = self:getElementAt(vehicle, posX, posY);
-        if button == 1 and isDown then
+        if button == 1 and isUp then
             if self.state == ADPullDownList.STATE_COLLAPSED and AutoDrive.pullDownListExpanded <= 0 then
                 self:expand(vehicle);
             elseif self.state == ADPullDownList.STATE_EXPANDED then
@@ -525,7 +525,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                 end;
             end;
             return true;
-        elseif button == 4 and isDown then
+        elseif button == 4 and isUp then
             local oldSelected = self.selected;
             self.selected = math.max(1, self.selected-1);
             if oldSelected ~= self.selected then
@@ -536,7 +536,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             end;
             AutoDrive.mouseWheelActive = true;
             return true;
-        elseif button == 5 and isDown then
+        elseif button == 5 and isUp then
             local oldSelected = self.selected;
             if self:getListElementByIndex(vehicle, self.selected + 1) ~= nil then
                 self.selected = self.selected + 1;
