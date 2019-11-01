@@ -19,15 +19,15 @@
 		<text name="input_ADSelectTargetUnload"				 text="AD: Select Next Unload" />
 		<text name="input_ADSelectPreviousTargetUnload" 	 text="AD: Select Previous Unload" />
 		<text name="input_ADActivateDebug"					 text="AD: Edit Mode" />
-		<text name="input_ADDebugShowClosest"				 text="AD: Show Closest Point" />
+		<text name="input_ADDebugShowClosest"				 text="AD: Show closest Point" />
 		<text name="input_ADDebugSelectNeighbor"			 text="AD: Select Neighbour Point" />
 		<text name="input_ADDebugChangeNeighbor"			 text="AD: Select next Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"			 text="AD: Toggle connection between" />
-		<text name="input_ADDebugCreateMapMarker"			 text="AD: Create new Target" />
-		<text name="input_ADRenameMapMarker"			 	 text="AD: Rename current target" />
+		<text name="input_ADDebugCreateMapMarker"			 text="AD: Create/Edit Target" />
+		<text name="input_ADRenameMapMarker"			 	 text="AD: Edit selected Target" />
 		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Delete Waypoint" />
 		<text name="input_ADDebugForceUpdate"				 text="AD: Update ways" />
-		<text name="input_ADDebugDeleteDestination"			 text="AD: Delete Destination" />
+		<text name="input_ADDebugDeleteDestination"			 text="AD: Delete closest Target" />
 		<text name="input_ADSelectNextFillType"				 text="AD: Select Next Filltype" />
 		<text name="input_ADSelectPreviousFillType"			 text="AD: Select Previous Filltype" />
 		<text name="input_ADOpenGUI"						 text="AD: Open GUI" />

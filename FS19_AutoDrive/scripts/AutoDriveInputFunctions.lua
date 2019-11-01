@@ -174,18 +174,28 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		end;
 		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
 			return;
-		end;		
-		AutoDrive.renameCurrentMapMarker = false;
-		AutoDrive:onOpenEnterTargetName();	 --the workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui have been moved to delayedCallBacks
-		--AutoDrive:inputCreateMapMarker(vehicle);
+		end;
+		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+			AutoDrive.renameCurrentMapMarker = false;
+			AutoDrive:onOpenEnterTargetName();
+			--AutoDrive:inputCreateMapMarker(vehicle);
+		end
 	end;
 
 	if input == "input_renameMapMarker" and (g_dedicatedServerInfo == nil) then
 		if vehicle.ad.createMapPoints == false then
 			return;
-		end;		
-		AutoDrive.renameCurrentMapMarker = true;
-		AutoDrive:onOpenEnterTargetName();	 --the workaround to prevent the function 'onEnterPressed()' to be called right away when showing the gui have been moved to delayedCallBacks
+		end;
+		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+			-- Checks needed to avoid errors when there are no targets
+			-- That lead to a small bug, when the first target is created, you have to manually reselect the target on the PullDownList to have nameOfSelectedTarget filled with the name of the target
+			-- TODO: Find a way to set all needed variables when the first target is created
+			if(g_currentMission.controlledVehicle.ad.mapMarkerSelected == nil or g_currentMission.controlledVehicle.ad.mapMarkerSelected == -1 or g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == nil or g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == "") then
+				return;
+			end
+			AutoDrive.renameCurrentMapMarker = true;
+			AutoDrive:onOpenEnterTargetName();
+		end
 	end;
 
 	if input == "input_start_stop" then

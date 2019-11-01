@@ -12,11 +12,16 @@
 
         <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" />
 
-        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
-            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="backButton" />
+        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsCreate" onCreate="onCreateButtonsCreate">
+            <GuiElement type="button" profile="buttonBack" id="backButtonCreate" text="$l10n_button_back" onClick="onClickBack" />
             <GuiElement type="button" profile="buttonOK" id="createButton" text="" onClick="onClickCreateButton" onCreate="onCreateCreateButton" />
-            <GuiElement type="button" profile="buttonActivate" id="renameButton" text="$l10n_button_rename" onClick="onClickRenameButton" onCreate="onCreateRenameButton" />
-            <!--<GuiElement type="button" profile="buttonDelete" id="deleteButton" text="$l10n_button_delete" onClick="onClickDeleteButton" onCreate="onCreateDeleteButton" />-->
+        </GuiElement>
+
+        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsEdit" onCreate="onCreateButtonsEdit">
+            <GuiElement type="button" profile="buttonBack" id="backButtonEdit" text="$l10n_button_back" onClick="onClickBack" />
+            <GuiElement type="button" profile="buttonActivate" id="renameButton" text="$l10n_button_rename" onClick="onClickRenameButton" />
+            <GuiElement type="button" profile="buttonCancel" id="resetButton" text="$l10n_button_reset" onClick="onClickResetButton" />
+            <GuiElement type="button" profile="buttonDelete" id="deleteButton" text="$l10n_button_delete" onClick="onClickDeleteButton" />
         </GuiElement>
     </GuiElement>
 </GUI>

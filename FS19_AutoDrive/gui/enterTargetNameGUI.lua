@@ -14,9 +14,11 @@ function adEnterTargetNameGui:new(target, custom_mt)
     self.returnScreenName = ""
     self.textInputElement = nil
     self.createButtonElement = nil
-    self.renameButtonElement = nil
-    --self.deleteButtonElement = nil
+    self.buttonsEditElement = nil
+    self.buttonsCreateElement = nil
     self.titleElement = nil
+    self.editName = nil
+    self.editId = nil
     self.edit = false
     return self
 end
@@ -39,37 +41,54 @@ function adEnterTargetNameGui:onCreateCreateButton(element)
     element:setText(g_i18n:getText("gui_ad_createButtonText"))
 end
 
-function adEnterTargetNameGui:onCreateRenameButton(element)
-    self.renameButtonElement = element
+function adEnterTargetNameGui:onCreateButtonsCreate(element)
+    self.buttonsCreateElement = element
 end
 
---function adEnterTargetNameGui:onCreateDeleteButton(element)
---    self.deleteButtonElement = element
---end
+function adEnterTargetNameGui:onCreateButtonsEdit(element)
+    self.buttonsEditElement = element
+end
 
 function adEnterTargetNameGui:onOpen()
     adEnterTargetNameGui:superClass().onOpen(self)
+    self.editName = nil
+    self.editId = nil
+    self.edit = false
     FocusManager:setFocus(self.textInputElement)
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
 
-    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-        if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
-            self.edit = true
-        else
-            self.edit = false
+    local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
+    if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+        local cId = AutoDrive.mapWayPoints[closest].id
+        for i, mapMarker in pairs(AutoDrive.mapMarker) do
+            if mapMarker.id == cId then
+                self.editId = i
+                self.editName = mapMarker.name
+                break
+            end
         end
     end
+
+    if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
+        self.editId = g_currentMission.controlledVehicle.ad.mapMarkerSelected
+        self.editName = AutoDrive.mapMarker[self.editId].name
+    end
+
+    if self.editId ~= nil and self.editName ~= nil then
+        self.edit = true
+    end
+
     if self.edit then
         self.titleElement:setText(g_i18n:getText("gui_ad_enterTargetNameTitle_edit"))
-        self.textInputElement:setText(AutoDrive.mapMarker[g_currentMission.controlledVehicle.ad.mapMarkerSelected].name)
+        self.textInputElement:setText(self.editName)
     else
         self.titleElement:setText(g_i18n:getText("gui_ad_enterTargetNameTitle_add"))
         self.textInputElement:setText("")
     end
-    self.createButtonElement:setDisabled(self.edit)
-    self.renameButtonElement:setDisabled(not self.edit)
-    --self.deleteButtonElement:setDisabled(not self.edit or true)
+
+    self.buttonsCreateElement:setVisible(not self.edit)
+    self.buttonsEditElement:setVisible(self.edit)
 end
 
 function adEnterTargetNameGui:onClickCreateButton()
@@ -77,26 +96,24 @@ function adEnterTargetNameGui:onClickCreateButton()
     local enteredName = self.textInputElement.text
 
     if enteredName:len() > 1 then
-        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-            local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-            if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-                AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
-                local node = createTransformGroup(enteredName)
-                setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4, AutoDrive.mapWayPoints[closest].z)
+        local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
+        if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+            AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
+            local node = createTransformGroup(enteredName)
+            setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4, AutoDrive.mapWayPoints[closest].z)
 
-                AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = closest, name = enteredName, node = node, group = "All"}
-                AutoDrive:MarkChanged()
+            AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = closest, name = enteredName, node = node, group = "All"}
+            AutoDrive:MarkChanged()
 
-                if g_server ~= nil then
-                    AutoDrive:broadCastUpdateToClients()
-                else
-                    AutoDriveCreateMapMarkerEvent:sendEvent(g_currentMission.controlledVehicle, closest, enteredName)
-                end
+            if g_server ~= nil then
+                AutoDrive:broadCastUpdateToClients()
+            else
+                AutoDriveCreateMapMarkerEvent:sendEvent(g_currentMission.controlledVehicle, closest, enteredName)
             end
-
-            AutoDrive:notifyDestinationListeners()
-            AutoDrive.Hud.lastUIScale = 0
         end
+
+        AutoDrive:notifyDestinationListeners()
+        AutoDrive.Hud.lastUIScale = 0
     end
 
     self:onClickBack()
@@ -107,23 +124,27 @@ function adEnterTargetNameGui:onClickRenameButton()
     local enteredName = self.textInputElement.text
 
     if enteredName:len() > 1 then
-        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-            AutoDrive.mapMarker[g_currentMission.controlledVehicle.ad.mapMarkerSelected].name = enteredName
-            for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
-                mapPoint.marker[enteredName] = mapPoint.marker[g_currentMission.controlledVehicle.ad.nameOfSelectedTarget]
-            end
-            g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName
-
-            AutoDrive:notifyDestinationListeners()
-            AutoDrive.Hud.lastUIScale = 0
+        AutoDrive.mapMarker[self.editId].name = enteredName
+        for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
+            mapPoint.marker[enteredName] = mapPoint.marker[self.editName]
         end
+        g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName
+
+        AutoDrive:notifyDestinationListeners()
+        AutoDrive.Hud.lastUIScale = 0
     end
 
     self:onClickBack()
 end
 
---function adEnterTargetNameGui:onClickDeleteButton()
---end
+function adEnterTargetNameGui:onClickDeleteButton()
+    AutoDrive:removeMapMarker(AutoDrive.mapMarker[self.editId])
+    self:onClickBack()
+end
+
+function adEnterTargetNameGui:onClickResetButton()
+    self.textInputElement:setText(self.editName)
+end
 
 function adEnterTargetNameGui:onClickBack()
     adEnterTargetNameGui:superClass().onClickBack(self)

@@ -13,9 +13,9 @@
         <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" />
 
         <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
-            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="backButton" />
-            <GuiElement type="button" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" />
-            <GuiElement type="button" profile="buttonOK" text="$l10n_button_reset" onClick="onClickResetButton" />
+            <GuiElement type="button" profile="buttonBack" id="backButton" text="$l10n_button_back" onClick="onClickBack" />
+            <GuiElement type="button" profile="buttonOK" id="okButton" text="$l10n_button_ok" onClick="onClickOk" />
+            <GuiElement type="button" profile="buttonCancel" id="cancelButton" text="$l10n_button_reset" onClick="onClickResetButton" />
         </GuiElement>
     </GuiElement>
 </GUI>
