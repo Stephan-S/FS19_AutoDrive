@@ -360,7 +360,11 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if AutoDrive.requestedWaypoints == true then
 			return;
 		end;
-		AutoDrive:ContiniousRecalculation();
+		if AutoDrive.Recalculation.continue == nil or AutoDrive.Recalculation.continue == false then
+			AutoDrive:ContiniousRecalculation();
+		else
+			AutoDrive.Recalculation.continue = false;
+		end;
 	end;	
 
 	if input == "input_nextTarget_Unload" then

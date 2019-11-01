@@ -298,8 +298,12 @@ function AutoDrive:handleRecalculation(vehicle)
 				AutoDrive.Recalculation.nextCalculationSkipFrames = 0;
 
 				AutoDrive.recalculationPercentage = math.min(AutoDrive.recalculationPercentage, 100);
+				local currentDestination = "";
+				if AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers+1] ~= nil then
+					currentDestination = AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers+1].name;
+				end;
 
-				AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%");
+				AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%  - " .. currentDestination);
 				AutoDrive.print.showMessageFor = 500;
 				if AutoDrive.recalculationPercentage == 100 then
 					AutoDrive.print.showMessageFor = 5000;

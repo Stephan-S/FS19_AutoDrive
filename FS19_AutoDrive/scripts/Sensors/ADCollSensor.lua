@@ -26,6 +26,7 @@ function ADCollSensor:new(vehicle, sensorParameters)
     self.newHit = false;
     self.collisionHits = 0;
     self.timeOut = AutoDriveTON:new();
+    --self.vehicle = vehicle; --test collbox and coll bits mode
 
     self.mask = ADCollSensor:buildMask();
 
@@ -34,7 +35,7 @@ end;
 
 function ADCollSensor:buildMask() 
     local mask = 0;
-    
+
     mask = mask + math.pow(2, ADCollSensor.mask_Non_Pushable_1 - 1);
     mask = mask + math.pow(2, ADCollSensor.mask_Non_Pushable_2 - 1);
     mask = mask + math.pow(2, ADCollSensor.mask_static_world_1 - 1);
@@ -51,6 +52,13 @@ function ADCollSensor:buildMask()
 end;
 
 function ADCollSensor:onUpdate(dt)  
+    --test collbox and coll bits mode
+    --if self.vehicle.ad.targetSpeed < 31 then
+        --self.mask = math.pow(2, self.vehicle.ad.targetSpeed-1);
+    --else
+        --self.mask = ADCollSensor:buildMask(); 
+    --end;
+
     local box = self:getBoxShape();
     if self.collisionHits == 0 or self.timeOut:timer(true, 20000, dt) then
         self.timeOut:timer(false);

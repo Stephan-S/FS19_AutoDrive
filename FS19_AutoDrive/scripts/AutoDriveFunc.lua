@@ -342,7 +342,7 @@ function AutoDrive:detectTraffic(vehicle)
 	local vehicleVector = {x=rx ,z= rz};
 	local width = vehicle.sizeWidth;
 	local length = vehicle.sizeLength;
-	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 2;
+	local lookAheadDistance = math.min(vehicle.lastSpeedReal*3600/40, 1) * 10 + 1.5;
 	
 	local approachingLastWayPoints = false;
 	if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+2] == nil then
@@ -358,16 +358,15 @@ function AutoDrive:detectTraffic(vehicle)
 		box.center[3] = length;
 		box.size[1] = width * 0.35;
 		box.size[2] = 0.75;
-		box.size[3] = (lookAheadDistance-2)/3;
+		box.size[3] = (lookAheadDistance-0.5)/3;
 		box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 		box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime),0,math.cos(vehicle.rotatedTime))
 		box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime),0,math.sin(vehicle.rotatedTime))
 		box.dirX, box.dirY, box.dirZ = localDirectionToWorld(vehicle.components[1].node, 0,0,1)
 		box.ry = math.atan2(box.zx, box.zz)
 		local rotX = -MathUtil.getYRotationFromDirection(box.dirY, 1);
-		rotX = rotX + math.rad(-5);
 
-		local offsetCompensation = -math.tan(math.rad(-5)) * box.size[3];
+		local offsetCompensation = -math.tan(rotX) * box.size[3];
 
 		local heightOffset = 2.2;
 		if approachingLastWayPoints then
@@ -375,11 +374,11 @@ function AutoDrive:detectTraffic(vehicle)
 			heightOffset = 1.2;
 		end;
 
-		local boxCenter = { x = x + (((length/2 + box.size[3] + 1) * vehicleVector.x)),
+		local boxCenter = { x = x + (((length/2 + box.size[3] + 0) * vehicleVector.x)),
 												y = y+heightOffset,
-												z = z + (((length/2 + box.size[3] + 1) * vehicleVector.z)) };												
+												z = z + (((length/2 + box.size[3] + 0) * vehicleVector.z)) };												
 
-		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 300, boxCenter.z), y) + 1.7 + offsetCompensation;
+		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 300, boxCenter.z), y) + 1.5 + offsetCompensation;
 		local rx,ry,rz = getWorldRotation(vehicle.components[1].node)
 		local shapes = overlapBox(boxCenter.x,boxCenter.y,boxCenter.z, rotX, box.ry, 0, box.size[1],box.size[2],box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK, true, true, true) --AIVehicleUtil.COLLISION_MASK
 		

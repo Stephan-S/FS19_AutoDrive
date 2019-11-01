@@ -207,8 +207,8 @@ AutoDrive.settings.smoothField = {
 };
 
 AutoDrive.settings.recalculationSpeed = {  
-    values= {0.5, 1, 1.5, 2, 5, 10, 25, 50, 100},                                    
-    texts= {"x0.5", "x1", "x1.5", "x2", "x5", "x10", "x25", "x100"},                                    
+    values= {0.5, 1, 1.5, 2, 5, 10, 25, 50, 100, 250, 500, 1000},                                    
+    texts= {"x0.5", "x1", "x1.5", "x2", "x5", "x10", "x25", "x100", "x250", "x500", "x1000"},                                    
     default= 2,                                    
     current= 2,                                    
     text= "gui_ad_recalculationSpeed",                                    

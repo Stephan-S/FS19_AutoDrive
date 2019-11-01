@@ -17,13 +17,11 @@ function AutoDrive:ContiniousRecalculation()
 		end;
 
 		local markerFinished = false;
-		--print("AutoDrive - Recalculating");	
 		for i, marker in pairs(AutoDrive.mapMarker) do
-			if markerFinished == false then
+			local wayPointsToHandleThisFrame = 2000 * AutoDrive:getSetting("recalculationSpeed");
+			if markerFinished == false or wayPointsToHandleThisFrame > 0  then
 				
-				if i == recalcTable.nextMarker then
-					
-					--DebugUtil.printTableRecursively(AutoDrive.mapWayPoints, "--", 0,3);
+				if i == recalcTable.nextMarker then					
 					local tempAD = recalcTable.dijkstraCopy;
 					if recalcTable.dijkstraCopy == nil then
 						local percentage = 0;
@@ -38,29 +36,19 @@ function AutoDrive:ContiniousRecalculation()
 							recalcTable.dijkstraCopy = tempAD;
 						end;
 					end;
-
-					local wayPointsToHandleThisFrame = 2000 * AutoDrive:getSetting("recalculationSpeed");
+					 
+					--now enter the calculated shortest paths into the AutoDrive.mapWayPoints table to store them permanently
 					while wayPointsToHandleThisFrame > 0  and recalcTable.handledWayPoints <= numberOfWayPoints do
 						wayPointsToHandleThisFrame = wayPointsToHandleThisFrame - 1;
-						local point = mapPoints[recalcTable.handledWayPoints];		
-						-- if point == null then
-						-- 	print("point " .. recalcTable.handledWayPoints .. " is not null: " .. ADBoolToString(point ~= null));
-						-- end;
-						-- if tempAD.pre[point.id] == null then
-						-- 	print("tempAD.pre " .. point.id .. " is not null: " .. ADBoolToString(tempAD.pre[point.id] ~= null));
-						-- end;	
-						-- if marker == null then
-						-- 	print("marker is not null: " .. ADBoolToString(marker ~= null));
-						-- end;
-						-- if marker ~= null and marker.name == null then
-						-- 	print("marker name is not null: " .. ADBoolToString(marker ~= null));
-						-- end;						
+						local point = mapPoints[recalcTable.handledWayPoints];			
 						point.marker[marker.name] = tempAD.pre[point.id];
 						recalcTable.handledWayPoints = recalcTable.handledWayPoints + 1;
 					end;
 
 					if recalcTable.handledWayPoints >= numberOfWayPoints then
 						markerFinished = true;
+						recalcTable.nextMarker = i+1;
+						recalcTable.handledMarkers = recalcTable.handledMarkers + 1;
 						recalcTable.dijkstraCopy = nil;
 						recalcTable.handledWayPoints = 1;
 					end;
@@ -73,9 +61,11 @@ function AutoDrive:ContiniousRecalculation()
 					end;
 
 				end;
-			else				
-				recalcTable.nextMarker = i;
-				recalcTable.handledMarkers = recalcTable.handledMarkers + 1;
+			else
+				if recalcTable.nextMarker < i then			
+					recalcTable.handledMarkers = recalcTable.handledMarkers + 1;
+					recalcTable.nextMarker = i;
+				end;
 				return 10 + math.ceil((recalcTable.handledMarkers/AutoDrive.mapMarkerCounter) * 90)
 			end;
 		end;
@@ -96,9 +86,9 @@ function AutoDrive:ContiniousRecalculation()
 		AutoDrive.Recalculation = {};
 		AutoDrive.Recalculation.continue = true;
 		AutoDrive.Recalculation.initializedWaypoints = false;
-		AutoDrive.Recalculation.nextMarker = ""
+		AutoDrive.Recalculation.nextMarker = nil
 		for i, marker in pairs(AutoDrive.mapMarker) do
-			if AutoDrive.Recalculation.nextMarker == "" then
+			if AutoDrive.Recalculation.nextMarker == nil then
 				AutoDrive.Recalculation.nextMarker = i;
 			end;
 		end;
@@ -125,18 +115,47 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 	local workQ = workGraph.Q;
 
 	if recalcTable.dijkstraStep == 3 then
-		recalcTable.dijkstraAllowedIteratorQ = 200 / (math.max(1, (numberOfWayPoints/(2000 * AutoDrive:getSetting("recalculationSpeed")))));		
-
+		recalcTable.dijkstraAllowedIteratorQ = 200 / (math.max(0.001, (numberOfWayPoints/(2000 * AutoDrive:getSetting("recalculationSpeed")))));		
+				
 		while recalcTable.dijkstraAllowedIteratorQ > 0 and next(workQ,nil) ~= nil do
 			recalcTable.dijkstraAllowedIteratorQ = recalcTable.dijkstraAllowedIteratorQ - 1;
 			recalcTable.dijkstraHandledIteratorsQ = recalcTable.dijkstraHandledIteratorsQ + 1;
-
-			local shortest = 10000000;
+								
+			local shortest = math.huge;
 			local shortest_id = -1;
-			for i, element in pairs(workQ) do			
-				if workDistances[i] < shortest then
-					shortest = workDistances[i];
-					shortest_id = i;
+			--for i, element in pairs(workQ) do			
+			--	if workDistances[i] < shortest then
+			--		shortest = workDistances[i];
+			--		shortest_id = i;
+			--	end;
+			--end;
+
+			--trying to speed things up. Changes only occur in workDistances
+			--if i only have elements in workDistances with values ~= math.huge, I can speed up the process of finding the next shortest id
+			if workGraph.workQEntries > (numberOfWayPoints/2) then
+				for i, element in pairs(workDistances) do			
+					if workQ[i] ~= nil and workDistances[i] <= shortest then
+						shortest = workDistances[i];
+						shortest_id = i;
+					end;
+				end;
+			else
+				for i, element in pairs(workQ) do			
+					if workDistances[i] ~= nil and workDistances[i] <= shortest then
+						shortest = workDistances[i];
+						shortest_id = i;
+					end;
+				end;
+			end;
+
+			if shortest_id == -1 then
+				for i, element in pairs(workQ) do
+					if workDistances[i] == nil then
+						workDistances[i] = math.huge;
+						shortest = workDistances[i];
+						shortest_id = i;
+						break;
+					end;
 				end;
 			end;
 			
@@ -149,7 +168,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 
 				--update distances of long chained line without iterating over all nodes again
                 while longLine == true do
-					if ADTableLength(workQ[shortest_id]) > 1 or ADTableLength(mapPoints[shortest_id].out) > 1 then
+					if #workQ[shortest_id] > 1 or #mapPoints[shortest_id].out > 1 then
 						longLine = false;
 					end;
 
@@ -158,7 +177,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 						
 						if wp ~= nil then					
 							--distanceupdate
-							if ADTableLength(wp) > 1 or ADTableLength(mapPoints[linkedNodeId].out) > 1 then
+							if #wp > 1 or #mapPoints[linkedNodeId].out > 1 then
 								longLine = false;
 							end;
 
@@ -172,6 +191,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 							local wp_ahead = mapPoints[linkedNodeId];
 							local wp_current = mapPoints[shortest_id];							
 							
+							--disregard connections with an angle over 90°
 							if wp_ahead ~= nil and wp_current ~= nil then
 								local angle = 0;
 							
@@ -189,7 +209,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 							end;							
 
 							local alternative = shortest + distanceToAdd;
-							if alternative < workDistances[linkedNodeId] then
+							if workDistances[linkedNodeId] == nil or alternative < workDistances[linkedNodeId] then
 								workDistances[linkedNodeId] = alternative;
 								workPre[linkedNodeId] = shortest_id;
 								lastShortest = alternative;
@@ -199,6 +219,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 					end;
 					
 					workQ[shortest_id] = nil;
+					workGraph.workQEntries = workGraph.workQEntries - 1;
 
 					if (lastShortestID == shortest_id) then
 						longLine = false;
@@ -250,15 +271,16 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 	local workDistances = workGraph.distance;
 	local workPre = workGraph.pre;
 	local workQ = workGraph.Q;
+	workGraph.workQEntries = AutoDrive.mapWayPointsCounter
 
-	if recalcTable.dijkstraStep == 1 then
+	if recalcTable.dijkstraStep == 1 or AutoDrive:getSetting("recalculationSpeed") > 10 then
 		for i in pairs(Graph) do
-			workDistances[i] = math.huge;
+			--workDistances[i] = math.huge;
 			workPre[i] = -1;
 		end;
 	end;
 
-	if recalcTable.dijkstraStep == 2 then
+	if recalcTable.dijkstraStep == 2 or AutoDrive:getSetting("recalculationSpeed") > 10 then
 		workDistances[start] = 0;
 		for i, id in pairs(workQ[start]) do
 			local distanceToAdd = 0;
@@ -271,4 +293,8 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 			workPre[id] = start;
 		end;
 	end;	
+
+	if AutoDrive:getSetting("recalculationSpeed") > 50 then
+		recalcTable.dijkstraStep = 3;
+	end;
 end;

@@ -39,20 +39,28 @@ end;
 function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors = {}
     local sensorParameters = {}
-    sensorParameters.position = ADSensor.POS_FRONT;   
+    sensorParameters.position = ADSensor.POS_FRONT; 
+    --sensorParameters.length = vehicle.sizeLength;  --test collbox and coll bits mode
+    --sensorParameters.width = vehicle.sizeWidth; --test
+    --sensorParameters.dynamicLength = false; --test  
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters) 
+    --frontSensor.drawDebug = true; --test
+    --frontSensor.enabled = true; --test
+    vehicle.ad.sensors["frontSensor"] = frontSensor;
+
     sensorParameters.dynamicLength = false;
     sensorParameters.length = vehicle.sizeLength;    
     sensorParameters.width = vehicle.sizeWidth * 2;
     local frontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
-    vehicle.ad.sensors["frontSensor"] = frontSensor;
     vehicle.ad.sensors["frontSensorFruit"] = frontSensorFruit;
+
     sensorParameters = {}
     sensorParameters.position = ADSensor.POS_REAR;
     local rearSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rearSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rearSensor"] = rearSensor;
     vehicle.ad.sensors["rearSensorFruit"] = rearSensorFruit;
+
     sensorParameters = {}
     sensorParameters.position = ADSensor.POS_LEFT;
     sensorParameters.dynamicLength = false;
@@ -62,6 +70,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["leftSensor"] = leftSensor;
     vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit;
+
     sensorParameters.position = ADSensor.POS_RIGHT;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
@@ -70,6 +79,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightSensor"] = rightSensor;
     vehicle.ad.sensors["rightSensorFruit"] = rightSensorFruit;
+
     sensorParameters.position = ADSensor.POS_FRONT_LEFT;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
@@ -79,6 +89,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local leftFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["leftFrontSensor"] = leftFrontSensor;
     vehicle.ad.sensors["leftFrontSensorFruit"] = leftFrontSensorFruit;
+
     sensorParameters.position = ADSensor.POS_FRONT_RIGHT;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
@@ -88,6 +99,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local rightFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightFrontSensor"] = rightFrontSensor;
     vehicle.ad.sensors["rightFrontSensorFruit"] = rightFrontSensorFruit;
+
     sensorParameters.position = ADSensor.POS_CENTER;
     sensorParameters.dynamicLength = false;
     sensorParameters.dynamicRotation = false;
@@ -210,6 +222,8 @@ function ADSensor:getBoxShape()
         vecZ = {x=vecZ.x, z=-vecZ.z};
     end;
 
+    local boxYPos = 1.5;
+
     local box = {};
     box.center = {};
     box.offset = {};
@@ -218,30 +232,30 @@ function ADSensor:getBoxShape()
     box.size[2] = 0.75;                 -- fixed height for now
     box.size[3] = lookAheadDistance * 0.5-- * self.frontFactor;
     box.offset[1] = self.location.x;
-    box.offset[2] = 2.2;                -- fixed y pos for now
+    box.offset[2] = boxYPos;                -- fixed y pos for now
     box.offset[3] = self.location.z;
     box.center[1] = box.offset[1]  + vecZ.x * box.size[3]; --+ (vecX.x * box.size[1])
-    box.center[2] = 2.2;                -- fixed y pos for now
+    box.center[2] = boxYPos;                -- fixed y pos for now
     box.center[3] = box.offset[3] + vecZ.z * box.size[3]; -- + vecX.z * box.size[1]
 
     box.topLeft = {};
     box.topLeft[1] = box.center[1] - vecX.x * box.size[1] + vecZ.x * box.size[3];
-    box.topLeft[2] = 2.2;
+    box.topLeft[2] = boxYPos;
     box.topLeft[3] = box.center[3] - vecX.z * box.size[1] + vecZ.z * box.size[3];
 
     box.topRight = {};
     box.topRight[1] = box.center[1] + vecX.x * box.size[1] + vecZ.x * box.size[3];
-    box.topRight[2] = 2.2;
+    box.topRight[2] = boxYPos;
     box.topRight[3] = box.center[3] + vecX.z * box.size[1] + vecZ.z * box.size[3];
 
     box.downRight = {};
     box.downRight[1] = box.center[1] + vecX.x * box.size[1] - vecZ.x * box.size[3];
-    box.downRight[2] = 2.2;
+    box.downRight[2] = boxYPos;
     box.downRight[3] = box.center[3] + vecX.z * box.size[1] - vecZ.z * box.size[3];
 
     box.downLeft = {};
     box.downLeft[1] = box.center[1] - vecX.x * box.size[1] - vecZ.x * box.size[3];
-    box.downLeft[2] = 2.2;
+    box.downLeft[2] = boxYPos;
     box.downLeft[3] = box.center[3] - vecX.z * box.size[1] - vecZ.z * box.size[3];
     
     if self.sideFactor == -1 then

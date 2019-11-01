@@ -1169,12 +1169,12 @@ function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
 	local ortho = { x=-vehicleVector.z, z=vehicleVector.x };
 		
 	local boundingBox = {};
-    boundingBox[1] ={ 	x = x + (width/2) * ortho.x,
+    boundingBox[1] ={ 	x = x + (width/2) * ortho.x + (length/2) * vehicleVector.x,
                         y = y+2,
-						z = z + (width/2) * ortho.z};
-	boundingBox[2] ={ 	x = x - (width/2) * ortho.x,
+						z = z + (width/2) * ortho.z +  (length/2) * vehicleVector.z};
+	boundingBox[2] ={ 	x = x - (width/2) * ortho.x + (length/2) * vehicleVector.x,
                         y = y+2,
-						z = z - (width/2) * ortho.z};
+						z = z - (width/2) * ortho.z +  (length/2) * vehicleVector.z};
 	boundingBox[3] ={ 	x = x - (width/2) * ortho.x +  (length/2 + lookAheadDistance) * vehicleVector.x,
                         y = y+2,
 						z = z - (width/2) * ortho.z +  (length/2 + lookAheadDistance) * vehicleVector.z };
@@ -1193,10 +1193,10 @@ function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
     end;
 
     
-    -- AutoDrive:drawLine(boundingBox[1], boundingBox[2], 1, 0, 0, 1);
-    -- AutoDrive:drawLine(boundingBox[2], boundingBox[3], 1, 0, 0, 1);
-    -- AutoDrive:drawLine(boundingBox[3], boundingBox[4], 1, 0, 0, 1);
-    -- AutoDrive:drawLine(boundingBox[4], boundingBox[1], 1, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[1], boundingBox[2], 1, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[2], boundingBox[3], 1, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[3], boundingBox[4], 1, 0, 0, 1);
+    --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 1, 0, 0, 1);
     
     return boundingBox;
 end;
