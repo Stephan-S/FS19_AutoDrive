@@ -23,11 +23,11 @@
 		<text name="input_ADDebugSelectNeighbor"			 text="AD: Wybierz sąsiadujący punkt" />
 		<text name="input_ADDebugChangeNeighbor"			 text="AD: Wybierz następny sąsiadujący punkt" />
 		<text name="input_ADDebugCreateConnection"			 text="AD: Połączenie punktów wł./wył." />
-		<text name="input_ADDebugCreateMapMarker"			 text="AD: Utwórz nowy cel trasy" />
-		<text name="input_ADRenameMapMarker"			 	 text="AD: Zmień nazwę bieżącego celu trasy" />
+		<text name="input_ADDebugCreateMapMarker"			 text="AD: Utwórz/edytuj cel" />
+		<text name="input_ADRenameMapMarker"			 	 text="AD: Edytuj wybrany cel" />
 		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Usuń punkt trasy" />
 		<text name="input_ADDebugForceUpdate"				 text="AD: Przelicz trasy" />
-		<text name="input_ADDebugDeleteDestination"			 text="AD: Usuń miejsce docelowe" />
+		<text name="input_ADDebugDeleteDestination"			 text="AD: Usuń najbliższy cel" />
 		<text name="input_ADSelectNextFillType"				 text="AD: Następny rodzaj ładunku" />
 		<text name="input_ADSelectPreviousFillType"			 text="AD: Poprzedni rodzaj ładunku" />
 		<text name="input_ADOpenGUI"						 text="AD: Otwórz menu" />
