@@ -145,6 +145,14 @@
 		<text name="gui_ad_restrictToField"			 	     text="Pianificazione del percorso limitata " />	
 		<text name="gui_ad_restrictToField_tooltip"	 		 text="Se lo scaricatore è già parcheggiato sul campo, limiterà il rilevatore di percorsi ai limiti del campo." />
 		<text name="gui_ad_showTooltips"					 text="Mostra suggerimenti" />	
-		<text name="gui_ad_showTooltips_tooltip"	 		 text="Mostra suggerimenti dei tasti della HUD." />		
+		<text name="gui_ad_showTooltips_tooltip"	 		 text="Mostra suggerimenti dei tasti della HUD." />
+		<text name="gui_ad_enterTargetNameTitle_add" 		text="Nuova destinazione" />
+		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Modifica destinazione" />
+		<text name="gui_ad_enterTargetNameText" 			text="Inserisci nome destinazione:" />
+		<text name="gui_ad_createButtonText" 				text="Crea" />
+		<text name="gui_ad_enterDriverNameTitle" 			text="Rinomina autista" />
+		<text name="gui_ad_enterDriverNameText" 			text="Inserisci nome autista:" />
+		<text name="gui_ad_enterGroupNameTitle"				text="Crea Cartella" />
+		<text name="gui_ad_enterGroupNameText" 				text="Inserisci nome cartella:" />		
 	</texts>
 </l10n>
