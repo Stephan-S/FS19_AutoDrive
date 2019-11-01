@@ -632,7 +632,6 @@ function AutoDrive:continueAfterLoadOrUnload(vehicle)
 end;
 
 function AutoDrive:startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitIndex, trailer)
-    print("AutoDrive:startLoadingAtTrigger");
     trigger.autoStart = true
     trigger.selectedFillType = fillType   
     trigger:onFillTypeSelection(fillType);
@@ -806,7 +805,10 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
                         table.insert(allowedFillTypes, 44);
                     end;
 
-                    local fillLevels, capacity = trigger.source:getAllFillLevels(g_currentMission:getFarmId())
+                    local fillLevels, capacity = {}, 0
+                    if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
+                        fillLevels, capacity = trigger.source:getAllFillLevels(g_currentMission:getFarmId());
+                    end;
                     local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and fillLevels[vehicle.ad.unloadFillTypeIndex] > 0);
                     
                     local hasRequiredFillType = false;
