@@ -55,7 +55,7 @@
 		<text name="AD_MODE_UNLOAD"							 text="Odbiór z kombajnu" />
 		<text name="AD_MODE_LOAD"							 text="Załadunek" />
 		<text name="AD_MODE_BGA"							 text="Rozładunek do silosu" />
-		<text name="AD_synchronizing"							 text="wczytywanie tras z serwera..." />
+		<text name="AD_synchronizing"						 text="wczytywanie tras z serwera..." />
 		<text name="gui_ad_Setting"							 text="AutoDrive - ustawienia" />
 		<text name="gui_ad_pipe_offset"						 text="Przesunięcie rury" />
 		<text name="gui_ad_trailerOffset"					 text="Przesunięcie przyczepy" />
@@ -137,14 +137,22 @@
 		<text name="gui_ad_chaseCombine"			 		 text="Podążanie za kombajnem" />	
 		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Wezwany wcześniej kierowca podąża za kombajnem" />
 		<text name="gui_ad_distributeToFolder"			 	text="Wiele celów" />	
-		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Wszytkie cele w jednym folderze będą używane jedne pod drugim jak miejsca wyładunku." />		
-		<text name="gui_ad_maxTriggerDistance"			 	text="Maksywalna odległość do triggerów" />	
-		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Odłegłość do celów, przy której są wykrywane i aktywowane triggery." />
+		<text name="gui_ad_distributeToFolder_tooltip"	 	text="Wszystkie cele w jednym folderze będą używane jedne pod drugim jak miejsca wyładunku." />		
+		<text name="gui_ad_maxTriggerDistance"			 	text="Maksymalna odległość do triggerów" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Odległość do celów, przy której są wykrywane i aktywowane triggery." />
 		<text name="gui_ad_useBeaconLights"			 		text="Światła ostrzegawcze" />	
 		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Używaj świateł ostrzegawczych na drodze." />	
-		<text name="gui_ad_restrictToField"			 		text="Ogranicz odnajdywnie trasy do obszaru pola" />	
-		<text name="gui_ad_restrictToField_tooltip"	 		text="Jeżeli pojazd rozładowujący jest zaprakowany na polu, będzie szukał trasy tylko do granic pola." />	
+		<text name="gui_ad_restrictToField"			 		text="Ogranicz odnajdywanie trasy do obszaru pola" />	
+		<text name="gui_ad_restrictToField_tooltip"	 		text="Jeżeli pojazd rozładowujący jest zaparkowany na polu, będzie szukał trasy tylko do granic pola." />	
 		<text name="gui_ad_showTooltips"			 		text="Pokaż podpowiedzi" />	
-		<text name="gui_ad_showTooltips_tooltip"	 		text="Pokaż podpowiedzi do przycisków w interfejsie." />	
+		<text name="gui_ad_showTooltips_tooltip"	 		text="Pokaż podpowiedzi do przycisków w interfejsie." />
+		<text name="gui_ad_enterTargetNameTitle_add" 		text="Dodaj cel" />
+		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Edytuj cel" />
+		<text name="gui_ad_enterTargetNameText" 			text="Podaj nazwę celu:" />
+		<text name="gui_ad_createButtonText" 				text="Utwórz" />
+		<text name="gui_ad_enterDriverNameTitle" 			text="Zmień nazwę kierowcy" />
+		<text name="gui_ad_enterDriverNameText" 			text="Podaj nazwę kierowcy:" />
+		<text name="gui_ad_enterGroupNameTitle"				text="Dodaj folder" />
+		<text name="gui_ad_enterGroupNameText" 				text="Podaj nazwę folderu:" />		
 	</texts>
 </l10n>
