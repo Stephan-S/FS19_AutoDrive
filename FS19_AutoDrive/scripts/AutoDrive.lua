@@ -152,6 +152,10 @@ function AutoDrive:loadMap(name)
 	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection,AutoDrive.onFillTypeSelection)
 
 	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly);
+
+	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad);
+	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete);
+	FillTrigger.onCreate = Utils.overwrittenFunction(FillTrigger.onCreate, AutoDrive.fillTriggerOnCreate);
 	
 	if g_server ~= nil then
 		AutoDrive.Server = {};
@@ -838,6 +842,13 @@ function AutoDrive:removeGroup(groupNameToDelete)
 		AutoDrive.groupCounter = AutoDrive.groupCounter - 1;
 	end;
 end;
+
+function AutoDrive:preRemoveVehicle(self)
+	if self.ad ~= nil and self.ad.isActive then
+		AutoDrive:disableAutoDriveFunctions(self);
+	end;
+end;
+FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle);
 
 function normalizeAngle(inputAngle)
 	if inputAngle > (2*math.pi) then

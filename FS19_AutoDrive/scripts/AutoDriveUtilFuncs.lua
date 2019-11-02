@@ -304,3 +304,25 @@ function AutoDrive.renderTableRecursively(posX, posY, textSize, inputTable, dept
 	end
 	return i
 end
+
+function AutoDrive:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
+	local result = superFunc(self, rootNode, xmlFile, xmlNode)
+
+	if result and AutoDrive.Triggers ~= nil then
+		AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1;
+		AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = self;
+	end;
+
+	return result;
+end;
+
+function AutoDrive:loadTriggerDelete(superFunc)
+	if AutoDrive.Triggers ~= nil then
+		for i, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+			if trigger == self then
+				AutoDrive.Triggers.siloTriggers[i] = nil;
+			end;
+		end;
+	end;
+	superFunc(self);
+end
