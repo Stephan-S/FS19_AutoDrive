@@ -142,5 +142,14 @@
 		<text name="gui_ad_useBeaconLights_tooltip"	 			 text="Použití majáku na silnici" />	
 		<text name="gui_ad_restrictToField"			 		 text="Vyhledávat cestu jen na poli" />	
 		<text name="gui_ad_restrictToField_tooltip"	 			 text="Pokud odvozce parkuje na poli, bude vyhledávaní cesty omezeno je na pole vymezené okrajem tohoto pole" />	
-	</texts>
+		<text name="gui_ad_showTooltips"			 		text="Show tooltips" />	
+		<text name="gui_ad_showTooltips_tooltip"	 		text="Show tooltips of buttons in the HUD." />		
+		<text name="gui_ad_enterTargetNameTitle_add" 		text="Add Target" />
+		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Edit Target" />
+		<text name="gui_ad_enterTargetNameText" 			text="Insert target name:" />
+		<text name="gui_ad_createButtonText" 				text="Create" />
+		<text name="gui_ad_enterDriverNameTitle" 			text="Rename Driver" />
+		<text name="gui_ad_enterDriverNameText" 			text="Insert driver name:" />
+		<text name="gui_ad_enterGroupNameTitle"				text="Create Folder" />
+		<text name="gui_ad_enterGroupNameText" 				text="Insert folder name:" />
 </l10n>

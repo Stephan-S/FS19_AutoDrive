@@ -79,7 +79,62 @@
 		<text name="gui_ad_findDriver"						 text="Buscando un conductor" />
 		<text name="gui_ad_findDriver_tooltip"				 text="Busqueda de consuctores cercanos (Ignorar el destino)" />
 		<text name="gui_ad_gui_scale"						 text="Gui scale for AutoDrive HUD" />
-		<text name="gui_ad_gui_scale_tooltip" 				 text="Leave default to use in game scaling settings" />
+		<text name="gui_ad_gui_scale_tooltip" 				 text="Leave default to use in game scaling settings" />		
+		<text name="gui_ad_exitField"					     text="Field exit" />	
+		<text name="gui_ad_exitField_tooltip"			     text="Field exit strategy for unloader" />	
+		<text name="gui_ad_default"			 				 text="Default" />	
+		<text name="gui_ad_after_start"			 			 text="Behind Start" />	
+		<text name="gui_ad_closest"			 				 text="Closest point" />
+		<text name="gui_ad_showHelp"					     text="Display help" />	
+		<text name="gui_ad_showHelp_tooltip"			     text="Display keybinding in F1 window" />	
+		<text name="gui_ad_driverWages"					     text="Driver wages" />	
+		<text name="gui_ad_driverWages_tooltip"			     text="Driver wages will be multiplied with this value" />	
+		<text name="gui_ad_smoothField"					     text="Smoother field driving" />	
+		<text name="gui_ad_smoothField_tooltip"			     text="Generated field courses to and from combine will be smoothed (experimental)" />	
+		<text name="gui_ad_recalculationSpeed"				 text="Calculation speed" />	
+		<text name="gui_ad_recalculationSpeed_tooltip"	     text="Higher values will lead to laggy gameplay while recalculating" />	
+		<text name="gui_ad_showNextPath"				 	 text="Show next path" />	
+		<text name="gui_ad_showNextPath_tooltip"	     	 text="En/Disable the display of the next two waypoints" />	
+		<text name="gui_ad_avoidFruit"				 	     text="Avoid fruit" />	
+		<text name="gui_ad_avoidFruit_tooltip"	     	     text="Combine unloader tries to avoid fruit destruction" />	
+		<text name="gui_ad_pathFinderTime"				 	 text="Pathfinder-time (max)" />	
+		<text name="gui_ad_pathFinderTime_tooltip"	     	 text="Determines how long pathfinding algorithm is allowed to search for collision free path to/from combine. (Potential fps-impact)" />
+		<text name="gui_ad_lineHeight"				 	     text="Line height" />	
+		<text name="gui_ad_lineHeight_tooltip"	     	     text="Line height in editor mode. Either on ground level or above the tractor" />	
+		<text name="gui_ad_ground"				 	         text="Ground level" />	
+		<text name="gui_ad_aboveDriver"	     	             text="Above tractor" />	
+		<text name="gui_ad_allowConsoleStyle"				 text="Allow target(text) input" />	
+		<text name="gui_ad_allowConsoleStyle_tooltip"	     text="Allow advanced target input via keyboard - default right click on target text field" />
+		<text name="gui_ad_enableTrafficDetection"			 text="Collision detection" />	
+		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Advanced collision detection, which also detects AI-traffic, signs, fences etc" />	
+		<text name="gui_ad_refillSeedAndFertilizer"			 text="Seed and fertilizer" />	
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Enables AutoDrive to refill both seed and fertilizer compartments, if one of these is selected as filltype." />	
+		<text name="gui_ad_shovelWidth"			 			 text="Shovel width (Addition)" />	
+		<text name="gui_ad_shovelWidth_tooltip"	 			 text="If automatically detected shovel width is too small, it can be increased with this value" />		
+		<text name="gui_ad_preCallDriver"			 		 text="Pre call driver" />	
+		<text name="gui_ad_preCallDriver_tooltip"	 		 text="Pre call unloader at the set fill level." />	
+		<text name="gui_ad_preCallLevel"			 		 text="Pre call level" />	
+		<text name="gui_ad_preCallLevel_tooltip"	 		 text="Pre call unloader at the set fill level." />	
+		<text name="gui_ad_chaseCombine"			 		 text="Chase combine" />	
+		<text name="gui_ad_chaseCombine_tooltip"	 		 text="Unlaoder follows combine after being pre called" />
+		<text name="gui_ad_distributeToFolder"			 	text="Multiple targets" />	
+		<text name="gui_ad_distributeToFolder_tooltip"	 	text="All targets in same folder will be rotated as unload targets." />		
+		<text name="gui_ad_maxTriggerDistance"			 	text="Maximum trigger distance" />	
+		<text name="gui_ad_maxTriggerDistance_tooltip"	 	text="Distance to target at which triggers are detected and activated." />
+		<text name="gui_ad_useBeaconLights"			 		text="Beacon lights" />	
+		<text name="gui_ad_useBeaconLights_tooltip"	 		text="Use beacon lights on the road." />	
+		<text name="gui_ad_restrictToField"			 		text="Restrict pathfinder to field" />	
+		<text name="gui_ad_restrictToField_tooltip"	 		text="If unloader is already parked in the field, he will limit the pathfinder to field boundaries." />		
+		<text name="gui_ad_showTooltips"			 		text="Show tooltips" />	
+		<text name="gui_ad_showTooltips_tooltip"	 		text="Show tooltips of buttons in the HUD." />		
+		<text name="gui_ad_enterTargetNameTitle_add" 		text="Add Target" />
+		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Edit Target" />
+		<text name="gui_ad_enterTargetNameText" 			text="Insert target name:" />
+		<text name="gui_ad_createButtonText" 				text="Create" />
+		<text name="gui_ad_enterDriverNameTitle" 			text="Rename Driver" />
+		<text name="gui_ad_enterDriverNameText" 			text="Insert driver name:" />
+		<text name="gui_ad_enterGroupNameTitle"				text="Create Folder" />
+		<text name="gui_ad_enterGroupNameText" 				text="Insert folder name:" />
 		</text>
 	</texts>
 </l10n>

@@ -146,5 +146,13 @@
 		<text name="gui_ad_restrictToField_tooltip"	 		text="Falls der Abfahrer bereits im Feld steht, wird ein Pfad im Feld gesucht." />		
 		<text name="gui_ad_showTooltips"			 		text="Tooltips zeigen" />	
 		<text name="gui_ad_showTooltips_tooltip"	 		text="Tooltips der Buttons im HUD anzeigen." />				
+		<text name="gui_ad_enterTargetNameTitle_add" 		text="Neues Ziel" />
+		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Ziel umbenennen" />
+		<text name="gui_ad_enterTargetNameText" 			text="Zielnamen eingeben:" />
+		<text name="gui_ad_createButtonText" 				text="Erstellen" />
+		<text name="gui_ad_enterDriverNameTitle" 			text="Fahrer umbenennen" />
+		<text name="gui_ad_enterDriverNameText" 			text="Fahrernamen eingeben:" />
+		<text name="gui_ad_enterGroupNameTitle"				text="Ordner erstellen" />
+		<text name="gui_ad_enterGroupNameText" 				text="Ordnernamen eingeben:" />		
 	</texts>
 </l10n>
