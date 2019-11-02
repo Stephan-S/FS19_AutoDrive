@@ -76,8 +76,13 @@ function ADHudIcon:onDrawHeader(vehicle)
         end;
     end;
 
-    if AutoDrive.requestedWaypoints then
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_synchronizing");
+    if AutoDrive.totalNumberOfWayPointsToReceive ~= nil then
+        if AutoDrive.mapWayPointsCounter ~= AutoDrive.totalNumberOfWayPointsToReceive then
+            if AutoDrive.requestedWaypoints then
+                textToShow = textToShow .. " - " .. g_i18n:getText("AD_synchronizing");        
+                textToShow = textToShow .. " " .. AutoDrive.mapWayPointsCounter .. "/" .. AutoDrive.totalNumberOfWayPointsToReceive            
+            end;
+        end;
     end;
     
     local textWidth = getTextWidth(adFontSize, textToShow);

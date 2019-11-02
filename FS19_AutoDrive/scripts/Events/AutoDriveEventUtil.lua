@@ -57,10 +57,10 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
     end;
 
     if idFullTable[1] ~= nil then
-        streamWriteFloat32(streamId, idCounter);
+        streamWriteInt32(streamId, idCounter);
         local i = 1;
         while i <= idCounter do
-            streamWriteFloat32(streamId,idFullTable[i]);
+            streamWriteInt32(streamId,idFullTable[i]);
             streamWriteFloat32(streamId,xTable[i]);
             streamWriteFloat32(streamId,yTable[i]);
             streamWriteFloat32(streamId,zTable[i]);
@@ -85,10 +85,10 @@ function AutoDrive:writeMapMarkersToStream(streamId)
     for i in pairs(AutoDrive.mapMarker) do
         markerCounter = markerCounter + 1;
     end;
-    streamWriteFloat32(streamId, markerCounter);
+    streamWriteInt32(streamId, markerCounter);
     local i = 1;
     while i <= markerCounter do
-        streamWriteFloat32(streamId, AutoDrive.mapMarker[i].id);
+        streamWriteInt32(streamId, AutoDrive.mapMarker[i].id);
         streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].name);
         streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].group);
         i = i + 1;
@@ -101,7 +101,7 @@ function AutoDrive:writeMapMarkersToStream(streamId)
 end;
 
 function AutoDrive:writeGroupsToStream(streamId)
-    streamWriteFloat32(streamId, ADTableLength(AutoDrive.groups));
+    streamWriteInt32(streamId, ADTableLength(AutoDrive.groups));
     for groupName, groupID in pairs(AutoDrive.groups) do
         streamWriteStringOrEmpty(streamId, groupName);
         streamWriteFloat32(streamId, groupID);
@@ -115,7 +115,7 @@ function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
 	while wp_counter < numberOfWayPoints do
 		wp_counter = wp_counter +1;
 		local wp = {};
-		wp["id"] =  streamReadFloat32(streamId);
+		wp["id"] =  streamReadInt32(streamId);
 		wp.x = streamReadFloat32(streamId);
 		wp.y =	streamReadFloat32(streamId);
 		wp.z = streamReadFloat32(streamId);
@@ -152,14 +152,16 @@ function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
 		AutoDrive.mapWayPoints[wp.id] = wp;
 
 		highestId = math.max(highestId, wp.id);
-		lowestId = math.min(lowestId, wp.id);
+        lowestId = math.min(lowestId, wp.id);
+        
+        --print("Received waypoint from #" .. lowestId .. " to #" .. highestId);
 	end;
 end;
 
 function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
     local mapMarkerCount = 1;
     while mapMarkerCount <= numberOfMapMarkers do
-		local markerId = streamReadFloat32(streamId);
+		local markerId = streamReadInt32(streamId);
 		local markerName = streamReadStringOrEmpty(streamId);
 		local markerGroup = streamReadStringOrEmpty(streamId);
 		local marker = {};
@@ -184,7 +186,7 @@ end;
 
 function AutoDrive:readGroupsFromStream(streamId)
     AutoDrive.groups = {};
-    local numberOfGroups = streamReadFloat32(streamId);
+    local numberOfGroups = streamReadInt32(streamId);
     local loopCounter = 1;
     while loopCounter <= numberOfGroups do
 		local groupName = streamReadStringOrEmpty(streamId);

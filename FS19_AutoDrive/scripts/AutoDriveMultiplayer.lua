@@ -28,6 +28,7 @@ function AutoDrive:handleMultiplayer(vehicle, dt)
 			    end;
                 AutoDriveCourseDownloadEvent:sendEvent(self);                
             else
+                --print("Done sending network!");
                 AutoDrive.requestedWaypoints = false;	
             end;
         end;

@@ -21,7 +21,9 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 	end;
 	
 	if g_server ~= nil or AutoDrive.playerSendsMapToServer == true then
-		streamWriteInt16(streamId, AutoDrive.requestedWaypointCount);
+		streamWriteInt32(streamId, AutoDrive.requestedWaypointCount);
+
+		streamWriteInt32(streamId, AutoDrive.mapWayPointsCounter);
 
 		AutoDrive:writeWaypointsToStream(	
 			streamId, 
@@ -38,10 +40,11 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 		end;
 
 		if (AutoDrive.requestedWaypointCount + AutoDrive.WAYPOINTS_PER_PACKET) >= AutoDrive.mapWayPointsCounter then
+			--print("Writing map markers now..");
 			AutoDrive:writeMapMarkersToStream(streamId);	
 			AutoDrive:writeGroupsToStream(streamId);		
 		else
-			streamWriteFloat32(streamId, 0);
+			streamWriteInt32(streamId, 0);
 		end;		
 	else
 		--print("Requesting waypoints");
@@ -55,8 +58,9 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 		return;
 	end;
 
-	local lowestID = streamReadInt16(streamId);
-	local numberOfWayPoints = streamReadFloat32(streamId);
+	local lowestID = streamReadInt32(streamId);
+	AutoDrive.totalNumberOfWayPointsToReceive = streamReadInt32(streamId);
+	local numberOfWayPoints = streamReadInt32(streamId);
 	
 	if AutoDrive.receivedWaypoints ~= true then
 		AutoDrive.receivedWaypoints = true;
@@ -75,7 +79,7 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 	AutoDrive.highestIndex = math.max(1, AutoDrive:getHighestConsecutiveIndex());
 	AutoDrive.mapWayPointsCounter = AutoDrive.highestIndex;
 
-	local numberOfMapMarkers = streamReadFloat32(streamId);
+	local numberOfMapMarkers = streamReadInt32(streamId);
 
 	if (numberOfMapMarkers ~= nil) and (numberOfMapMarkers > 0) then
 		AutoDrive.mapMarker = {}

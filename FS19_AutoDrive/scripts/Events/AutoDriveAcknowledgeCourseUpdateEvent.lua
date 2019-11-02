@@ -19,14 +19,14 @@ function AutoDriveAcknowledgeCourseUpdateEvent:writeStream(streamId, connection)
     if g_server == nil then	
         local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId);
         streamWriteInt32(streamId, user:getId());
-        streamWriteInt16(streamId, self.highestIndex);
+        streamWriteInt32(streamId, self.highestIndex);
     end;   
 end;
 
 function AutoDriveAcknowledgeCourseUpdateEvent:readStream(streamId, connection)
     if g_server ~= nil then
         local userID = streamReadInt32(streamId);
-        local highestIndexFromPlayer = streamReadInt16(streamId);
+        local highestIndexFromPlayer = streamReadInt32(streamId);
         
         if AutoDrive.Server.Users[userID] ~= nil then
             AutoDrive.Server.Users[userID].highestIndex = highestIndexFromPlayer;
