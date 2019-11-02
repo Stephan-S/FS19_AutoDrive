@@ -253,7 +253,6 @@ function init(self)
 	self.ad.inDeadLockRepairCounter = 4;
 	
 	self.ad.creatingMapMarker = false;
-	self.ad.enteringMapMarker = false;
 	self.ad.enteredMapMarkerString = "";
 		
 	self.name = g_i18n:getText("UNKNOWN")
@@ -315,14 +314,6 @@ function init(self)
 	self.ad.nToolTipWait = 300;
 	self.ad.nToolTipTimer = 6000;
 	self.ad.sToolTip = "";
-	
-	self.ad.choosingDestination = false;
-	self.ad.chosenDestination = "";
-	self.ad.enteredChosenDestination = "";
-
-	self.ad.choosingDestinationUnload = false;
-	self.ad.chosenDestinationUnload = "";
-	self.ad.enteredChosenDestinationUnload = "";
 
 	if AutoDrive.showingHud ~= nil then
 		self.ad.showingHud = AutoDrive.showingHud;
@@ -457,14 +448,13 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 end; 
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown) 
-	local vehicle = g_currentMission.controlledVehicle
+	--local vehicle = g_currentMission.controlledVehicle
 
-	if vehicle == nil or vehicle.ad == nil then
-		return;
-	end;
-		
-	AutoDrive:handleKeyEvents(vehicle, unicode, sym, modifier, isDown);
-end; 
+	--if vehicle == nil or vehicle.ad == nil then
+	--	return;
+	--end;
+	--AutoDrive:handleKeyEvents(vehicle, unicode, sym, modifier, isDown);
+end
 
 function AutoDrive:onUpdate(dt)
 	if self.ad == nil or self.ad.moduleInitialized ~= true then

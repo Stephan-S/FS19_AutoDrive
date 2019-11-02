@@ -669,8 +669,7 @@ function AutoDrive:finishCreatingMapMarker(vehicle)
 		vehicle.ad.creatingMapMarker = false;
 		AutoDrive:MarkChanged();
 		g_currentMission.isPlayerFrozen = false;
-		vehicle.isBroken = false;    
-		vehicle.ad.enteringMapMarker = false;
+		vehicle.isBroken = false;
 		g_inputBinding:revertContext(true);
 		
 		if g_server ~= nil then
