@@ -41,7 +41,7 @@
 		<text name="AD_Driver_of"								text="Řidič" />
 		<text name="AD_has_reached"								text="Stojí" />
 		<text name="AD_got_stuck"								text="Blokován" />
-		<text name="AD_cannot_reach"							text="Nelze najít. Zkuste stisknout tlačítko Aktualizovat trasu" />
+		<text name="AD_cannot_reach"							text="Nelze dosáhnout cíle. Zkuste stisknout tlačítko Aktualizovat trasu" />
 		<text name="AD_cannot_find_path"						text="can't calculate a path" />
 		<text name="AD_new_marker"								text="Nový cíl:" />
 		<text name="AD_new_marker_helptext"						text="Zadejte nový cíl (Zastavíte Enterem)" />
@@ -144,15 +144,15 @@
 		<text name="gui_ad_useBeaconLights_tooltip"				text="Použití majáku na silnici" />
 		<text name="gui_ad_restrictToField"						text="Vyhledávat cestu jen na poli" />
 		<text name="gui_ad_restrictToField_tooltip"				text="Pokud odvozce parkuje na poli, bude vyhledávaní cesty omezeno je na pole vymezené okrajem tohoto pole" />
-		<text name="gui_ad_showTooltips"						text="Show tooltips" />
-		<text name="gui_ad_showTooltips_tooltip"				text="Show tooltips of buttons in the HUD." />
-		<text name="gui_ad_enterTargetNameTitle_add"			text="Add Target" />
-		<text name="gui_ad_enterTargetNameTitle_edit"			text="Edit Target" />
-		<text name="gui_ad_enterTargetNameText"					text="Insert target name:" />
-		<text name="gui_ad_createButtonText"					text="Create" />
-		<text name="gui_ad_enterDriverNameTitle"				text="Rename Driver" />
-		<text name="gui_ad_enterDriverNameText"					text="Insert driver name:" />
-		<text name="gui_ad_enterGroupNameTitle"					text="Create Folder" />
-		<text name="gui_ad_enterGroupNameText"					text="Insert folder name:" />
+		<text name="gui_ad_showTooltips"						text="Zobrazit HUD nápovědu" />
+		<text name="gui_ad_showTooltips_tooltip"				text="Povoluje zobrazit nápovědu pro tlačítka v HUD" />
+		<text name="gui_ad_enterTargetNameTitle_add"			text="Přidat cíl" />
+		<text name="gui_ad_enterTargetNameTitle_edit"			text="Upravit cíl" />
+		<text name="gui_ad_enterTargetNameText"					text="Vložit název cíle:" />
+		<text name="gui_ad_createButtonText"					text="Vytvořit" />
+		<text name="gui_ad_enterDriverNameTitle"				text="Přejmenovat řidiče" />
+		<text name="gui_ad_enterDriverNameText"					text="Vytovořit jméno řidiče:" />
+		<text name="gui_ad_enterGroupNameTitle"					text="Vytvořit adresář" />
+		<text name="gui_ad_enterGroupNameText"					text="Vytvořit název adresáře:" />
 	</texts>
 </l10n>
