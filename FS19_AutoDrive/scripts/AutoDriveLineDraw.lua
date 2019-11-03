@@ -48,7 +48,7 @@ function AutoDrive:drawLine(startPoint, targetPoint, r, g, b, a)
     if (startPoint == nil or targetPoint == nil) then
         return;
     end;
-    local color = AutoDrive:newColor(r, g, b, a);
+    local color = {r=r, g=g, b=b, a=a};
     AutoDrive.LineDraw.jobCounter = AutoDrive.LineDraw.jobCounter + 1;
     while AutoDrive.LineDraw.jobCounter > AutoDrive.LineDraw.lineCounter and AutoDrive.LineDraw.lineCounter < AutoDrive.LineDraw.maxLines do
         AutoDrive.LineDraw.lines[AutoDrive.LineDraw.lineCounter+1] = AutoDrive:createLineObject();        

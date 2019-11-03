@@ -702,11 +702,12 @@ function AutoDrive:checkForTriggerProximity(vehicle)
 end;
 
 function AutoDrive:getTriggerPos(trigger)
-    local x,y,z = 0, 0, 0;if trigger.triggerNode ~= nil then
+    local x,y,z = 0, 0, 0;
+    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil then
         x,y,z = getWorldTranslation(trigger.triggerNode);
         --print("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end;
-    if trigger.exactFillRootNode ~= nil then
+    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil then
         x,y,z = getWorldTranslation(trigger.exactFillRootNode);
         --print("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end;    
