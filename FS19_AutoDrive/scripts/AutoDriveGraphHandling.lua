@@ -124,29 +124,29 @@ function AutoDrive:removeMapWayPoint(toDelete)
 end;
 
 function AutoDrive.renameMapMarker(newName, oldName, markerID, sendEvent)
-	if newName:len() > 1 then
-		-- Renaming map marker
-		AutoDrive.mapMarker[markerID].name = newName
-
-		-- Updating all waypoints with new marker name
-		for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
-			-- Adding marker with new name
-			mapPoint.marker[newName] = mapPoint.marker[oldName]
-			-- Removing marker with old name
-			mapPoint.marker[oldName] = nil
-        end
-
-		-- Calling external interop listeners
-		AutoDrive:notifyDestinationListeners()
-
-		-- Resetting HUD
-		AutoDrive.Hud.lastUIScale = 0
-		
+	if newName:len() > 1 and markerID >= 0 then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating marker rename all over the network
 			AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerID)
+		else
+			-- Renaming map marker
+			AutoDrive.mapMarker[markerID].name = newName
+
+			-- Updating all waypoints with new marker name
+			for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
+				-- Adding marker with new name
+				mapPoint.marker[newName] = mapPoint.marker[oldName]
+				-- Removing marker with old name
+				mapPoint.marker[oldName] = nil
+			end
+
+			-- Calling external interop listeners
+			AutoDrive:notifyDestinationListeners()
+
+			-- Resetting HUD
+			AutoDrive.Hud.lastUIScale = 0
 		end
-    end
+	end
 end
 
 function AutoDrive:removeMapMarker(toDelete)

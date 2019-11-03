@@ -24,20 +24,27 @@ function AutoDriveRenameMapMarkerEvent:writeStream(streamId, connection)
 end
 
 function AutoDriveRenameMapMarkerEvent:readStream(streamId, connection)
-	local newName = streamReadStringOrEmpty(streamId)
-	local oldName = streamReadStringOrEmpty(streamId)
-	local markerID = streamReadUInt8(streamId)
-	AutoDrive.renameMapMarker(newName, oldName, markerID, false)
-	if g_server ~= nil then
-		AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerID, connection)
+	self.newName = streamReadStringOrEmpty(streamId)
+	self.oldName = streamReadStringOrEmpty(streamId)
+	self.markerID = streamReadUInt8(streamId)
+	self:run(connection)
+end
+
+function AutoDriveRenameMapMarkerEvent:run(connection)
+	if g_server ~= nil and connection:getIsServer() == false then
+		-- If the event is coming from a client, server have only to broadcast
+		AutoDriveRenameMapMarkerEvent.sendEvent(self.newName, self.oldName, self.markerID)
+	else
+		-- If the event is coming from the server, both clients and server have to rename the marker
+		AutoDrive.renameMapMarker(self.newName, self.oldName, self.markerID, false)
 	end
 end
 
-function AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerID, ignoreConnection)
+function AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerID)
 	local event = AutoDriveRenameMapMarkerEvent:new(newName, oldName, markerID)
 	if g_server ~= nil then
-		-- Server have to broadcast to all clients except for sender of the rename, if there is one
-		g_server:broadcastEvent(event, false, ignoreConnection)
+		-- Server have to broadcast to all clients and himself
+		g_server:broadcastEvent(event, true)
 	else
 		-- Client have to send to server
 		g_client:getServerConnection():sendEvent(event)
