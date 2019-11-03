@@ -2,6 +2,8 @@ AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20;
 AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 400;
 AutoDrive.PATHFINDER_FOLLOW_DISTANCE = 44;
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 14;
+AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE = 20;
+AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 9;
 AutoDrive.PATHFINDER_START_DISTANCE = 4; --15;
 AutoDrive.PP_UP = 0;
 AutoDrive.PP_UP_RIGHT = 1;
@@ -13,8 +15,8 @@ AutoDrive.PP_LEFT = 6;
 AutoDrive.PP_UP_LEFT = 7;
 
 AutoDrive.PP_MIN_DISTANCE = 20;
-AutoDrive.PP_CELL_X = 7;
-AutoDrive.PP_CELL_Z = 7;
+AutoDrive.PP_CELL_X = 9;
+AutoDrive.PP_CELL_Z = 9;
 AutoDrivePathFinder = {};
 
 
@@ -63,7 +65,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         local pipeChasePos, _ = AutoDrive:getPipeChasePosition(driver, combine, combine:getIsBufferCombine(), leftBlocked, rightBlocked)
         wpAhead = {x= pipeChasePos.x, y = pipeChasePos.y, z = pipeChasePos.z};
         
-        wpBehind = {x= pipeChasePos.x - 7 * rx, y = pipeChasePos.y, z = pipeChasePos.z - 7 * rz};
+        wpBehind = {x= pipeChasePos.x - AutoDrive.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - AutoDrive.PATHFINDER_TARGET_DISTANCE * rz};
         driver.ad.waitForPreDriveTimer = 10000;
     else
         local nodeX,nodeY,nodeZ = getWorldTranslation(dischargeNode);       
@@ -78,9 +80,9 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
             wpAhead = {x= (nodeX + (lengthOffset + trailerOffset)*rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (lengthOffset + trailerOffset)*rz  - pipeOffset * combineNormalVector.z};
         end;
         wpCurrent = {x= (nodeX - pipeOffset * combineNormalVector.x ), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z};
-        wpBehind_close = {x= (nodeX - 10*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - 10*rz - pipeOffset * combineNormalVector.z };
+        wpBehind_close = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE*rz - pipeOffset * combineNormalVector.z };
         
-        wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE*rz - pipeOffset * combineNormalVector.z }; --make this target
+        wpBehind = {x= (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE*rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE*rz - pipeOffset * combineNormalVector.z }; --make this target
     end;    
     
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
@@ -98,17 +100,9 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
-	local cos = math.cos(atan);  
-
-    local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
-    minTurnRadius = math.max(minTurnRadius, AutoDrive.PP_CELL_X);
-
-    local maxToolRadius = 0
-    for _,implement in pairs(driver:getAttachedAIImplements()) do
-        maxToolRadius = math.max(maxToolRadius, AIVehicleUtil.getMaxToolRadius(implement))
-    end
-
-    minTurnRadius = math.max(minTurnRadius, maxToolRadius);
+    local cos = math.cos(atan);  
+            
+    minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver);
 
 	local vectorX = {};
 	vectorX.x = cos * minTurnRadius;
@@ -179,16 +173,8 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 	
 	local sin = math.sin(atan);
     local cos = math.cos(atan);
-    
-    local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 3) / 2;
-    minTurnRadius = math.max(minTurnRadius, AutoDrive.PP_CELL_X);
-    
-    local maxToolRadius = 0
-    for _,implement in pairs(driver:getAttachedAIImplements()) do
-        maxToolRadius = math.max(maxToolRadius, AIVehicleUtil.getMaxToolRadius(implement))
-    end
 
-    minTurnRadius = math.max(minTurnRadius, maxToolRadius);
+    minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver);
 
 	local vectorX = {};
 	vectorX.x = cos * minTurnRadius;
@@ -274,6 +260,25 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     local endIsOnField = AutoDrivePathFinder:checkIsOnField(targetX, driverWorldY, targetZ);
 
     driver.ad.pf.restrictToField = startIsOnField and endIsOnField;
+end;
+
+function AutoDrivePathFinder:getDriverRadius(driver)
+    local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) + 5) / 2;
+    if AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) <= 5 then
+        minTurnRadius = AutoDrive.PP_CELL_X;
+    end;
+    --minTurnRadius = math.max(minTurnRadius, AutoDrive.PP_CELL_X);
+
+    local maxToolRadius = 0
+    for _,implement in pairs(driver:getAttachedAIImplements()) do
+        maxToolRadius = math.max(maxToolRadius, (AIVehicleUtil.getMaxToolRadius(implement) + 5) / 2);
+    end
+
+    minTurnRadius = math.max(minTurnRadius, maxToolRadius);
+    
+    AutoDrive:debugPrint(driver, ADDEBUGLEVEL_1, " startPathPlanningToCombine - minTurnRadius: " .. minTurnRadius .. " AI: ".. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) .. " tools: " .. maxToolRadius);        
+
+    return minTurnRadius;
 end;
 
 function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine)    
@@ -371,7 +376,8 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
 
             local grid = pf.grid; 
             for _,cell in pairs(grid) do
-                if not cell.visited and ((not cell.isRestricted) or pf.fallBackMode) and (not cell.hasCollision) and cell.hasInfo == true then
+                --also checking for preDriveCombine here -> don't ever drive through fruit in preDrive mode -> this will often result in driver cutting through fruit in front of combine!
+                if not cell.visited and ((not cell.isRestricted) or (pf.fallBackMode and (not pf.preDriveCombine))) and (not cell.hasCollision) and cell.hasInfo == true then
                     local distance = cellDistance(pf, cell);
                     local originalDistance = cellDistance(pf, pf.startCell);
                     local ratio = (originalDistance - distance) / cell.steps;
@@ -603,7 +609,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         
         cell.hasInfo = true;
 
-        cell.isRestricted = cell.isRestricted or (pf.restrictToField and (not AutoDrivePathFinder:checkIsOnField(worldPos.x, y, worldPos.z)));
+        cell.isRestricted = cell.isRestricted or (pf.restrictToField and (not pf.fallBackMode) and (not AutoDrivePathFinder:checkIsOnField(worldPos.x, y, worldPos.z)));
 
         local boundingBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z);
         if AutoDrive:checkForVehiclesInBox(boundingBox) then

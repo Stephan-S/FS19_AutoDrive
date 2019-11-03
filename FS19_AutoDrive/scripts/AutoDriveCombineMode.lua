@@ -46,7 +46,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
             vehicle.ad.tryingToCallDriver = true;  
             AutoDrive:callDriverToCombine(vehicle);  
-        elseif ((fillLevel / maxCapacity) >= AutoDrive:getSetting("preCallLevel") or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) and AutoDrive:getSetting("preCallDriver") then
+        elseif (((fillLevel / maxCapacity) >= AutoDrive:getSetting("preCallLevel") and (fillLevel / maxCapacity) <= 0.96) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) and AutoDrive:getSetting("preCallDriver") then
             if vehicle.ad.sensors.frontSensorFruit:pollInfo() then
                 vehicle.ad.tryingToCallDriver = true;  
                 AutoDrive:preCallDriverToCombine(vehicle);
@@ -76,7 +76,8 @@ function AutoDrive:callDriverToCombine(combine)
                     end;
                 end;
 
-                if closestDriver ~= nil then                    		
+                if closestDriver ~= nil then  
+                    AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " callDriverToCombine");                     		
                     AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, dischargeNode.node);
                     closestDriver.ad.currentCombine = combine;
                     AutoDrive.waitingUnloadDrivers[closestDriver] = nil;
@@ -116,7 +117,8 @@ function AutoDrive:preCallDriverToCombine(combine)
             end;
         end;
 
-        if closestDriver ~= nil then                    		
+        if closestDriver ~= nil then  
+            AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " preCallDriverToCombine");                              		
             AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil);
             closestDriver.ad.currentCombine = combine;
             AutoDrive.waitingUnloadDrivers[closestDriver] = nil;
@@ -586,12 +588,12 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
             sideIndex = AutoDrive.ccSIDE_REAR;
         end;
     else 
-        local combineFillLevel, combineLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle.ad.currentCombine);
-        local combineMaxCapacity = combineFillLevel + combineLeftCapacity;       
-    
+        local combineFillLevel, combineLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine);
+        local combineMaxCapacity = combineFillLevel + combineLeftCapacity;     
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100;
 
-        if (not leftBlocked) and combineFillPercent < 90 then    
+        if (not leftBlocked) and combineFillPercent < 90 then   
+            AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking left side"); 
             nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 6, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 6;
              
             local spec = combine.spec_pipe
@@ -610,6 +612,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
                 sideIndex = AutoDrive.ccSIDE_LEFT;
             end;
         else
+            AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side");
             sideIndex = AutoDrive.ccSIDE_REAR;
             local chaseCombinePos = AutoDrive:getCombineChasePosition(vehicle, combine);
             nodeX = chaseCombinePos.x;

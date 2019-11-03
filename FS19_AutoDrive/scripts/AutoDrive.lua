@@ -23,6 +23,14 @@ AutoDrive.MODE_BGA = 6;
 AutoDrive.WAYPOINTS_PER_PACKET = 25;
 AutoDrive.SPEED_ON_FIELD = 38;
 
+ADDEBUGLEVEL_NONE 	= 0;
+ADDEBUGLEVEL_ALL 	= math.huge;
+ADDEBUGLEVEL_1 		= 1;
+ADDEBUGLEVEL_2		= 2;
+ADDEBUGLEVEL_3 		= 3;
+
+AutoDrive.currentDebugLevel = ADDEBUGLEVEL_NONE; --ADDEBUGLEVEL_ALL;
+
 function AutoDrive.prerequisitesPresent(specializations)
     return SpecializationUtil.hasSpecialization(Motorized, specializations) and SpecializationUtil.hasSpecialization(Drivable, specializations) and SpecializationUtil.hasSpecialization(Enterable, specializations)
 end
@@ -446,12 +454,6 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 end; 
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown) 
-	--local vehicle = g_currentMission.controlledVehicle
-
-	--if vehicle == nil or vehicle.ad == nil then
-	--	return;
-	--end;
-	--AutoDrive:handleKeyEvents(vehicle, unicode, sym, modifier, isDown);
 end
 
 function AutoDrive:onUpdate(dt)
@@ -467,8 +469,8 @@ function AutoDrive:onUpdate(dt)
 	--end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
-	for k, v in pairs(AutoDrive.delayedCallBacks) do
-		v:update(dt);
+	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do
+		delayedCallBack:update(dt);
 	end
 
 	if self.ad.currentInput ~= "" and self.isServer then
@@ -484,46 +486,52 @@ function AutoDrive:onUpdate(dt)
 	AutoDrive:handleYPositionIntegrityCheck(self);
 	AutoDrive:handleClientIntegrity(self);
 	AutoDrive:handleMultiplayer(self, dt);
+	AutoDrive:handleDriverWages(self, dt)
+	AutoDriveBGA:handleBGA(self, dt);
 	
-	if self.spec_pipe ~= nil and self.spec_enterable ~= nil then
+	if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
 		AutoDrive:handleCombineHarvester(self, dt)
 	end;
 
+	if AutoDrive.runThisFrame == false then --run things that should run at least once per frame, independent of the vehicle
+		AutoDrive:handlePerFrameOperations(vehicle, dt);
+		AutoDrive.runThisFrame = true;
+	end;
+end;
+
+function AutoDrive:handlePerFrameOperations(vehicle, dt)
+	for _,vehicle in pairs(g_currentMission.vehicles) do
+		if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
+			vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt);
+		end;
+
+		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then	
+			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0)) ;
+			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true);
+			local combineSteering = false; --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
+			local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering; 			
+			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt);
+		end;
+	end;
+
+	for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+		if trigger.stoppedTimer == nil then
+			trigger.stoppedTimer = AutoDriveTON:new();
+		end;
+		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt);
+	end;
+end;
+
+function AutoDrive:handleDriverWages(vehicle, dt)
 	local driverWages = AutoDrive:getSetting("driverWages");
-	local spec = self.spec_aiVehicle
-	if self.isServer and spec ~= nil then
-		if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and self.ad.isActive then
+	local spec = vehicle.spec_aiVehicle
+	if vehicle.isServer and spec ~= nil then
+		if vehicle:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and vehicle.ad.isActive then
 			local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier;
 			local price = -dt * difficultyMultiplier * (driverWages -1) * spec.pricePerMS
 			g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
 		end;
 	end;
-
-	AutoDriveBGA:handleBGA(self, dt);
-
-	if AutoDrive.runThisFrame == false then --run things that should run at least once per frame, independent of the vehicle
-		for _,vehicle in pairs(g_currentMission.vehicles) do
-			if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
-				vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt);
-			end;
-			if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then	
-				local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0)) ;
-				local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true);
-				local combineSteering = false; --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
-				local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering; 			
-				vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt);
-			end;
-		end;
-
-		for _,trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-			if trigger.stoppedTimer == nil then
-				trigger.stoppedTimer = AutoDriveTON:new();
-			end;
-			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt);
-		end;
-	end;
-
-	AutoDrive.runThisFrame = true;
 end;
 
 function AutoDrive:onDraw()
@@ -559,8 +567,8 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 
 	if AutoDrive.print.currentMessage ~= nil then
 		local adFontSize = 0.016;
-		local adPosX = 0.5; --0.03;
-		local adPosY = 0.14; --0.975;
+		local adPosX = 0.5;
+		local adPosY = 0.14;
 		setTextColor(1,1,0,1);
 		setTextAlignment(RenderText.ALIGN_CENTER);
 		renderText(adPosX, adPosY, adFontSize, AutoDrive.print.currentMessage);
@@ -682,7 +690,7 @@ end;
 function AutoDrive:onPostLoad(savegame)
 	if self.isServer then
 		if savegame ~= nil then
-      local xmlFile = savegame.xmlFile
+      		local xmlFile = savegame.xmlFile
 			local key     = savegame.key ..".FS19_AutoDrive.AutoDrive"
 			
 			if self.ad == nil then
@@ -750,7 +758,7 @@ function AutoDrive:onPostLoad(savegame)
 			end;
 
 			AutoDrive:readVehicleSettingsFromXML(self, xmlFile, key);
-    end
+    	end
 	end;
 end;
 
@@ -838,40 +846,6 @@ function AutoDrive:preRemoveVehicle(self)
 end;
 FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle);
 
-function normalizeAngle(inputAngle)
-	if inputAngle > (2*math.pi) then
-			inputAngle = inputAngle - (2*math.pi);	
-	else
-			if inputAngle < -(2*math.pi) then
-				inputAngle = inputAngle + (2*math.pi);
-			end;
-	end;
 
-	return inputAngle;
-end;
-
-function normalizeAngle2(inputAngle)
-	if inputAngle > (2*math.pi) then
-			inputAngle = inputAngle - (2*math.pi);	
-	else
-			if inputAngle < 0 then
-				inputAngle = inputAngle + (2*math.pi);
-			end;
-	end;
-
-	return inputAngle;
-end;
-
-function normalizeAngleToPlusMinusPI(inputAngle)
-	if inputAngle > (math.pi) then
-			inputAngle = inputAngle - (2*math.pi);	
-	else
-			if inputAngle < -(math.pi) then
-				inputAngle = inputAngle + (2*math.pi);
-			end;
-	end;
-
-	return inputAngle;
-end;
 
 addModEventListener(AutoDrive);

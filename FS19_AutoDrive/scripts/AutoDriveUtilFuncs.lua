@@ -100,14 +100,45 @@ function AutoDrive:angleBetween(vec1, vec2)
 	return math.deg(angle) --math.acos(angle)
 end
 
+function normalizeAngle(inputAngle)
+	if inputAngle > (2 * math.pi) then
+		inputAngle = inputAngle - (2 * math.pi)
+	else
+		if inputAngle < -(2 * math.pi) then
+			inputAngle = inputAngle + (2 * math.pi)
+		end
+	end
+
+	return inputAngle
+end
+
+function normalizeAngle2(inputAngle)
+	if inputAngle > (2 * math.pi) then
+		inputAngle = inputAngle - (2 * math.pi)
+	else
+		if inputAngle < 0 then
+			inputAngle = inputAngle + (2 * math.pi)
+		end
+	end
+
+	return inputAngle
+end
+
+function normalizeAngleToPlusMinusPI(inputAngle)
+	if inputAngle > (math.pi) then
+		inputAngle = inputAngle - (2 * math.pi)
+	else
+		if inputAngle < -(math.pi) then
+			inputAngle = inputAngle + (2 * math.pi)
+		end
+	end
+
+	return inputAngle
+end
+
 function AutoDrive:createVector(x, y, z)
 	local t = {x = x, y = y, z = z}
 	return t
-end
-
-function AutoDrive:newColor(r, g, b, a)
-	local color = {r = r, g = g, b = b, a = a}
-	return color
 end
 
 function AutoDrive:round(num)
@@ -321,4 +352,27 @@ function AutoDrive:loadTriggerDelete(superFunc)
 		end
 	end
 	superFunc(self)
+end
+
+addConsoleCommand("ADsetDebugLevel", "Set new debug level", "setDebugLevel", AutoDrive)
+
+function AutoDrive:setDebugLevel(newDebugLevel)
+	if newDebugLevel ~= nil then
+		AutoDrive.currentDebugLevel = newDebugLevel
+	else
+		AutoDrive.currentDebugLevel = ADDEBUGLEVEL_ALL
+	end
+end
+
+function AutoDrive:debugPrint(vehicle, debugLevel, debugText)
+	if AutoDrive.currentDebugLevel >= debugLevel then
+		local printText = ""
+		if (vehicle ~= nil and vehicle.ad.name ~= nil) then
+			printText = vehicle.ad.name .. ": "
+		end
+
+		printText = printText .. debugText
+
+		print(printText)
+	end
 end
