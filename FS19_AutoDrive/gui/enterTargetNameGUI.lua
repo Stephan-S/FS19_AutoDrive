@@ -95,7 +95,7 @@ end
 
 function adEnterTargetNameGui:onClickCreateButton()
     adEnterTargetNameGui:superClass().onClickOk(self)
-    AutoDrive.createMapMarker(g_currentMission.controlledVehicle, self.textInputElement.text)
+    AutoDrive.createMapMarkerOnClosest(g_currentMission.controlledVehicle, self.textInputElement.text)
     self:onClickBack()
 end
 

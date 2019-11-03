@@ -140,7 +140,7 @@ function AutoDrive.renameMapMarker(newName, oldName, markerID, sendEvent)
 				mapPoint.marker[oldName] = nil
 			end
 
-			if g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == oldName then
+			if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == oldName then
 				-- nameOfSelectedTarget must be updated only if we are renaming the marker selected on the pullDownList
 				g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = newName
 			end
@@ -159,37 +159,43 @@ function AutoDrive.renameMapMarker(newName, oldName, markerID, sendEvent)
 	end
 end
 
-function AutoDrive.createMapMarker(vehicle, markerName, sendEvent)
+function AutoDrive.createMapMarkerOnClosest(vehicle, markerName)
 	if vehicle ~= nil and markerName:len() > 1 then
 		-- Finding closest waypoint
 		local closest = AutoDrive:findClosestWayPoint(vehicle)
 		if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-			if sendEvent == nil or sendEvent == true then
-				-- Propagating marker creation all over the network
-				AutoDriveCreateMapMarkerEvent.sendEvent(vehicle, markerName)
-			else
-				local mapWayPoint = AutoDrive.mapWayPoints[closest]
+			AutoDrive.createMapMarker(closest, markerName)
+		end
+	end
+end
 
-				-- Creating the transform for the new map marker
-				local node = createTransformGroup(markerName)
-				setTranslation(node, mapWayPoint.x, mapWayPoint.y + 4, mapWayPoint.z)
+function AutoDrive.createMapMarker(wayPointId, markerName, sendEvent)
+	if wayPointId ~= nil and wayPointId >= 0 and markerName:len() > 1 then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating marker creation all over the network
+			AutoDriveCreateMapMarkerEvent.sendEvent(wayPointId, markerName)
+		else
+			local mapWayPoint = AutoDrive.mapWayPoints[wayPointId]
 
-				-- Increasing the map makers count
-				AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
+			-- Creating the transform for the new map marker
+			local node = createTransformGroup(markerName)
+			setTranslation(node, mapWayPoint.x, mapWayPoint.y + 4, mapWayPoint.z)
 
-				-- Creating the new map marker
-				AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = closest, name = markerName, node = node, group = "All"}
+			-- Increasing the map makers count
+			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
 
-				-- Calling external interop listeners
-				AutoDrive:notifyDestinationListeners()
+			-- Creating the new map marker
+			AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = wayPointId, name = markerName, node = node, group = "All"}
 
-				-- Resetting HUD
-				AutoDrive.Hud.lastUIScale = 0
+			-- Calling external interop listeners
+			AutoDrive:notifyDestinationListeners()
 
-				if g_server ~= nil then
-					-- On the server we must mark the change
-					AutoDrive:MarkChanged()
-				end
+			-- Resetting HUD
+			AutoDrive.Hud.lastUIScale = 0
+
+			if g_server ~= nil then
+				-- On the server we must mark the change
+				AutoDrive:MarkChanged()
 			end
 		end
 	end
