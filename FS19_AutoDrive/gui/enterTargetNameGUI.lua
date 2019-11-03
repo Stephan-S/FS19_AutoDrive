@@ -123,15 +123,7 @@ end
 
 function adEnterTargetNameGui:onClickRenameButton()
     adEnterTargetNameGui:superClass().onClickOk(self)
-    local enteredName = self.textInputElement.text
-    if enteredName:len() > 1 then
-        AutoDrive.renameMapMarker(enteredName, self.editName, self.editId)
-        -- nameOfSelectedTarget must be updated only if we are renaming the marker selected on the pullDownList
-        if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
-            g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName
-        end
-    end
-
+    AutoDrive.renameMapMarker(self.textInputElement.text, self.editName, self.editId)
     self:onClickBack()
 end
 

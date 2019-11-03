@@ -140,6 +140,11 @@ function AutoDrive.renameMapMarker(newName, oldName, markerID, sendEvent)
 				mapPoint.marker[oldName] = nil
 			end
 
+			if g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == oldName then
+				-- nameOfSelectedTarget must be updated only if we are renaming the marker selected on the pullDownList
+				g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = newName
+			end
+
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
 

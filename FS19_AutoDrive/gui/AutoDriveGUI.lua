@@ -41,10 +41,6 @@ function AutoDrive:onOpenEnterDriverName()
 end
 
 function AutoDrive:onOpenEnterTargetName()
-	if g_dedicatedServerInfo ~= nil then
-		return
-	end
-
 	if not AutoDrive.gui.adEnterTargetNameGui.isOpen then
 		g_gui:showGui("adEnterTargetNameGui")
 	end

@@ -59,10 +59,10 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_nextNeighbor");			
 	end; 
 	if actionName == "ADDebugCreateMapMarker" then 
-		AutoDrive:InputHandling(self, "input_createMapMarker");			
+		AutoDrive:InputHandlingSenderOnly(self, "input_createMapMarker");			
 	end; 
 	if actionName == "ADRenameMapMarker" then 
-		AutoDrive:InputHandling(self, "input_renameMapMarker");			
+		AutoDrive:InputHandlingSenderOnly(self, "input_renameMapMarker");			
 	end; 
 	
 	if actionName == "AD_Speed_up" then 
@@ -147,6 +147,37 @@ function AutoDrive:InputHandling(vehicle, input)
 	vehicle.ad.currentInput = "";
 end;
 
+-- This new kind of handling should prevent unwanted behaviours such as GUI shown on player who hosts the game on non-dedicated games
+-- Now the MP sync is delegated to dedicated events
+function AutoDrive:InputHandlingSenderOnly(vehicle, input)
+    if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
+        if vehicle.ad.createMapPoints == false then
+            return
+        end
+        if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+            return
+        end
+        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+            AutoDrive.renameCurrentMapMarker = false
+            AutoDrive:onOpenEnterTargetName()
+        end
+    end
+
+    if input == "input_renameMapMarker" and (g_dedicatedServerInfo == nil) then
+        if vehicle.ad.createMapPoints == false then
+            return
+        end
+        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+            -- Check needed to avoid errors when there are no targets
+            if (g_currentMission.controlledVehicle.ad.mapMarkerSelected == nil or g_currentMission.controlledVehicle.ad.mapMarkerSelected == -1) then
+                return
+            end
+            AutoDrive.renameCurrentMapMarker = true
+            AutoDrive:onOpenEnterTargetName()
+        end
+    end
+end
+
 function AutoDrive:InputHandlingClientOnly(vehicle, input)
 	if input == "input_uploadRoutes" then
 		if vehicle.ad.createMapPoints == false then
@@ -168,36 +199,6 @@ function AutoDrive:InputHandlingClientOnly(vehicle, input)
 end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
-	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
-		if vehicle.ad.createMapPoints == false then
-			return;
-		end;
-		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
-			return;
-		end;
-		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			AutoDrive.renameCurrentMapMarker = false;
-			AutoDrive:onOpenEnterTargetName();
-			--AutoDrive:inputCreateMapMarker(vehicle);
-		end
-	end;
-
-	if input == "input_renameMapMarker" and (g_dedicatedServerInfo == nil) then
-		if vehicle.ad.createMapPoints == false then
-			return;
-		end;
-		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			-- Checks needed to avoid errors when there are no targets
-			-- That lead to a small bug, when the first target is created, you have to manually reselect the target on the PullDownList to have nameOfSelectedTarget filled with the name of the target
-			-- TODO: Find a way to set all needed variables when the first target is created
-			if(g_currentMission.controlledVehicle.ad.mapMarkerSelected == nil or g_currentMission.controlledVehicle.ad.mapMarkerSelected == -1 or g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == nil or g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == "") then
-				return;
-			end
-			AutoDrive.renameCurrentMapMarker = true;
-			AutoDrive:onOpenEnterTargetName();
-		end
-	end;
-
 	if input == "input_start_stop" then
 		if AutoDrive.mapWayPoints == nil or AutoDrive.mapWayPoints[1] == nil or vehicle.ad.targetSelected == -1 then
 			return;
