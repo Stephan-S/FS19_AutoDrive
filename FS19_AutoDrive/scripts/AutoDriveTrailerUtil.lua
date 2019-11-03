@@ -846,9 +846,11 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
 end;
 
 function AutoDrive:trailerIsInTriggerList(trailer, trigger, fillUnitIndex) 
-    for _, fillableObject in pairs(trigger.fillableObjects) do
-        if fillableObject == trailer or (fillableObject.object ~= nil and fillableObject.object == trailer and fillableObject.fillUnitIndex == fillUnitIndex) then
-            return true;
+    if trigger ~= nil and trigger.fillableObjects ~= nil then
+        for _, fillableObject in pairs(trigger.fillableObjects) do
+            if fillableObject == trailer or (fillableObject.object ~= nil and fillableObject.object == trailer and fillableObject.fillUnitIndex == fillUnitIndex) then
+                return true;
+            end;
         end;
     end;
     return false;
