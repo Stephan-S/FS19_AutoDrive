@@ -259,6 +259,27 @@ end
 
 function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 	maxDepth = maxDepth or 2
+	local function renderTableRecursively(posX, posY, textSize, inputTable, depth, maxDepth, i)
+		if depth >= maxDepth then
+			return i
+		end
+		for k, v in pairs(inputTable) do
+			local offset = i * textSize * 1.05
+			setTextAlignment(RenderText.ALIGN_RIGHT)
+			renderText(posX, posY - offset, textSize, tostring(k) .. " :")
+			setTextAlignment(RenderText.ALIGN_LEFT)
+			if type(v) == "number" then
+				renderText(posX, posY - offset, textSize, " " .. string.format("%.4f", v))
+			else
+				renderText(posX, posY - offset, textSize, " " .. tostring(v))
+			end
+			i = i + 1
+			if type(v) == "table" then
+				i = renderTableRecursively(posX + textSize * 2, posY, textSize, v, depth + 1, maxDepth, i)
+			end
+		end
+		return i
+	end
 	local i = 0
 	setTextColor(1, 1, 1, 1)
 	setTextBold(false)
@@ -275,54 +296,29 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 		end
 		i = i + 1
 		if type(v) == "table" then
-			i = AutoDrive.renderTableRecursively(posX + textSize * 2, posY, textSize, v, 1, maxDepth, i)
+			i = renderTableRecursively(posX + textSize * 2, posY, textSize, v, 1, maxDepth, i)
 		end
 	end
-end
-
-function AutoDrive.renderTableRecursively(posX, posY, textSize, inputTable, depth, maxDepth, i)
-	if depth >= maxDepth then
-		return i
-	end
-	setTextColor(1, 1, 1, 1)
-	setTextBold(false)
-	textSize = getCorrectTextSize(textSize)
-	for k, v in pairs(inputTable) do
-		local offset = i * textSize * 1.05
-		setTextAlignment(RenderText.ALIGN_RIGHT)
-		renderText(posX, posY - offset, textSize, tostring(k) .. " :")
-		setTextAlignment(RenderText.ALIGN_LEFT)
-		if type(v) == "number" then
-			renderText(posX, posY - offset, textSize, " " .. string.format("%.4f", v))
-		else
-			renderText(posX, posY - offset, textSize, " " .. tostring(v))
-		end
-		i = i + 1
-		if type(v) == "table" then
-			i = AutoDrive.renderTableRecursively(posX + textSize * 2, posY, textSize, v, depth + 1, maxDepth, i)
-		end
-	end
-	return i
 end
 
 function AutoDrive:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
 	local result = superFunc(self, rootNode, xmlFile, xmlNode)
 
 	if result and AutoDrive.Triggers ~= nil then
-		AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1;
-		AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = self;
-	end;
+		AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
+		AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = self
+	end
 
-	return result;
-end;
+	return result
+end
 
 function AutoDrive:loadTriggerDelete(superFunc)
 	if AutoDrive.Triggers ~= nil then
 		for i, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
 			if trigger == self then
-				AutoDrive.Triggers.siloTriggers[i] = nil;
-			end;
-		end;
-	end;
-	superFunc(self);
+				AutoDrive.Triggers.siloTriggers[i] = nil
+			end
+		end
+	end
+	superFunc(self)
 end
