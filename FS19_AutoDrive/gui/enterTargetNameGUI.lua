@@ -111,8 +111,6 @@ function adEnterTargetNameGui:onClickCreateButton()
                 AutoDriveCreateMapMarkerEvent:sendEvent(g_currentMission.controlledVehicle, closest, enteredName)
             end
         end
-
-        AutoDrive:notifyDestinationListeners()
         AutoDrive.Hud.lastUIScale = 0
     end
 
@@ -129,8 +127,6 @@ function adEnterTargetNameGui:onClickRenameButton()
             mapPoint.marker[enteredName] = mapPoint.marker[self.editName]
         end
         g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName
-
-        AutoDrive:notifyDestinationListeners()
         AutoDrive.Hud.lastUIScale = 0
     end
 

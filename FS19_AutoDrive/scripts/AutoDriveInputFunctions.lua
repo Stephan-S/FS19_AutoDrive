@@ -727,29 +727,6 @@ function AutoDrive:inputShowClosest(vehicle)
     vehicle.ad.showClosestPoint = not vehicle.ad.showClosestPoint;
 end;
 
---function AutoDrive:inputCreateMapMarker(vehicle)
---    if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
---        return;
---    end;
---    if vehicle.ad.showClosestPoint == true then
---        if vehicle.ad.creatingMapMarker == false then
---            vehicle.ad.creatingMapMarker  = true;
---            vehicle.ad.enteringMapMarker = true;
---            vehicle.ad.enteredMapMarkerString = "" .. AutoDrive.mapWayPointsCounter;
---            g_currentMission.isPlayerFrozen = true;
---            vehicle.isBroken = true;				
---            g_inputBinding:setContext("AutoDrive.Input_MapMarker", true, false);
---       else
---            vehicle.ad.creatingMapMarker  = false;
- --           vehicle.ad.enteringMapMarker = false;
- --           vehicle.ad.enteredMapMarkerString = "";
- --           g_currentMission.isPlayerFrozen = false;
- --           vehicle.isBroken = false;
- --           g_inputBinding:revertContext(true);
- --       end;
- --   end;
---end;
-
 function AutoDrive:inputSwitchToArrivedVehicle()
 	if AutoDrive.print.referencedVehicle ~= nil then
 		g_currentMission:requestToEnterVehicle(AutoDrive.print.referencedVehicle);
