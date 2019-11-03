@@ -138,7 +138,7 @@
 		<text name="gui_ad_chaseCombine_tooltip"			text="El trailer seguira a la cosechadora hasta llegar al nivel de llenado" />
 		<text name="gui_ad_distributeToFolder"				text="Destinos multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Se seleccionarán todos los destinos de la misma carpeta" />
-		<text name="gui_ad_maxTriggerDistance"				text="Distancoia máxima al trigger />
+		<text name="gui_ad_maxTriggerDistance"				text="Distancoia máxima al trigger" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Distancia a la que se reconocerán los triggers." />
 		<text name="gui_ad_useBeaconLights"				text="Luvces rotativas" />
 		<text name="gui_ad_useBeaconLights_tooltip"			text="Utilizar luces rotativas ebn al carretera" />
