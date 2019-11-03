@@ -119,6 +119,7 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	AutoDrive.mapWayPointsCounter = mapWayPointsCounter;
 
 	AutoDrive:broadCastUpdateToClients();
+	AutoDrive:notifyDestinationListeners();
 	AutoDrive.Hud.lastUIScale = 0;
 end;
 
@@ -165,7 +166,7 @@ function AutoDrive:removeMapMarker(toDelete)
 	AutoDrive:MarkChanged();
 	
 	AutoDrive:broadCastUpdateToClients();
-	
+	AutoDrive:notifyDestinationListeners();
 	AutoDrive.Hud.lastUIScale = 0;	
 end
 
