@@ -95,29 +95,7 @@ end
 
 function adEnterTargetNameGui:onClickCreateButton()
     adEnterTargetNameGui:superClass().onClickOk(self)
-    local enteredName = self.textInputElement.text
-
-    if enteredName:len() > 1 then
-        local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-        if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-            AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
-            local node = createTransformGroup(enteredName)
-            setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4, AutoDrive.mapWayPoints[closest].z)
-
-            AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = closest, name = enteredName, node = node, group = "All"}
-            AutoDrive:MarkChanged()
-
-            if g_server ~= nil then
-                AutoDrive:broadCastUpdateToClients()
-            else
-                AutoDriveCreateMapMarkerEvent:sendEvent(g_currentMission.controlledVehicle, closest, enteredName)
-            end
-        end
-
-        AutoDrive:notifyDestinationListeners()
-        AutoDrive.Hud.lastUIScale = 0
-    end
-
+    AutoDrive.createMapMarker(g_currentMission.controlledVehicle, self.textInputElement.text)
     self:onClickBack()
 end
 

@@ -189,9 +189,11 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
     if self.isVisible then
         if button == 1 and isUp then
             AutoDrive:InputHandling(vehicle, self.primaryAction);
+            AutoDrive:InputHandlingSenderOnly(vehicle, self.primaryAction);
             return true;
         elseif (button == 3 or button == 2) and isUp then
             AutoDrive:InputHandling(vehicle, self.secondaryAction);
+            AutoDrive:InputHandlingSenderOnly(vehicle, self.secondaryAction);
             return true;
         end;
 

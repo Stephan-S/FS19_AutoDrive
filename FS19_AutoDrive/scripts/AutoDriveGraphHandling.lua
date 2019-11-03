@@ -150,6 +150,47 @@ function AutoDrive.renameMapMarker(newName, oldName, markerID, sendEvent)
 
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
+
+			if g_server ~= nil then
+				-- On the server we must mark the change
+				AutoDrive:MarkChanged()
+			end
+		end
+	end
+end
+
+function AutoDrive.createMapMarker(vehicle, markerName, sendEvent)
+	if vehicle ~= nil and markerName:len() > 1 then
+		-- Finding closest waypoint
+		local closest = AutoDrive:findClosestWayPoint(vehicle)
+		if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+			if sendEvent == nil or sendEvent == true then
+				-- Propagating marker creation all over the network
+				AutoDriveCreateMapMarkerEvent.sendEvent(vehicle, markerName)
+			else
+				local mapWayPoint = AutoDrive.mapWayPoints[closest]
+
+				-- Creating the transform for the new map marker
+				local node = createTransformGroup(markerName)
+				setTranslation(node, mapWayPoint.x, mapWayPoint.y + 4, mapWayPoint.z)
+
+				-- Increasing the map makers count
+				AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
+
+				-- Creating the new map marker
+				AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = closest, name = markerName, node = node, group = "All"}
+
+				-- Calling external interop listeners
+				AutoDrive:notifyDestinationListeners()
+
+				-- Resetting HUD
+				AutoDrive.Hud.lastUIScale = 0
+
+				if g_server ~= nil then
+					-- On the server we must mark the change
+					AutoDrive:MarkChanged()
+				end
+			end
 		end
 	end
 end
