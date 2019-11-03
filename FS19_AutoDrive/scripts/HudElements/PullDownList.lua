@@ -712,8 +712,6 @@ function ADPullDownList:sortCurrentItems()
     end;
 end;
 
-
-
 function ADPullDownList:getItemCount()
     local count = #self.options;
     if AutoDrive:getSetting("useFolders") == false or self.type == ADPullDownList.TYPE_FILLTYPE then

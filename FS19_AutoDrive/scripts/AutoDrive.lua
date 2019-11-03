@@ -847,6 +847,4 @@ function AutoDrive:preRemoveVehicle(self)
 end;
 FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle);
 
-
-
 addModEventListener(AutoDrive);

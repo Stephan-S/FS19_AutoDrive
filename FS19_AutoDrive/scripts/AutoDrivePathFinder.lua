@@ -87,7 +87,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
-    local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
+    local driverVector = {x= driverRx ,z= driverRz};	
     
     local startDistance = AutoDrive.PATHFINDER_START_DISTANCE;
     if dischargeNode == nil then
@@ -165,7 +165,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     --print("startPathPlanningToStartPosition " .. driver.ad.driverName );
     local driverWorldX,driverWorldY,driverWorldZ = getWorldTranslation( driver.components[1].node );
 	local driverRx,driverRy,driverRz = localDirectionToWorld(driver.components[1].node, 0,0,1);	
-	local driverVector = {x= math.sin(driverRx) ,z= math.sin(driverRz)};	
+	local driverVector = {x= driverRx ,z= driverRz};	
 	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
 	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
 	
@@ -326,9 +326,9 @@ end;
 
 function AutoDrivePathFinder:updatePathPlanning(driver)    
     local pf = driver.ad.pf;
-    --if driver.ad.createMapPoints then
-      --AutoDrivePathFinder:drawDebugForPF(pf);
-    --end;
+    if driver.ad.createMapPoints and AutoDrive.currentDebugLevel == ADDEBUGLEVEL_ALL then
+      AutoDrivePathFinder:drawDebugForPF(pf);
+    end;
     pf.steps = pf.steps + 1;
 
     if pf.isFinished and pf.smoothDone == true then
@@ -434,11 +434,11 @@ end;
 function AutoDrivePathFinder:isPathPlanningFinished(driver)
 	if driver.ad.pf ~= nil then
         if driver.ad.pf.isFinished == true and driver.ad.pf.smoothDone == true then
-            --if driver.ad.createMapPoints then
-                --drawDebugForCreatedRoute(driver.ad.pf);
-            --else
+            if driver.ad.createMapPoints and AutoDrive.currentDebugLevel == ADDEBUGLEVEL_ALL then
+                drawDebugForCreatedRoute(driver.ad.pf);
+            else
                 return true;
-            --end;
+            end;
 		end;
 	end;
 	return false;
@@ -1088,14 +1088,14 @@ function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X
         fruitValue , _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false);
     end;
     
-    if (pf.fruitToCheck == nil or pf.fruitToCheck < 1) and (fruitValue > 50) then
+    if (pf.fruitToCheck == nil or pf.fruitToCheck < 1) and (fruitValue > 150) then
         pf.fruitToCheck = fruitType;
         pf.driver.ad.combineFruitToCheck = fruitType;
     end;
     local wasRestricted = cell.isRestricted;
-    cell.isRestricted = cell.isRestricted or (fruitValue > 50);
+    cell.isRestricted = cell.isRestricted or (fruitValue > 150);
     
-    cell.hasFruit = (fruitValue > 50);
+    cell.hasFruit = (fruitValue > 150);
 
     --Allow fruit in the first few grid cells
     if ((((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3) and (not pf.preDriveCombine) then

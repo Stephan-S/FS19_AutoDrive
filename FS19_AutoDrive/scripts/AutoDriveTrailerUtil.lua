@@ -664,7 +664,7 @@ function AutoDrive:checkForTriggerProximity(vehicle)
         for _,trigger in pairs(AutoDrive.Triggers.tipTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive:getTriggerPos(trigger);
             local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
-            if distance < AutoDrive:getSetting("maxTriggerDistance") then
+            if distance < 15 then
                 --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                 return true;
             end;
@@ -690,7 +690,7 @@ function AutoDrive:checkForTriggerProximity(vehicle)
                 for _,trailer in pairs(allFillables) do
                     hasRequiredFillType = hasRequiredFillType or AutoDrive:fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes);
                 end;
-                if distance < AutoDrive:getSetting("maxTriggerDistance") and hasRequiredFillType then
+                if distance < 15 and hasRequiredFillType then
                     --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true;
                 end;
@@ -716,13 +716,13 @@ end;
 
 function AutoDrive:shouldLoadOnTrigger(vehicle)
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-        if (not vehicle.ad.onRouteToSecondTarget) and (getDistanceToTargetPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then
+        if (getDistanceToTargetPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then --(not vehicle.ad.onRouteToSecondTarget) and 
             return true;
         end;
     end;
 
     if vehicle.ad.mode == AutoDrive.MODE_LOAD then
-        if (vehicle.ad.onRouteToSecondTarget and getDistanceToUnloadPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then
+        if (getDistanceToUnloadPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then --vehicle.ad.onRouteToSecondTarget and 
             return true;
         end;
     end;
@@ -736,7 +736,7 @@ function AutoDrive:shouldUnloadAtTrigger(vehicle)
     end;
 
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-        if (vehicle.ad.onRouteToSecondTarget) and (getDistanceToUnloadPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then
+        if (getDistanceToUnloadPosition(vehicle) <= AutoDrive:getSetting("maxTriggerDistance")) then -- (vehicle.ad.onRouteToSecondTarget) and 
             return true;
         end;
     end;

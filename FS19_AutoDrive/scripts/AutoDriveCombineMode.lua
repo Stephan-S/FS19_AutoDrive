@@ -369,7 +369,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
     if vehicle.ccInfos.combineHeadingDiff:done() then
         keepFollowing = false;
     end;
-    if vehicle.ccInfos.distanceToChasePos > 60 then
+    if vehicle.ccInfos.distanceToChasePos > 120 then
         --print("Chasing combine - stopped - distanceToChasePos > 60");
         keepFollowing = false;
     end;
@@ -634,7 +634,7 @@ function AutoDrive:getCombineChasePosition(vehicle, combine)
         distance = distance - 35;
     end;
 
-    return {x= worldX - distance*rx, y = worldY, z = worldZ + distance*rz};
+    return {x= worldX - distance*rx, y = worldY, z = worldZ - distance*rz};
 end;
 
 function AutoDrive:getAngleToCombineHeading(vehicle, combine)
@@ -758,6 +758,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id);   
         AutoDrive.waitingUnloadDrivers[vehicle] = nil;
         vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+        vehicle.ad.onRouteToSecondTarget = true;
     else --going to start position
         vehicle.ad.timeTillDeadLock = 15000;
         if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then --Don't search starting waypoint if we were already driving to the unload pos. Just use this point.
@@ -766,6 +767,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected);
         vehicle.ad.isPaused = true;                    
         vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED;        
+        vehicle.ad.onRouteToSecondTarget = false;        
         vehicle.ad.currentTrailer = 1;
         vehicle.ad.designatedTrailerFillLevel = math.huge;
         if AutoDrive:getSetting("distributeToFolder") and AutoDrive:getSetting("useFolders") then -- make this setting switchable

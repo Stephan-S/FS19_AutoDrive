@@ -378,40 +378,36 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end;	
 
 	if input == "input_nextTarget_Unload" then
-		if  AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
-			if vehicle.ad.mapMarkerSelected_Unload == -1 then
-				vehicle.ad.mapMarkerSelected_Unload = 1
-
-				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
-
-				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
-			else
-				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload + 1;
-				if vehicle.ad.mapMarkerSelected_Unload > AutoDrive.mapMarkerCounter then
-					vehicle.ad.mapMarkerSelected_Unload = 1;
-				end;
-				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
-				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+		if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+			local destinations = AutoDrive:getSortedDestinations();
+			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected_Unload )
+	
+			local nextDestination = next(destinations, currentIndex);
+			if nextDestination == nil then
+				nextDestination = next(destinations, nil);
 			end;
+	
+			vehicle.ad.mapMarkerSelected_Unload = destinations[nextDestination].id;
+			vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+			vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
 		end;
-
 	end;
 
 	if input == "input_previousTarget_Unload" then
 		if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
-			if vehicle.ad.mapMarkerSelected_Unload == -1 then
-				vehicle.ad.mapMarkerSelected_Unload = AutoDrive.mapMarkerCounter;
-
-				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
-				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+			local destinations = AutoDrive:getSortedDestinations();
+			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected_Unload)
+	
+			local previousIndex = 1;
+			if currentIndex > 1 then
+				previousIndex = currentIndex - 1;
 			else
-				vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1;
-				if vehicle.ad.mapMarkerSelected_Unload < 1 then
-					vehicle.ad.mapMarkerSelected_Unload = AutoDrive.mapMarkerCounter;
-				end;
-				vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
-				vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
+				previousIndex = #destinations;
 			end;
+	
+			vehicle.ad.mapMarkerSelected_Unload = destinations[previousIndex].id;
+			vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
+			vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
 		end;
 	end;
 
@@ -451,7 +447,8 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 						vehicle.ad.currentCombine = nil;
 					end;
 					AutoDrive.waitingUnloadDrivers[vehicle] = nil;
-					vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;
+					vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS;					
+					vehicle.ad.onRouteToSecondTarget = true;  
 				else
 					--Drive to startpos with path finder
 					vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS;
@@ -558,38 +555,76 @@ function AutoDrive:inputRecord(vehicle, dual)
 end;
 
 function AutoDrive:inputNextTarget(vehicle)
-    if  AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
-        if vehicle.ad.mapMarkerSelected == -1 then
-            vehicle.ad.mapMarkerSelected = 1
+	if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+		local destinations = AutoDrive:getSortedDestinations();
+		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected )
 
-            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-        else
-            vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected + 1;
-            if vehicle.ad.mapMarkerSelected > AutoDrive.mapMarkerCounter then
-                vehicle.ad.mapMarkerSelected = 1;
-            end;
-            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;            
-        end;
+		local nextDestination = next(destinations, currentIndex);
+		if nextDestination == nil then
+			nextDestination = next(destinations, nil);
+		end;
+
+		vehicle.ad.mapMarkerSelected = destinations[nextDestination].id;
+		vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+		vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
     end;
 end;
 
-function AutoDrive:inputPreviousTarget(vehicle)
-    if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
-        if vehicle.ad.mapMarkerSelected == -1 then
-            vehicle.ad.mapMarkerSelected = AutoDrive.mapMarkerCounter;
+function AutoDrive:getElementWithIdInList(destinations, id)
+	local currentIndex = 1;
+	for index, destination in ipairs(destinations) do
+		if destination.id == id then
+			currentIndex = index;
+		end;
+	end;
+	return currentIndex;
+end;
 
-            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-        else
-            vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1;
-            if vehicle.ad.mapMarkerSelected < 1 then
-                vehicle.ad.mapMarkerSelected = AutoDrive.mapMarkerCounter;
-            end;
-            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-        end;
+function AutoDrive:getSortedDestinations()
+	local destinations = AutoDrive:createCopyOfDestinations();
+
+	local sort_func = function(a, b)
+		a = tostring(a.name):lower();
+		b = tostring(b.name):lower();
+		local patt = '^(.-)%s*(%d+)$'
+		local _,_, col1, num1 = a:find(patt)
+		local _,_, col2, num2 = b:find(patt)
+		if (col1 and col2) and col1 == col2 then
+		   return tonumber(num1) < tonumber(num2)
+		end
+		return a < b
+	end
+
+	table.sort(destinations, sort_func);
+
+	return destinations;
+end;
+
+function AutoDrive:createCopyOfDestinations()
+	local destinations = {};
+	
+	for destinationIndex, destination in pairs(AutoDrive.mapMarker) do
+		table.insert(destinations, {id = destinationIndex, name=destination.name});
+	end;
+
+	return destinations;
+end;
+
+function AutoDrive:inputPreviousTarget(vehicle)
+	if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+		local destinations = AutoDrive:getSortedDestinations();
+		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected)
+
+		local previousIndex = 1;
+		if currentIndex > 1 then
+			previousIndex = currentIndex - 1;
+		else
+			previousIndex = #destinations;
+		end;
+
+		vehicle.ad.mapMarkerSelected = destinations[previousIndex].id;
+		vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
+		vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
     end;
 end;
 

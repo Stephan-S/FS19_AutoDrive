@@ -209,7 +209,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 							end;							
 
 							local alternative = shortest + distanceToAdd;
-							if workDistances[linkedNodeId] == nil or alternative < workDistances[linkedNodeId] then
+							if (workDistances[linkedNodeId] == nil or alternative < workDistances[linkedNodeId]) and (alternative < math.huge) then
 								workDistances[linkedNodeId] = alternative;
 								workPre[linkedNodeId] = shortest_id;
 								lastShortest = alternative;
