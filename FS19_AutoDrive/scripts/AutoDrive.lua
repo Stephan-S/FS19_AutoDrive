@@ -462,12 +462,13 @@ function AutoDrive:onUpdate(dt)
 		init(self);
 	end;
 
-	--if (g_currentMission.controlledVehicle ~= nil) then
-	--	local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-    --	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-	--		AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[closest])
-	--	end
-	--end
+	if (g_currentMission.controlledVehicle ~= nil) then
+		local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
+    	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+			AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[closest])
+			AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+		end
+	end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
 	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do

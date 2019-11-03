@@ -58,21 +58,23 @@ function adEnterTargetNameGui:onOpen()
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
 
-    local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-    if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-        local cId = AutoDrive.mapWayPoints[closest].id
-        for i, mapMarker in pairs(AutoDrive.mapMarker) do
-            if mapMarker.id == cId then
-                self.editId = i
-                self.editName = mapMarker.name
-                break
-            end
-        end
-    end
-
+    -- If renameCurrentMapMarker is true, we have to rename the map marker selected on the pull down list otherwise we can go for closest waypoint
     if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
         self.editId = g_currentMission.controlledVehicle.ad.mapMarkerSelected
         self.editName = AutoDrive.mapMarker[self.editId].name
+    else
+        local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
+        if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+            local cId = AutoDrive.mapWayPoints[closest].id
+            for i, mapMarker in pairs(AutoDrive.mapMarker) do
+                -- If we have already a map marker on this waypoint, we edit it otherwise we create a new one
+                if mapMarker.id == cId then
+                    self.editId = i
+                    self.editName = mapMarker.name
+                    break
+                end
+            end
+        end
     end
 
     if self.editId ~= nil and self.editName ~= nil then
@@ -112,7 +114,7 @@ function adEnterTargetNameGui:onClickCreateButton()
             end
         end
 
-        AutoDrive:notifyDestinationListeners();
+        AutoDrive:notifyDestinationListeners()
         AutoDrive.Hud.lastUIScale = 0
     end
 
@@ -122,16 +124,12 @@ end
 function adEnterTargetNameGui:onClickRenameButton()
     adEnterTargetNameGui:superClass().onClickOk(self)
     local enteredName = self.textInputElement.text
-
     if enteredName:len() > 1 then
-        AutoDrive.mapMarker[self.editId].name = enteredName
-        for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
-            mapPoint.marker[enteredName] = mapPoint.marker[self.editName]
+        AutoDrive.renameMapMarker(enteredName, self.editName, self.editId)
+        -- nameOfSelectedTarget must be updated only if we are renaming the marker selected on the pullDownList
+        if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
+            g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName
         end
-        g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = enteredName
-
-        AutoDrive:notifyDestinationListeners();
-        AutoDrive.Hud.lastUIScale = 0
     end
 
     self:onClickBack()

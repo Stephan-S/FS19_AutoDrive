@@ -45,10 +45,7 @@ function AutoDrive:onOpenEnterTargetName()
 		return
 	end
 
-	if AutoDrive.gui.adEnterTargetNameGui.isOpen then
-		--AutoDrive.gui.adEnterTargetNameGui:onClickBack()
-	elseif g_gui.currentGui == nil then
-		--AutoDrive.delayedCallBacks.openEnterTargetNameGUI:call(200)
+	if not AutoDrive.gui.adEnterTargetNameGui.isOpen then
 		g_gui:showGui("adEnterTargetNameGui")
 	end
 end
