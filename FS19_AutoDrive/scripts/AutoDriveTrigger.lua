@@ -166,13 +166,13 @@ function AutoDrive:getAllTriggers()
                 for name, unloadingTrigger in pairs (factory.registeredUnloadingTriggers) do                    
                     if unloadingTrigger.trigger then                                        
                         AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1;
-                        AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadingTrigger;
+                        AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadingTrigger.trigger;
 					end				
 				end
 				for name, loadingTrigger in pairs (factory.registeredLoadingTriggers) do
                     if loadingTrigger.trigger then
                         AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1;
-                        AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadingTrigger;              
+                        AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadingTrigger.trigger;              
 					end	
 				end
 			end

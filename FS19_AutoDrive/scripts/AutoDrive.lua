@@ -461,7 +461,7 @@ function AutoDrive:onUpdate(dt)
 	if self.ad == nil or self.ad.moduleInitialized ~= true then
 		init(self);
 	end;
-
+	
 	--if (g_currentMission.controlledVehicle ~= nil) then
 	--	local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
     --	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then

@@ -810,7 +810,12 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
                     if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
                         fillLevels, capacity = trigger.source:getAllFillLevels(g_currentMission:getFarmId());
                     end;
-                    local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and fillLevels[vehicle.ad.unloadFillTypeIndex] > 0);
+                    local gcFillLevels, gcCapacity = {}, 0;
+                    if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
+                        gcFillLevels, gcCapacity = trigger.source:getAllProvidedFillLevels(g_currentMission:getFarmId(), trigger.managerId);
+                    end;
+                    local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and fillLevels[vehicle.ad.unloadFillTypeIndex] > 0)
+                        or (gcFillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and gcFillLevels[vehicle.ad.unloadFillTypeIndex] > 0);
                     
                     local hasRequiredFillType = false;
                     local fillUnits = trailer:getFillUnits();
@@ -820,9 +825,10 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
 
                         for _,allowedFillType in pairs(allowedFillTypes) do
                             if trailer:getFillUnitSupportsFillType(i,allowedFillType) then
-                                hasCapacity = hasCapacity or (fillLevels[allowedFillType] ~= nil and fillLevels[allowedFillType] > 0);
+                                hasCapacity = hasCapacity or (fillLevels[allowedFillType] ~= nil and fillLevels[allowedFillType] > 0)
+                                    or (gcFillLevels[allowedFillType] ~= nil and gcFillLevels[allowedFillType] > 0);
                             end;
-                        end;
+                        end;                        
 
                         local trailerIsInRange = AutoDrive:trailerIsInTriggerList(trailer, trigger, i); 
                                            
@@ -831,7 +837,7 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
                         --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. ADBoolToString(trailerIsInRange));
                         --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: isNotFilled " .. ADBoolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999) );
     
-                        if trailerIsInRange and hasRequiredFillType and hasCapacity and isNotFilled then
+                        if trailerIsInRange and hasRequiredFillType  and isNotFilled and hasCapacity then
                             local pair = {trailer=trailer, trigger=trigger};
                             table.insert(trailerTriggerPairs, pair);
                         end;
