@@ -464,9 +464,8 @@ function AutoDrive:onUpdate(dt)
 
 	if (g_currentMission.controlledVehicle ~= nil) then
 		local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-    	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
+		if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
 			AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[closest])
-			AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
 		end
 	end
 
