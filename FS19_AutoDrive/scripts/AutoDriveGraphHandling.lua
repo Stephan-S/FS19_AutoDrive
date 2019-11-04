@@ -123,14 +123,14 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	AutoDrive.Hud.lastUIScale = 0;
 end;
 
-function AutoDrive.renameMapMarker(newName, oldName, markerID, sendEvent)
-	if newName:len() > 1 and markerID >= 0 then
+function AutoDrive.renameMapMarker(newName, oldName, markerId, sendEvent)
+	if newName:len() > 1 and markerId >= 0 then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating marker rename all over the network
-			AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerID)
+			AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerId)
 		else
 			-- Renaming map marker
-			AutoDrive.mapMarker[markerID].name = newName
+			AutoDrive.mapMarker[markerId].name = newName
 
 			-- Updating all waypoints with new marker name
 			for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
@@ -169,13 +169,13 @@ function AutoDrive.createMapMarkerOnClosest(vehicle, markerName)
 	end
 end
 
-function AutoDrive.createMapMarker(wayPointId, markerName, sendEvent)
-	if wayPointId ~= nil and wayPointId >= 0 and markerName:len() > 1 then
+function AutoDrive.createMapMarker(markerId, markerName, sendEvent)
+	if markerId ~= nil and markerId >= 0 and markerName:len() > 1 then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating marker creation all over the network
-			AutoDriveCreateMapMarkerEvent.sendEvent(wayPointId, markerName)
+			AutoDriveCreateMapMarkerEvent.sendEvent(markerId, markerName)
 		else
-			local mapWayPoint = AutoDrive.mapWayPoints[wayPointId]
+			local mapWayPoint = AutoDrive.mapWayPoints[markerId]
 
 			-- Creating the transform for the new map marker
 			local node = createTransformGroup(markerName)
@@ -185,7 +185,7 @@ function AutoDrive.createMapMarker(wayPointId, markerName, sendEvent)
 			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
 
 			-- Creating the new map marker
-			AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = wayPointId, name = markerName, node = node, group = "All"}
+			AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = markerId, name = markerName, node = node, group = "All"}
 
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
@@ -201,51 +201,82 @@ function AutoDrive.createMapMarker(wayPointId, markerName, sendEvent)
 	end
 end
 
-function AutoDrive:removeMapMarker(toDelete)
-	--adjust all mapmarkers
-	local deletedMarkerID = -1;
-	local deletedMarker = false;
-	for markerID,marker in pairs(AutoDrive.mapMarker) do
-		if marker.id == toDelete.id then
-			deletedMarker = true;
-			deletedMarkerID = markerID;
-			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1;
-		end;
-		if deletedMarker then
-			if AutoDrive.mapMarker[markerID+1] ~= nil then
-				AutoDrive.mapMarker[markerID] =  AutoDrive.mapMarker[markerID+1];
-			else
-				AutoDrive.mapMarker[markerID] = nil;
-				removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm".. markerID) ;
-			end;
-		end;
-	end;
+function AutoDrive.removeMapMarkerByWayPoint(wayPointId)
+    if wayPointId ~= nil and wayPointId >= 0 then
+        -- Finding the map waypoint where the marker should be
+        local mapWayPoint = AutoDrive.mapWayPoints[wayPointId]
+        for markerId, marker in pairs(AutoDrive.mapMarker) do
+            -- Checking if the way point id matches the marker id
+            if marker.id == mapWayPoint.id then
+                AutoDrive.removeMapMarker(markerId)
+                break
+            end
+        end
+    end
+end
 
-	if deletedMarker then
-		for _, vehicle in pairs(g_currentMission.vehicles) do
-			if vehicle.ad ~= nil then
-				if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= deletedMarkerID then
-					vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1;
-				end;
-				if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected >= deletedMarkerID then
-					vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1;				
-					vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id;
-					vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name;
-				end;
-				if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= deletedMarkerID then
-					vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1;
-					vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id;
-					vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name;
-				end;
-			end;
-		end;
-	end;
+function AutoDrive.removeMapMarker(markerId, sendEvent)
+    if markerId ~= nil and markerId >= 0 then
+        if sendEvent == nil or sendEvent == true then
+            -- Propagating marker deletion all over the network
+            AutoDriveDeleteMapMarkerEvent.sendEvent(markerId)
+        else
+            -- Finding the map waypoint where the marker should be
+            local markerFound = false
+            for mId, marker in pairs(AutoDrive.mapMarker) do
+                -- Checking if the way point id matches the marker id
+                if mId == markerId then
+                    markerFound = true
+                    AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1
+                end
+                -- If the map marker have been found
+                if markerFound then
+                    -- Shifting all other markers back ad deleting the last
+                    if AutoDrive.mapMarker[mId + 1] ~= nil then
+                        AutoDrive.mapMarker[mId] = AutoDrive.mapMarker[mId + 1]
+                    else
+                        -- Not sure about that but MarkChanged() should be enough
+                        --removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
+                        AutoDrive.mapMarker[mId] = nil
+                    end
+                end
+            end
 
-	AutoDrive:MarkChanged();
-	
-	AutoDrive:broadCastUpdateToClients();
-	AutoDrive:notifyDestinationListeners();
-	AutoDrive.Hud.lastUIScale = 0;	
+            -- If the map marker have been deleted
+            if markerFound then
+                -- Removing references to it on all vehicles
+                for _, vehicle in pairs(g_currentMission.vehicles) do
+                    if vehicle.ad ~= nil then
+                        if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= markerId then
+                            -- TODO: Should we remove the parking reference if it was on the delete marker?
+                            vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1
+                        end
+                        if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected >= markerId then
+                            vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1
+                            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
+                            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+                        end
+                        if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= markerId then
+                            vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1
+                            vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
+                            vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+                        end
+                    end
+                end
+            end
+
+            -- Calling external interop listeners
+            AutoDrive:notifyDestinationListeners()
+
+            -- Resetting HUD
+            AutoDrive.Hud.lastUIScale = 0
+
+            if g_server ~= nil then
+                -- On the server we must mark the change
+                AutoDrive:MarkChanged()
+            end
+        end
+    end
 end
 
 function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)

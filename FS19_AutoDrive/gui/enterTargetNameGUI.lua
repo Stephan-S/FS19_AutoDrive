@@ -106,7 +106,7 @@ function adEnterTargetNameGui:onClickRenameButton()
 end
 
 function adEnterTargetNameGui:onClickDeleteButton()
-    AutoDrive:removeMapMarker(AutoDrive.mapMarker[self.editId])
+    AutoDrive.removeMapMarker(self.editId)
     self:onClickBack()
 end
 

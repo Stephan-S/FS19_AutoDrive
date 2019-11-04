@@ -64,7 +64,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADRenameMapMarker" then 
 		AutoDrive:InputHandlingSenderOnly(self, "input_renameMapMarker");			
 	end; 
-	
+	if actionName == "ADDebugDeleteDestination" then
+		AutoDrive:InputHandlingSenderOnly(self, "input_removeMapMarker");
+	end;
 	if actionName == "AD_Speed_up" then 
 		AutoDrive:InputHandling(self, "input_increaseSpeed");			
 	end;
@@ -95,9 +97,6 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;	
 	if actionName == "AD_upload_routes" then
 		AutoDrive:InputHandling(self, "input_uploadRoutes");
-	end;
-	if actionName == "ADDebugDeleteDestination" then
-		AutoDrive:InputHandling(self, "input_removeDestination");
 	end;
 	if actionName == "ADSelectNextFillType" then
 		AutoDrive:InputHandling(self, "input_nextFillType");
@@ -150,6 +149,7 @@ end;
 -- This new kind of handling should prevent unwanted behaviours such as GUI shown on player who hosts the game on non-dedicated games
 -- Now the MP sync is delegated to dedicated events
 function AutoDrive:InputHandlingSenderOnly(vehicle, input)
+	-- TODO: Lock this functions during MP sync and pathfinding
     if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
         if vehicle.ad.createMapPoints == false then
             return
@@ -175,7 +175,16 @@ function AutoDrive:InputHandlingSenderOnly(vehicle, input)
             AutoDrive.renameCurrentMapMarker = true
             AutoDrive:onOpenEnterTargetName()
         end
-    end
+	end
+	
+	if input == "input_removeMapMarker" then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+			return
+		end
+		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
+			AutoDrive.removeMapMarkerByWayPoint(AutoDrive:findClosestWayPoint(vehicle))
+		end
+	end
 end
 
 function AutoDrive:InputHandlingClientOnly(vehicle, input)
@@ -355,16 +364,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive:removeMapWayPoint( AutoDrive.mapWayPoints[closest] );
 		end;
 
-	end;
-
-	if input == "input_removeDestination" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return;
-		end;
-		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-			local closest = AutoDrive:findClosestWayPoint(vehicle)
-			AutoDrive:removeMapMarker( AutoDrive.mapWayPoints[closest] );
-		end;
 	end;
 
 	if input == "input_recalculate" then

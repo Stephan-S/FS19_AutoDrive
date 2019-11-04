@@ -150,7 +150,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false);
 	self:AddButton("input_toggleConnection", nil, "input_ADDebugCreateConnection", 1, false);	
 	self:AddButton("input_createMapMarker", "input_renameMapMarker", "input_ADDebugCreateMapMarker", 1, false);
-	self:AddButton("input_removeWaypoint", "input_removeDestination", "input_ADDebugDeleteWayPoint", 1, false);
+	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false);
 		
 	
 	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth;

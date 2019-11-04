@@ -32,7 +32,7 @@ function AutoDriveCreateMapMarkerEvent:run(connection)
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveCreateMapMarkerEvent.sendEvent(self.wayPointId, self.markerName)
 	else
-		-- If the event is coming from the server, both clients and server have to rename the marker
+		-- If the event is coming from the server, both clients and server have to create the marker
 		AutoDrive.createMapMarker(self.wayPointId, self.markerName, false)
 	end
 end

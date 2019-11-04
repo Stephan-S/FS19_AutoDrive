@@ -41,7 +41,6 @@ function AutoDrive:onOpenEnterDriverName()
 end
 
 function AutoDrive:onOpenEnterTargetName()
-	-- TODO: Lock this function during MP sync
 	if not AutoDrive.gui.adEnterTargetNameGui.isOpen then
 		g_gui:showGui("adEnterTargetNameGui")
 	end
