@@ -131,7 +131,7 @@ function AutoDrive:getIsFilled(vehicle, trailer, fillUnitIndex)
     end;
 
     if fillUnitIndex ~= nil then
-        fillUnitFull = trailer:getFillUnitFillLevelPercentage(fillUnitIndex) <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999
+        fillUnitFull = trailer:getFillUnitFillLevelPercentage(fillUnitIndex) >= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999
     end;
 
     return vehicleFull, trailerFull, fillUnitFull;
@@ -853,6 +853,7 @@ function AutoDrive:trailerIsInTriggerList(trailer, trigger, fillUnitIndex)
             end;
         end;
     end;
+
     return false;
 end;
 
