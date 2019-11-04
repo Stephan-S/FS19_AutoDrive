@@ -463,10 +463,7 @@ function AutoDrive:onUpdate(dt)
 	end;
 
 	if (g_currentMission.controlledVehicle ~= nil) then
-		local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-		if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-			AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[closest])
-		end
+		AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.groups)
 	end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
@@ -833,32 +830,27 @@ function AutoDrive:removeGroup(groupName, sendEvent)
 			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_REMOVE)
 		else
 			-- TODO: Rework this
-			local deletedID = math.huge
-			for gName, groupID in pairs(AutoDrive.groups) do
-				if gName == groupName then
-					deletedID = groupID
-					AutoDrive.groups[gName] = nil
-
-					for _, vehicle in pairs(g_currentMission.vehicles) do
-						if (vehicle.ad ~= nil) then
-							if vehicle.ad.groups[gName] ~= nil then
-								vehicle.ad.groups[gName] = nil
-							end
-						end
-					end
-
-					for markerID, marker in pairs(AutoDrive.mapMarker) do
-						if AutoDrive.mapMarker[markerID].group == gName then
-							AutoDrive.mapMarker[markerID].group = "All"
-						end
+			local groupId = AutoDrive.groups[groupName]
+			-- Removing group from the groups list
+			AutoDrive.groups[groupName] = nil
+			-- Removing group from the vehicles groups list
+			for _, vehicle in pairs(g_currentMission.vehicles) do
+				if (vehicle.ad ~= nil) then
+					if vehicle.ad.groups[groupName] ~= nil then
+						vehicle.ad.groups[groupName] = nil
 					end
 				end
 			end
-
+			-- Moving all markers in the delete group to default group
+			for markerID, _ in pairs(AutoDrive.mapMarker) do
+				if AutoDrive.mapMarker[markerID].group == groupName then
+					AutoDrive.mapMarker[markerID].group = "All"
+				end
+			end
+			-- Resetting other goups id
 			for gName, groupID in pairs(AutoDrive.groups) do
-				if deletedID <= groupID then
-					groupID = groupID - 1
-					AutoDrive.groups[gName] = groupID
+				if groupId <= groupID then
+					AutoDrive.groups[gName] = groupID - 1
 				end
 			end
 			-- Resetting HUD
