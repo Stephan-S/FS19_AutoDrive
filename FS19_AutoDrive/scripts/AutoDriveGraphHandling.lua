@@ -159,12 +159,12 @@ function AutoDrive.renameMapMarker(newName, oldName, markerId, sendEvent)
 	end
 end
 
-function AutoDrive.createMapMarkerOnClosest(vehicle, markerName)
+function AutoDrive.createMapMarkerOnClosest(vehicle, markerName, sendEvent)
 	if vehicle ~= nil and markerName:len() > 1 then
 		-- Finding closest waypoint
 		local closest = AutoDrive:findClosestWayPoint(vehicle)
 		if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-			AutoDrive.createMapMarker(closest, markerName)
+			AutoDrive.createMapMarker(closest, markerName, sendEvent)
 		end
 	end
 end
@@ -201,14 +201,26 @@ function AutoDrive.createMapMarker(markerId, markerName, sendEvent)
 	end
 end
 
-function AutoDrive.removeMapMarkerByWayPoint(wayPointId)
+function AutoDrive.changeMapMarkerGroup(groupName, markerId, sendEvent)
+    if groupName:len() > 1 and AutoDrive.groups[groupName] ~= nil and markerId >= 0 then
+        if sendEvent == nil or sendEvent == true then
+            -- Propagating marker group change all over the network
+            AutoDriveChangeMapMarkerGroupEvent.sendEvent(groupName, markerId)
+        else
+            -- Changing the group name of the marker
+            AutoDrive.mapMarker[markerId].group = groupName
+        end
+    end
+end
+
+function AutoDrive.removeMapMarkerByWayPoint(wayPointId, sendEvent)
     if wayPointId ~= nil and wayPointId >= 0 then
         -- Finding the map waypoint where the marker should be
         local mapWayPoint = AutoDrive.mapWayPoints[wayPointId]
         for markerId, marker in pairs(AutoDrive.mapMarker) do
             -- Checking if the way point id matches the marker id
             if marker.id == mapWayPoint.id then
-                AutoDrive.removeMapMarker(markerId)
+                AutoDrive.removeMapMarker(markerId, sendEvent)
                 break
             end
         end

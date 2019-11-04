@@ -733,26 +733,22 @@ function ADPullDownList:getItemCountForGroup(groupName)
     return 0;
 end;
 
-function ADPullDownList:moveCurrentElementToFolder(vehicle, listElement)
-    local mapMarkerID = vehicle.ad.mapMarkerSelected;
-    local mapMarkerName = vehicle.ad.nameOfSelectedTarget;
+function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
+	local mapMarkerID = vehicle.ad.mapMarkerSelected
+	local mapMarkerName = vehicle.ad.nameOfSelectedTarget
+	local targetGroupName = hitElement.returnValue
 
-    local targetGroupName = listElement.returnValue;
-    local targetGroupID = AutoDrive.groups[targetGroupName];
+	for groupID, entries in pairs(self.options) do
+		for i, entry in pairs(entries) do
+			if entry.returnValue == mapMarkerID then
+				table.remove(entries, i)
+			end
+		end
+	end
 
-    local currentGroupName = AutoDrive.mapMarker[mapMarkerID].group
-    local currentGroupID = AutoDrive.groups[currentGroupName];
+	table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarkerName, returnValue = mapMarkerID})
 
-    for groupID, entries in pairs(self.options) do
-        for i, entry in pairs(entries) do
-            if entry.returnValue == mapMarkerID then
-                table.remove(entries, i);
-            end;
-        end;
-    end;
+	AutoDrive.changeMapMarkerGroup(targetGroupName, mapMarkerID)
 
-    table.insert(self.options[self.groups[targetGroupName]], {displayName= mapMarkerName, returnValue=mapMarkerID});
-    AutoDrive.mapMarker[mapMarkerID].group = targetGroupName;
-
-    self:sortCurrentItems();  
-end;
+	self:sortCurrentItems()
+end

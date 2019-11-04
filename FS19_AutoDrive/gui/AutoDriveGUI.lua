@@ -47,14 +47,7 @@ function AutoDrive:onOpenEnterTargetName()
 end
 
 function AutoDrive:onOpenEnterGroupName()
-	if g_dedicatedServerInfo ~= nil then
-		return
-	end
-
-	if AutoDrive.gui.adEnterGroupNameGui.isOpen then
-		AutoDrive.gui.adEnterGroupNameGui:onClickBack()
-	elseif g_gui.currentGui == nil then
-		--AutoDrive.delayedCallBacks.openEnterGroupNameGUI:call(200)
+	if not AutoDrive.gui.adEnterGroupNameGui.isOpen then
 		g_gui:showGui("adEnterGroupNameGui")
 	end
 end

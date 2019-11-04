@@ -39,24 +39,7 @@ end
 
 function adEnterGroupNameGui:onClickOk()
     adEnterGroupNameGui:superClass().onClickOk(self)
-    local enteredName = self.textInputElement.text
-
-    if enteredName:len() > 1 then
-        if AutoDrive.groups[enteredName] == nil then
-            AutoDrive.groupCounter = AutoDrive.groupCounter + 1
-            AutoDrive.groups[enteredName] = AutoDrive.groupCounter
-
-            for _, vehicle in pairs(g_currentMission.vehicles) do
-                if (vehicle.ad ~= nil) then
-                    if vehicle.ad.groups[enteredName] == nil then
-                        vehicle.ad.groups[enteredName] = false
-                    end
-                end
-            end
-            AutoDrive.Hud.lastUIScale = 0
-        end
-    end
-
+    AutoDrive:addGroup(self.textInputElement.text)
     self:onClickBack()
 end
 
