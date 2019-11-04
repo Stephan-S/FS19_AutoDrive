@@ -299,6 +299,7 @@ function init(self)
 	self.ad.onRouteToPark = false;	
 
 	AutoDrive.Recalculation = {};
+	AutoDrive.Recalculation.continue = false
 	
 	if AutoDrive ~= nil then
 		local set = false;
@@ -463,7 +464,10 @@ function AutoDrive:onUpdate(dt)
 	end;
 
 	if (g_currentMission.controlledVehicle ~= nil) then
-		AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.groups)
+		local testTable = {}
+		testTable.requestedWaypoints = AutoDrive.requestedWaypoints
+		testTable.recalculation = AutoDrive.Recalculation.continue
+		AutoDrive.renderTable(0.1, 0.9, 0.015, testTable)
 	end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)

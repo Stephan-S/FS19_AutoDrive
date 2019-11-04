@@ -421,7 +421,8 @@ function AutoDrive:handleRecalculation(vehicle)
 				if AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers+1] ~= nil then
 					currentDestination = AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers+1].name;
 				end;
-
+				
+				-- TODO: We should try to improve that, currently it's not very synchronized with recalculation
 				AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%  - " .. currentDestination);
 				AutoDrive.print.showMessageFor = 500;
 				if AutoDrive.recalculationPercentage == 100 then
