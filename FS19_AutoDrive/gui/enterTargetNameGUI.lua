@@ -58,8 +58,8 @@ function adEnterTargetNameGui:onOpen()
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
 
-    -- If renameCurrentMapMarker is true, we have to rename the map marker selected on the pull down list otherwise we can go for closest waypoint
-    if AutoDrive.renameCurrentMapMarker ~= nil and AutoDrive.renameCurrentMapMarker == true then
+    -- If editSelectedMapMarker is true, we have to edit the map marker selected on the pull down list otherwise we can go for closest waypoint
+    if AutoDrive.editSelectedMapMarker ~= nil and AutoDrive.editSelectedMapMarker == true then
         self.editId = g_currentMission.controlledVehicle.ad.mapMarkerSelected
         self.editName = AutoDrive.mapMarker[self.editId].name
     else

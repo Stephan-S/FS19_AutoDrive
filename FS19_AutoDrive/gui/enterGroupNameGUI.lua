@@ -39,7 +39,7 @@ end
 
 function adEnterGroupNameGui:onClickOk()
     adEnterGroupNameGui:superClass().onClickOk(self)
-    AutoDrive:addGroup(self.textInputElement.text)
+    AutoDrive.addGroup(self.textInputElement.text)
     self:onClickBack()
 end
 

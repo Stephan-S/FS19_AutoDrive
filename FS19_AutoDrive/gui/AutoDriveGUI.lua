@@ -28,14 +28,7 @@ function AutoDrive:onOpenSettings()
 end
 
 function AutoDrive:onOpenEnterDriverName()
-	if g_dedicatedServerInfo ~= nil then
-		return
-	end
-
-	if AutoDrive.gui.adEnterDriverNameGui.isOpen then
-		AutoDrive.gui.adEnterDriverNameGui:onClickBack()
-	elseif g_gui.currentGui == nil then
-		--AutoDrive.delayedCallBacks.openEnterDriverNameGUI:call(200)
+	if not AutoDrive.gui.adEnterDriverNameGui.isOpen then
 		g_gui:showGui("adEnterDriverNameGui")
 	end
 end

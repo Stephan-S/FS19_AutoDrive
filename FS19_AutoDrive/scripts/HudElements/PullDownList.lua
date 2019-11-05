@@ -515,7 +515,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                         if (hitElement.displayName ~= "All") then 
                             if self:getItemCountForGroup(hitElement.displayName) <= 0 then
                                 AutoDrive.pullDownListExpanded = 0;
-                                AutoDrive:removeGroup(hitElement.returnValue);
+                                AutoDrive.removeGroup(hitElement.returnValue);
                             end;
                         else
                             self:collapse(vehicle, true);

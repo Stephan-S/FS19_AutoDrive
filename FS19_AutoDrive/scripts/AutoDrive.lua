@@ -806,7 +806,7 @@ function AutoDrive.zoomSmoothly(self, superFunc, offset)
 	end
 end
 
-function AutoDrive:addGroup(groupName, sendEvent)
+function AutoDrive.addGroup(groupName, sendEvent)
 	if groupName:len() > 1 and AutoDrive.groups[groupName] == nil then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating group creation all over the network
@@ -827,7 +827,7 @@ function AutoDrive:addGroup(groupName, sendEvent)
 	end
 end
 
-function AutoDrive:removeGroup(groupName, sendEvent)
+function AutoDrive.removeGroup(groupName, sendEvent)
 	if AutoDrive.groups[groupName] ~= nil then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating group creation all over the network
@@ -862,6 +862,9 @@ function AutoDrive:removeGroup(groupName, sendEvent)
 			AutoDrive.groupCounter = AutoDrive.groupCounter - 1
 		end
 	end
+end
+
+function AutoDrive.renameDriver(vehicle, name)
 end
 
 function AutoDrive:preRemoveVehicle(self)
