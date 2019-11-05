@@ -59,12 +59,17 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_nextNeighbor");			
 	end; 
 	if actionName == "ADDebugCreateMapMarker" then 
-		AutoDrive:InputHandling(self, "input_createMapMarker");			
+		AutoDrive:InputHandlingSenderOnly(self, "input_createMapMarker");			
 	end; 
 	if actionName == "ADRenameMapMarker" then 
-		AutoDrive:InputHandling(self, "input_renameMapMarker");			
+		AutoDrive:InputHandlingSenderOnly(self, "input_editMapMarker");			
 	end; 
-	
+	if actionName == "ADDebugDeleteDestination" then
+		AutoDrive:InputHandlingSenderOnly(self, "input_removeMapMarker");
+	end;
+	if actionName == 'ADNameDriver' then
+		AutoDrive:InputHandlingSenderOnly(self, 'input_nameDriver');
+	end;	
 	if actionName == "AD_Speed_up" then 
 		AutoDrive:InputHandling(self, "input_increaseSpeed");			
 	end;
@@ -82,7 +87,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;
 
 	if actionName == "ADDebugDeleteWayPoint" then 
-		AutoDrive:InputHandling(self, "input_removeWaypoint");
+		AutoDrive:InputHandlingSenderOnly(self, "input_removeWaypoint");
 	end;
 	if actionName == "AD_export_routes" then
 		AutoDrive:InputHandling(self, "input_exportRoutes");
@@ -95,9 +100,6 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;	
 	if actionName == "AD_upload_routes" then
 		AutoDrive:InputHandling(self, "input_uploadRoutes");
-	end;
-	if actionName == "ADDebugDeleteDestination" then
-		AutoDrive:InputHandling(self, "input_removeDestination");
 	end;
 	if actionName == "ADSelectNextFillType" then
 		AutoDrive:InputHandling(self, "input_nextFillType");
@@ -114,9 +116,6 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADGoToVehicle" then			
 		AutoDrive:InputHandling(self, "input_goToVehicle");
 	end;
-	if actionName == 'ADNameDriver' then
-		AutoDrive:InputHandling(self, 'input_nameDriver');
-	end;	
 	if actionName == 'ADIncLoopCounter' then
 		AutoDrive:InputHandling(self, 'input_incLoopCounter');
 	end;
@@ -147,7 +146,50 @@ function AutoDrive:InputHandling(vehicle, input)
 	vehicle.ad.currentInput = "";
 end;
 
+-- This new kind of handling should prevent unwanted behaviours such as GUI shown on player who hosts the game on non-dedicated games
+-- Now the MP sync is delegated to dedicated events
+function AutoDrive:InputHandlingSenderOnly(vehicle, input)
+	if vehicle ~= nil and vehicle.ad ~= nil then
+		if vehicle.ad.createMapPoints == true and AutoDrive.Recalculation.continue == false then
+            -- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
+            if input == "input_createMapMarker" then
+                if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+                    return
+                end
+                AutoDrive.editSelectedMapMarker = false
+                AutoDrive:onOpenEnterTargetName()
+            end
+            -- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
+            if input == "input_editMapMarker" then
+                if AutoDrive.mapWayPoints[1] == nil or vehicle.ad.mapMarkerSelected == nil or vehicle.ad.mapMarkerSelected == -1 then
+                    return
+                end
+                AutoDrive.editSelectedMapMarker = true
+                AutoDrive:onOpenEnterTargetName()
+            end
+            -- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
+            if input == "input_removeMapMarker" then
+                if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+                    return
+                end
+                AutoDrive.removeMapMarkerByWayPoint(AutoDrive:findClosestWayPoint(vehicle))
+            end
+            -- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
+            if input == "input_removeWaypoint" then
+                if AutoDrive.mapWayPoints[1] == nil or AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+                    return
+                end
+                AutoDrive.removeMapWayPoint(AutoDrive:findClosestWayPoint(vehicle))
+            end
+        end
+        if input == "input_nameDriver" then
+            AutoDrive:onOpenEnterDriverName()
+        end
+    end
+end
+
 function AutoDrive:InputHandlingClientOnly(vehicle, input)
+	
 	if input == "input_uploadRoutes" then
 		if vehicle.ad.createMapPoints == false then
 			return;
@@ -168,36 +210,6 @@ function AutoDrive:InputHandlingClientOnly(vehicle, input)
 end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
-	if input == "input_createMapMarker" and (g_dedicatedServerInfo == nil) then
-		if vehicle.ad.createMapPoints == false then
-			return;
-		end;
-		if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
-			return;
-		end;
-		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			AutoDrive.renameCurrentMapMarker = false;
-			AutoDrive:onOpenEnterTargetName();
-			--AutoDrive:inputCreateMapMarker(vehicle);
-		end
-	end;
-
-	if input == "input_renameMapMarker" and (g_dedicatedServerInfo == nil) then
-		if vehicle.ad.createMapPoints == false then
-			return;
-		end;
-		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			-- Checks needed to avoid errors when there are no targets
-			-- That lead to a small bug, when the first target is created, you have to manually reselect the target on the PullDownList to have nameOfSelectedTarget filled with the name of the target
-			-- TODO: Find a way to set all needed variables when the first target is created
-			if(g_currentMission.controlledVehicle.ad.mapMarkerSelected == nil or g_currentMission.controlledVehicle.ad.mapMarkerSelected == -1 or g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == nil or g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == "") then
-				return;
-			end
-			AutoDrive.renameCurrentMapMarker = true;
-			AutoDrive:onOpenEnterTargetName();
-		end
-	end;
-
 	if input == "input_start_stop" then
 		if AutoDrive.mapWayPoints == nil or AutoDrive.mapWayPoints[1] == nil or vehicle.ad.targetSelected == -1 then
 			return;
@@ -236,10 +248,6 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_openGUI" and vehicle == g_currentMission.controlledVehicle then
 		AutoDrive:onOpenSettings();
 	end;
-
-	if input == "input_nameDriver" then
-		AutoDrive:onOpenEnterDriverName();
-	end;	
 
 	if input == "input_goToVehicle" then
 		AutoDrive:inputSwitchToArrivedVehicle();
@@ -344,27 +352,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		end;
 		AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed;
 	end;	
-
-	if input == "input_removeWaypoint" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return;
-		end;
-		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-			local closest = AutoDrive:findClosestWayPoint(vehicle)
-			AutoDrive:removeMapWayPoint( AutoDrive.mapWayPoints[closest] );
-		end;
-
-	end;
-
-	if input == "input_removeDestination" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return;
-		end;
-		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-			local closest = AutoDrive:findClosestWayPoint(vehicle)
-			AutoDrive:removeMapMarker( AutoDrive.mapWayPoints[closest] );
-		end;
-	end;
 
 	if input == "input_recalculate" then
 		if AutoDrive.requestedWaypoints == true then
@@ -691,29 +678,6 @@ function AutoDrive:nextSelectedDebugPoint(vehicle, increase)
     if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] == nil then
         vehicle.ad.selectedDebugPoint = 1;
     end;
-end;
-
-function AutoDrive:finishCreatingMapMarker(vehicle)
-	local closest = AutoDrive:findClosestWayPoint(vehicle);
-	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-		AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1;
-		local node = createTransformGroup(vehicle.ad.enteredMapMarkerString);
-		setTranslation(node, AutoDrive.mapWayPoints[closest].x, AutoDrive.mapWayPoints[closest].y + 4 , AutoDrive.mapWayPoints[closest].z  );
-
-		AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id=closest, name= vehicle.ad.enteredMapMarkerString, node=node, group="All"};
-		vehicle.ad.creatingMapMarker = false;
-		AutoDrive:MarkChanged();
-		g_currentMission.isPlayerFrozen = false;
-		vehicle.isBroken = false;
-		g_inputBinding:revertContext(true);
-		
-		if g_server ~= nil then
-			AutoDrive:broadCastUpdateToClients();
-		else
-			AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, closest, vehicle.ad.enteredMapMarkerString);
-		end;
-		AutoDrive.Hud.lastUIScale = 0;
-	end;
 end;
 
 function AutoDrive:inputShowNeighbors(vehicle)

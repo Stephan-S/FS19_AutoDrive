@@ -299,6 +299,7 @@ function init(self)
 	self.ad.onRouteToPark = false;	
 
 	AutoDrive.Recalculation = {};
+	AutoDrive.Recalculation.continue = false
 	
 	if AutoDrive ~= nil then
 		local set = false;
@@ -463,10 +464,12 @@ function AutoDrive:onUpdate(dt)
 	end;
 	
 	--if (g_currentMission.controlledVehicle ~= nil) then
-	--	local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-    --	if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-	--		AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[closest])
-	--	end
+	--	--AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+	--	--AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+	--	local printTable = {}
+	--	printTable.requestedWaypoints = AutoDrive.requestedWaypoints
+	--	printTable.RecalculationContinue = AutoDrive.Recalculation.continue
+	--	AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
 	--end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
@@ -805,40 +808,74 @@ function AutoDrive.zoomSmoothly(self, superFunc, offset)
 	end
 end
 
-function AutoDrive:removeGroup(groupNameToDelete)
-	if groupNameToDelete:len() > 1 then
-		local deletedID = math.huge;
-		for groupName, groupID in pairs(AutoDrive.groups) do
-			if groupName == groupNameToDelete then
-				deletedID = groupID;
-				AutoDrive.groups[groupName] = nil;
-				
-				for _,vehicle in pairs(g_currentMission.vehicles) do
-					if (vehicle.ad ~= nil) then
-						if vehicle.ad.groups[groupName] ~= nil then
-							vehicle.ad.groups[groupName] = nil;
-						end;
-					end;
-				end;
+function AutoDrive.addGroup(groupName, sendEvent)
+	if groupName:len() > 1 and AutoDrive.groups[groupName] == nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating group creation all over the network
+			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_ADD)
+		else
+			AutoDrive.groupCounter = AutoDrive.groupCounter + 1
+			AutoDrive.groups[groupName] = AutoDrive.groupCounter
+			for _, vehicle in pairs(g_currentMission.vehicles) do
+				if (vehicle.ad ~= nil) then
+					if vehicle.ad.groups[groupName] == nil then
+						vehicle.ad.groups[groupName] = false
+					end
+				end
+			end
+			-- Resetting HUD
+			AutoDrive.Hud.lastUIScale = 0
+		end
+	end
+end
 
-				for markerID, marker in pairs(AutoDrive.mapMarker) do					
-					if AutoDrive.mapMarker[markerID].group == groupName then
-						AutoDrive.mapMarker[markerID].group = "All";
-					end;
-				end;
-			end;		
-		end;
+function AutoDrive.removeGroup(groupName, sendEvent)
+	if AutoDrive.groups[groupName] ~= nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating group creation all over the network
+			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_REMOVE)
+		else
+			-- TODO: Rework this
+			local groupId = AutoDrive.groups[groupName]
+			-- Removing group from the groups list
+			AutoDrive.groups[groupName] = nil
+			-- Removing group from the vehicles groups list
+			for _, vehicle in pairs(g_currentMission.vehicles) do
+				if (vehicle.ad ~= nil) then
+					if vehicle.ad.groups[groupName] ~= nil then
+						vehicle.ad.groups[groupName] = nil
+					end
+				end
+			end
+			-- Moving all markers in the delete group to default group
+			for markerID, _ in pairs(AutoDrive.mapMarker) do
+				if AutoDrive.mapMarker[markerID].group == groupName then
+					AutoDrive.mapMarker[markerID].group = "All"
+				end
+			end
+			-- Resetting other goups id
+			for gName, groupID in pairs(AutoDrive.groups) do
+				if groupId <= groupID then
+					AutoDrive.groups[gName] = groupID - 1
+				end
+			end
+			-- Resetting HUD
+			AutoDrive.Hud.lastUIScale = 0
+			AutoDrive.groupCounter = AutoDrive.groupCounter - 1
+		end
+	end
+end
 
-		for groupName, groupID in pairs(AutoDrive.groups) do
-			if deletedID <= groupID then
-				groupID = groupID - 1;
-				AutoDrive.groups[groupName] = groupID;
-			end;
-		end;
-		AutoDrive.Hud.lastUIScale = 0;
-		AutoDrive.groupCounter = AutoDrive.groupCounter - 1;
-	end;
-end;
+function AutoDrive.renameDriver(vehicle, name, sendEvent)
+	if name:len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating driver rename all over the network
+			AutoDriveRenameDriverEvent.sendEvent(vehicle, name)
+		else
+			vehicle.ad.driverName = name
+		end
+	end
+end
 
 function AutoDrive:preRemoveVehicle(self)
 	if self.ad ~= nil and self.ad.isActive then
