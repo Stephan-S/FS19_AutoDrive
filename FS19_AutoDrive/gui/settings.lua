@@ -127,7 +127,7 @@ function adSettings:applySettings()
     end;
 
     AutoDrive.Hud.lastUIScale = 0; 
-    AutoDriveUpdateSettingsEvent:sendEvent();
+    AutoDriveUpdateSettingsEvent:sendEvent(g_currentMission.controlledVehicle);
 end;
 
 function adSettings:onClickReset()
