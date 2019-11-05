@@ -123,12 +123,14 @@ function AutoDrive:removeMapWayPoint(toDelete)
 	AutoDrive.Hud.lastUIScale = 0;
 end;
 
-function AutoDrive.renameMapMarker(newName, oldName, markerId, sendEvent)
+function AutoDrive.renameMapMarker(newName, markerId, sendEvent)
 	if newName:len() > 1 and markerId >= 0 then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating marker rename all over the network
-			AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerId)
+			AutoDriveRenameMapMarkerEvent.sendEvent(newName, markerId)
 		else
+			-- Saving old map marker name
+			local oldName = AutoDrive.mapMarker[markerId].name
 			-- Renaming map marker
 			AutoDrive.mapMarker[markerId].name = newName
 

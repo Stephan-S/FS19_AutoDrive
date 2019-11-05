@@ -101,7 +101,7 @@ end
 
 function adEnterTargetNameGui:onClickRenameButton()
     adEnterTargetNameGui:superClass().onClickOk(self)
-    AutoDrive.renameMapMarker(self.textInputElement.text, self.editName, self.editId)
+    AutoDrive.renameMapMarker(self.textInputElement.text, self.editId)
     self:onClickBack()
 end
 
