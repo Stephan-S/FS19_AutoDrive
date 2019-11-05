@@ -111,7 +111,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive:loadGUI();
 
 	g_logManager:devInfo(string.format("Map title: %s", g_currentMission.missionInfo.map.title))
-	
+
 	AutoDrive.loadedMap = g_currentMission.missionInfo.map.title;
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, " ", "_");
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, "%.", "_");
@@ -465,10 +465,10 @@ function AutoDrive:onUpdate(dt)
 	--if (g_currentMission.controlledVehicle ~= nil) then
 	--	--AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
 	--	--AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
-		local printTable = {}
-		printTable.g_logManager = g_logManager
-		printTable.LogManager = LogManager
-		AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
+	--	local printTable = {}
+	--	printTable.g_logManager = g_logManager
+	--	printTable.LogManager = LogManager
+	--	AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
 	--end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
