@@ -29,7 +29,7 @@ source(Utils.getFilename("scripts/Events/AutoDriveChangeMapMarkerGroupEvent.lua"
 source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
 source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", AutoDrive.directory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateNameEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", AutoDrive.directory))
 
 AutoDrive_Register = {}
 AutoDrive_Register.modDirectory = g_currentModDirectory

@@ -40,6 +40,7 @@ function AutoDriveRenameMapMarkerEvent:run(connection)
 	end
 end
 
+-- TODO: maybe we don't need 'oldName' and we should remove it
 function AutoDriveRenameMapMarkerEvent.sendEvent(newName, oldName, markerId)
 	local event = AutoDriveRenameMapMarkerEvent:new(newName, oldName, markerId)
 	if g_server ~= nil then

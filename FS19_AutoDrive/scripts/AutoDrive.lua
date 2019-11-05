@@ -864,7 +864,15 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 	end
 end
 
-function AutoDrive.renameDriver(vehicle, name)
+function AutoDrive.renameDriver(vehicle, name, sendEvent)
+	if name:len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating driver rename all over the network
+			AutoDriveRenameDriverEvent.sendEvent(vehicle, name)
+		else
+			vehicle.ad.driverName = name
+		end
+	end
 end
 
 function AutoDrive:preRemoveVehicle(self)
