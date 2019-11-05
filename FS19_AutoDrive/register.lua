@@ -1,5 +1,5 @@
 --
--- Mod: AutoDrive_Register
+-- Mod: AutoDrive
 --
 -- Author: Stephan
 -- Email: Stephan910@web.de
@@ -32,27 +32,25 @@ source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.l
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", g_currentModDirectory))
 
-AutoDrive_Register = {}
-AutoDrive_Register.modDirectory = g_currentModDirectory
-
-AutoDrive_Register.version = g_modManager:getModByName(g_currentModName).version
+AutoDriveRegister = {}
+AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version
 
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
 
 	if AutoDrive == nil then
-		print("ERROR: Unable to add specialization 'AutoDrive'")
+		g_logManager:error("ERROR: Unable to add specialization 'AutoDrive'")
 		return
 	end
 
 	local ADSpecName = g_currentModName .. ".AutoDrive"
 
-	for i, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-		if typeDef ~= nil and i ~= "locomotive" then
+	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
+		if typeDef ~= nil and vehicleType ~= "locomotive" then
 			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
-				print(string.format("  Attached AutoDrive to vehicleType %s", i))
+				g_logManager:info(string.format("Attached AutoDrive to vehicleType %s", vehicleType))
 				if typeDef.specializationsByName["AutoDrive"] == nil then
-					g_vehicleTypeManager:addSpecialization(i, ADSpecName)
+					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
 					typeDef.hasADSpec = true
 				end
 			end
@@ -60,26 +58,27 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	end
 end
 
-function AutoDrive_Register:loadMap(name)
-	print(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
+function AutoDriveRegister:loadMap(name)
+	g_logManager:info(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
 end
 
-function AutoDrive_Register:deleteMap()
+function AutoDriveRegister:deleteMap()
 end
 
-function AutoDrive_Register:keyEvent(unicode, sym, modifier, isDown)
+function AutoDriveRegister:keyEvent(unicode, sym, modifier, isDown)
 end
 
-function AutoDrive_Register:mouseEvent(posX, posY, isDown, isUp, button)
+function AutoDriveRegister:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
-function AutoDrive_Register:update(dt)
+function AutoDriveRegister:update(dt)
+	-- TODO: Since 'AutoDrive' is added to mod event listeners, we should move this there
 	if AutoDrive ~= nil then
 		AutoDrive.runThisFrame = false
 	end
 end
 
-function AutoDrive_Register:draw()
+function AutoDriveRegister:draw()
 end
 
-addModEventListener(AutoDrive_Register)
+addModEventListener(AutoDriveRegister)

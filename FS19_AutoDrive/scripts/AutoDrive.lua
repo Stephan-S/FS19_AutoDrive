@@ -43,6 +43,7 @@ end
 
 function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)   
 	-- continue on client side only
+	-- TODO: I think we should remove that since everyone isClient even the dedicated server
 	if not self.isClient then
 		return
 	end
@@ -109,10 +110,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	AutoDrive:loadGUI();
 
-	if AutoDrive_printedDebug ~= true then
-		print("Map title: " .. g_currentMission.missionInfo.map.title);		
-		AutoDrive_printedDebug = true;
-	end;
+	g_logManager:devInfo(string.format("Map title: %s", g_currentMission.missionInfo.map.title))
 	
 	AutoDrive.loadedMap = g_currentMission.missionInfo.map.title;
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, " ", "_");
@@ -120,7 +118,8 @@ function AutoDrive:loadMap(name)
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ",", "_");		
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ":", "_");	
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ";", "_");	
-	print("map " .. AutoDrive.loadedMap .. " was loaded");		
+
+	g_logManager:devInfo(string.format("Parsed map title: %s", AutoDrive.loadedMap))
 		
 	AutoDrive.mapWayPoints = {};
 	AutoDrive.mapWayPointsCounter = 0;
@@ -466,10 +465,10 @@ function AutoDrive:onUpdate(dt)
 	--if (g_currentMission.controlledVehicle ~= nil) then
 	--	--AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
 	--	--AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
-	--	local printTable = {}
-	--	printTable.requestedWaypoints = AutoDrive.requestedWaypoints
-	--	printTable.RecalculationContinue = AutoDrive.Recalculation.continue
-	--	AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
+		local printTable = {}
+		printTable.g_logManager = g_logManager
+		printTable.LogManager = LogManager
+		AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
 	--end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
