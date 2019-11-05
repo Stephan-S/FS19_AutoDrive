@@ -88,7 +88,10 @@ function AutoDrive.removeMapWayPoint(wayPointId, sendEvent)
             end
 
             AutoDrive.mapWayPoints = mapWayPoints
-            AutoDrive.mapWayPointsCounter = mapWayPointsCounter
+			AutoDrive.mapWayPointsCounter = mapWayPointsCounter
+			-- Small workaround to prevent 'AD_synchronizing' to being showed after waypoint deletion even if sync is not happening
+			-- TODO: we should check why 'requestedWaypoints' is always true on clients, if it turns false when sync isn't happening we can remove this workaround
+			AutoDrive.totalNumberOfWayPointsToReceive = mapWayPointsCounter
 
             -- Calling external interop listeners
             AutoDrive:notifyDestinationListeners()

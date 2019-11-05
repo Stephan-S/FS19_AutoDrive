@@ -464,8 +464,12 @@ function AutoDrive:onUpdate(dt)
 	end;
 
 	--if (g_currentMission.controlledVehicle ~= nil) then
-	--	AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
-	--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+	--	--AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+	--	--AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+	--	local printTable = {}
+	--	printTable.requestedWaypoints = AutoDrive.requestedWaypoints
+	--	printTable.RecalculationContinue = AutoDrive.Recalculation.continue
+	--	AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
 	--end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)

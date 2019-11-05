@@ -149,8 +149,8 @@ end;
 -- This new kind of handling should prevent unwanted behaviours such as GUI shown on player who hosts the game on non-dedicated games
 -- Now the MP sync is delegated to dedicated events
 function AutoDrive:InputHandlingSenderOnly(vehicle, input)
-    if vehicle ~= nil and vehicle.ad ~= nil then
-        if vehicle.ad.createMapPoints == true and AutoDrive.requestedWaypoints == false and AutoDrive.Recalculation.continue == false then
+	if vehicle ~= nil and vehicle.ad ~= nil then
+		if vehicle.ad.createMapPoints == true and AutoDrive.Recalculation.continue == false then
             -- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
             if input == "input_createMapMarker" then
                 if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
