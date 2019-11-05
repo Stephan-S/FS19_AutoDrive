@@ -87,7 +87,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end;
 
 	if actionName == "ADDebugDeleteWayPoint" then 
-		AutoDrive:InputHandling(self, "input_removeWaypoint");
+		AutoDrive:InputHandlingSenderOnly(self, "input_removeWaypoint");
 	end;
 	if actionName == "AD_export_routes" then
 		AutoDrive:InputHandling(self, "input_exportRoutes");
@@ -150,29 +150,36 @@ end;
 -- Now the MP sync is delegated to dedicated events
 function AutoDrive:InputHandlingSenderOnly(vehicle, input)
     if vehicle ~= nil and vehicle.ad ~= nil then
-		if vehicle.ad.createMapPoints == true and AutoDrive.requestedWaypoints == false and AutoDrive.Recalculation.continue == false then
-			-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
-			if input == "input_createMapMarker" then
-				if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+        if vehicle.ad.createMapPoints == true and AutoDrive.requestedWaypoints == false and AutoDrive.Recalculation.continue == false then
+            -- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
+            if input == "input_createMapMarker" then
+                if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
                     return
                 end
                 AutoDrive.editSelectedMapMarker = false
                 AutoDrive:onOpenEnterTargetName()
-			end
-			-- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
+            end
+            -- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
             if input == "input_editMapMarker" then
                 if AutoDrive.mapWayPoints[1] == nil or vehicle.ad.mapMarkerSelected == nil or vehicle.ad.mapMarkerSelected == -1 then
                     return
                 end
                 AutoDrive.editSelectedMapMarker = true
                 AutoDrive:onOpenEnterTargetName()
-			end
-			-- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
+            end
+            -- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
             if input == "input_removeMapMarker" then
                 if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
                     return
                 end
                 AutoDrive.removeMapMarkerByWayPoint(AutoDrive:findClosestWayPoint(vehicle))
+            end
+            -- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
+            if input == "input_removeWaypoint" then
+                if AutoDrive.mapWayPoints[1] == nil or AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+                    return
+                end
+                AutoDrive.removeMapWayPoint(AutoDrive:findClosestWayPoint(vehicle))
             end
         end
         if input == "input_nameDriver" then
@@ -345,17 +352,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		end;
 		AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed;
 	end;	
-
-	if input == "input_removeWaypoint" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return;
-		end;
-		if vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-			local closest = AutoDrive:findClosestWayPoint(vehicle)
-			AutoDrive:removeMapWayPoint( AutoDrive.mapWayPoints[closest] );
-		end;
-
-	end;
 
 	if input == "input_recalculate" then
 		if AutoDrive.requestedWaypoints == true then
