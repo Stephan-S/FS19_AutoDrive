@@ -72,7 +72,7 @@ function AutoDrive:ContiniousRecalculation()
 
 		if AutoDrive.adXml ~= nil then
 			setXMLString(AutoDrive.adXml, "AutoDrive.Recalculation","false");
-			AutoDrive:MarkChanged();
+			AutoDrive.MarkChanged();
 			AutoDrive.handledRecalculation = true;
 		end;
 

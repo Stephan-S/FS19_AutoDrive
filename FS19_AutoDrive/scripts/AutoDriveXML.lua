@@ -50,7 +50,7 @@ function AutoDrive:loadStoredXML()
 		AutoDrive:readFromXML(tempXml);
 		print("AD: Finished loading xml from memory");
 		
-		AutoDrive:MarkChanged();
+		AutoDrive.MarkChanged();
 		
 		path = g_currentMission.missionInfo.savegameDirectory;
 		if path ~= nil then
@@ -87,7 +87,7 @@ function AutoDrive:readFromXML(xmlFile)
 	end;
 	if recalculateString == "false" then
 		recalculate = false;
-		AutoDrive:MarkChanged();
+		AutoDrive.MarkChanged();
 	end;
 	if recalculateString == nil then
 		print("AutoDrive is starting a new configuration file");
@@ -336,7 +336,7 @@ function AutoDrive:ImportRoutes()
 			AutoDrive:readFromXML(adXml);
 			AutoDrive.requestedWaypoints = true;
 			AutoDrive.requestedWaypointCount = 1;
-			AutoDrive:MarkChanged();
+			AutoDrive.MarkChanged();
 		end;
 	end;
 end;

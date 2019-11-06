@@ -135,6 +135,8 @@ function AutoDrive:loadMap(name)
 
 	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad)
 	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
+
+	-- I can't find AutoDrive.fillTriggerOnCreate, are we still using it?
 	FillTrigger.onCreate = Utils.overwrittenFunction(FillTrigger.onCreate, AutoDrive.fillTriggerOnCreate)
 
 	if g_server ~= nil then
@@ -169,7 +171,7 @@ function AutoDrive:loadMap(name)
 end
 
 function AutoDrive:saveSavegame()
-	if AutoDrive:GetChanged() == true or AutoDrive.HudChanged then
+	if AutoDrive.GetChanged() == true or AutoDrive.HudChanged then
 		AutoDrive:saveToXML(AutoDrive.adXml)
 		AutoDrive.config_changed = false
 		AutoDrive.HudChanged = false
@@ -209,10 +211,6 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
 function AutoDrive:update(dt)
-	if AutoDrive ~= nil then
-		AutoDrive.runThisFrame = false
-	end
-
 	--if (g_currentMission.controlledVehicle ~= nil) then
 	--	--AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
 	--	--AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
@@ -231,13 +229,9 @@ function AutoDrive:update(dt)
 		delayedCallBack:update(dt)
 	end
 
-	-- Run things that should run at least once per frame, independent of the vehicle
-	-- TODO: we don't need thus anymore since the current update is running only once per frame, but make sure AutoDrive.runThisFrame is not reference elsewhere
-	if AutoDrive.runThisFrame == false then
-		AutoDrive.runThisFrame = true
-	end
-
 	AutoDrive.handlePerFrameOperations(dt)
+
+	AutoDrive.handlePrintMessage(dt)
 end
 
 function AutoDrive:draw()
@@ -266,12 +260,50 @@ function AutoDrive.handlePerFrameOperations(dt)
 	end
 end
 
-function AutoDrive:MarkChanged()
+function AutoDrive.handlePrintMessage(dt)
+	if g_dedicatedServerInfo == nil then
+		if AutoDrive.print.currentMessage ~= nil then
+			AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt
+			if AutoDrive.print.nextMessage ~= nil then
+				if AutoDrive.print.currentMessageActiveSince > 6000 then
+					AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
+					AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
+					AutoDrive.print.nextMessage = nil
+					AutoDrive.print.nextReferencedVehicle = nil
+					AutoDrive.print.currentMessageActiveSince = 0
+				end
+			end
+			if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
+				AutoDrive.print.currentMessage = nil
+				AutoDrive.print.currentMessageActiveSince = 0
+				AutoDrive.print.referencedVehicle = nil
+				--AutoDrive.print.showMessageFor = 12000;
+				if AutoDrive.print.nextMessage ~= nil then
+					AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
+					AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
+					AutoDrive.print.nextMessage = nil
+					AutoDrive.print.nextReferencedVehicle = nil
+					AutoDrive.print.currentMessageActiveSince = 0
+				end
+			end
+		else
+			if AutoDrive.print.nextMessage ~= nil then
+				AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
+				AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
+				AutoDrive.print.nextMessage = nil
+				AutoDrive.print.nextReferencedVehicle = nil
+				AutoDrive.print.currentMessageActiveSince = 0
+			end
+		end
+	end
+end
+
+function AutoDrive.MarkChanged()
 	AutoDrive.config_changed = true
 	AutoDrive.handledRecalculation = false
 end
 
-function AutoDrive:GetChanged()
+function AutoDrive.GetChanged()
 	return AutoDrive.config_changed
 end
 
@@ -347,6 +379,152 @@ end
 function AutoDrive:zoomSmoothly(superFunc, offset)
 	if not AutoDrive.mouseWheelActive then -- don't zoom camera when mouse wheel is used to scroll targets (thanks to sperrgebiet)
 		superFunc(self, offset)
+	end
+end
+
+function AutoDrive:onActivateObject(superFunc, vehicle)
+	if vehicle ~= nil then
+		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+		if g_currentMission.controlledVehicle ~= vehicle or g_currentMission.controlledVehicles[vehicle] == nil then
+			local oldControlledVehicle = nil
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
+			else
+				oldControlledVehicle = g_currentMission.controlledVehicle
+			end
+			g_currentMission.controlledVehicle = vehicle
+
+			superFunc(self, vehicle)
+
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
+				vehicle.ad.oldControlledVehicle = nil
+			else
+				if oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = oldControlledVehicle
+				end
+			end
+			return
+		end
+	end
+
+	superFunc(self, vehicle)
+end
+
+function AutoDrive:onFillTypeSelection(superFunc, fillType)
+	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
+		local validFillableObject = self.validFillableObject
+		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
+			local fillUnitIndex = self.validFillableFillUnitIndex
+			self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
+		end
+	end
+end
+
+-- LoadTrigger doesn't allow filling non controlled tools
+function AutoDrive:getIsActivatable(superFunc, objectToFill)
+	--when the trigger is filling, it uses this function without objectToFill
+	if objectToFill ~= nil then
+		local vehicle = objectToFill:getRootVehicle()
+		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive then
+			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+			if g_currentMission.controlledVehicle ~= vehicle then
+				local oldControlledVehicle = nil
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
+				else
+					oldControlledVehicle = g_currentMission.controlledVehicle
+				end
+				g_currentMission.controlledVehicle = vehicle or objectToFill
+
+				local result = superFunc(self, objectToFill)
+
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
+					vehicle.ad.oldControlledVehicle = nil
+				else
+					if oldControlledVehicle ~= nil then
+						g_currentMission.controlledVehicle = oldControlledVehicle
+					end
+				end
+				return result
+			end
+		end
+	end
+	return superFunc(self, objectToFill)
+end
+
+function AutoDrive:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
+	local result = superFunc(self, rootNode, xmlFile, xmlNode)
+
+	if result and AutoDrive.Triggers ~= nil then
+		AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
+		AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = self
+	end
+
+	return result
+end
+
+function AutoDrive:loadTriggerDelete(superFunc)
+	if AutoDrive.Triggers ~= nil then
+		for i, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+			if trigger == self then
+				AutoDrive.Triggers.siloTriggers[i] = nil
+			end
+		end
+	end
+	superFunc(self)
+end
+
+AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
+	local angle = 0
+	if lx ~= nil and lz ~= nil then
+		local dot = lz
+		angle = math.deg(math.acos(dot))
+		if angle < 0 then
+			angle = angle + 180
+		end
+		local turnLeft = lx > 0.00001
+		if not moveForwards then
+			turnLeft = not turnLeft
+		end
+		local targetRotTime = 0
+		if turnLeft then
+			--rotate to the left
+			targetRotTime = self.maxRotTime * math.min(angle / steeringAngleLimit, 1)
+		else
+			--rotate to the right
+			targetRotTime = self.minRotTime * math.min(angle / steeringAngleLimit, 1)
+		end
+		if targetRotTime > self.rotatedTime then
+			self.rotatedTime = math.min(self.rotatedTime + dt * self:getAISteeringSpeed(), targetRotTime)
+		else
+			self.rotatedTime = math.max(self.rotatedTime - dt * self:getAISteeringSpeed(), targetRotTime)
+		end
+	end
+	if self.firstTimeRun then
+		local acc = acceleration
+		if maxSpeed ~= nil and maxSpeed ~= 0 then
+			if math.abs(angle) >= slowAngleLimit then
+				maxSpeed = maxSpeed * slowDownFactor
+			end
+			self.spec_motorized.motor:setSpeedLimit(maxSpeed)
+			if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
+				self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE)
+			end
+		else
+			if math.abs(angle) >= slowAngleLimit then
+				acc = slowAcceleration
+			end
+		end
+		if not allowedToDrive then
+			acc = 0
+		end
+		if not moveForwards then
+			acc = -acc
+		end
+		--FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
+		WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
 	end
 end
 

@@ -101,7 +101,7 @@ function AutoDrive.removeMapWayPoint(wayPointId, sendEvent)
 
             if g_server ~= nil then
                 -- On the server we must mark the change
-                AutoDrive:MarkChanged()
+                AutoDrive.MarkChanged()
             end
         end
     end
@@ -139,7 +139,7 @@ function AutoDrive.renameMapMarker(newName, markerId, sendEvent)
 
 			if g_server ~= nil then
 				-- On the server we must mark the change
-				AutoDrive:MarkChanged()
+				AutoDrive.MarkChanged()
 			end
 		end
 	end
@@ -181,7 +181,7 @@ function AutoDrive.createMapMarker(markerId, markerName, sendEvent)
 
 			if g_server ~= nil then
 				-- On the server we must mark the change
-				AutoDrive:MarkChanged()
+				AutoDrive.MarkChanged()
 			end
 		end
 	end
@@ -271,14 +271,14 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 
             if g_server ~= nil then
                 -- On the server we must mark the change
-                AutoDrive:MarkChanged()
+                AutoDrive.MarkChanged()
             end
         end
     end
 end
 
 function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
-	AutoDrive:MarkChanged();
+	AutoDrive.MarkChanged();
 	if vehicle.ad.createMapPoints == true then
 		AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter + 1;
 		if AutoDrive.mapWayPointsCounter > 1 and connectPrevious then

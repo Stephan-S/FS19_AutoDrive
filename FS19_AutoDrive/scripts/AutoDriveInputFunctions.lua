@@ -627,7 +627,7 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
             out_counter = out_counter +1;
         else
             if startNode.out[i] == targetNode.id then
-                AutoDrive:MarkChanged()
+                AutoDrive.MarkChanged()
                 startNode.out[i] = nil;
 
                 if AutoDrive.loadedMap ~= nil and AutoDrive.adXml ~= nil then
@@ -663,7 +663,7 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
         end;
         targetNode.incoming[incomingCounter] = startNode.id;
 
-        AutoDrive:MarkChanged()
+        AutoDrive.MarkChanged()
     end;		
 
     AutoDriveCourseEditEvent:sendEvent(startNode);

@@ -1,7 +1,7 @@
 function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle);
     AutoDrive:checkForDeadLock(vehicle, dt);   
-	AutoDrive:handlePrintMessage(vehicle, dt);
+	--AutoDrive:handlePrintMessage(vehicle, dt);
 	AutoDrive:handleTrailers(vehicle, dt)
 	--AutoDrive:handleFillables(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
@@ -168,45 +168,6 @@ function AutoDrive:checkForDeadLock(vehicle, dt)
     else
         vehicle.ad.driveForwardTimer:timer(false);
     end;
-end;
-
-function AutoDrive:handlePrintMessage(vehicle, dt)    
-    if vehicle == g_currentMission.controlledVehicle or (g_dedicatedServerInfo ~= nil and (not AutoDrive.runThisFrame)) then                
-    
-        if AutoDrive.print.currentMessage ~= nil then
-            AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt;
-            if AutoDrive.print.nextMessage ~= nil then
-                if AutoDrive.print.currentMessageActiveSince > 6000 then
-                    AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
-                    AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle;
-                    AutoDrive.print.nextMessage = nil;
-                    AutoDrive.print.nextReferencedVehicle = nil;
-                    AutoDrive.print.currentMessageActiveSince = 0;
-                end;
-            end;
-            if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
-                AutoDrive.print.currentMessage = nil;
-                AutoDrive.print.currentMessageActiveSince = 0;
-                AutoDrive.print.referencedVehicle = nil;
-                --AutoDrive.print.showMessageFor = 12000;
-                if AutoDrive.print.nextMessage ~= nil then
-                    AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
-                    AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle;
-                    AutoDrive.print.nextMessage = nil;
-                    AutoDrive.print.nextReferencedVehicle = nil;
-                    AutoDrive.print.currentMessageActiveSince = 0;
-                end;
-            end;
-        else
-            if AutoDrive.print.nextMessage ~= nil then
-                AutoDrive.print.currentMessage = AutoDrive.print.nextMessage;
-                AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle;
-                AutoDrive.print.nextMessage = nil;
-                AutoDrive.print.nextReferencedVehicle = nil;
-                AutoDrive.print.currentMessageActiveSince = 0;
-            end;
-		end;	
-	end;
 end;
 
 function AutoDrive:initializeAD(vehicle, dt)   
