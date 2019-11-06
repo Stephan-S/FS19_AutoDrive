@@ -1,7 +1,7 @@
 AutoDrive = {}
 AutoDrive.Version = "1.0.6.7"
 AutoDrive.configChanged = false
-AutoDrive.handledRecalculation = true;
+AutoDrive.handledRecalculation = true
 
 AutoDrive.directory = g_currentModDirectory
 AutoDrive.actions = {

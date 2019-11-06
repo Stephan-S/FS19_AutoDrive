@@ -5,52 +5,52 @@
 -- @author Stephan Schlosser
 -- @date 08/04/2019
 
-adCombineUnloadSettingsPage = {};
+adCombineUnloadSettingsPage = {}
 
-local adCombineUnloadSettingsPage_mt = Class(adCombineUnloadSettingsPage, TabbedMenuFrameElement);
+local adCombineUnloadSettingsPage_mt = Class(adCombineUnloadSettingsPage, TabbedMenuFrameElement)
 
 adCombineUnloadSettingsPage.CONTROLS = {
     CONTAINER = "container"
 }
 
 function adCombineUnloadSettingsPage:new(target, custom_mt)
-    local self = TabbedMenuFrameElement:new(target, adCombineUnloadSettingsPage_mt);
-    self.returnScreenName = "";
-    self.settingElements = {};
+    local self = TabbedMenuFrameElement:new(target, adCombineUnloadSettingsPage_mt)
+    self.returnScreenName = ""
+    self.settingElements = {}
     self:registerControls(adCombineUnloadSettingsPage.CONTROLS)
-    return self;	
-end;
+    return self
+end
 
 function adCombineUnloadSettingsPage:onFrameOpen()
-    adCombineUnloadSettingsPage:superClass().onFrameOpen(self);
-    FocusManager:setFocus(self.backButton);
-    self:updateMyGUISettings();   
-    self.callBackParent:applySettings(); 
-    self.callBackParent.activePageID = self.callBackParentWithID;
-end;
+    adCombineUnloadSettingsPage:superClass().onFrameOpen(self)
+    FocusManager:setFocus(self.backButton)
+    self:updateMyGUISettings()
+    self.callBackParent:applySettings()
+    self.callBackParent.activePageID = self.callBackParentWithID
+end
 
 function adCombineUnloadSettingsPage:onFrameClose()
-    adCombineUnloadSettingsPage:superClass().onFrameClose(self);
-end;
+    adCombineUnloadSettingsPage:superClass().onFrameClose(self)
+end
 
-function adCombineUnloadSettingsPage:onCreateAutoDriveSetting(element)  
-    self.settingElements[element.name] = element;
-    local setting = AutoDrive.settings[element.name];
-	element.labelElement.text = g_i18n:getText(setting.text);
-	element.toolTipText = g_i18n:getText(setting.tooltip);
+function adCombineUnloadSettingsPage:onCreateAutoDriveSetting(element)
+    self.settingElements[element.name] = element
+    local setting = AutoDrive.settings[element.name]
+    element.labelElement.text = g_i18n:getText(setting.text)
+    element.toolTipText = g_i18n:getText(setting.tooltip)
 
-    local labels = {};
+    local labels = {}
     for i = 1, #setting.texts, 1 do
         if setting.translate == true then
-            labels[i] = g_i18n:getText(setting.texts[i]);
-        else 
-            labels[i] = setting.texts[i];
-        end;
-    end;	
-    element:setTexts(labels);
-end;
+            labels[i] = g_i18n:getText(setting.texts[i])
+        else
+            labels[i] = setting.texts[i]
+        end
+    end
+    element:setTexts(labels)
+end
 
-function adCombineUnloadSettingsPage:copyAttributes(src) 
+function adCombineUnloadSettingsPage:copyAttributes(src)
     adCombineUnloadSettingsPage:superClass().copyAttributes(self, src)
 
     self.ui = src.ui
@@ -78,15 +78,15 @@ end
 function adCombineUnloadSettingsPage:updateMyGUISettings()
     for settingName, settingElement in pairs(self.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
-            local setting = AutoDrive.settings[settingName];
+            local setting = AutoDrive.settings[settingName]
             if setting ~= nil and setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
-                setting = g_currentMission.controlledVehicle.ad.settings[settingName];
-            end;
-            self:updateGUISettings(settingName, setting.current);
-        end;
-    end;
-end;
+                setting = g_currentMission.controlledVehicle.ad.settings[settingName]
+            end
+            self:updateGUISettings(settingName, setting.current)
+        end
+    end
+end
 
 function adCombineUnloadSettingsPage:updateGUISettings(settingName, index)
-    self.settingElements[settingName]:setState(index, false);
-end;
+    self.settingElements[settingName]:setState(index, false)
+end
