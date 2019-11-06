@@ -1,6 +1,6 @@
 AutoDrive = {}
 AutoDrive.Version = "1.0.6.7"
-AutoDrive.config_changed = false
+AutoDrive.configChanged = false
 
 AutoDrive.directory = g_currentModDirectory
 AutoDrive.actions = {
@@ -111,6 +111,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.print.nextMessage = nil
 	AutoDrive.print.showMessageFor = 12000
 	AutoDrive.print.currentMessageActiveSince = 0
+
 	AutoDrive.requestedWaypoints = false
 	AutoDrive.requestedWaypointCount = 1
 	AutoDrive.playerSendsMapToServer = false
@@ -173,7 +174,7 @@ end
 function AutoDrive:saveSavegame()
 	if AutoDrive.GetChanged() == true or AutoDrive.HudChanged then
 		AutoDrive:saveToXML(AutoDrive.adXml)
-		AutoDrive.config_changed = false
+		AutoDrive.configChanged = false
 		AutoDrive.HudChanged = false
 	else
 		if AutoDrive.adXml ~= nil then
@@ -299,12 +300,12 @@ function AutoDrive.handlePrintMessage(dt)
 end
 
 function AutoDrive.MarkChanged()
-	AutoDrive.config_changed = true
+	AutoDrive.configChanged = true
 	AutoDrive.handledRecalculation = false
 end
 
 function AutoDrive.GetChanged()
-	return AutoDrive.config_changed
+	return AutoDrive.configChanged
 end
 
 function AutoDrive.addGroup(groupName, sendEvent)
