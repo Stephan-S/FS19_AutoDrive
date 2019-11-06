@@ -58,6 +58,15 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	end
 end
 
+-- We need this for network debug functions
+EventIds.eventIdToName = {}
+
+for eName, eId in pairs(EventIds) do
+	if string.sub(eName, 1, 6) == "EVENT_" then
+		EventIds.eventIdToName[eId] = eName
+	end
+end
+
 function AutoDriveRegister:loadMap(name)
 	g_logManager:info(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
 end

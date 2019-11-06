@@ -368,3 +368,90 @@ function AutoDrive:debugPrint(vehicle, debugLevel, debugText)
 		print(printText)
 	end
 end
+
+addConsoleCommand("ADshowNetworkEvents", "Debug network traffic", "showNetworkEvents", AutoDrive)
+
+AutoDrive.debug = {}
+AutoDrive.debug.connectionSendEventBackup = nil
+AutoDrive.debug.serverBroadcastEventBackup = nil
+AutoDrive.debug.lastSentEvent = nil
+AutoDrive.debug.lastSentEventSize = 0
+AutoDrive.debug.showNetworkEventsPrint = false
+
+function AutoDrive:showNetworkEvents(print)
+	AutoDrive.debug.showNetworkEventsPrint = print
+	if g_server ~= nil then
+		if AutoDrive.debug.serverBroadcastEventBackup == nil then
+			AutoDrive.debug.serverBroadcastEventBackup = g_server.broadcastEvent
+			g_server.broadcastEvent = Utils.overwrittenFunction(g_server.broadcastEvent, AutoDrive.ServerBroadcastEvent)
+		else
+			g_server.broadcastEvent = AutoDrive.debug.serverBroadcastEventBackup
+			AutoDrive.debug.serverBroadcastEventBackup = nil
+		end
+	else
+		local connection = g_client:getServerConnection()
+		if AutoDrive.debug.connectionSendEventBackup == nil then
+			AutoDrive.debug.connectionSendEventBackup = connection.sendEvent
+			connection.sendEvent = Utils.overwrittenFunction(connection.sendEvent, AutoDrive.ConnectionSendEvent)
+		else
+			connection.sendEvent = AutoDrive.debug.connectionSendEventBackup
+			AutoDrive.debug.connectionSendEventBackup = nil
+		end
+	end
+	AutoDrive.debug.lastSentEvent = nil
+end
+
+function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConnection, ghostObject, force)
+	local eCopy = {}
+	eCopy.event = tableClone(event)
+	eCopy.eventName = eCopy.event.className or EventIds.eventIdToName[event.eventId]
+	eCopy.sendLocal = sendLocal or false
+	eCopy.ignoreConnection = ignoreConnection or "nil"
+	eCopy.force = force or false
+	eCopy.clients = table.getn(self.clientConnections)
+	superFunc(self, event, sendLocal, ignoreConnection, ghostObject, force)
+	eCopy.size = AutoDrive.debug.lastSentEventSize
+	if AutoDrive.debug.showNetworkEventsPrint then
+		g_logManager:info(string.format("Event %s size %s (x%s = %s) Bytes", eCopy.eventName, eCopy.size / (eCopy.clients), eCopy.clients, eCopy.size))
+	end
+	AutoDrive.debug.lastSentEvent = eCopy
+end
+
+function AutoDrive:ConnectionSendEvent(superFunc, event, deleteEvent, force)
+	local eCopy = {}
+	eCopy.event = tableClone(event)
+	eCopy.eventName = eCopy.event.className or EventIds.eventIdToName[event.eventId]
+	eCopy.deleteEvent = deleteEvent or true
+	eCopy.force = force or false
+	superFunc(self, event, deleteEvent, force)
+	eCopy.size = AutoDrive.debug.lastSentEventSize
+	if AutoDrive.debug.showNetworkEventsPrint then
+		g_logManager:info(string.format("Event %s size %s Bytes", eCopy.eventName, eCopy.size))
+	end
+	AutoDrive.debug.lastSentEvent = eCopy
+end
+
+function NetworkNode:addPacketSize(packetType, packetSizeInBytes)
+	if AutoDrive.debug.connectionSendEventBackup ~= nil and packetType == NetworkNode.PACKET_EVENT then
+		AutoDrive.debug.lastSentEventSize = packetSizeInBytes
+	end
+	if self.showNetworkTraffic then
+		self.packetBytes[packetType] = self.packetBytes[packetType] + packetSizeInBytes
+	end
+end
+
+function tableClone(org)
+	local otype = type(org)
+	local copy
+	if otype == "table" then
+		copy = {}
+		for org_key, org_value in pairs(org) do
+			copy[org_key] = org_value
+		end
+	else -- number, string, boolean, etc
+		copy = org
+	end
+	return copy
+end
+
+-- TODO: Maybe we should add a console command that allows to run console commands to server

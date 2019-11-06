@@ -471,6 +471,10 @@ function AutoDrive:onUpdate(dt)
 	--	AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
 	--end
 
+	if AutoDrive.debug.lastSentEvent ~= nil then
+		AutoDrive.renderTable(0.1, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
+	end
+
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
 	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do
 		delayedCallBack:update(dt);
