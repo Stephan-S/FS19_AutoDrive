@@ -35,7 +35,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
     vehicle.ad.tryingToCallDriver = false
 
     if vehicle.spec_dischargeable ~= nil and vehicle.ad.currentDriver == nil then
-        local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle)
+        local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(vehicle)
         local maxCapacity = fillLevel + leftCapacity
 
         local cpIsCalling = false
@@ -46,7 +46,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
             vehicle.ad.tryingToCallDriver = true
             AutoDrive:callDriverToCombine(vehicle)
-        elseif (((fillLevel / maxCapacity) >= AutoDrive:getSetting("preCallLevel") and (fillLevel / maxCapacity) <= 0.96) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) and AutoDrive:getSetting("preCallDriver") then
+        elseif (((fillLevel / maxCapacity) >= AutoDrive.getSetting("preCallLevel") and (fillLevel / maxCapacity) <= 0.96) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) and AutoDrive.getSetting("preCallDriver") then
             if vehicle.ad.sensors.frontSensorFruit:pollInfo() then
                 vehicle.ad.tryingToCallDriver = true
                 AutoDrive:preCallDriverToCombine(vehicle)
@@ -69,7 +69,7 @@ function AutoDrive:callDriverToCombine(combine)
                     local driverX, driverY, driverZ = getWorldTranslation(driver.components[1].node)
                     local distance = math.sqrt(math.pow((driverX - worldX), 2) + math.pow((driverZ - worldZ), 2))
 
-                    if distance < closestDistance and ((distance < 300 and AutoDrive:getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
+                    if distance < closestDistance and ((distance < 300 and AutoDrive.getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
                         closestDistance = distance
                         closestDriver = driver
                     end
@@ -110,7 +110,7 @@ function AutoDrive:preCallDriverToCombine(combine)
             local driverX, driverY, driverZ = getWorldTranslation(driver.components[1].node)
             local distance = math.sqrt(math.pow((driverX - worldX), 2) + math.pow((driverZ - worldZ), 2))
 
-            if distance < closestDistance and ((distance < 300 and AutoDrive:getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
+            if distance < closestDistance and ((distance < 300 and AutoDrive.getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
                 closestDistance = distance
                 closestDriver = driver
             end
@@ -169,7 +169,7 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
     elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
         AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, true)
     elseif vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-        if AutoDrive:getSetting("chaseCombine") or (vehicle.ad.currentCombine ~= nil and vehicle.ad.currentCombine:getIsBufferCombine()) then
+        if AutoDrive.getSetting("chaseCombine") or (vehicle.ad.currentCombine ~= nil and vehicle.ad.currentCombine:getIsBufferCombine()) then
             --print("Switching to chasing combine");
             vehicle.ad.wayPoints = {}
             vehicle.ad.combineState = AutoDrive.CHASE_COMBINE
@@ -201,7 +201,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
             return not AutoDrive:handlePathPlanning(vehicle, dt)
         elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
             local doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle)
-            local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle)
+            local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
             vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE
             vehicle.ad.trailerCount = trailerCount
             vehicle.ad.trailerFillLevel = trailerFillLevel
@@ -209,7 +209,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
             if trailers[vehicle.ad.currentTrailer + 1] ~= nil then
                 local lastFillLevel = vehicle.ad.designatedTrailerFillLevel
 
-                local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer + 1])
+                local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer + 1])
                 local maxCapacity = fillLevel + leftCapacity
 
                 vehicle.ad.designatedTrailerFillLevel = (maxCapacity - leftCapacity) / maxCapacity
@@ -264,8 +264,8 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     return true
                 end
 
-                if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.sensors.centerSensorFruit:pollInfo() or (AutoDrive:getSetting("parkInField", vehicle) == false) then
-                    if trailerFillLevel >= (AutoDrive:getSetting("unloadFillLevel", vehicle) - 0.001) then
+                if trailerFillLevel >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.sensors.centerSensorFruit:pollInfo() or (AutoDrive.getSetting("parkInField", vehicle) == false) then
+                    if trailerFillLevel >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) then
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
                     else
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS
@@ -348,7 +348,7 @@ function AutoDrive:updateChaseModeInfos(vehicle, dt)
     vehicle.ccInfos.distanceToCombine = MathUtil.vector2Length(vehicle.ccInfos.combineWorldX - vehicle.ccInfos.worldX, vehicle.ccInfos.combineWorldZ - vehicle.ccInfos.worldZ)
     vehicle.ccInfos.distanceToChasePos = MathUtil.vector2Length(vehicle.ccInfos.chasePos.x - vehicle.ccInfos.worldX, vehicle.ccInfos.chasePos.z - vehicle.ccInfos.worldZ)
 
-    vehicle.ccInfos.fillLevel, vehicle.ccInfos.leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine)
+    vehicle.ccInfos.fillLevel, vehicle.ccInfos.leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
     vehicle.ccInfos.maxCapacity = vehicle.ccInfos.fillLevel + vehicle.ccInfos.leftCapacity
     vehicle.ccInfos.combineFillLevel = (vehicle.ccInfos.fillLevel / vehicle.ccInfos.maxCapacity)
 
@@ -383,7 +383,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     end
 
-    if vehicle.ccInfos.trailerFillLevel >= ((AutoDrive:getSetting("unloadFillLevel", vehicle)) - 0.001) then
+    if vehicle.ccInfos.trailerFillLevel >= ((AutoDrive.getSetting("unloadFillLevel", vehicle)) - 0.001) then
         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
         AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine)
         AutoDrive:unregisterDriverAsUnloader(vehicle)
@@ -586,7 +586,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
             sideIndex = AutoDrive.ccSIDE_REAR
         end
     else
-        local combineFillLevel, combineLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine)
+        local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
@@ -601,8 +601,8 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
                     dischargeNode = dischargeNodeIter
                 end
 
-                local pipeOffset = AutoDrive:getSetting("pipeOffset", vehicle)
-                local trailerOffset = AutoDrive:getSetting("trailerOffset", vehicle)
+                local pipeOffset = AutoDrive.getSetting("pipeOffset", vehicle)
+                local trailerOffset = AutoDrive.getSetting("trailerOffset", vehicle)
 
                 nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 nodeX, nodeY, nodeZ = (nodeX + (vehicle.sizeLength / 2 + 8 + trailerOffset) * rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength / 2 + 8 + trailerOffset) * rz - pipeOffset * combineNormalVector.z
@@ -706,11 +706,11 @@ function AutoDrive:restartPathFinder(vehicle)
 end
 
 function AutoDrive:checkDoneUnloading(vehicle)
-    local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle)
-    local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer])
+    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+    local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer])
     local maxCapacity = fillLevel + leftCapacity
 
-    local combineFillLevel, combineLeftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(vehicle.ad.currentCombine)
+    local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(vehicle.ad.currentCombine)
     local combineMaxCapacity = combineFillLevel + combineLeftCapacity
 
     return ((combineMaxCapacity - combineLeftCapacity) < 100), (1 - (leftCapacity / maxCapacity))
@@ -768,7 +768,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
         vehicle.ad.onRouteToSecondTarget = false
         vehicle.ad.currentTrailer = 1
         vehicle.ad.designatedTrailerFillLevel = math.huge
-        if AutoDrive:getSetting("distributeToFolder") and AutoDrive:getSetting("useFolders") then -- make this setting switchable
+        if AutoDrive.getSetting("distributeToFolder") and AutoDrive.getSetting("useFolders") then -- make this setting switchable
             AutoDrive:setNextTargetInFolder(vehicle)
         end
     end

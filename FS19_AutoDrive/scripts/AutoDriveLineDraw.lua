@@ -74,7 +74,7 @@ function AutoDrive:createLineObject()
 end
 
 function AutoDrive:parameterizeLine(line, startPoint, targetPoint, color, visible)
-    setTranslation(line, startPoint.x, startPoint.y + AutoDrive.drawHeight + AutoDrive:getSetting("lineHeight"), startPoint.z)
+    setTranslation(line, startPoint.x, startPoint.y + AutoDrive.drawHeight + AutoDrive.getSetting("lineHeight"), startPoint.z)
 
     setVisibility(line, visible)
 

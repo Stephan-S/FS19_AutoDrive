@@ -32,7 +32,7 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
         -- attach our actions
         local __, eventName
         local toggleButton = false
-        local showF1Help = AutoDrive:getSetting("showHelp")
+        local showF1Help = AutoDrive.getSetting("showHelp")
         for _, action in pairs(AutoDrive.actions) do
             __, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, AutoDrive.onActionCall, toggleButton, true, false, true)
             g_inputBinding:setActionEventTextVisibility(eventName, action[2] and showF1Help)
@@ -168,7 +168,7 @@ function init(self)
 
     self.ad.requestWayPointTimer = 10000
 
-    --variables the server sets so that the clients can act upon it:
+    -- Variables the server sets so that the clients can act upon it:
     self.ad.disableAI = 0
     self.ad.enableAI = 0
 
@@ -177,12 +177,12 @@ function init(self)
     self.ad.currentDriver = nil
 
     if AutoDrive.searchedTriggers ~= true then
-        AutoDrive:getAllTriggers()
+        AutoDrive.getAllTriggers()
         AutoDrive.searchedTriggers = true
     end
 
     if self.spec_autodrive == nil then
-        self.spec_autodrive = AutoDrive
+        self.spec_autodrive = self.ad -- I think we should reference only vehicle context and not the whole mod in spec_autodrive
     end
 
     self.ad.pullDownList = {}
@@ -206,7 +206,7 @@ function init(self)
     end
 
     if self.ad.settings == nil then
-        AutoDrive:copySettingsToVehicle(self)
+        AutoDrive.copySettingsToVehicle(self)
     end
 
     if self.bga == nil then
@@ -284,7 +284,7 @@ function AutoDrive:onUpdate(dt)
     AutoDrive:handleDriving(self, dt)
     AutoDrive:handleYPositionIntegrityCheck(self)
     AutoDrive:handleClientIntegrity(self)
-    AutoDrive:handleMultiplayer(self, dt)
+    AutoDrive.handleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)
     AutoDriveBGA:handleBGA(self, dt)
 
@@ -297,7 +297,7 @@ function AutoDrive:handleDriverWages(vehicle, dt)
     local spec = vehicle.spec_aiVehicle
     if vehicle.isServer and spec ~= nil then
         if vehicle:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and vehicle.ad.isActive then
-            local driverWages = AutoDrive:getSetting("driverWages")
+            local driverWages = AutoDrive.getSetting("driverWages")
             local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier
             local price = -dt * difficultyMultiplier * (driverWages - 1) * spec.pricePerMS
             g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
@@ -375,7 +375,7 @@ function AutoDrive:onPostLoad(savegame)
                 end
             end
 
-            AutoDrive:readVehicleSettingsFromXML(self, xmlFile, key)
+            AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
         end
     end
 end
@@ -427,7 +427,7 @@ function AutoDrive:onDraw()
         end
     end
 
-    if AutoDrive:getSetting("showNextPath") == true and (self.bga.isActive == false) then
+    if AutoDrive.getSetting("showNextPath") == true and (self.bga.isActive == false) then
         if self.ad.currentWayPoint > 0 and self.ad.wayPoints ~= nil then
             if self.ad.wayPoints[self.ad.currentWayPoint + 1] ~= nil then
                 AutoDrive:drawLine(self.ad.wayPoints[self.ad.currentWayPoint], self.ad.wayPoints[self.ad.currentWayPoint + 1], 1, 1, 1, 1)
@@ -544,7 +544,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
         local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
 
         if vehicle.ad.showClosestPoint == true then
-            AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive:getSetting("lineHeight"), z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1)
+            AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1)
         end
     end
 
@@ -553,7 +553,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
         local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
         if vehicle.ad.showSelectedDebugPoint == true then
             if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
-                AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive:getSetting("lineHeight"), z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], 1, 1, 0, 1)
+                AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], 1, 1, 0, 1)
             end
         end
     end

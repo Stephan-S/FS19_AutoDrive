@@ -29,8 +29,8 @@ end
 
 function ADHudIcon:onDrawHeader(vehicle)
     local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive:getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive:getSetting("guiScale")
+    if AutoDrive.getSetting("guiScale") ~= 0 then
+        uiScale = AutoDrive.getSetting("guiScale")
     end
     local adFontSize = 0.009 * uiScale
     local textHeight = getTextHeight(adFontSize, "text")
@@ -60,7 +60,7 @@ function ADHudIcon:onDrawHeader(vehicle)
         end
     end
 
-    if vehicle.ad.sToolTip ~= "" and AutoDrive:getSetting("showTooltips") then
+    if vehicle.ad.sToolTip ~= "" and AutoDrive.getSetting("showTooltips") then
         textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
     end
 

@@ -1,4 +1,4 @@
-function AutoDrive:getAllTriggers()
+function AutoDrive.getAllTriggers()
     AutoDrive.Triggers = {}
     AutoDrive.Triggers.tipTriggers = {}
     AutoDrive.Triggers.siloTriggers = {}

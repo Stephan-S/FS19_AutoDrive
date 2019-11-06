@@ -60,8 +60,8 @@ end
 function AutoDriveHud:loadHud()
 	if AutoDrive.HudX == nil or AutoDrive.HudY == nil then
 		local uiScale = g_gameSettings:getValue("uiScale")
-		if AutoDrive:getSetting("guiScale") ~= 0 then
-			uiScale = AutoDrive:getSetting("guiScale")
+		if AutoDrive.getSetting("guiScale") ~= 0 then
+			uiScale = AutoDrive.getSetting("guiScale")
 		end
 		local numButtons = 7
 		local numButtonRows = 2
@@ -85,8 +85,8 @@ end
 
 function AutoDriveHud:createHudAt(hudX, hudY)
 	local uiScale = g_gameSettings:getValue("uiScale")
-	if AutoDrive:getSetting("guiScale") ~= 0 then
-		uiScale = AutoDrive:getSetting("guiScale")
+	if AutoDrive.getSetting("guiScale") ~= 0 then
+		uiScale = AutoDrive.getSetting("guiScale")
 	end
 	local numButtons = 7
 	local numButtonRows = 2
@@ -214,8 +214,8 @@ end
 function AutoDriveHud:drawHud(vehicle)
 	if vehicle == g_currentMission.controlledVehicle then
 		local uiScale = g_gameSettings:getValue("uiScale")
-		if AutoDrive:getSetting("guiScale") ~= 0 then
-			uiScale = AutoDrive:getSetting("guiScale")
+		if AutoDrive.getSetting("guiScale") ~= 0 then
+			uiScale = AutoDrive.getSetting("guiScale")
 		end
 
 		if self.lastUIScale == nil then

@@ -226,14 +226,14 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return
 		end
-		AutoDrive:ExportRoutes()
+		AutoDrive.exportRoutes()
 	end
 
 	if input == "input_importRoutes" then
 		if vehicle.ad.createMapPoints == false then
 			return
 		end
-		AutoDrive:ImportRoutes()
+		AutoDrive.importRoutes()
 	end
 
 	if input == "input_toggleHud" and vehicle == g_currentMission.controlledVehicle then
@@ -418,7 +418,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.isPaused == true then
 			vehicle.ad.isPaused = false
 			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
-				if getDistanceToTargetPosition(vehicle) < 10 then
+				if AutoDrive.getDistanceToTargetPosition(vehicle) < 10 then
 					local closest = AutoDrive:findClosestWayPoint(vehicle)
 					vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
 					vehicle.ad.wayPointsChanged = true
@@ -523,7 +523,7 @@ function AutoDrive:inputRecord(vehicle, dual)
 		vehicle.ad.creationMode = false
 		vehicle.ad.creationModeDual = false
 
-		if AutoDrive:getSetting("autoConnectEnd") then
+		if AutoDrive.getSetting("autoConnectEnd") then
 			if vehicle.ad.wayPoints ~= nil and AutoDrive.tableLength(vehicle.ad.wayPoints) > 0 then
 				local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle)
 				if targetID ~= nil then

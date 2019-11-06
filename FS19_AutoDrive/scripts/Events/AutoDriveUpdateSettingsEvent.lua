@@ -30,7 +30,7 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 		streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
 		for settingName, setting in pairs(AutoDrive.settings) do
 			if setting ~= nil and setting.isVehicleSpecific then
-				streamWriteInt16(streamId, AutoDrive:getSetting(settingName, self.vehicle))
+				streamWriteInt16(streamId, AutoDrive.getSetting(settingName, self.vehicle))
 			end
 		end
 	end

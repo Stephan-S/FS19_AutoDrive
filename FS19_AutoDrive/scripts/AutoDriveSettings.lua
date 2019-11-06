@@ -564,7 +564,7 @@ AutoDrive.settings.autoRecalculate = {
     isVehicleSpecific = false
 }
 
-function AutoDrive:getSetting(settingName, vehicle)
+function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
         if setting.isVehicleSpecific and vehicle ~= nil and vehicle.ad.settings ~= nil then --try loading vehicle specific setting first, if available
@@ -579,7 +579,7 @@ function AutoDrive:getSetting(settingName, vehicle)
     end
 end
 
-function AutoDrive:copySettingsToVehicle(vehicle)
+function AutoDrive.copySettingsToVehicle(vehicle)
     if vehicle.ad.settings == nil then
         vehicle.ad.settings = {}
     end
@@ -598,7 +598,7 @@ function AutoDrive:copySettingsToVehicle(vehicle)
     end
 end
 
-function AutoDrive:readVehicleSettingsFromXML(vehicle, xmlFile, key)
+function AutoDrive.readVehicleSettingsFromXML(vehicle, xmlFile, key)
     vehicle.ad.settings = {}
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting.isVehicleSpecific then

@@ -45,11 +45,11 @@ function AutoDrive:startAD(vehicle)
 	end
 
 	if g_server ~= nil then
-		local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD))
-		local fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(trailers)
+		local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD))
+		local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
 		local maxCapacity = fillLevel + leftCapacity
 
-		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1 - AutoDrive:getSetting("unloadFillLevel", vehicle) + 0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
+		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
 				vehicle.ad.skipStart = true
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
@@ -346,7 +346,7 @@ function AutoDrive:detectTraffic(vehicle)
 		approachingLastWayPoints = true
 	end
 
-	if AutoDrive:getSetting("enableTrafficDetection") == true then --GC have now updated their triggers. so remove this: and (getDistanceToTargetPosition(vehicle) > 15 and getDistanceToUnloadPosition(vehicle) > 15)
+	if AutoDrive.getSetting("enableTrafficDetection") == true then --GC have now updated their triggers. so remove this: and (AutoDrive.getDistanceToTargetPosition(vehicle) > 15 and AutoDrive.getDistanceToUnloadPosition(vehicle) > 15)
 		local box = {}
 		box.center = {}
 		box.size = {}

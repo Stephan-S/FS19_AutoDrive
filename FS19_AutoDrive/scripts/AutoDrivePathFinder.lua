@@ -32,14 +32,14 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local wpBehind
 
     local firstBinIsOnDriver = false
-    local trailers, trailerCount = AutoDrive:getTrailersOf(driver)
+    local trailers, trailerCount = AutoDrive.getTrailersOf(driver)
     if trailers[1] ~= nil and driver == trailers[1] then
         firstBinIsOnDriver = true
     end
 
     if dischargeNode == nil then
         local followDistance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
-        local fillLevel, leftCapacity = getFilteredFillLevelAndCapacityOfAllUnits(combine)
+        local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
         local maxCapacity = fillLevel + leftCapacity
         local combineFillLevel = (fillLevel / maxCapacity)
 
@@ -68,8 +68,8 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         driver.ad.waitForPreDriveTimer = 10000
     else
         local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
-        local pipeOffset = AutoDrive:getSetting("pipeOffset", driver)
-        local trailerOffset = AutoDrive:getSetting("trailerOffset", driver)
+        local pipeOffset = AutoDrive.getSetting("pipeOffset", driver)
+        local trailerOffset = AutoDrive.getSetting("trailerOffset", driver)
         local lengthOffset = 5 + driver.sizeLength / 2
         if firstBinIsOnDriver then
             lengthOffset = 0
@@ -138,7 +138,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         driver.ad.pf.preDriveCombine = false
     end
 
-    if alreadyOnField or (getDistanceToTargetPosition(driver) > 10) then
+    if alreadyOnField or (AutoDrive.getDistanceToTargetPosition(driver) > 10) then
         driver.ad.pf.alreadyOnField = true
     else
         driver.ad.pf.alreadyOnField = false
@@ -192,7 +192,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
         targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[2].id]
     end
 
-    local exitStrategy = AutoDrive:getSetting("exitField")
+    local exitStrategy = AutoDrive.getSetting("exitField")
     if exitStrategy == 1 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS then
         if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
             preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[5].id]
@@ -339,7 +339,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
         return
     end
 
-    if pf.steps > (AutoDrive.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive:getSetting("pathFinderTime")) then
+    if pf.steps > (AutoDrive.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
         if not pf.fallBackMode then --look for path through fruit
             --print("Going into fallback mode - no fruit free path found in reasonable time");
             pf.fallBackMode = true
@@ -599,11 +599,11 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         local worldPosPrevious = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell.incoming)
         cell.hasCollision = cell.hasCollision or AutoDrivePathFinder:checkSlopeAngle(worldPos.x, worldPos.z, worldPosPrevious.x, worldPosPrevious.z)
 
-        if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive:getSetting("avoidFruit", pf.driver) then
+        if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive.getSetting("avoidFruit", pf.driver) then
             checkForFruitInArea(pf, cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
         else
             cell.isRestricted = false
-            cell.hasFruit = not AutoDrive:getSetting("avoidFruit", pf.driver) --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
+            cell.hasFruit = not AutoDrive.getSetting("avoidFruit", pf.driver) --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
         end
 
         cell.hasInfo = true
@@ -623,7 +623,7 @@ function AutoDrivePathFinder:checkIsOnField(worldX, worldY, worldZ)
 
     local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ)
     densityBits = bitOR(densityBits, bits)
-    if densityBits ~= 0 or (AutoDrive:getSetting("restrictToField") == false) then
+    if densityBits ~= 0 or (AutoDrive.getSetting("restrictToField") == false) then
         return true
     end
 
@@ -728,7 +728,7 @@ function AutoDrivePathFinder:createWayPoints(pf)
         AutoDrivePathFinder:smoothResultingPPPath(pf)
     end
 
-    if AutoDrive:getSetting("smoothField") == true then
+    if AutoDrive.getSetting("smoothField") == true then
         AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
     else
         pf.smoothStep = 2

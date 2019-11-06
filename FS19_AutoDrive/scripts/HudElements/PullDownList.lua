@@ -69,8 +69,8 @@ function ADPullDownList:onDraw(vehicle)
         return
     end
     local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive:getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive:getSetting("guiScale")
+    if AutoDrive.getSetting("guiScale") ~= 0 then
+        uiScale = AutoDrive.getSetting("guiScale")
     end
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
     setTextColor(1, 1, 1, 1)
@@ -129,7 +129,7 @@ function ADPullDownList:onDraw(vehicle)
                 if text == "All" and listEntry.isFolder then
                     text = g_i18n:getText("gui_ad_default")
                 end
-                if listEntry.isFolder == false and self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive:getSetting("useFolders") then
+                if listEntry.isFolder == false and self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive.getSetting("useFolders") then
                     text = "   " .. text
                 end
                 local textTargetWidth = math.abs(self.rightIconPos2.x - self.position.x) - AutoDrive.Hud.gapWidth
@@ -169,7 +169,7 @@ function ADPullDownList:onDraw(vehicle)
                         end
                     end
                 --else
-                --if self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive:getSetting("useFolders") then
+                --if self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive.getSetting("useFolders") then
                 --listEntry.ovUp = Overlay:new(self.imageUp, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height);
                 --listEntry.ovUp:render();
                 --listEntry.ovDown = Overlay:new(self.imageDown, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height);
@@ -207,8 +207,8 @@ function ADPullDownList:shortenTextToWidth(textInput, width)
     end
 
     local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive:getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive:getSetting("guiScale")
+    if AutoDrive.getSetting("guiScale") ~= 0 then
+        uiScale = AutoDrive.getSetting("guiScale")
     end
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
 
@@ -229,13 +229,13 @@ function ADPullDownList:getListElementByIndex(vehicle, index)
     local counter = 1
     if self.type ~= ADPullDownList.TYPE_FILLTYPE then
         for groupID, entries in pairs(self.options) do
-            if AutoDrive:getSetting("useFolders") then
+            if AutoDrive.getSetting("useFolders") then
                 if counter == index then
                     return {displayName = self:groupIDToGroupName(self.fakeGroupIDs[groupID]), returnValue = self:groupIDToGroupName(self.fakeGroupIDs[groupID]), isFolder = true}
                 end
                 counter = counter + 1
             end
-            if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not AutoDrive:getSetting("useFolders")) then
+            if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not AutoDrive.getSetting("useFolders")) then
                 for id, entry in pairs(entries) do
                     if counter == index then
                         return {displayName = entry.displayName, returnValue = entry.returnValue, isFolder = false}
@@ -266,8 +266,8 @@ function ADPullDownList:getTextPositionByDisplayIndex(index)
     local boxPos = self:getBoxPositionByDisplayIndex(index)
 
     local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive:getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive:getSetting("guiScale")
+    if AutoDrive.getSetting("guiScale") ~= 0 then
+        uiScale = AutoDrive.getSetting("guiScale")
     end
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
     local textHeight = getTextHeight(adFontSize, "text")
@@ -345,7 +345,7 @@ end
 
 function ADPullDownList:createSelection_Target()
     self.options = {}
-    if AutoDrive:getSetting("useFolders") then
+    if AutoDrive.getSetting("useFolders") then
         self:sortGroups()
     else
         self.options[1] = {}
@@ -356,7 +356,7 @@ function ADPullDownList:createSelection_Target()
     end
 
     for markerID, marker in pairs(AutoDrive.mapMarker) do
-        if AutoDrive:getSetting("useFolders") then
+        if AutoDrive.getSetting("useFolders") then
             table.insert(self.options[self.groups[marker.group]], {displayName = marker.name, returnValue = markerID})
         else
             table.insert(self.options[1], {displayName = marker.name, returnValue = markerID})
@@ -612,7 +612,7 @@ function ADPullDownList:setSelected(vehicle)
     if self.type == ADPullDownList.TYPE_TARGET then
         local index = 1
         for groupID, entries in pairs(self.options) do
-            if AutoDrive:getSetting("useFolders") then
+            if AutoDrive.getSetting("useFolders") then
                 index = index + 1
             end
             for _, entry in pairs(entries) do
@@ -633,7 +633,7 @@ function ADPullDownList:setSelected(vehicle)
     elseif self.type == ADPullDownList.TYPE_UNLOAD then
         local index = 1
         for groupID, entries in pairs(self.options) do
-            if AutoDrive:getSetting("useFolders") then
+            if AutoDrive.getSetting("useFolders") then
                 index = index + 1
             end
             for _, entry in pairs(entries) do
@@ -709,7 +709,7 @@ end
 
 function ADPullDownList:getItemCount()
     local count = #self.options
-    if AutoDrive:getSetting("useFolders") == false or self.type == ADPullDownList.TYPE_FILLTYPE then
+    if AutoDrive.getSetting("useFolders") == false or self.type == ADPullDownList.TYPE_FILLTYPE then
         count = 0
     end
     for _, list in pairs(self.options) do

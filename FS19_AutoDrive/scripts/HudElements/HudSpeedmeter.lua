@@ -19,8 +19,8 @@ function ADHudSpeedmeter:onDraw(vehicle)
     self.ov:render()
 
     local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive:getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive:getSetting("guiScale")
+    if AutoDrive.getSetting("guiScale") ~= 0 then
+        uiScale = AutoDrive.getSetting("guiScale")
     end
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
     setTextColor(1, 1, 1, 1)

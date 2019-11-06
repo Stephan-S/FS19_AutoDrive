@@ -1,4 +1,4 @@
-function AutoDrive:handleMultiplayer(vehicle, dt)
+function AutoDrive.handleMultiplayer(vehicle, dt)
     if AutoDrive == nil then
         return
     end
@@ -26,7 +26,7 @@ function AutoDrive:handleMultiplayer(vehicle, dt)
                 for userID, user in pairs(AutoDrive.Server.Users) do
                     user.ackReceived = false
                 end
-                AutoDriveCourseDownloadEvent:sendEvent(self)
+                AutoDriveCourseDownloadEvent:sendEvent(vehicle)
             else
                 --print("Done sending network!");
                 AutoDrive.requestedWaypoints = false

@@ -2,7 +2,7 @@ function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle)
     AutoDrive:checkForDeadLock(vehicle, dt)
     --AutoDrive:handlePrintMessage(vehicle, dt);
-    AutoDrive:handleTrailers(vehicle, dt)
+    AutoDrive.handleTrailers(vehicle, dt)
     --AutoDrive:handleFillables(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
 
@@ -96,7 +96,7 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
         end
         vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
-        if vehicle.setBeaconLightsVisibility ~= nil and AutoDrive:getSetting("useBeaconLights") then
+        if vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights") then
             if not AutoDrive:isOnField(vehicle) then
                 vehicle:setBeaconLightsVisibility(true)
             else
@@ -170,7 +170,7 @@ end
 function AutoDrive:initializeAD(vehicle, dt)
     vehicle.ad.timeTillDeadLock = 15000
 
-    if AutoDrive.handledRecalculation == false and AutoDrive:getSetting("autoRecalculate") then
+    if AutoDrive.handledRecalculation == false and AutoDrive.getSetting("autoRecalculate") then
         if AutoDrive.Recalculation ~= nil then
             if AutoDrive.Recalculation.continue == nil or AutoDrive.Recalculation.continue == false then
                 AutoDrive:ContiniousRecalculation()
@@ -203,7 +203,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --decide if we are already on field and are allowed to park on field then
                 local x, y, z = getWorldTranslation(vehicle.components[1].node)
                 local node = AutoDrive.mapWayPoints[closest]
-                if AutoDrive:getSetting("parkInField", vehicle) and AutoDrive:getDistance(x, z, node.x, node.z) > 20 then
+                if AutoDrive.getSetting("parkInField", vehicle) and AutoDrive:getDistance(x, z, node.x, node.z) > 20 then
                     AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
                     vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
                     vehicle.ad.wayPoints = {}
@@ -306,10 +306,10 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then
                         vehicle.ad.isPaused = true
-                        fillLevel, leftCapacity = getFillLevelAndCapacityOfAll(allFillables)
+                        fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(allFillables)
                         local maxCapacity = fillLevel + leftCapacity
 
-                        if vehicle.ad.mode == AutoDrive.MODE_LOAD and (leftCapacity <= (maxCapacity * (1 - AutoDrive:getSetting("unloadFillLevel", vehicle) + 0.001))) then
+                        if vehicle.ad.mode == AutoDrive.MODE_LOAD and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001))) then
                             vehicle.ad.isPaused = false
                         end
                     end
@@ -323,7 +323,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     end
 
                     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-                        if AutoDrive:getSetting("distributeToFolder", vehicle) and AutoDrive:getSetting("useFolders") then
+                        if AutoDrive.getSetting("distributeToFolder", vehicle) and AutoDrive.getSetting("useFolders") then
                             AutoDrive:setNextTargetInFolder(vehicle)
                         end
 
@@ -363,7 +363,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint]
         local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint - 1]
         local highestAngle = 0
-        local distanceToLookAhead = math.min(15, AutoDrive:getSetting("lookAheadBraking")) --restrict lookahead braking for now and see how it goes
+        local distanceToLookAhead = math.min(15, AutoDrive.getSetting("lookAheadBraking")) --restrict lookahead braking for now and see how it goes
 
         local totalMass = vehicle:getTotalMass(false)
         local massFactor = math.max(1, math.min(3, (totalMass + 20) / 30))
@@ -372,7 +372,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             massFactor = 1
         end
         distanceToLookAhead = math.min(distanceToLookAhead * massFactor * speedFactor, 100)
-        --print("Default: " .. AutoDrive:getSetting("lookAheadBraking") .. " massFactor: " .. massFactor .. " speedFactor: " .. speedFactor .. " result: " .. distanceToLookAhead)
+        --print("Default: " .. AutoDrive.getSetting("lookAheadBraking") .. " massFactor: " .. massFactor .. " speedFactor: " .. speedFactor .. " result: " .. distanceToLookAhead)
 
         local pointsToLookAhead = 20
         local doneCheckingRoute = false
@@ -446,7 +446,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     --if vehicle.ad.currentWayPoint <= 2 then
     --vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
     --end;
-    if AutoDrive:checkForTriggerProximity(vehicle) then
+    if AutoDrive.checkForTriggerProximity(vehicle) then
         vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride)
     end
 
@@ -475,7 +475,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end
 
     if vehicle.ad.isUnloadingToBunkerSilo == true and vehicle.ad.isPaused == false then
-        vehicle.ad.speedOverride = math.min(AutoDrive:getBunkerSiloSpeed(vehicle), vehicle.ad.speedOverride)
+        vehicle.ad.speedOverride = math.min(AutoDrive.getBunkerSiloSpeed(vehicle), vehicle.ad.speedOverride)
     end
 
     local finalSpeed = vehicle.ad.speedOverride
@@ -663,7 +663,7 @@ function AutoDrive:getLookAheadTarget(vehicle)
         local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint]
 
         local lookAheadID = 1
-        local lookAheadDistance = AutoDrive:getSetting("lookAheadTurning")
+        local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
         local distanceToCurrentTarget = AutoDrive:getDistance(x, z, wp_current.x, wp_current.z)
         --if vehicle.ad.currentWayPoint <= 2 then
         --lookAheadDistance = 0;

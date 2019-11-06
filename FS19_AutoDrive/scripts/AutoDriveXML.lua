@@ -1,4 +1,4 @@
-function AutoDrive:loadStoredXML()
+function AutoDrive.loadStoredXML()
 	local adXml
 	local path = g_currentMission.missionInfo.savegameDirectory
 	local file = ""
@@ -48,7 +48,7 @@ function AutoDrive:loadStoredXML()
 		--local tempstring = saveXMLFileToMemory(tempXml);
 		--adXml = loadXMLFileFromMemory("AutoDrive_XML", tempstring);
 
-		AutoDrive:readFromXML(tempXml)
+		AutoDrive.readFromXML(tempXml)
 		print("AD: Finished loading xml from memory")
 
 		AutoDrive.MarkChanged()
@@ -67,10 +67,10 @@ function AutoDrive:loadStoredXML()
 	end
 
 	AutoDrive.adXml = adXml
-	AutoDrive:readFromXML(adXml)
+	AutoDrive.readFromXML(adXml)
 end
 
-function AutoDrive:readFromXML(xmlFile)
+function AutoDrive.readFromXML(xmlFile)
 	if xmlFile == nil then
 		return
 	end
@@ -301,7 +301,7 @@ function AutoDrive:readFromXML(xmlFile)
 	end
 end
 
-function AutoDrive:ExportRoutes()
+function AutoDrive.exportRoutes()
 	path = getUserProfileAppPath()
 	file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
 
@@ -311,11 +311,11 @@ function AutoDrive:ExportRoutes()
 	print("AD: creating xml file at " .. file)
 	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive")
 	saveXMLFile(adXml)
-	AutoDrive:saveToXML(adXml)
+	AutoDrive.saveToXML(adXml)
 	print("AD: Finished exporting routes")
 end
 
-function AutoDrive:ImportRoutes()
+function AutoDrive.importRoutes()
 	path = getUserProfileAppPath()
 	file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
 
@@ -331,7 +331,7 @@ function AutoDrive:ImportRoutes()
 		if VersionCheck == nil or MapCheck == false then
 			print("AD: Version Check or Map check failed - cannot import")
 		else
-			AutoDrive:readFromXML(adXml)
+			AutoDrive.readFromXML(adXml)
 			AutoDrive.requestedWaypoints = true
 			AutoDrive.requestedWaypointCount = 1
 			AutoDrive.MarkChanged()
@@ -339,7 +339,7 @@ function AutoDrive:ImportRoutes()
 	end
 end
 
-function AutoDrive:saveToXML(xmlFile)
+function AutoDrive.saveToXML(xmlFile)
 	if xmlFile == nil then
 		print("AutoDrive - no valid xml file for saving the configuration")
 		return
@@ -454,7 +454,7 @@ function AutoDrive:saveToXML(xmlFile)
 	saveXMLFile(xmlFile)
 end
 
-function AutoDrive:tableEntriesAreEqual(list)
+function AutoDrive.tableEntriesAreEqual(list)
 	local match = true
 	local toCompare = nil
 

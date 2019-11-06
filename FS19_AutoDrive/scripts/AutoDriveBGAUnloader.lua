@@ -132,7 +132,7 @@ end
 
 function AutoDriveBGA:getCurrentStates(vehicle)
     vehicle.bga.shovelFillLevel = self:getShovelFillLevel(vehicle)
-    vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
+    vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
     vehicle.bga.bunkerFillLevel = 10000 --self:getBunkerFillLevel();
 
     if not self:checkCurrentTrailerStillValid(vehicle) then
@@ -144,7 +144,7 @@ end
 function AutoDriveBGA:checkIfPossibleToRestart(vehicle, dt)
     if vehicle.bga.targetTrailer == nil then
         vehicle.bga.targetTrailer, vehicle.bga.targetDriver = self:findCloseTrailer(vehicle)
-        vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
+        vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
     end
     if vehicle.bga.targetBunker == nil then
         vehicle.bga.targetBunker = self:getTargetBunker(vehicle)
@@ -169,9 +169,9 @@ function AutoDriveBGA:getShovelFillLevel(vehicle)
             end
         end
         if vehicle.bga.shovelWidthTool ~= nil then
-            vehicle.bga.shovelWidth = vehicle.bga.shovelWidthTool + AutoDrive:getSetting("shovelWidth", vehicle)
+            vehicle.bga.shovelWidth = vehicle.bga.shovelWidthTool + AutoDrive.getSetting("shovelWidth", vehicle)
         else
-            vehicle.bga.shovelWidth = 3.0 + AutoDrive:getSetting("shovelWidth", vehicle)
+            vehicle.bga.shovelWidth = 3.0 + AutoDrive.getSetting("shovelWidth", vehicle)
         end
 
         if vehicle.bga.targetBunker ~= nil then
@@ -630,7 +630,7 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
                     if trailer ~= nil then
                         local trailerFillLevel = 0
                         local trailerLeftCapacity = 0
-                        trailerFillLevel, trailerLeftCapacity = getFillLevelAndCapacityOf(trailer)
+                        trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
                         if trailerLeftCapacity >= 10 then
                             closestDistance = self:getDistanceBetween(trailer, bgaVehicle)
                             closest = vehicle
@@ -644,7 +644,7 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
     if closest ~= nil then
         local trailerFillLevel = 0
         local trailerLeftCapacity = 0
-        trailerFillLevel, trailerLeftCapacity = getFillLevelAndCapacityOf(closestTrailer)
+        trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(closestTrailer)
         return closestTrailer, closest
     end
     return
@@ -658,13 +658,13 @@ function AutoDriveBGA:getDistanceBetween(vehicleOne, vehicleTwo)
 end
 
 function AutoDriveBGA:vehicleHasTrailersAttached(vehicle)
-    local trailers, trailerCount = AutoDrive:getTrailersOf(vehicle)
+    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
     local tipTrailers = {}
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
             local trailerFillLevel = 0
             local trailerLeftCapacity = 0
-            trailerFillLevel, trailerLeftCapacity = getFillLevelAndCapacityOf(trailer)
+            trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
             local maxCapacity = trailerFillLevel + trailerLeftCapacity
             if trailer.typeName == "trailer" or (maxCapacity >= 7000) then
                 table.insert(tipTrailers, trailer)
@@ -680,7 +680,7 @@ function AutoDriveBGA:checkCurrentTrailerStillValid(vehicle)
         local tooFast = math.abs(vehicle.bga.targetDriver.lastSpeedReal) > 0.002
         local trailerFillLevel = 0
         local trailerLeftCapacity = 0
-        trailerFillLevel, trailerLeftCapacity = getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
+        trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
         local tooFull = trailerLeftCapacity < 1
 
         return not (tooFull or tooFast)

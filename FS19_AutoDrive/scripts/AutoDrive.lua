@@ -119,7 +119,7 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.mouseWheelActive = false
 
-	AutoDrive:loadStoredXML()
+	AutoDrive.loadStoredXML()
 
 	AutoDrive:initLineDrawing()
 
@@ -152,6 +152,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.destinationListeners = {}
 
 	AutoDrive.delayedCallBacks = {}
+
 	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
 	--    DelayedCallBack:new(
 	--    function()
@@ -174,7 +175,7 @@ end
 
 function AutoDrive:saveSavegame()
 	if AutoDrive.GetChanged() == true or AutoDrive.HudChanged then
-		AutoDrive:saveToXML(AutoDrive.adXml)
+		AutoDrive.saveToXML(AutoDrive.adXml)
 		AutoDrive.configChanged = false
 		AutoDrive.HudChanged = false
 	else
@@ -263,32 +264,22 @@ function AutoDrive.handlePerFrameOperations(dt)
 end
 
 function AutoDrive.handlePrintMessage(dt)
-	if g_dedicatedServerInfo == nil then
-		if AutoDrive.print.currentMessage ~= nil then
-			AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt
-			if AutoDrive.print.nextMessage ~= nil then
-				if AutoDrive.print.currentMessageActiveSince > 6000 then
-					AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
-					AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
-					AutoDrive.print.nextMessage = nil
-					AutoDrive.print.nextReferencedVehicle = nil
-					AutoDrive.print.currentMessageActiveSince = 0
-				end
-			end
-			if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
-				AutoDrive.print.currentMessage = nil
+	if AutoDrive.print.currentMessage ~= nil then
+		AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt
+		if AutoDrive.print.nextMessage ~= nil then
+			if AutoDrive.print.currentMessageActiveSince > 6000 then
+				AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
+				AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
+				AutoDrive.print.nextMessage = nil
+				AutoDrive.print.nextReferencedVehicle = nil
 				AutoDrive.print.currentMessageActiveSince = 0
-				AutoDrive.print.referencedVehicle = nil
-				--AutoDrive.print.showMessageFor = 12000;
-				if AutoDrive.print.nextMessage ~= nil then
-					AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
-					AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
-					AutoDrive.print.nextMessage = nil
-					AutoDrive.print.nextReferencedVehicle = nil
-					AutoDrive.print.currentMessageActiveSince = 0
-				end
 			end
-		else
+		end
+		if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
+			AutoDrive.print.currentMessage = nil
+			AutoDrive.print.currentMessageActiveSince = 0
+			AutoDrive.print.referencedVehicle = nil
+			--AutoDrive.print.showMessageFor = 12000;
 			if AutoDrive.print.nextMessage ~= nil then
 				AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
 				AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
@@ -296,6 +287,14 @@ function AutoDrive.handlePrintMessage(dt)
 				AutoDrive.print.nextReferencedVehicle = nil
 				AutoDrive.print.currentMessageActiveSince = 0
 			end
+		end
+	else
+		if AutoDrive.print.nextMessage ~= nil then
+			AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
+			AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
+			AutoDrive.print.nextMessage = nil
+			AutoDrive.print.nextReferencedVehicle = nil
+			AutoDrive.print.currentMessageActiveSince = 0
 		end
 	end
 end
