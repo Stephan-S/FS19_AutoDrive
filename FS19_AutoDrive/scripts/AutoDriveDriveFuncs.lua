@@ -106,13 +106,13 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
                 vehicle:setBeaconLightsVisibility(false)
             end;
         end;
+        -- Only the server have to start motor
+        if vehicle.startMotor and vehicle.stopMotor and not vehicle.spec_motorized.isMotorStarted then
+            if vehicle.ad.isActive and vehicle:getCanMotorRun() then
+                vehicle:startMotor();
+            end;
+        end;
 	end;
-	
-	if vehicle.startMotor and vehicle.stopMotor then
-		if vehicle.ad.isActive and vehicle:getCanMotorRun() then
-			vehicle:startMotor();
-		end;
-    end;
     
     if not vehicle:getCanMotorRun() then
         vehicle.ad.isPaused = true;
