@@ -79,7 +79,7 @@ function AutoDrive:parameterizeLine(line, startPoint, targetPoint, color, visibl
     setVisibility(line, visible);
 
     --- Get the direction to the end point
-    local dirX, _, dirZ, distToNextPoint = AutoDrive:getWorldDirection(startPoint.x, startPoint.y, startPoint.z, targetPoint.x, targetPoint.y, targetPoint.z);
+    local dirX, _, dirZ, distToNextPoint = AutoDrive.getWorldDirection(startPoint.x, startPoint.y, startPoint.z, targetPoint.x, targetPoint.y, targetPoint.z);
     --- Get Y rotation
     local rotY = MathUtil.getYRotationFromDirection(dirX, dirZ);
     --- Get X rotation

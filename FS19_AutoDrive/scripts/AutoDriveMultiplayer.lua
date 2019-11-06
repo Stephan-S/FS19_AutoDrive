@@ -19,7 +19,7 @@ function AutoDrive:handleMultiplayer(vehicle, dt)
         
         local allAcksReceived, highestIndex = AutoDrive:checkUsers();    
         
-        if allAcksReceived == true and ADTableLength(AutoDrive.Server.Users) > 0 then
+        if allAcksReceived == true and AutoDrive.tableLength(AutoDrive.Server.Users) > 0 then
             if AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter and AutoDrive.requestedWaypoints == true then
                 AutoDrive.requestedWaypointCount = highestIndex;
                 --print("Highest index of all users was: " .. highestIndex);
@@ -33,7 +33,7 @@ function AutoDrive:handleMultiplayer(vehicle, dt)
             end;
         end;
 
-        if ADTableLength(AutoDrive.Server.Users) == 0 then
+        if AutoDrive.tableLength(AutoDrive.Server.Users) == 0 then
             AutoDrive.requestedWaypoints = false;
         end;
     end;
@@ -59,7 +59,7 @@ function AutoDrive:checkUsers()
     local aliveUsers = {};
     local highestIndex = AutoDrive.requestedWaypointCount;
     
-    --print("Current users: " .. ADTableLength(AutoDrive.Server.Users));
+    --print("Current users: " .. AutoDrive.tableLength(AutoDrive.Server.Users));
     for userID,user in pairs(AutoDrive.Server.Users) do 
         allAcksReceived = allAcksReceived and user.ackReceived;
         if user.ackReceived == false then
@@ -69,7 +69,7 @@ function AutoDrive:checkUsers()
             aliveUsers[userID] = user;
             highestIndex = math.max(1, math.min(highestIndex, user.highestIndex));
         end;
-        --print("User: " ..userID .. " ack: " .. ADBoolToString(user.ackReceived) .. " highest: " .. user.highestIndex .. " keepAlive: " .. user.keepAlive);
+        --print("User: " ..userID .. " ack: " .. AutoDrive.boolToString(user.ackReceived) .. " highest: " .. user.highestIndex .. " keepAlive: " .. user.keepAlive);
     end;
     AutoDrive.Server.Users = aliveUsers;
 

@@ -198,7 +198,7 @@ function AutoDrive:dijkstra(Graph,start,setToUse)
 								if workPre[shortest_id] ~= nil then
 									local wp_ref = mapPoints[workPre[shortest_id]]
 									if wp_ref ~= nil then
-										angle = math.abs(AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
+										angle = math.abs(AutoDrive.angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
 																					{x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } ));  
 									end; 
 								end;

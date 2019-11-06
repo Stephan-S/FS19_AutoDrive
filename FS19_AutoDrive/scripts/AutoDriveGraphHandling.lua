@@ -340,8 +340,8 @@ function AutoDrive:handleRecording(vehicle)
 				local startNode = AutoDrive.mapWayPoints[startPoint];
 				if startNode ~= nil then
 					if AutoDrive:getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
-						startNode.out[ADTableLength(startNode.out)+1] = vehicle.ad.wayPoints[i].id;
-						vehicle.ad.wayPoints[i].incoming[ADTableLength(vehicle.ad.wayPoints[i].incoming)+1] = startNode.id;
+						startNode.out[AutoDrive.tableLength(startNode.out)+1] = vehicle.ad.wayPoints[i].id;
+						vehicle.ad.wayPoints[i].incoming[AutoDrive.tableLength(vehicle.ad.wayPoints[i].incoming)+1] = startNode.id;
 
 						if vehicle.ad.creationModeDual then
 							local incomingNodes = 1;
@@ -374,7 +374,7 @@ function AutoDrive:handleRecording(vehicle)
 			local x,y,z = getWorldTranslation(vehicle.components[1].node);
 			local wp = vehicle.ad.wayPoints[i-1];
 			local wp_ref = vehicle.ad.wayPoints[i-2]
-			local angle = math.abs(AutoDrive:angleBetween( {x=x-wp_ref.x,z=z-wp_ref.z},{x=wp.x-wp_ref.x, z = wp.z - wp_ref.z } ))
+			local angle = math.abs(AutoDrive.angleBetween( {x=x-wp_ref.x,z=z-wp_ref.z},{x=wp.x-wp_ref.x, z = wp.z - wp_ref.z } ))
 			local max_distance = 6;
 			if angle < 1 then max_distance = 6; end;
 			if angle >= 1 and angle < 2 then max_distance = 4; end;
@@ -409,7 +409,7 @@ function AutoDrive:handleRecalculation(vehicle)
 				end;
 				
 				-- TODO: We should try to improve that, currently it's not very synchronized with recalculation
-				AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%  - " .. currentDestination);
+				AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%  - " .. currentDestination);
 				AutoDrive.print.showMessageFor = 500;
 				if AutoDrive.recalculationPercentage == 100 then
 					AutoDrive.print.showMessageFor = 5000;
@@ -467,7 +467,7 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, past, maxDrivingSpeed
 	if past ~= nil then
 		local wp_ref = AutoDrive.mapWayPoints[past]
 		if wp_ref ~= nil then
-			angle = math.abs(AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
+			angle = math.abs(AutoDrive.angleBetween( 	{x=	wp_ahead.x	-	wp_current.x, z = wp_ahead.z - wp_current.z },
 														{x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } ));  
 		end; 
 	end;
@@ -530,7 +530,7 @@ function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
 	local outerLoop = 1;
 	local minDistance = math.huge;
 	local minDistanceNode = -1;
-	for i = 1, ADTableLength(listOfNodes) do
+	for i = 1, AutoDrive.tableLength(listOfNodes) do
 		for currentNode,checkNode in pairs(listOfNodes) do
 			local distance = AutoDrive:getDistance(x, z, AutoDrive.mapWayPoints[checkNode.id].x, AutoDrive.mapWayPoints[checkNode.id].z);
 			
@@ -655,8 +655,8 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 			while nextP ~= nil do
 				local vecToNextPoint 	= {x = nextP.x - toCheck.x, 	z = nextP.z - toCheck.z};
 				local vecToVehicle 		= {x = toCheck.x - point.x, 		z = toCheck.z - point.z };
-				local angleToNextPoint 	= AutoDrive:angleBetween(direction, vecToNextPoint);
-				local angleToVehicle 	= AutoDrive:angleBetween(direction, vecToVehicle);
+				local angleToNextPoint 	= AutoDrive.angleBetween(direction, vecToNextPoint);
+				local angleToVehicle 	= AutoDrive.angleBetween(direction, vecToVehicle);
 				local dis = AutoDrive:getDistance(toCheck.x,toCheck.z,point.x,point.z);
 				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
 					closest = toCheck.id;

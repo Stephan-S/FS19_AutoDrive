@@ -256,7 +256,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         
         if vehicle.ad.wayPoints ~= nil then
             if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1] ~= nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then			
-                AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
+                AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget);               
                 AutoDrive:stopAD(vehicle, true);
             end;
             
@@ -313,7 +313,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 end;
             end;
             
-            AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
+            AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target);
             AutoDrive:stopAD(vehicle, false);           
         else            
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
@@ -412,7 +412,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+currentLookAheadPoint-1];
                 local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint+currentLookAheadPoint-2];    
                 
-                local angle = AutoDrive:angleBetween( 	{x=	wp_ahead.x	-	wp_ref.x, z = wp_ahead.z - wp_ref.z },
+                local angle = AutoDrive.angleBetween( 	{x=	wp_ahead.x	-	wp_ref.x, z = wp_ahead.z - wp_ref.z },
                                                 {x=	wp_current.x-	wp_ref.x, z = wp_current.z - wp_ref.z } )
                 angle = math.abs(angle);
                 if AutoDrive:getDistance( vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x,  vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z,
@@ -623,11 +623,11 @@ end;
 
 function AutoDrive:handleDeadlock(vehicle, dt)
 	if vehicle.ad.inDeadLock == true and vehicle.ad.isActive == true and vehicle.isServer then
-		AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"));
+		AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"));
 		
 		--deadlock handling
 		if vehicle.ad.inDeadLockRepairCounter < 1 then
-			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"));
+			AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"));
             AutoDrive:stopAD(vehicle, true);
 		else
             --print("AD: Trying to recover from deadlock")
@@ -648,8 +648,8 @@ function AutoDrive:handleDeadlock(vehicle, dt)
                 local wpVector = {x= (wpTwoAhead.x - wpAhead.x), z= (wpTwoAhead.z - wpAhead.z) };
                 local vehicleToWPVector = {x= (wpAhead.x - x), z= (wpAhead.z - z) };
 
-                local angleBetweenVehicleVectorAndNextCourse = AutoDrive:angleBetween(vehicleVector, wpVector);
-                local angleBetweenVehicleAndLookAheadWp = AutoDrive:angleBetween(vehicleVector, vehicleToWPVector);
+                local angleBetweenVehicleVectorAndNextCourse = AutoDrive.angleBetween(vehicleVector, wpVector);
+                local angleBetweenVehicleAndLookAheadWp = AutoDrive.angleBetween(vehicleVector, vehicleToWPVector);
 
                 if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 20 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -10000) then                            
                     vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + lookAhead-1;
@@ -724,6 +724,6 @@ function AutoDrive:getLookAheadTarget(vehicle)
     end;
 
     --local x,y,z = getWorldTranslation(vehicle.components[1].node);    
-    --AutoDrive:drawLine(AutoDrive:createVector(targetX,y, targetZ), AutoDrive:createVector(x,y,z), 1, 0, 1, 1);
+    --AutoDrive:drawLine(AutoDrive.createVector(targetX,y, targetZ), AutoDrive.createVector(x,y,z), 1, 0, 1, 1);
     return targetX, targetZ;
 end;

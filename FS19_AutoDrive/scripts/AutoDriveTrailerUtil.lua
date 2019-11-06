@@ -12,7 +12,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
 
             local fillUnits = trailer:getFillUnits();
             for i=1,#fillUnits do
-                --print("unit: " .. i .. " : " .. trailer:getFillUnitFillLevelPercentage(i)*100 .. " ad.isLoading: " .. ADBoolToString(vehicle.ad.isLoading) .. " trigger.isLoading: " .. ADBoolToString(trigger.isLoading))
+                --print("unit: " .. i .. " : " .. trailer:getFillUnitFillLevelPercentage(i)*100 .. " ad.isLoading: " .. AutoDrive.boolToString(vehicle.ad.isLoading) .. " trigger.isLoading: " .. AutoDrive.boolToString(trigger.isLoading))
                 if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999 and (not vehicle.ad.isLoading) and (not trigger.isLoading) then
                     if trigger:getIsActivatable(trailer)  then
                         AutoDrive:startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigger, i);                    
@@ -21,7 +21,7 @@ function AutoDrive:handleTrailers(vehicle, dt)
                 end;
             end;
             isLoading = isLoading or trigger.isLoading;
-            --print(vehicle.ad.driverName .. " - isLoading : " .. ADBoolToString(trigger.isLoading) .. " ad: " .. ADBoolToString(isLoading));
+            --print(vehicle.ad.driverName .. " - isLoading : " .. AutoDrive.boolToString(trigger.isLoading) .. " ad: " .. AutoDrive.boolToString(isLoading));
         end;        
     end;
     
@@ -333,9 +333,9 @@ function getFillLevelAndCapacityOf(trailer, selectedFillType)
             end;
         end
     end;
-    -- print("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. ADTableLength(fullFillUnits));
+    -- print("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. AutoDrive.tableLength(fullFillUnits));
     -- for index, value in pairs(fullFillUnits) do
-    --     print("Unit full: " .. index .. " " .. ADBoolToString(value));
+    --     print("Unit full: " .. index .. " " .. AutoDrive.boolToString(value));
     -- end;
     
     return fillLevel, leftCapacity, fullFillUnits;
@@ -377,7 +377,7 @@ function getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selecte
     if isSelectedFillType then
         fillTypeIsProhibited = false;
     end;
-    --print("DieselForFuel: " .. ADBoolToString(hasOnlyDieselForFuel));
+    --print("DieselForFuel: " .. AutoDrive.boolToString(hasOnlyDieselForFuel));
 
     if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then 
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex);
@@ -832,10 +832,10 @@ function AutoDrive:getTriggerAndTrailerPairs(vehicle)
 
                         local trailerIsInRange = AutoDrive:trailerIsInTriggerList(trailer, trigger, i); 
                                            
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasRequiredFillType " .. ADBoolToString(hasRequiredFillType));
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasCapacity " .. ADBoolToString(hasCapacity));
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. ADBoolToString(trailerIsInRange));
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: isNotFilled " .. ADBoolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999) );
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasRequiredFillType " .. AutoDrive.boolToString(hasRequiredFillType));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasCapacity " .. AutoDrive.boolToString(hasCapacity));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. AutoDrive.boolToString(trailerIsInRange));
+                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: isNotFilled " .. AutoDrive.boolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive:getSetting("unloadFillLevel", vehicle) * 0.999) );
     
                         if trailerIsInRange and hasRequiredFillType  and isNotFilled and hasCapacity then
                             local pair = {trailer=trailer, trigger=trigger};

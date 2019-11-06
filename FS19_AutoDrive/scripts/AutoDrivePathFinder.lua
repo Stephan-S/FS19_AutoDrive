@@ -97,7 +97,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 	local startX = driverWorldX + startDistance*driverRx;
 	local startZ = driverWorldZ + startDistance*driverRz;
 	
-    local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
+    local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
     local cos = math.cos(atan);  
@@ -169,7 +169,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 	local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE*driverRx;
 	local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE*driverRz;
 	
-	local atan = normalizeAngle(math.atan2(driverVector.z, driverVector.x));
+	local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x));
 	
 	local sin = math.sin(atan);
     local cos = math.cos(atan);
@@ -213,7 +213,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 
 	local angleRad = math.atan2(targetVector.z, targetVector.x);
 
-	angleRad = normalizeAngle(angleRad);
+	angleRad = AutoDrive.normalizeAngle(angleRad);
 
 	local targetX = preTargetPoint.x + math.cos(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE; --Make the target a few meters ahead of the road to the start point
 	local targetZ = preTargetPoint.z + math.sin(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE;
@@ -276,7 +276,7 @@ function AutoDrivePathFinder:getDriverRadius(driver)
 
     minTurnRadius = math.max(minTurnRadius, maxToolRadius);
     
-    AutoDrive:debugPrint(driver, ADDEBUGLEVEL_1, " startPathPlanningToCombine - minTurnRadius: " .. minTurnRadius .. " AI: ".. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) .. " tools: " .. maxToolRadius);        
+    AutoDrive.debugPrint(driver, ADDEBUGLEVEL_1, " startPathPlanningToCombine - minTurnRadius: " .. minTurnRadius .. " AI: ".. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) .. " tools: " .. maxToolRadius);        
 
     return minTurnRadius;
 end;
@@ -591,7 +591,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         local shapeDefinition = getShapeDefByDirectionType(pf, cell);
 
         local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x);
-        angleRad = normalizeAngle(angleRad);
+        angleRad = AutoDrive.normalizeAngle(angleRad);
         local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
         local shapes = overlapBox(shapeDefinition.x,shapeDefinition.y+3,shapeDefinition.z, 0,shapeDefinition.angleRad,0, shapeDefinition.widthX,shapeDefinition.height,shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
         
@@ -652,7 +652,7 @@ end;
 function getShapeDefByDirectionType(pf, cell)
     local shapeDefinition = {};
     shapeDefinition.angleRad = math.atan2(-pf.targetVector.z, pf.targetVector.x);
-    shapeDefinition.angleRad = normalizeAngle(shapeDefinition.angleRad);
+    shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad);
     local worldPos = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell);
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
     shapeDefinition.height = 2.85;
@@ -856,11 +856,11 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 local vectorX = nodeAhead.x - node.x;
                 local vectorZ = nodeAhead.z - node.z;
                 local angleRad = math.atan2(-vectorZ, vectorX);
-                angleRad = normalizeAngle(angleRad);
+                angleRad = AutoDrive.normalizeAngle(angleRad);
                 local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox;
                 
-                local leftAngle = normalizeAngle(angleRad + math.rad(-90));
-                local rightAngle = normalizeAngle(angleRad + math.rad(90));
+                local leftAngle = AutoDrive.normalizeAngle(angleRad + math.rad(-90));
+                local rightAngle = AutoDrive.normalizeAngle(angleRad + math.rad(90));
 
                 local cornerX = node.x - math.cos(leftAngle) * sideLength;
                 local cornerZ = node.z + math.sin(leftAngle) * sideLength;
@@ -952,8 +952,8 @@ function AutoDrivePathFinder:worldLocationToGridLocation(pf, worldX, worldZ)
 	result.z = (((worldX - pf.startX) / pf.vectorX.x) * pf.vectorX.z -worldZ + pf.startZ) / (((pf.vectorZ.x / pf.vectorX.x) * pf.vectorX.z) - pf.vectorZ.z);
 	result.x = (worldZ - pf.startZ - result.z * pf.vectorZ.z) / pf.vectorX.z;
 
-	result.x = AutoDrive:round(result.x);
-	result.z = AutoDrive:round(result.z);
+	result.x = AutoDrive.round(result.x);
+	result.z = AutoDrive.round(result.z);
 
 	return result;
 end;
@@ -962,36 +962,36 @@ function AutoDrivePathFinder:worldDirectionToGridDirection(pf, vector)
 	local vecUp = {x = pf.vectorX.x + pf.vectorZ.x, z = pf.vectorX.z + pf.vectorZ.z};
 
 	local angleWorldDirection = math.atan2(vector.z, vector.x);
-	angleWorldDirection = normalizeAngle2(angleWorldDirection);
+	angleWorldDirection = AutoDrive.normalizeAngle2(angleWorldDirection);
 
     --local angleRad = math.atan2(vecUp.z, vecUp.x);
     local angleRad = math.atan2(pf.vectorX.z, pf.vectorX.x);
-	angleRad = normalizeAngle2(angleRad);
+	angleRad = AutoDrive.normalizeAngle2(angleRad);
 
-	local upRightAngle = normalizeAngle2(angleRad + math.rad(45));
-	local rightAngle = normalizeAngle2(angleRad + math.rad(90));
-	local downRightAngle = normalizeAngle2(angleRad + math.rad(135));
-	local downAngle = normalizeAngle2(angleRad + math.rad(180));
-	local downLeftAngle = normalizeAngle2(angleRad + math.rad(225));
-	local leftAngle = normalizeAngle2(angleRad + math.rad(270));
-	local upLeftAngle = normalizeAngle2(angleRad + math.rad(315));
+	local upRightAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(45));
+	local rightAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(90));
+	local downRightAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(135));
+	local downAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(180));
+	local downLeftAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(225));
+	local leftAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(270));
+	local upLeftAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(315));
 
     local direction = AutoDrive.PP_UP;
     --print("vectorUp: " .. math.deg(angleRad) ..  " angle target: " .. math.deg(angleWorldDirection));
 
-	if math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - upRightAngle ) )) >= 337.5 then
+	if math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - upRightAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - upRightAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_UP_RIGHT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - rightAngle ) )) >= 337.5 then
+	elseif math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - rightAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - rightAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_RIGHT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downRightAngle ) )) >= 337.5 then
+	elseif math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - downRightAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - downRightAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_DOWN_RIGHT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downAngle ) )) >= 337.5 then
+	elseif math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - downAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - downAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_DOWN;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - downLeftAngle ) )) >= 337.5 then
+	elseif math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - downLeftAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - downLeftAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_DOWN_LEFT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - leftAngle ) )) >= 337.5 then
+	elseif math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - leftAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - leftAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_LEFT;
-	elseif math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) <= 22.5 or math.abs( math.deg( normalizeAngle2( angleWorldDirection - upLeftAngle ) )) >= 337.5 then
+	elseif math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - upLeftAngle ) )) <= 22.5 or math.abs( math.deg( AutoDrive.normalizeAngle2( angleWorldDirection - upLeftAngle ) )) >= 337.5 then
 		direction = AutoDrive.PP_UP_LEFT;
 	end;
 
@@ -1318,13 +1318,13 @@ function drawDebugForCreatedRoute(pf)
                     local vectorX = worldPos_cell.x - worldPos_incoming.x;
                     local vectorZ = worldPos_cell.z - worldPos_incoming.z;
                     local angleRad = math.atan2(-vectorZ, vectorX);
-                    angleRad = normalizeAngle(angleRad);
+                    angleRad = AutoDrive.normalizeAngle(angleRad);
                     local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2));
                     local sideLength = widthOfColBox/2;
                     local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox;
                     
-                    local leftAngle = normalizeAngle(angleRad + math.rad(-90));
-                    local rightAngle = normalizeAngle(angleRad + math.rad(90));
+                    local leftAngle = AutoDrive.normalizeAngle(angleRad + math.rad(-90));
+                    local rightAngle = AutoDrive.normalizeAngle(angleRad + math.rad(90));
 
                     local cornerX = worldPos_incoming.x - math.cos(leftAngle) * sideLength;
                     local cornerZ = worldPos_incoming.z + math.sin(leftAngle) * sideLength;

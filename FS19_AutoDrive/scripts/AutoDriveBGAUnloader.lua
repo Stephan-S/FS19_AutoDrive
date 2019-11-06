@@ -203,7 +203,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
     if vehicle.bga.shovel == nil then
         self:getVehicleShovel(vehicle);
         if vehicle.bga.shovel == nil then
-            AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Shovel"));            
+            AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Shovel"));            
             vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
             AutoDrive:stopAD(vehicle, true);
             return;
@@ -211,7 +211,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
     end;
 
     if vehicle.bga.targetBunker == nil then
-        AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
+        AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
         vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
         AutoDrive:stopAD(vehicle, true);
     end;
@@ -804,7 +804,7 @@ function AutoDriveBGA:isAlmostInBunkerSiloArea(vehicle, distanceToCheck)
                         y = y+2,
                         z = z + (width/2) * ortho.z +  (length/2 + distanceToCheck) * vehicleVector.z};
                         
-    return AutoDrive:BoxesIntersect(boundingBox, otherBoundingBox)
+    return AutoDrive.boxesIntersect(boundingBox, otherBoundingBox)
 end;
 
 function AutoDriveBGA:driveToSiloCommonPoint(vehicle, dt)
@@ -1058,7 +1058,7 @@ function AutoDriveBGA:getAngleToTarget(vehicle)
 
 
 
-    return AutoDrive:angleBetween(vehicleVector, vecToTrailer);
+    return AutoDrive.angleBetween(vehicleVector, vecToTrailer);
 end;
 
 function AutoDriveBGA:loadFromBGA(vehicle, dt)
@@ -1177,7 +1177,7 @@ end;
 
 function AutoDriveBGA:driveToBGAUnload(vehicle, dt)
     if vehicle.bga.targetTrailer == nil then
-        AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Trailer")); 
+        AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Trailer")); 
         self:getVehicleToPause(vehicle);
         AutoDrive:getVehicleToStop(vehicle, false, dt);
         return;
@@ -1364,7 +1364,7 @@ function AutoDriveBGA:setShovelOffsetToNonEmptyRow(vehicle)
     end;
     
     if ((currentFillLevel == 0) and (iterations < 0)) then
-        AutoDrive:printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
+        AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " ..  g_i18n:getText("AD_No_Bunker")); 
         vehicle.bga.state = AutoDriveBGA.STATE_IDLE;
         AutoDrive:stopAD(vehicle, true);
     end;

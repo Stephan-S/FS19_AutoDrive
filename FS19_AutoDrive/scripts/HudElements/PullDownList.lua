@@ -101,8 +101,8 @@ function ADPullDownList:onDraw(vehicle)
             local actualTarget = "";
 
             for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
-                if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)] ~= nil then
-                    if mapMarker.id == vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id then
+                if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)] ~= nil then
+                    if mapMarker.id == vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id then
                         actualTarget = mapMarker.name;
                     end;
                 end;

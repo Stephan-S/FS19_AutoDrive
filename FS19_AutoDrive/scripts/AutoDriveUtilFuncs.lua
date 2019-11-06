@@ -1,4 +1,4 @@
-function ADTableLength(T)
+function AutoDrive.tableLength(T)
 	if T == nil then
 		return 0
 	end
@@ -9,7 +9,7 @@ function ADTableLength(T)
 	return count
 end
 
-function AutoDrive:BoxesIntersect(a, b)
+function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
 
@@ -79,28 +79,28 @@ function string:split(sep)
 	return fields
 end
 
-function AutoDrive:printMessage(vehicle, newMessage)
+function AutoDrive.printMessage(vehicle, newMessage)
 	AutoDrive.print.nextMessage = newMessage
 	AutoDrive.print.nextReferencedVehicle = vehicle
 end
 
-function ADBoolToString(value)
+function AutoDrive.boolToString(value)
 	if value == true then
 		return "true"
 	end
 	return "false"
 end
 
-function AutoDrive:angleBetween(vec1, vec2)
+function AutoDrive.angleBetween(vec1, vec2)
 	--local scalarproduct_top = vec1.x * vec2.x + vec1.z * vec2.z;
 	--local scalarproduct_down = math.sqrt(vec1.x * vec1.x + vec1.z*vec1.z) * math.sqrt(vec2.x * vec2.x + vec2.z*vec2.z)
 	--local scalarproduct = scalarproduct_top / scalarproduct_down;
 	local angle = math.atan2(vec2.z, vec2.x) - math.atan2(vec1.z, vec1.x)
-	angle = normalizeAngleToPlusMinusPI(angle)
+	angle = AutoDrive.normalizeAngleToPlusMinusPI(angle)
 	return math.deg(angle) --math.acos(angle)
 end
 
-function normalizeAngle(inputAngle)
+function AutoDrive.normalizeAngle(inputAngle)
 	if inputAngle > (2 * math.pi) then
 		inputAngle = inputAngle - (2 * math.pi)
 	else
@@ -112,7 +112,7 @@ function normalizeAngle(inputAngle)
 	return inputAngle
 end
 
-function normalizeAngle2(inputAngle)
+function AutoDrive.normalizeAngle2(inputAngle)
 	if inputAngle > (2 * math.pi) then
 		inputAngle = inputAngle - (2 * math.pi)
 	else
@@ -124,7 +124,7 @@ function normalizeAngle2(inputAngle)
 	return inputAngle
 end
 
-function normalizeAngleToPlusMinusPI(inputAngle)
+function AutoDrive.normalizeAngleToPlusMinusPI(inputAngle)
 	if inputAngle > (math.pi) then
 		inputAngle = inputAngle - (2 * math.pi)
 	else
@@ -136,12 +136,12 @@ function normalizeAngleToPlusMinusPI(inputAngle)
 	return inputAngle
 end
 
-function AutoDrive:createVector(x, y, z)
+function AutoDrive.createVector(x, y, z)
 	local t = {x = x, y = y, z = z}
 	return t
 end
 
-function AutoDrive:round(num)
+function AutoDrive.round(num)
 	under = math.floor(num)
 	upper = math.floor(num) + 1
 	underV = -(under - num)
@@ -153,7 +153,7 @@ function AutoDrive:round(num)
 	end
 end
 
-function AutoDrive:getWorldDirection(fromX, fromY, fromZ, toX, toY, toZ)
+function AutoDrive.getWorldDirection(fromX, fromY, fromZ, toX, toY, toZ)
 	-- NOTE: if only 2D is needed, pass fromY and toY as 0
 	local wdx, wdy, wdz = toX - fromX, toY - fromY, toZ - fromZ
 	local dist = MathUtil.vector3Length(wdx, wdy, wdz) -- length of vector
@@ -356,7 +356,7 @@ function AutoDrive:setDebugLevel(newDebugLevel)
 	end
 end
 
-function AutoDrive:debugPrint(vehicle, debugLevel, debugText)
+function AutoDrive.debugPrint(vehicle, debugLevel, debugText)
 	if AutoDrive.currentDebugLevel >= debugLevel then
 		local printText = ""
 		if (vehicle ~= nil and vehicle.ad.name ~= nil) then

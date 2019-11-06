@@ -462,7 +462,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
 			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected;
 			
-			AutoDrive:printMessage(vehicle, "" .. g_i18n:getText("AD_parkVehicle_selected") .. AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name);
+			AutoDrive.printMessage(vehicle, "" .. g_i18n:getText("AD_parkVehicle_selected") .. AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name);
 			AutoDrive.print.showMessageFor = 10000;
 		end;
 	end;
@@ -479,7 +479,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive:InputHandling(vehicle, "input_start_stop");	
 			vehicle.ad.onRouteToPark = true;		
 		else
-			AutoDrive:printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"));
+			AutoDrive.printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"));
 			AutoDrive.print.showMessageFor = 10000;
 		end;
 	end;
@@ -525,13 +525,13 @@ function AutoDrive:inputRecord(vehicle, dual)
 		vehicle.ad.creationModeDual = false;
 		
 		if AutoDrive:getSetting("autoConnectEnd") then 
-			if vehicle.ad.wayPoints ~= nil and ADTableLength(vehicle.ad.wayPoints) > 0 then
+			if vehicle.ad.wayPoints ~= nil and AutoDrive.tableLength(vehicle.ad.wayPoints) > 0 then
 				local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle);
 				if targetID ~= nil then
 					local targetNode = AutoDrive.mapWayPoints[targetID];
 					if targetNode ~= nil then
-						targetNode.incoming[ADTableLength(targetNode.incoming)+1] = vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].id;
-						vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out[ADTableLength(vehicle.ad.wayPoints[ADTableLength(vehicle.ad.wayPoints)].out)+1] = targetNode.id;
+						targetNode.incoming[AutoDrive.tableLength(targetNode.incoming)+1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id;
+						vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].out[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].out)+1] = targetNode.id;
 						
 						AutoDriveCourseEditEvent:sendEvent(targetNode);
 					end;
@@ -693,7 +693,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 			end
 		end;
 		-- If more than one point found, then arrange them from inner closest to further out
-		if ADTableLength(candidateDebugPoints) > 1 then
+		if AutoDrive.tableLength(candidateDebugPoints) > 1 then
 			-- Sort by distance
 			table.sort(candidateDebugPoints, function(left,right)
 				return left.distance < right.distance
@@ -709,7 +709,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 
 			-- But try to find a node with no IncomingRoads, and use that as starting from
 			for idx,point in pairs(vehicle.ad.iteratedDebugPoints) do
-				if ADTableLength(point.incoming) < 1 then
+				if AutoDrive.tableLength(point.incoming) < 1 then
 					vehicle.ad.selectedDebugPoint = idx
 					break -- Since array was already sorted by distance, we dont need to search for another one
 				end

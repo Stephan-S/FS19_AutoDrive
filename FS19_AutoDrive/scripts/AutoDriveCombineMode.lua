@@ -63,7 +63,7 @@ function AutoDrive:callDriverToCombine(combine)
 
         for _,dischargeNode in pairs(combine.spec_dischargeable.dischargeNodes) do
             local nodeX,nodeY,nodeZ = getWorldTranslation( dischargeNode.node );
-            if ADTableLength(AutoDrive.waitingUnloadDrivers) > 0 then
+            if AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0 then
                 local closestDriver = nil;
                 local closestDistance = math.huge;
                 for _,driver in pairs(AutoDrive.waitingUnloadDrivers) do
@@ -77,7 +77,7 @@ function AutoDrive:callDriverToCombine(combine)
                 end;
 
                 if closestDriver ~= nil then  
-                    AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " callDriverToCombine");                     		
+                    AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " callDriverToCombine");                     		
                     AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, dischargeNode.node);
                     closestDriver.ad.currentCombine = combine;
                     AutoDrive.waitingUnloadDrivers[closestDriver] = nil;
@@ -104,7 +104,7 @@ end;
 function AutoDrive:preCallDriverToCombine(combine)        
     local worldX,worldY,worldZ = getWorldTranslation( combine.components[1].node );
     
-    if ADTableLength(AutoDrive.waitingUnloadDrivers) > 0 then
+    if AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0 then
         local closestDriver = nil;
         local closestDistance = math.huge;
         for _,driver in pairs(AutoDrive.waitingUnloadDrivers) do
@@ -118,7 +118,7 @@ function AutoDrive:preCallDriverToCombine(combine)
         end;
 
         if closestDriver ~= nil then  
-            AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " preCallDriverToCombine");                              		
+            AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " preCallDriverToCombine");                              		
             AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil);
             closestDriver.ad.currentCombine = combine;
             AutoDrive.waitingUnloadDrivers[closestDriver] = nil;
@@ -139,7 +139,7 @@ function AutoDrive:preCallDriverToCombine(combine)
 end;
 
 function AutoDrive:combineIsCallingDriver(combine)
-    return (combine.ad ~= nil) and ((combine.ad.tryingToCallDriver and ADTableLength(AutoDrive.waitingUnloadDrivers) > 0) or combine.ad.driverOnTheWay);
+    return (combine.ad ~= nil) and ((combine.ad.tryingToCallDriver and AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0) or combine.ad.driverOnTheWay);
 end;
 
 function AutoDrive:handleReachedWayPointCombine(vehicle)
@@ -559,7 +559,7 @@ function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true);
     local combineSteering = false; --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
     local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering;    
-    --print("cpIsTurning: " .. ADBoolToString(cpIsTurning) .. " aiIsTurning: " .. ADBoolToString(aiIsTurning) .. " combineSteering: " .. ADBoolToString(combineSteering) .. " isChopper: " .. ADBoolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. ADBoolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. ADBoolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
+    --print("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " isChopper: " .. AutoDrive.boolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
     if ((isChopper and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not isChopper))) and (not combineIsTurning) then
        return false;
     end;
@@ -593,7 +593,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100;
 
         if (not leftBlocked) and combineFillPercent < 90 then   
-            AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking left side"); 
+            AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking left side"); 
             nodeX,nodeY,nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 6, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 6;
              
             local spec = combine.spec_pipe
@@ -612,7 +612,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
                 sideIndex = AutoDrive.ccSIDE_LEFT;
             end;
         else
-            AutoDrive:debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side");
+            AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side");
             sideIndex = AutoDrive.ccSIDE_REAR;
             local chaseCombinePos = AutoDrive:getCombineChasePosition(vehicle, combine);
             nodeX = chaseCombinePos.x;
@@ -648,7 +648,7 @@ function AutoDrive:getAngleToCombineHeading(vehicle, combine)
     local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
     local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
 
-    return math.abs(AutoDrive:angleBetween( {x=rx, z=rz}, {x=combineRx, z=combineRz} ));
+    return math.abs(AutoDrive.angleBetween( {x=rx, z=rz}, {x=combineRx, z=combineRz} ));
 end;
 
 function AutoDrive:getAngleToChasePos(vehicle, chasePos)
@@ -659,7 +659,7 @@ function AutoDrive:getAngleToChasePos(vehicle, chasePos)
     local worldX,worldY,worldZ = getWorldTranslation( vehicle.components[1].node );
     local rx,ry,rz = localDirectionToWorld(vehicle.components[1].node, 0,0,1);	
 
-    return math.abs(AutoDrive:angleBetween( {x=rx, z=rz}, {x=chasePos.x - worldX, z=chasePos.z - worldZ} ));
+    return math.abs(AutoDrive.angleBetween( {x=rx, z=rz}, {x=chasePos.x - worldX, z=chasePos.z - worldZ} ));
 end;
 
 function AutoDrive:handlePathPlanning(vehicle, dt)

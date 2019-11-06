@@ -9,6 +9,7 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveSpecialization.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveDelayedCallBack.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
@@ -81,10 +82,6 @@ function AutoDriveRegister:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
 function AutoDriveRegister:update(dt)
-	-- TODO: Since 'AutoDrive' is added to mod event listeners, we should move this there
-	if AutoDrive ~= nil then
-		AutoDrive.runThisFrame = false
-	end
 end
 
 function AutoDriveRegister:draw()
