@@ -158,7 +158,7 @@ end;
 
 function ADHudIcon:act(vehicle, posX, posY, isDown, isUp, button)
     if self.name == "header" then
-        if button == 1 and isDown then
+        if button == 1 and isDown and AutoDrive.pullDownListExpanded == 0 then
             AutoDrive.Hud:startMovingHud(posX, posY);
             return true;
         end;
