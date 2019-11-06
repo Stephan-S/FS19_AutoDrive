@@ -154,5 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Insert driver name:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Create Folder" />
 		<text name="gui_ad_enterGroupNameText"					text="Insert folder name:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>

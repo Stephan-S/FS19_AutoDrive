@@ -154,5 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Geef chauffeur een naam:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Maak folder" />
 		<text name="gui_ad_enterGroupNameText"					text="Geef folder een naam:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>

@@ -154,5 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Введите имя водителя:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Создание папки" />
 		<text name="gui_ad_enterGroupNameText"					text="Введите название папки:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>

@@ -393,6 +393,17 @@ AutoDrive.settings.showTooltips = {
     isVehicleSpecific = false
 };
 
+AutoDrive.settings.autoRecalculate = {  
+    values= {false, true},                                    
+    texts= {"gui_ad_no", "gui_ad_yes"},                                    
+    default= 1,                                    
+    current= 1,                                    
+    text= "gui_ad_autoRecalculate",                                    
+    tooltip= "gui_ad_autoRecalculate_tooltip",
+    translate= true,
+    isVehicleSpecific = false
+};
+
 function AutoDrive:getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

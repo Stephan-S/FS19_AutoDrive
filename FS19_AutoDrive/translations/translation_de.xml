@@ -154,5 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Fahrernamen eingeben:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Ordner erstellen" />
 		<text name="gui_ad_enterGroupNameText"					text="Ordnernamen eingeben:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Neuberechnen" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Automatisch eine Neuberechnung anstoßen wenn ein Fahrzeug gestartet wird." />
 	</texts>
 </l10n>

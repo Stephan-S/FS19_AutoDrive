@@ -154,5 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Vytovořit jméno řidiče:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Vytvořit adresář" />
 		<text name="gui_ad_enterGroupNameText"					text="Vytvořit název adresáře:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>

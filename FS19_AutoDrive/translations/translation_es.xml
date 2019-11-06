@@ -154,5 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"				text="Añadir nombre al conductor: " />
 		<text name="gui_ad_enterGroupNameTitle"				text="Crear Carpeta" />
 		<text name="gui_ad_enterGroupNameText"				text="Insertar nobre de destino: " />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>
