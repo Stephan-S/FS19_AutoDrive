@@ -1144,7 +1144,7 @@ function AutoDrive:checkForVehiclesInBox(boundingBox, excludedVehicles)
             local x,y,z = getWorldTranslation( otherVehicle.components[1].node );
             local distance = MathUtil.vector2Length(boundingBox[1].x - x, boundingBox[1].z - z);
             if distance < 50 then
-                if AutoDrive:BoxesIntersect(boundingBox, AutoDrive:getBoundingBoxForVehicle(otherVehicle, false)) == true then
+                if AutoDrive.boxesIntersect(boundingBox, AutoDrive:getBoundingBoxForVehicle(otherVehicle, false)) == true then
                     return true;
                 end;
             end;
