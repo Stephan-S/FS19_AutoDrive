@@ -28,7 +28,7 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 
 	for settingName, setting in pairs(AutoDrive.settings) do
 		if setting ~= nil and setting.isVehicleSpecific then
-			streamWriteInt16(streamId, AutoDrive:getSetting(settingname, vehicle));
+			streamWriteInt16(streamId, AutoDrive:getSetting(settingname, self.vehicle));
 		end;
 	end;
 end;
