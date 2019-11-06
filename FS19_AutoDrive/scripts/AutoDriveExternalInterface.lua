@@ -132,6 +132,13 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
 
 end;
 
+function AutoDrive:GetParkDestination(vehicle)
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
+        return vehicle.ad.parkDestination;
+    end;
+    return nil;
+end;
+
 function AutoDrive:registerDestinationListener(callBackObject, callBackFunction)
     if AutoDrive.destinationListeners[callBackObject] == nil then
         AutoDrive.destinationListeners[callBackObject] = callBackFunction;
