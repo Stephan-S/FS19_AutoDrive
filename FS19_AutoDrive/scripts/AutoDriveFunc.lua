@@ -236,7 +236,7 @@ function AutoDrive:isActive(vehicle)
 	return false
 end
 
-function AutoDrive:handleClientIntegrity(vehicle)
+function AutoDrive:handleVehicleIntegrity(vehicle)
 	if g_server ~= nil then
 		vehicle.ad.enableAI = math.max(vehicle.ad.enableAI - 1, 0)
 		vehicle.ad.disableAI = math.max(vehicle.ad.disableAI - 1, 0)

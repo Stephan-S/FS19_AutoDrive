@@ -119,6 +119,8 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.mouseWheelActive = false
 
+	AutoDrive.requestWayPointTimer = 10000
+
 	AutoDrive.loadStoredXML()
 
 	AutoDrive:initLineDrawing()
@@ -235,6 +237,8 @@ function AutoDrive:update(dt)
 	AutoDrive.handlePerFrameOperations(dt)
 
 	AutoDrive.handlePrintMessage(dt)
+
+	AutoDrive.handleMultiplayer(dt)
 end
 
 function AutoDrive:draw()

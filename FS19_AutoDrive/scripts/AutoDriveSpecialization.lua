@@ -166,8 +166,6 @@ function init(self)
     end
     self.ad.showingMouse = false
 
-    self.ad.requestWayPointTimer = 10000
-
     -- Variables the server sets so that the clients can act upon it:
     self.ad.disableAI = 0
     self.ad.enableAI = 0
@@ -283,8 +281,8 @@ function AutoDrive:onUpdate(dt)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriving(self, dt)
     AutoDrive:handleYPositionIntegrityCheck(self)
-    AutoDrive:handleClientIntegrity(self)
-    AutoDrive.handleMultiplayer(self, dt)
+    AutoDrive:handleVehicleIntegrity(self)
+    AutoDrive.handleVehicleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)
     AutoDriveBGA:handleBGA(self, dt)
 

@@ -9,17 +9,12 @@ function AutoDriveCourseDownloadEvent:emptyNew()
 	return self
 end
 
-function AutoDriveCourseDownloadEvent:new(vehicle)
+function AutoDriveCourseDownloadEvent:new()
 	local self = AutoDriveCourseDownloadEvent:emptyNew()
-	self.vehicle = vehicle
 	return self
 end
 
 function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
-	if AutoDrive == nil then
-		return
-	end
-
 	if g_server ~= nil or AutoDrive.playerSendsMapToServer == true then
 		streamWriteInt32(streamId, AutoDrive.requestedWaypointCount)
 
@@ -42,18 +37,10 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 		else
 			streamWriteInt32(streamId, 0)
 		end
-	else
-		--print("Requesting waypoints");
-		streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
 	end
 end
 
 function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
-	--print("Received Event");
-	if AutoDrive == nil then
-		return
-	end
-
 	local lowestID = streamReadInt32(streamId)
 	AutoDrive.totalNumberOfWayPointsToReceive = streamReadInt32(streamId)
 	local numberOfWayPoints = streamReadInt32(streamId)
@@ -96,12 +83,12 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 	end
 end
 
-function AutoDriveCourseDownloadEvent:sendEvent(vehicle)
+function AutoDriveCourseDownloadEvent:sendEvent()
 	if g_server ~= nil then
-		g_server:broadcastEvent(AutoDriveCourseDownloadEvent:new(vehicle), nil, nil, nil)
+		g_server:broadcastEvent(AutoDriveCourseDownloadEvent:new(), nil, nil, nil)
 		AutoDrive.requestedWaypointCount = math.min(AutoDrive.requestedWaypointCount + AutoDrive.WAYPOINTS_PER_PACKET, AutoDrive.mapWayPointsCounter)
 	else
-		g_client:getServerConnection():sendEvent(AutoDriveCourseDownloadEvent:new(vehicle))
+		g_client:getServerConnection():sendEvent(AutoDriveCourseDownloadEvent:new())
 		AutoDrive.requestedWaypointCount = math.min(AutoDrive.requestedWaypointCount + AutoDrive.WAYPOINTS_PER_PACKET, AutoDrive.mapWayPointsCounter)
 	end
 end

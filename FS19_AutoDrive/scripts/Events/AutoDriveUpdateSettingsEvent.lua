@@ -16,10 +16,6 @@ function AutoDriveUpdateSettingsEvent:new(vehicle)
 end
 
 function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
-	if AutoDrive == nil then
-		return
-	end
-
 	for settingName, setting in pairs(AutoDrive.settings) do
 		streamWriteInt16(streamId, setting.current)
 	end
@@ -37,10 +33,6 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 end
 
 function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
-	if AutoDrive == nil then
-		return
-	end
-
 	for settingName, setting in pairs(AutoDrive.settings) do
 		setting.current = streamReadInt16(streamId)
 	end

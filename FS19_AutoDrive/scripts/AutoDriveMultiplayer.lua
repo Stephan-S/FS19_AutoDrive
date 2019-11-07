@@ -1,22 +1,5 @@
-function AutoDrive.handleMultiplayer(vehicle, dt)
-    if AutoDrive == nil then
-        return
-    end
-
+function AutoDrive.handleMultiplayer(dt)
     if g_server ~= nil then
-        if vehicle.lastUpdateEvent == nil then
-            vehicle.lastUpdateEvent = AutoDriveUpdateEvent:new(vehicle)
-            AutoDriveUpdateEvent:sendEvent(vehicle)
-        else
-            local newUpdate = AutoDriveUpdateEvent:new(vehicle)
-            if newUpdate:compareTo(vehicle.lastUpdateEvent) == false then
-                AutoDriveUpdateEvent:sendEvent(vehicle)
-                vehicle.lastUpdateEvent = newUpdate
-            else
-                -- print("No update required for " .. vehicle.name)
-            end
-        end
-
         local allAcksReceived, highestIndex = AutoDrive:checkUsers()
 
         if allAcksReceived == true and AutoDrive.tableLength(AutoDrive.Server.Users) > 0 then
@@ -26,7 +9,7 @@ function AutoDrive.handleMultiplayer(vehicle, dt)
                 for userID, user in pairs(AutoDrive.Server.Users) do
                     user.ackReceived = false
                 end
-                AutoDriveCourseDownloadEvent:sendEvent(vehicle)
+                AutoDriveCourseDownloadEvent:sendEvent()
             else
                 --print("Done sending network!");
                 AutoDrive.requestedWaypoints = false
@@ -39,17 +22,35 @@ function AutoDrive.handleMultiplayer(vehicle, dt)
     end
 
     if g_server == nil then
-        if vehicle.ad.requestWayPointTimer >= 0 then
-            vehicle.ad.requestWayPointTimer = vehicle.ad.requestWayPointTimer - dt
+        if AutoDrive.requestWayPointTimer >= 0 then
+            AutoDrive.requestWayPointTimer = AutoDrive.requestWayPointTimer - dt
         end
 
-        if AutoDrive.requestedWaypoints ~= true and vehicle.ad.requestWayPointTimer < 0 and NetworkUtil.getObjectId(vehicle) ~= nil then
-            AutoDriveRequestWayPointEvent:sendEvent(vehicle)
+        if AutoDrive.requestedWaypoints ~= true and AutoDrive.requestWayPointTimer < 0 then
+            AutoDriveRequestWayPointEvent:sendEvent()
             AutoDrive.requestedWaypoints = true
+            AutoDrive.requestWayPointTimer = 10000
         end
 
         if AutoDrive.playerSendsMapToServer == true and AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter then
-            AutoDriveCourseDownloadEvent:sendEvent(vehicle)
+            AutoDriveCourseDownloadEvent:sendEvent()
+        end
+    end
+end
+
+function AutoDrive.handleVehicleMultiplayer(vehicle, dt)
+    if g_server ~= nil then
+        if vehicle.lastUpdateEvent == nil then
+            vehicle.lastUpdateEvent = AutoDriveUpdateEvent:new(vehicle)
+            AutoDriveUpdateEvent:sendEvent(vehicle)
+        else
+            local newUpdate = AutoDriveUpdateEvent:new(vehicle)
+            if newUpdate:compareTo(vehicle.lastUpdateEvent) == false then
+                AutoDriveUpdateEvent:sendEvent(vehicle)
+                vehicle.lastUpdateEvent = newUpdate
+            else
+                -- print("No update required for " .. vehicle.name)
+            end
         end
     end
 end

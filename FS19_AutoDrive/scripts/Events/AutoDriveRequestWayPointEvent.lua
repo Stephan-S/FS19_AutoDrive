@@ -15,9 +15,6 @@ function AutoDriveRequestWayPointEvent:new()
 end
 
 function AutoDriveRequestWayPointEvent:writeStream(streamId, connection)
-	if AutoDrive == nil then
-		return
-	end
 	if g_server == nil then
 		--print("Requesting waypoints");
 		local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId)
@@ -26,10 +23,6 @@ function AutoDriveRequestWayPointEvent:writeStream(streamId, connection)
 end
 
 function AutoDriveRequestWayPointEvent:readStream(streamId, connection)
-	if AutoDrive == nil then
-		return
-	end
-
 	if g_server ~= nil then
 		--print("Receiving request for broadcasting waypoints");
 		local id = streamReadInt32(streamId)
@@ -44,8 +37,8 @@ function AutoDriveRequestWayPointEvent:readStream(streamId, connection)
 	end
 end
 
-function AutoDriveRequestWayPointEvent:sendEvent(vehicle)
+function AutoDriveRequestWayPointEvent:sendEvent()
 	if g_server == nil then
-		g_client:getServerConnection():sendEvent(AutoDriveRequestWayPointEvent:new(vehicle))
+		g_client:getServerConnection():sendEvent(AutoDriveRequestWayPointEvent:new())
 	end
 end
