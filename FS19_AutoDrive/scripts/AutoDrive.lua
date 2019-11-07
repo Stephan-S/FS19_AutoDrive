@@ -216,14 +216,14 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
 function AutoDrive:update(dt)
-	--if (g_currentMission.controlledVehicle ~= nil) then
-	--	--AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
-	--	--AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
-	--	local printTable = {}
-	--	printTable.g_logManager = g_logManager
-	--	printTable.LogManager = LogManager
-	--	AutoDrive.renderTable(0.1, 0.9, 0.015, printTable)
-	--end
+	if (g_currentMission.controlledVehicle ~= nil) then
+		--	AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+		--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+		--	local printTable = {}
+		--	printTable.g_logManager = g_logManager
+		--	printTable.LogManager = LogManager
+		AutoDrive.renderTable(0.1, 0.9, 0.008, g_currentMission.controlledVehicle.ad.settings)
+	end
 
 	if AutoDrive.debug.lastSentEvent ~= nil then
 		AutoDrive.renderTable(0.1, 0.9, 0.009, AutoDrive.debug.lastSentEvent)

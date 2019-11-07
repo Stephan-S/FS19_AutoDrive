@@ -579,6 +579,21 @@ function AutoDrive.getSetting(settingName, vehicle)
     end
 end
 
+function AutoDrive.getSettingState(settingName, vehicle)
+    if AutoDrive.settings[settingName] ~= nil then
+        local setting = AutoDrive.settings[settingName]
+        if setting.isVehicleSpecific and vehicle ~= nil and vehicle.ad.settings ~= nil then --try loading vehicle specific setting first, if available
+            if vehicle.ad.settings[settingName] ~= nil then
+                setting = vehicle.ad.settings[settingName]
+            end
+        end
+        if setting.values[setting.current] == nil then
+            setting.current = setting.default
+        end
+        return setting.current
+    end
+end
+
 function AutoDrive.copySettingsToVehicle(vehicle)
     if vehicle.ad.settings == nil then
         vehicle.ad.settings = {}

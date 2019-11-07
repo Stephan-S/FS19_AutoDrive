@@ -97,7 +97,8 @@ function adSettings:setupMenuButtonInfo()
 end
 
 function adSettings:onClickBack()
-    self:applySettings()
+    -- We can't call applySettings here or we will apply setting two times
+    --self:applySettings()
     adSettings:superClass().onClickBack(self)
 end
 
@@ -125,7 +126,7 @@ function adSettings:applySettings()
     end
 
     AutoDrive.Hud.lastUIScale = 0
-    AutoDriveUpdateSettingsEvent:sendEvent(g_currentMission.controlledVehicle)
+    AutoDriveUpdateSettingsEvent.sendEvent(g_currentMission.controlledVehicle)
 end
 
 function adSettings:onClickReset()
