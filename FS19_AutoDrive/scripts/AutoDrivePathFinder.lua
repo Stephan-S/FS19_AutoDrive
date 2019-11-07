@@ -358,7 +358,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             pf.smoothDone = true
             pf.wayPoints = {}
             if driver.ad.combineState ~= AutoDrive.PREDRIVE_COMBINE then
-                AutoDrive:printMessage(driver, g_i18n:getText("AD_Driver_of") .. " " .. driver.ad.driverName .. " " .. g_i18n:getText("AD_cannot_find_path"))
+                AutoDrive.printMessage(driver, g_i18n:getText("AD_Driver_of") .. " " .. driver.ad.driverName .. " " .. g_i18n:getText("AD_cannot_find_path"))
             --print("Stop searching - no path found in reasonable time");
             end
         end
@@ -826,7 +826,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 local nodeAhead = pf.wayPoints[pf.smoothIndex + pf.totalEagerSteps + 1]
                 local nodeTwoAhead = pf.wayPoints[pf.smoothIndex + pf.totalEagerSteps + 2]
 
-                local angle = AutoDrive:angleBetween({x = nodeAhead.x - node.x, z = nodeAhead.z - node.z}, {x = nodeTwoAhead.x - nodeAhead.x, z = nodeTwoAhead.z - nodeAhead.z})
+                local angle = AutoDrive.angleBetween({x = nodeAhead.x - node.x, z = nodeAhead.z - node.z}, {x = nodeTwoAhead.x - nodeAhead.x, z = nodeTwoAhead.z - nodeAhead.z})
                 angle = math.abs(angle)
 
                 local hasCollision = false
@@ -834,12 +834,12 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                     hasCollision = true
                 end
                 if previousNode ~= nil then
-                    angle = AutoDrive:angleBetween({x = node.x - previousNode.x, z = node.z - previousNode.z}, {x = nodeTwoAhead.x - node.x, z = nodeTwoAhead.z - node.z})
+                    angle = AutoDrive.angleBetween({x = node.x - previousNode.x, z = node.z - previousNode.z}, {x = nodeTwoAhead.x - node.x, z = nodeTwoAhead.z - node.z})
                     angle = math.abs(angle)
                     if angle > 60 then
                         hasCollision = true
                     end
-                    angle = AutoDrive:angleBetween({x = node.x - previousNode.x, z = node.z - previousNode.z}, {x = nodeAhead.x - node.x, z = nodeAhead.z - node.z})
+                    angle = AutoDrive.angleBetween({x = node.x - previousNode.x, z = node.z - previousNode.z}, {x = nodeAhead.x - node.x, z = nodeAhead.z - node.z})
                     angle = math.abs(angle)
                     if angle > 60 then
                         hasCollision = true
