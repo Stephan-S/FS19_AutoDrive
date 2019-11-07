@@ -255,11 +255,13 @@ function AutoDrive.handlePerFrameOperations(dt)
 		end
 	end
 
-	for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-		if trigger.stoppedTimer == nil then
-			trigger.stoppedTimer = AutoDriveTON:new()
+	if AutoDrive.Triggers ~= nil then
+		for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+			if trigger.stoppedTimer == nil then
+				trigger.stoppedTimer = AutoDriveTON:new()
+			end
+			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
 		end
-		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
 	end
 end
 
