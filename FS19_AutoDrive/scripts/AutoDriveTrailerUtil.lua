@@ -107,7 +107,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
         end
     end
 
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and leftCapacity <= 0.01 and vehicle.ad.isPaused == true and (AutoDrive.getDistanceToTargetPosition(vehicle) <= 6) then
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.isPaused == true and (AutoDrive.getDistanceToTargetPosition(vehicle) <= 6) and vehicle.ad.noMovementTimer:done() then --and leftCapacity <= 0.01
         AutoDrive.continueAfterLoadOrUnload(vehicle)
     end
 end
