@@ -3,7 +3,8 @@ function AutoDrive.prerequisitesPresent(specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
-    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onLeaveVehicle", "onPostLoad", "saveToXMLFile"}) do
+    -- "onReadUpdateStream", "onWriteUpdateStream"
+    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onLeaveVehicle", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream"}) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -43,7 +44,92 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
     end
 end
 
+function AutoDrive:onLoad(savegame)
+    -- This will run before initial MP sync
+    self.ad = {}
+    if self.ad.settings == nil then
+        AutoDrive.copySettingsToVehicle(self)
+    end
+end
+
+function AutoDrive:onPostLoad(savegame)
+    -- This will run before initial MP sync
+    if self.isServer then
+        if savegame ~= nil then
+            local xmlFile = savegame.xmlFile
+            local key = savegame.key .. ".FS19_AutoDrive.AutoDrive"
+
+            if self.ad == nil then
+                self.ad = {}
+            end
+
+            local mode = getXMLInt(xmlFile, key .. "#mode")
+            if mode ~= nil then
+                self.ad.mode = mode
+            end
+            local targetSpeed = getXMLInt(xmlFile, key .. "#targetSpeed")
+            if targetSpeed ~= nil then
+                self.ad.targetSpeed = targetSpeed
+            end
+
+            self.ad.targetSelected = -1
+            self.ad.mapMarkerSelected = -1
+            self.ad.nameOfSelectedTarget = ""
+
+            local mapMarkerSelected = getXMLInt(xmlFile, key .. "#mapMarkerSelected")
+            if mapMarkerSelected ~= nil then
+                self.ad.mapMarkerSelected = mapMarkerSelected
+            end
+
+            self.ad.targetSelected_Unload = -1
+            self.ad.mapMarkerSelected_Unload = -1
+            self.ad.nameOfSelectedTarget_Unload = ""
+
+            local mapMarkerSelected_Unload = getXMLInt(xmlFile, key .. "#mapMarkerSelected_Unload")
+            if mapMarkerSelected_Unload ~= nil then
+                self.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload
+            end
+            local unloadFillTypeIndex = getXMLInt(xmlFile, key .. "#unloadFillTypeIndex")
+            if unloadFillTypeIndex ~= nil then
+                self.ad.unloadFillTypeIndex = unloadFillTypeIndex
+            end
+            local driverName = getXMLString(xmlFile, key .. "#driverName")
+            if driverName ~= nil then
+                self.ad.driverName = driverName
+            end
+            local selectedLoopCounter = getXMLInt(xmlFile, key .. "#loopCounterSelected")
+            if selectedLoopCounter ~= nil then
+                self.ad.loopCounterSelected = selectedLoopCounter
+            end
+            local parkDestination = getXMLInt(xmlFile, key .. "#parkDestination")
+            if parkDestination ~= nil then
+                self.ad.parkDestination = parkDestination
+            end
+
+            if self.ad.groups == nil then
+                self.ad.groups = {}
+            end
+            local groupString = getXMLString(xmlFile, key .. "#groups")
+            if groupString ~= nil then
+                local groupTable = groupString:split(";")
+                local temp = {}
+                for i, groupCombined in pairs(groupTable) do
+                    local groupNameAndBool = groupCombined:split(",")
+                    if tonumber(groupNameAndBool[2]) >= 1 then
+                        self.ad.groups[groupNameAndBool[1]] = true
+                    else
+                        self.ad.groups[groupNameAndBool[1]] = false
+                    end
+                end
+            end
+
+            AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
+        end
+    end
+end
+
 function init(self)
+    -- This will run after initial MP sync
     if self.ad == nil then
         self.ad = {}
     end
@@ -203,10 +289,6 @@ function init(self)
         self.ad.parkDestination = -1
     end
 
-    if self.ad.settings == nil then
-        AutoDrive.copySettingsToVehicle(self)
-    end
-
     if self.bga == nil then
         self.bga = {}
         self.bga.state = AutoDriveBGA.STATE_IDLE
@@ -265,6 +347,22 @@ function AutoDrive:onToggleMouse(vehicle)
     vehicle.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
 end
 
+function AutoDrive:onWriteStream(streamId, connection)
+    for settingName, setting in pairs(AutoDrive.settings) do
+        if setting ~= nil and setting.isVehicleSpecific then
+            streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self))
+        end
+    end
+end
+
+function AutoDrive:onReadStream(streamId, connection)
+    for settingName, setting in pairs(AutoDrive.settings) do
+        if setting ~= nil and setting.isVehicleSpecific then
+            self.ad.settings[settingName].current = streamReadInt16(streamId)
+        end
+    end
+end
+
 function AutoDrive:onUpdate(dt)
     if self.ad == nil or self.ad.moduleInitialized ~= true then
         init(self)
@@ -299,81 +397,6 @@ function AutoDrive:handleDriverWages(vehicle, dt)
             local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier
             local price = -dt * difficultyMultiplier * (driverWages - 1) * spec.pricePerMS
             g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
-        end
-    end
-end
-
-function AutoDrive:onPostLoad(savegame)
-    if self.isServer then
-        if savegame ~= nil then
-            local xmlFile = savegame.xmlFile
-            local key = savegame.key .. ".FS19_AutoDrive.AutoDrive"
-
-            if self.ad == nil then
-                self.ad = {}
-            end
-
-            local mode = getXMLInt(xmlFile, key .. "#mode")
-            if mode ~= nil then
-                self.ad.mode = mode
-            end
-            local targetSpeed = getXMLInt(xmlFile, key .. "#targetSpeed")
-            if targetSpeed ~= nil then
-                self.ad.targetSpeed = targetSpeed
-            end
-
-            self.ad.targetSelected = -1
-            self.ad.mapMarkerSelected = -1
-            self.ad.nameOfSelectedTarget = ""
-
-            local mapMarkerSelected = getXMLInt(xmlFile, key .. "#mapMarkerSelected")
-            if mapMarkerSelected ~= nil then
-                self.ad.mapMarkerSelected = mapMarkerSelected
-            end
-
-            self.ad.targetSelected_Unload = -1
-            self.ad.mapMarkerSelected_Unload = -1
-            self.ad.nameOfSelectedTarget_Unload = ""
-
-            local mapMarkerSelected_Unload = getXMLInt(xmlFile, key .. "#mapMarkerSelected_Unload")
-            if mapMarkerSelected_Unload ~= nil then
-                self.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload
-            end
-            local unloadFillTypeIndex = getXMLInt(xmlFile, key .. "#unloadFillTypeIndex")
-            if unloadFillTypeIndex ~= nil then
-                self.ad.unloadFillTypeIndex = unloadFillTypeIndex
-            end
-            local driverName = getXMLString(xmlFile, key .. "#driverName")
-            if driverName ~= nil then
-                self.ad.driverName = driverName
-            end
-            local selectedLoopCounter = getXMLInt(xmlFile, key .. "#loopCounterSelected")
-            if selectedLoopCounter ~= nil then
-                self.ad.loopCounterSelected = selectedLoopCounter
-            end
-            local parkDestination = getXMLInt(xmlFile, key .. "#parkDestination")
-            if parkDestination ~= nil then
-                self.ad.parkDestination = parkDestination
-            end
-
-            if self.ad.groups == nil then
-                self.ad.groups = {}
-            end
-            local groupString = getXMLString(xmlFile, key .. "#groups")
-            if groupString ~= nil then
-                local groupTable = groupString:split(";")
-                local temp = {}
-                for i, groupCombined in pairs(groupTable) do
-                    local groupNameAndBool = groupCombined:split(",")
-                    if tonumber(groupNameAndBool[2]) >= 1 then
-                        self.ad.groups[groupNameAndBool[1]] = true
-                    else
-                        self.ad.groups[groupNameAndBool[1]] = false
-                    end
-                end
-            end
-
-            AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
         end
     end
 end

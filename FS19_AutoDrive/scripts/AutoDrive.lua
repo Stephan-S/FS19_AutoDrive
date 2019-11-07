@@ -222,7 +222,7 @@ function AutoDrive:update(dt)
 		--	local printTable = {}
 		--	printTable.g_logManager = g_logManager
 		--	printTable.LogManager = LogManager
-		AutoDrive.renderTable(0.1, 0.9, 0.008, g_currentMission.controlledVehicle.ad.settings)
+		--AutoDrive.renderTable(0.1, 0.9, 0.008, g_currentMission.controlledVehicle.ad.settings)
 	end
 
 	if AutoDrive.debug.lastSentEvent ~= nil then
