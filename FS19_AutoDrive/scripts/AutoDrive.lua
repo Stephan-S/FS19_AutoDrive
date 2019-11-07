@@ -153,6 +153,9 @@ function AutoDrive:loadMap(name)
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}
 
+	AutoDrive.Recalculation = {}
+	AutoDrive.Recalculation.continue = false
+
 	AutoDrive.delayedCallBacks = {}
 
 	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
@@ -173,6 +176,18 @@ function AutoDrive:loadMap(name)
 	--        g_gui:showGui("adEnterGroupNameGui")
 	--    end
 	--)
+end
+
+function AutoDrive:firstRun()
+	if g_server == nil then
+		-- Here we could ask to server the initial sync
+		AutoDrivePlayerConnectedEvent.sendEvent()
+	end
+
+	if AutoDrive.searchedTriggers ~= true then
+		AutoDrive.getAllTriggers()
+		AutoDrive.searchedTriggers = true
+	end
 end
 
 function AutoDrive:saveSavegame()
@@ -216,14 +231,18 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
 function AutoDrive:update(dt)
-	if (g_currentMission.controlledVehicle ~= nil) then
-		--	AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
-		--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
-		--	local printTable = {}
-		--	printTable.g_logManager = g_logManager
-		--	printTable.LogManager = LogManager
-		--AutoDrive.renderTable(0.1, 0.9, 0.008, g_currentMission.controlledVehicle.ad.settings)
+	if AutoDrive.isFirstRun == nil then
+		AutoDrive.isFirstRun = false
+		self:firstRun()
 	end
+	--if (g_currentMission.controlledVehicle ~= nil) then
+	--	--	AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+	--	--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+	--	--	local printTable = {}
+	--	--	printTable.g_logManager = g_logManager
+	--	--	printTable.LogManager = LogManager
+	--	AutoDrive.renderTable(0.1, 0.9, 0.008, AutoDrive.Triggers)
+	--end
 
 	if AutoDrive.debug.lastSentEvent ~= nil then
 		AutoDrive.renderTable(0.1, 0.9, 0.009, AutoDrive.debug.lastSentEvent)

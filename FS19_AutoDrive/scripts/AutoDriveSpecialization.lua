@@ -46,10 +46,7 @@ end
 
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
-    self.ad = {}
-    if self.ad.settings == nil then
-        AutoDrive.copySettingsToVehicle(self)
-    end
+    AutoDrive.init(self)
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -128,7 +125,7 @@ function AutoDrive:onPostLoad(savegame)
     end
 end
 
-function init(self)
+function AutoDrive:init()
     -- This will run after initial MP sync
     if self.ad == nil then
         self.ad = {}
@@ -146,6 +143,10 @@ function init(self)
     self.ad.creationMode = false
     self.ad.creationModeDual = false
     self.ad.currentWayPoint = 0
+
+    if self.ad.settings == nil then
+        AutoDrive.copySettingsToVehicle(self)
+    end
 
     if AutoDrive ~= nil then
         local set = false
@@ -220,9 +221,6 @@ function init(self)
     self.ad.usePathFinder = false
     self.ad.onRouteToPark = false
 
-    AutoDrive.Recalculation = {}
-    AutoDrive.Recalculation.continue = false
-
     if AutoDrive ~= nil then
         local set = false
         if self.ad.mapMarkerSelected_Unload ~= nil then
@@ -260,13 +258,8 @@ function init(self)
     self.ad.currentCombine = nil
     self.ad.currentDriver = nil
 
-    if AutoDrive.searchedTriggers ~= true then
-        AutoDrive.getAllTriggers()
-        AutoDrive.searchedTriggers = true
-    end
-
     if self.spec_autodrive == nil then
-        self.spec_autodrive = AutoDrive -- I think we should reference only vehicle context and not the whole mod in spec_autodrive
+        self.spec_autodrive = AutoDrive
     end
 
     self.ad.pullDownList = {}
@@ -364,9 +357,9 @@ function AutoDrive:onReadStream(streamId, connection)
 end
 
 function AutoDrive:onUpdate(dt)
-    if self.ad == nil or self.ad.moduleInitialized ~= true then
-        init(self)
-    end
+    --if self.ad == nil or self.ad.moduleInitialized ~= true then
+    --    init(self)
+    --end
 
     if self.ad.currentInput ~= "" and self.isServer then
         AutoDrive:InputHandling(self, self.ad.currentInput)

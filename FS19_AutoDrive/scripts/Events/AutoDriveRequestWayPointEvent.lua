@@ -32,8 +32,6 @@ function AutoDriveRequestWayPointEvent:readStream(streamId, connection)
 		AutoDrive.Server.Users[id].keepAlive = 300
 		AutoDrive.requestedWaypoints = true
 		AutoDrive.requestedWaypointCount = 1
-
-		g_server:broadcastEvent(AutoDriveUpdateSettingsEvent:new(), nil, nil, nil)
 	end
 end
 
