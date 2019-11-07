@@ -180,7 +180,7 @@ function init(self)
     end
 
     if self.spec_autodrive == nil then
-        self.spec_autodrive = self.ad -- I think we should reference only vehicle context and not the whole mod in spec_autodrive
+        self.spec_autodrive = AutoDrive -- I think we should reference only vehicle context and not the whole mod in spec_autodrive
     end
 
     self.ad.pullDownList = {}
