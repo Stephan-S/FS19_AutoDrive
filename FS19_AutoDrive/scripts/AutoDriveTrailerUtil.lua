@@ -107,7 +107,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
         end
     end
 
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.isPaused == true and (AutoDrive.getDistanceToTargetPosition(vehicle) <= 6) and vehicle.ad.noMovementTimer:done() then --and leftCapacity <= 0.01
+    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.isPaused == true and (AutoDrive.getDistanceToTargetPosition(vehicle) <= 6) and leftCapacity <= 0.01 then
         AutoDrive.continueAfterLoadOrUnload(vehicle)
     end
 end
@@ -532,7 +532,7 @@ function AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
             if trailer.noDischargeTimer == nil then
                 trailer.noDischargeTimer = AutoDriveTON:new()
             end
-            if (not trailer.noDischargeTimer:timer((dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 1500, dt)) or vehicle.ad.isLoading then
+            if (not trailer.noDischargeTimer:timer((dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 500, dt)) or vehicle.ad.isLoading then
                 allClosed = false
             end
         end
