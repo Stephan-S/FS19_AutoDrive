@@ -114,6 +114,10 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.mapMarkerSelected_Unload = unloadDestinationID
                 vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
                 vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+            else
+                --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
+                vehicle.ad.mode = 1
+			    vehicle.ad.onRouteToPark = true
             end
 
             AutoDrive:startAD(vehicle)
