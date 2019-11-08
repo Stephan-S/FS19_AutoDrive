@@ -46,6 +46,15 @@ end
 
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
+    self.ad = {}
+    self.ad.targetSelected = -1
+    self.ad.mapMarkerSelected = -1
+    self.ad.nameOfSelectedTarget = ""
+    self.ad.targetSelected_Unload = -1
+    self.ad.mapMarkerSelected_Unload = -1
+    self.ad.nameOfSelectedTarget_Unload = ""
+    self.ad.groups = {}
+
     AutoDrive.init(self)
 end
 
@@ -56,10 +65,6 @@ function AutoDrive:onPostLoad(savegame)
             local xmlFile = savegame.xmlFile
             local key = savegame.key .. ".FS19_AutoDrive.AutoDrive"
 
-            if self.ad == nil then
-                self.ad = {}
-            end
-
             local mode = getXMLInt(xmlFile, key .. "#mode")
             if mode ~= nil then
                 self.ad.mode = mode
@@ -69,18 +74,10 @@ function AutoDrive:onPostLoad(savegame)
                 self.ad.targetSpeed = targetSpeed
             end
 
-            self.ad.targetSelected = -1
-            self.ad.mapMarkerSelected = -1
-            self.ad.nameOfSelectedTarget = ""
-
             local mapMarkerSelected = getXMLInt(xmlFile, key .. "#mapMarkerSelected")
             if mapMarkerSelected ~= nil then
                 self.ad.mapMarkerSelected = mapMarkerSelected
             end
-
-            self.ad.targetSelected_Unload = -1
-            self.ad.mapMarkerSelected_Unload = -1
-            self.ad.nameOfSelectedTarget_Unload = ""
 
             local mapMarkerSelected_Unload = getXMLInt(xmlFile, key .. "#mapMarkerSelected_Unload")
             if mapMarkerSelected_Unload ~= nil then
@@ -103,9 +100,6 @@ function AutoDrive:onPostLoad(savegame)
                 self.ad.parkDestination = parkDestination
             end
 
-            if self.ad.groups == nil then
-                self.ad.groups = {}
-            end
             local groupString = getXMLString(xmlFile, key .. "#groups")
             if groupString ~= nil then
                 local groupTable = groupString:split(";")
@@ -126,11 +120,6 @@ function AutoDrive:onPostLoad(savegame)
 end
 
 function AutoDrive:init()
-    -- This will run after initial MP sync
-    if self.ad == nil then
-        self.ad = {}
-    end
-
     self.ad.isActive = false
     self.ad.isStopping = false
     self.ad.isStoppingWithError = false
