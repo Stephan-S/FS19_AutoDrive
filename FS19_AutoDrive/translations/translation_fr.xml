@@ -154,7 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Entrez le nom du chauffeur:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Créer un dossier" />
 		<text name="gui_ad_enterGroupNameText"					text="Entrez le nom du dossier:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_autoRecalculate"						text="Recalculer automatiquement" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Déclenche automatiquement un recalcul au démarrage du véhicule." />
 	</texts>
 </l10n>
