@@ -3,7 +3,7 @@ AutoDrive.FONT_SCALE = 0.0115
 AutoDrive.PULLDOWN_ITEM_COUNT = 20
 AutoDrive.ItemFilterList = {
 	34, --Air
-	11, -- Cotton
+	--11, -- Cotton --can be transported with trailers apparently
 	77,
 	78,
 	79,
