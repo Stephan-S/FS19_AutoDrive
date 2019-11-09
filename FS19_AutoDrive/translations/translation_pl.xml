@@ -154,7 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Podaj nazwę kierowcy:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Dodaj folder" />
 		<text name="gui_ad_enterGroupNameText"					text="Podaj nazwę folderu:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_autoRecalculate"						text="Automatyczne przeliczanie" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Uruchom automatycznie przeliczanie, jeżeli wymagane." />
 	</texts>
 </l10n>
