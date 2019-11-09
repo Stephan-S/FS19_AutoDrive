@@ -154,7 +154,7 @@
 		<text name="gui_ad_enterDriverNameText"					text="Inserisci nome autista:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Crea Cartella" />
 		<text name="gui_ad_enterGroupNameText"					text="Inserisci nome cartella:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_autoRecalculate"						text="Ricalcolo automatico" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Avvia ricalcolo automaticamente, se necessario." />
 	</texts>
 </l10n>
