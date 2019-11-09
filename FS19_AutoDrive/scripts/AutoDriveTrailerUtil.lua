@@ -668,11 +668,13 @@ function AutoDrive.checkForTriggerProximity(vehicle)
         --print("Should unload");
         for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(trigger)
-            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
-            if distance < 15 then
-                --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
-                return true
-            end
+            if triggerX ~= nil then
+                local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
+                if distance < 15 then
+                    --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                    return true
+                end
+            end;
         end
     end
 

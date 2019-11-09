@@ -54,8 +54,6 @@ function AutoDrive:onLoad(savegame)
     self.ad.mapMarkerSelected_Unload = -1
     self.ad.nameOfSelectedTarget_Unload = ""
     self.ad.groups = {}
-
-    AutoDrive.init(self)
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -117,6 +115,8 @@ function AutoDrive:onPostLoad(savegame)
             AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
         end
     end
+    
+    AutoDrive.init(self);
 end
 
 function AutoDrive:init()
