@@ -1,45 +1,78 @@
-AutoDriveUpdateSettingsEvent = {};
-AutoDriveUpdateSettingsEvent_mt = Class(AutoDriveUpdateSettingsEvent, Event);
+AutoDriveUpdateSettingsEvent = {}
+AutoDriveUpdateSettingsEvent_mt = Class(AutoDriveUpdateSettingsEvent, Event)
 
-InitEventClass(AutoDriveUpdateSettingsEvent, "AutoDriveUpdateSettingsEvent");
+InitEventClass(AutoDriveUpdateSettingsEvent, "AutoDriveUpdateSettingsEvent")
 
 function AutoDriveUpdateSettingsEvent:emptyNew()
-	local self = Event:new(AutoDriveUpdateSettingsEvent_mt);
-	self.className="AutoDriveUpdateSettingsEvent";
-	return self;
-end;
+	local self = Event:new(AutoDriveUpdateSettingsEvent_mt)
+	self.className = "AutoDriveUpdateSettingsEvent"
+	return self
+end
 
-function AutoDriveUpdateSettingsEvent:new()
+function AutoDriveUpdateSettingsEvent:new(vehicle)
 	local self = AutoDriveUpdateSettingsEvent:emptyNew()
-	return self;
-end;
+	self.vehicle = vehicle
+	return self
+end
 
 function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
-	if AutoDrive == nil then
-		return;
-	end;
-
+	-- Writing global confings
 	for settingName, setting in pairs(AutoDrive.settings) do
-		streamWriteInt16(streamId, setting.current);
-	end;
-end;
+		if setting ~= nil and not setting.isVehicleSpecific then
+			streamWriteInt16(streamId, setting.current)
+		end
+	end
+
+	streamWriteBool(streamId, self.vehicle ~= nil)
+
+	-- Writing vehicle confings
+	if self.vehicle ~= nil then
+		streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
+		for settingName, setting in pairs(AutoDrive.settings) do
+			if setting ~= nil and setting.isVehicleSpecific then
+				streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self.vehicle))
+			end
+		end
+	end
+end
 
 function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
-	if AutoDrive == nil then
-		return;
-	end;
-
+	-- Reading global confings
 	for settingName, setting in pairs(AutoDrive.settings) do
-		setting.current = streamReadInt16(streamId);
-	end;
-	
-	if g_server ~= nil then
-		g_server:broadcastEvent(AutoDriveUpdateSettingsEvent:new(), nil, nil, nil);
-	end;
-end;
+		if setting ~= nil and not setting.isVehicleSpecific then
+			setting.current = streamReadInt16(streamId)
+		end
+	end
 
-function AutoDriveUpdateSettingsEvent:sendEvent()
-	if g_server == nil then
-		g_client:getServerConnection():sendEvent(AutoDriveUpdateSettingsEvent:new());
-	end;
-end;
+	local includesVehicleSpecificSettings = streamReadBool(streamId)
+	local vehicle = nil
+
+	if includesVehicleSpecificSettings then
+		local vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
+		if vehicle ~= nil then
+			-- Reading vehicle confings
+			for settingName, setting in pairs(AutoDrive.settings) do
+				if setting ~= nil and setting.isVehicleSpecific then
+					local newSettingsValue = streamReadInt16(streamId)
+					vehicle.ad.settings[settingName].current = newSettingsValue
+				end
+			end
+		end
+	end
+
+	-- Server have to broadcast to all clients
+	if g_server ~= nil then
+		g_server:broadcastEvent(AutoDriveUpdateSettingsEvent:new(vehicle))
+	end
+end
+
+function AutoDriveUpdateSettingsEvent.sendEvent(vehicle)
+	local event = AutoDriveUpdateSettingsEvent:new(vehicle)
+	if g_server ~= nil then
+		-- Server have to broadcast to all clients
+		g_server:broadcastEvent(event)
+	else
+		-- Client have to send to server
+		g_client:getServerConnection():sendEvent(event)
+	end
+end

@@ -28,40 +28,19 @@ function AutoDrive:onOpenSettings()
 end
 
 function AutoDrive:onOpenEnterDriverName()
-	if g_dedicatedServerInfo ~= nil then
-		return
-	end
-
-	if AutoDrive.gui.adEnterDriverNameGui.isOpen then
-		AutoDrive.gui.adEnterDriverNameGui:onClickBack()
-	elseif g_gui.currentGui == nil then
-		--AutoDrive.delayedCallBacks.openEnterDriverNameGUI:call(200)
+	if not AutoDrive.gui.adEnterDriverNameGui.isOpen then
 		g_gui:showGui("adEnterDriverNameGui")
 	end
 end
 
 function AutoDrive:onOpenEnterTargetName()
-	if g_dedicatedServerInfo ~= nil then
-		return
-	end
-
-	if AutoDrive.gui.adEnterTargetNameGui.isOpen then
-		--AutoDrive.gui.adEnterTargetNameGui:onClickBack()
-	elseif g_gui.currentGui == nil then
-		--AutoDrive.delayedCallBacks.openEnterTargetNameGUI:call(200)
+	if not AutoDrive.gui.adEnterTargetNameGui.isOpen then
 		g_gui:showGui("adEnterTargetNameGui")
 	end
 end
 
 function AutoDrive:onOpenEnterGroupName()
-	if g_dedicatedServerInfo ~= nil then
-		return
-	end
-
-	if AutoDrive.gui.adEnterGroupNameGui.isOpen then
-		AutoDrive.gui.adEnterGroupNameGui:onClickBack()
-	elseif g_gui.currentGui == nil then
-		--AutoDrive.delayedCallBacks.openEnterGroupNameGUI:call(200)
+	if not AutoDrive.gui.adEnterGroupNameGui.isOpen then
 		g_gui:showGui("adEnterGroupNameGui")
 	end
 end

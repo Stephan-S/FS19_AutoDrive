@@ -1,5 +1,5 @@
 --
--- Mod: AutoDrive_Register
+-- Mod: AutoDrive
 --
 -- Author: Stephan
 -- Email: Stephan910@web.de
@@ -9,45 +9,51 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/AutoDriveDelayedCallBack.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveSpecialization.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveDelayedCallBacks.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveHud.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveEventUtil.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateDestinationsEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveCourseEditEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveCourseDownloadEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveCreateMapMarkerEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", AutoDrive.directory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateNameEvent.lua", AutoDrive.directory))
+source(Utils.getFilename("scripts/Events/AutoDriveEventUtil.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveUpdateEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveUpdateDestinationsEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveCourseEditEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveCourseDownloadEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveGroupsEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveCreateMapMarkerEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveDeleteMapMarkerEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveRenameMapMarkerEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveChangeMapMarkerGroupEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveDeleteWayPoint.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDrivePlayerConnectedEvent.lua", g_currentModDirectory))
 
-AutoDrive_Register = {}
-AutoDrive_Register.modDirectory = g_currentModDirectory
-
-AutoDrive_Register.version = g_modManager:getModByName(g_currentModName).version
+AutoDriveRegister = {}
+AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version
 
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
 
 	if AutoDrive == nil then
-		print("ERROR: Unable to add specialization 'AutoDrive'")
+		g_logManager:error("ERROR: Unable to add specialization 'AutoDrive'")
 		return
 	end
 
 	local ADSpecName = g_currentModName .. ".AutoDrive"
 
-	for i, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-		if typeDef ~= nil and i ~= "locomotive" then
+	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
+		if typeDef ~= nil and vehicleType ~= "locomotive" then
 			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
-				print(string.format("  Attached AutoDrive to vehicleType %s", i))
+				g_logManager:info(string.format("Attached AutoDrive to vehicleType %s", vehicleType))
 				if typeDef.specializationsByName["AutoDrive"] == nil then
-					g_vehicleTypeManager:addSpecialization(i, ADSpecName)
+					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
 					typeDef.hasADSpec = true
 				end
 			end
@@ -55,26 +61,32 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	end
 end
 
-function AutoDrive_Register:loadMap(name)
-	print(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
-end
+-- We need this for network debug functions
+EventIds.eventIdToName = {}
 
-function AutoDrive_Register:deleteMap()
-end
-
-function AutoDrive_Register:keyEvent(unicode, sym, modifier, isDown)
-end
-
-function AutoDrive_Register:mouseEvent(posX, posY, isDown, isUp, button)
-end
-
-function AutoDrive_Register:update(dt)
-	if AutoDrive ~= nil then
-		AutoDrive.runThisFrame = false
+for eName, eId in pairs(EventIds) do
+	if string.sub(eName, 1, 6) == "EVENT_" then
+		EventIds.eventIdToName[eId] = eName
 	end
 end
 
-function AutoDrive_Register:draw()
+function AutoDriveRegister:loadMap(name)
+	g_logManager:info(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
 end
 
-addModEventListener(AutoDrive_Register)
+function AutoDriveRegister:deleteMap()
+end
+
+function AutoDriveRegister:keyEvent(unicode, sym, modifier, isDown)
+end
+
+function AutoDriveRegister:mouseEvent(posX, posY, isDown, isUp, button)
+end
+
+function AutoDriveRegister:update(dt)
+end
+
+function AutoDriveRegister:draw()
+end
+
+addModEventListener(AutoDriveRegister)

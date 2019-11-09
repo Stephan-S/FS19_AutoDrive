@@ -1,50 +1,49 @@
-AutoDriveCreateMapMarkerEvent = {};
-AutoDriveCreateMapMarkerEvent_mt = Class(AutoDriveCreateMapMarkerEvent, Event);
+AutoDriveCreateMapMarkerEvent = {}
+AutoDriveCreateMapMarkerEvent_mt = Class(AutoDriveCreateMapMarkerEvent, Event)
 
-InitEventClass(AutoDriveCreateMapMarkerEvent, "AutoDriveCreateMapMarkerEvent");
+InitEventClass(AutoDriveCreateMapMarkerEvent, "AutoDriveCreateMapMarkerEvent")
 
 function AutoDriveCreateMapMarkerEvent:emptyNew()
-	local self = Event:new(AutoDriveCreateMapMarkerEvent_mt);
-	self.className="AutoDriveCreateMapMarkerEvent";
-	return self;
-end;
+	local self = Event:new(AutoDriveCreateMapMarkerEvent_mt)
+	self.className = "AutoDriveCreateMapMarkerEvent"
+	return self
+end
 
-function AutoDriveCreateMapMarkerEvent:new(vehicle, id, name)
-    local self = AutoDriveCreateMapMarkerEvent:emptyNew()
-    self.vehicle = vehicle;
-    self.id = id;
-    self.name = name;
-	return self;
-end;
+function AutoDriveCreateMapMarkerEvent:new(wayPointId, markerName)
+	local self = AutoDriveCreateMapMarkerEvent:emptyNew()
+	self.wayPointId = wayPointId
+	self.markerName = markerName
+	return self
+end
 
 function AutoDriveCreateMapMarkerEvent:writeStream(streamId, connection)
-
-	if g_server == nil then
-        streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle));
-	
-		streamWriteInt16(streamId, self.id);
-		streamWriteStringOrEmpty(streamId, self.name);
-	end;
-end;
+	streamWriteUIntN(streamId, self.wayPointId, 17)
+	streamWriteStringOrEmpty(streamId, self.markerName)
+end
 
 function AutoDriveCreateMapMarkerEvent:readStream(streamId, connection)
+	self.wayPointId = streamReadUIntN(streamId, 17)
+	self.markerName = streamReadString(streamId)
+	self:run(connection)
+end
+
+function AutoDriveCreateMapMarkerEvent:run(connection)
+	if g_server ~= nil and connection:getIsServer() == false then
+		-- If the event is coming from a client, server have only to broadcast
+		AutoDriveCreateMapMarkerEvent.sendEvent(self.wayPointId, self.markerName)
+	else
+		-- If the event is coming from the server, both clients and server have to create the marker
+		AutoDrive.createMapMarker(self.wayPointId, self.markerName, false)
+	end
+end
+
+function AutoDriveCreateMapMarkerEvent.sendEvent(wayPointId, markerName)
+	local event = AutoDriveCreateMapMarkerEvent:new(wayPointId, markerName)
 	if g_server ~= nil then
-        local id = streamReadInt32(streamId);
-        local vehicle = NetworkUtil.getObject(id);
-        
-        local nodeId = streamReadInt16(streamId);
-        local name = streamReadString(streamId);
-
-        vehicle.ad.enteredMapMarkerString = name;
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return;
-		end;
-        AutoDrive:finishCreatingMapMarker(vehicle)
-	end;
-end;
-
-function AutoDriveCreateMapMarkerEvent:sendEvent(vehicle, id, name)
-	if g_server == nil then
-		g_client:getServerConnection():sendEvent(AutoDriveCreateMapMarkerEvent:new(vehicle, id, name));
-	end;
-end;
+		-- Server have to broadcast to all clients and himself
+		g_server:broadcastEvent(event, true)
+	else
+		-- Client have to send to server
+		g_client:getServerConnection():sendEvent(event)
+	end
+end

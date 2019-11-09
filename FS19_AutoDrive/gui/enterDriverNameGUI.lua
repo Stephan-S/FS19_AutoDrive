@@ -34,22 +34,12 @@ function adEnterDriverNameGui:onOpen()
     FocusManager:setFocus(self.textInputElement)
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
-    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
-    end
+    self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
 end
 
 function adEnterDriverNameGui:onClickOk()
     adEnterDriverNameGui:superClass().onClickOk(self)
-    local enteredName = self.textInputElement.text
-
-    if enteredName:len() > 1 then
-        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-            g_currentMission.controlledVehicle.ad.driverName = self.textInputElement.text
-            AutoDriveUpdateNameEvent:sendEvent(g_currentMission.controlledVehicle)
-        end
-    end
-
+    AutoDrive.renameDriver(g_currentMission.controlledVehicle, self.textInputElement.text)
     self:onClickBack()
 end
 

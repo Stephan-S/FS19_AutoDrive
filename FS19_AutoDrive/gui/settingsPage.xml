@@ -3,7 +3,7 @@
 	<GuiElement type="empty" profile="uiInGameMenuFrame" id="container">
 		<!-- Static page header -->
 		<GuiElement type="empty" profile="ingameMenuFrameHeaderPanel" position="130px -60px">
-			<GuiElement type="text" profile="ingameMenuFrameHeaderText" position="80px 0px" text="Settings - AutoDrive"/>
+			<GuiElement type="text" profile="ingameMenuFrameHeaderText" position="80px 0px" text="Settings - AutoDrive" />
 		</GuiElement>
 
 		<GuiElement type="bitmap" profile="ingameMenuSettingsBox" position="130px -124px" id="settingsContainer">
@@ -135,13 +135,20 @@
 					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
 					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
 				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" name="autoRecalculate" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+				</GuiElement>
 
 			</GuiElement>
 		</GuiElement>
 
 		<GuiElement type="bitmap" profile="ingameMenuHelpRowBg" position="210px 64px" id="ingameMenuHelpBox" visible="true">
 			<GuiElement type="bitmap" profile="ingameMenuHelpRowIcon" />
-			<GuiElement type="text" profile="ingameMenuHelpRowText" id="ingameMenuHelpBoxText" text="" onTextChanged="onIngameMenuHelpTextChanged"/>
+			<GuiElement type="text" profile="ingameMenuHelpRowText" id="ingameMenuHelpBoxText" text="" onTextChanged="onIngameMenuHelpTextChanged" />
 		</GuiElement>
 	</GuiElement>
 </GUI>

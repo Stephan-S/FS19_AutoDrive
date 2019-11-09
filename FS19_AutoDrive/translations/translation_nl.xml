@@ -2,157 +2,159 @@
 <l10n>
 	<translationContributors>Bobster</translationContributors>
 	<texts>
-		<text name="UNKNOWN"								text="Onbekend" />
-		<text name="input_ADToggleHud"						text="AD: HUD Aan/Uitzetten" />
-		<text name="input_ADToggleMouse"					text="AD: Muis Aan/Uitzetten" />
-		<text name="input_ADEnDisable"						text="AD: In/Uitschakelen" />
-		<text name="input_ADSilomode"						text="AD: Wijzig Modus" />
-		<text name="input_ADRecord"							text="AD: Opnemen" />
-		<text name="input_ADSelectTarget"					text="AD: Selecteer Volgende Bestemming" />
-		<text name="input_ADSelectPreviousTarget"			text="AD: Selecteer Vorige Bestemming" />
-		<text name="input_AD_Speed_up"						text="AD: Verhoog Snelheid" />
-		<text name="input_AD_Speed_down"					text="AD: Verlaag Snelheid" />
-		<text name="input_AD_export_routes"					text="AD: Routes Exporteren" />
-		<text name="input_AD_import_routes"					text="AD: Routes Importeren" />
-		<text name="input_AD_upload_routes"					text="AD: Upload Routes" />
-		<text name="input_AD_continue"						text="AD: Doorrijden" />
-		<text name="input_ADSelectTargetUnload"				text="AD: Selecteer Volgende Losplaats" />
-		<text name="input_ADSelectPreviousTargetUnload"		text="AD: Selecteer Vorige Losplaats" />
-		<text name="input_ADActivateDebug"					text="AD: Editor Modus" />
-		<text name="input_ADDebugShowClosest"				text="AD: Dichtstbijzijnde RoutePunt Tonen" />
-		<text name="input_ADDebugSelectNeighbor"			text="AD: Selecteer Aangrenzend RoutePunt" />
-		<text name="input_ADDebugChangeNeighbor"			text="AD: Selecteer Volgend Aangrenzend RoutePunt" />
-		<text name="input_ADDebugCreateConnection"			text="AD: Verbinding Aan/Uit" />
-		<text name="input_ADDebugCreateMapMarker"			text="AD: Maak Een Nieuwe Bestemming" />
-		<text name="input_ADRenameMapMarker"				text="AD: Hernoem Huidige Bestemming" />
-		<text name="input_ADDebugDeleteWayPoint"			text="AD: Verwijder RoutePunt" />
-		<text name="input_ADDebugForceUpdate"				text="AD: Routes Opnieuw Berekenen" />
-		<text name="input_ADDebugDeleteDestination"			text="AD: Bestemming Verwijderen" />
-		<text name="input_ADSelectNextFillType"				text="AD: Selecteer Volgende Vulling type" />
-		<text name="input_ADSelectPreviousFillType"			text="AD: Selecteer Vorige Vulling type" />
-		<text name="input_ADOpenGUI"						text="AD: Menu Openen" />
-		<text name="input_ADCallDriver"						text="AD: Bestuurder Oproepen" />
-		<text name="input_ADGoToVehicle"					text="AD: Ga naar Aangekomen Voertuig" />
-		<text name="input_ADNameDriver"						text="AD: Wijzig BestuurdersNaam" />
-		<text name="input_ADIncLoopCounter"					text="AD: Verander het Aantal Herhalingen" />
-		<text name="input_ADParkVehicle"					text="AD: Parkeer Voertuig" />
-		<text name="AD_parkVehicle_noPosSet"				text="Geen parkeerbestemming toegewezen. Wijzig het momenteel geselecteerde bestemming toe met de rechtermuisknop." />
-		<text name="AD_parkVehicle_selected"				text="Toegewezen als parkeerplaats: " />
-		<text name="AD_Driver_of"							text="De bestuurder van" />
-		<text name="AD_has_reached"							text="is aangekomen op" />
-		<text name="AD_got_stuck"							text="is vastgelopen" />
-		<text name="AD_cannot_reach"						text="heeft geen route gevonden naar" />
-		<text name="AD_cannot_find_path"					text="kan geen route calculeren" />
-		<text name="AD_new_marker"							text="Nieuwe Bestemming:" />
-		<text name="AD_new_marker_helptext"					text="Voer naam in (Sluit af met de Enter-toets)" />
-		<text name="AD_Recalculationg_routes_status"		text="Routes Herberekenen. Even wachten a.u.b. Voltooid:" />
-		<text name="AD_No_Trailer"							text="geen trailer gevonden" />
-		<text name="AD_No_Bunker"							text="geen Silo Bunker gevonden" />
-		<text name="AD_No_Shovel"							text="geen shovel gevonden" />
-		<text name="AD_MODE_DRIVETO"						text="Rijden" />
-		<text name="AD_MODE_DELIVERTO"						text="Afleveren" />
-		<text name="AD_MODE_PICKUPANDDELIVER"				text="Ophalen en Afleveren" />
-		<text name="AD_MODE_UNLOAD"							text="Combine Lossen" />
-		<text name="AD_MODE_LOAD"							text="Ophalen" />
-		<text name="AD_MODE_BGA"							text="Lossen in Bunker Silo" />
-		<text name="AD_synchronizing"						text="synchroniseren met server.." />
-		<text name="gui_ad_Setting"							text="AutoDrive - Instellingen" />
-		<text name="gui_ad_pipe_offset"						text="Afstand Pijp" />
-		<text name="gui_ad_trailerOffset"					text="Trailer afstand" />
-		<text name="gui_ad_trailerOffset_tooltip"			text="Afstand van trailer naar lospositie - voor/achter" />
-		<text name="gui_ad_lookahead_turning"				text="Vooruitkijk Afstand (Sturen)" />
-		<text name="gui_ad_lookahead_turning_tooltip"		text="De afstand die het voertuig vooruit kijkt om de besturing aan te passen om het volgende segment te volgen" />
-		<text name="gui_ad_lookahead_braking"				text="Vooruitkijk Afstand (Remmen)" />
-		<text name="gui_ad_lookahead_braking_tooltip"		text="De afstand die het voertuig vooruit kijkt om de snelheid aan te passen aan de verwachte draaicirkel" />
-		<text name="gui_ad_useFastestRoute"					text="Gebruik de Snelste Route" />
-		<text name="gui_ad_useFastestRoute_tooltip"			text="Bij het berekenen wordt rekening gehouden met de verwachte rijsnelheid, niet alleen met de afstand" />
-		<text name="gui_ad_avoidMarkers"					text="Vermijd andere Bestemmingen" />
-		<text name="gui_ad_avoidMarkers_tooltip"			text="Bij het zoeken naar Bestemmingen wordt geprobeert te voorkomen dat u door andere Bestemmingen rijdt" />
-		<text name="gui_ad_mapMarkerDetour"					text="Maximale Omweg" />
-		<text name="gui_ad_mapMarkerDetour_tooltip"			text="Maximale Omweg als Bestemmingen moeten worden vermeden" />
-		<text name="gui_ad_siloEmpty"						text="Als de Silo leeg is" />
-		<text name="gui_ad_siloEmpty_tooltip"				text="Hoe een Chauffeur voor Ophalen en Afleveren reageert op een lege Silo" />
-		<text name="gui_ad_useFolders"						text="Gebruik mappen" />
-		<text name="gui_ad_useFolders_tooltip"				text="Gebruik mappen om bestemmingen te structureren" />
-		<text name="gui_ad_wait"							text="Wachten" />
-		<text name="gui_ad_drive"							text="Doorrijden" />
-		<text name="gui_ad_yes"								text="Ja" />
-		<text name="gui_ad_no"								text="Nee" />
-		<text name="ad_wait_for_combine"					text="Wachten op de Combine" />
-		<text name="ad_drive_to_combine"					text="Naar Combine Rijden" />
-		<text name="ad_unloading_combine"					text="Combine Lossen" />
-		<text name="ad_drive_to_parkpos"					text="Parkeren" />
-		<text name="ad_drive_to_startpos"					text="Naar Beginpunt Rijden" />
-		<text name="ad_drive_to_unloadpos"					text="Naar AfleverPunt Rijden" />
-		<text name="ad_bga_init"							text="Initialiseren" />
-		<text name="ad_bga_waiting"							text="Wachten op trailer/silo" />
-		<text name="ad_bga_active"							text="Actief" />
-		<text name="gui_ad_autoConnect_start"				text="Automatisch Verbinden (Start)" />
-		<text name="gui_ad_autoConnect_start_tooltip"		text="Automatisch Verbinden met het dichtstbijzijnde RoutePunt bij het starten van de Opname" />
-		<text name="gui_ad_autoConnect_end"					text="Automatisch Verbinden (Einde)" />
-		<text name="gui_ad_autoConnect_end_tooltip"			text="Automatisch Verbinden met het dichtstbijzijnde RoutePunt bij het stoppen van de Opname" />
-		<text name="gui_ad_parkInField"						text="In het Veld Parkeren" />
-		<text name="gui_ad_parkInField_tooltip"				text="Na het lossen van de Combine - als het niet in het Fruit geparkeerd is" />
-		<text name="gui_ad_unloadFillLevel"					text="Vulniveau Afleveren" />
-		<text name="gui_ad_unloadFillLevel_tooltip"			text="Na het lossen van de Combine. Direct Afleveren na het bereiken van dit Vulniveau." />
-		<text name="gui_ad_findDriver"						text="Zoeken naar Chauffeur" />
-		<text name="gui_ad_findDriver_tooltip"				text="Zoeken naar dichtbijzijnste Chauffeur (Negeer Bestemming)" />
-		<text name="gui_ad_gui_scale"						text="Gui grootte voor AutoDrive HUD" />
-		<text name="gui_ad_gui_scale_tooltip"				text="Laat op standaard staan (default) om de in-game schaalinstelling te gebruiken" />
-		<text name="gui_ad_exitField"						text="Veld Exit" />
-		<text name="gui_ad_exitField_tooltip"				text="Veld Exit strategie na het lossen. Start(standaard) / Achter StartPunt / Dichtstbijzijnde Punt" />
-		<text name="gui_ad_default"							text="Standaard" />
-		<text name="gui_ad_after_start"						text="Achter StartPunt" />
-		<text name="gui_ad_closest"							text="Dichtstbijzijnde Punt" />
-		<text name="gui_ad_showHelp"						text="Help weergeven" />
-		<text name="gui_ad_showHelp_tooltip"				text="Toon toetstoewijzing in het F1-helpvenster" />
-		<text name="gui_ad_driverWages"						text="Chauffeur Loon" />
-		<text name="gui_ad_driverWages_tooltip"				text="Het loon van de bestuurder wordt vermenigvuldigd met deze waarde" />
-		<text name="gui_ad_smoothField"						text="Soepeler rijden in het veld" />
-		<text name="gui_ad_smoothField_tooltip"				text="Gegenereerde routes naar/vanaf de Combine worden vloeiend gemaakt (experimenteel)" />
-		<text name="gui_ad_recalculationSpeed"				text="Snelheid van het Berekenen" />
-		<text name="gui_ad_recalculationSpeed_tooltip"		text="Hogere waarden leiden tot schokkerige gameplay tijdens het herberekenen" />
-		<text name="gui_ad_showNextPath"					text="Volgend pad weergeven" />
-		<text name="gui_ad_showNextPath_tooltip"			text="Schakel de weergave van de volgende twee RoutePunten In/Uit" />
-		<text name="gui_ad_avoidFruit"						text="Fruit vermijden" />
-		<text name="gui_ad_avoidFruit_tooltip"				text="De losser van de Combine probeert Fruitvernietiging te voorkomen" />
-		<text name="gui_ad_pathFinderTime"					text="Tijd om een route te zoeken (max)" />
-		<text name="gui_ad_pathFinderTime_tooltip"			text="Bepaalt hoe lang een rijder naar een botsingsvrije route kan zoeken. Hoge waarden kunnen het spel vertragen" />
-		<text name="gui_ad_lineHeight"						text="Lijnhoogte" />
-		<text name="gui_ad_lineHeight_tooltip"				text="Lijnhoogte in Editor-modus. Op grondniveau of boven de tractor" />
-		<text name="gui_ad_ground"							text="Grondniveau" />
-		<text name="gui_ad_aboveDriver"						text="Boven de tractor" />
-		<text name="gui_ad_allowConsoleStyle"				text="Bestemming invoeren toestaan" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"		text="Uitgebreide Bestemming invoeren met toetsenbord toestaan - Standaard met de linkermuisknop op de naam van de Bestemming" />
-		<text name="gui_ad_enableTrafficDetection"			text="Botsingdetectie" />
-		<text name="gui_ad_enableTrafficDetection_tooltip"	text="Geavanceerde botsingsdetectie, die ook AI-verkeer, borden, hekken enz. detecteert" />
-		<text name="gui_ad_refillSeedAndFertilizer"			text="Zaad en Kunstmest" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	text="Hiermee kunnen zowel Zaad als Kunstmest worden geladen als een van beide Vulling type is geselecteerd." />
-		<text name="gui_ad_shovelWidth"						text="Shovel breedte (Toevoeging)" />
-		<text name="gui_ad_shovelWidth_tooltip"				text="Als de automatisch gedetecteerde shovel te klein is, kan dat met deze waarde worden verhoogd" />
-		<text name="gui_ad_preCallDriver"					text="Bestuurder eerder oproepen" />
-		<text name="gui_ad_preCallDriver_tooltip"			text="Bestuurder eerder oproepen op het ingestelde vulniveau." />
-		<text name="gui_ad_preCallLevel"					text="Vulniveau eerder oproepen" />
-		<text name="gui_ad_preCallLevel_tooltip"			text="Bestuurder eerder oproepen op het ingestelde vulniveau." />
-		<text name="gui_ad_chaseCombine"					text="Combine volgen" />
-		<text name="gui_ad_chaseCombine_tooltip"			text="Bestuurder volgt de combine nadat deze eerder is opgeroepen." />
-		<text name="gui_ad_distributeToFolder"				text="Meerdere bestemmingen" />
-		<text name="gui_ad_distributeToFolder_tooltip"		text="Alle bestemmingen in dezelfde folder worden geroteerd als los bestemming." />
-		<text name="gui_ad_maxTriggerDistance"				text="Maximale trigger afstand" />
-		<text name="gui_ad_maxTriggerDistance_tooltip"		text="Afstand tot los/laad bestemming waar de trigger wordt gevonden en geactiveerd." />
-		<text name="gui_ad_useBeaconLights"					text="Zwaailichten" />
-		<text name="gui_ad_useBeaconLights_tooltip"			text="Gebruik zwaailampen buiten de velden." />
-		<text name="gui_ad_restrictToField"					text="Route zoeken beperken tot veld" />
-		<text name="gui_ad_restrictToField_tooltip"			text="Als de chauffeur is geparkeerd in het veld, dan wordt de route binnen het veld gezocht." />
-		<text name="gui_ad_showTooltips"					text="Laat tooltips zien" />
-		<text name="gui_ad_showTooltips_tooltip"			text="Laat tooltips van de knoppen in de HUD zien." />
-		<text name="gui_ad_enterTargetNameTitle_add"		text="Bestemming toevoegen" />
-		<text name="gui_ad_enterTargetNameTitle_edit"		text="Bewerk bestemming" />
-		<text name="gui_ad_enterTargetNameText"				text="Geef de bestemming een naam:" />
-		<text name="gui_ad_createButtonText"				text="Creëren" />
-		<text name="gui_ad_enterDriverNameTitle"			text="Hernoem chauffeur" />
-		<text name="gui_ad_enterDriverNameText"				text="Geef chauffeur een naam:" />
-		<text name="gui_ad_enterGroupNameTitle"				text="Maak folder" />
-		<text name="gui_ad_enterGroupNameText"				text="Geef folder een naam:" />
+		<text name="UNKNOWN"									text="Onbekend" />
+		<text name="input_ADToggleHud"							text="AD: HUD Aan/Uitzetten" />
+		<text name="input_ADToggleMouse"						text="AD: Muis Aan/Uitzetten" />
+		<text name="input_ADEnDisable"							text="AD: In/Uitschakelen" />
+		<text name="input_ADSilomode"							text="AD: Wijzig Modus" />
+		<text name="input_ADRecord"								text="AD: Opnemen" />
+		<text name="input_ADSelectTarget"						text="AD: Selecteer Volgende Bestemming" />
+		<text name="input_ADSelectPreviousTarget"				text="AD: Selecteer Vorige Bestemming" />
+		<text name="input_AD_Speed_up"							text="AD: Verhoog Snelheid" />
+		<text name="input_AD_Speed_down"						text="AD: Verlaag Snelheid" />
+		<text name="input_AD_export_routes"						text="AD: Routes Exporteren" />
+		<text name="input_AD_import_routes"						text="AD: Routes Importeren" />
+		<text name="input_AD_upload_routes"						text="AD: Upload Routes" />
+		<text name="input_AD_continue"							text="AD: Doorrijden" />
+		<text name="input_ADSelectTargetUnload"					text="AD: Selecteer Volgende Losplaats" />
+		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Selecteer Vorige Losplaats" />
+		<text name="input_ADActivateDebug"						text="AD: Editor Modus" />
+		<text name="input_ADDebugShowClosest"					text="AD: Dichtstbijzijnde RoutePunt Tonen" />
+		<text name="input_ADDebugSelectNeighbor"				text="AD: Selecteer Aangrenzend RoutePunt" />
+		<text name="input_ADDebugChangeNeighbor"				text="AD: Selecteer Volgend Aangrenzend RoutePunt" />
+		<text name="input_ADDebugCreateConnection"				text="AD: Verbinding Aan/Uit" />
+		<text name="input_ADDebugCreateMapMarker"				text="AD: Maak Een Nieuwe Bestemming" />
+		<text name="input_ADRenameMapMarker"					text="AD: Hernoem Huidige Bestemming" />
+		<text name="input_ADDebugDeleteWayPoint"				text="AD: Verwijder RoutePunt" />
+		<text name="input_ADDebugForceUpdate"					text="AD: Routes Opnieuw Berekenen" />
+		<text name="input_ADDebugDeleteDestination"				text="AD: Bestemming Verwijderen" />
+		<text name="input_ADSelectNextFillType"					text="AD: Selecteer Volgende Vulling type" />
+		<text name="input_ADSelectPreviousFillType"				text="AD: Selecteer Vorige Vulling type" />
+		<text name="input_ADOpenGUI"							text="AD: Menu Openen" />
+		<text name="input_ADCallDriver"							text="AD: Bestuurder Oproepen" />
+		<text name="input_ADGoToVehicle"						text="AD: Ga naar Aangekomen Voertuig" />
+		<text name="input_ADNameDriver"							text="AD: Wijzig BestuurdersNaam" />
+		<text name="input_ADIncLoopCounter"						text="AD: Verander het Aantal Herhalingen" />
+		<text name="input_ADParkVehicle"						text="AD: Parkeer Voertuig" />
+		<text name="AD_parkVehicle_noPosSet"					text="Geen parkeerbestemming toegewezen. Wijzig het momenteel geselecteerde bestemming toe met de rechtermuisknop." />
+		<text name="AD_parkVehicle_selected"					text="Toegewezen als parkeerplaats: " />
+		<text name="AD_Driver_of"								text="De bestuurder van" />
+		<text name="AD_has_reached"								text="is aangekomen op" />
+		<text name="AD_got_stuck"								text="is vastgelopen" />
+		<text name="AD_cannot_reach"							text="heeft geen route gevonden naar" />
+		<text name="AD_cannot_find_path"						text="kan geen route calculeren" />
+		<text name="AD_new_marker"								text="Nieuwe Bestemming:" />
+		<text name="AD_new_marker_helptext"						text="Voer naam in (Sluit af met de Enter-toets)" />
+		<text name="AD_Recalculationg_routes_status"			text="Routes Herberekenen. Even wachten a.u.b. Voltooid:" />
+		<text name="AD_No_Trailer"								text="geen trailer gevonden" />
+		<text name="AD_No_Bunker"								text="geen Silo Bunker gevonden" />
+		<text name="AD_No_Shovel"								text="geen shovel gevonden" />
+		<text name="AD_MODE_DRIVETO"							text="Rijden" />
+		<text name="AD_MODE_DELIVERTO"							text="Afleveren" />
+		<text name="AD_MODE_PICKUPANDDELIVER"					text="Ophalen en Afleveren" />
+		<text name="AD_MODE_UNLOAD"								text="Combine Lossen" />
+		<text name="AD_MODE_LOAD"								text="Ophalen" />
+		<text name="AD_MODE_BGA"								text="Lossen in Bunker Silo" />
+		<text name="AD_synchronizing"							text="synchroniseren met server.." />
+		<text name="gui_ad_Setting"								text="AutoDrive - Instellingen" />
+		<text name="gui_ad_pipe_offset"							text="Afstand Pijp" />
+		<text name="gui_ad_trailerOffset"						text="Trailer afstand" />
+		<text name="gui_ad_trailerOffset_tooltip"				text="Afstand van trailer naar lospositie - voor/achter" />
+		<text name="gui_ad_lookahead_turning"					text="Vooruitkijk Afstand (Sturen)" />
+		<text name="gui_ad_lookahead_turning_tooltip"			text="De afstand die het voertuig vooruit kijkt om de besturing aan te passen om het volgende segment te volgen" />
+		<text name="gui_ad_lookahead_braking"					text="Vooruitkijk Afstand (Remmen)" />
+		<text name="gui_ad_lookahead_braking_tooltip"			text="De afstand die het voertuig vooruit kijkt om de snelheid aan te passen aan de verwachte draaicirkel" />
+		<text name="gui_ad_useFastestRoute"						text="Gebruik de Snelste Route" />
+		<text name="gui_ad_useFastestRoute_tooltip"				text="Bij het berekenen wordt rekening gehouden met de verwachte rijsnelheid, niet alleen met de afstand" />
+		<text name="gui_ad_avoidMarkers"						text="Vermijd andere Bestemmingen" />
+		<text name="gui_ad_avoidMarkers_tooltip"				text="Bij het zoeken naar Bestemmingen wordt geprobeert te voorkomen dat u door andere Bestemmingen rijdt" />
+		<text name="gui_ad_mapMarkerDetour"						text="Maximale Omweg" />
+		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Maximale Omweg als Bestemmingen moeten worden vermeden" />
+		<text name="gui_ad_siloEmpty"							text="Als de Silo leeg is" />
+		<text name="gui_ad_siloEmpty_tooltip"					text="Hoe een Chauffeur voor Ophalen en Afleveren reageert op een lege Silo" />
+		<text name="gui_ad_useFolders"							text="Gebruik mappen" />
+		<text name="gui_ad_useFolders_tooltip"					text="Gebruik mappen om bestemmingen te structureren" />
+		<text name="gui_ad_wait"								text="Wachten" />
+		<text name="gui_ad_drive"								text="Doorrijden" />
+		<text name="gui_ad_yes"									text="Ja" />
+		<text name="gui_ad_no"									text="Nee" />
+		<text name="ad_wait_for_combine"						text="Wachten op de Combine" />
+		<text name="ad_drive_to_combine"						text="Naar Combine Rijden" />
+		<text name="ad_unloading_combine"						text="Combine Lossen" />
+		<text name="ad_drive_to_parkpos"						text="Parkeren" />
+		<text name="ad_drive_to_startpos"						text="Naar Beginpunt Rijden" />
+		<text name="ad_drive_to_unloadpos"						text="Naar AfleverPunt Rijden" />
+		<text name="ad_bga_init"								text="Initialiseren" />
+		<text name="ad_bga_waiting"								text="Wachten op trailer/silo" />
+		<text name="ad_bga_active"								text="Actief" />
+		<text name="gui_ad_autoConnect_start"					text="Automatisch Verbinden (Start)" />
+		<text name="gui_ad_autoConnect_start_tooltip"			text="Automatisch Verbinden met het dichtstbijzijnde RoutePunt bij het starten van de Opname" />
+		<text name="gui_ad_autoConnect_end"						text="Automatisch Verbinden (Einde)" />
+		<text name="gui_ad_autoConnect_end_tooltip"				text="Automatisch Verbinden met het dichtstbijzijnde RoutePunt bij het stoppen van de Opname" />
+		<text name="gui_ad_parkInField"							text="In het Veld Parkeren" />
+		<text name="gui_ad_parkInField_tooltip"					text="Na het lossen van de Combine - als het niet in het Fruit geparkeerd is" />
+		<text name="gui_ad_unloadFillLevel"						text="Vulniveau Afleveren" />
+		<text name="gui_ad_unloadFillLevel_tooltip"				text="Na het lossen van de Combine. Direct Afleveren na het bereiken van dit Vulniveau." />
+		<text name="gui_ad_findDriver"							text="Zoeken naar Chauffeur" />
+		<text name="gui_ad_findDriver_tooltip"					text="Zoeken naar dichtbijzijnste Chauffeur (Negeer Bestemming)" />
+		<text name="gui_ad_gui_scale"							text="Gui grootte voor AutoDrive HUD" />
+		<text name="gui_ad_gui_scale_tooltip"					text="Laat op standaard staan (default) om de in-game schaalinstelling te gebruiken" />
+		<text name="gui_ad_exitField"							text="Veld Exit" />
+		<text name="gui_ad_exitField_tooltip"					text="Veld Exit strategie na het lossen. Start(standaard) / Achter StartPunt / Dichtstbijzijnde Punt" />
+		<text name="gui_ad_default"								text="Standaard" />
+		<text name="gui_ad_after_start"							text="Achter StartPunt" />
+		<text name="gui_ad_closest"								text="Dichtstbijzijnde Punt" />
+		<text name="gui_ad_showHelp"							text="Help weergeven" />
+		<text name="gui_ad_showHelp_tooltip"					text="Toon toetstoewijzing in het F1-helpvenster" />
+		<text name="gui_ad_driverWages"							text="Chauffeur Loon" />
+		<text name="gui_ad_driverWages_tooltip"					text="Het loon van de bestuurder wordt vermenigvuldigd met deze waarde" />
+		<text name="gui_ad_smoothField"							text="Soepeler rijden in het veld" />
+		<text name="gui_ad_smoothField_tooltip"					text="Gegenereerde routes naar/vanaf de Combine worden vloeiend gemaakt (experimenteel)" />
+		<text name="gui_ad_recalculationSpeed"					text="Snelheid van het Berekenen" />
+		<text name="gui_ad_recalculationSpeed_tooltip"			text="Hogere waarden leiden tot schokkerige gameplay tijdens het herberekenen" />
+		<text name="gui_ad_showNextPath"						text="Volgend pad weergeven" />
+		<text name="gui_ad_showNextPath_tooltip"				text="Schakel de weergave van de volgende twee RoutePunten In/Uit" />
+		<text name="gui_ad_avoidFruit"							text="Fruit vermijden" />
+		<text name="gui_ad_avoidFruit_tooltip"					text="De losser van de Combine probeert Fruitvernietiging te voorkomen" />
+		<text name="gui_ad_pathFinderTime"						text="Tijd om een route te zoeken (max)" />
+		<text name="gui_ad_pathFinderTime_tooltip"				text="Bepaalt hoe lang een rijder naar een botsingsvrije route kan zoeken. Hoge waarden kunnen het spel vertragen" />
+		<text name="gui_ad_lineHeight"							text="Lijnhoogte" />
+		<text name="gui_ad_lineHeight_tooltip"					text="Lijnhoogte in Editor-modus. Op grondniveau of boven de tractor" />
+		<text name="gui_ad_ground"								text="Grondniveau" />
+		<text name="gui_ad_aboveDriver"							text="Boven de tractor" />
+		<text name="gui_ad_allowConsoleStyle"					text="Bestemming invoeren toestaan" />
+		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Uitgebreide Bestemming invoeren met toetsenbord toestaan - Standaard met de linkermuisknop op de naam van de Bestemming" />
+		<text name="gui_ad_enableTrafficDetection"				text="Botsingdetectie" />
+		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Geavanceerde botsingsdetectie, die ook AI-verkeer, borden, hekken enz. detecteert" />
+		<text name="gui_ad_refillSeedAndFertilizer"				text="Zaad en Kunstmest" />
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Hiermee kunnen zowel Zaad als Kunstmest worden geladen als een van beide Vulling type is geselecteerd." />
+		<text name="gui_ad_shovelWidth"							text="Shovel breedte (Toevoeging)" />
+		<text name="gui_ad_shovelWidth_tooltip"					text="Als de automatisch gedetecteerde shovel te klein is, kan dat met deze waarde worden verhoogd" />
+		<text name="gui_ad_preCallDriver"						text="Bestuurder eerder oproepen" />
+		<text name="gui_ad_preCallDriver_tooltip"				text="Bestuurder eerder oproepen op het ingestelde vulniveau." />
+		<text name="gui_ad_preCallLevel"						text="Vulniveau eerder oproepen" />
+		<text name="gui_ad_preCallLevel_tooltip"				text="Bestuurder eerder oproepen op het ingestelde vulniveau." />
+		<text name="gui_ad_chaseCombine"						text="Combine volgen" />
+		<text name="gui_ad_chaseCombine_tooltip"				text="Bestuurder volgt de combine nadat deze eerder is opgeroepen." />
+		<text name="gui_ad_distributeToFolder"					text="Meerdere bestemmingen" />
+		<text name="gui_ad_distributeToFolder_tooltip"			text="Alle bestemmingen in dezelfde folder worden geroteerd als los bestemming." />
+		<text name="gui_ad_maxTriggerDistance"					text="Maximale trigger afstand" />
+		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Afstand tot los/laad bestemming waar de trigger wordt gevonden en geactiveerd." />
+		<text name="gui_ad_useBeaconLights"						text="Zwaailichten" />
+		<text name="gui_ad_useBeaconLights_tooltip"				text="Gebruik zwaailampen buiten de velden." />
+		<text name="gui_ad_restrictToField"						text="Route zoeken beperken tot veld" />
+		<text name="gui_ad_restrictToField_tooltip"				text="Als de chauffeur is geparkeerd in het veld, dan wordt de route binnen het veld gezocht." />
+		<text name="gui_ad_showTooltips"						text="Laat tooltips zien" />
+		<text name="gui_ad_showTooltips_tooltip"				text="Laat tooltips van de knoppen in de HUD zien." />
+		<text name="gui_ad_enterTargetNameTitle_add"			text="Bestemming toevoegen" />
+		<text name="gui_ad_enterTargetNameTitle_edit"			text="Bewerk bestemming" />
+		<text name="gui_ad_enterTargetNameText"					text="Geef de bestemming een naam:" />
+		<text name="gui_ad_createButtonText"					text="Creëren" />
+		<text name="gui_ad_enterDriverNameTitle"				text="Hernoem chauffeur" />
+		<text name="gui_ad_enterDriverNameText"					text="Geef chauffeur een naam:" />
+		<text name="gui_ad_enterGroupNameTitle"					text="Maak folder" />
+		<text name="gui_ad_enterGroupNameText"					text="Geef folder een naam:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>

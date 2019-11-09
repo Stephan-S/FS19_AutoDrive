@@ -2,156 +2,159 @@
 <l10n>
 	<translationContributors>Gonimy_Vetrom</translationContributors>
 	<texts>
-		<text name="UNKNOWN"								 text="НЕИЗВЕСТНО" />
-		<text name="input_ADToggleHud"						 text="AD: Отображение HUD" />
-		<text name="input_ADToggleMouse"					 text="AD: Отображение курсора" />
-		<text name="input_ADEnDisable"						 text="AD: Вкл/Выкл" />
-		<text name="input_ADSilomode"						 text="AD: Изменить режим" />
-		<text name="input_ADRecord"							 text="AD: Запись" />
-		<text name="input_ADSelectTarget"					 text="AD: Следующая цель" />
-		<text name="input_ADSelectPreviousTarget"			 text="AD: Предыдущая цель" />
-		<text name="input_AD_Speed_up"						 text="AD: Увеличить скорость" />
-		<text name="input_AD_Speed_down"					 text="AD: Уменьшить скорость" />
-		<text name="input_AD_export_routes"					 text="AD: Экспортировать пути" />
-		<text name="input_AD_import_routes"					 text="AD: Импортировать пути" />
-		<text name="input_AD_upload_routes"					 text="AD: Выгрузить пути" />
-		<text name="input_AD_continue"						 text="AD: Продолжить" />
-		<text name="input_ADSelectTargetUnload"				 text="AD: Следующая разгрузка" />
-		<text name="input_ADSelectPreviousTargetUnload" 	 text="AD: Предыдущая разгрузка" />
-		<text name="input_ADActivateDebug"					 text="AD: Режим редактирования" />
-		<text name="input_ADDebugShowClosest"				 text="AD: Показать ближайшую точку" />
-		<text name="input_ADDebugSelectNeighbor"			 text="AD: Выбрать соседнюю точку" />
-		<text name="input_ADDebugChangeNeighbor"			 text="AD: Выбрать следующую соседнюю точку" />
-		<text name="input_ADDebugCreateConnection"			 text="AD: Установить/убрать связь между" />
-		<text name="input_ADDebugCreateMapMarker"			 text="AD: Создать новую цель" />
-		<text name="input_ADRenameMapMarker"			 	 text="AD: Переименовать текущую цель" />
-		<text name="input_ADDebugDeleteWayPoint"			 text="AD: Удалить путевую точку" />
-		<text name="input_ADDebugForceUpdate"				 text="AD: Обновить пути" />
-		<text name="input_ADDebugDeleteDestination"			 text="AD: Удалить место назначения" />
-		<text name="input_ADSelectNextFillType"				 text="AD: Выбрать следующую продукцию" />
-		<text name="input_ADSelectPreviousFillType"			 text="AD: Выбрать предыдущую продукцию" />
-		<text name="input_ADOpenGUI"						 text="AD: Открыть GUI" />
-		<text name="input_ADCallDriver"						 text="AD: Вызвать водителя" />
-		<text name="input_ADGoToVehicle"					 text="AD: Перейти к прибывшему автомобилю" />
-		<text name="input_ADNameDriver"						 text="AD: Назначьте водителю имя" />
-		<text name="input_ADIncLoopCounter"					 text="AD: Увеличить счетчик повторений" />
-		<text name="input_ADParkVehicle"					 text="AD: Припарковать автомобиль" />
-		<text name="AD_parkVehicle_noPosSet"		         text="Места для парковки не назначены. Пожалуйста, правой кнопкой мыши назначьте текущую выбранную цель." />
-		<text name="AD_parkVehicle_selected"		         text="Выбранное место для парковки: " />
-		<text name="AD_Driver_of"							 text="Водитель на" />
-		<text name="AD_has_reached"							 text="прибыл к" />
-		<text name="AD_got_stuck"							 text="застрял" />
-		<text name="AD_cannot_reach"						 text="не может доехать до цели " />
-		<text name="AD_cannot_find_path"					 text="не может рассчитать путь" />
-		<text name="AD_new_marker"							 text="Новая цель:" />
-		<text name="AD_new_marker_helptext"					 text="Введите новое название (завершить по Enter)" />
-		<text name="AD_Recalculationg_routes_status"		 text="Пересчитываются маршруты. Пожалуйста подождите. Завершено:" />
-		<text name="AD_No_Trailer"							 text="не могу найти прицеп" />	
-		<text name="AD_No_Bunker"							 text="не могу найти силосный бункер" />
-		<text name="AD_No_Shovel"							 text="не могу найти присоединённый ковш" />
-		<text name="AD_MODE_DRIVETO"						 text="Перегон" />
-		<text name="AD_MODE_DELIVERTO"						 text="Доставка" />
-		<text name="AD_MODE_PICKUPANDDELIVER"				 text="Загрузка и доставка" />
-		<text name="AD_MODE_UNLOAD"							 text="Разгрузка комбайна" />
-		<text name="AD_MODE_LOAD"							 text="Загрузка" />
-		<text name="AD_MODE_BGA"							 text="Разгрузка в бункер приёмник" />
-		<text name="gui_ad_Setting"							 text="AutoDrive - Настройки" />
-		<text name="gui_ad_pipe_offset"						 text="Смещение трубы" />
-		<text name="gui_ad_trailerOffset"					 text="Смещение прицепа" />
-		<text name="gui_ad_trailerOffset_tooltip"			 text="Продольное смещение позиции разгрузки прицепа." />
-		<text name="gui_ad_lookahead_turning"				 text="Просматривать при повороте" />
-		<text name="gui_ad_lookahead_turning_tooltip"		 text="Расстояние, на которое водитель при повороте 'смотрит' вперед, чтобы управлять рулением, для следования к следующему сегменту." />
-		<text name="gui_ad_lookahead_braking"				 text="Просматривать при торможении" />
-		<text name="gui_ad_lookahead_braking_tooltip"		 text="Расстояние, на которое водитель при торможении 'смотрит' вперед, чтобы скорректировать скорость до ожидаемого радиуса поворота." />
-		<text name="gui_ad_useFastestRoute"					 text="Исп. самый быстрый маршрут" />
-		<text name="gui_ad_useFastestRoute_tooltip"			 text="При расчете лучших маршрутов учитывается скорость движения, а не фактическое расстояния." />
-		<text name="gui_ad_avoidMarkers"					 text="Избегать других целей" />
-		<text name="gui_ad_avoidMarkers_tooltip"			 text="При прокладке маршрута, стараться найти обходные пути вокруг целей. Полезно, чтобы избежать задержек." />
-		<text name="gui_ad_mapMarkerDetour"					 text="Максимальный объезд" />
-		<text name="gui_ad_mapMarkerDetour_tooltip"			 text="Максимальный объезд при обходе целей." />
-		<text name="gui_ad_siloEmpty"						 text="Если бункер пуст" />
-		<text name="gui_ad_siloEmpty_tooltip"				 text="Действия водителя если в режиме 'Загрузка и доставка' бункер оказался пустой." />
-		<text name="gui_ad_useFolders"					 	 text="Использовать папки" />
-		<text name="gui_ad_useFolders_tooltip"			 	 text="Использовать папки, чтобы структурировать места назначения." />
-		<text name="gui_ad_wait"							 text="Ожидать" />
-		<text name="gui_ad_drive"							 text="Следовать к" />
-		<text name="gui_ad_yes"								 text="Да" />
-		<text name="gui_ad_no"								 text="Нет" />
-		<text name="ad_wait_for_combine"					 text="Ожидаю комбайн" />
-		<text name="ad_drive_to_combine"					 text="Еду к комбайну" />
-		<text name="ad_unloading_combine"					 text="Разгружаю комбайн" />
-		<text name="ad_drive_to_parkpos"					 text="Еду на стоянку" />
-		<text name="ad_drive_to_startpos"					 text="Двигаюсь к старту" />
-		<text name="ad_drive_to_unloadpos"					 text="Еду на разгрузку" />
-		<text name="ad_bga_init"					 		 text="Инициализация" />
-		<text name="ad_bga_waiting"					 		 text="В ожидании прицепа/бункера" />
-		<text name="ad_bga_active"					 		 text="Активно" />
-		<text name="gui_ad_autoConnect_start"				 text="Автосоединение начала" />
-		<text name="gui_ad_autoConnect_start_tooltip"		 text="Автоматическое подсоединение подходящего узла при начале записи маршрута." />
-		<text name="gui_ad_autoConnect_end"					 text="Автосоединение конца" />
-		<text name="gui_ad_autoConnect_end_tooltip"			 text="Автоматическое подсоединение подходящего узла по завершении записи маршрута." />
-		<text name="gui_ad_parkInField"						 text="Стоянка на поле" />
-		<text name="gui_ad_parkInField_tooltip"				 text="После разгрузки комбайна - если не припаркован на посевах." />
-		<text name="gui_ad_unloadFillLevel"					 text="Отвозить при уровне" />
-		<text name="gui_ad_unloadFillLevel_tooltip"			 text="После разгрузки комбайна и заполнения до этого уровня, перейти к доставке собранного на склад." />
-		<text name="gui_ad_findDriver"						 text="Найти водителя" />
-		<text name="gui_ad_findDriver_tooltip"				 text="Поиск ближайших водителей (игнорировать пункт назначения)." />
-		<text name="gui_ad_gui_scale"						 text="Масштабирование интерфейса AutoDrive HUD" />
-		<text name="gui_ad_gui_scale_tooltip"				 text="Оставьте значение по умолчанию и будут использования настройки масштаба в игре." />
-		<text name="gui_ad_exitField"						 text="Выезд с поля" />
-		<text name="gui_ad_exitField_tooltip"				 text="Способ выезда с поля при разгрузке." />
-		<text name="gui_ad_default"							 text="Обычный" />
-		<text name="gui_ad_after_start"						 text="За стартом" />
-		<text name="gui_ad_closest"							 text="Ближайшая точка" />
-		<text name="gui_ad_showHelp"						 text="Отображать подсказки" />	
-		<text name="gui_ad_showHelp_tooltip"				 text="Отображать сочетания клавиш в окне подсказок по F1." />
-		<text name="gui_ad_driverWages"						 text="Зарплата водителя" />
-		<text name="gui_ad_driverWages_tooltip"				 text="Заработная плата водителя будет умножена на указанное значение." />
-		<text name="gui_ad_smoothField"						 text="Сглаживать курсы на поле" />
-		<text name="gui_ad_smoothField_tooltip"				 text="Сгенерированые полевые курсы к комбайну и обратно будут сглаживаться (экспериментальная функция)." />
-		<text name="gui_ad_recalculationSpeed"				 text="Скорость расчета" />
-		<text name="gui_ad_recalculationSpeed_tooltip"		 text="Более высокие значения приведут к замедлению игрового процесса при пересчете." />
-		<text name="gui_ad_showNextPath"					 text="Показать дальнейший путь" />
-		<text name="gui_ad_showNextPath_tooltip"			 text="Вкл/Отключить отображение следующих двух путевых точек." />
-		<text name="gui_ad_avoidFruit"						 text="Избегать посевов" />
-		<text name="gui_ad_avoidFruit_tooltip"				 text="Водитель, разгружающий комбайн, будет пытается избегать вытаптывания культур." />
-		<text name="gui_ad_pathFinderTime"					 text="Время поиска пути (макс.)" />
-		<text name="gui_ad_pathFinderTime_tooltip"			 text="Определяет, как долго алгоритму нахождения пути разрешается искать путь без преград к/от комбайна (большие значения могут влиять на FPS)." />
-		<text name="gui_ad_lineHeight"						 text="Высота линии" />
-		<text name="gui_ad_lineHeight_tooltip"				 text="Высота линии в режиме редактора. На уровне земли или над техникой." />
-		<text name="gui_ad_ground"							 text="На уровне земли" />
-		<text name="gui_ad_aboveDriver"						 text="Над техникой" />
-		<text name="gui_ad_allowConsoleStyle"				 text="Расширенный ввод цели" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"		 text="Разрешить расширенный ввод цели с клавиатуры - По умолчанию: ЛКМ на имени цели." />
-		<text name="gui_ad_enableTrafficDetection"			 text="Обнаружение преград" />
-		<text name="gui_ad_enableTrafficDetection_tooltip"	 text="Продвинутое определение преград/коллизий, которое также обнаруживает AI-трафик, знаки, заборы и т.д." />
-		<text name="gui_ad_refillSeedAndFertilizer"			 text="Посев и удобрение" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"	 text="Разрешить AutoDrive наполнять отсеки для семян и удобрений, если один из них выбран в качестве типа заполнения." />
-		<text name="gui_ad_shovelWidth"						 text="Ширина ковша (увеличение)" />
-		<text name="gui_ad_shovelWidth_tooltip"				 text="Если автоматически определенная ширина ковша слишком мала, ее можно увеличить с помощью этого значения." />
-		<text name="gui_ad_preCallDriver"					 text="Предварительный вызов водителя" />
-		<text name="gui_ad_preCallDriver_tooltip"			 text="Предварительный вызов разгружающего при заданном уровне заполнения." />
-		<text name="gui_ad_preCallLevel"					 text="Уровень предварительного вызова" />
-		<text name="gui_ad_preCallLevel_tooltip"			 text="Предварительный вызов разгружающего при заданном уровне заполнения." />
-		<text name="gui_ad_chaseCombine"					 text="Следовать за комбайном" />
-		<text name="gui_ad_chaseCombine_tooltip"			 text="Разгружающий следует за комбайном после предварительного вызова." />
-		<text name="gui_ad_distributeToFolder"				 text="Несколько целей" />
-		<text name="gui_ad_distributeToFolder_tooltip"		 text="Все цели в одной папке будут становиться как цели выгрузки." />
-		<text name="gui_ad_maxTriggerDistance"				 text="Макс. расстояние триггера" />
-		<text name="gui_ad_maxTriggerDistance_tooltip"		 text="Расстояние до цели, на котором обнаруживаются и активируются триггеры." />
-		<text name="gui_ad_useBeaconLights"					 text="Маячёк" />
-		<text name="gui_ad_useBeaconLights_tooltip"			 text="Включать маячёк при движении по дороге." />
-		<text name="gui_ad_restrictToField"					 text="Поиск пути ограничить полем" />
-		<text name="gui_ad_restrictToField_tooltip"			 text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск пути границами поля." />
-		<text name="gui_ad_showTooltips"			 		text="Show tooltips" />	
-		<text name="gui_ad_showTooltips_tooltip"	 		text="Show tooltips of buttons in the HUD." />				
-		<text name="gui_ad_enterTargetNameTitle_add" 		text="Add Target" />
-		<text name="gui_ad_enterTargetNameTitle_edit" 		text="Edit Target" />
-		<text name="gui_ad_enterTargetNameText" 			text="Insert target name:" />
-		<text name="gui_ad_createButtonText" 				text="Create" />
-		<text name="gui_ad_enterDriverNameTitle" 			text="Rename Driver" />
-		<text name="gui_ad_enterDriverNameText" 			text="Insert driver name:" />
-		<text name="gui_ad_enterGroupNameTitle"				text="Create Folder" />
-		<text name="gui_ad_enterGroupNameText" 				text="Insert folder name:" />
+		<text name="UNKNOWN"									text="НЕИЗВЕСТНО" />
+		<text name="input_ADToggleHud"							text="AD: Отображение HUD" />
+		<text name="input_ADToggleMouse"						text="AD: Отображение курсора" />
+		<text name="input_ADEnDisable"							text="AD: Вкл/Выкл" />
+		<text name="input_ADSilomode"							text="AD: Изменить режим" />
+		<text name="input_ADRecord"								text="AD: Запись" />
+		<text name="input_ADSelectTarget"						text="AD: Следующая локация" />
+		<text name="input_ADSelectPreviousTarget"				text="AD: Предыдущая локация" />
+		<text name="input_AD_Speed_up"							text="AD: Увеличить скорость" />
+		<text name="input_AD_Speed_down"						text="AD: Уменьшить скорость" />
+		<text name="input_AD_export_routes"						text="AD: Экспортировать маршруты" />
+		<text name="input_AD_import_routes"						text="AD: Импортировать маршруты" />
+		<text name="input_AD_upload_routes"						text="AD: Выгрузить маршруты" />
+		<text name="input_AD_continue"							text="AD: Продолжить" />
+		<text name="input_ADSelectTargetUnload"					text="AD: Следующая точка разгрузки" />
+		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Предыдущая точка разгрузки" />
+		<text name="input_ADActivateDebug"						text="AD: Режим редактирования" />
+		<text name="input_ADDebugShowClosest"					text="AD: Показать ближайшую точку" />
+		<text name="input_ADDebugSelectNeighbor"				text="AD: Выбрать соседнюю точку" />
+		<text name="input_ADDebugChangeNeighbor"				text="AD: Выбрать следующую соседнюю точку" />
+		<text name="input_ADDebugCreateConnection"				text="AD: Установить/Убрать связь между выбранными" />
+		<text name="input_ADDebugCreateMapMarker"				text="AD: Создать/Редактировать новую локацию" />
+		<text name="input_ADRenameMapMarker"					text="AD: Редактировать выбранную локацию" />
+		<text name="input_ADDebugDeleteWayPoint"				text="AD: Удалить путевую точку" />
+		<text name="input_ADDebugForceUpdate"					text="AD: Обновить маршруты" />
+		<text name="input_ADDebugDeleteDestination"				text="AD: Удалить ближайшую локацию" />
+		<text name="input_ADSelectNextFillType"					text="AD: Выбрать следующую продукцию" />
+		<text name="input_ADSelectPreviousFillType"				text="AD: Выбрать предыдущую продукцию" />
+		<text name="input_ADOpenGUI"							text="AD: Открыть GUI" />
+		<text name="input_ADCallDriver"							text="AD: Вызвать водителя" />
+		<text name="input_ADGoToVehicle"						text="AD: Перейти к прибывшему автомобилю" />
+		<text name="input_ADNameDriver"							text="AD: Назначить водителю имя" />
+		<text name="input_ADIncLoopCounter"						text="AD: Увеличить счетчик повторений" />
+		<text name="input_ADParkVehicle"						text="AD: Припарковать технику" />
+		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Нажмите правой кнопкой мыши на этой же кнопке, чтобы назначить выбранную локацию, как место парковки." />
+		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
+		<text name="AD_Driver_of"								text="Водитель на" />
+		<text name="AD_has_reached"								text="прибыл к" />
+		<text name="AD_got_stuck"								text="застрял" />
+		<text name="AD_cannot_reach"							text="не может доехать до локации " />
+		<text name="AD_cannot_find_path"						text="не может рассчитать маршрут" />
+		<text name="AD_new_marker"								text="Новая локация:" />
+		<text name="AD_new_marker_helptext"						text="Введите новое название (завершить по Enter)" />
+		<text name="AD_Recalculationg_routes_status"			text="Пересчитываются маршруты. Пожалуйста подождите. Завершено:" />
+		<text name="AD_No_Trailer"								text="не могу найти прицеп" />
+		<text name="AD_No_Bunker"								text="не могу найти силосный бункер" />
+		<text name="AD_No_Shovel"								text="не могу найти присоединённый ковш" />
+		<text name="AD_MODE_DRIVETO"							text="Перегон" />
+		<text name="AD_MODE_DELIVERTO"							text="Доставка" />
+		<text name="AD_MODE_PICKUPANDDELIVER"					text="Загрузка и доставка" />
+		<text name="AD_MODE_UNLOAD"								text="Разгрузка комбайна" />
+		<text name="AD_MODE_LOAD"								text="Загрузка" />
+		<text name="AD_MODE_BGA"								text="Разгрузка в приёмный бункер" />
+		<text name="AD_synchronizing"							text="загрузка сети из сервера.." />
+		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
+		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
+		<text name="gui_ad_trailerOffset"						text="Смещение прицепа" />
+		<text name="gui_ad_trailerOffset_tooltip"				text="Продольное смещение позиции разгрузки прицепа." />
+		<text name="gui_ad_lookahead_turning"					text="Просматривать при повороте на" />
+		<text name="gui_ad_lookahead_turning_tooltip"			text="Расстояние, на которое водитель при повороте 'смотрит' вперед, чтобы управлять рулением, для следования к следующему сегменту." />
+		<text name="gui_ad_lookahead_braking"					text="Просматривать при торможении" />
+		<text name="gui_ad_lookahead_braking_tooltip"			text="Расстояние, на которое водитель при торможении 'смотрит' вперед, чтобы скорректировать скорость до ожидаемого радиуса поворота." />
+		<text name="gui_ad_useFastestRoute"						text="Использ. самый быстрый маршрут" />
+		<text name="gui_ad_useFastestRoute_tooltip"				text="При расчете лучшего маршрута учитывается скорость движения, а не фактическое расстояния." />
+		<text name="gui_ad_avoidMarkers"						text="Избегать других локаций" />
+		<text name="gui_ad_avoidMarkers_tooltip"				text="При прокладке маршрута, стараться найти обходные пути вокруг локаций. Полезно, для избегания задержек." />
+		<text name="gui_ad_mapMarkerDetour"						text="Максимальный объезд" />
+		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Максимальный объезд при обходе других локаций." />
+		<text name="gui_ad_siloEmpty"							text="Если бункер пуст" />
+		<text name="gui_ad_siloEmpty_tooltip"					text="Действия водителя в режиме 'Загрузка и доставка' если бункер оказался пустой." />
+		<text name="gui_ad_useFolders"							text="Использовать папки" />
+		<text name="gui_ad_useFolders_tooltip"					text="Использовать папки, чтобы структурировать места назначения." />
+		<text name="gui_ad_wait"								text="Ожидать" />
+		<text name="gui_ad_drive"								text="Следовать к" />
+		<text name="gui_ad_yes"									text="Да" />
+		<text name="gui_ad_no"									text="Нет" />
+		<text name="ad_wait_for_combine"						text="Ожидаю комбайн" />
+		<text name="ad_drive_to_combine"						text="Еду к комбайну" />
+		<text name="ad_unloading_combine"						text="Разгружаю комбайн" />
+		<text name="ad_drive_to_parkpos"						text="Еду на стоянку" />
+		<text name="ad_drive_to_startpos"						text="Двигаюсь к старту" />
+		<text name="ad_drive_to_unloadpos"						text="Еду на разгрузку" />
+		<text name="ad_bga_init"								text="Инициализация" />
+		<text name="ad_bga_waiting"								text="В ожидании прицепа/бункера" />
+		<text name="ad_bga_active"								text="Активно" />
+		<text name="gui_ad_autoConnect_start"					text="Автоприсоединение начала" />
+		<text name="gui_ad_autoConnect_start_tooltip"			text="Автоматическое подсоединение подходящего узла при начале записи маршрута." />
+		<text name="gui_ad_autoConnect_end"						text="Автоприсоединение конца" />
+		<text name="gui_ad_autoConnect_end_tooltip"				text="Автоматическое подсоединение подходящего узла по завершении записи маршрута." />
+		<text name="gui_ad_parkInField"							text="Стоянка на поле" />
+		<text name="gui_ad_parkInField_tooltip"					text="После разгрузки комбайна - если не припаркован на посевах." />
+		<text name="gui_ad_unloadFillLevel"						text="Отвозить при уровне" />
+		<text name="gui_ad_unloadFillLevel_tooltip"				text="После разгрузки комбайна и заполнения до этого уровня, перейти к доставке собранного на склад." />
+		<text name="gui_ad_findDriver"							text="Поиск водителя" />
+		<text name="gui_ad_findDriver_tooltip"					text="Поиск ближайших водителей (игнорировать пункт назначения)." />
+		<text name="gui_ad_gui_scale"							text="Масштаб HUD AutoDrive " />
+		<text name="gui_ad_gui_scale_tooltip"					text="Оставьте значение по умолчанию и будут использования настройки масштаба в игре." />
+		<text name="gui_ad_exitField"							text="Выезд с поля" />
+		<text name="gui_ad_exitField_tooltip"					text="Способ выезда с поля при разгрузке." />
+		<text name="gui_ad_default"								text="Обычный" />
+		<text name="gui_ad_after_start"							text="За стартом" />
+		<text name="gui_ad_closest"								text="Ближайшая точка" />
+		<text name="gui_ad_showHelp"							text="Отображать сочетания клавиш" />
+		<text name="gui_ad_showHelp_tooltip"					text="Отображать сочетания клавиш в окне подсказок по F1." />
+		<text name="gui_ad_driverWages"							text="Зарплата водителя" />
+		<text name="gui_ad_driverWages_tooltip"					text="Заработная плата водителя будет увеличена на указанное значение." />
+		<text name="gui_ad_smoothField"							text="Сглаживать маршруты на поле" />
+		<text name="gui_ad_smoothField_tooltip"					text="Сгенерированые полевые маршруты к комбайну и обратно будут сглаживаться (экспериментальная функция)." />
+		<text name="gui_ad_recalculationSpeed"					text="Скорость расчета" />
+		<text name="gui_ad_recalculationSpeed_tooltip"			text="Более высокие значения приведут к замедлению игрового процесса при пересчете." />
+		<text name="gui_ad_showNextPath"						text="Показать дальнейшее направление" />
+		<text name="gui_ad_showNextPath_tooltip"				text="Вкл/Отключить отображение следующих двух путевых точек." />
+		<text name="gui_ad_avoidFruit"							text="Избегать посевов" />
+		<text name="gui_ad_avoidFruit_tooltip"					text="Водитель, разгружающий комбайн, будет пытаться избегать вытаптывания культур." />
+		<text name="gui_ad_pathFinderTime"						text="Время поиска маршрута (макс.)" />
+		<text name="gui_ad_pathFinderTime_tooltip"				text="Определяет, как долго алгоритму нахождения маршрута разрешается искать маршрут без преград к/от комбайна (большие значения могут влиять на FPS)." />
+		<text name="gui_ad_lineHeight"							text="Расположение линии" />
+		<text name="gui_ad_lineHeight_tooltip"					text="Расположение линии в режиме редактирования. На уровне земли или над техникой." />
+		<text name="gui_ad_ground"								text="На уровне земли" />
+		<text name="gui_ad_aboveDriver"							text="Над техникой" />
+		<text name="gui_ad_allowConsoleStyle"					text="Расширенный ввод локаций" />
+		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Разрешить расширенный ввод локации с клавиатуры - По умолчанию: ЛКМ на имени локации." />
+		<text name="gui_ad_enableTrafficDetection"				text="Обнаружение преград" />
+		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Продвинутое определение преград/коллизий, которое также обнаруживает AI-трафик, знаки, заборы и т.д." />
+		<text name="gui_ad_refillSeedAndFertilizer"				text="Посев и удобрение" />
+		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Разрешить AutoDrive наполнять отсеки для семян и удобрений, если один из них выбран в качестве типа заполнения." />
+		<text name="gui_ad_shovelWidth"							text="Ширина ковша (увеличение)" />
+		<text name="gui_ad_shovelWidth_tooltip"					text="Если автоматически определенная ширина ковша слишком мала, ее можно увеличить с помощью этого значения." />
+		<text name="gui_ad_preCallDriver"						text="Предварительный вызов водителя" />
+		<text name="gui_ad_preCallDriver_tooltip"				text="Предварительный вызов разгружающего при заданном уровне заполнения." />
+		<text name="gui_ad_preCallLevel"						text="Уровень предварительного вызова" />
+		<text name="gui_ad_preCallLevel_tooltip"				text="Предварительный вызов разгружающего при заданном уровне заполнения." />
+		<text name="gui_ad_chaseCombine"						text="Следовать за комбайном" />
+		<text name="gui_ad_chaseCombine_tooltip"				text="Разгружающий следует за комбайном после предварительного вызова." />
+		<text name="gui_ad_distributeToFolder"					text="Несколько локаций" />
+		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации в одной папке будут становиться как места выгрузки." />
+		<text name="gui_ad_maxTriggerDistance"					text="Макс. расстояние триггера" />
+		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Расстояние до локации, на котором обнаруживаются и активируются триггеры." />
+		<text name="gui_ad_useBeaconLights"						text="Маячёк" />
+		<text name="gui_ad_useBeaconLights_tooltip"				text="Включать маячёк при движении по дороге." />
+		<text name="gui_ad_restrictToField"						text="Поиск маршрута ограничен полем" />
+		<text name="gui_ad_restrictToField_tooltip"				text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск маршруты границами поля." />
+		<text name="gui_ad_showTooltips"						text="Отображать подсказки" />
+		<text name="gui_ad_showTooltips_tooltip"				text="Показывать подсказки к кнопкам в HUD." />
+		<text name="gui_ad_enterTargetNameTitle_add"			text="Добавление локации" />
+		<text name="gui_ad_enterTargetNameTitle_edit"			text="Редактирование локации" />
+		<text name="gui_ad_enterTargetNameText"					text="Введите название локации:" />
+		<text name="gui_ad_createButtonText"					text="Создать" />
+		<text name="gui_ad_enterDriverNameTitle"				text="Переименование водителя" />
+		<text name="gui_ad_enterDriverNameText"					text="Введите имя водителя:" />
+		<text name="gui_ad_enterGroupNameTitle"					text="Создание папки" />
+		<text name="gui_ad_enterGroupNameText"					text="Введите название папки:" />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 	</texts>
 </l10n>
