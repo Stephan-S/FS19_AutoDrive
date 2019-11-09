@@ -62,12 +62,12 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
     if vehicle.ad.mode == AutoDrive.MODE_LOAD then
         return
     end
+
+    AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
+
     local distance = AutoDrive.getDistanceToUnloadPosition(vehicle)
     local distanceToTarget = AutoDrive.getDistanceToTargetPosition(vehicle)
     if distance < 200 then
-        if (distance < distanceToTarget) then
-            AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
-        end
         --AutoDrive.setTrailerCoverOpen(vehicle, trailers, true);
 
         for _, trailer in pairs(trailers) do
@@ -440,8 +440,13 @@ end
 
 function AutoDrive.stopDischargingWhenTrailerEmpty(vehicle, trailers, fillLevel)
     if fillLevel == 0 then
-        vehicle.ad.isUnloading = false
-        vehicle.ad.isUnloadingToBunkerSilo = false
+        if vehicle.ad.isUnloading or vehicle.ad.isUnloadingToBunkerSilo then
+            vehicle.ad.isUnloading = false
+            vehicle.ad.isUnloadingToBunkerSilo = false
+            if vehicle.ad.isPaused then
+                vehicle.ad.isPausedForTrailersClosing = true;
+            end;
+        end;
         for _, trailer in pairs(trailers) do
             if trailer.setDischargeState then
                 trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF)
@@ -538,10 +543,10 @@ function AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
         end
     end
     if allClosed and (vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED) then
-        if vehicle.ad.isPaused then
+        if vehicle.ad.isPaused and vehicle.ad.isPausedForTrailersClosing then
             vehicle.ad.isPaused = false
-            vehicle.ad.isUnloading = false
-        --print("continueIfAllTrailersClosed");
+            vehicle.ad.isPausedForTrailersClosing = false;
+            --print("continueIfAllTrailersClosed");
         end
     end
 end

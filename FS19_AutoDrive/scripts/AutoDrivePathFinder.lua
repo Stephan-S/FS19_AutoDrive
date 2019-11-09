@@ -154,7 +154,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         end
     end
 
-    local startIsOnField = AutoDrivePathFinder:checkIsOnField(worldX, worldY, worldZ)
+    local startIsOnField = AutoDrivePathFinder:checkIsOnField(driverWorldX, driverWorldY, driverWorldZ)
     local endIsOnField = AutoDrivePathFinder:checkIsOnField(wpBehind.x, worldY, wpBehind.z)
 
     driver.ad.pf.restrictToField = startIsOnField and endIsOnField
