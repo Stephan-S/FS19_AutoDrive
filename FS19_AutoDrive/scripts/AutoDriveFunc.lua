@@ -355,7 +355,7 @@ function AutoDrive:detectTraffic(vehicle)
 		box.center[3] = length
 		box.size[1] = width * 0.35
 		box.size[2] = 0.75
-		box.size[3] = (lookAheadDistance - 0.5) / 3
+		box.size[3] = (lookAheadDistance) / 2
 		box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 		box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
 		box.xx, box.xy, box.xz = localDirectionToWorld(vehicle.components[1].node, -math.cos(vehicle.rotatedTime), 0, math.sin(vehicle.rotatedTime))

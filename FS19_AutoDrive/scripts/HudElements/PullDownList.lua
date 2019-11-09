@@ -671,8 +671,9 @@ function ADPullDownList:setSelected(vehicle)
     end
 
     local reachedTop = false
-    while (not reachedTop) and (self:getListElementByIndex(vehicle, ADPullDownList.MAX_SHOWN) ~= nil) do
-        if self:getListElementByIndex(vehicle, self.selected - 1) ~= nil and (self.hovered <= (self.selected + ADPullDownList.MAX_SHOWN - 2)) then
+    local numberOfElementsVisible = math.min(self:getItemCount(), ADPullDownList.MAX_SHOWN);
+    while (not reachedTop) do
+        if self:getListElementByIndex(vehicle, self.selected - 1) ~= nil and (self.hovered < (self.selected + numberOfElementsVisible - 1)) then
             self.selected = self.selected - 1
         else
             reachedTop = true
@@ -730,6 +731,11 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
     local mapMarkerID = vehicle.ad.mapMarkerSelected
     local mapMarkerName = vehicle.ad.nameOfSelectedTarget
     local targetGroupName = hitElement.returnValue
+
+    if self.type == ADPullDownList.TYPE_UNLOAD then        
+        mapMarkerID = vehicle.ad.mapMarkerSelected_Unload;
+        mapMarkerName = vehicle.ad.nameOfSelectedTarget_Unload;
+    end;
 
     for groupID, entries in pairs(self.options) do
         for i, entry in pairs(entries) do
