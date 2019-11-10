@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Assign driver name" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumentar contador de loop" />
 		<text name="input_ADParkVehicle"						text="AD: Estacionar veículo" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nenhum destino de estacionamento atribuído. Atribua o destino atualmente selecionado com o botão direito do mouse." />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamento escolhido:" />
 		<text name="AD_Driver_of"								text="Motorista de" />

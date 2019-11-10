@@ -69,7 +69,8 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="ADGoToVehicle" 				category="VEHICLE" ignoreComboMask="false"/>	
 		<action name="ADNameDriver" 				category="VEHICLE" ignoreComboMask="false"/>
 		<action name="ADIncLoopCounter"				category="VEHICLE" ignoreComboMask="false"/>
-		<action name="ADRenameMapMarker" 			category="VEHICLE" ignoreComboMask="false"/>		
+		<action name="ADRenameMapMarker" 			category="VEHICLE" ignoreComboMask="false"/>	
+		<action name="ADSwapTargets" 				category="VEHICLE" ignoreComboMask="false"/>	
 	</actions>
 
 	<inputBinding>

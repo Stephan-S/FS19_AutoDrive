@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Donnez un nom au chauffeur" />
 		<text name="input_ADIncLoopCounter"						text="AD: Augmenter le nombre de répétitions" />
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />

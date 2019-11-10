@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.7-3"
+AutoDrive.Version = "1.0.6.7-4"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -32,7 +32,8 @@ AutoDrive.actions = {
 	{"AD_upload_routes", false, 0},
 	{"ADGoToVehicle", false, 3},
 	{"ADNameDriver", false, 0},
-	{"ADRenameMapMarker", false, 0}
+	{"ADRenameMapMarker", false, 0},
+	{"ADSwapTargets", false, 0}
 }
 
 AutoDrive.drawHeight = 0.3

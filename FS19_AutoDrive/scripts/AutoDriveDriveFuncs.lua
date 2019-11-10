@@ -259,6 +259,9 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
     if vehicle.typeDesc == "telehandler" then
         min_distance = 3
     end
+    if vehicle.typeDesc == "truck" then
+        min_distance = 3
+    end
     --ToDo: If vehicle is quadtrack then also min_distance = 6;
     if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
         min_distance = 6

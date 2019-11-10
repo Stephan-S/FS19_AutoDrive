@@ -119,6 +119,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADIncLoopCounter" then
 		AutoDrive:InputHandling(self, "input_incLoopCounter")
 	end
+	if actionName == "ADSwapTargets" then
+		AutoDrive:InputHandling(self, "input_swapTargets")
+	end
 end
 
 function AutoDrive:InputHandling(vehicle, input)
@@ -482,6 +485,10 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive.print.showMessageFor = 10000
 		end
 	end
+
+	if input == "input_swapTargets" then
+		AutoDrive:inputSwapTargets(vehicle)
+	end
 end
 
 function AutoDrive:inputSiloMode(vehicle, increase)
@@ -732,4 +739,10 @@ function AutoDrive:inputSwitchToArrivedVehicle()
 	if AutoDrive.print.referencedVehicle ~= nil then
 		g_currentMission:requestToEnterVehicle(AutoDrive.print.referencedVehicle)
 	end
+end
+
+function AutoDrive:inputSwapTargets(vehicle)
+	vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload, vehicle.ad.mapMarkerSelected;
+	vehicle.ad.targetSelected, vehicle.ad.targetSelected_Unload = vehicle.ad.targetSelected_Unload, vehicle.ad.targetSelected;
+	vehicle.ad.nameOfSelectedTarget, vehicle.ad.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload, vehicle.ad.nameOfSelectedTarget;
 end
