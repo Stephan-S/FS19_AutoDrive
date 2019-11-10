@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.7-4"
+AutoDrive.Version = "1.0.6.7-5"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -48,15 +48,15 @@ AutoDrive.MODE_BGA = 6
 AutoDrive.WAYPOINTS_PER_PACKET = 100
 AutoDrive.SPEED_ON_FIELD = 38
 
-AutoDrive.DC_NONE 			= 0;
-AutoDrive.DC_VEHICLEINFO 	= 1;
-AutoDrive.DC_COMBINEINFO 	= 2;
-AutoDrive.DC_TRAILERINFO 	= 4;
-AutoDrive.DC_DEVINFO 		= 8;
-AutoDrive.DC_PATHINFO 		= 16;
-AutoDrive.DC_ALL 			= 65535;
+AutoDrive.DC_NONE = 0
+AutoDrive.DC_VEHICLEINFO = 1
+AutoDrive.DC_COMBINEINFO = 2
+AutoDrive.DC_TRAILERINFO = 4
+AutoDrive.DC_DEVINFO = 8
+AutoDrive.DC_PATHINFO = 16
+AutoDrive.DC_ALL = 65535
 
-AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE  --AutoDrive.DC_ALL;
+AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
@@ -342,7 +342,7 @@ function AutoDrive.addGroup(groupName, sendEvent)
 			-- Propagating group creation all over the network
 			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_ADD)
 		else
-			AutoDrive.groupCounter = AutoDrive.groupCounter + 1
+			AutoDrive.groupCounter = AutoDrive.tableLength(AutoDrive.groups) + 1
 			AutoDrive.groups[groupName] = AutoDrive.groupCounter
 			for _, vehicle in pairs(g_currentMission.vehicles) do
 				if (vehicle.ad ~= nil) then
@@ -363,7 +363,6 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 			-- Propagating group creation all over the network
 			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_REMOVE)
 		else
-			-- TODO: Rework this
 			local groupId = AutoDrive.groups[groupName]
 			-- Removing group from the groups list
 			AutoDrive.groups[groupName] = nil
@@ -382,14 +381,14 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 				end
 			end
 			-- Resetting other goups id
-			for gName, groupID in pairs(AutoDrive.groups) do
-				if groupId <= groupID then
-					AutoDrive.groups[gName] = groupID - 1
+			for gName, gId in pairs(AutoDrive.groups) do
+				if groupId <= gId then
+					AutoDrive.groups[gName] = gId - 1
 				end
 			end
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
-			AutoDrive.groupCounter = AutoDrive.groupCounter - 1
+			AutoDrive.groupCounter = AutoDrive.tableLength(AutoDrive.groups)
 		end
 	end
 end
