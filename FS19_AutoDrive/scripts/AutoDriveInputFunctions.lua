@@ -327,6 +327,14 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		AutoDrive:toggleConnectionBetween(AutoDrive.mapWayPoints[closest], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
 	end
 
+	if input == "input_toggleConnectionInverted" then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+			return
+		end
+		local closest = AutoDrive:findClosestWayPoint(vehicle)
+		AutoDrive:toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], AutoDrive.mapWayPoints[closest])
+	end
+
 	if input == "input_nextNeighbor" then
 		if AutoDrive.requestedWaypoints == true then
 			return
@@ -742,7 +750,7 @@ function AutoDrive:inputSwitchToArrivedVehicle()
 end
 
 function AutoDrive:inputSwapTargets(vehicle)
-	vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload, vehicle.ad.mapMarkerSelected;
-	vehicle.ad.targetSelected, vehicle.ad.targetSelected_Unload = vehicle.ad.targetSelected_Unload, vehicle.ad.targetSelected;
-	vehicle.ad.nameOfSelectedTarget, vehicle.ad.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload, vehicle.ad.nameOfSelectedTarget;
+	vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload, vehicle.ad.mapMarkerSelected
+	vehicle.ad.targetSelected, vehicle.ad.targetSelected_Unload = vehicle.ad.targetSelected_Unload, vehicle.ad.targetSelected
+	vehicle.ad.nameOfSelectedTarget, vehicle.ad.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload, vehicle.ad.nameOfSelectedTarget
 end
