@@ -159,5 +159,8 @@
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Déclenche automatiquement un recalcul au démarrage du véhicule." />
 		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>

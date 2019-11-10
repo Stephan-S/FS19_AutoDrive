@@ -188,6 +188,9 @@ function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 		if input == "input_nameDriver" then
 			AutoDrive:onOpenEnterDriverName()
 		end
+		if input == "input_setDestinationFilter" then
+			AutoDrive:onOpenEnterDestinationFilter()
+		end		
 	end
 end
 

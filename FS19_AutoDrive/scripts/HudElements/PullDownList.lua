@@ -24,6 +24,8 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     self.rightIconPos = {x = self.position.x + self.size.width - AutoDrive.Hud.buttonWidth / 2 - AutoDrive.Hud.gapWidth, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
     self.rightIconPos2 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth / 2) * 2 - AutoDrive.Hud.gapWidth * 3, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
     self.rightIconPos3 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth / 2) * 3 - AutoDrive.Hud.gapWidth * 5, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
+    self.rightIconPos4 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth / 2) * 4 - AutoDrive.Hud.gapWidth * 6, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
+
 
     self.iconSize = {width = AutoDrive.Hud.buttonWidth / 2, height = AutoDrive.Hud.buttonHeight / 2}
     self.rowSize = {width = AutoDrive.Hud.buttonWidth / 2, height = AutoDrive.Hud.listItemHeight / 2}
@@ -41,6 +43,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     self.imagePlus = AutoDrive.directory .. "textures/plusSign.dds"
     self.imageMinus = AutoDrive.directory .. "textures/minusSign.dds"
     self.imageRight = AutoDrive.directory .. "textures/arrowRight.dds"
+    self.imageFilter = AutoDrive.directory .. "textures/zoom.dds"
 
     self.ovBG = Overlay:new(self.imageBG, self.position.x, self.position.y, self.size.width, self.size.height)
     self.ovExpand = Overlay:new(self.imageExpand, self.rightIconPos.x, self.rightIconPos.y, self.iconSize.width, self.iconSize.height)
@@ -121,13 +124,16 @@ function ADPullDownList:onDraw(vehicle)
         self.ovStretch:render()
         self.ovBottom:render()
         --AutoDrive.pullDownListExpanded = self.type;
-
+        
         for i = 1, ADPullDownList.MAX_SHOWN, 1 do
             local listEntry = self:getListElementByDisplayIndex(vehicle, i)
             if listEntry ~= nil then
                 local text = listEntry.displayName
                 if text == "All" and listEntry.isFolder then
                     text = g_i18n:getText("gui_ad_default")
+                    if vehicle.ad.destinationFilterText ~= "" then
+                        text = text .. " " .. g_i18n:getText("gui_ad_filter") .. ": " .. vehicle.ad.destinationFilterText;
+                    end;
                 end
                 if listEntry.isFolder == false and self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive.getSetting("useFolders") then
                     text = "   " .. text
@@ -165,7 +171,14 @@ function ADPullDownList:onDraw(vehicle)
                             end
                         else
                             listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                            listEntry.ovPlus:render()
+                            listEntry.ovPlus:render()                             
+                            listEntry.ovFilter = Overlay:new(self.imageFilter, self.rightIconPos4.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            listEntry.ovFilter:render()
+                        end
+                    else
+                        if (listEntry.displayName == "All") then                             
+                            listEntry.ovFilter = Overlay:new(self.imageFilter, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            listEntry.ovFilter:render()
                         end
                     end
                 --else
@@ -237,10 +250,12 @@ function ADPullDownList:getListElementByIndex(vehicle, index)
             end
             if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not AutoDrive.getSetting("useFolders")) then
                 for id, entry in pairs(entries) do
-                    if counter == index then
-                        return {displayName = entry.displayName, returnValue = entry.returnValue, isFolder = false}
-                    end
-                    counter = counter + 1
+                    if vehicle.ad.destinationFilterText == "" or string.match(entry.displayName:lower(), vehicle.ad.destinationFilterText:lower()) then
+                        if counter == index then
+                            return {displayName = entry.displayName, returnValue = entry.returnValue, isFolder = false}
+                        end
+                        counter = counter + 1
+                    end;
                 end
             end
         end
@@ -290,6 +305,8 @@ function ADPullDownList:getElementAt(vehicle, posX, posY)
                     hitIcon = 2
                 elseif posX >= self.rightIconPos3.x and listEntry.isFolder then
                     hitIcon = 3
+                elseif posX >= self.rightIconPos4.x and listEntry.isFolder then
+                    hitIcon = 4
                 end
 
                 return listEntry, i, hitIcon
@@ -499,6 +516,13 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     --else
                     --self:moveSelectedElementDown(vehicle, hitElement);
                     end
+                elseif hitIcon ~= nil and hitIcon == 2 and (not vehicle.ad.createMapPoints == true) then
+                    if hitElement.isFolder then
+                        if (hitElement.displayName == "All") then
+                            --self:collapse(vehicle, true)
+                            AutoDrive:onOpenEnterDestinationFilter();
+                        end
+                    end
                 elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.createMapPoints == true then
                     if hitElement.isFolder then
                         self:moveCurrentElementToFolder(vehicle, hitElement)
@@ -515,6 +539,13 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                         else
                             self:collapse(vehicle, true)
                             AutoDrive:onOpenEnterGroupName()
+                        end
+                    end
+                elseif hitIcon ~= nil and hitIcon == 4 and vehicle.ad.createMapPoints == true then
+                    if hitElement.isFolder then
+                        if (hitElement.displayName == "All") then
+                            --self:collapse(vehicle, true)
+                            AutoDrive:onOpenEnterDestinationFilter();
                         end
                     end
                 end
@@ -541,6 +572,17 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             end
             AutoDrive.mouseWheelActive = true
             return true
+        elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_COLLAPSED then
+            AutoDrive:InputHandling(vehicle, "input_setDestinationFilter");
+            AutoDrive:InputHandlingSenderOnly(vehicle, "input_setDestinationFilter")
+        elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_EXPANDED then
+            if hitIcon ~= nil and ((hitIcon == 2 and (not vehicle.ad.createMapPoints == true)) or (hitIcon == 4 and vehicle.ad.createMapPoints == true)) then
+                if hitElement.isFolder then
+                    if (hitElement.displayName == "All") then
+                        vehicle.ad.destinationFilterText = "";
+                    end
+                end;
+            end;
         elseif isDown == false and isUp == false then
             if hitIndex ~= nil then
                 self.hovered = self.selected + (hitIndex - 1)

@@ -288,6 +288,7 @@ function AutoDrive:init()
     self.ad.ccMode = AutoDrive.CC_MODE_IDLE
     self.ccInfos = {}
     self.ad.distanceToCombine = math.huge
+    self.ad.destinationFilterText = "";
 end
 
 function AutoDrive:onLeaveVehicle()

@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.7-7"
+AutoDrive.Version = "1.0.6.7-8"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -76,6 +76,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterGroupNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterDestinationFilterGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))

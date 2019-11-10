@@ -156,6 +156,9 @@
 		<text name="gui_ad_enterGroupNameTitle"					text="Vytvořit adresář" />
 		<text name="gui_ad_enterGroupNameText"					text="Vytvořit název adresáře:" />
 		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />Automatic
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>

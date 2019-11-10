@@ -159,5 +159,8 @@
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Automatisch eine Neuberechnung anstoßen wenn ein Fahrzeug gestartet wird." />
 		<text name="gui_ad_autoRefuel"							text="Automatisch Auftanken" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Bei einem niedrigen Tanklevel wird automatisch ein Ziel in Tankstellennähe angefahren." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Zielfilter ändern" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Zielfilter eingeben:" />
 	</texts>
 </l10n>

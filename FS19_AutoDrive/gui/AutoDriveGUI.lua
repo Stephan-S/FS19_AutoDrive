@@ -7,6 +7,8 @@ function AutoDrive:loadGUI()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "adEnterTargetNameGui", AutoDrive.gui.adEnterTargetNameGui)
 	AutoDrive.gui["adEnterGroupNameGui"] = adEnterGroupNameGui:new()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "adEnterGroupNameGui", AutoDrive.gui.adEnterGroupNameGui)
+	AutoDrive.gui["adEnterDestinationFilterGui"] = adEnterDestinationFilterGui:new()
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "adEnterDestinationFilterGui", AutoDrive.gui.adEnterDestinationFilterGui)
 
 	AutoDrive.gui["adSettingsPage"] = adSettingsPage:new()
 	AutoDrive.gui["adVehicleSettingsPage"] = adVehicleSettingsPage:new()
@@ -42,5 +44,11 @@ end
 function AutoDrive:onOpenEnterGroupName()
 	if not AutoDrive.gui.adEnterGroupNameGui.isOpen then
 		g_gui:showGui("adEnterGroupNameGui")
+	end
+end
+
+function AutoDrive:onOpenEnterDestinationFilter()
+	if not AutoDrive.gui.adEnterDestinationFilterGui.isOpen then
+		g_gui:showGui("adEnterDestinationFilterGui")
 	end
 end

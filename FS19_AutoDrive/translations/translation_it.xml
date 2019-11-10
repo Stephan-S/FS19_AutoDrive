@@ -159,5 +159,8 @@
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Avvia ricalcolo automaticamente, se necessario." />
 		<text name="gui_ad_autoRefuel"							text="Rifornimento Automatico" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Si dirige verso la destinazione di rifornimento (vicino al punto di rifornimento) quando il livello del carburante è basso." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>
