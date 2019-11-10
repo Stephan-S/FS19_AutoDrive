@@ -157,5 +157,7 @@
 		<text name="gui_ad_enterGroupNameText"					text="Ordnernamen eingeben:" />
 		<text name="gui_ad_autoRecalculate"						text="Automatisch Neuberechnen" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Automatisch eine Neuberechnung anstoßen wenn ein Fahrzeug gestartet wird." />
+		<text name="gui_ad_autoRefuel"							text="Automatisch Auftanken" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Bei einem niedrigen Tanklevel wird automatisch ein Ziel in Tankstellennähe angefahren." />
 	</texts>
 </l10n>

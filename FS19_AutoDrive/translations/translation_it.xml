@@ -157,5 +157,7 @@
 		<text name="gui_ad_enterGroupNameText"					text="Inserisci nome cartella:" />
 		<text name="gui_ad_autoRecalculate"						text="Ricalcolo automatico" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Avvia ricalcolo automaticamente, se necessario." />
+		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
 	</texts>
 </l10n>

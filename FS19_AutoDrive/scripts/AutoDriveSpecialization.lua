@@ -368,7 +368,7 @@ function AutoDrive:onUpdate(dt)
     end
 
     if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
-		AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self));
+        AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self));
 	end;
 end
 
@@ -384,6 +384,7 @@ function AutoDrive:createVehicleInfoTable(vehicle)
     infoTable["inDeadLock"] = vehicle.ad.inDeadLock;
     infoTable["speedOverride"] = vehicle.ad.speedOverride;
     infoTable["onRouteToSecondTarget"] = vehicle.ad.onRouteToSecondTarget;
+    infoTable["onRouteToRefuel"] = vehicle.ad.onRouteToRefuel;
     infoTable["unloadFillTypeIndex"] = vehicle.ad.unloadFillTypeIndex;
     infoTable["startedLoadingAtTrigger"] = vehicle.ad.startedLoadingAtTrigger;
     infoTable["combineUnloadInFruit"] = vehicle.ad.combineUnloadInFruit;

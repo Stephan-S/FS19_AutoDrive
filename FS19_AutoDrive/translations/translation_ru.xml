@@ -155,7 +155,9 @@
 		<text name="gui_ad_enterDriverNameText"					text="Введите имя водителя:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Создание папки" />
 		<text name="gui_ad_enterGroupNameText"					text="Введите название папки:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
 	</texts>
 </l10n>

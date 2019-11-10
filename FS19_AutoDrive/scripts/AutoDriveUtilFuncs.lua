@@ -226,8 +226,8 @@ end
 function AutoDrive.debugPrint(vehicle, debugChannel, debugText)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
-		if (vehicle ~= nil and vehicle.ad.name ~= nil) then
-			printText = vehicle.ad.name .. ": "
+		if (vehicle ~= nil) and (vehicle.ad.driverName ~= nil) then
+			printText = vehicle.ad.driverName .. ": "
 		end
 
 		printText = printText .. debugText

@@ -3,8 +3,8 @@ function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkForDeadLock(vehicle, dt)
     --AutoDrive:handlePrintMessage(vehicle, dt);
     AutoDrive.handleTrailers(vehicle, dt)
-    --AutoDrive:handleFillables(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
+    AutoDrive.handleRefueling(vehicle, dt);
 
     if vehicle.ad.isStopping == true then
         AutoDrive:stopVehicle(vehicle, dt)
@@ -25,7 +25,7 @@ function AutoDrive:handleDriving(vehicle, dt)
             else
                 local min_distance = AutoDrive:defineMinDistanceByVehicleType(vehicle)
                 if AutoDrive:isOnField(vehicle) then
-                    min_distance = math.max(1, min_distance - 3)
+                    min_distance = math.max(1, min_distance - 1)
                 end
 
                 local closeToWayPoint = false
@@ -712,3 +712,16 @@ function AutoDrive:getLookAheadTarget(vehicle)
     --AutoDrive:drawLine(AutoDrive.createVector(targetX,y, targetZ), AutoDrive.createVector(x,y,z), 1, 0, 1, 1);
     return targetX, targetZ
 end
+
+function AutoDrive.handleRefueling(vehicle, dt)
+    if AutoDrive.Triggers == nil or (vehicle.ad.isActive == false) or (not AutoDrive.getSetting("autoRefuel", vehicle)) then
+        return;
+    end;
+    if AutoDrive.hasToRefuel(vehicle) and (not vehicle.ad.onRouteToRefuel) and (not AutoDrive:isOnField(vehicle)) then
+        AutoDrive.goToRefuelStation(vehicle);
+    end;
+
+    if vehicle.ad.onRouteToRefuel then
+        AutoDrive.startRefuelingWhenInRange(vehicle, dt);
+    end;
+end;
