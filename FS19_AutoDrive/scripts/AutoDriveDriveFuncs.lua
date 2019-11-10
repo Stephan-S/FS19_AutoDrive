@@ -308,7 +308,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
 
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then
-                        vehicle.ad.isPaused = true
+                        --vehicle.ad.isPaused = true
                         fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(allFillables)
                         local maxCapacity = fillLevel + leftCapacity
 
