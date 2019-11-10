@@ -172,7 +172,6 @@ function AutoDrive:init()
     self.ad.inDeadLockRepairCounter = 4
 
     self.ad.creatingMapMarker = false
-    self.ad.enteredMapMarkerString = ""
 
     self.name = g_i18n:getText("UNKNOWN")
     if self.getName ~= nil then
@@ -197,7 +196,6 @@ function AutoDrive:init()
     end
     self.ad.isPausedCauseTraffic = false
     self.ad.startedLoadingAtTrigger = false
-    self.ad.trailerStartedLoadingAtTrigger = false
     self.ad.combineUnloadInFruit = false
     self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER
     self.ad.combineFruitToCheck = nil
@@ -229,7 +227,6 @@ function AutoDrive:init()
     end
 
     self.ad.nToolTipWait = 300
-    self.ad.nToolTipTimer = 6000
     self.ad.sToolTip = ""
 
     if AutoDrive.showingHud ~= nil then
@@ -369,7 +366,34 @@ function AutoDrive:onUpdate(dt)
     if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
         AutoDrive:handleCombineHarvester(self, dt)
     end
+
+    if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+		AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self));
+	end;
 end
+
+function AutoDrive:createVehicleInfoTable(vehicle)
+    local infoTable = {};
+
+    infoTable["isPaused"] = vehicle.ad.isPaused;
+    infoTable["isLoading"] = vehicle.ad.isLoading;
+    infoTable["isUnloading"] = vehicle.ad.isUnloading;
+    infoTable["isActive"] = vehicle.ad.isActive;
+    infoTable["isStopping"] = vehicle.ad.isStopping;
+    infoTable["mode"] = AutoDriveHud:getModeName(vehicle);
+    infoTable["inDeadLock"] = vehicle.ad.inDeadLock;
+    infoTable["speedOverride"] = vehicle.ad.speedOverride;
+    infoTable["onRouteToSecondTarget"] = vehicle.ad.onRouteToSecondTarget;
+    infoTable["unloadFillTypeIndex"] = vehicle.ad.unloadFillTypeIndex;
+    infoTable["startedLoadingAtTrigger"] = vehicle.ad.startedLoadingAtTrigger;
+    infoTable["combineUnloadInFruit"] = vehicle.ad.combineUnloadInFruit;
+    infoTable["combineFruitToCheck"] = vehicle.ad.combineFruitToCheck;
+    infoTable["currentTrailer"] = vehicle.ad.currentTrailer;
+    infoTable["combineState"] = AutoDrive.combineStateToName(vehicle)
+    infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle);
+
+    return infoTable;
+end;
 
 function AutoDrive:handleDriverWages(vehicle, dt)
     local spec = vehicle.spec_aiVehicle

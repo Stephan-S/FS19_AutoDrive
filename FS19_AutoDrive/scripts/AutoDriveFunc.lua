@@ -2,7 +2,6 @@ function AutoDrive:startAD(vehicle)
 	vehicle.ad.isActive = true
 	vehicle.ad.creationMode = false
 	vehicle.ad.startedLoadingAtTrigger = false
-	vehicle.ad.trailerStartedLoadingAtTrigger = false
 	vehicle.ad.onRouteToPark = false
 
 	vehicle.forceIsActive = true

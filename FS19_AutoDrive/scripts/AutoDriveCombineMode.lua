@@ -76,7 +76,7 @@ function AutoDrive:callDriverToCombine(combine)
                 end
 
                 if closestDriver ~= nil then
-                    AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " callDriverToCombine")
+                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " callDriverToCombine")
                     AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, dischargeNode.node)
                     closestDriver.ad.currentCombine = combine
                     AutoDrive.waitingUnloadDrivers[closestDriver] = nil
@@ -122,7 +122,7 @@ function AutoDrive:preCallDriverToCombine(combine)
         end
 
         if closestDriver ~= nil then
-            AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " preCallDriverToCombine")
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " preCallDriverToCombine")
             AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil)
             closestDriver.ad.currentCombine = combine
             AutoDrive.waitingUnloadDrivers[closestDriver] = nil
@@ -422,8 +422,8 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY
     end
 
-    if vehicle.ad.sensors.frontSensor:pollInfo() then
-        --print("Front sensor collision");
+    if vehicle.ad.sensors.frontSensor:pollInfo() and (vehicle.ccInfos.chaseSide ~= AutoDrive.ccSIDE_REAR) then
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Front sensor collision")
         vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
     end
 end
@@ -601,7 +601,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
         if (not leftBlocked) and combineFillPercent < 90 then
-            AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking left side")
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking left side")
             nodeX, nodeY, nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 6, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 6
 
             local spec = combine.spec_pipe
@@ -620,7 +620,7 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
                 sideIndex = AutoDrive.ccSIDE_LEFT
             end
         else
-            AutoDrive.debugPrint(vehicle, ADDEBUGLEVEL_1, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side")
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side")
             sideIndex = AutoDrive.ccSIDE_REAR
             local chaseCombinePos = AutoDrive:getCombineChasePosition(vehicle, combine)
             nodeX = chaseCombinePos.x
@@ -773,7 +773,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
         end
         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected)
-        vehicle.ad.isPaused = true
+        --vehicle.ad.isPaused = true why was that in there?
         vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED
         vehicle.ad.onRouteToSecondTarget = false
         vehicle.ad.currentTrailer = 1

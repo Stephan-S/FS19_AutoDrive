@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.7-2"
+AutoDrive.Version = "1.0.6.7-3"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -47,13 +47,15 @@ AutoDrive.MODE_BGA = 6
 AutoDrive.WAYPOINTS_PER_PACKET = 100
 AutoDrive.SPEED_ON_FIELD = 38
 
-ADDEBUGLEVEL_NONE = 0
-ADDEBUGLEVEL_ALL = math.huge
-ADDEBUGLEVEL_1 = 1
-ADDEBUGLEVEL_2 = 2
-ADDEBUGLEVEL_3 = 3
+AutoDrive.DC_NONE 			= 0;
+AutoDrive.DC_VEHICLEINFO 	= 1;
+AutoDrive.DC_COMBINEINFO 	= 2;
+AutoDrive.DC_TRAILERINFO 	= 4;
+AutoDrive.DC_DEVINFO 		= 8;
+AutoDrive.DC_PATHINFO 		= 16;
+AutoDrive.DC_ALL 			= 65535;
 
-AutoDrive.currentDebugLevel = ADDEBUGLEVEL_NONE --ADDEBUGLEVEL_ALL;
+AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE  --AutoDrive.DC_ALL;
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))

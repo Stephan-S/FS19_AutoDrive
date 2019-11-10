@@ -200,18 +200,31 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 	end
 end
 
-addConsoleCommand("ADsetDebugLevel", "Set new debug level", "setDebugLevel", AutoDrive)
+addConsoleCommand("ADsetDebugChannel", "Set new debug channel", "setDebugChannel", AutoDrive)
 
-function AutoDrive:setDebugLevel(newDebugLevel)
-	if newDebugLevel ~= nil then
-		AutoDrive.currentDebugLevel = newDebugLevel
+function AutoDrive:setDebugChannel(newDebugChannel)
+	if newDebugChannel ~= nil then
+		newDebugChannel = tonumber(newDebugChannel);
+		if newDebugChannel == 0 then
+			AutoDrive.currentDebugChannelMask = 0;
+		else
+			if bitAND(AutoDrive.currentDebugChannelMask, newDebugChannel) == newDebugChannel then
+				AutoDrive.currentDebugChannelMask = AutoDrive.currentDebugChannelMask - newDebugChannel;
+			else
+				AutoDrive.currentDebugChannelMask = bitOR(AutoDrive.currentDebugChannelMask, newDebugChannel);
+			end;
+		end;
 	else
-		AutoDrive.currentDebugLevel = ADDEBUGLEVEL_ALL
+		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL;
 	end
 end
 
-function AutoDrive.debugPrint(vehicle, debugLevel, debugText)
-	if AutoDrive.currentDebugLevel >= debugLevel then
+function AutoDrive.getDebugChannelIsSet(debugChannel)
+	return bitAND(AutoDrive.currentDebugChannelMask, debugChannel) > 0;
+end
+
+function AutoDrive.debugPrint(vehicle, debugChannel, debugText)
+	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
 		if (vehicle ~= nil and vehicle.ad.name ~= nil) then
 			printText = vehicle.ad.name .. ": "
@@ -222,6 +235,52 @@ function AutoDrive.debugPrint(vehicle, debugLevel, debugText)
 		print(printText)
 	end
 end
+
+function AutoDrive.combineStateToName(vehicle)
+	if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
+        return g_i18n:getText("ad_wait_for_combine")
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
+        return g_i18n:getText("ad_drive_to_combine")
+    elseif vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+        return "Pre drive to combine";
+    elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
+        return g_i18n:getText("ad_unloading_combine")
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
+        return g_i18n:getText("ad_drive_to_parkpos")
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
+        return g_i18n:getText("ad_drive_to_startpos")
+    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
+        return g_i18n:getText("ad_drive_to_unloadpos")
+	elseif vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then
+		return "0";
+	elseif vehicle.ad.combineState == AutoDrive.CHASE_COMBINE then
+		return "Chase combine";
+	end
+
+    return "?";
+end;
+
+AutoDrive.CC_MODE_IDLE = 0
+AutoDrive.CC_MODE_CHASING = 1
+AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN = 2
+AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY = 3
+AutoDrive.CC_MODE_REVERSE_FROM_COLLISION = 4
+
+function AutoDrive.combineCCStateToName(vehicle)
+	if vehicle.ad.ccMode == AutoDrive.CC_MODE_IDLE then
+        return "Idle";
+    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING then
+        return "Chasing";
+    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN then
+        return "Wait for combine to turn";
+    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY then
+        return "Letting combine pass by";
+    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_REVERSE_FROM_COLLISION then
+        return "Reverse from collision / when combine is stopped";
+	end
+
+    return "?";
+end;
 
 addConsoleCommand("ADshowNetworkEvents", "Debug network traffic", "showNetworkEvents", AutoDrive)
 

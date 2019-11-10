@@ -348,7 +348,6 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 end
             end
             vehicle.ad.startedLoadingAtTrigger = false
-            vehicle.ad.trailerStartedLoadingAtTrigger = false
         end
     end
 end

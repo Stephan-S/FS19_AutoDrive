@@ -96,8 +96,9 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local startX = driverWorldX + startDistance * driverRx
     local startZ = driverWorldZ + startDistance * driverRz
 
-    local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
-
+    --local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
+    local atan = AutoDrive.normalizeAngle(math.atan2(combineVector.z, combineVector.x))
+    
     local sin = math.sin(atan)
     local cos = math.cos(atan)
 
@@ -275,7 +276,7 @@ function AutoDrivePathFinder:getDriverRadius(driver)
 
     minTurnRadius = math.max(minTurnRadius, maxToolRadius)
 
-    AutoDrive.debugPrint(driver, ADDEBUGLEVEL_1, " startPathPlanningToCombine - minTurnRadius: " .. minTurnRadius .. " AI: " .. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) .. " tools: " .. maxToolRadius)
+    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, " startPathPlanningToCombine - minTurnRadius: " .. minTurnRadius .. " AI: " .. AIVehicleUtil.getAttachedImplementsMaxTurnRadius(driver) .. " tools: " .. maxToolRadius)
 
     return minTurnRadius
 end
@@ -325,7 +326,7 @@ end
 
 function AutoDrivePathFinder:updatePathPlanning(driver)
     local pf = driver.ad.pf
-    if driver.ad.createMapPoints and AutoDrive.currentDebugLevel == ADDEBUGLEVEL_ALL then
+    if driver.ad.createMapPoints and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
         AutoDrivePathFinder:drawDebugForPF(pf)
     end
     pf.steps = pf.steps + 1
@@ -433,7 +434,7 @@ end
 function AutoDrivePathFinder:isPathPlanningFinished(driver)
     if driver.ad.pf ~= nil then
         if driver.ad.pf.isFinished == true and driver.ad.pf.smoothDone == true then
-            if driver.ad.createMapPoints and AutoDrive.currentDebugLevel == ADDEBUGLEVEL_ALL then
+            if driver.ad.createMapPoints and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
                 drawDebugForCreatedRoute(driver.ad.pf)
             else
                 return true
