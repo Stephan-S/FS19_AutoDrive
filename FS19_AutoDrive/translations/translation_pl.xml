@@ -157,10 +157,10 @@
 		<text name="gui_ad_enterGroupNameText"					text="Podaj nazwę folderu:" />
 		<text name="gui_ad_autoRecalculate"						text="Automatyczne przeliczanie" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Uruchom automatycznie przeliczanie, jeżeli wymagane." />
-		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
-		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
-		<text name="gui_ad_filter"								text="Filter" />	
-		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
-		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
+		<text name="gui_ad_autoRefuel"							text="Automatyczne tankowanie" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Jedź do miejsca tankowania (blisko triggera z paliwem), kiedy poziom paliwa jest niski (15%)." />
+		<text name="gui_ad_filter"								text="Filtr" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Zmień tekst filtrowania celów" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Podaj tekst filtrowania:" />
 	</texts>
 </l10n>
