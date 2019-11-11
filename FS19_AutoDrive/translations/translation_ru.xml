@@ -36,7 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Назначить водителю имя" />
 		<text name="input_ADIncLoopCounter"						text="AD: Увеличить счетчик повторений" />
 		<text name="input_ADParkVehicle"						text="AD: Припарковать технику" />
-		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Нажмите правой кнопкой мыши на этой же кнопке, чтобы назначить выбранную локацию, как место парковки." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"								text="Водитель на" />
@@ -155,12 +155,12 @@
 		<text name="gui_ad_enterDriverNameText"					text="Введите имя водителя:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Создание папки" />
 		<text name="gui_ad_enterGroupNameText"					text="Введите название папки:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
-		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
-		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
-		<text name="gui_ad_filter"								text="Filter" />	
-		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
-		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
+		<text name="gui_ad_autoRecalculate"						text="Автоматический пересчет" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Автоматически начать пересчет при необходимости." />
+		<text name="gui_ad_autoRefuel"							text="Автодозаправка топливом" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Двигаться к месту заправки (ближайший триггер заправки), если уровень топлива низкий." />
+		<text name="gui_ad_filter"								text="Фильтр" />
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Изменение текста фильтра локаций" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Введите текст фильтра:" />
 	</texts>
 </l10n>
