@@ -96,8 +96,8 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local startX = driverWorldX + startDistance * driverRx
     local startZ = driverWorldZ + startDistance * driverRz
 
-    --local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
-    local atan = AutoDrive.normalizeAngle(math.atan2(combineVector.z, combineVector.x))
+    local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
+    --local atan = AutoDrive.normalizeAngle(math.atan2(combineVector.z, combineVector.x))
     
     local sin = math.sin(atan)
     local cos = math.cos(atan)
@@ -955,12 +955,9 @@ function AutoDrivePathFinder:worldLocationToGridLocation(pf, worldX, worldZ)
 end
 
 function AutoDrivePathFinder:worldDirectionToGridDirection(pf, vector)
-    local vecUp = {x = pf.vectorX.x + pf.vectorZ.x, z = pf.vectorX.z + pf.vectorZ.z}
-
     local angleWorldDirection = math.atan2(vector.z, vector.x)
     angleWorldDirection = AutoDrive.normalizeAngle2(angleWorldDirection)
 
-    --local angleRad = math.atan2(vecUp.z, vecUp.x);
     local angleRad = math.atan2(pf.vectorX.z, pf.vectorX.x)
     angleRad = AutoDrive.normalizeAngle2(angleRad)
 
@@ -973,7 +970,6 @@ function AutoDrivePathFinder:worldDirectionToGridDirection(pf, vector)
     local upLeftAngle = AutoDrive.normalizeAngle2(angleRad + math.rad(315))
 
     local direction = AutoDrive.PP_UP
-    --print("vectorUp: " .. math.deg(angleRad) ..  " angle target: " .. math.deg(angleWorldDirection));
 
     if math.abs(math.deg(AutoDrive.normalizeAngle2(angleWorldDirection - upRightAngle))) <= 22.5 or math.abs(math.deg(AutoDrive.normalizeAngle2(angleWorldDirection - upRightAngle))) >= 337.5 then
         direction = AutoDrive.PP_UP_RIGHT
