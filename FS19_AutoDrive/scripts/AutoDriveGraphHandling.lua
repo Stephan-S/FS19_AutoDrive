@@ -694,7 +694,7 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 					lastAngleToPoint = angleToNextPoint
 					lastAngleToVehicle = angleToVehicle
 				else
-					if math.abs(angleToNextPoint + angleToVehicle) < math.abs(lastAngleToPoint + lastAngleToVehicle) and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
+					if (math.abs(angleToNextPoint) + math.abs(angleToVehicle)) < (math.abs(lastAngleToPoint) + math.abs(lastAngleToVehicle)) and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
 						closest = toCheck.id
 						distance = dis
 						lastAngleToPoint = angleToNextPoint

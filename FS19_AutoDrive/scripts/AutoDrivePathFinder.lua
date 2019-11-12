@@ -4,7 +4,7 @@ AutoDrive.PATHFINDER_FOLLOW_DISTANCE = 44
 AutoDrive.PATHFINDER_TARGET_DISTANCE = 14
 AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE = 20
 AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 9
-AutoDrive.PATHFINDER_START_DISTANCE = 4 --15;
+AutoDrive.PATHFINDER_START_DISTANCE = 7 --15;
 AutoDrive.PP_UP = 0
 AutoDrive.PP_UP_RIGHT = 1
 AutoDrive.PP_RIGHT = 2
@@ -96,8 +96,8 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local startX = driverWorldX + startDistance * driverRx
     local startZ = driverWorldZ + startDistance * driverRz
 
-    local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
-    --local atan = AutoDrive.normalizeAngle(math.atan2(combineVector.z, combineVector.x))
+    --local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
+    local atan = AutoDrive.normalizeAngle(math.atan2(combineVector.z, combineVector.x))
     
     local sin = math.sin(atan)
     local cos = math.cos(atan)
@@ -112,7 +112,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     vectorZ.x = -sin * minTurnRadius
     vectorZ.z = cos * minTurnRadius
 
-    AutoDrivePathFinder:init(driver, startX, startZ, wpBehind.x, wpBehind.z, combineVector, vectorX, vectorZ, combine)
+    AutoDrivePathFinder:init(driver, startX, startZ, wpBehind.x, wpBehind.z, combineVector, vectorX, vectorZ, combine, driverVector)
 
     driver.ad.pf.minTurnRadius = minTurnRadius
 
@@ -169,21 +169,6 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE * driverRx
     local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE * driverRz
 
-    local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
-
-    local sin = math.sin(atan)
-    local cos = math.cos(atan)
-
-    minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver)
-
-    local vectorX = {}
-    vectorX.x = cos * minTurnRadius
-    vectorX.z = sin * minTurnRadius
-
-    local vectorZ = {}
-    vectorZ.x = -sin * minTurnRadius
-    vectorZ.z = cos * minTurnRadius
-
     local targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id]
     local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
     local targetVector = {}
@@ -200,7 +185,8 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
             targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[6].id]
         end
     elseif exitStrategy == 2 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS then
-        local closest = AutoDrive:findClosestWayPoint(driver)
+        --local closest = AutoDrive:findClosestWayPoint(driver)
+        local closest = AutoDrive:findMatchingWayPointForVehicle(vehicle)
         local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
         if waypointsToUnload ~= nil and waypointsToUnload[2] ~= nil then
             preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[1].id]
@@ -210,6 +196,20 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 
     targetVector.x = preTargetPoint.x - targetPoint.x
     targetVector.z = preTargetPoint.z - targetPoint.z
+    
+    local atan = AutoDrive.normalizeAngle(math.atan2(targetVector.z, targetVector.x))
+    local sin = math.sin(atan)
+    local cos = math.cos(atan)
+
+    minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver)
+
+    local vectorX = {}
+    vectorX.x = cos * minTurnRadius
+    vectorX.z = sin * minTurnRadius
+
+    local vectorZ = {}
+    vectorZ.x = -sin * minTurnRadius
+    vectorZ.z = cos * minTurnRadius
 
     local angleRad = math.atan2(targetVector.z, targetVector.x)
 
@@ -222,7 +222,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     targetVector.z = -targetVector.z
 
     -- AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetY, targetVector, vectorX, vectorZ)
-    AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine)
+    AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine, driverVector)
 
     driver.ad.pf.minTurnRadius = minTurnRadius
     driver.ad.pf.appendWayPoints = {}
@@ -281,16 +281,7 @@ function AutoDrivePathFinder:getDriverRadius(driver)
     return minTurnRadius
 end
 
-function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine)
-    startCell = {x = 0, z = 0}
-    startCell.direction = AutoDrive.PP_UP
-    startCell.visited = false
-    startCell.isRestricted = false
-    startCell.hasCollision = false
-    startCell.hasInfo = true
-    startCell.hasFruit = false
-    startCell.steps = 0
-
+function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine, startVector)
     driver.ad.pf = {}
     driver.ad.pf.driver = driver
     --driver.ad.combineUnloadInFruit = false;
@@ -301,7 +292,6 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     driver.ad.pf.vectorX = vectorX
     driver.ad.pf.vectorZ = vectorZ
     driver.ad.pf.targetVector = targetVector
-    driver.ad.pf.startCell = startCell
     driver.ad.pf.steps = 0
     driver.ad.pf.isFinished = false
     driver.ad.pf.fallBackMode = false
@@ -313,10 +303,22 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
 
     driver.ad.currentTrailer = 1
     driver.ad.designatedTrailerFillLevel = math.huge
+    
+    startCell = {x = 0, z = 0}
+    --startCell.direction = AutoDrive.PP_UP
+    startCell.direction = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, startVector)
+    startCell.visited = false
+    startCell.isRestricted = false
+    startCell.hasCollision = false
+    startCell.hasInfo = true
+    startCell.hasFruit = false
+    startCell.steps = 0
+    driver.ad.pf.startCell = startCell
 
     driver.ad.pf.targetCell = AutoDrivePathFinder:worldLocationToGridLocation(driver.ad.pf, targetX, targetZ)
-    local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
-    AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, targetDirection, driver.ad.pf.targetCell)
+    --local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
+    --AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, targetDirection, driver.ad.pf.targetCell)
+    AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, AutoDrive.PP_UP, driver.ad.pf.targetCell)    
 
     table.insert(driver.ad.pf.grid, startCell)
     driver.ad.pf.smoothStep = 0

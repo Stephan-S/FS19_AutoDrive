@@ -1,3 +1,5 @@
+AutoDrive.DEADLOCKSPEED = 5;
+
 function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle)
     AutoDrive:checkForDeadLock(vehicle, dt)
@@ -24,9 +26,9 @@ function AutoDrive:handleDriving(vehicle, dt)
                 AutoDrive:initializeAD(vehicle, dt)
             else
                 local min_distance = AutoDrive:defineMinDistanceByVehicleType(vehicle)
-                if AutoDrive:isOnField(vehicle) then
-                    min_distance = math.max(1, min_distance - 1)
-                end
+                --if AutoDrive:isOnField(vehicle) then
+                  --  min_distance = math.max(1, min_distance - 1)
+                --end
 
                 local closeToWayPoint = false
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1] ~= nil then
@@ -240,7 +242,9 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
         vehicle.ad.initialized = true
         vehicle.ad.drivingForward = true
-        vehicle.ad.isPaused = false
+        if (not vehicle.ad.isUnloading) and (not vehicle.ad.isLoading) then
+            vehicle.ad.isPaused = false
+        end;
     else
         print("Autodrive encountered a problem during initialization - shutting down")
         AutoDrive:stopAD(vehicle, true)
@@ -451,6 +455,9 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     if AutoDrive.checkForTriggerProximity(vehicle) then
         vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride)
     end
+    if vehicle.ad.inDeadLock then
+        vehicle.ad.speedOverride = math.min(AutoDrive.DEADLOCKSPEED, vehicle.ad.speedOverride)
+    end
 
     local wp_new = nil
 
@@ -636,7 +643,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
                 local angleBetweenVehicleVectorAndNextCourse = AutoDrive.angleBetween(vehicleVector, wpVector)
                 local angleBetweenVehicleAndLookAheadWp = AutoDrive.angleBetween(vehicleVector, vehicleToWPVector)
 
-                if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 20 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -10000) then
+                if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 30 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -30000) then
                     vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + lookAhead - 1
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
