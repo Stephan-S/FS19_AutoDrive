@@ -46,7 +46,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
             vehicle.ad.tryingToCallDriver = true
             AutoDrive:callDriverToCombine(vehicle)
-        elseif (((fillLevel / maxCapacity) >= AutoDrive.getSetting("preCallLevel") and (fillLevel / maxCapacity) <= 0.96) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) and AutoDrive.getSetting("preCallDriver") then
+        elseif (((fillLevel / maxCapacity) >= AutoDrive.getSetting("preCallLevel") and (fillLevel / maxCapacity) <= 0.96 and AutoDrive.getSetting("preCallDriver")) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) then
             if vehicle.ad.sensors.frontSensorFruit:pollInfo() then
                 vehicle.ad.tryingToCallDriver = true
                 AutoDrive:preCallDriverToCombine(vehicle)
