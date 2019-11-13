@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Assign driver name" />
 		<text name="input_ADIncLoopCounter"						text="AD: Increase loop counter" />
 		<text name="input_ADParkVehicle"						text="AD: Park vehicle" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
 		<text name="AD_Driver_of"								text="Driver of" />
@@ -156,5 +157,10 @@
 		<text name="gui_ad_enterGroupNameText"					text="Insert folder name:" />
 		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>

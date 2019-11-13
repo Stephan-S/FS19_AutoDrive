@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Přiřadit jméno řidiče" />
 		<text name="input_ADIncLoopCounter"						text="AD: Zvýšit počítadlo" />
 		<text name="input_ADParkVehicle"						text="AD: Zaparkovat vozidlo" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="Vozidlo nemá parkoviště. Vyberte cíl a stiskněte pravého tlačítka myši." />
 		<text name="AD_parkVehicle_selected"					text="Zvolená parkovací zóna: " />
 		<text name="AD_Driver_of"								text="Řidič" />
@@ -154,7 +155,10 @@
 		<text name="gui_ad_enterDriverNameText"					text="Vytovořit jméno řidiče:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Vytvořit adresář" />
 		<text name="gui_ad_enterGroupNameText"					text="Vytvořit název adresáře:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>

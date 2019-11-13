@@ -1,10 +1,12 @@
+AutoDrive.DEADLOCKSPEED = 5;
+
 function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle)
     AutoDrive:checkForDeadLock(vehicle, dt)
     --AutoDrive:handlePrintMessage(vehicle, dt);
     AutoDrive.handleTrailers(vehicle, dt)
-    --AutoDrive:handleFillables(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
+    AutoDrive.handleRefueling(vehicle, dt);
 
     if vehicle.ad.isStopping == true then
         AutoDrive:stopVehicle(vehicle, dt)
@@ -24,9 +26,9 @@ function AutoDrive:handleDriving(vehicle, dt)
                 AutoDrive:initializeAD(vehicle, dt)
             else
                 local min_distance = AutoDrive:defineMinDistanceByVehicleType(vehicle)
-                if AutoDrive:isOnField(vehicle) then
-                    min_distance = math.max(1, min_distance - 3)
-                end
+                --if AutoDrive:isOnField(vehicle) then
+                  --  min_distance = math.max(1, min_distance - 1)
+                --end
 
                 local closeToWayPoint = false
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1] ~= nil then
@@ -240,7 +242,9 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
         vehicle.ad.initialized = true
         vehicle.ad.drivingForward = true
-        vehicle.ad.isPaused = false
+        if (not vehicle.ad.isUnloading) and (not vehicle.ad.isLoading) then
+            vehicle.ad.isPaused = false
+        end;
     else
         print("Autodrive encountered a problem during initialization - shutting down")
         AutoDrive:stopAD(vehicle, true)
@@ -257,6 +261,9 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
         min_distance = 6
     end
     if vehicle.typeDesc == "telehandler" then
+        min_distance = 3
+    end
+    if vehicle.typeDesc == "truck" then
         min_distance = 3
     end
     --ToDo: If vehicle is quadtrack then also min_distance = 6;
@@ -305,7 +312,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
 
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then
-                        vehicle.ad.isPaused = true
+                        --vehicle.ad.isPaused = true
                         fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(allFillables)
                         local maxCapacity = fillLevel + leftCapacity
 
@@ -348,7 +355,6 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 end
             end
             vehicle.ad.startedLoadingAtTrigger = false
-            vehicle.ad.trailerStartedLoadingAtTrigger = false
         end
     end
 end
@@ -448,6 +454,9 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     --end;
     if AutoDrive.checkForTriggerProximity(vehicle) then
         vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride)
+    end
+    if vehicle.ad.inDeadLock then
+        vehicle.ad.speedOverride = math.min(AutoDrive.DEADLOCKSPEED, vehicle.ad.speedOverride)
     end
 
     local wp_new = nil
@@ -634,7 +643,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
                 local angleBetweenVehicleVectorAndNextCourse = AutoDrive.angleBetween(vehicleVector, wpVector)
                 local angleBetweenVehicleAndLookAheadWp = AutoDrive.angleBetween(vehicleVector, vehicleToWPVector)
 
-                if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 20 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -10000) then
+                if (math.abs(angleBetweenVehicleVectorAndNextCourse) < 30 and math.abs(angleBetweenVehicleAndLookAheadWp) < 20) or (vehicle.ad.timeTillDeadLock < -30000) then
                     vehicle.ad.currentWayPoint = vehicle.ad.currentWayPoint + lookAhead - 1
                     vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
                     vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
@@ -710,3 +719,16 @@ function AutoDrive:getLookAheadTarget(vehicle)
     --AutoDrive:drawLine(AutoDrive.createVector(targetX,y, targetZ), AutoDrive.createVector(x,y,z), 1, 0, 1, 1);
     return targetX, targetZ
 end
+
+function AutoDrive.handleRefueling(vehicle, dt)
+    if AutoDrive.Triggers == nil or (vehicle.ad.isActive == false) or (not AutoDrive.getSetting("autoRefuel", vehicle)) then
+        return;
+    end;
+    if AutoDrive.hasToRefuel(vehicle) and (not vehicle.ad.onRouteToRefuel) and (not AutoDrive:isOnField(vehicle)) then
+        AutoDrive.goToRefuelStation(vehicle);
+    end;
+
+    if vehicle.ad.onRouteToRefuel then
+        AutoDrive.startRefuelingWhenInRange(vehicle, dt);
+    end;
+end;

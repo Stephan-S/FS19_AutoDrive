@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Przypisz nazwę kierowcy" />
 		<text name="input_ADIncLoopCounter"						text="AD: Zwiększ liczbę powtórzeń" />
 		<text name="input_ADParkVehicle"						text="AD: Zaparkuj pojazd" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nie przydzielono parkingu. Przypisz wybrany cel trasy za pomocą prawego kliku." />
 		<text name="AD_parkVehicle_selected"					text="Obecnie wybrany parking: " />
 		<text name="AD_Driver_of"								text="Kierowca" />
@@ -156,5 +157,10 @@
 		<text name="gui_ad_enterGroupNameText"					text="Podaj nazwę folderu:" />
 		<text name="gui_ad_autoRecalculate"						text="Automatyczne przeliczanie" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Uruchom automatycznie przeliczanie, jeżeli wymagane." />
+		<text name="gui_ad_autoRefuel"							text="Automatyczne tankowanie" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Jedź do miejsca tankowania (blisko triggera z paliwem), kiedy poziom paliwa jest niski (15%)." />
+		<text name="gui_ad_filter"								text="Filtr" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Zmień tekst filtrowania celów" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Podaj tekst filtrowania:" />
 	</texts>
 </l10n>

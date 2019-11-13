@@ -175,7 +175,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, true)
 	self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false)
 	self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false)
-	self:AddButton("input_toggleConnection", nil, "input_ADDebugCreateConnection", 1, false)
+	self:AddButton("input_toggleConnection", "input_toggleConnectionInverted", "input_ADDebugCreateConnection", 1, false)
 	self:AddButton("input_createMapMarker", "input_editMapMarker", "input_ADDebugCreateMapMarker", 1, false)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
 

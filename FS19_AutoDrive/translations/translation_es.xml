@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"					text="AD: Asignar nombre al conductor" />
 		<text name="input_ADIncLoopCounter"				text="AD: Aumentar los ciclos" />
 		<text name="input_ADParkVehicle"				text="AD: Aparcar Vehículo" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"				text="No se ha asignado ningún destino deestacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"				text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"					text="Conductor de" />
@@ -154,7 +155,12 @@
 		<text name="gui_ad_enterDriverNameText"				text="Añadir nombre al conductor: " />
 		<text name="gui_ad_enterGroupNameTitle"				text="Crear Carpeta" />
 		<text name="gui_ad_enterGroupNameText"				text="Insertar nobre de destino: " />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Recalculation" />
+		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
+		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>

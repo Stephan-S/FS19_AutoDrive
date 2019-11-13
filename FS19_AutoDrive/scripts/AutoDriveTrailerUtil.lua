@@ -240,7 +240,7 @@ function AutoDrive.getTrailersOf(vehicle, onlyDischargeable)
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = vehicle
         end
     end
-    --print("AutoDrive.tempTrailerCount after vehcile: "  .. AutoDrive.tempTrailerCount);
+    --print("AutoDrive.tempTrailerCount after vehicle: "  .. AutoDrive.tempTrailerCount);
 
     if vehicle.getAttachedImplements ~= nil then
         for _, implement in pairs(vehicle:getAttachedImplements()) do
@@ -653,7 +653,6 @@ function AutoDrive.startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitInd
     vehicle.ad.isPaused = true
     vehicle.ad.isLoading = true
     vehicle.ad.startedLoadingAtTrigger = true
-    vehicle.ad.trailerStartedLoadingAtTrigger = true
     vehicle.ad.trigger = trigger
     vehicle.ad.isLoadingToFillUnitIndex = fillUnitIndex
     vehicle.ad.isLoadingToTrailer = trailer

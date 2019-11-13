@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Donnez un nom au chauffeur" />
 		<text name="input_ADIncLoopCounter"						text="AD: Augmenter le nombre de répétitions" />
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />
@@ -156,5 +157,10 @@
 		<text name="gui_ad_enterGroupNameText"					text="Entrez le nom du dossier:" />
 		<text name="gui_ad_autoRecalculate"						text="Recalculer automatiquement" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Déclenche automatiquement un recalcul au démarrage du véhicule." />
+		<text name="gui_ad_autoRefuel"							text="Faire le plein automatiquement" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Lorsque le niveau du réservoir est bas, la station-service la plus proche est automatiquement ajoutée dans les trajets." />
+		<text name="gui_ad_filter"								text="Filtrage" />
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Changer le filtre de destination" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Entrez le filtre de destination:" />
 	</texts>
 </l10n>

@@ -119,6 +119,9 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADIncLoopCounter" then
 		AutoDrive:InputHandling(self, "input_incLoopCounter")
 	end
+	if actionName == "ADSwapTargets" then
+		AutoDrive:InputHandling(self, "input_swapTargets")
+	end
 end
 
 function AutoDrive:InputHandling(vehicle, input)
@@ -185,6 +188,9 @@ function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 		if input == "input_nameDriver" then
 			AutoDrive:onOpenEnterDriverName()
 		end
+		if input == "input_setDestinationFilter" then
+			AutoDrive:onOpenEnterDestinationFilter()
+		end		
 	end
 end
 
@@ -322,6 +328,14 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		end
 		local closest = AutoDrive:findClosestWayPoint(vehicle)
 		AutoDrive:toggleConnectionBetween(AutoDrive.mapWayPoints[closest], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
+	end
+
+	if input == "input_toggleConnectionInverted" then
+		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+			return
+		end
+		local closest = AutoDrive:findClosestWayPoint(vehicle)
+		AutoDrive:toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], AutoDrive.mapWayPoints[closest])
 	end
 
 	if input == "input_nextNeighbor" then
@@ -481,6 +495,10 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive.printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"))
 			AutoDrive.print.showMessageFor = 10000
 		end
+	end
+
+	if input == "input_swapTargets" then
+		AutoDrive:inputSwapTargets(vehicle)
 	end
 end
 
@@ -732,4 +750,10 @@ function AutoDrive:inputSwitchToArrivedVehicle()
 	if AutoDrive.print.referencedVehicle ~= nil then
 		g_currentMission:requestToEnterVehicle(AutoDrive.print.referencedVehicle)
 	end
+end
+
+function AutoDrive:inputSwapTargets(vehicle)
+	vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload, vehicle.ad.mapMarkerSelected
+	vehicle.ad.targetSelected, vehicle.ad.targetSelected_Unload = vehicle.ad.targetSelected_Unload, vehicle.ad.targetSelected
+	vehicle.ad.nameOfSelectedTarget, vehicle.ad.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload, vehicle.ad.nameOfSelectedTarget
 end

@@ -36,6 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Assegna un nome all'autista" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumenta contatore ciclo" />
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
+		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -156,5 +157,10 @@
 		<text name="gui_ad_enterGroupNameText"					text="Inserisci nome cartella:" />
 		<text name="gui_ad_autoRecalculate"						text="Ricalcolo automatico" />
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Avvia ricalcolo automaticamente, se necessario." />
+		<text name="gui_ad_autoRefuel"							text="Rifornimento Automatico" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Si dirige verso la destinazione di rifornimento (vicino al punto di rifornimento) quando il livello del carburante è basso." />
+		<text name="gui_ad_filter"								text="Filter" />	
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 	</texts>
 </l10n>
