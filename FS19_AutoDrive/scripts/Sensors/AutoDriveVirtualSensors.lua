@@ -307,7 +307,7 @@ function ADSensor:onUpdate()
 end
 
 function ADSensor:onDrawDebug(box)
-    if self.drawDebug then
+    if self.drawDebug or AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) then
         local red = 0
         local blue = 0
         if self:isTriggered() then

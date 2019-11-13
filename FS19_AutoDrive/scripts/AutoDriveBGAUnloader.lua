@@ -47,8 +47,8 @@ AutoDriveBGA.INITAXIS_STATE_DONE = 10
 
 AutoDriveBGA.SHOVEL_WIDTH_OFFSET = 0.8
 
-addConsoleCommand("adStartBGA", "Start bga unloader", "startBGA", AutoDriveBGA)
-addConsoleCommand("adStopBGA", "Stop bga unloader", "stopBGA", AutoDriveBGA)
+addConsoleCommand("ADStartBGA", "Start bga unloader", "startBGA", AutoDriveBGA)
+addConsoleCommand("ADStopBGA", "Stop bga unloader", "stopBGA", AutoDriveBGA)
 
 function AutoDriveBGA:startBGA()
     if g_currentMission.controlledVehicle ~= nil then

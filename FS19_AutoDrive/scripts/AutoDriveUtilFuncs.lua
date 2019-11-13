@@ -204,33 +204,34 @@ addConsoleCommand("ADsetDebugChannel", "Set new debug channel", "setDebugChannel
 
 function AutoDrive:setDebugChannel(newDebugChannel)
 	if newDebugChannel ~= nil then
-		newDebugChannel = tonumber(newDebugChannel);
+		newDebugChannel = tonumber(newDebugChannel)
 		if newDebugChannel == 0 then
-			AutoDrive.currentDebugChannelMask = 0;
+			AutoDrive.currentDebugChannelMask = 0
 		else
 			if bitAND(AutoDrive.currentDebugChannelMask, newDebugChannel) == newDebugChannel then
-				AutoDrive.currentDebugChannelMask = AutoDrive.currentDebugChannelMask - newDebugChannel;
+				AutoDrive.currentDebugChannelMask = AutoDrive.currentDebugChannelMask - newDebugChannel
 			else
-				AutoDrive.currentDebugChannelMask = bitOR(AutoDrive.currentDebugChannelMask, newDebugChannel);
-			end;
-		end;
+				AutoDrive.currentDebugChannelMask = bitOR(AutoDrive.currentDebugChannelMask, newDebugChannel)
+			end
+		end
 	else
-		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL;
+		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL
 	end
+	AutoDrive.showNetworkEvents()
 end
 
 function AutoDrive.getDebugChannelIsSet(debugChannel)
-	return bitAND(AutoDrive.currentDebugChannelMask, debugChannel) > 0;
+	return bitAND(AutoDrive.currentDebugChannelMask, debugChannel) > 0
 end
 
-function AutoDrive.debugPrint(vehicle, debugChannel, debugText)
+function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
 		if (vehicle ~= nil) and (vehicle.ad.driverName ~= nil) then
 			printText = vehicle.ad.driverName .. ": "
 		end
 
-		printText = printText .. debugText
+		printText = printText .. string.format(debugText, ...)
 
 		print(printText)
 	end
@@ -238,27 +239,27 @@ end
 
 function AutoDrive.combineStateToName(vehicle)
 	if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
-        return g_i18n:getText("ad_wait_for_combine")
-    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
-        return g_i18n:getText("ad_drive_to_combine")
-    elseif vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-        return "Pre drive to combine";
-    elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
-        return g_i18n:getText("ad_unloading_combine")
-    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
-        return g_i18n:getText("ad_drive_to_parkpos")
-    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-        return g_i18n:getText("ad_drive_to_startpos")
-    elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
-        return g_i18n:getText("ad_drive_to_unloadpos")
+		return g_i18n:getText("ad_wait_for_combine")
+	elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE then
+		return g_i18n:getText("ad_drive_to_combine")
+	elseif vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
+		return "Pre drive to combine"
+	elseif vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED then
+		return g_i18n:getText("ad_unloading_combine")
+	elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS then
+		return g_i18n:getText("ad_drive_to_parkpos")
+	elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
+		return g_i18n:getText("ad_drive_to_startpos")
+	elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
+		return g_i18n:getText("ad_drive_to_unloadpos")
 	elseif vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then
-		return "0";
+		return "0"
 	elseif vehicle.ad.combineState == AutoDrive.CHASE_COMBINE then
-		return "Chase combine";
+		return "Chase combine"
 	end
 
-    return "?";
-end;
+	return "?"
+end
 
 AutoDrive.CC_MODE_IDLE = 0
 AutoDrive.CC_MODE_CHASING = 1
@@ -268,50 +269,56 @@ AutoDrive.CC_MODE_REVERSE_FROM_COLLISION = 4
 
 function AutoDrive.combineCCStateToName(vehicle)
 	if vehicle.ad.ccMode == AutoDrive.CC_MODE_IDLE then
-        return "Idle";
-    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING then
-        return "Chasing";
-    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN then
-        return "Wait for combine to turn";
-    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY then
-        return "Letting combine pass by";
-    elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_REVERSE_FROM_COLLISION then
-        return "Reverse from collision / when combine is stopped";
+		return "Idle"
+	elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING then
+		return "Chasing"
+	elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN then
+		return "Wait for combine to turn"
+	elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY then
+		return "Letting combine pass by"
+	elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_REVERSE_FROM_COLLISION then
+		return "Reverse from collision / when combine is stopped"
 	end
 
-    return "?";
-end;
-
-addConsoleCommand("ADshowNetworkEvents", "Debug network traffic", "showNetworkEvents", AutoDrive)
+	return "?"
+end
 
 AutoDrive.debug = {}
 AutoDrive.debug.connectionSendEventBackup = nil
 AutoDrive.debug.serverBroadcastEventBackup = nil
 AutoDrive.debug.lastSentEvent = nil
 AutoDrive.debug.lastSentEventSize = 0
-AutoDrive.debug.showNetworkEventsPrint = false
 
-function AutoDrive:showNetworkEvents(print)
-	AutoDrive.debug.showNetworkEventsPrint = print
-	if g_server ~= nil then
-		if AutoDrive.debug.serverBroadcastEventBackup == nil then
-			AutoDrive.debug.serverBroadcastEventBackup = g_server.broadcastEvent
-			g_server.broadcastEvent = Utils.overwrittenFunction(g_server.broadcastEvent, AutoDrive.ServerBroadcastEvent)
+function AutoDrive.showNetworkEvents()
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
+		-- Activating network debug
+		if g_server ~= nil then
+			if AutoDrive.debug.serverBroadcastEventBackup == nil then
+				AutoDrive.debug.serverBroadcastEventBackup = g_server.broadcastEvent
+				g_server.broadcastEvent = Utils.overwrittenFunction(g_server.broadcastEvent, AutoDrive.ServerBroadcastEvent)
+			end
 		else
-			g_server.broadcastEvent = AutoDrive.debug.serverBroadcastEventBackup
-			AutoDrive.debug.serverBroadcastEventBackup = nil
+			local connection = g_client:getServerConnection()
+			if AutoDrive.debug.connectionSendEventBackup == nil then
+				AutoDrive.debug.connectionSendEventBackup = connection.sendEvent
+				connection.sendEvent = Utils.overwrittenFunction(connection.sendEvent, AutoDrive.ConnectionSendEvent)
+			end
 		end
 	else
-		local connection = g_client:getServerConnection()
-		if AutoDrive.debug.connectionSendEventBackup == nil then
-			AutoDrive.debug.connectionSendEventBackup = connection.sendEvent
-			connection.sendEvent = Utils.overwrittenFunction(connection.sendEvent, AutoDrive.ConnectionSendEvent)
+		-- Deactivating network debug
+		if g_server ~= nil then
+			if AutoDrive.debug.serverBroadcastEventBackup ~= nil then
+				g_server.broadcastEvent = AutoDrive.debug.serverBroadcastEventBackup
+				AutoDrive.debug.serverBroadcastEventBackup = nil
+			end
 		else
-			connection.sendEvent = AutoDrive.debug.connectionSendEventBackup
-			AutoDrive.debug.connectionSendEventBackup = nil
+			local connection = g_client:getServerConnection()
+			if AutoDrive.debug.connectionSendEventBackup ~= nil then
+				connection.sendEvent = AutoDrive.debug.connectionSendEventBackup
+				AutoDrive.debug.connectionSendEventBackup = nil
+			end
 		end
 	end
-	AutoDrive.debug.lastSentEvent = nil
 end
 
 function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConnection, ghostObject, force)
@@ -324,9 +331,7 @@ function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConne
 	eCopy.clients = table.getn(self.clientConnections)
 	superFunc(self, event, sendLocal, ignoreConnection, ghostObject, force)
 	eCopy.size = AutoDrive.debug.lastSentEventSize
-	if AutoDrive.debug.showNetworkEventsPrint then
-		g_logManager:info(string.format("Event %s size %s (x%s = %s) Bytes", eCopy.eventName, eCopy.size / (eCopy.clients), eCopy.clients, eCopy.size))
-	end
+	AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s size %s (x%s = %s) Bytes", eCopy.eventName, eCopy.size / (eCopy.clients), eCopy.clients, eCopy.size)
 	AutoDrive.debug.lastSentEvent = eCopy
 end
 
@@ -338,9 +343,7 @@ function AutoDrive:ConnectionSendEvent(superFunc, event, deleteEvent, force)
 	eCopy.force = force or false
 	superFunc(self, event, deleteEvent, force)
 	eCopy.size = AutoDrive.debug.lastSentEventSize
-	if AutoDrive.debug.showNetworkEventsPrint then
-		g_logManager:info(string.format("Event %s size %s Bytes", eCopy.eventName, eCopy.size))
-	end
+	AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s size %s Bytes", eCopy.eventName, eCopy.size)
 	AutoDrive.debug.lastSentEvent = eCopy
 end
 

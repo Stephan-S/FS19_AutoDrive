@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.8-3"
+AutoDrive.Version = "1.0.6.8-4"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -54,6 +54,8 @@ AutoDrive.DC_COMBINEINFO = 2
 AutoDrive.DC_TRAILERINFO = 4
 AutoDrive.DC_DEVINFO = 8
 AutoDrive.DC_PATHINFO = 16
+AutoDrive.DC_SENSORINFO = 32
+AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
@@ -246,10 +248,16 @@ function AutoDrive:update(dt)
 	--	--	printTable.g_logManager = g_logManager
 	--	--	printTable.LogManager = LogManager
 	--	AutoDrive.renderTable(0.1, 0.9, 0.008, AutoDrive.Triggers)
+	--	AutoDrive.renderTable(0.8, 0.9, 0.009, UserManager)
 	--end
 
-	if AutoDrive.debug.lastSentEvent ~= nil then
-		AutoDrive.renderTable(0.1, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
+		if AutoDrive.debug.lastSentEvent ~= nil then
+			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
+		end
+		if g_currentMission.userManager ~= nil then
+			AutoDrive.renderTable(0.5, 0.9, 0.009, g_currentMission.userManager, 5)
+		end
 	end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
