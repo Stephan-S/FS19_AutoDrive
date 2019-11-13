@@ -155,12 +155,12 @@
 		<text name="gui_ad_enterDriverNameText"					text="Geef chauffeur een naam:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Maak folder" />
 		<text name="gui_ad_enterGroupNameText"					text="Geef folder een naam:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
-		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
-		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
+		<text name="gui_ad_autoRecalculate"						text="Automatisch hercalculeren" />
+		<text name="gui_ad_autoRecalculate_tooltip"				text="Start als nodig hercalculatie automatisch." />
+		<text name="gui_ad_autoRefuel"							text="Automatisch tanken" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Naar tank bestemming rijden (dichtbij tank trigger) als de tank bijna leeg is." />
 		<text name="gui_ad_filter"								text="Filter" />	
-		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
-		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
+		<text name="gui_ad_enterDestinationFilterTitle"			text="Wijzig de bestemming filer tekst" />
+		<text name="gui_ad_enterDestinationFilterText"			text="Filter tekst invoeren:" />
 	</texts>
 </l10n>
