@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.8-4"
+AutoDrive.Version = "1.0.6.8-5"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -129,6 +129,11 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.loadStoredXML()
 
+	if g_server ~= nil then
+		AutoDrive.usersData = {}
+		AutoDrive.loadUsersData()
+	end
+
 	AutoDrive:initLineDrawing()
 
 	AutoDrive.Hud = AutoDriveHud:new()
@@ -187,7 +192,7 @@ end
 function AutoDrive:firstRun()
 	if g_server == nil then
 		-- Here we could ask to server the initial sync
-		AutoDrivePlayerConnectedEvent.sendEvent()
+		AutoDriveUserConnectedEvent.sendEvent()
 	end
 
 	if AutoDrive.searchedTriggers ~= true then
@@ -205,6 +210,9 @@ function AutoDrive:saveSavegame()
 		if AutoDrive.adXml ~= nil then
 			saveXMLFile(AutoDrive.adXml)
 		end
+	end
+	if g_server ~= nil then
+		AutoDrive.saveUsersData()
 	end
 end
 

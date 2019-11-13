@@ -470,3 +470,42 @@ function AutoDrive.tableEntriesAreEqual(list)
 
 	return match
 end
+
+function AutoDrive.loadUsersData()
+	local file = g_currentMission.missionInfo.savegameDirectory .. "/AutoDriveUsersData.xml"
+	if fileExists(file) then
+		local xmlFile = loadXMLFile("AutoDriveUsersData_XML_temp", file)
+		if xmlFile ~= nil then
+			local uIndex = 0
+			while true do
+				local uKey = string.format("AutoDriveUsersData.users.user(%d)", uIndex)
+				if not hasXMLProperty(xmlFile, uKey) then
+					break
+				end
+				local uniqueId = getXMLString(xmlFile, uKey .. "#uniqueId")
+				if uniqueId ~= nil and uniqueId ~= "" then
+					AutoDrive.usersData[uniqueId] = {}
+					AutoDrive.usersData[uniqueId].hudX = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudX"), 0.5)
+					AutoDrive.usersData[uniqueId].hudY = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudY"), 0.5)
+				end
+				uIndex = uIndex + 1
+			end
+		end
+		delete(xmlFile)
+	end
+end
+
+function AutoDrive.saveUsersData()
+	local file = g_currentMission.missionInfo.savegameDirectory .. "/AutoDriveUsersData.xml"
+	local xmlFile = createXMLFile("AutoDriveUsersData_XML_temp", file, "AutoDriveUsersData")
+	local uIndex = 0
+	for uniqueId, userData in pairs(AutoDrive.usersData) do
+		local uKey = string.format("AutoDriveUsersData.users.user(%d)", uIndex)
+		setXMLString(xmlFile, uKey .. "#uniqueId", uniqueId)
+		setXMLFloat(xmlFile, uKey .. "#hudX", userData.hudX)
+		setXMLFloat(xmlFile, uKey .. "#hudY", userData.hudY)
+		uIndex = uIndex + 1
+	end
+	saveXMLFile(xmlFile)
+	delete(xmlFile)
+end

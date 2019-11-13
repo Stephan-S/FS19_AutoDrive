@@ -28,12 +28,13 @@ source(Utils.getFilename("scripts/Events/AutoDriveCreateMapMarkerEvent.lua", g_c
 source(Utils.getFilename("scripts/Events/AutoDriveDeleteMapMarkerEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveRenameMapMarkerEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveChangeMapMarkerGroupEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveUserDataEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveDeleteWayPoint.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDrivePlayerConnectedEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveUserConnectedEvent.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version

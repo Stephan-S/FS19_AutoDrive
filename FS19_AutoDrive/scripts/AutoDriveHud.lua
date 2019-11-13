@@ -307,6 +307,7 @@ end
 
 function AutoDriveHud:stopMovingHud()
 	self.isMoving = false
+	AutoDriveUserDataEvent.sendToServer()
 end
 
 function AutoDriveHud:getModeName(vehicle)
