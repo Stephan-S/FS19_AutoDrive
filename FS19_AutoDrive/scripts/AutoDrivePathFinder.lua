@@ -186,7 +186,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
         end
     elseif exitStrategy == 2 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS then
         --local closest = AutoDrive:findClosestWayPoint(driver)
-        local closest = AutoDrive:findMatchingWayPointForVehicle(vehicle)
+        local closest = AutoDrive:findMatchingWayPointForVehicle(driver)
         local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
         if waypointsToUnload ~= nil and waypointsToUnload[2] ~= nil then
             preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[1].id]
