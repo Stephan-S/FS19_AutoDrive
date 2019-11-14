@@ -1,4 +1,4 @@
-AutoDrive.DEADLOCKSPEED = 5;
+AutoDrive.DEADLOCKSPEED = 5
 
 function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle)
@@ -6,7 +6,7 @@ function AutoDrive:handleDriving(vehicle, dt)
     --AutoDrive:handlePrintMessage(vehicle, dt);
     AutoDrive.handleTrailers(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
-    AutoDrive.handleRefueling(vehicle, dt);
+    AutoDrive.handleRefueling(vehicle, dt)
 
     if vehicle.ad.isStopping == true then
         AutoDrive:stopVehicle(vehicle, dt)
@@ -27,7 +27,7 @@ function AutoDrive:handleDriving(vehicle, dt)
             else
                 local min_distance = AutoDrive:defineMinDistanceByVehicleType(vehicle)
                 --if AutoDrive:isOnField(vehicle) then
-                  --  min_distance = math.max(1, min_distance - 1)
+                --  min_distance = math.max(1, min_distance - 1)
                 --end
 
                 local closeToWayPoint = false
@@ -105,6 +105,7 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
                 vehicle:setBeaconLightsVisibility(false)
             end
         end
+        
         -- Only the server have to start motor
         if vehicle.startMotor and vehicle.stopMotor and not vehicle.spec_motorized.isMotorStarted then
             if vehicle.ad.isActive and vehicle:getCanMotorRun() then
@@ -244,7 +245,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         vehicle.ad.drivingForward = true
         if (not vehicle.ad.isUnloading) and (not vehicle.ad.isLoading) then
             vehicle.ad.isPaused = false
-        end;
+        end
     else
         print("Autodrive encountered a problem during initialization - shutting down")
         AutoDrive:stopAD(vehicle, true)
@@ -722,13 +723,13 @@ end
 
 function AutoDrive.handleRefueling(vehicle, dt)
     if AutoDrive.Triggers == nil or (vehicle.ad.isActive == false) or (not AutoDrive.getSetting("autoRefuel", vehicle)) then
-        return;
-    end;
+        return
+    end
     if AutoDrive.hasToRefuel(vehicle) and (not vehicle.ad.onRouteToRefuel) and (not AutoDrive:isOnField(vehicle)) then
-        AutoDrive.goToRefuelStation(vehicle);
-    end;
+        AutoDrive.goToRefuelStation(vehicle)
+    end
 
     if vehicle.ad.onRouteToRefuel then
-        AutoDrive.startRefuelingWhenInRange(vehicle, dt);
-    end;
-end;
+        AutoDrive.startRefuelingWhenInRange(vehicle, dt)
+    end
+end

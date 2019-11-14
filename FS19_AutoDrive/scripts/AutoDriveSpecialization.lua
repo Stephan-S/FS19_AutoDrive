@@ -9,6 +9,10 @@ function AutoDrive.registerEventListeners(vehicleType)
     end
 end
 
+function AutoDrive.registerOverwrittenFunctions(vehicleType)
+    SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateAILights", AutoDrive.updateAILights)
+end
+
 function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
     -- continue on client side only
     -- TODO: I think we should remove that since everyone isClient even the dedicated server
@@ -115,8 +119,8 @@ function AutoDrive:onPostLoad(savegame)
             AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
         end
     end
-    
-    AutoDrive.init(self);
+
+    AutoDrive.init(self)
 end
 
 function AutoDrive:init()
@@ -288,7 +292,7 @@ function AutoDrive:init()
     self.ad.ccMode = AutoDrive.CC_MODE_IDLE
     self.ccInfos = {}
     self.ad.distanceToCombine = math.huge
-    self.ad.destinationFilterText = "";
+    self.ad.destinationFilterText = ""
 end
 
 function AutoDrive:onLeaveVehicle()
@@ -369,33 +373,33 @@ function AutoDrive:onUpdate(dt)
     end
 
     if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
-        AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self));
-	end;
+        AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self))
+    end
 end
 
 function AutoDrive:createVehicleInfoTable(vehicle)
-    local infoTable = {};
+    local infoTable = {}
 
-    infoTable["isPaused"] = vehicle.ad.isPaused;
-    infoTable["isLoading"] = vehicle.ad.isLoading;
-    infoTable["isUnloading"] = vehicle.ad.isUnloading;
-    infoTable["isActive"] = vehicle.ad.isActive;
-    infoTable["isStopping"] = vehicle.ad.isStopping;
-    infoTable["mode"] = AutoDriveHud:getModeName(vehicle);
-    infoTable["inDeadLock"] = vehicle.ad.inDeadLock;
-    infoTable["speedOverride"] = vehicle.ad.speedOverride;
-    infoTable["onRouteToSecondTarget"] = vehicle.ad.onRouteToSecondTarget;
-    infoTable["onRouteToRefuel"] = vehicle.ad.onRouteToRefuel;
-    infoTable["unloadFillTypeIndex"] = vehicle.ad.unloadFillTypeIndex;
-    infoTable["startedLoadingAtTrigger"] = vehicle.ad.startedLoadingAtTrigger;
-    infoTable["combineUnloadInFruit"] = vehicle.ad.combineUnloadInFruit;
-    infoTable["combineFruitToCheck"] = vehicle.ad.combineFruitToCheck;
-    infoTable["currentTrailer"] = vehicle.ad.currentTrailer;
+    infoTable["isPaused"] = vehicle.ad.isPaused
+    infoTable["isLoading"] = vehicle.ad.isLoading
+    infoTable["isUnloading"] = vehicle.ad.isUnloading
+    infoTable["isActive"] = vehicle.ad.isActive
+    infoTable["isStopping"] = vehicle.ad.isStopping
+    infoTable["mode"] = AutoDriveHud:getModeName(vehicle)
+    infoTable["inDeadLock"] = vehicle.ad.inDeadLock
+    infoTable["speedOverride"] = vehicle.ad.speedOverride
+    infoTable["onRouteToSecondTarget"] = vehicle.ad.onRouteToSecondTarget
+    infoTable["onRouteToRefuel"] = vehicle.ad.onRouteToRefuel
+    infoTable["unloadFillTypeIndex"] = vehicle.ad.unloadFillTypeIndex
+    infoTable["startedLoadingAtTrigger"] = vehicle.ad.startedLoadingAtTrigger
+    infoTable["combineUnloadInFruit"] = vehicle.ad.combineUnloadInFruit
+    infoTable["combineFruitToCheck"] = vehicle.ad.combineFruitToCheck
+    infoTable["currentTrailer"] = vehicle.ad.currentTrailer
     infoTable["combineState"] = AutoDrive.combineStateToName(vehicle)
-    infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle);
+    infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle)
 
-    return infoTable;
-end;
+    return infoTable
+end
 
 function AutoDrive:handleDriverWages(vehicle, dt)
     local spec = vehicle.spec_aiVehicle
@@ -597,4 +601,48 @@ FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicl
 
 function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
+end
+
+Sprayer.registerOverwrittenFunctions =
+    Utils.appendedFunction(
+    Sprayer.registerOverwrittenFunctions,
+    function(vehicleType)
+        -- Work-around/fix for issue #863 ( thanks to DeckerMMIV )
+        -- Having a slurry tank with a spreading unit attached, then avoid having the AI automatically turn these on when FollowMe is active.
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType,
+            "getIsAIActive",
+            function(self, superFunc)
+                local rootVehicle = self:getRootVehicle()
+                if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.isActive then
+                    return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
+                end
+                return superFunc(self)
+            end
+        )
+    end
+)
+
+function AutoDrive:updateAILights(superFunc)
+    if self.ad ~= nil and self.ad.isActive then
+        -- If AutoDrive is active, then we take care of lights our self
+        local spec = self.spec_lights
+        local dayMinutes = g_currentMission.environment.dayTime / (1000 * 60)
+        local needLights = (dayMinutes > g_currentMission.environment.nightStartMinutes or dayMinutes < g_currentMission.environment.nightEndMinutes)
+        if needLights then
+            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive:isOnField(self) then
+                self:setLightsTypesMask(spec.aiLightsTypesMask)
+            end
+            if spec.lightsTypesMask ~= 1 and not AutoDrive:isOnField(self) then
+                self:setLightsTypesMask(1)
+            end
+        else
+            if spec.lightsTypesMask ~= 0 then
+                self:setLightsTypesMask(0)
+            end
+        end
+        return
+    else
+        superFunc(self)
+    end
 end
