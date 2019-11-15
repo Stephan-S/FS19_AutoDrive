@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.8-9"
+AutoDrive.Version = "1.0.6.8-10"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -107,6 +107,10 @@ function AutoDrive:loadMap(name)
 	AutoDrive.mapMarker = {}
 	AutoDrive.mapMarkerCounter = 0
 	AutoDrive.showMouse = false
+
+	AutoDrive.groups = {}
+	AutoDrive.groups["All"] = 1
+	AutoDrive.groupCounter = 1
 
 	AutoDrive.pullDownListExpanded = 0
 

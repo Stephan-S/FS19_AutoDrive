@@ -1,4 +1,8 @@
 function AutoDrive.loadStoredXML()
+	if g_server == nil then
+		return
+	end
+
 	local adXml
 	local path = g_currentMission.missionInfo.savegameDirectory
 	local file = ""
@@ -8,10 +12,6 @@ function AutoDrive.loadStoredXML()
 		file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
 	end
 	local tempXml = nil
-
-	AutoDrive.groups = {}
-	AutoDrive.groups["All"] = 1
-	AutoDrive.groupCounter = 1
 
 	if fileExists(file) then
 		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
@@ -76,7 +76,7 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	if AutoDrive.loadedMap == nil then
-		g_logManager:devInfo("[AutoDrive] Could not load your map name")
+		g_logManager:error("[AutoDrive] Could not load your map name")
 		return
 	end
 
@@ -275,7 +275,7 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	if AutoDrive.mapWayPoints[wp_counter] ~= nil then
-		g_logManager:devInfo("[AutoDrive] Loaded Waypoints: " .. wp_counter)
+		g_logManager:devInfo("[AutoDrive] Loaded %s waypoints", wp_counter)
 		AutoDrive.mapWayPointsCounter = wp_counter
 	else
 		AutoDrive.mapWayPointsCounter = 0
