@@ -142,7 +142,7 @@ function AutoDrive:checkForDeadLock(vehicle, dt)
         if (AutoDrive:getDistance(x, z, vehicle.ad.targetX, vehicle.ad.targetZ) < 15) then
             vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt
             if vehicle.ad.timeTillDeadLock < 0 and vehicle.ad.timeTillDeadLock ~= -1 then
-                --print("Deadlock reached due to timer");
+                --g_logManager:devInfo("Deadlock reached due to timer");
                 vehicle.ad.inDeadLock = true
             end
         else
@@ -247,7 +247,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             vehicle.ad.isPaused = false
         end
     else
-        print("Autodrive encountered a problem during initialization - shutting down")
+        g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDrive:stopAD(vehicle, true)
     end
 end
@@ -284,7 +284,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
     else
         if (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
-            --print("Shutting down");
+            --g_logManager:devInfo("Shutting down");
             local target = vehicle.ad.nameOfSelectedTarget
             for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and mapMarker.id == vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id then
@@ -379,7 +379,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             massFactor = 1
         end
         distanceToLookAhead = math.min(distanceToLookAhead * massFactor * speedFactor, 100)
-        --print("Default: " .. AutoDrive.getSetting("lookAheadBraking") .. " massFactor: " .. massFactor .. " speedFactor: " .. speedFactor .. " result: " .. distanceToLookAhead)
+        --g_logManager:devInfo("Default: " .. AutoDrive.getSetting("lookAheadBraking") .. " massFactor: " .. massFactor .. " speedFactor: " .. speedFactor .. " result: " .. distanceToLookAhead)
 
         local pointsToLookAhead = 20
         local doneCheckingRoute = false
@@ -575,7 +575,7 @@ function AutoDrive:getDistanceToLastWaypoint(vehicle, maxLookAheadPar)
 end
 
 function AutoDrive:driveToLastWaypoint(vehicle, dt)
-    --print("Reaching last waypoint - slowing down");
+    --g_logManager:devInfo("Reaching last waypoint - slowing down");
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
     local finalSpeed = 8
     -- if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
@@ -623,7 +623,7 @@ function AutoDrive:handleDeadlock(vehicle, dt)
             AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"))
             AutoDrive:stopAD(vehicle, true)
         else
-            --print("AD: Trying to recover from deadlock")
+            --g_logManager:devInfo("AD: Trying to recover from deadlock")
             local lookAhead = 3
             if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + lookAhead] == nil then
                 lookAhead = 2

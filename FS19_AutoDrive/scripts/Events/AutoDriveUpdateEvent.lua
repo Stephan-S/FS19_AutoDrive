@@ -153,7 +153,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 
 	streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage)
 	streamWriteInt32OrEmpty(streamId, NetworkUtil.getObjectId(AutoDrive.print.referencedVehicle))
-	-- print("event writeStream")
+	--g_logManager:devInfo("event writeStream")
 end
 
 function AutoDriveUpdateEvent:readStream(streamId, connection)
@@ -248,7 +248,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.currentInput = currentInput
 	else
 		if vehicle == nil or vehicle.ad == nil then
-			--print("Vehicle is nil in update message");
+			--g_logManager:devInfo("Vehicle is nil in update message");
 			return
 		end
 		vehicle.ad.isActive = isActive
@@ -492,7 +492,7 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	end
 
 	if reason ~= "" then
-		--print("Vehicle " .. self.vehicle.ad.driverName .. " sends update. Reason: " .. reason);
+		--g_logManager:devInfo("Vehicle " .. self.vehicle.ad.driverName .. " sends update. Reason: " .. reason);
 		self.reason = reason
 	end
 

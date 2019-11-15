@@ -154,7 +154,7 @@ function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
         highestId = math.max(highestId, wp.id)
         lowestId = math.min(lowestId, wp.id)
 
-        --print("Received waypoint from #" .. lowestId .. " to #" .. highestId);
+        --g_logManager:devInfo("Received waypoint from #" .. lowestId .. " to #" .. highestId);
     end
 end
 
@@ -178,7 +178,7 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
             AutoDrive.mapMarker[mapMarkerCount] = marker
             mapMarkerCount = mapMarkerCount + 1
         else
-            print("Error receiving marker " .. markerName)
+            g_logManager:error("[AutoDrive] Error receiving marker " .. markerName)
         end
     end
     AutoDrive.mapMarkerCounter = numberOfMapMarkers

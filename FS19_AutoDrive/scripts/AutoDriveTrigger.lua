@@ -8,7 +8,7 @@ function AutoDrive.getAllTriggers()
     AutoDrive.Triggers.tipTriggerCount = 0
     AutoDrive.Triggers.loadTriggerCount = 0
 
-    --print("AutoDrive looking for triggers");
+    --g_logManager:devInfo("AutoDrive looking for triggers");
 
     for _, ownedItem in pairs(g_currentMission.ownedItems) do
         if ownedItem.storeItem ~= nil then
@@ -26,7 +26,7 @@ function AutoDrive.getAllTriggers()
                                 capacity = item.storages[1].capacityPerFillType,
                                 fillLevels = item.storages[1].fillLevels
                             }
-                            --print("AutoDrive - found silo unloading trigger: " .. ownedItem.storeItem.categoryName .. " with capacity: " .. trigger.capacity);
+                            --g_logManager:devInfo("AutoDrive - found silo unloading trigger: " .. ownedItem.storeItem.categoryName .. " with capacity: " .. trigger.capacity);
 
                             AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
                             AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadTrigger
@@ -36,7 +36,7 @@ function AutoDrive.getAllTriggers()
                     if item.loadingStation ~= nil then
                         for _, loadTrigger in pairs(item.loadingStation.loadTriggers) do
                             local triggerId = loadTrigger.triggerNode
-                            --print("AutoDrive - found silo loading trigger: " .. ownedItem.storeItem.categoryName);
+                            --g_logManager:devInfo("AutoDrive - found silo loading trigger: " .. ownedItem.storeItem.categoryName);
 
                             AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
                             AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadTrigger
@@ -44,7 +44,7 @@ function AutoDrive.getAllTriggers()
                     end
                 end
             end
-        --print("Category: " .. trigger.storeItem.categoryName);
+        --g_logManager:devInfo("Category: " .. trigger.storeItem.categoryName);
         end
         --DebugUtil.printTableRecursively(trigger, ":", 0, 2);
     end
@@ -61,7 +61,7 @@ function AutoDrive.getAllTriggers()
                         acceptedFillTypes = placeable.sellingStation.acceptedFillTypes
                     }
 
-                    --print("AutoDrive - found selling unloading trigger: " .. placeable.sellingStation.stationName);
+                    --g_logManager:devInfo("AutoDrive - found selling unloading trigger: " .. placeable.sellingStation.stationName);
 
                     AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
                     AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadTrigger
@@ -223,7 +223,7 @@ function AutoDrive.getRefuelDestinations()
             local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
             local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
             if distance < AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
-                --print("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
+                --g_logManager:devInfo("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
                 table.insert(refuelDestinations, mapMarkerID);
             end;
         end;

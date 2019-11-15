@@ -153,7 +153,7 @@ end
 
 function AutoDrive:handleReachedWayPointCombine(vehicle)
     if vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --register Driver as available unloader if target point is reached (Hopefully field position!)
-        --print("Registering " .. vehicle.ad.driverName .. " as driver");
+        --g_logManager:devInfo("Registering " .. vehicle.ad.driverName .. " as driver");
         AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
         vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
         vehicle.ad.isPaused = true
@@ -180,7 +180,7 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
         AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, true)
     elseif vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
         if AutoDrive.getSetting("chaseCombine") or (vehicle.ad.currentCombine ~= nil and vehicle.ad.currentCombine:getIsBufferCombine()) then
-            --print("Switching to chasing combine");
+            --g_logManager:devInfo("Switching to chasing combine");
             vehicle.ad.wayPoints = {}
             vehicle.ad.combineState = AutoDrive.CHASE_COMBINE
             vehicle.ad.initialized = false
@@ -225,7 +225,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 vehicle.ad.designatedTrailerFillLevel = (maxCapacity - leftCapacity) / maxCapacity
 
                 if lastFillLevel < vehicle.ad.designatedTrailerFillLevel then
-                    --print("lastFillLevel: " .. lastFillLevel .. " designated: " .. vehicle.ad.designatedTrailerFillLevel .. " currentTrailer: " .. vehicle.ad.currentTrailer .. " trailerCount: " .. trailerCount);
+                    --g_logManager:devInfo("lastFillLevel: " .. lastFillLevel .. " designated: " .. vehicle.ad.designatedTrailerFillLevel .. " currentTrailer: " .. vehicle.ad.currentTrailer .. " trailerCount: " .. trailerCount);
                     vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1
                     --Reload trailerFillLevel when switching to next trailer
                     doneUnloading, trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle)
@@ -378,7 +378,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
         keepFollowing = false
     end
     if vehicle.ccInfos.distanceToChasePos > 120 then
-        --print("Chasing combine - stopped - distanceToChasePos > 60");
+        --g_logManager:devInfo("Chasing combine - stopped - distanceToChasePos > 60");
         keepFollowing = false
     end
 
@@ -389,7 +389,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
     end
 
     if AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) then
-        --print("Chasing combine - stopped - combineIsTurning");
+        --g_logManager:devInfo("Chasing combine - stopped - combineIsTurning");
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     end
 
@@ -401,7 +401,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
 
     if vehicle.ad.currentCombine ~= nil then
         if (vehicle.ccInfos.combineFillLevel >= 0.98 or vehicle.ad.currentCombine.ad.noMovementTimer.elapsedTime > 10000) and (not vehicle.ccInfos.isChopper) then
-            --print("Chasing combine - stopped - park in Field now");
+            --g_logManager:devInfo("Chasing combine - stopped - park in Field now");
             AutoDrive:getVehicleToStop(vehicle, false, dt)
             AutoDrive:registerDriverAsAvailableUnloader(vehicle)
         end
@@ -418,7 +418,7 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
 
     --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
     if AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) > 60 then
-        --print("Angle to chase pos too high: " .. AutoDrive:getAngleToChasePos(vehicle, chasePos));
+        --g_logManager:devInfo("Angle to chase pos too high: " .. AutoDrive:getAngleToChasePos(vehicle, chasePos));
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY
     end
 
@@ -442,7 +442,7 @@ function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
 end
 
 function AutoDrive:driveToChasePosition(vehicle, dt)
-    --print("Chasing combine")
+    --g_logManager:devInfo("Chasing combine")
     local finalSpeed = AutoDrive.SPEED_ON_FIELD
     local acc = 1
     local allowedToDrive = true
@@ -477,7 +477,7 @@ function AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
 end
 
 function AutoDrive:retriggerPreDrive(vehicle)
-    --print("Chasing combine - stopped - recalculating new path");
+    --g_logManager:devInfo("Chasing combine - stopped - recalculating new path");
     if vehicle.ad.currentCombine ~= nil then
         AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil, true)
         AutoDrive.waitingUnloadDrivers[vehicle] = nil
@@ -530,26 +530,26 @@ end
 
 function AutoDrive:chaseCombine(vehicle, dt)
     if vehicle.ad.currentCombine == nil then
-        --print("No combine assigned");
+        --g_logManager:devInfo("No combine assigned");
         return
     end
 
     AutoDrive:updateChaseModeInfos(vehicle, dt)
 
     if vehicle.ad.ccMode == AutoDrive.CC_MODE_IDLE then
-        --print("Init chase mode")
+        --g_logManager:devInfo("Init chase mode")
         AutoDrive:initChaseMode(vehicle, dt)
     elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING then
-        --print("Chasing chase mode")
+        --g_logManager:devInfo("Chasing chase mode")
         AutoDrive:handlePureChaseMode(vehicle, dt)
     elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_REVERSE_FROM_COLLISION then
-        --print("Reversing chase mode")
+        --g_logManager:devInfo("Reversing chase mode")
         AutoDrive:chaseModeReverse(vehicle, dt)
     elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY then
-        --print("Pass by chase mode")
+        --g_logManager:devInfo("Pass by chase mode")
         AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
     elseif vehicle.ad.ccMode == AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN then
-        --print("Wait for turn chase mode")
+        --g_logManager:devInfo("Wait for turn chase mode")
         AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
     end
 
@@ -567,7 +567,7 @@ function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true)
     local combineSteering = false --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
     local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering
-    --print("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " isChopper: " .. AutoDrive.boolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
+    --g_logManager:devInfo("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " isChopper: " .. AutoDrive.boolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
     if ((isChopper and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not isChopper))) and (not combineIsTurning) then
         return false
     end
@@ -583,15 +583,15 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
     local sideIndex = AutoDrive.ccSIDE_REAR
     if isChopper then
         if (not leftBlocked) then
-            --print("Taking left side");
+            --g_logManager:devInfo("Taking left side");
             nodeX, nodeY, nodeZ = worldX - combineNormalVector.x * 7 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 7 + combineVector.z * 3
             sideIndex = AutoDrive.ccSIDE_LEFT
         elseif (not rightBlocked) then
-            --print("Taking right side");
+            --g_logManager:devInfo("Taking right side");
             nodeX, nodeY, nodeZ = worldX + combineNormalVector.x * 7 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 7 + combineVector.z * 3
             sideIndex = AutoDrive.ccSIDE_RIGHT
         else
-            --print("Taking rear side");
+            --g_logManager:devInfo("Taking rear side");
             nodeX, nodeY, nodeZ = worldX - combineVector.x * 6, worldY, worldZ - combineVector.z * 6
             sideIndex = AutoDrive.ccSIDE_REAR
         end

@@ -5,7 +5,7 @@ function AutoDrive:ContiniousRecalculation()
 	local numberOfWayPoints = AutoDrive.mapWayPointsCounter
 	if recalcTable.continue == true then
 		if recalcTable.initializedWaypoints == false then
-			print(("%s - Recalculating started"):format(getDate("%H:%M:%S")))
+			g_logManager:info("[AutoDrive] %s Recalculating started", getDate("%H:%M:%S"))
 			for i2, point in pairs(mapPoints) do
 				point.marker = {}
 			end
@@ -75,7 +75,7 @@ function AutoDrive:ContiniousRecalculation()
 		end
 
 		recalcTable.continue = false
-		print(("%s - Recalculating finished"):format(getDate("%H:%M:%S")))
+		g_logManager:info("[AutoDrive] %s Recalculating finished", getDate("%H:%M:%S"))
 
 		AutoDrive:broadCastUpdateToClients()
 		return 100

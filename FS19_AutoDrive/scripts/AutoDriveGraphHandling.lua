@@ -291,7 +291,7 @@ function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 		end
 
 		--edit current point
-		--print("Creating Waypoint #" .. AutoDrive.mapWayPointsCounter);
+		--g_logManager:devInfo("Creating Waypoint #" .. AutoDrive.mapWayPointsCounter);
 		AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter] = AutoDrive:createNode(AutoDrive.mapWayPointsCounter, x, y, z, {}, {}, {})
 		if connectPrevious then
 			AutoDrive.mapWayPoints[AutoDrive.mapWayPointsCounter].incoming[1] = AutoDrive.mapWayPointsCounter - 1

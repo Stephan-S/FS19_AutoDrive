@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.8-8"
+AutoDrive.Version = "1.0.6.8-9"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -91,7 +91,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	AutoDrive:loadGUI()
 
-	g_logManager:devInfo(string.format("Map title: %s", g_currentMission.missionInfo.map.title))
+	g_logManager:devInfo("[AutoDrive] Map title: %s", g_currentMission.missionInfo.map.title)
 
 	AutoDrive.loadedMap = g_currentMission.missionInfo.map.title
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, " ", "_")
@@ -100,7 +100,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ":", "_")
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ";", "_")
 
-	g_logManager:devInfo(string.format("Parsed map title: %s", AutoDrive.loadedMap))
+	g_logManager:devInfo("[AutoDrive] Parsed map title: %s", AutoDrive.loadedMap)
 
 	AutoDrive.mapWayPoints = {}
 	AutoDrive.mapWayPointsCounter = 0

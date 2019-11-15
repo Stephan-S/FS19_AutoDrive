@@ -5,13 +5,13 @@ function AutoDrive.handleMultiplayer(dt)
         if allAcksReceived == true and AutoDrive.tableLength(AutoDrive.Server.Users) > 0 then
             if AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter and AutoDrive.requestedWaypoints == true then
                 AutoDrive.requestedWaypointCount = highestIndex
-                --print("Highest index of all users was: " .. highestIndex);
+                --g_logManager:devInfo("Highest index of all users was: " .. highestIndex);
                 for userID, user in pairs(AutoDrive.Server.Users) do
                     user.ackReceived = false
                 end
                 AutoDriveCourseDownloadEvent:sendEvent()
             else
-                --print("Done sending network!");
+                --g_logManager:devInfo("Done sending network!");
                 AutoDrive.requestedWaypoints = false
             end
         end
@@ -49,7 +49,7 @@ function AutoDrive.handleVehicleMultiplayer(vehicle, dt)
                 AutoDriveUpdateEvent:sendEvent(vehicle)
                 vehicle.lastUpdateEvent = newUpdate
             else
-                -- print("No update required for " .. vehicle.name)
+                --g_logManager:devInfo("No update required for " .. vehicle.name)
             end
         end
     end
@@ -60,7 +60,7 @@ function AutoDrive:checkUsers()
     local aliveUsers = {}
     local highestIndex = AutoDrive.requestedWaypointCount
 
-    --print("Current users: " .. AutoDrive.tableLength(AutoDrive.Server.Users));
+    --g_logManager:devInfo("Current users: " .. AutoDrive.tableLength(AutoDrive.Server.Users));
     for userID, user in pairs(AutoDrive.Server.Users) do
         allAcksReceived = allAcksReceived and user.ackReceived
         if user.ackReceived == false then
@@ -70,7 +70,7 @@ function AutoDrive:checkUsers()
             aliveUsers[userID] = user
             highestIndex = math.max(1, math.min(highestIndex, user.highestIndex))
         end
-        --print("User: " ..userID .. " ack: " .. AutoDrive.boolToString(user.ackReceived) .. " highest: " .. user.highestIndex .. " keepAlive: " .. user.keepAlive);
+        --g_logManager:devInfo("User: " ..userID .. " ack: " .. AutoDrive.boolToString(user.ackReceived) .. " highest: " .. user.highestIndex .. " keepAlive: " .. user.keepAlive);
     end
     AutoDrive.Server.Users = aliveUsers
 

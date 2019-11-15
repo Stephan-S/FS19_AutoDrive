@@ -1,8 +1,8 @@
 function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
-	--print("AutoDrive onActionCall.." .. actionName);
+	--g_logManager:devInfo("AutoDrive onActionCall.." .. actionName);
 
 	if actionName == "ADSilomode" then
-		--print("sending event to InputHandling");
+		--g_logManager:devInfo("sending event to InputHandling");
 		AutoDrive:InputHandling(self, "input_silomode")
 	end
 	if actionName == "ADRecord" then
@@ -125,7 +125,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 end
 
 function AutoDrive:InputHandling(vehicle, input)
-	--print("AutoDrive InputHandling.." .. input);
+	--g_logManager:devInfo("AutoDrive InputHandling.." .. input);
 	vehicle.ad.currentInput = input
 	if vehicle.ad.currentInput == nil then
 		return
@@ -190,7 +190,7 @@ function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 		end
 		if input == "input_setDestinationFilter" then
 			AutoDrive:onOpenEnterDestinationFilter()
-		end		
+		end
 	end
 end
 
@@ -201,11 +201,11 @@ function AutoDrive:InputHandlingClientOnly(vehicle, input)
 		end
 		local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId)
 		if user:getIsMasterUser() then
-			print("User is admin and allowed to upload course")
+			g_logManager:info("[AutoDrive] User is admin and allowed to upload course")
 			AutoDrive.playerSendsMapToServer = true
 			AutoDrive.requestedWaypointCount = 1
 		else
-			print("User is no admin and is not allowed to upload course")
+			g_logManager:error("[AutoDrive] User is not admin and is not allowed to upload course")
 		end
 	end
 

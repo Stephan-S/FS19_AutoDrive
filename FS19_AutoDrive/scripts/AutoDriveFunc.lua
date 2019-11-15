@@ -95,7 +95,7 @@ function AutoDrive:stopVehicle(vehicle, dt)
 end
 
 function AutoDrive:disableAutoDriveFunctions(vehicle)
-	--print("Disabling vehicle .. " .. vehicle.name);
+	--g_logManager:devInfo("Disabling vehicle .. " .. vehicle.name);
 	vehicle.ad.currentWayPoint = 0
 	vehicle.ad.drivingForward = true
 	vehicle.ad.isActive = false
@@ -325,7 +325,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 			end
 
 			if trafficDetected == true then
-				--print("Traffic on same road deteced");
+				--g_logManager:devInfo("Traffic on same road deteced");
 				return true
 			end
 		end

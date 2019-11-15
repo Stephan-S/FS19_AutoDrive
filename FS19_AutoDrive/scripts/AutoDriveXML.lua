@@ -14,7 +14,7 @@ function AutoDrive.loadStoredXML()
 	AutoDrive.groupCounter = 1
 
 	if fileExists(file) then
-		print("AD: Loading xml file from " .. file)
+		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
 		AutoDrive.xmlSaveFile = file
 		adXml = loadXMLFile("AutoDrive_XML", file)
 
@@ -24,7 +24,7 @@ function AutoDrive.loadStoredXML()
 		end
 		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap)
 		if VersionCheck == nil or MapCheck == false then
-			print("AD: Version Check or Map check failed - Loading init config")
+			g_logManager:devInfo("[AutoDrive] Version Check or Map check failed - Loading init config")
 
 			path = getUserProfileAppPath()
 			file = path .. "/mods/FS19_AutoDrive/AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
@@ -32,24 +32,24 @@ function AutoDrive.loadStoredXML()
 			tempXml = loadXMLFile("AutoDrive_XML_temp", file) --, "AutoDrive");
 			local MapCheckInit = hasXMLProperty(tempXml, "AutoDrive." .. AutoDrive.loadedMap)
 			if MapCheckInit == false then
-				print("AD: Init config does not contain any information for this map. Existing Config will not be overwritten")
+				g_logManager:devInfo("[AutoDrive] Init config does not contain any information for this map. Existing Config will not be overwritten")
 				tempXml = nil
 			end
 
-			print("AD: Finished loading xml from memory")
+			g_logManager:devInfo("[AutoDrive] Finished loading xml from memory")
 		end
 	else --create std file instead:
 		--AutoDrive:saveToXML(adXml);
 		path = AutoDrive.directory --getUserProfileAppPath();
 		file = path .. "AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
 
-		print("AD: Loading xml file from init config")
+		g_logManager:devInfo("[AutoDrive] Loading xml file from init config")
 		tempXml = loadXMLFile("AutoDrive_XML_temp", file)
 		--local tempstring = saveXMLFileToMemory(tempXml);
 		--adXml = loadXMLFileFromMemory("AutoDrive_XML", tempstring);
 
 		AutoDrive.readFromXML(tempXml)
-		print("AD: Finished loading xml from memory")
+		g_logManager:devInfo("[AutoDrive] Finished loading xml from memory")
 
 		AutoDrive.MarkChanged()
 
@@ -59,7 +59,7 @@ function AutoDrive.loadStoredXML()
 		else
 			file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
 		end
-		print("AD: creating xml file at " .. file)
+		g_logManager:devInfo("[AutoDrive] Creating xml file at " .. file)
 		adXml = createXMLFile("AutoDrive_XML", file, "AutoDrive")
 
 		saveXMLFile(adXml)
@@ -76,7 +76,7 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	if AutoDrive.loadedMap == nil then
-		print("AutoDrive could not load your map name")
+		g_logManager:devInfo("[AutoDrive] Could not load your map name")
 		return
 	end
 
@@ -90,7 +90,7 @@ function AutoDrive.readFromXML(xmlFile)
 		AutoDrive.MarkChanged()
 	end
 	if recalculateString == nil then
-		print("AutoDrive is starting a new configuration file")
+		g_logManager:devInfo("[AutoDrive] Starting a new configuration file")
 		return
 	end
 
@@ -124,7 +124,7 @@ function AutoDrive.readFromXML(xmlFile)
 	AutoDrive.mapMarker = {}
 
 	while mapMarker.name ~= nil do
-		--print("Loading map marker: " .. mapMarker.name);
+		--g_logManager:devInfo("[AutoDrive] Loading map marker: " .. mapMarker.name);
 		mapMarker.id = getXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".id")
 
 		AutoDrive.mapMarker[mapMarkerCounter] = mapMarker
@@ -275,7 +275,7 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	if AutoDrive.mapWayPoints[wp_counter] ~= nil then
-		print("AD: Loaded Waypoints: " .. wp_counter)
+		g_logManager:devInfo("[AutoDrive] Loaded Waypoints: " .. wp_counter)
 		AutoDrive.mapWayPointsCounter = wp_counter
 	else
 		AutoDrive.mapWayPointsCounter = 0
@@ -287,7 +287,7 @@ function AutoDrive.readFromXML(xmlFile)
 			setTranslation(node, AutoDrive.mapWayPoints[marker.id].x, AutoDrive.mapWayPoints[marker.id].y + 4, AutoDrive.mapWayPoints[marker.id].z)
 			marker.node = node
 		else
-			print("AutoDrive.mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
+			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
 
@@ -308,11 +308,11 @@ function AutoDrive.exportRoutes()
 	createFolder(path .. "FS19_AutoDrive_Export")
 	createFolder(path .. "FS19_AutoDrive_Import")
 
-	print("AD: creating xml file at " .. file)
+	g_logManager:devInfo("[AutoDrive] Creating xml file at " .. file)
 	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive")
 	saveXMLFile(adXml)
 	AutoDrive.saveToXML(adXml)
-	print("AD: Finished exporting routes")
+	g_logManager:devInfo("[AutoDrive] Finished exporting routes")
 end
 
 function AutoDrive.importRoutes()
@@ -321,15 +321,15 @@ function AutoDrive.importRoutes()
 
 	createFolder(path .. "FS19_AutoDrive_Import")
 
-	print("AD: Trying to load xml file from " .. file)
+	g_logManager:devInfo("[AutoDrive] Trying to load xml file from " .. file)
 	if fileExists(file) then
-		print("AD: Loading xml file from " .. file)
+		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
 		local adXml = loadXMLFile("AutoDrive_XML", file)
 
 		local VersionCheck = getXMLString(adXml, "AutoDrive.version")
 		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap)
 		if VersionCheck == nil or MapCheck == false then
-			print("AD: Version Check or Map check failed - cannot import")
+			g_logManager:devInfo("[AutoDrive] Version Check or Map check failed - cannot import")
 		else
 			AutoDrive.readFromXML(adXml)
 			AutoDrive.requestedWaypoints = true
@@ -341,17 +341,17 @@ end
 
 function AutoDrive.saveToXML(xmlFile)
 	if xmlFile == nil then
-		print("AutoDrive - no valid xml file for saving the configuration")
+		g_logManager:devInfo("[AutoDrive] No valid xml file for saving the configuration")
 		return
 	end
 
 	setXMLString(xmlFile, "AutoDrive.Version", AutoDrive.Version)
 	if AutoDrive.handledRecalculation ~= true then
 		setXMLString(xmlFile, "AutoDrive.Recalculation", "true")
-		print("AD: Set to recalculating routes")
+		g_logManager:devInfo("[AutoDrive] Set to recalculating routes")
 	else
 		setXMLString(xmlFile, "AutoDrive.Recalculation", "false")
-		print("AD: Set to not recalculating routes")
+		g_logManager:devInfo("[AutoDrive] Set to not recalculating routes")
 	end
 
 	setXMLFloat(xmlFile, "AutoDrive.HudX", AutoDrive.HudX)

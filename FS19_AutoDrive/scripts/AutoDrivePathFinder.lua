@@ -20,7 +20,7 @@ AutoDrive.PP_CELL_Z = 9
 AutoDrivePathFinder = {}
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode, alreadyOnField)
-    --print("startPathPlanningToCombine " .. driver.ad.driverName );
+    --g_logManager:devInfo("startPathPlanningToCombine " .. driver.ad.driverName );
     local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
     local rx, ry, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
@@ -162,7 +162,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 end
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)
-    --print("startPathPlanningToStartPosition " .. driver.ad.driverName );
+    --g_logManager:devInfo("startPathPlanningToStartPosition " .. driver.ad.driverName );
     local driverWorldX, driverWorldY, driverWorldZ = getWorldTranslation(driver.components[1].node)
     local driverRx, driverRy, driverRz = localDirectionToWorld(driver.components[1].node, 0, 0, 1)
     local driverVector = {x = driverRx, z = driverRz}
@@ -344,7 +344,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
 
     if pf.steps > (AutoDrive.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
         if not pf.fallBackMode then --look for path through fruit
-            --print("Going into fallback mode - no fruit free path found in reasonable time");
+            --g_logManager:devInfo("Going into fallback mode - no fruit free path found in reasonable time");
             pf.fallBackMode = true
             pf.steps = 0
             pf.grid = {}
@@ -362,7 +362,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             pf.wayPoints = {}
             if driver.ad.combineState ~= AutoDrive.PREDRIVE_COMBINE then
                 AutoDrive.printMessage(driver, g_i18n:getText("AD_Driver_of") .. " " .. driver.ad.driverName .. " " .. g_i18n:getText("AD_cannot_find_path"))
-            --print("Stop searching - no path found in reasonable time");
+            --g_logManager:devInfo("Stop searching - no path found in reasonable time");
             end
         end
     end
@@ -551,7 +551,7 @@ function AutoDrivePathFinder:testNextCells(pf, cell)
     end
 
     if allResultsIn then
-        --print("All result are in for: " .. cell.x .. "/" .. cell.z);
+        --g_logManager:devInfo("All result are in for: " .. cell.x .. "/" .. cell.z);
         cell.visited = true
         pf.currentCell = nil
     end

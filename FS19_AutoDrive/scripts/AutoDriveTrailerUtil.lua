@@ -12,16 +12,16 @@ function AutoDrive.handleTrailers(vehicle, dt)
 
             local fillUnits = trailer:getFillUnits()
             for i = 1, #fillUnits do
-                --print("unit: " .. i .. " : " .. trailer:getFillUnitFillLevelPercentage(i)*100 .. " ad.isLoading: " .. AutoDrive.boolToString(vehicle.ad.isLoading) .. " trigger.isLoading: " .. AutoDrive.boolToString(trigger.isLoading))
+                --g_logManager:devInfo("unit: " .. i .. " : " .. trailer:getFillUnitFillLevelPercentage(i)*100 .. " ad.isLoading: " .. AutoDrive.boolToString(vehicle.ad.isLoading) .. " trigger.isLoading: " .. AutoDrive.boolToString(trigger.isLoading))
                 if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999 and (not vehicle.ad.isLoading) and (not trigger.isLoading) then
                     if trigger:getIsActivatable(trailer) then
                         AutoDrive.startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigger, i)
-                    --print(vehicle.ad.driverName .. " - started loading with fillUnit: " .. i);
+                    --g_logManager:devInfo(vehicle.ad.driverName .. " - started loading with fillUnit: " .. i);
                     end
                 end
             end
             isLoading = isLoading or trigger.isLoading
-            --print(vehicle.ad.driverName .. " - isLoading : " .. AutoDrive.boolToString(trigger.isLoading) .. " ad: " .. AutoDrive.boolToString(isLoading));
+            --g_logManager:devInfo(vehicle.ad.driverName .. " - isLoading : " .. AutoDrive.boolToString(trigger.isLoading) .. " ad: " .. AutoDrive.boolToString(isLoading));
         end
     end
 
@@ -29,7 +29,7 @@ function AutoDrive.handleTrailers(vehicle, dt)
         local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
 
         if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") then
-            --print(vehicle.ad.driverName .. " - done loading");
+            --g_logManager:devInfo(vehicle.ad.driverName .. " - done loading");
             vehicle.ad.isLoading = false
             vehicle.ad.isLoadingToFillUnitIndex = nil
             vehicle.ad.isLoadingToTrailer = nil
@@ -234,13 +234,13 @@ function AutoDrive.getTrailersOf(vehicle, onlyDischargeable)
 
     if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil then
         local vehicleFillLevel, vehicleLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(vehicle, nil)
-        --print("VehicleFillLevel: " .. vehicleFillLevel .. " vehicleLeftCapacity: " .. vehicleLeftCapacity);
+        --g_logManager:devInfo("VehicleFillLevel: " .. vehicleFillLevel .. " vehicleLeftCapacity: " .. vehicleLeftCapacity);
         if not (vehicleFillLevel == 0 and vehicleLeftCapacity == 0) then
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = vehicle
         end
     end
-    --print("AutoDrive.tempTrailerCount after vehicle: "  .. AutoDrive.tempTrailerCount);
+    --g_logManager:devInfo("AutoDrive.tempTrailerCount after vehicle: "  .. AutoDrive.tempTrailerCount);
 
     if vehicle.getAttachedImplements ~= nil then
         for _, implement in pairs(vehicle:getAttachedImplements()) do
@@ -333,7 +333,7 @@ function AutoDrive.getFillLevelAndCapacityOf(trailer, selectedFillType)
             end
         end
     end
-    -- print("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. AutoDrive.tableLength(fullFillUnits));
+    --g_logManager:devInfo("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. AutoDrive.tableLength(fullFillUnits));
     -- for index, value in pairs(fullFillUnits) do
     --     print("Unit full: " .. index .. " " .. AutoDrive.boolToString(value));
     -- end;
@@ -349,13 +349,13 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
     local fillLevel = 0
     local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
     for fillUnitIndex, fillUnit in pairs(object:getFillUnits()) do
-        --print("object fillUnit " .. fillUnitIndex ..  " has :");
+        --g_logManager:devInfo("object fillUnit " .. fillUnitIndex ..  " has :");
         local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
-        --print("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity);
+        --g_logManager:devInfo("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity);
         fillLevel = fillLevel + unitFillLevel
         leftCapacity = leftCapacity + unitLeftCapacity
     end
-    --print("Total fillLevel: " .. fillLevel ..  " leftCapacity: " .. leftCapacity);
+    --g_logManager:devInfo("Total fillLevel: " .. fillLevel ..  " leftCapacity: " .. leftCapacity);
     return fillLevel, leftCapacity
 end
 
@@ -365,19 +365,19 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitInde
     local isSelectedFillType = false
     for fillType, isSupported in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
         if fillType == 1 or fillType == 34 or fillType == 33 or (fillType == 32 and hasOnlyDieselForFuel) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
-            --print("Found prohibited filltype: " .. fillType);
+            --g_logManager:devInfo("Found prohibited filltype: " .. fillType);
             fillTypeIsProhibited = true
         end
         if selectedFillType ~= nil and fillType == selectedFillType then
-            --print("Found selected filltype: " .. fillType);
+            --g_logManager:devInfo("Found selected filltype: " .. fillType);
             isSelectedFillType = true
         end
-        --print("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  free Capacity: " ..  object:getFillUnitFreeCapacity(fillUnitIndex));
+        --g_logManager:devInfo("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  free Capacity: " ..  object:getFillUnitFreeCapacity(fillUnitIndex));
     end
     if isSelectedFillType then
         fillTypeIsProhibited = false
     end
-    --print("DieselForFuel: " .. AutoDrive.boolToString(hasOnlyDieselForFuel));
+    --g_logManager:devInfo("DieselForFuel: " .. AutoDrive.boolToString(hasOnlyDieselForFuel));
 
     if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex)
@@ -546,7 +546,7 @@ function AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
         if vehicle.ad.isPaused and vehicle.ad.isPausedForTrailersClosing then
             vehicle.ad.isPaused = false
             vehicle.ad.isPausedForTrailersClosing = false;
-            --print("continueIfAllTrailersClosed");
+            --g_logManager:devInfo("continueIfAllTrailersClosed");
         end
     end
 end
@@ -638,7 +638,7 @@ function AutoDrive.continueAfterLoadOrUnload(vehicle)
     vehicle.ad.isPaused = false
     vehicle.ad.isUnloading = false
     vehicle.ad.isLoading = false
-    --print("continueAfterLoadOrUnload");
+    --g_logManager:devInfo("continueAfterLoadOrUnload");
 end
 
 function AutoDrive.startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitIndex, trailer)
@@ -669,7 +669,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
     local allFillables, fillableCount = AutoDrive.getTrailersOf(vehicle, false)
 
     if shouldUnload then
-        --print("Should unload");
+        --g_logManager:devInfo("Should unload");
         for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(trigger)
             if triggerX ~= nil then
@@ -683,7 +683,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
     end
 
     if shouldLoad then
-        --print("Should load");
+        --g_logManager:devInfo("Should load");
         for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(trigger)
             if triggerX ~= nil then
@@ -716,11 +716,11 @@ function AutoDrive.getTriggerPos(trigger)
     local x, y, z = 0, 0, 0
     if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil then
         x, y, z = getWorldTranslation(trigger.triggerNode)
-    --print("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
+    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
     if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil then
         x, y, z = getWorldTranslation(trigger.exactFillRootNode)
-    --print("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
+    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
     return x, y, z
 end
@@ -777,7 +777,7 @@ function AutoDrive.getBunkerSiloSpeed(vehicle)
 
             local speed = ((vecHLength / unloadTimeInMS) * 1000) * 3.6 * 0.95
 
-            --print("Calculated unloadTime: " .. unloadTimeInMS .. " speed: " .. speed .. " vecHLength: " .. vecHLength .. " dischargeSpeed: " .. dischargeSpeed);
+            --g_logManager:devInfo("Calculated unloadTime: " .. unloadTimeInMS .. " speed: " .. speed .. " vecHLength: " .. vecHLength .. " dischargeSpeed: " .. dischargeSpeed);
             return speed
         end
     end
@@ -837,10 +837,10 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
 
                         local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
 
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasRequiredFillType " .. AutoDrive.boolToString(hasRequiredFillType));
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasCapacity " .. AutoDrive.boolToString(hasCapacity));
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. AutoDrive.boolToString(trailerIsInRange));
-                        --print(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: isNotFilled " .. AutoDrive.boolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999) );
+                        --g_logManager:devInfo(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasRequiredFillType " .. AutoDrive.boolToString(hasRequiredFillType));
+                        --g_logManager:devInfo(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: hasCapacity " .. AutoDrive.boolToString(hasCapacity));
+                        --g_logManager:devInfo(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. AutoDrive.boolToString(trailerIsInRange));
+                        --g_logManager:devInfo(vehicle.ad.driverName .. " i: " .. i .. " - checking trailer: isNotFilled " .. AutoDrive.boolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999) );
 
                         if trailerIsInRange and hasRequiredFillType and isNotFilled and hasCapacity then
                             local pair = {trailer = trailer, trigger = trigger}

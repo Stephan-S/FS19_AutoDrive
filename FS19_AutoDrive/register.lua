@@ -43,7 +43,7 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
 
 	if AutoDrive == nil then
-		g_logManager:error("ERROR: Unable to add specialization 'AutoDrive'")
+		g_logManager:error("[AutoDrive] Unable to add specialization 'AutoDrive'")
 		return
 	end
 
@@ -52,7 +52,7 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
 		if typeDef ~= nil and vehicleType ~= "locomotive" then
 			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
-				g_logManager:info(string.format("Attached AutoDrive to vehicleType %s", vehicleType))
+				g_logManager:info('[AutoDrive] Attached to vehicleType "%s"', vehicleType)
 				if typeDef.specializationsByName["AutoDrive"] == nil then
 					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
 					typeDef.hasADSpec = true
@@ -72,7 +72,7 @@ for eName, eId in pairs(EventIds) do
 end
 
 function AutoDriveRegister:loadMap(name)
-	g_logManager:info(string.format("--> Loaded AutoDrive v%s (by Stephan) <--", self.version))
+	g_logManager:info("[AutoDrive] Loaded mod version %s (by Stephan)", self.version)
 end
 
 function AutoDriveRegister:deleteMap()

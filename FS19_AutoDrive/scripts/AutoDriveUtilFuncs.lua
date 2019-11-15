@@ -57,13 +57,13 @@ function AutoDrive.boxesIntersect(a, b)
 			-- if there is no overlap between the projects, the edge we are looking at separates the two
 			-- polygons, and we know there is no overlap
 			if maxA < minB or maxB < minA then
-				--print("polygons don't intersect!");
+				--g_logManager:devInfo("polygons don't intersect!");
 				return false
 			end
 		end
 	end
 
-	--print("polygons intersect!");
+	--g_logManager:devInfo("polygons intersect!");
 	return true
 end
 
@@ -231,9 +231,7 @@ function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 			printText = vehicle.ad.driverName .. ": "
 		end
 
-		printText = printText .. string.format(debugText, ...)
-
-		print(printText)
+		g_logManager:info(printText .. debugText, ...)
 	end
 end
 

@@ -22,7 +22,7 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 
 		AutoDrive:writeWaypointsToStream(streamId, AutoDrive.requestedWaypointCount, math.min(AutoDrive.requestedWaypointCount + (AutoDrive.WAYPOINTS_PER_PACKET - 1), AutoDrive.mapWayPointsCounter))
 
-		--print("Broadcasting waypoints from " .. AutoDrive.requestedWaypointCount .. " to " ..  math.min(AutoDrive.requestedWaypointCount + (AutoDrive.WAYPOINTS_PER_PACKET -1), AutoDrive.mapWayPointsCounter));
+		--g_logManager:devInfo("Broadcasting waypoints from " .. AutoDrive.requestedWaypointCount .. " to " ..  math.min(AutoDrive.requestedWaypointCount + (AutoDrive.WAYPOINTS_PER_PACKET -1), AutoDrive.mapWayPointsCounter));
 
 		if g_server ~= nil then
 			for userID, user in pairs(AutoDrive.Server.Users) do
@@ -31,7 +31,7 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 		end
 
 		if (AutoDrive.requestedWaypointCount + AutoDrive.WAYPOINTS_PER_PACKET) >= AutoDrive.mapWayPointsCounter then
-			--print("Writing map markers now..");
+			--g_logManager:devInfo("Writing map markers now..");
 			AutoDrive:writeMapMarkersToStream(streamId)
 			AutoDrive:writeGroupsToStream(streamId)
 		else
@@ -69,7 +69,7 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 		if AutoDrive.Recalculation ~= nil then
 			AutoDrive.Recalculation.continue = false --used to signal a client that recalculation is over
 		end
-		--print("Received mapMarkers: " .. numberOfMapMarkers);
+		--g_logManager:devInfo("Received mapMarkers: " .. numberOfMapMarkers);
 
 		AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
 		AutoDrive:readGroupsFromStream(streamId)
