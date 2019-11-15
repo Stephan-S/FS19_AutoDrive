@@ -472,7 +472,7 @@ function AutoDrive.tableEntriesAreEqual(list)
 end
 
 function AutoDrive.loadUsersData()
-	local file = g_currentMission.missionInfo.savegameDirectory .. "/AutoDriveUsersData.xml"
+	local file = tostring(g_currentMission.missionInfo.savegameDirectory) .. "/AutoDriveUsersData.xml"
 	if fileExists(file) then
 		local xmlFile = loadXMLFile("AutoDriveUsersData_XML_temp", file)
 		if xmlFile ~= nil then
