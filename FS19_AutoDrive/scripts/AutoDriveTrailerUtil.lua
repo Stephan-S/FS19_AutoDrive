@@ -68,7 +68,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
             AutoDrive.findAndSetBestTipPoint(vehicle, trailer)
             for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
                 if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
-                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Unloading done - fillLevel == 0");        
+                    --AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Unloading done - fillLevel == 0");        
                     break
                 end
 
@@ -113,12 +113,15 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
     end
 
     local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)
+    local shouldCloseTrailer = AutoDrive.getFillUnitEmptyForSomeTime(vehicle.ad.isUnloadingWithTrailer, fillUnitEmpty);
     if fillUnitEmpty then
         if vehicle.ad.isUnloadingWithTrailer.setDischargeState and vehicle.ad.isUnloadingWithTrailer.getTipState then
             if vehicle.ad.isUnloadingWithTrailer:getTipState() ~= Trailer.TIPSTATE_CLOSED and vehicle.ad.isUnloadingWithTrailer:getTipState() ~= Trailer.TIPSTATE_CLOSING then
-                AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - closing trailer");
-                vehicle.ad.isPausedForTrailersClosing = true;
-                vehicle.ad.isUnloadingWithTrailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF);            
+                if shouldCloseTrailer then                    
+                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - closing trailer");
+                    vehicle.ad.isPausedForTrailersClosing = true;
+                    vehicle.ad.isUnloadingWithTrailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF);  
+                end          
             end;
             if vehicle.ad.isUnloadingWithTrailer.getTipState and vehicle.ad.isUnloadingWithTrailer:getTipState() == Trailer.TIPSTATE_CLOSING then
                 if not vehicle.ad.isPausedForTrailersClosing then
@@ -126,7 +129,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                     vehicle.ad.isPausedForTrailersClosing = true;
                 end;
             end;
-        end
+        end;
     end;    
     AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt);
 end
@@ -165,17 +168,17 @@ function AutoDrive.getIsEmpty(vehicle, trailer, fillUnitIndex)
         local allFillables, fillableCount = AutoDrive.getTrailersOf(vehicle, false)
         local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(allFillables)
         local maxCapacity = fillLevel + leftCapacity
-        vehicleEmpty = fillLevel <= 0.0001;
+        vehicleEmpty = fillLevel <= 0.001;
     end
 
     if trailer ~= nil then
         local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
         local maxCapacity = trailerFillLevel + trailerLeftCapacity
-        trailerEmpty = trailerFillLevel <= 0.0001;
+        trailerEmpty = trailerFillLevel <= 0.001;
     end
 
     if fillUnitIndex ~= nil then
-        fillUnitEmpty = trailer:getFillUnitFillLevelPercentage(fillUnitIndex) <= 0.0001;
+        fillUnitEmpty = trailer:getFillUnitFillLevelPercentage(fillUnitIndex) <= 0.001;
     end
 
     return vehicleEmpty, trailerEmpty, fillUnitEmpty
@@ -896,3 +899,13 @@ function AutoDrive.startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigge
         AutoDrive.startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex, fillUnitIndex, trailer)
     end
 end
+
+function AutoDrive.getFillUnitEmptyForSomeTime(trailer, fillUnitEmpty)
+    if trailer ~= nil then
+        if trailer.emptyTimer == nil then
+            trailer.emptyTimer = AutoDriveTON:new()
+        end
+        return trailer.emptyTimer:timer(fillUnitEmpty, 1000, dt)
+    end;
+    return false;
+end;
