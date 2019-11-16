@@ -373,7 +373,7 @@ function AutoDrive:onUpdate(dt)
     end
 
     if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
-        AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self))
+        AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self), 5)
     end
 end
 
@@ -397,6 +397,58 @@ function AutoDrive:createVehicleInfoTable(vehicle)
     infoTable["currentTrailer"] = vehicle.ad.currentTrailer
     infoTable["combineState"] = AutoDrive.combineStateToName(vehicle)
     infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle)
+
+    local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
+    local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)    
+    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, false)
+    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+    local maxCapacity = fillLevel + leftCapacity
+
+    infoTable["Filllevels"] = {};
+    infoTable["Filllevels"]["vehicle"] = {};
+    infoTable["Filllevels"]["vehicle"]["fillLevel"] = fillLevel;
+    infoTable["Filllevels"]["vehicle"]["leftCapacity"] = leftCapacity;
+    infoTable["Filllevels"]["vehicle"]["maxCapacity"] = maxCapacity;
+    infoTable["Filllevels"]["vehicle"]["trailerCount"] = trailerCount;
+    infoTable["Filllevels"]["vehicle"]["filled"] = vehicleFull;
+    infoTable["Filllevels"]["vehicle"]["empty"] = vehicleEmpty;
+    infoTable["Filllevels"]["vehicle"]["trailerFull"] = trailerFull;
+    infoTable["Filllevels"]["vehicle"]["fillUnitFull"] = fillUnitFull;
+    infoTable["Filllevels"]["vehicle"]["trailerEmpty"] = trailerEmpty;
+    infoTable["Filllevels"]["vehicle"]["fillUnitEmpty"] = fillUnitEmpty;
+
+    local trailerIndex = 1;
+    if trailers ~= nil then
+        for _, trailer in pairs(trailers) do
+            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer, selectedFillType)
+            local trailerMaxCapacity = trailerFillLevel + trailerLeftCapacity
+            vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, vehicle.ad.isLoadingToFillUnitIndex)
+            vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, trailer, vehicle.ad.isUnloadingWithFillUnit)    
+            
+            infoTable["Filllevels"]["trailer_" .. trailerIndex] = {};
+            infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillLevel"] = trailerFillLevel;
+            infoTable["Filllevels"]["trailer_" .. trailerIndex]["leftCapacity"] = trailerLeftCapacity;
+            infoTable["Filllevels"]["trailer_" .. trailerIndex]["maxCapacity"] = trailerMaxCapacity;
+            infoTable["Filllevels"]["trailer_" .. trailerIndex]["filled"] = trailerFull;
+            infoTable["Filllevels"]["trailer_" .. trailerIndex]["empty"] = trailerEmpty;
+
+            for fillUnitIndex, fillUnit in pairs(trailer:getFillUnits()) do
+                local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, selectedFillType)
+                local unitMaxCapacity = unitFillLevel + unitLeftCapacity
+                vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, fillUnitIndex)
+                vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, trailer, fillUnitIndex) 
+
+                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex] = {};
+                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["fillLevel"] = unitFillLevel;
+                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["leftCapacity"] = unitLeftCapacity;
+                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["maxCapacity"] = unitMaxCapacity;
+                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["filled"] = fillUnitFull;
+                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["empty"] = fillUnitEmpty;
+            end
+
+            trailerIndex = trailerIndex + 1;
+        end
+    end
 
     return infoTable
 end

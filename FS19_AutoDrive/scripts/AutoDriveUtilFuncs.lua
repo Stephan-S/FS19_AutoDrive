@@ -175,7 +175,9 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 			setTextAlignment(RenderText.ALIGN_RIGHT)
 			renderText(posX, posY - offset, textSize, tostring(k) .. " :")
 			setTextAlignment(RenderText.ALIGN_LEFT)
-			renderText(posX, posY - offset, textSize, " " .. tostring(v))
+			if type(v) ~= "table" then				
+				renderText(posX, posY - offset, textSize, " " .. tostring(v))
+			end;
 			i = i + 1
 			if type(v) == "table" then
 				i = renderTableRecursively(posX + textSize * 2, posY, textSize, v, depth + 1, maxDepth, i)
@@ -192,7 +194,9 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 		setTextAlignment(RenderText.ALIGN_RIGHT)
 		renderText(posX, posY - offset, textSize, tostring(k) .. " :")
 		setTextAlignment(RenderText.ALIGN_LEFT)
-		renderText(posX, posY - offset, textSize, " " .. tostring(v))
+		if type(v) ~= "table" then
+			renderText(posX, posY - offset, textSize, " " .. tostring(v))
+		end;
 		i = i + 1
 		if type(v) == "table" then
 			i = renderTableRecursively(posX + textSize * 2, posY, textSize, v, 1, maxDepth, i)

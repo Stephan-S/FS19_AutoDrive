@@ -194,8 +194,8 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
         end
     end
 
-    targetVector.x = preTargetPoint.x - targetPoint.x
-    targetVector.z = preTargetPoint.z - targetPoint.z
+    targetVector.x = targetPoint.x - preTargetPoint.x;
+    targetVector.z = targetPoint.z - preTargetPoint.z;
     
     local atan = AutoDrive.normalizeAngle(math.atan2(targetVector.z, targetVector.x))
     local sin = math.sin(atan)
@@ -215,13 +215,9 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
 
     angleRad = AutoDrive.normalizeAngle(angleRad)
 
-    local targetX = preTargetPoint.x + math.cos(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE --Make the target a few meters ahead of the road to the start point
-    local targetZ = preTargetPoint.z + math.sin(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE
+    local targetX = preTargetPoint.x - math.cos(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE --Make the target a few meters ahead of the road to the start point
+    local targetZ = preTargetPoint.z - math.sin(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE
 
-    targetVector.x = -targetVector.x
-    targetVector.z = -targetVector.z
-
-    -- AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetY, targetVector, vectorX, vectorZ)
     AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targetVector, vectorX, vectorZ, combine, driverVector)
 
     driver.ad.pf.minTurnRadius = minTurnRadius

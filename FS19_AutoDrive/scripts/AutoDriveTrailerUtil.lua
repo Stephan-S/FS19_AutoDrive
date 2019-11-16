@@ -46,8 +46,6 @@ function AutoDrive.handleTrailers(vehicle, dt)
         return
     end
 
-    local triggerProximity = AutoDrive.checkForTriggerProximity(vehicle)
-
     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex)
 
     AutoDrive.checkTrailerStatesAndAttributes(vehicle, trailers)
@@ -63,26 +61,28 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
         return
     end
 
-    AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
-
     local distance = AutoDrive.getDistanceToUnloadPosition(vehicle)
     local distanceToTarget = AutoDrive.getDistanceToTargetPosition(vehicle)
     if distance < 200 then
-        --AutoDrive.setTrailerCoverOpen(vehicle, trailers, true);
-
         for _, trailer in pairs(trailers) do
             AutoDrive.findAndSetBestTipPoint(vehicle, trailer)
             for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
                 if trailer.getCurrentDischargeNode == nil or fillLevel == 0 then
+                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Unloading done - fillLevel == 0");        
                     break
                 end
 
                 if (trigger.bunkerSiloArea == nil) then
-                    if (distance < 50) then
+                    if (distance < AutoDrive.getSetting("maxTriggerDistance")) then
                         if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
-                            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
-                            vehicle.ad.isPaused = true
-                            vehicle.ad.isUnloading = true
+                            if trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF then                    
+                                AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex);
+                                trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
+                                vehicle.ad.isPaused = true
+                                vehicle.ad.isUnloading = true
+                                vehicle.ad.isUnloadingWithTrailer = trailer;
+                                vehicle.ad.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex;
+                            end;
                         end
 
                         if trailer.getDischargeState ~= nil then
@@ -94,22 +94,41 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                     end
                 else
                     if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) and trailer.setDischargeState ~= nil then
-                        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
-                        if vehicle.ad.isUnloadingToBunkerSilo == false then
-                            vehicle.ad.bunkerStartFillLevel = fillLevel
-                        end
-                        vehicle.ad.isUnloadingToBunkerSilo = true
-                        vehicle.ad.bunkerTrigger = trigger
-                        vehicle.ad.bunkerTrailer = trailer
+                        if trailer:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_GROUND then
+                            AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading into bunkersilo - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex);       
+                            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
+                            if vehicle.ad.isUnloadingToBunkerSilo == false then
+                                vehicle.ad.bunkerStartFillLevel = fillLevel
+                            end
+                            vehicle.ad.isUnloadingToBunkerSilo = true
+                            vehicle.ad.bunkerTrigger = trigger
+                            vehicle.ad.bunkerTrailer = trailer
+                            vehicle.ad.isUnloadingWithTrailer = trailer;
+                            vehicle.ad.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex;
+                        end;
                     end
                 end
             end
         end
     end
 
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER and vehicle.ad.isPaused == true and (AutoDrive.getDistanceToTargetPosition(vehicle) <= 6) and leftCapacity <= 0.01 then
-        AutoDrive.continueAfterLoadOrUnload(vehicle)
-    end
+    local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)
+    if fillUnitEmpty then
+        if vehicle.ad.isUnloadingWithTrailer.setDischargeState and vehicle.ad.isUnloadingWithTrailer.getTipState then
+            if vehicle.ad.isUnloadingWithTrailer:getTipState() ~= Trailer.TIPSTATE_CLOSED and vehicle.ad.isUnloadingWithTrailer:getTipState() ~= Trailer.TIPSTATE_CLOSING then
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - closing trailer");
+                vehicle.ad.isPausedForTrailersClosing = true;
+                vehicle.ad.isUnloadingWithTrailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF);            
+            end;
+            if vehicle.ad.isUnloadingWithTrailer.getTipState and vehicle.ad.isUnloadingWithTrailer:getTipState() == Trailer.TIPSTATE_CLOSING then
+                if not vehicle.ad.isPausedForTrailersClosing then
+                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - waiting for trailer to close");                
+                    vehicle.ad.isPausedForTrailersClosing = true;
+                end;
+            end;
+        end
+    end;    
+    AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt);
 end
 
 function AutoDrive.getIsFilled(vehicle, trailer, fillUnitIndex)
@@ -135,6 +154,31 @@ function AutoDrive.getIsFilled(vehicle, trailer, fillUnitIndex)
     end
 
     return vehicleFull, trailerFull, fillUnitFull
+end
+
+function AutoDrive.getIsEmpty(vehicle, trailer, fillUnitIndex)
+    local vehicleEmpty = false
+    local trailerEmpty = false
+    local fillUnitEmpty = false
+
+    if vehicle ~= nil then
+        local allFillables, fillableCount = AutoDrive.getTrailersOf(vehicle, false)
+        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(allFillables)
+        local maxCapacity = fillLevel + leftCapacity
+        vehicleEmpty = fillLevel <= 0.0001;
+    end
+
+    if trailer ~= nil then
+        local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
+        local maxCapacity = trailerFillLevel + trailerLeftCapacity
+        trailerEmpty = trailerFillLevel <= 0.0001;
+    end
+
+    if fillUnitIndex ~= nil then
+        fillUnitEmpty = trailer:getFillUnitFillLevelPercentage(fillUnitIndex) <= 0.0001;
+    end
+
+    return vehicleEmpty, trailerEmpty, fillUnitEmpty
 end
 
 function AutoDrive.fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTypes, fillTypeIndex)
@@ -333,9 +377,9 @@ function AutoDrive.getFillLevelAndCapacityOf(trailer, selectedFillType)
             end
         end
     end
-    --g_logManager:devInfo("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. AutoDrive.tableLength(fullFillUnits));
+    -- g_logManager:devInfo("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. AutoDrive.tableLength(fullFillUnits));
     -- for index, value in pairs(fullFillUnits) do
-    --     print("Unit full: " .. index .. " " .. AutoDrive.boolToString(value));
+    --     g_logManager:devInfo("Unit full: " .. index .. " " .. AutoDrive.boolToString(value));
     -- end;
 
     return fillLevel, leftCapacity, fullFillUnits
@@ -432,26 +476,8 @@ function AutoDrive.checkTrailerStatesAndAttributes(vehicle, trailers)
         fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers, vehicle.ad.unloadFillTypeIndex)
     end
 
-    AutoDrive.stopDischargingWhenTrailerEmpty(vehicle, trailers, fillLevel)
     if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
         AutoDrive.handleUnloaderSpecificStates(vehicle, trailers, fillLevel, leftCapacity)
-    end
-end
-
-function AutoDrive.stopDischargingWhenTrailerEmpty(vehicle, trailers, fillLevel)
-    if fillLevel == 0 then
-        if vehicle.ad.isUnloading or vehicle.ad.isUnloadingToBunkerSilo then
-            vehicle.ad.isUnloading = false
-            vehicle.ad.isUnloadingToBunkerSilo = false
-            if vehicle.ad.isPaused then
-                vehicle.ad.isPausedForTrailersClosing = true;
-            end;
-        end;
-        for _, trailer in pairs(trailers) do
-            if trailer.setDischargeState then
-                trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF)
-            end
-        end
     end
 end
 
@@ -468,6 +494,10 @@ function AutoDrive.handleUnloaderSpecificStates(vehicle, trailers, fillLevel, le
         AutoDrive.setAugerPipeOpen(trailers, false)
     end
 
+    if fillLevel <= 0.0001 then        
+        AutoDrive.setAugerPipeOpen(trailers, false);
+    end;
+
     local totalCapacity = fillLevel + leftCapacity
     if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE and (fillLevel / totalCapacity) >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) then --was filled up manually
         AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, false)
@@ -475,7 +505,9 @@ function AutoDrive.handleUnloaderSpecificStates(vehicle, trailers, fillLevel, le
 
     if (vehicle.ad.combineState ~= AutoDrive.DRIVE_TO_COMBINE and vehicle.ad.combineState ~= AutoDrive.WAIT_TILL_UNLOADED) then
         if AutoDrive.getDistanceToUnloadPosition(vehicle) < 35 then
-            AutoDrive.setAugerPipeOpen(trailers, true)
+            if fillLevel >= 0.0001 then
+                AutoDrive.setAugerPipeOpen(trailers, true)
+            end;
             AutoDrive.setTrailerCoverOpen(vehicle, trailers, true)
         end
     end
@@ -532,21 +564,22 @@ end
 function AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
     local allClosed = true
     for _, trailer in pairs(trailers) do
-        if trailer.getDischargeState ~= nil then
-            local dischargeState = trailer:getDischargeState()
+        if trailer.getTipState ~= nil then
+            local tipState = trailer:getTipState()
             if trailer.noDischargeTimer == nil then
                 trailer.noDischargeTimer = AutoDriveTON:new()
             end
-            if (not trailer.noDischargeTimer:timer((dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 500, dt)) or vehicle.ad.isLoading then
+            if (not trailer.noDischargeTimer:timer((tipState == Trailer.TIPSTATE_CLOSED), 500, dt)) or vehicle.ad.isLoading then
                 allClosed = false
             end
         end
     end
     if allClosed and (vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD or vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS or vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED) then
-        if vehicle.ad.isPaused and vehicle.ad.isPausedForTrailersClosing then
+        if vehicle.ad.isPaused and vehicle.ad.isPausedForTrailersClosing then            
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "All trailers closed - continue");
             vehicle.ad.isPaused = false
             vehicle.ad.isPausedForTrailersClosing = false;
-            --g_logManager:devInfo("continueIfAllTrailersClosed");
+            vehicle.ad.isUnloading = false
         end
     end
 end
@@ -556,7 +589,7 @@ function AutoDrive.findAndSetBestTipPoint(vehicle, trailer)
     if trailer.getCanDischargeToObject ~= nil and trailer.getCurrentDischargeNode ~= nil then
         dischargeCondition = (not trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()))
     end
-    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) then
+    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) then       
         local spec = trailer.spec_trailer
         if spec == nil then
             return
@@ -576,11 +609,12 @@ function AutoDrive.findAndSetBestTipPoint(vehicle, trailer)
             end
         end
         if suiteableTipSide ~= nil then
+            --AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "findAndSetBestTipPoint - found new tipSide: " .. suiteableTipSide);  
             if trailer:getCanTogglePreferdTipSide() then
                 trailer:setPreferedTipSide(suiteableTipSide)
                 trailer:updateRaycast(trailer:getCurrentDischargeNode())
             end
-        else
+        else 
             if trailer:getCanTogglePreferdTipSide() then
                 trailer:setPreferedTipSide(originalTipSide)
                 trailer:updateRaycast(trailer:getCurrentDischargeNode())
@@ -606,23 +640,6 @@ function AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger)
     return false
 end
 
--- Probably not used anymore
-function AutoDrive.currentFillUnitIsFilled(trailer, trigger, fullFillUnits)
-    local spec = trailer.spec_fillUnit
-    if spec ~= nil and trigger.getFillTargetNode ~= nil then
-        for fillUnitIndex, fillUnit in ipairs(trailer:getFillUnits()) do
-            if fillUnit ~= nil then
-                local isActive = fillUnitIndex == trigger.validFillableFillUnitIndex --(fillUnit.exactFillRootNode == trigger:getFillTargetNode()) or (fillUnit.fillRootNode == trigger:getFillTargetNode());
-                if fullFillUnits[fillUnitIndex] ~= nil and isActive then
-                    return true
-                end
-            end
-        end
-    end
-
-    return false
-end
-
 function AutoDrive.trailerInTriggerRange(trailer, trigger)
     if trigger.fillableObjects ~= nil then
         for __, fillableObject in pairs(trigger.fillableObjects) do
@@ -632,13 +649,6 @@ function AutoDrive.trailerInTriggerRange(trailer, trigger)
         end
     end
     return false
-end
-
-function AutoDrive.continueAfterLoadOrUnload(vehicle)
-    vehicle.ad.isPaused = false
-    vehicle.ad.isUnloading = false
-    vehicle.ad.isLoading = false
-    --g_logManager:devInfo("continueAfterLoadOrUnload");
 end
 
 function AutoDrive.startLoadingAtTrigger(vehicle, trigger, fillType, fillUnitIndex, trailer)
