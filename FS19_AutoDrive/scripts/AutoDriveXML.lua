@@ -84,10 +84,10 @@ function AutoDrive.readFromXML(xmlFile)
 	local recalculateString = getXMLString(xmlFile, "AutoDrive.Recalculation")
 	if recalculateString == "true" then
 		recalculate = true
+		AutoDrive.MarkChanged()
 	end
 	if recalculateString == "false" then
 		recalculate = false
-		AutoDrive.MarkChanged()
 	end
 	if recalculateString == nil then
 		g_logManager:devInfo("[AutoDrive] Starting a new configuration file")
@@ -299,6 +299,7 @@ function AutoDrive.readFromXML(xmlFile)
 	if recalculateString == "false" then
 		recalculate = false
 	end
+	AutoDrive.handledRecalculation = not recalculate;
 end
 
 function AutoDrive.exportRoutes()

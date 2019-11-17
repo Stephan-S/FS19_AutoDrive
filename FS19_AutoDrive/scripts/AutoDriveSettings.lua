@@ -454,6 +454,22 @@ AutoDrive.settings.shovelWidth = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.shovelHeight = {
+    values = {-0.5, -0.48, -0.46, -0.44, -0.42, -0.40, -0.38, -0.36, -0.34, -0.32, -0.3, -0.28, -0.26, -0.24, -0.22, -0.20,
+     -0.18, -0.16, -0.14, -0.12, -0.10, -0.08, -0.06, -0.04, -0.02, 0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18,
+      0.20, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.40, 0.42, 0.44, 0.46, 0.48, 0.5},
+    texts = {"-50cm", "-48cm", "-46cm", "-44cm", "-42cm", "-40cm", "-38cm", "-36cm", "-34cm", "-32cm","-30cm", "-28cm",
+     "-26cm", "-24cm", "-22cm", "-20cm", "-18cm", "-16cm", "-14cm", "-12cm", "-10cm", "-8cm", "-6cm", "-4cm", "-2cm", "0cm",
+    "2cm", "4cm", "6cm", "8cm", "10cm", "12cm", "14cm", "16cm", "18cm", "20cm", "22cm", "24cm", "26cm", "28cm", "30cm",
+     "32cm", "34cm", "36cm", "38cm", "40cm", "42cm", "44cm", "46cm", "48cm", "50cm" },
+    default = 26,
+    current = 26,
+    text = "gui_ad_shovelHeight",
+    tooltip = "gui_ad_shovelHeight_tooltip",
+    translate = false,
+    isVehicleSpecific = true
+}
+
 AutoDrive.settings.useFolders = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},

@@ -233,8 +233,9 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 					if AutoDrive.mapMarker[mId + 1] ~= nil then
 						AutoDrive.mapMarker[mId] = AutoDrive.mapMarker[mId + 1]
 					else
-						-- Not sure about that but MarkChanged() should be enough
-						--removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
+						-- Not sure about that but MarkChanged() should be enough 
+						-- No it isnt't. Since the xml file isn't deleted but rather overwritten, we have to remove waypoints that are no longer valid!
+						removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
 						AutoDrive.mapMarker[mId] = nil
 					end
 				end

@@ -263,9 +263,9 @@ function AutoDriveBGA:handleInitAxis(vehicle, dt)
             if vehicle.bga.armExtender ~= nil then
                 translationObject = vehicle.bga.armExtender
                 vehicle.bga.initAxisStartHeight = self:getShovelHeight(vehicle)
-                vehicle.bga.initAxisStartTranslation = translationObject.curTrans[3]
+                vehicle.bga.initAxisStartTranslation = translationObject.curTrans[translationObject.translationAxis]
                 translationTarget = (translationObject.transMax - translationObject.transMin) / 2 + translationObject.transMin
-                if math.abs(translationTarget - translationObject.curTrans[3]) <= 0.1 then
+                if math.abs(translationTarget - translationObject.curTrans[translationObject.translationAxis]) <= 0.1 then
                     translationTarget = translationTarget.transMin
                 end
                 vehicle.bga.armExtender.translationTarget = translationTarget
@@ -391,7 +391,7 @@ end
 function AutoDriveBGA:steerAxisToTrans(vehicle, translationObject, translationTarget, targetFactor, dt)
     local reachedTarget = false
     if translationObject ~= nil then
-        local curTrans = translationObject.curTrans[3]
+        local curTrans = translationObject.curTrans[translationObject.translationAxis]
         if curTrans ~= translationTarget then
             if math.abs(translationTarget - curTrans) < (dt * translationObject.transSpeed * (targetFactor * 0.01)) then
                 curTrans = translationTarget
@@ -404,7 +404,7 @@ function AutoDriveBGA:steerAxisToTrans(vehicle, translationObject, translationTa
                 end
             end
             curTrans = math.min(math.max(curTrans, translationObject.transMin), translationObject.transMax)
-            translationObject.curTrans[3] = curTrans
+            translationObject.curTrans[translationObject.translationAxis] = curTrans
             setTranslation(translationObject.node, unpack(translationObject.curTrans))
             SpecializationUtil.raiseEvent(vehicle, "onMovingToolChanged", translationObject, translationObject.transSpeed, dt)
 
@@ -444,7 +444,12 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
 
     if vehicle.bga.state > AutoDriveBGA.STATE_INIT_AXIS then
         if vehicle.bga.shovelState == AutoDriveBGA.SHOVELSTATE_UNKNOWN then
-            self:moveShovelToTarget(vehicle, AutoDriveBGA.SHOVELSTATE_LOW, dt)
+            if not vehicle.bga.shovelActiveTimer:done() then
+                self:moveShovelToTarget(vehicle, AutoDriveBGA.SHOVELSTATE_LOW, dt)
+            else
+                --After timeout, assume we reached desired position as good as possible
+                vehicle.bga.shovelState = vehicle.bga.shovelTarget
+            end
         else
             if vehicle.bga.shovelState ~= vehicle.bga.shovelTarget then
                 if not vehicle.bga.shovelActiveTimer:done() then
@@ -468,7 +473,7 @@ end
 
 function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     if vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_LOADING then
-        vehicle.bga.shovelTargetHeight = -0.20
+        vehicle.bga.shovelTargetHeight = -0.20 + AutoDrive.getSetting("shovelHeight", vehicle);
         vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.07
         if vehicle.bga.armExtender ~= nil then
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMin
@@ -503,10 +508,10 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     local targetFactorExtender = 0
     local extenderTargetReached = true
     if vehicle.bga.armExtender ~= nil then
-        if math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[3]) >= 0.01 then
+        if math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[vehicle.bga.armExtender.translationAxis]) >= 0.01 then
             extenderTargetReached = false
         end
-        targetFactorExtender = math.max(5, math.min((math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[3]) * 100), 70))
+        targetFactorExtender = math.max(5, math.min((math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[vehicle.bga.armExtender.translationAxis]) * 100), 70))
     end
 
     local _, dy, _ = localDirectionToWorld(vehicle.bga.shovel.spec_shovel.shovelDischargeInfo.node, 0, 0, 1)
@@ -548,7 +553,7 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
     local allAxisFullyExtended = false
     if
         (vehicle.bga.armMain ~= nil and (math.abs(vehicle.bga.armMain.curRot[1] - vehicle.bga.armMain.rotMax) <= 0.01 or math.abs(vehicle.bga.armMain.curRot[1] - vehicle.bga.armMain.rotMin) <= 0.01)) and
-            (vehicle.bga.armExtender == nil or math.abs(vehicle.bga.armExtender.curTrans[3] - vehicle.bga.armExtender.transMax) <= 0.01)
+            (vehicle.bga.armExtender == nil or math.abs(vehicle.bga.armExtender.curTrans[vehicle.bga.armExtender.translationAxis] - vehicle.bga.armExtender.transMax) <= 0.01)
      then
         allAxisFullyExtended = true
     end

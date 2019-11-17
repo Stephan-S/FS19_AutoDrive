@@ -162,6 +162,8 @@
 		<text name="gui_ad_filter"								text="Фильтр" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Изменение текста фильтра локаций" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Введите текст фильтра:" />
+		<text name="gui_ad_shovelHeight"						text="Shovel height" />
+		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
 
 		
 		<text name="ad_helpCategory_1"							text="AutoDrive" />

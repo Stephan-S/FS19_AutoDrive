@@ -162,6 +162,8 @@
 		<text name="gui_ad_filter"								text="Filter" />	
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Zielfilter ändern" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Zielfilter eingeben:" />
+		<text name="gui_ad_shovelHeight"						text="Schaufelhöhe" />
+		<text name="gui_ad_shovelHeight_tooltip"				text="Falls die automatisch erkannte Zielhöhe nicht korrekt auf dem Boden ist, nutze diesen Wert zum Anpassen" />
 
 		
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
