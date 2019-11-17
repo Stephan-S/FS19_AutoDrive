@@ -492,7 +492,7 @@ function AutoDrive.handleUnloaderSpecificStates(vehicle, trailers, fillLevel, le
         vehicle.ad.distanceToCombine = MathUtil.vector2Length(combineWorldX - worldX, combineWorldZ - worldZ)
     end
 
-    if vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED or (vehicle.ad.distanceToCombine < 30) then
+    if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE  or vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.WAIT_TILL_UNLOADED or (vehicle.ad.distanceToCombine < 30) then
         AutoDrive.setTrailerCoverOpen(vehicle, trailers, true) --open
         AutoDrive.setAugerPipeOpen(trailers, false)
     end

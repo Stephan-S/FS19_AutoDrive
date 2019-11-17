@@ -629,14 +629,14 @@ end
 
 function AutoDrive:findClosestWayPoint(veh)
 	if veh.ad.closest ~= nil then
-		return veh.ad.closest
+		return veh.ad.closest, veh.ad.closestDistance;
 	end
 
 	--returns waypoint closest to vehicle position
 	local x1, y1, z1 = getWorldTranslation(veh.components[1].node)
 	local closest = -1
+	local distance = math.huge --AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
 	if AutoDrive.mapWayPoints[1] ~= nil then
-		local distance = math.huge --AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
 		for i in pairs(AutoDrive.mapWayPoints) do
 			local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, x1, z1)
 			if dis < distance then
@@ -647,8 +647,9 @@ function AutoDrive:findClosestWayPoint(veh)
 	end
 
 	veh.ad.closest = closest
+	veh.ad.closestDistance = distance
 
-	return closest
+	return closest, distance
 end
 
 function AutoDrive:findMatchingWayPointForVehicle(veh)
@@ -658,13 +659,13 @@ function AutoDrive:findMatchingWayPointForVehicle(veh)
 	local vehicleVector = {x = rx, z = rz}
 	local point = {x = x1, z = z1}
 
-	local bestPoint = AutoDrive:findMatchingWayPoint(point, vehicleVector, 1, 20)
+	local bestPoint, distance = AutoDrive:findMatchingWayPoint(point, vehicleVector, 1, 20)
 
 	if bestPoint == -1 then
 		return AutoDrive:findClosestWayPoint(veh)
 	end
 
-	return bestPoint
+	return bestPoint, distance;
 end
 
 function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
@@ -713,7 +714,7 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 		end
 	end
 
-	return closest
+	return closest, distance;
 end
 
 function AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)

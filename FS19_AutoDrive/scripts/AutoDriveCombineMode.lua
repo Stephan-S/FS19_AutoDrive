@@ -393,7 +393,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     end
 
-    if vehicle.ccInfos.trailerFillLevel >= ((AutoDrive.getSetting("unloadFillLevel", vehicle)) - 0.001) then
+    if vehicle.ccInfos.trailerFillLevel >= ((AutoDrive.getSetting("unloadFillLevel", vehicle)) - 0.001) and (not (vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING)) then
         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
         AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine)
         AutoDrive:unregisterDriverAsUnloader(vehicle)
