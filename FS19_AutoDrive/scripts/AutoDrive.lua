@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.8-12"
+AutoDrive.Version = "1.0.6.8-13"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
