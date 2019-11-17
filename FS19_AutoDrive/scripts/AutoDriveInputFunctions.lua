@@ -549,6 +549,9 @@ function AutoDrive:inputRecord(vehicle, dual)
 					if targetNode ~= nil then
 						targetNode.incoming[AutoDrive.tableLength(targetNode.incoming) + 1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id
 						vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].out[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].out) + 1] = targetNode.id
+						if dual == true then
+							targetNode.out[AutoDrive.tableLength(targetNode.out) + 1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id
+							vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming) + 1] = targetNode.id
 
 						AutoDriveCourseEditEvent:sendEvent(targetNode)
 					end
