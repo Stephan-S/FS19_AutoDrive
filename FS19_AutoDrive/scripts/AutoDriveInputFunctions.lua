@@ -552,6 +552,7 @@ function AutoDrive:inputRecord(vehicle, dual)
 						if dual == true then
 							targetNode.out[AutoDrive.tableLength(targetNode.out) + 1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id
 							vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming) + 1] = targetNode.id
+						end;
 
 						AutoDriveCourseEditEvent:sendEvent(targetNode)
 					end
