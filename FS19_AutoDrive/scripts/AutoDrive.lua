@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9"
+AutoDrive.Version = "1.0.6.9-1"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -56,6 +56,7 @@ AutoDrive.DC_DEVINFO = 8
 AutoDrive.DC_PATHINFO = 16
 AutoDrive.DC_SENSORINFO = 32
 AutoDrive.DC_NETWORKINFO = 64
+AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;

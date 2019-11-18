@@ -3,6 +3,7 @@
 --destinationID: ID of marker to find path to
 --options (optional): options.minDistance, options.maxDistance (default 1m, 20m) define boundaries between the first AutoDrive waypoint and the starting location.
 function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetPath(%s, %s, %s, %s, %s)", startX, startZ, startYRot, destinationID, options)
     if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil then
         return
     end
@@ -31,6 +32,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
 end
 
 function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, options)
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetPathVia(%s, %s, %s, %s, %s, %s)", startX, startZ, startYRot, viaID, destinationID, options)
     if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil or viaID == nil or AutoDrive.mapMarker[viaID] == nil then
         return
     end
@@ -74,6 +76,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
 end
 
 function AutoDrive:GetAvailableDestinations()
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetAvailableDestinations()")
     local destinations = {}
     for markerID, marker in pairs(AutoDrive.mapMarker) do
         local point = AutoDrive.mapWayPoints[marker.id]
@@ -83,6 +86,7 @@ function AutoDrive:GetAvailableDestinations()
 end
 
 function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetClosestPointToLocation(%s, %s, %s)", x, z, minDistance)
     local closest = -1
     if AutoDrive.mapWayPoints[1] ~= nil then
         local distance = math.huge
@@ -100,6 +104,7 @@ function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
 end
 
 function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StartDriving(%s, %s, %s, %s, %s)", destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive == false then
         vehicle.ad.callBackObject = callBackObject
         vehicle.ad.callBackFunction = callBackFunction
@@ -117,7 +122,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
             else
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
                 vehicle.ad.mode = 1
-			    vehicle.ad.onRouteToPark = true
+                vehicle.ad.onRouteToPark = true
             end
 
             AutoDrive:startAD(vehicle)
@@ -126,6 +131,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
 end
 
 function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StartDrivingWithPathFinder(%s, %s, %s, %s, %s)", destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive == false then
         AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
         vehicle.ad.usePathFinder = true
@@ -135,6 +141,7 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
 end
 
 function AutoDrive:GetParkDestination(vehicle)
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetParkDestination()")
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
         return vehicle.ad.parkDestination
     end
@@ -142,18 +149,21 @@ function AutoDrive:GetParkDestination(vehicle)
 end
 
 function AutoDrive:registerDestinationListener(callBackObject, callBackFunction)
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:registerDestinationListener(%s, %s)", callBackObject, callBackFunction)
     if AutoDrive.destinationListeners[callBackObject] == nil then
         AutoDrive.destinationListeners[callBackObject] = callBackFunction
     end
 end
 
 function AutoDrive:unRegisterDestinationListener(callBackObject)
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:unRegisterDestinationListener(%s)", callBackObject)
     if AutoDrive.destinationListeners[callBackObject] ~= nil then
         AutoDrive.destinationListeners[callBackObject] = nil
     end
 end
 
 function AutoDrive:notifyDestinationListeners()
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:notifyDestinationListeners()")
     for object, callBackFunction in pairs(AutoDrive.destinationListeners) do
         callBackFunction(object, true)
     end
