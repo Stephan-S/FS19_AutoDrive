@@ -79,11 +79,11 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end
 
 	if actionName == "ADToggleHud" then
-		AutoDrive:InputHandling(self, "input_toggleHud")
+		AutoDrive:InputHandlingSenderOnly(self, "input_toggleHud")
 	end
 
 	if actionName == "ADToggleMouse" then
-		AutoDrive:InputHandling(self, "input_toggleMouse")
+		AutoDrive:InputHandlingSenderOnly(self, "input_toggleMouse")
 	end
 
 	if actionName == "ADDebugDeleteWayPoint" then
@@ -108,7 +108,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_previousFillType")
 	end
 	if actionName == "ADOpenGUI" then
-		AutoDrive:InputHandling(self, "input_openGUI")
+		AutoDrive:InputHandlingSenderOnly(self, "input_openGUI")
 	end
 	if actionName == "ADCallDriver" then
 		AutoDrive:InputHandling(self, "input_callDriver")
@@ -144,6 +144,7 @@ function AutoDrive:InputHandling(vehicle, input)
 		return
 	end
 
+	-- Why is this called 'ServerOnly' if it's called even on clients?
 	AutoDrive:InputHandlingServerOnly(vehicle, input)
 
 	vehicle.ad.currentInput = ""
@@ -190,6 +191,15 @@ function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 		end
 		if input == "input_setDestinationFilter" then
 			AutoDrive:onOpenEnterDestinationFilter()
+		end
+		if input == "input_openGUI" and vehicle == g_currentMission.controlledVehicle then
+			AutoDrive:onOpenSettings()
+		end
+		if input == "input_toggleHud" and vehicle == g_currentMission.controlledVehicle then
+			AutoDrive.Hud:toggleHud(vehicle)
+		end
+		if input == "input_toggleMouse" and vehicle == g_currentMission.controlledVehicle then
+			g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor())
 		end
 	end
 end
@@ -240,18 +250,6 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			return
 		end
 		AutoDrive.importRoutes()
-	end
-
-	if input == "input_toggleHud" and vehicle == g_currentMission.controlledVehicle then
-		AutoDrive.Hud:toggleHud(vehicle)
-	end
-
-	if input == "input_toggleMouse" and vehicle == g_currentMission.controlledVehicle then
-		g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor())
-	end
-
-	if input == "input_openGUI" and vehicle == g_currentMission.controlledVehicle then
-		AutoDrive:onOpenSettings()
 	end
 
 	if input == "input_goToVehicle" then
@@ -552,7 +550,7 @@ function AutoDrive:inputRecord(vehicle, dual)
 						if dual == true then
 							targetNode.out[AutoDrive.tableLength(targetNode.out) + 1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id
 							vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming) + 1] = targetNode.id
-						end;
+						end
 
 						AutoDriveCourseEditEvent:sendEvent(targetNode)
 					end
