@@ -9,21 +9,24 @@ function AutoDriveUserDataEvent:emptyNew()
     return self
 end
 
-function AutoDriveUserDataEvent:new(hudX, hudY)
+function AutoDriveUserDataEvent:new(hudX, hudY, guiScale)
     local self = AutoDriveUserDataEvent:emptyNew()
     self.hudX = hudX
     self.hudY = hudY
+    self.guiScale = guiScale
     return self
 end
 
 function AutoDriveUserDataEvent:writeStream(streamId, connection)
     streamWriteFloat32(streamId, self.hudX)
     streamWriteFloat32(streamId, self.hudY)
+    streamWriteUInt8(streamId, self.guiScale)
 end
 
 function AutoDriveUserDataEvent:readStream(streamId, connection)
     self.hudX = streamReadFloat32(streamId)
     self.hudY = streamReadFloat32(streamId)
+    self.guiScale = streamReadUInt8(streamId)
     self:run(connection)
 end
 
@@ -40,9 +43,11 @@ function AutoDriveUserDataEvent:run(connection)
         end
         AutoDrive.usersData[uniqueId].hudX = self.hudX
         AutoDrive.usersData[uniqueId].hudY = self.hudY
+        AutoDrive.usersData[uniqueId].guiScale = self.guiScale
     else
         -- Applyng data if we are on the client
         AutoDrive.Hud:createHudAt(self.hudX, self.hudY)
+        AutoDrive.setSettingState("guiScale", self.guiScale)
     end
 end
 
@@ -51,13 +56,13 @@ function AutoDriveUserDataEvent.sendToClient(connection)
     if g_server ~= nil and user ~= nil then
         local uniqueId = user.uniqueUserId
         if AutoDrive.usersData[uniqueId] ~= nil then
-            connection:sendEvent(AutoDriveUserDataEvent:new(AutoDrive.usersData[uniqueId].hudX, AutoDrive.usersData[uniqueId].hudY))
+            connection:sendEvent(AutoDriveUserDataEvent:new(AutoDrive.usersData[uniqueId].hudX, AutoDrive.usersData[uniqueId].hudY, AutoDrive.usersData[uniqueId].guiScale))
         end
     end
 end
 
 function AutoDriveUserDataEvent.sendToServer()
     if g_server == nil then
-        g_client:getServerConnection():sendEvent(AutoDriveUserDataEvent:new(AutoDrive.HudX, AutoDrive.HudY))
+        g_client:getServerConnection():sendEvent(AutoDriveUserDataEvent:new(AutoDrive.HudX, AutoDrive.HudY, AutoDrive.getSettingState("guiScale")))
     end
 end

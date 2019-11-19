@@ -18,7 +18,7 @@ end
 function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 	-- Writing global confings
 	for settingName, setting in pairs(AutoDrive.settings) do
-		if setting ~= nil and not setting.isVehicleSpecific then
+		if setting ~= nil and not setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 			streamWriteInt16(streamId, setting.current)
 		end
 	end
@@ -29,7 +29,7 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 	if self.vehicle ~= nil then
 		streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
 		for settingName, setting in pairs(AutoDrive.settings) do
-			if setting ~= nil and setting.isVehicleSpecific then
+			if setting ~= nil and setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 				streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self.vehicle))
 			end
 		end
@@ -39,7 +39,7 @@ end
 function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 	-- Reading global confings
 	for settingName, setting in pairs(AutoDrive.settings) do
-		if setting ~= nil and not setting.isVehicleSpecific then
+		if setting ~= nil and not setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 			setting.current = streamReadInt16(streamId)
 		end
 	end
@@ -52,7 +52,7 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 		if vehicle ~= nil then
 			-- Reading vehicle confings
 			for settingName, setting in pairs(AutoDrive.settings) do
-				if setting ~= nil and setting.isVehicleSpecific then
+				if setting ~= nil and setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 					local newSettingsValue = streamReadInt16(streamId)
 					vehicle.ad.settings[settingName].current = newSettingsValue
 				end
