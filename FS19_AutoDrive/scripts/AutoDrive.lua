@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9-1"
+AutoDrive.Version = "1.0.6.9-2"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -268,9 +268,9 @@ function AutoDrive:update(dt)
 		if AutoDrive.debug.lastSentEvent ~= nil then
 			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
 		end
-		if g_currentMission.userManager ~= nil then
-			AutoDrive.renderTable(0.5, 0.9, 0.009, g_currentMission.userManager, 5)
-		end
+		--if g_currentMission.userManager ~= nil then
+		--AutoDrive.renderTable(0.5, 0.9, 0.009, g_currentMission.userManager, 5)
+		--end
 	end
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)

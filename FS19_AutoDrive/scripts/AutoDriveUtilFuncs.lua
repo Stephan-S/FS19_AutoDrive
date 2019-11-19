@@ -175,9 +175,9 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 			setTextAlignment(RenderText.ALIGN_RIGHT)
 			renderText(posX, posY - offset, textSize, tostring(k) .. " :")
 			setTextAlignment(RenderText.ALIGN_LEFT)
-			if type(v) ~= "table" then				
+			if type(v) ~= "table" then
 				renderText(posX, posY - offset, textSize, " " .. tostring(v))
-			end;
+			end
 			i = i + 1
 			if type(v) == "table" then
 				i = renderTableRecursively(posX + textSize * 2, posY, textSize, v, depth + 1, maxDepth, i)
@@ -196,7 +196,7 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 		setTextAlignment(RenderText.ALIGN_LEFT)
 		if type(v) ~= "table" then
 			renderText(posX, posY - offset, textSize, " " .. tostring(v))
-		end;
+		end
 		i = i + 1
 		if type(v) == "table" then
 			i = renderTableRecursively(posX + textSize * 2, posY, textSize, v, 1, maxDepth, i)
@@ -330,10 +330,14 @@ function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConne
 	eCopy.sendLocal = sendLocal or false
 	eCopy.ignoreConnection = ignoreConnection or "nil"
 	eCopy.force = force or false
-	eCopy.clients = table.getn(self.clientConnections)
+	eCopy.clients = AutoDrive.tableLength(self.clientConnections)
 	superFunc(self, event, sendLocal, ignoreConnection, ghostObject, force)
 	eCopy.size = AutoDrive.debug.lastSentEventSize
-	AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s size %s (x%s = %s) Bytes", eCopy.eventName, eCopy.size / (eCopy.clients), eCopy.clients, eCopy.size)
+	if eCopy.clients > 1 then
+		AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s size %s (x%s = %s) Bytes", eCopy.eventName, eCopy.size / eCopy.clients, eCopy.clients, eCopy.size)
+	else
+		AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s", eCopy.eventName)
+	end
 	AutoDrive.debug.lastSentEvent = eCopy
 end
 
@@ -350,7 +354,7 @@ function AutoDrive:ConnectionSendEvent(superFunc, event, deleteEvent, force)
 end
 
 function NetworkNode:addPacketSize(packetType, packetSizeInBytes)
-	if AutoDrive.debug.connectionSendEventBackup ~= nil and packetType == NetworkNode.PACKET_EVENT then
+	if (AutoDrive.debug.connectionSendEventBackup ~= nil or AutoDrive.debug.serverBroadcastEventBackup ~= nil) and packetType == NetworkNode.PACKET_EVENT then
 		AutoDrive.debug.lastSentEventSize = packetSizeInBytes
 	end
 	if self.showNetworkTraffic then
