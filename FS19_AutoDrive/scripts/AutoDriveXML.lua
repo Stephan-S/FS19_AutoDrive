@@ -3,71 +3,58 @@ function AutoDrive.loadStoredXML()
 		return
 	end
 
-	local adXml
-	local path = g_currentMission.missionInfo.savegameDirectory
-	local file = ""
-	if path ~= nil then
-		file = path .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
-	else
-		file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
-	end
-	local tempXml = nil
+	local xmlFile = AutoDrive.getXMLFile()
 
-	if fileExists(file) then
-		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
-		AutoDrive.xmlSaveFile = file
-		adXml = loadXMLFile("AutoDrive_XML", file)
+	if fileExists(xmlFile) then
+		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. xmlFile)
+		AutoDrive.adXml = loadXMLFile("AutoDrive_XML", xmlFile)
 
-		local VersionCheck = getXMLString(adXml, "AutoDrive.version")
+		local VersionCheck = getXMLString(AutoDrive.adXml, "AutoDrive.version")
 		if VersionCheck ~= AutoDrive.Version then
 			AutoDrive.versionUpdate = true
 		end
-		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap)
+		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
 		if VersionCheck == nil or MapCheck == false then
-			g_logManager:devInfo("[AutoDrive] Version Check or Map check failed - Loading init config")
-
-			path = getUserProfileAppPath()
-			file = path .. "/mods/FS19_AutoDrive/AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
-
-			tempXml = loadXMLFile("AutoDrive_XML_temp", file) --, "AutoDrive");
-			local MapCheckInit = hasXMLProperty(tempXml, "AutoDrive." .. AutoDrive.loadedMap)
-			if MapCheckInit == false then
-				g_logManager:devInfo("[AutoDrive] Init config does not contain any information for this map. Existing Config will not be overwritten")
-				tempXml = nil
-			end
-
-			g_logManager:devInfo("[AutoDrive] Finished loading xml from memory")
-		end
-	else --create std file instead:
-		--AutoDrive:saveToXML(adXml);
-		path = AutoDrive.directory --getUserProfileAppPath();
-		file = path .. "AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
-
-		g_logManager:devInfo("[AutoDrive] Loading xml file from init config")
-		tempXml = loadXMLFile("AutoDrive_XML_temp", file)
-		--local tempstring = saveXMLFileToMemory(tempXml);
-		--adXml = loadXMLFileFromMemory("AutoDrive_XML", tempstring);
-
-		AutoDrive.readFromXML(tempXml)
-		g_logManager:devInfo("[AutoDrive] Finished loading xml from memory")
-
-		AutoDrive.MarkChanged()
-
-		path = g_currentMission.missionInfo.savegameDirectory
-		if path ~= nil then
-			file = path .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+			g_logManager:devWarning("[AutoDrive] Version Check (%s) or Map Check (%s) failed", VersionCheck == nil, MapCheck == false)
+			AutoDrive.loadInitConfig(xmlFile, false)
 		else
-			file = getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+			AutoDrive.readFromXML(AutoDrive.adXml)
 		end
-		g_logManager:devInfo("[AutoDrive] Creating xml file at " .. file)
-		adXml = createXMLFile("AutoDrive_XML", file, "AutoDrive")
+	else
+		AutoDrive.loadInitConfig(xmlFile)
+	end
+end
 
-		saveXMLFile(adXml)
-		AutoDrive.xmlSaveFile = file
+function AutoDrive.loadInitConfig(xmlFile, createNewXML)
+	createNewXML = createNewXML or true
+
+	local initConfFile = AutoDrive.directory .. "AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
+
+	if fileExists(initConfFile) then
+		g_logManager:devInfo("[AutoDrive] Loading init config from " .. initConfFile)
+		AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
+	else
+		g_logManager:devWarning("[AutoDrive] Can't load init config from " .. initConfFile)
+		-- TODO: Here we could load custom init config from mod map as requested with #211
+		AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
 	end
 
-	AutoDrive.adXml = adXml
-	AutoDrive.readFromXML(adXml)
+	AutoDrive.MarkChanged()
+	g_logManager:devInfo("[AutoDrive] Saving xml file to " .. xmlFile)
+	if createNewXML then
+		AutoDrive.adXml = createXMLFile("AutoDrive_XML", xmlFile, "AutoDrive")
+		saveXMLFile(AutoDrive.adXml)
+	end
+	--AutoDrive.saveToXML(AutoDrive.adXml)
+end
+
+function AutoDrive.getXMLFile()
+	local path = g_currentMission.missionInfo.savegameDirectory
+	if path ~= nil then
+		return path .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+	else
+		return getUserProfileAppPath() .. "savegame" .. g_currentMission.missionInfo.savegameIndex .. "/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+	end
 end
 
 function AutoDrive.readFromXML(xmlFile)
@@ -299,45 +286,7 @@ function AutoDrive.readFromXML(xmlFile)
 	if recalculateString == "false" then
 		recalculate = false
 	end
-	AutoDrive.handledRecalculation = not recalculate;
-end
-
-function AutoDrive.exportRoutes()
-	path = getUserProfileAppPath()
-	file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
-
-	createFolder(path .. "FS19_AutoDrive_Export")
-	createFolder(path .. "FS19_AutoDrive_Import")
-
-	g_logManager:devInfo("[AutoDrive] Creating xml file at " .. file)
-	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive")
-	saveXMLFile(adXml)
-	AutoDrive.saveToXML(adXml)
-	g_logManager:devInfo("[AutoDrive] Finished exporting routes")
-end
-
-function AutoDrive.importRoutes()
-	path = getUserProfileAppPath()
-	file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
-
-	createFolder(path .. "FS19_AutoDrive_Import")
-
-	g_logManager:devInfo("[AutoDrive] Trying to load xml file from " .. file)
-	if fileExists(file) then
-		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
-		local adXml = loadXMLFile("AutoDrive_XML", file)
-
-		local VersionCheck = getXMLString(adXml, "AutoDrive.version")
-		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap)
-		if VersionCheck == nil or MapCheck == false then
-			g_logManager:devInfo("[AutoDrive] Version Check or Map check failed - cannot import")
-		else
-			AutoDrive.readFromXML(adXml)
-			AutoDrive.requestedWaypoints = true
-			AutoDrive.requestedWaypointCount = 1
-			AutoDrive.MarkChanged()
-		end
-	end
+	AutoDrive.handledRecalculation = not recalculate
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -453,6 +402,44 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	saveXMLFile(xmlFile)
+end
+
+function AutoDrive.exportRoutes()
+	path = getUserProfileAppPath()
+	file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+
+	createFolder(path .. "FS19_AutoDrive_Export")
+	createFolder(path .. "FS19_AutoDrive_Import")
+
+	g_logManager:devInfo("[AutoDrive] Creating xml file at " .. file)
+	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive")
+	saveXMLFile(adXml)
+	AutoDrive.saveToXML(adXml)
+	g_logManager:devInfo("[AutoDrive] Finished exporting routes")
+end
+
+function AutoDrive.importRoutes()
+	path = getUserProfileAppPath()
+	file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+
+	createFolder(path .. "FS19_AutoDrive_Import")
+
+	g_logManager:devInfo("[AutoDrive] Trying to load xml file from " .. file)
+	if fileExists(file) then
+		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
+		local adXml = loadXMLFile("AutoDrive_XML", file)
+
+		local VersionCheck = getXMLString(adXml, "AutoDrive.version")
+		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap)
+		if VersionCheck == nil or MapCheck == false then
+			g_logManager:devInfo("[AutoDrive] Version Check or Map check failed - cannot import")
+		else
+			AutoDrive.readFromXML(adXml)
+			AutoDrive.requestedWaypoints = true
+			AutoDrive.requestedWaypointCount = 1
+			AutoDrive.MarkChanged()
+		end
+	end
 end
 
 function AutoDrive.tableEntriesAreEqual(list)

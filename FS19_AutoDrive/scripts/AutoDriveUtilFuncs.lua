@@ -330,10 +330,10 @@ function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConne
 	eCopy.sendLocal = sendLocal or false
 	eCopy.ignoreConnection = ignoreConnection or "nil"
 	eCopy.force = force or false
-	eCopy.clients = AutoDrive.tableLength(self.clientConnections)
+	eCopy.clients = AutoDrive.tableLength(self.clientConnections) - 1
 	superFunc(self, event, sendLocal, ignoreConnection, ghostObject, force)
 	eCopy.size = AutoDrive.debug.lastSentEventSize
-	if eCopy.clients > 1 then
+	if eCopy.clients > 0 then
 		AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s size %s (x%s = %s) Bytes", eCopy.eventName, eCopy.size / eCopy.clients, eCopy.clients, eCopy.size)
 	else
 		AutoDrive.debugPrint(nil, AutoDrive.DC_NETWORKINFO, "%s", eCopy.eventName)
