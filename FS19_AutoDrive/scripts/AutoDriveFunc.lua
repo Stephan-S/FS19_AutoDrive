@@ -47,8 +47,8 @@ function AutoDrive:startAD(vehicle)
 		local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD))
 		local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
 		local maxCapacity = fillLevel + leftCapacity
-		
-		vehicle.ad.skipStart = false;
+
+		vehicle.ad.skipStart = false
 		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
 				vehicle.ad.skipStart = true
@@ -73,7 +73,7 @@ function AutoDrive:startAD(vehicle)
 	if vehicle.ad.mode == AutoDrive.MODE_BGA then
 		vehicle.bga.state = AutoDriveBGA.STATE_INIT
 	end
-
+	
 	AutoDriveHud:createMapHotspot(vehicle)
 end
 

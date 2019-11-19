@@ -348,10 +348,12 @@ end
 
 --blatant copy of Courseplay's implementation. So all credit goes to their dev team :-)
 function AutoDriveHud:createMapHotspot(vehicle)
-	if vehicle.ad.isActive and vehicle.ad.mapHotSpot == nil then
+	-- Since this function and 'deleteMapHotspot' are called 4 times on clients (maybe we should fix that) we need to ensure tha only one map hotspot is created
+	-- The previous solution wasn't working, to be honest I have no idea why...
+	if vehicle.ad.isActive and vehicle.ad.mapHotSpotActive == nil then
 		local hotspotX, _, hotspotZ = getWorldTranslation(vehicle.rootNode)
 		local _, textSize = getNormalizedScreenValues(0, 6) --Textsize local _, textSize = getNormalizedScreenValues(0, 9)
-		local _, textOffsetY = getNormalizedScreenValues(0, 10) --Distance to icon -- local _, textOffsetY = getNormalizedScreenValues(0, 24)
+		local _, textOffsetY = getNormalizedScreenValues(0, 15) --Distance to icon -- local _, textOffsetY = getNormalizedScreenValues(0, 24)
 		local width, height = getNormalizedScreenValues(10, 10) --Triggersize -- local width, height = getNormalizedScreenValues(18, 18)
 		vehicle.ad.mapHotspot = MapHotspot:new("adDriver", MapHotspot.CATEGORY_AI)
 		vehicle.ad.mapHotspot:setSize(width, height)
@@ -367,6 +369,7 @@ function AutoDriveHud:createMapHotspot(vehicle)
 		vehicle.ad.mapHotspot:setColor({0.0, 0.569, 0.835, 1})
 
 		g_currentMission:addMapHotspot(vehicle.ad.mapHotspot)
+		vehicle.ad.mapHotSpotActive = true
 	end
 end
 
@@ -375,5 +378,6 @@ function AutoDriveHud:deleteMapHotspot(vehicle)
 		g_currentMission:removeMapHotspot(vehicle.ad.mapHotspot)
 		vehicle.ad.mapHotspot:delete()
 		vehicle.ad.mapHotspot = nil
+		vehicle.ad.mapHotSpotActive = nil
 	end
 end
