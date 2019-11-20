@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9-9"
+AutoDrive.Version = "1.0.6.9-10"
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -526,6 +526,9 @@ function AutoDrive:loadTriggerDelete(superFunc)
 end
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
+	if self.getMotorStartTime ~= nil then
+		allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
+	end
 	local angle = 0
 	if lx ~= nil and lz ~= nil then
 		local dot = lz
