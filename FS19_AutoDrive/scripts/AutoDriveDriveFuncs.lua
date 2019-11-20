@@ -86,6 +86,10 @@ function AutoDrive:handleDriving(vehicle, dt)
     end
 end
 
+function AutoDrive.shouldStopMotor(vehicle)
+    return vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE
+end
+
 function AutoDrive:checkActiveAttributesSet(vehicle)
     if vehicle.ad.isActive == true and vehicle.isServer then
         vehicle.forceIsActive = true
@@ -99,17 +103,21 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
         vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
         if vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights") then
-            if not AutoDrive:isOnField(vehicle) then
+            if not AutoDrive:isOnField(vehicle) and vehicle.spec_motorized.isMotorStarted then
                 vehicle:setBeaconLightsVisibility(true)
             else
                 vehicle:setBeaconLightsVisibility(false)
             end
         end
-        
+
         -- Only the server have to start motor
-        if vehicle.startMotor and vehicle.stopMotor and not vehicle.spec_motorized.isMotorStarted then
-            if vehicle.ad.isActive and vehicle:getCanMotorRun() then
+        if vehicle.startMotor and vehicle.stopMotor then
+            if not AutoDrive.shouldStopMotor(vehicle) and not vehicle.spec_motorized.isMotorStarted and vehicle:getCanMotorRun() then
                 vehicle:startMotor()
+            end
+
+            if AutoDrive.shouldStopMotor(vehicle) and vehicle.spec_motorized.isMotorStarted then
+                vehicle:stopMotor()
             end
         end
     end

@@ -41,7 +41,7 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         local cpIsCalling = false
         if vehicle.cp and vehicle.cp.driver and vehicle.cp.driver.isWaitingForUnload then
             cpIsCalling = vehicle.cp.driver:isWaitingForUnload()
-        end    
+        end
 
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
             vehicle.ad.tryingToCallDriver = true
@@ -92,10 +92,10 @@ function AutoDrive:callDriverToCombine(combine)
                     combine.ad.tryingToCallDriver = false
                     combine.ad.driverOnTheWay = true
                     combine.ad.preCalledDriver = false
-                    
-                    closestDriver.ad.driveToUnloadNext = false;
+
+                    closestDriver.ad.driveToUnloadNext = false
                     if combine.cp and combine.cp.driver and combine.cp.driver.isWaitingForUnloadAfterCourseEnded then
-                        closestDriver.ad.driveToUnloadNext = combine.cp.driver:isWaitingForUnloadAfterCourseEnded();
+                        closestDriver.ad.driveToUnloadNext = combine.cp.driver:isWaitingForUnloadAfterCourseEnded()
                     end
                 end
             end
@@ -138,10 +138,10 @@ function AutoDrive:preCallDriverToCombine(combine)
             combine.ad.tryingToCallDriver = false
             combine.ad.driverOnTheWay = true
             combine.ad.preCalledDriver = true
-            
-            closestDriver.ad.driveToUnloadNext = false;
+
+            closestDriver.ad.driveToUnloadNext = false
             if combine.cp and combine.cp.driver and combine.cp.driver.isWaitingForUnloadAfterCourseEnded then
-                closestDriver.ad.driveToUnloadNext = combine.cp.driver:isWaitingForUnloadAfterCourseEnded();
+                closestDriver.ad.driveToUnloadNext = combine.cp.driver:isWaitingForUnloadAfterCourseEnded()
             end
         end
     end

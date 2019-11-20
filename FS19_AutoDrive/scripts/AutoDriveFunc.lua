@@ -73,7 +73,7 @@ function AutoDrive:startAD(vehicle)
 	if vehicle.ad.mode == AutoDrive.MODE_BGA then
 		vehicle.bga.state = AutoDriveBGA.STATE_INIT
 	end
-	
+
 	AutoDriveHud:createMapHotspot(vehicle)
 end
 
@@ -91,6 +91,9 @@ function AutoDrive:stopVehicle(vehicle, dt)
 		AutoDrive:getVehicleToStop(vehicle, true, dt)
 	else
 		AutoDrive:disableAutoDriveFunctions(vehicle)
+		if vehicle.isServer and vehicle.spec_motorized.isMotorStarted then
+			vehicle:stopMotor()
+		end
 	end
 end
 
