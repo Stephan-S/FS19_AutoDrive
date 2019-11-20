@@ -51,6 +51,10 @@ end
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
     self.ad = {}
+    self.ad.smootherDriving = {}
+    self.ad.smootherDriving.lastLx = 0
+    self.ad.smootherDriving.lastLz = 1
+    self.ad.smootherDriving.lastMaxSpeed = 0
     self.ad.targetSelected = -1
     self.ad.mapMarkerSelected = -1
     self.ad.nameOfSelectedTarget = ""
@@ -698,5 +702,90 @@ function AutoDrive:updateAILights(superFunc)
         return
     else
         superFunc(self)
+    end
+end
+
+AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
+    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
+        if self.ad.isActive then
+            lx = lx or 0
+            ly = ly or 1
+
+            local realSpeed = math.abs(self.lastSpeedReal) * 3600 -- Convert speed to km/h
+            local speedFactor = AutoDrive.SD_MAX_SPEED_FACTOR - math.min(realSpeed, AutoDrive.SD_MAX_SPEED_FACTOR) + AutoDrive.SD_MIN_SPEED_FACTOR
+            local xSpeedFactor = speedFactor
+            local ySpeedFactor = speedFactor
+            if (self.ad.smootherDriving.lastLx > 0 and self.ad.smootherDriving.lastLx > lx) or (self.ad.smootherDriving.lastLx < 0 and self.ad.smootherDriving.lastLx < lx) then
+                -- If the steering is going back straight it must rotate faster
+                xSpeedFactor = xSpeedFactor / AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER
+            end
+            xSpeedFactor = math.max(xSpeedFactor, 1)
+            ySpeedFactor = math.max(ySpeedFactor, 1)
+
+            self.ad.smootherDriving.lastLx = self.ad.smootherDriving.lastLx + ((lx - self.ad.smootherDriving.lastLx) / xSpeedFactor)
+            self.ad.smootherDriving.lastLz = self.ad.smootherDriving.lastLz + ((lz - self.ad.smootherDriving.lastLz) / ySpeedFactor)
+            self.ad.smootherDriving.lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed + ((maxSpeed - self.ad.smootherDriving.lastMaxSpeed) / 120)
+
+            lx = self.ad.smootherDriving.lastLx
+            lz = self.ad.smootherDriving.lastLz
+            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
+        else
+            self.ad.smootherDriving.lastLx = 0
+            self.ad.smootherDriving.lastLz = 1
+            self.ad.smootherDriving.lastMaxSpeed = 0
+        end
+    end
+
+    if self.getMotorStartTime ~= nil then
+        allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
+    end
+    local angle = 0
+    if lx ~= nil and lz ~= nil then
+        local dot = lz
+        angle = math.deg(math.acos(dot))
+        if angle < 0 then
+            angle = angle + 180
+        end
+        local turnLeft = lx > 0.00001
+        if not moveForwards then
+            turnLeft = not turnLeft
+        end
+        local targetRotTime = 0
+        if turnLeft then
+            --rotate to the left
+            targetRotTime = self.maxRotTime * math.min(angle / steeringAngleLimit, 1)
+        else
+            --rotate to the right
+            targetRotTime = self.minRotTime * math.min(angle / steeringAngleLimit, 1)
+        end
+        if targetRotTime > self.rotatedTime then
+            self.rotatedTime = math.min(self.rotatedTime + dt * self:getAISteeringSpeed(), targetRotTime)
+        else
+            self.rotatedTime = math.max(self.rotatedTime - dt * self:getAISteeringSpeed(), targetRotTime)
+        end
+    end
+    if self.firstTimeRun then
+        local acc = acceleration
+        if maxSpeed ~= nil and maxSpeed ~= 0 then
+            if math.abs(angle) >= slowAngleLimit then
+                maxSpeed = maxSpeed * slowDownFactor
+            end
+            self.spec_motorized.motor:setSpeedLimit(maxSpeed)
+            if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
+                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE)
+            end
+        else
+            if math.abs(angle) >= slowAngleLimit then
+                acc = slowAcceleration
+            end
+        end
+        if not allowedToDrive then
+            acc = 0
+        end
+        if not moveForwards then
+            acc = -acc
+        end
+        --FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
+        WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
     end
 end

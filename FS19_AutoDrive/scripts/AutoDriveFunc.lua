@@ -80,6 +80,9 @@ end
 function AutoDrive:stopAD(vehicle, withError)
 	vehicle.ad.isStopping = true
 	vehicle.ad.isStoppingWithError = withError
+	if vehicle.ad.isStoppingWithError then
+		vehicle.ad.dontStopMotor = true
+	end
 end
 
 function AutoDrive:stopVehicle(vehicle, dt)
@@ -92,7 +95,11 @@ function AutoDrive:stopVehicle(vehicle, dt)
 	else
 		AutoDrive:disableAutoDriveFunctions(vehicle)
 		if vehicle.isServer and vehicle.spec_motorized.isMotorStarted then
-			vehicle:stopMotor()
+			if vehicle.ad.dontStopMotor then
+				vehicle.ad.dontStopMotor = false
+			else
+				vehicle:stopMotor()
+			end
 		end
 	end
 end
@@ -172,7 +179,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 
 		if vehicle.ad.onRouteToPark == true then
 			vehicle.ad.onRouteToPark = false
-			vehicle:stopMotor(false)
+			vehicle:stopMotor()
 			if vehicle.spec_lights ~= nil then
 				vehicle:deactivateLights()
 			end

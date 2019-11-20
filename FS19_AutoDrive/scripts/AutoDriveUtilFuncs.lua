@@ -376,4 +376,11 @@ function tableClone(org)
 	return copy
 end
 
+addConsoleCommand("ADtoggleSmootherDriving", "Toggle smoother driving experimental feature", "toggleSmootherDriving", AutoDrive)
+
+function AutoDrive:toggleSmootherDriving()
+	AutoDrive.experimentalFeatures.smootherDriving = not AutoDrive.experimentalFeatures.smootherDriving
+	print("AutoDrive.experimentalFeatures.smootherDriving = " .. tostring(AutoDrive.experimentalFeatures.smootherDriving))
+end
+
 -- TODO: Maybe we should add a console command that allows to run console commands to server

@@ -102,6 +102,10 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
+	for feature, enabled in pairs(AutoDrive.experimentalFeatures) do
+		AutoDrive.experimentalFeatures[feature] = Utils.getNoNil(getXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled"), AutoDrive.experimentalFeatures[feature])
+	end
+
 	local mapMarker = {}
 	local mapMarkerCounter = 1
 	mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
@@ -317,6 +321,10 @@ function AutoDrive.saveToXML(xmlFile)
 
 	for settingName, setting in pairs(AutoDrive.settings) do
 		setXMLFloat(xmlFile, "AutoDrive." .. settingName, AutoDrive.settings[settingName].current)
+	end
+
+	for feature, enabled in pairs(AutoDrive.experimentalFeatures) do
+		setXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled", enabled)
 	end
 
 	local idFullTable = {}

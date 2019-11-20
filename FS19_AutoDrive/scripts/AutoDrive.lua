@@ -1,5 +1,7 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9-10"
+AutoDrive.Version = "1.0.6.9-11"
+AutoDrive.experimentalFeatures = {}
+AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -60,6 +62,10 @@ AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
+
+AutoDrive.SD_MAX_SPEED_FACTOR = 40
+AutoDrive.SD_MIN_SPEED_FACTOR = 1
+AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER = 4
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
@@ -523,61 +529,6 @@ function AutoDrive:loadTriggerDelete(superFunc)
 		end
 	end
 	superFunc(self)
-end
-
-AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
-	if self.getMotorStartTime ~= nil then
-		allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
-	end
-	local angle = 0
-	if lx ~= nil and lz ~= nil then
-		local dot = lz
-		angle = math.deg(math.acos(dot))
-		if angle < 0 then
-			angle = angle + 180
-		end
-		local turnLeft = lx > 0.00001
-		if not moveForwards then
-			turnLeft = not turnLeft
-		end
-		local targetRotTime = 0
-		if turnLeft then
-			--rotate to the left
-			targetRotTime = self.maxRotTime * math.min(angle / steeringAngleLimit, 1)
-		else
-			--rotate to the right
-			targetRotTime = self.minRotTime * math.min(angle / steeringAngleLimit, 1)
-		end
-		if targetRotTime > self.rotatedTime then
-			self.rotatedTime = math.min(self.rotatedTime + dt * self:getAISteeringSpeed(), targetRotTime)
-		else
-			self.rotatedTime = math.max(self.rotatedTime - dt * self:getAISteeringSpeed(), targetRotTime)
-		end
-	end
-	if self.firstTimeRun then
-		local acc = acceleration
-		if maxSpeed ~= nil and maxSpeed ~= 0 then
-			if math.abs(angle) >= slowAngleLimit then
-				maxSpeed = maxSpeed * slowDownFactor
-			end
-			self.spec_motorized.motor:setSpeedLimit(maxSpeed)
-			if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
-				self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE)
-			end
-		else
-			if math.abs(angle) >= slowAngleLimit then
-				acc = slowAcceleration
-			end
-		end
-		if not allowedToDrive then
-			acc = 0
-		end
-		if not moveForwards then
-			acc = -acc
-		end
-		--FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
-		WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
-	end
 end
 
 addModEventListener(AutoDrive)
