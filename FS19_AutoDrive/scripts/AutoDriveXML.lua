@@ -35,8 +35,14 @@ function AutoDrive.loadInitConfig(xmlFile, createNewXML)
 		AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
 	else
 		g_logManager:devWarning("[AutoDrive] Can't load init config from " .. initConfFile)
-		-- TODO: Here we could load custom init config from mod map as requested with #211
-		AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
+		-- Loading custom init config from mod map
+		initConfFile = g_currentMission.missionInfo.map.baseDirectory .. "AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
+		if fileExists(initConfFile) then
+			g_logManager:devInfo("[AutoDrive] Loading init config from " .. initConfFile)
+			AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
+		else
+			g_logManager:devWarning("[AutoDrive] Can't load init config from " .. initConfFile)
+		end
 	end
 
 	AutoDrive.MarkChanged()
