@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9-11"
+AutoDrive.Version = "1.0.6.9-12"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -63,9 +63,9 @@ AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
 
-AutoDrive.SD_MAX_SPEED_FACTOR = 40
+AutoDrive.SD_MAX_SPEED_FACTOR = 35
 AutoDrive.SD_MIN_SPEED_FACTOR = 1
-AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER = 4
+AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER = 6
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))

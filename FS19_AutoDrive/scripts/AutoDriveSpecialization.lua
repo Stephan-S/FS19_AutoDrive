@@ -709,7 +709,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
     if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
         if self.ad.isActive then
             lx = lx or 0
-            ly = ly or 1
+            lz = lz or 1
 
             local realSpeed = math.abs(self.lastSpeedReal) * 3600 -- Convert speed to km/h
             local speedFactor = AutoDrive.SD_MAX_SPEED_FACTOR - math.min(realSpeed, AutoDrive.SD_MAX_SPEED_FACTOR) + AutoDrive.SD_MIN_SPEED_FACTOR
@@ -724,7 +724,12 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
 
             self.ad.smootherDriving.lastLx = self.ad.smootherDriving.lastLx + ((lx - self.ad.smootherDriving.lastLx) / xSpeedFactor)
             self.ad.smootherDriving.lastLz = self.ad.smootherDriving.lastLz + ((lz - self.ad.smootherDriving.lastLz) / ySpeedFactor)
-            self.ad.smootherDriving.lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed + ((maxSpeed - self.ad.smootherDriving.lastMaxSpeed) / 120)
+            self.ad.smootherDriving.lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed + ((maxSpeed - self.ad.smootherDriving.lastMaxSpeed) / 100)
+
+            if maxSpeed == 0 and self.ad.smootherDriving.lastMaxSpeed < 6 then
+                -- Hard braking, is needed to prevent combine's pipe overstep
+                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
+            end
 
             lx = self.ad.smootherDriving.lastLx
             lz = self.ad.smootherDriving.lastLz
@@ -739,6 +744,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
     if self.getMotorStartTime ~= nil then
         allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
     end
+
     local angle = 0
     if lx ~= nil and lz ~= nil then
         local dot = lz
