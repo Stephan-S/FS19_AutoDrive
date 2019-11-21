@@ -691,6 +691,17 @@ AutoDrive.settings.autoRefuel = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.fuelSaving = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_fuelSaving",
+    tooltip = "gui_ad_fuelSaving_tooltip",
+    translate = true,
+    isVehicleSpecific = false -- Maybe it should be 'vehicle specific' but it would be a hell to manually set it on every vehicle
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

@@ -80,9 +80,6 @@ end
 function AutoDrive:stopAD(vehicle, withError)
 	vehicle.ad.isStopping = true
 	vehicle.ad.isStoppingWithError = withError
-	if vehicle.ad.isStoppingWithError then
-		vehicle.ad.dontStopMotor = true
-	end
 end
 
 function AutoDrive:stopVehicle(vehicle, dt)
@@ -93,14 +90,11 @@ function AutoDrive:stopVehicle(vehicle, dt)
 	if vehicle.ad.isStopping then
 		AutoDrive:getVehicleToStop(vehicle, true, dt)
 	else
+		-- We don't need that, since the motor is turned off automatically when the helper is kicked out
+		--if AutoDrive.getSetting("fuelSaving") and vehicle.isServer and (vehicle.getIsEntered == nil or not vehicle:getIsEntered()) and vehicle.spec_motorized.isMotorStarted then
+		--	vehicle:stopMotor()
+		--end
 		AutoDrive:disableAutoDriveFunctions(vehicle)
-		if vehicle.isServer and vehicle.spec_motorized.isMotorStarted then
-			if vehicle.ad.dontStopMotor then
-				vehicle.ad.dontStopMotor = false
-			else
-				vehicle:stopMotor()
-			end
-		end
 	end
 end
 
@@ -179,7 +173,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 
 		if vehicle.ad.onRouteToPark == true then
 			vehicle.ad.onRouteToPark = false
-			vehicle:stopMotor()
+			-- We don't need that, since the motor is turned off automatically when the helper is kicked out
+			--vehicle:stopMotor()
 			if vehicle.spec_lights ~= nil then
 				vehicle:deactivateLights()
 			end

@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9-12"
+AutoDrive.Version = "1.0.6.9-13"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -276,7 +276,11 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	--AutoDrive.renderTable(0.2, 0.9, 0.009, AutoDrive.settings, 1)
+	--local t = {}
+	--for k, v in pairs(AutoDrive.settings) do
+	--	t[k] = tostring(v.current) .. " -> " .. tostring(v.values[v.current])
+	--end
+	--AutoDrive.renderTable(0.2, 0.9, 0.009, t)
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
 	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do
@@ -429,6 +433,13 @@ function AutoDrive.renameDriver(vehicle, name, sendEvent)
 			vehicle.ad.driverName = name
 		end
 	end
+end
+
+function AutoDrive.getIsStuckInTraffic(vehicle)
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stuckInTrafficTimer ~= nil then
+		return vehicle.ad.stuckInTrafficTimer >= 1000 -- 1 second
+	end
+	return false
 end
 
 function AutoDrive:zoomSmoothly(superFunc, offset)

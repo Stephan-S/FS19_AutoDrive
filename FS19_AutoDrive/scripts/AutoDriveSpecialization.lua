@@ -55,6 +55,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.smootherDriving.lastLx = 0
     self.ad.smootherDriving.lastLz = 1
     self.ad.smootherDriving.lastMaxSpeed = 0
+    self.ad.stuckInTrafficTimer = 0
     self.ad.targetSelected = -1
     self.ad.mapMarkerSelected = -1
     self.ad.nameOfSelectedTarget = ""
@@ -379,7 +380,15 @@ function AutoDrive:onUpdate(dt)
     end
 
     if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
-        AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive:createVehicleInfoTable(self), 5)
+        AutoDrive.renderTable(0.1, 0.9, 0.012, AutoDrive:createVehicleInfoTable(self), 5)
+    end
+
+    if self.ad.trafficDetected then
+        if self.ad.stuckInTrafficTimer < 60000 then -- After a minute we can even stop counting
+            self.ad.stuckInTrafficTimer = self.ad.stuckInTrafficTimer + dt
+        end
+    else
+        self.ad.stuckInTrafficTimer = 0
     end
 end
 
@@ -403,6 +412,8 @@ function AutoDrive:createVehicleInfoTable(vehicle)
     infoTable["currentTrailer"] = vehicle.ad.currentTrailer
     infoTable["combineState"] = AutoDrive.combineStateToName(vehicle)
     infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle)
+    infoTable["trafficDetected"] = vehicle.ad.trafficDetected
+    infoTable["isStuckInTraffic"] = AutoDrive.getIsStuckInTraffic(vehicle)
 
     local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
     local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)

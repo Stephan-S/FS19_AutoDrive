@@ -87,7 +87,7 @@ function AutoDrive:handleDriving(vehicle, dt)
 end
 
 function AutoDrive.shouldStopMotor(vehicle)
-    return vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE
+    return (vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE or AutoDrive.getIsStuckInTraffic(vehicle)) and vehicle.lastSpeedReal < 0.0001
 end
 
 function AutoDrive:checkActiveAttributesSet(vehicle)
@@ -110,7 +110,7 @@ function AutoDrive:checkActiveAttributesSet(vehicle)
             end
         end
 
-        -- Only the server have to start motor
+        -- Only the server have to start/stop motor
         if vehicle.startMotor and vehicle.stopMotor then
             if not AutoDrive.shouldStopMotor(vehicle) and not vehicle.spec_motorized.isMotorStarted and vehicle:getCanMotorRun() then
                 vehicle:startMotor()
