@@ -76,7 +76,7 @@ function AutoDrive:callDriverToCombine(combine)
                 end
 
                 if closestDriver ~= nil then
-                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " callDriverToCombine")
+                    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, " callDriverToCombine")
                     AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, dischargeNode.node)
                     closestDriver.ad.currentCombine = combine
                     AutoDrive.waitingUnloadDrivers[closestDriver] = nil
@@ -122,7 +122,7 @@ function AutoDrive:preCallDriverToCombine(combine)
         end
 
         if closestDriver ~= nil then
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " preCallDriverToCombine")
+            AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, " preCallDriverToCombine")
             AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil)
             closestDriver.ad.currentCombine = combine
             AutoDrive.waitingUnloadDrivers[closestDriver] = nil

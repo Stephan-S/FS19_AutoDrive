@@ -894,7 +894,7 @@ function AutoDrive.getFillUnitEmptyForSomeTime(trailer, fillUnitEmpty)
         if trailer.emptyTimer == nil then
             trailer.emptyTimer = AutoDriveTON:new()
         end
-        return trailer.emptyTimer:timer(fillUnitEmpty, 1000, dt)
+        return trailer.emptyTimer:timer(fillUnitEmpty, 1000, nil)
     end
     return false
 end

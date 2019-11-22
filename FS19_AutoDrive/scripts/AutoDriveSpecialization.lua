@@ -319,7 +319,7 @@ function AutoDrive:onToggleMouse(vehicle)
     if g_inputBinding:getShowMouseCursor() == true then
         if vehicle.spec_enterable ~= nil then
             if vehicle.spec_enterable.cameras ~= nil then
-                for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
+                for _, camera in pairs(vehicle.spec_enterable.cameras) do
                     camera.allowTranslation = false
                     camera.isRotatable = false
                 end
@@ -328,7 +328,7 @@ function AutoDrive:onToggleMouse(vehicle)
     else
         if vehicle.spec_enterable ~= nil then
             if vehicle.spec_enterable.cameras ~= nil then
-                for camIndex, camera in pairs(vehicle.spec_enterable.cameras) do
+                for _, camera in pairs(vehicle.spec_enterable.cameras) do
                     camera.allowTranslation = true
                     camera.isRotatable = true
                 end
@@ -440,7 +440,7 @@ function AutoDrive:createVehicleInfoTable(vehicle)
     local trailerIndex = 1
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer, selectedFillType)
+            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer, nil)
             local trailerMaxCapacity = trailerFillLevel + trailerLeftCapacity
             vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, vehicle.ad.isLoadingToFillUnitIndex)
             vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, trailer, vehicle.ad.isUnloadingWithFillUnit)
@@ -453,7 +453,7 @@ function AutoDrive:createVehicleInfoTable(vehicle)
             infoTable["Filllevels"]["trailer_" .. trailerIndex]["empty"] = trailerEmpty
 
             for fillUnitIndex, fillUnit in pairs(trailer:getFillUnits()) do
-                local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, selectedFillType)
+                local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, nil)
                 local unitMaxCapacity = unitFillLevel + unitLeftCapacity
                 vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, fillUnitIndex)
                 vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, trailer, fillUnitIndex)

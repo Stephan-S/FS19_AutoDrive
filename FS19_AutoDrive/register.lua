@@ -123,7 +123,7 @@ function AutoDriveLoadedMission(mission, superFunc, node)
 end
 
 function AutoDriveOnMissionLoaded(mission)
-	print("On mission loaded called for AutoDrive")
+	--print("On mission loaded called for AutoDrive")
     g_helpLineManager:loadFromXML(Utils.getFilename("helpLine.xml", AutoDrive.directory))
 end
 

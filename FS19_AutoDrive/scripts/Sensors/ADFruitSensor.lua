@@ -7,7 +7,7 @@ function ADFruitSensor:new(vehicle, sensorParameters)
     self.foundFruitType = 0
 
     if sensorParameters.fruitType ~= nil then
-        self.fruitType = fruitType
+        self.fruitType = sensorParameters.fruitType
     end
 
     return self

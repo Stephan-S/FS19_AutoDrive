@@ -13,11 +13,11 @@ function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
 
-	for i, polygon in pairs(polygons) do
+	for _, polygon in pairs(polygons) do
 		-- for each polygon, look at each edge of the polygon, and determine if it separates
 		-- the two shapes
 
-		for i1, corners in pairs(polygon) do
+		for i1, _ in pairs(polygon) do
 			--grab 2 vertices to create an edge
 			local i2 = (i1 % 4 + 1)
 			local p1 = polygon[i1]
@@ -45,8 +45,8 @@ function AutoDrive.boxesIntersect(a, b)
 			--and keep track of the min and max of these values
 			minB = nil
 			maxB = nil
-			for j, corner in pairs(polygons[2]) do
-				projected = normal.x * corner.x + normal.z * corner.z
+			for _, corner in pairs(polygons[2]) do
+				local projected = normal.x * corner.x + normal.z * corner.z
 				if minB == nil or projected < minB then
 					minB = projected
 				end
@@ -68,7 +68,8 @@ function AutoDrive.boxesIntersect(a, b)
 end
 
 function string:split(sep)
-	local sep, fields = sep or ":", {}
+	sep = sep or ":"
+	local fields = {}
 	local pattern = string.format("([^%s]+)", sep)
 	self:gsub(
 		pattern,
@@ -142,10 +143,10 @@ function AutoDrive.createVector(x, y, z)
 end
 
 function AutoDrive.round(num)
-	under = math.floor(num)
-	upper = math.floor(num) + 1
-	underV = -(under - num)
-	upperV = upper - num
+	local under = math.floor(num)
+	local upper = math.floor(num) + 1
+	local underV = -(under - num)
+	local upperV = upper - num
 	if (upperV > underV) then
 		return under
 	else
@@ -325,7 +326,7 @@ end
 
 function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConnection, ghostObject, force)
 	local eCopy = {}
-	eCopy.event = tableClone(event)
+	eCopy.event = AutoDrive.tableClone(event)
 	eCopy.eventName = eCopy.event.className or EventIds.eventIdToName[event.eventId]
 	eCopy.sendLocal = sendLocal or false
 	eCopy.ignoreConnection = ignoreConnection or "nil"
@@ -343,7 +344,7 @@ end
 
 function AutoDrive:ConnectionSendEvent(superFunc, event, deleteEvent, force)
 	local eCopy = {}
-	eCopy.event = tableClone(event)
+	eCopy.event = AutoDrive.tableClone(event)
 	eCopy.eventName = eCopy.event.className or EventIds.eventIdToName[event.eventId]
 	eCopy.deleteEvent = deleteEvent or true
 	eCopy.force = force or false
@@ -362,7 +363,7 @@ function NetworkNode:addPacketSize(packetType, packetSizeInBytes)
 	end
 end
 
-function tableClone(org)
+function AutoDrive.tableClone(org)
 	local otype = type(org)
 	local copy
 	if otype == "table" then

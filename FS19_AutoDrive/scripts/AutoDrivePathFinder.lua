@@ -21,8 +21,8 @@ AutoDrivePathFinder = {}
 
 function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischargeNode, alreadyOnField)
     --g_logManager:devInfo("startPathPlanningToCombine " .. driver.ad.driverName );
-    local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
+    local _, worldY, _ = getWorldTranslation(combine.components[1].node)
+    local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
     local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
 
@@ -98,11 +98,11 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
 
     --local atan = AutoDrive.normalizeAngle(math.atan2(driverVector.z, driverVector.x))
     local atan = AutoDrive.normalizeAngle(math.atan2(combineVector.z, combineVector.x))
-    
+
     local sin = math.sin(atan)
     local cos = math.cos(atan)
 
-    minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver)
+    local minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver)
 
     local vectorX = {}
     vectorX.x = cos * minTurnRadius
@@ -194,14 +194,14 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
         end
     end
 
-    targetVector.x = targetPoint.x - preTargetPoint.x;
-    targetVector.z = targetPoint.z - preTargetPoint.z;
-    
+    targetVector.x = targetPoint.x - preTargetPoint.x
+    targetVector.z = targetPoint.z - preTargetPoint.z
+
     local atan = AutoDrive.normalizeAngle(math.atan2(targetVector.z, targetVector.x))
     local sin = math.sin(atan)
     local cos = math.cos(atan)
 
-    minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver)
+    local minTurnRadius = AutoDrivePathFinder:getDriverRadius(driver)
 
     local vectorX = {}
     vectorX.x = cos * minTurnRadius
@@ -299,8 +299,8 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
 
     driver.ad.currentTrailer = 1
     driver.ad.designatedTrailerFillLevel = math.huge
-    
-    startCell = {x = 0, z = 0}
+
+    local startCell = {x = 0, z = 0}
     --startCell.direction = AutoDrive.PP_UP
     startCell.direction = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, startVector)
     startCell.visited = false
@@ -314,7 +314,7 @@ function AutoDrivePathFinder:init(driver, startX, startZ, targetX, targetZ, targ
     driver.ad.pf.targetCell = AutoDrivePathFinder:worldLocationToGridLocation(driver.ad.pf, targetX, targetZ)
     --local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(driver.ad.pf, targetVector)
     --AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, targetDirection, driver.ad.pf.targetCell)
-    AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, AutoDrive.PP_UP, driver.ad.pf.targetCell)    
+    AutoDrivePathFinder:determineBlockedCells(driver.ad.pf, AutoDrive.PP_UP, driver.ad.pf.targetCell)
 
     table.insert(driver.ad.pf.grid, startCell)
     driver.ad.pf.smoothStep = 0
@@ -350,7 +350,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             local targetDirection = AutoDrivePathFinder:worldDirectionToGridDirection(pf, pf.targetVector)
             AutoDrivePathFinder:determineBlockedCells(pf, targetDirection, pf.targetCell)
             pf.smoothStep = 0
-            smoothDone = false
+            pf.smoothDone = false
         else
             --stop searching
             pf.isFinished = true
@@ -376,8 +376,8 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             for _, cell in pairs(grid) do
                 --also checking for preDriveCombine here -> don't ever drive through fruit in preDrive mode -> this will often result in driver cutting through fruit in front of combine!
                 if not cell.visited and ((not cell.isRestricted) or (pf.fallBackMode and (not pf.preDriveCombine))) and (not cell.hasCollision) and cell.hasInfo == true then
-                    local distance = cellDistance(pf, cell)
-                    local originalDistance = cellDistance(pf, pf.startCell)
+                    local distance = AutoDrivePathFinder.cellDistance(pf, cell)
+                    local originalDistance = AutoDrivePathFinder.cellDistance(pf, pf.startCell)
                     local ratio = (originalDistance - distance) / cell.steps
 
                     if distance < minDistance then
@@ -403,7 +403,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
                 pf.currentCell = bestCell
             end
 
-            if pf.currentCell ~= nil and cellDistance(pf, pf.currentCell) == 0 then
+            if pf.currentCell ~= nil and AutoDrivePathFinder.cellDistance(pf, pf.currentCell) == 0 then
                 pf.isFinished = true
                 pf.targetCell.incoming = pf.currentCell.incoming
                 if pf.currentCell.hasFruit ~= nil then
@@ -433,7 +433,7 @@ function AutoDrivePathFinder:isPathPlanningFinished(driver)
     if driver.ad.pf ~= nil then
         if driver.ad.pf.isFinished == true and driver.ad.pf.smoothDone == true then
             if driver.ad.createMapPoints and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-                drawDebugForCreatedRoute(driver.ad.pf)
+                AutoDrivePathFinder.drawDebugForCreatedRoute(driver.ad.pf)
             else
                 return true
             end
@@ -586,7 +586,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         local corner4X = worldPos.x + (pf.vectorX.x + pf.vectorZ.x) / 2
         local corner4Z = worldPos.z + (pf.vectorX.z + pf.vectorZ.z) / 2
 
-        local shapeDefinition = getShapeDefByDirectionType(pf, cell)
+        local shapeDefinition = AutoDrivePathFinder.getShapeDefByDirectionType(pf, cell)
 
         local angleRad = math.atan2(pf.targetVector.z, pf.targetVector.x)
         angleRad = AutoDrive.normalizeAngle(angleRad)
@@ -599,7 +599,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         cell.hasCollision = cell.hasCollision or AutoDrivePathFinder:checkSlopeAngle(worldPos.x, worldPos.z, worldPosPrevious.x, worldPosPrevious.z)
 
         if (pf.ignoreFruit == nil or pf.ignoreFruit == false) and AutoDrive.getSetting("avoidFruit", pf.driver) then
-            checkForFruitInArea(pf, cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+            AutoDrivePathFinder.checkForFruitInArea(pf, cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
         else
             cell.isRestricted = false
             cell.hasFruit = not AutoDrive.getSetting("avoidFruit", pf.driver) --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
@@ -647,7 +647,7 @@ function AutoDrivePathFinder:checkSlopeAngle(x1, z1, x2, z2)
     return false
 end
 
-function getShapeDefByDirectionType(pf, cell)
+function AutoDrivePathFinder.getShapeDefByDirectionType(pf, cell)
     local shapeDefinition = {}
     shapeDefinition.angleRad = math.atan2(-pf.targetVector.z, pf.targetVector.x)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
@@ -809,7 +809,6 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 end
                 pf.filteredIndex = pf.filteredIndex + 1
 
-                local foundCollision = false
                 pf.lookAheadIndex = 1
                 pf.eagerLookAhead = 0
                 pf.totalEagerSteps = 0
@@ -818,6 +817,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2))
             local sideLength = widthOfColBox / 2
             local y = worldPos.y
+            local foundCollision = false
 
             local stepsOfLookAheadThisFrame = 0
             while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex + pf.totalEagerSteps) < (AutoDrive.tableLength(pf.wayPoints) - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < unfilteredEndPointCount do
@@ -1051,26 +1051,26 @@ function AutoDrivePathFinder:determineBlockedCells(pf, endDirection, cell)
     end
 end
 
-function cellDistance(pf, cell)
+function AutoDrivePathFinder.cellDistance(pf, cell)
     return math.sqrt(math.pow(pf.targetCell.x - cell.x, 2) + math.pow(pf.targetCell.z - cell.z, 2))
 end
 
-function checkForFruitInArea(pf, cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+function AutoDrivePathFinder.checkForFruitInArea(pf, cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
     if pf.fruitToCheck == nil then
         for i = 1, #g_fruitTypeManager.fruitTypes do
             if i ~= g_fruitTypeManager.nameToIndex["GRASS"] and i ~= g_fruitTypeManager.nameToIndex["DRYGRASS"] then
                 local fruitType = g_fruitTypeManager.fruitTypes[i].index
                 if cell.isRestricted == false and pf.fruitToCheck == nil then --stop if cell is already restricted and/or fruit type is now known
-                    checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+                    AutoDrivePathFinder.checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
                 end
             end
         end
     else
-        checkForFruitTypeInArea(pf, cell, pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+        AutoDrivePathFinder.checkForFruitTypeInArea(pf, cell, pf.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
     end
 end
 
-function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+function AutoDrivePathFinder.checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
     local fruitValue = 0
     if fruitType == 9 or fruitType == 22 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true)
@@ -1088,7 +1088,7 @@ function checkForFruitTypeInArea(pf, cell, fruitType, cornerX, cornerZ, corner2X
     cell.hasFruit = (fruitValue > 150)
 
     --Allow fruit in the first few grid cells
-    if ((((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or cellDistance(pf, cell) <= 3) and (not pf.preDriveCombine) then
+    if ((((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or AutoDrivePathFinder.cellDistance(pf, cell) <= 3) and (not pf.preDriveCombine) then
         cell.isRestricted = false or wasRestricted
     end
 end
@@ -1300,10 +1300,10 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
     AutoDrive:drawLine(pointAB, pointTargetVector, 1, 1, 1, 1)
 end
 
-function drawDebugForCreatedRoute(pf)
+function AutoDrivePathFinder.drawDebugForCreatedRoute(pf)
     if pf.chainStartToTarget ~= nil then
         for chainIndex, cell in pairs(pf.chainStartToTarget) do
-            local shape = getShapeDefByDirectionType(pf, cell)
+            local shape = AutoDrivePathFinder.getShapeDefByDirectionType(pf, cell)
             if shape.x ~= nil then
                 local pointA = {
                     x = shape.x + shape.widthX * math.cos(shape.angleRad) + shape.widthZ * math.sin(shape.angleRad),

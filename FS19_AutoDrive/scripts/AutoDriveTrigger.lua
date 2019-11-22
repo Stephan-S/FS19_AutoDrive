@@ -1,5 +1,5 @@
-AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 25;
-AutoDrive.REFUEL_LEVEL = 0.15;
+AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 25
+AutoDrive.REFUEL_LEVEL = 0.15
 
 function AutoDrive.getAllTriggers()
     AutoDrive.Triggers = {}
@@ -180,89 +180,89 @@ function AutoDrive.getAllTriggers()
 end
 
 function AutoDrive.getRefuelTriggers()
-    local refuelTriggers = {};
+    local refuelTriggers = {}
 
     for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
         --loadTriggers
         if trigger.source ~= nil and trigger.source.providedFillTypes ~= nil and trigger.source.providedFillTypes[32] then
-            table.insert(refuelTriggers, trigger);
+            table.insert(refuelTriggers, trigger)
         end
-    end;
+    end
 
-    return refuelTriggers;
-end;
+    return refuelTriggers
+end
 
 function AutoDrive.getClosestRefuelTrigger(vehicle)
-    local refuelTriggers = AutoDrive.getRefuelTriggers();
+    local refuelTriggers = AutoDrive.getRefuelTriggers()
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
 
-    local closestRefuelTrigger = nil;
-    local closestDistance = math.huge;
+    local closestRefuelTrigger = nil
+    local closestDistance = math.huge
 
-    for _, refuelTrigger in pairs(refuelTriggers) do        
+    for _, refuelTrigger in pairs(refuelTriggers) do
         local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
         local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
 
         if distance < closestDistance then
-            closestDistance = distance;
-            closestRefuelTrigger = refuelTrigger;
-        end;
-    end;
+            closestDistance = distance
+            closestRefuelTrigger = refuelTrigger
+        end
+    end
 
-    return closestRefuelTrigger;
-end;
+    return closestRefuelTrigger
+end
 
 function AutoDrive.getRefuelDestinations()
-    local refuelDestinations = {};
+    local refuelDestinations = {}
 
-    local refuelTriggers = AutoDrive.getRefuelTriggers();
+    local refuelTriggers = AutoDrive.getRefuelTriggers()
 
     for mapMarkerID, mapMarker in pairs(AutoDrive.mapMarker) do
-        local x, z = AutoDrive.mapWayPoints[mapMarker.id].x, AutoDrive.mapWayPoints[mapMarker.id].z;
+        local x, z = AutoDrive.mapWayPoints[mapMarker.id].x, AutoDrive.mapWayPoints[mapMarker.id].z
         for _, refuelTrigger in pairs(refuelTriggers) do
             local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
-            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z);
+            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
             if distance < AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
                 --g_logManager:devInfo("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
-                table.insert(refuelDestinations, mapMarkerID);
-            end;
-        end;
-    end;
+                table.insert(refuelDestinations, mapMarkerID)
+            end
+        end
+    end
 
-    return refuelDestinations;
-end;
+    return refuelDestinations
+end
 
 function AutoDrive.getClosestRefuelDestination(vehicle)
-    local refuelDestinations = AutoDrive.getRefuelDestinations();
+    local refuelDestinations = AutoDrive.getRefuelDestinations()
 
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    local closestRefuelDestination = nil;
-    local closestDistance = math.huge;
+    local closestRefuelDestination = nil
+    local closestDistance = math.huge
 
     for _, refuelDestination in pairs(refuelDestinations) do
-        local refuelX, refuelZ = AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].x, AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].z;
-        local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z);
+        local refuelX, refuelZ = AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].x, AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].z
+        local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z)
         if distance < closestDistance then
-            closestDistance = distance;
-            closestRefuelDestination = refuelDestination;
-        end;
-    end;
+            closestDistance = distance
+            closestRefuelDestination = refuelDestination
+        end
+    end
 
-    return closestRefuelDestination;
-end;
+    return closestRefuelDestination
+end
 
 function AutoDrive.hasToRefuel(vehicle)
     local spec = vehicle.spec_motorized
 
-    return vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) <= AutoDrive.REFUEL_LEVEL;
-end;
+    return vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) <= AutoDrive.REFUEL_LEVEL
+end
 
 function AutoDrive.startRefuelingWhenInRange(vehicle, dt)
     local refuelTrigger = AutoDrive.getClosestRefuelTrigger(vehicle)
 
     local spec = vehicle.spec_motorized
     local fillUnitIndex = spec.consumersByFillTypeName.diesel.fillUnitIndex
-    local isInRange = false;
+    local isInRange = false
     if refuelTrigger ~= nil and refuelTrigger.fillableObjects ~= nil then
         for _, fillableObject in pairs(refuelTrigger.fillableObjects) do
             if fillableObject == vehicle or (fillableObject.object ~= nil and fillableObject.object == vehicle and fillableObject.fillUnitIndex == fillUnitIndex) then
@@ -271,40 +271,39 @@ function AutoDrive.startRefuelingWhenInRange(vehicle, dt)
         end
     end
 
-    local isFull = vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) >= 0.99;
-    
+    local isFull = vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) >= 0.99
+
     if isInRange and (not refuelTrigger.isLoading) and (not isFull) then
-        AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling");
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling")
         refuelTrigger.autoStart = true
         refuelTrigger.selectedFillType = 32
         refuelTrigger:onFillTypeSelection(32)
         refuelTrigger.selectedFillType = 32
         g_effectManager:setFillType(refuelTrigger.effects, refuelTrigger.selectedFillType)
-        vehicle.ad.startedRefueling = true;
-        vehicle.ad.isPaused = true;
+        vehicle.ad.startedRefueling = true
+        vehicle.ad.isPaused = true
     else
         if vehicle.ad.startedRefueling and (not refuelTrigger.isLoading) then
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Done refueling");
-            vehicle.ad.startedRefueling = false;
-            AutoDrive.continueAfterRefueling(vehicle);
-        end;
-    end;
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Done refueling")
+            vehicle.ad.startedRefueling = false
+            AutoDrive.continueAfterRefueling(vehicle)
+        end
+    end
 
     if vehicle.ad.startedRefueling then
-        AutoDrive:getVehicleToStop(vehicle, false, dt);
-    end;
-end;
+        AutoDrive:getVehicleToStop(vehicle, false, dt)
+    end
+end
 
 function AutoDrive.goToRefuelStation(vehicle)
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "goToRefuelStation");
-    vehicle.ad.storedMapMarkerSelected = vehicle.ad.mapMarkerSelected;
-    vehicle.ad.storedMode = vehicle.ad.mode;
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "goToRefuelStation")
+    vehicle.ad.storedMapMarkerSelected = vehicle.ad.mapMarkerSelected
+    vehicle.ad.storedMode = vehicle.ad.mode
 
-    local refuelDestination = AutoDrive.getClosestRefuelDestination(vehicle);
-
+    local refuelDestination = AutoDrive.getClosestRefuelDestination(vehicle)
 
     if refuelDestination ~= nil then
-        vehicle.ad.mapMarkerSelected = refuelDestination;  
+        vehicle.ad.mapMarkerSelected = refuelDestination
         vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
         vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
         if AutoDrive:isActive(vehicle) then
@@ -312,18 +311,18 @@ function AutoDrive.goToRefuelStation(vehicle)
         end
         vehicle.ad.mode = 1
         AutoDrive:InputHandling(vehicle, "input_start_stop")
-        vehicle.ad.onRouteToRefuel = true;
-    end;
-end;
+        vehicle.ad.onRouteToRefuel = true
+    end
+end
 
 function AutoDrive.continueAfterRefueling(vehicle)
-    vehicle.ad.mapMarkerSelected = vehicle.ad.storedMapMarkerSelected;
+    vehicle.ad.mapMarkerSelected = vehicle.ad.storedMapMarkerSelected
     vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
     vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
     if AutoDrive:isActive(vehicle) then
         AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
     end
-    vehicle.ad.mode = vehicle.ad.storedMode;
+    vehicle.ad.mode = vehicle.ad.storedMode
     AutoDrive:InputHandling(vehicle, "input_start_stop")
-    vehicle.ad.onRouteToRefuel = false;
-end;
+    vehicle.ad.onRouteToRefuel = false
+end
