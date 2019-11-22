@@ -159,8 +159,8 @@
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Avvia ricalcolo automaticamente, se necessario." />
 		<text name="gui_ad_autoRefuel"							text="Rifornimento Automatico" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Si dirige verso la destinazione di rifornimento (vicino al punto di rifornimento) quando il livello del carburante è basso." />
-		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Turns off the vehicle when the destination is reached (and the player is not driving)" />
+		<text name="gui_ad_fuelSaving"							text="Risparmio carburante" />
+		<text name="gui_ad_fuelSaving_tooltip"					text="Spegne il veicolo quando viene raggiunta la destinazione (e il giocatore non è sul veicolo)" />
 		<text name="gui_ad_filter"								text="Filtro" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Carica un testo filtro per le destinazioni." />
 		<text name="gui_ad_enterDestinationFilterText"			text="Inserisci testo filtro:" />
