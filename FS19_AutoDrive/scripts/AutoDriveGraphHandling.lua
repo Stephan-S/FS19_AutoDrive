@@ -233,7 +233,7 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 					if AutoDrive.mapMarker[mId + 1] ~= nil then
 						AutoDrive.mapMarker[mId] = AutoDrive.mapMarker[mId + 1]
 					else
-						-- Not sure about that but MarkChanged() should be enough 
+						-- Not sure about that but MarkChanged() should be enough
 						-- No it isnt't. Since the xml file isn't deleted but rather overwritten, we have to remove waypoints that are no longer valid!
 						removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
 						AutoDrive.mapMarker[mId] = nil
@@ -361,8 +361,6 @@ function AutoDrive:handleRecording(vehicle)
 				end
 			end
 		end
-
-		i = i + 1
 	else
 		if i == 2 then
 			local x, y, z = getWorldTranslation(vehicle.components[1].node)
@@ -371,7 +369,6 @@ function AutoDrive:handleRecording(vehicle)
 				if vehicle.ad.createMapPoints == true then
 					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
-				i = i + 1
 			end
 		else
 			local x, y, z = getWorldTranslation(vehicle.components[1].node)
@@ -381,26 +378,15 @@ function AutoDrive:handleRecording(vehicle)
 			local max_distance = 6
 			if angle < 1 then
 				max_distance = 6
-			end
-			if angle >= 1 and angle < 2 then
+			elseif angle < 3 then
 				max_distance = 4
-			end
-			if angle >= 2 and angle < 3 then
-				max_distance = 4
-			end
-			if angle >= 3 and angle < 5 then
+			elseif angle < 5 then
 				max_distance = 3
-			end
-			if angle >= 5 and angle < 8 then
+			elseif angle < 8 then
 				max_distance = 2
-			end
-			if angle >= 8 and angle < 12 then
+			elseif angle < 15 then
 				max_distance = 1
-			end
-			if angle >= 12 and angle < 15 then
-				max_distance = 1
-			end
-			if angle >= 15 and angle < 50 then
+			elseif angle < 50 then
 				max_distance = 0.5
 			end
 
@@ -408,7 +394,6 @@ function AutoDrive:handleRecording(vehicle)
 				if vehicle.ad.createMapPoints == true then
 					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
-				i = i + 1
 			end
 		end
 	end
@@ -496,26 +481,19 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, past, maxDrivingSpeed
 
 	if angle < 3 then
 		drivingSpeed = math.min(drivingSpeed, 50)
-	end
-	if angle >= 3 and angle < 5 then
+	elseif angle < 5 then
 		drivingSpeed = math.min(drivingSpeed, 38)
-	end
-	if angle >= 5 and angle < 8 then
+	elseif angle < 8 then
 		drivingSpeed = math.min(drivingSpeed, 27)
-	end
-	if angle >= 8 and angle < 12 then
+	elseif angle < 12 then
 		drivingSpeed = math.min(drivingSpeed, 20)
-	end
-	if angle >= 12 and angle < 15 then
+	elseif angle < 15 then
 		drivingSpeed = math.min(drivingSpeed, 13)
-	end
-	if angle >= 15 and angle < 20 then
+	elseif angle < 20 then
 		drivingSpeed = math.min(drivingSpeed, 10)
-	end
-	if angle >= 20 and angle < 30 then
+	elseif angle < 30 then
 		drivingSpeed = math.min(drivingSpeed, 7)
-	end
-	if angle >= 30 then
+	else
 		drivingSpeed = math.min(drivingSpeed, 4)
 	end
 
