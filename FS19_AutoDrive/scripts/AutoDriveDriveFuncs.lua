@@ -416,26 +416,19 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
 
         if highestAngle < 3 then
             vehicle.ad.speedOverride = vehicle.ad.targetSpeed
-        end
-        if highestAngle >= 3 and highestAngle < 5 then
+        elseif highestAngle < 5 then
             vehicle.ad.speedOverride = 38
-        end
-        if highestAngle >= 5 and highestAngle < 8 then
+        elseif highestAngle < 8 then
             vehicle.ad.speedOverride = 27
-        end
-        if highestAngle >= 8 and highestAngle < 12 then
+        elseif highestAngle < 12 then
             vehicle.ad.speedOverride = 20
-        end
-        if highestAngle >= 12 and highestAngle < 15 then
+        elseif highestAngle < 15 then
             vehicle.ad.speedOverride = 17
-        end
-        if highestAngle >= 15 and highestAngle < 20 then
+        elseif highestAngle < 20 then
             vehicle.ad.speedOverride = 16
-        end
-        if highestAngle >= 20 and highestAngle < 30 then
+        elseif highestAngle < 30 then
             vehicle.ad.speedOverride = 13
-        end
-        if highestAngle >= 30 and highestAngle < 90 then
+        elseif highestAngle < 90 then
             vehicle.ad.speedOverride = 13
         end
     end
@@ -449,15 +442,16 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         vehicle.ad.speedOverride = vehicle.ad.targetSpeed
     end
 
-    if distanceToTarget < 45 and distanceToTarget >= 15 then
+    if distanceToTarget > 45 then
+        -- no change
+    elseif distanceToTarget > 20 then
         vehicle.ad.speedOverride = math.min(distanceToTarget, vehicle.ad.speedOverride)
-    end
-    if distanceToTarget < 20 then
+    elseif distanceToTarget > 13 then
         vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride)
-    end
-    if distanceToTarget < 13 then
+    else
         vehicle.ad.speedOverride = math.min(8, vehicle.ad.speedOverride)
     end
+
     --if vehicle.ad.currentWayPoint <= 2 then
     --vehicle.ad.speedOverride = math.min(15, vehicle.ad.speedOverride);
     --end;
