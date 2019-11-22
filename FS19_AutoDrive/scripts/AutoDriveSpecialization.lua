@@ -301,14 +301,17 @@ function AutoDrive:init()
 end
 
 function AutoDrive:onLeaveVehicle()
-    local storedshowingHud = self.ad.showingHud
-    if g_inputBinding:getShowMouseCursor() == true and (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
-        g_inputBinding:setShowMouseCursor(false)
-        AutoDrive:onToggleMouse(self)
-    end
-    self.ad.showingHud = storedshowingHud
-    if (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
-        AutoDrive.Hud:closeAllPullDownLists(self)
+    -- We have to do that only for the player who were in the vehicle ( this also fix mouse cursor hiding bug in MP )
+    if self.getIsEntered ~= nil and self:getIsEntered() then
+        local storedshowingHud = self.ad.showingHud
+        if g_inputBinding:getShowMouseCursor() == true and (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
+            g_inputBinding:setShowMouseCursor(false)
+            AutoDrive:onToggleMouse(self)
+        end
+        self.ad.showingHud = storedshowingHud
+        if (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
+            AutoDrive.Hud:closeAllPullDownLists(self)
+        end
     end
 end
 
