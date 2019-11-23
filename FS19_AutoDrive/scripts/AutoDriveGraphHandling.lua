@@ -343,17 +343,12 @@ function AutoDrive:handleRecording(vehicle)
 				local startNode = AutoDrive.mapWayPoints[startPoint]
 				if startNode ~= nil then
 					if AutoDrive:getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
-						startNode.out[AutoDrive.tableLength(startNode.out) + 1] = vehicle.ad.wayPoints[i].id
-						vehicle.ad.wayPoints[i].incoming[AutoDrive.tableLength(vehicle.ad.wayPoints[i].incoming) + 1] = startNode.id
+						table.insert(startNode.out, vehicle.ad.wayPoints[i].id)
+						table.insert(vehicle.ad.wayPoints[i].incoming, startNode.id)
 
 						if vehicle.ad.creationModeDual then
-							local incomingNodes = 1
-							for _, __ in pairs(AutoDrive.mapWayPoints[startPoint].incoming) do
-								incomingNodes = incomingNodes + 1
-							end
-							AutoDrive.mapWayPoints[startPoint].incoming[incomingNodes] = AutoDrive.mapWayPointsCounter
-							--edit current point
-							vehicle.ad.wayPoints[i].out[1] = startPoint
+							table.insert(AutoDrive.mapWayPoints[startPoint].incoming, AutoDrive.mapWayPointsCounter)
+							table.insert(vehicle.ad.wayPoints[i].out, startPoint)
 						end
 
 						AutoDriveCourseEditEvent:sendEvent(startNode)
@@ -409,11 +404,11 @@ function AutoDrive:handleRecalculation(vehicle)
 				AutoDrive.recalculationPercentage = math.min(AutoDrive.recalculationPercentage, 100)
 				local currentDestination = ""
 				if AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers + 1] ~= nil then
-					currentDestination = AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers + 1].name
+					currentDestination = "  - " .. AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers + 1].name
 				end
 
 				-- TODO: We should try to improve that, currently it's not very synchronized with recalculation
-				AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%  - " .. currentDestination)
+				AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%" .. currentDestination)
 				AutoDrive.print.showMessageFor = 500
 				if AutoDrive.recalculationPercentage == 100 then
 					AutoDrive.print.showMessageFor = 5000
@@ -438,18 +433,17 @@ function AutoDrive:isDualRoad(start, target)
 end
 
 function AutoDrive:getDistanceBetweenNodes(start, target)
-	local isMapMarker = false
-	for _, mapMarker in pairs(AutoDrive.mapMarker) do
-		if mapMarker.id == start then
-			isMapMarker = true
-		end
-	end
-
 	local euclidianDistance = AutoDrive:getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
 
 	local distance = euclidianDistance
-	if isMapMarker and AutoDrive.getSetting("avoidMarkers") == true then
-		distance = distance + AutoDrive.getSetting("mapMarkerDetour")
+
+	if AutoDrive.getSetting("avoidMarkers") then
+		for _, mapMarker in pairs(AutoDrive.mapMarker) do
+			if mapMarker.id == start then
+				distance = distance + AutoDrive.getSetting("mapMarkerDetour")
+				break
+			end
+		end
 	end
 
 	return distance
@@ -504,18 +498,16 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, past, maxDrivingSpeed
 	--avoid map marker
 
 	if not arrivalTime == true then --only for djikstra, for live travel timer we ignore it
-		local isMapMarker = false
-		for _, mapMarker in pairs(AutoDrive.mapMarker) do
-			if mapMarker.id == start then
-				isMapMarker = true
-				break
+		if AutoDrive.getSetting("avoidMarkers") then
+			for _, mapMarker in pairs(AutoDrive.mapMarker) do
+				if mapMarker.id == start then
+					driveTime = driveTime + (AutoDrive.getSetting("mapMarkerDetour") / (20 / 3.6))
+					break
+				end
 			end
 		end
-
-		if isMapMarker and AutoDrive.getSetting("avoidMarkers") == true then
-			driveTime = driveTime + (AutoDrive.getSetting("mapMarkerDetour") / (20 / 3.6))
-		end
 	end
+
 	return driveTime
 end
 
@@ -535,34 +527,6 @@ function AutoDrive:getDriveTimeForWaypoints(wps, currentWaypoint, maxDrivingSpee
 	return totalTime * 1.15 --reduced the factor a little bit
 end
 
-function AutoDrive:sortNodesByDistance(x, z, listOfNodes)
-	local sortedList = {}
-	local outerLoop = 1
-	local minDistance = math.huge
-	local minDistanceNode = -1
-	for i = 1, AutoDrive.tableLength(listOfNodes) do
-		for currentNode, checkNode in pairs(listOfNodes) do
-			local distance = AutoDrive:getDistance(x, z, AutoDrive.mapWayPoints[checkNode.id].x, AutoDrive.mapWayPoints[checkNode.id].z)
-
-			local alreadyInList = false
-			for _, alreadySorted in pairs(sortedList) do
-				if alreadySorted.id == checkNode.id then
-					alreadyInList = true
-				end
-			end
-
-			if (distance < minDistance) and (not alreadyInList) then
-				minDistance = distance
-				minDistanceNode = checkNode
-			end
-		end
-		sortedList[i] = minDistanceNode
-		minDistance = math.huge
-	end
-
-	return sortedList
-end
-
 function AutoDrive:getHighestConsecutiveIndex()
 	local toCheckFor = 0
 	local consecutive = true
@@ -579,30 +543,23 @@ function AutoDrive:getHighestConsecutiveIndex()
 	return (toCheckFor - 1)
 end
 
-function AutoDrive:FastShortestPath(Graph, start, markerName, markerID)
-	local wp = {}
-	local count = 1
+function AutoDrive:FastShortestPath(graph, start, markerName, markerID)
 	local id = start
+	if nil == id or nil == graph[id] then
+		return {}
+	end
+	local wp = {}
 	while id ~= -1 and id ~= nil do
-		wp[count] = Graph[id]
-		count = count + 1
-		if id == markerID then
-			id = nil
-		else
-			if AutoDrive.mapWayPoints[id] ~= nil then
-				id = AutoDrive.mapWayPoints[id].marker[markerName]
-			else
-				id = nil
-			end
-		end
-		if count > 5000 then
+		table.insert(wp, graph[id])
+		if #wp > 5000 then
 			return {} --something went wrong. prevent overflow here
 		end
+		if id == markerID or nil == AutoDrive.mapWayPoints[id] then
+			break
+		end
+		id = AutoDrive.mapWayPoints[id].marker[markerName]
 	end
-
-	local wp_copy = AutoDrive:graphcopy(wp)
-
-	return wp_copy
+	return AutoDrive:graphcopy(wp)
 end
 
 function AutoDrive:findClosestWayPoint(veh)
@@ -697,13 +654,11 @@ end
 
 function AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)
 	local inRange = {}
-	local counter = 0
 
 	for i in pairs(AutoDrive.mapWayPoints) do
 		local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, point.x, point.z)
 		if dis < rangeMax and dis > rangeMin then
-			counter = counter + 1
-			inRange[counter] = i
+			table.insert(inRange, i)
 		end
 	end
 
@@ -726,41 +681,39 @@ function AutoDrive:findMatchingWayPointForReverseDirection(veh)
 	return bestPoint
 end
 
-function AutoDrive:graphcopy(Graph)
-	local Q = {}
-	for i in pairs(Graph) do
-		local id = Graph[i]["id"]
-		local out = {}
-		local incoming = {}
-		local marker = {}
-
-		for i2 in pairs(Graph[i]["out"]) do
-			out[i2] = Graph[i]["out"][i2]
+function AutoDrive:graphcopy(graph)
+	local function copyArrayElements(srcArray)
+		local newArray = {}
+		for i in pairs(srcArray) do
+			newArray[i] = srcArray[i]
 		end
-
-		for i3 in pairs(Graph[i]["incoming"]) do
-			incoming[i3] = Graph[i]["incoming"][i3]
-		end
-		for i5 in pairs(Graph[i]["marker"]) do
-			marker[i5] = Graph[i]["marker"][i5]
-		end
-
-		Q[i] = AutoDrive:createNode(id, Graph[i].x, Graph[i].y, Graph[i].z, out, incoming, marker)
+		return newArray
 	end
-	return Q
+
+	local newGraph = {}
+	for i in pairs(graph) do
+		local graphElem = graph[i]
+
+		local out = copyArrayElements(graphElem.out)
+		local incoming = copyArrayElements(graphElem.incoming)
+		local marker = copyArrayElements(graphElem.marker)
+
+		newGraph[i] = AutoDrive:createNode(graphElem.id, graphElem.x, graphElem.y, graphElem.z, out, incoming, marker)
+	end
+
+	return newGraph
 end
 
 function AutoDrive:createNode(id, x, y, z, out, incoming, marker)
-	local p = {}
-	p["x"] = x
-	p["y"] = y
-	p["z"] = z
-	p["id"] = id
-	p["out"] = out
-	p["incoming"] = incoming
-	p["marker"] = marker
-
-	return p
+	return {
+		id = id,
+		x = x,
+		y = y,
+		z = z,
+		out = out,
+		incoming = incoming,
+		marker = marker
+	}
 end
 
 function AutoDrive:getDistance(x1, z1, x2, z2)
