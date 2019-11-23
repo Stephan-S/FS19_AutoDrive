@@ -426,9 +426,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             vehicle.ad.speedOverride = 17
         elseif highestAngle < 20 then
             vehicle.ad.speedOverride = 16
-        elseif highestAngle < 30 then
-            vehicle.ad.speedOverride = 13
-        elseif highestAngle < 90 then
+        else
             vehicle.ad.speedOverride = 13
         end
     end
