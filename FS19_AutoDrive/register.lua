@@ -35,6 +35,7 @@ source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.l
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveUserConnectedEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveExperimentalFeaturesEvent.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version
@@ -92,7 +93,7 @@ end
 
 --Knowledge to register translations in l10n space and to use the helpLineManager taken from the Seasons mod (Thank you!)
 function AutoDriveRegister.onMissionWillLoad(i18n)
-    AutoDriveRegister.addModTranslations(i18n)
+	AutoDriveRegister.addModTranslations(i18n)
 end
 
 function AutoDriveValidateVehicleTypes(vehicleTypeManager)
@@ -101,34 +102,35 @@ end
 
 ---Copy our translations to global space.
 function AutoDriveRegister.addModTranslations(i18n)
-    -- We can copy all our translations to the global table because we prefix everything with ad_ or have unique names with 'AD' in it.
-    -- The mod-based l10n lookup only really works for vehicles, not UI and script mods.
-    local global = getfenv(0).g_i18n.texts
+	-- We can copy all our translations to the global table because we prefix everything with ad_ or have unique names with 'AD' in it.
+	-- The mod-based l10n lookup only really works for vehicles, not UI and script mods.
+	local global = getfenv(0).g_i18n.texts
 
-    for key, text in pairs(i18n.texts) do
-        global[key] = text
-    end
+	for key, text in pairs(i18n.texts) do
+		global[key] = text
+	end
 end
 
 function AutoDriveLoadedMission(mission, superFunc, node)
-    superFunc(mission, node)
+	superFunc(mission, node)
 
-    if mission.cancelLoading then
-        return
-    end
+	if mission.cancelLoading then
+		return
+	end
 
-    g_deferredLoadingManager:addTask(function()
-        AutoDriveOnMissionLoaded(mission)
-    end)
+	g_deferredLoadingManager:addTask(
+		function()
+			AutoDriveOnMissionLoaded(mission)
+		end
+	)
 end
 
 function AutoDriveOnMissionLoaded(mission)
 	--print("On mission loaded called for AutoDrive")
-    g_helpLineManager:loadFromXML(Utils.getFilename("helpLine.xml", AutoDrive.directory))
+	g_helpLineManager:loadFromXML(Utils.getFilename("helpLine.xml", AutoDrive.directory))
 end
 
 Mission00.loadMission00Finished = Utils.overwrittenFunction(Mission00.loadMission00Finished, AutoDriveLoadedMission)
 VehicleTypeManager.validateVehicleTypes = Utils.prependedFunction(VehicleTypeManager.validateVehicleTypes, AutoDriveValidateVehicleTypes)
-
 
 addModEventListener(AutoDriveRegister)

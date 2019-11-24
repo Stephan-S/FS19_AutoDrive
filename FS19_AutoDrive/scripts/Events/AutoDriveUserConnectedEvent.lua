@@ -25,6 +25,9 @@ function AutoDriveUserConnectedEvent:run(connection)
 		connection:sendEvent(AutoDriveUpdateSettingsEvent:new())
 		-- Here we can add other sync for newly connected players
 		AutoDriveUserDataEvent.sendToClient(connection)
+		for feature, state in pairs(AutoDrive.experimentalFeatures) do
+			AutoDriveExperimentalFeaturesEvent.sendToClient(connection, feature, state)
+		end
 	end
 end
 
