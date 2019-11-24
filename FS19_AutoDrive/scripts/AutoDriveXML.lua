@@ -194,8 +194,9 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	local markerNamesString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerNames")
-	local markerNamesSplitted = {}
+	local markerNamesSplitted = nil
 	if markerNamesString ~= nil then
+		markerNamesSplitted = {}
 		local markerNamesTable = markerNamesString:split(";")
 		for i, outer in pairs(markerNamesTable) do
 			local markerNames = outer:split(",")
