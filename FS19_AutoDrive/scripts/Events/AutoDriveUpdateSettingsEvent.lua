@@ -4,20 +4,20 @@ AutoDriveUpdateSettingsEvent_mt = Class(AutoDriveUpdateSettingsEvent, Event)
 InitEventClass(AutoDriveUpdateSettingsEvent, "AutoDriveUpdateSettingsEvent")
 
 function AutoDriveUpdateSettingsEvent:emptyNew()
-	local self = Event:new(AutoDriveUpdateSettingsEvent_mt)
-	self.className = "AutoDriveUpdateSettingsEvent"
-	return self
+	local o = Event:new(AutoDriveUpdateSettingsEvent_mt)
+	o.className = "AutoDriveUpdateSettingsEvent"
+	return o
 end
 
 function AutoDriveUpdateSettingsEvent:new(vehicle)
-	local self = AutoDriveUpdateSettingsEvent:emptyNew()
-	self.vehicle = vehicle
-	return self
+	local o = AutoDriveUpdateSettingsEvent:emptyNew()
+	o.vehicle = vehicle
+	return o
 end
 
 function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 	-- Writing global confings
-	for settingName, setting in pairs(AutoDrive.settings) do
+	for _, setting in pairs(AutoDrive.settings) do
 		if setting ~= nil and not setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 			streamWriteInt16(streamId, setting.current)
 		end
@@ -38,7 +38,7 @@ end
 
 function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 	-- Reading global confings
-	for settingName, setting in pairs(AutoDrive.settings) do
+	for _, setting in pairs(AutoDrive.settings) do
 		if setting ~= nil and not setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 			setting.current = streamReadInt16(streamId)
 		end
@@ -48,7 +48,7 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 	local vehicle = nil
 
 	if includesVehicleSpecificSettings then
-		local vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
+		vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
 		if vehicle ~= nil then
 			-- Reading vehicle confings
 			for settingName, setting in pairs(AutoDrive.settings) do

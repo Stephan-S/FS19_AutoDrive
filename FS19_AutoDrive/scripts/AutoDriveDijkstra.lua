@@ -113,6 +113,7 @@ function AutoDrive:dijkstra(Graph, start, setToUse)
 
 	if recalcTable.dijkstraStep == 3 then
 		recalcTable.dijkstraAllowedIteratorQ = 200 / (math.max(0.001, (numberOfWayPoints / (2000 * AutoDrive.getSetting("recalculationSpeed")))))
+		local useFastestRoute = AutoDrive.getSetting("useFastestRoute")
 
 		while recalcTable.dijkstraAllowedIteratorQ > 0 and next(workQ, nil) ~= nil do
 			recalcTable.dijkstraAllowedIteratorQ = recalcTable.dijkstraAllowedIteratorQ - 1
@@ -179,7 +180,7 @@ function AutoDrive:dijkstra(Graph, start, setToUse)
 							end
 
 							local distanceToAdd = 0
-							if AutoDrive.getSetting("useFastestRoute") == true then
+							if useFastestRoute == true then
 								distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(shortest_id, linkedNodeId, workPre[shortest_id], nil, true) --3 points for angle
 							else
 								distanceToAdd = AutoDrive:getDistanceBetweenNodes(shortest_id, linkedNodeId)
@@ -269,18 +270,21 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 	local workQ = workGraph.Q
 	workGraph.workQEntries = AutoDrive.mapWayPointsCounter
 
-	if recalcTable.dijkstraStep == 1 or AutoDrive.getSetting("recalculationSpeed") > 10 then
+	local forcedInit = AutoDrive.getSetting("recalculationSpeed") > 10
+
+	if recalcTable.dijkstraStep == 1 or forcedInit then
 		for i in pairs(Graph) do
 			--workDistances[i] = math.huge;
 			workPre[i] = -1
 		end
 	end
 
-	if recalcTable.dijkstraStep == 2 or AutoDrive.getSetting("recalculationSpeed") > 10 then
+	if recalcTable.dijkstraStep == 2 or forcedInit then
+		local useFastestRoute = AutoDrive.getSetting("useFastestRoute")
 		workDistances[start] = 0
 		for i, id in pairs(workQ[start]) do
 			local distanceToAdd = 0
-			if AutoDrive.getSetting("useFastestRoute") == true then
+			if useFastestRoute == true then
 				distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(start, id, nil, nil, nil) --first segments, only 2 points, no angle
 			else
 				distanceToAdd = AutoDrive:getDistanceBetweenNodes(start, id)
@@ -290,7 +294,7 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 		end
 	end
 
-	if AutoDrive.getSetting("recalculationSpeed") > 50 then
+	if forcedInit then
 		recalcTable.dijkstraStep = 3
 	end
 end

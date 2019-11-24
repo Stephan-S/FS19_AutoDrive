@@ -5,52 +5,52 @@
 -- @author Stephan Schlosser
 -- @date 08/08/2019
 
-adEnterTargetNameGui = {}
+ADEnterTargetNameGui = {}
 
-local adEnterTargetNameGui_mt = Class(adEnterTargetNameGui, ScreenElement)
+local ADEnterTargetNameGui_mt = Class(ADEnterTargetNameGui, ScreenElement)
 
-function adEnterTargetNameGui:new(target, custom_mt)
-    local self = ScreenElement:new(target, adEnterTargetNameGui_mt)
-    self.returnScreenName = ""
-    self.textInputElement = nil
-    self.createButtonElement = nil
-    self.buttonsEditElement = nil
-    self.buttonsCreateElement = nil
-    self.titleElement = nil
-    self.editName = nil
-    self.editId = nil
-    self.edit = false
-    return self
+function ADEnterTargetNameGui:new(target)
+    local o = ScreenElement:new(target, ADEnterTargetNameGui_mt)
+    o.returnScreenName = ""
+    o.textInputElement = nil
+    o.createButtonElement = nil
+    o.buttonsEditElement = nil
+    o.buttonsCreateElement = nil
+    o.titleElement = nil
+    o.editName = nil
+    o.editId = nil
+    o.edit = false
+    return o
 end
 
-function adEnterTargetNameGui:onCreateInputElement(element)
+function ADEnterTargetNameGui:onCreateInputElement(element)
     self.textInputElement = element
     element.text = ""
 end
 
-function adEnterTargetNameGui:onCreateTitleElement(element)
+function ADEnterTargetNameGui:onCreateTitleElement(element)
     self.titleElement = element
 end
 
-function adEnterTargetNameGui:onCreateTextElement(element)
+function ADEnterTargetNameGui:onCreateTextElement(element)
     element:setText(g_i18n:getText("gui_ad_enterTargetNameText"))
 end
 
-function adEnterTargetNameGui:onCreateCreateButton(element)
+function ADEnterTargetNameGui:onCreateCreateButton(element)
     self.createButtonElement = element
     element:setText(g_i18n:getText("gui_ad_createButtonText"))
 end
 
-function adEnterTargetNameGui:onCreateButtonsCreate(element)
+function ADEnterTargetNameGui:onCreateButtonsCreate(element)
     self.buttonsCreateElement = element
 end
 
-function adEnterTargetNameGui:onCreateButtonsEdit(element)
+function ADEnterTargetNameGui:onCreateButtonsEdit(element)
     self.buttonsEditElement = element
 end
 
-function adEnterTargetNameGui:onOpen()
-    adEnterTargetNameGui:superClass().onOpen(self)
+function ADEnterTargetNameGui:onOpen()
+    ADEnterTargetNameGui:superClass().onOpen(self)
     self.editName = nil
     self.editId = nil
     self.edit = false
@@ -93,31 +93,31 @@ function adEnterTargetNameGui:onOpen()
     self.buttonsEditElement:setVisible(self.edit)
 end
 
-function adEnterTargetNameGui:onClickCreateButton()
-    adEnterTargetNameGui:superClass().onClickOk(self)
+function ADEnterTargetNameGui:onClickCreateButton()
+    ADEnterTargetNameGui:superClass().onClickOk(self)
     AutoDrive.createMapMarkerOnClosest(g_currentMission.controlledVehicle, self.textInputElement.text)
     self:onClickBack()
 end
 
-function adEnterTargetNameGui:onClickRenameButton()
-    adEnterTargetNameGui:superClass().onClickOk(self)
+function ADEnterTargetNameGui:onClickRenameButton()
+    ADEnterTargetNameGui:superClass().onClickOk(self)
     AutoDrive.renameMapMarker(self.textInputElement.text, self.editId)
     self:onClickBack()
 end
 
-function adEnterTargetNameGui:onClickDeleteButton()
+function ADEnterTargetNameGui:onClickDeleteButton()
     AutoDrive.removeMapMarker(self.editId)
     self:onClickBack()
 end
 
-function adEnterTargetNameGui:onClickResetButton()
+function ADEnterTargetNameGui:onClickResetButton()
     self.textInputElement:setText(self.editName)
 end
 
-function adEnterTargetNameGui:onClickBack()
-    adEnterTargetNameGui:superClass().onClickBack(self)
+function ADEnterTargetNameGui:onClickBack()
+    ADEnterTargetNameGui:superClass().onClickBack(self)
 end
 
-function adEnterTargetNameGui:onClose()
-    adEnterTargetNameGui:superClass().onClose(self)
+function ADEnterTargetNameGui:onClose()
+    ADEnterTargetNameGui:superClass().onClose(self)
 end

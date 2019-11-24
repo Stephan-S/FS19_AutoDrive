@@ -6,21 +6,21 @@ AutoDriveGroupsEvent_mt = Class(AutoDriveGroupsEvent, Event)
 InitEventClass(AutoDriveGroupsEvent, "AutoDriveGroupsEvent")
 
 function AutoDriveGroupsEvent:emptyNew()
-	local self = Event:new(AutoDriveGroupsEvent_mt)
-	self.className = "AutoDriveGroupsEvent"
-	return self
+	local o = Event:new(AutoDriveGroupsEvent_mt)
+	o.className = "AutoDriveGroupsEvent"
+	return o
 end
 
 function AutoDriveGroupsEvent:new(groupName, eventType)
-	local self = AutoDriveGroupsEvent:emptyNew()
-	self.groupName = groupName
-	self.eventType = eventType
-	return self
+	local o = AutoDriveGroupsEvent:emptyNew()
+	o.groupName = groupName
+	o.eventType = eventType
+	return o
 end
 
 function AutoDriveGroupsEvent:writeStream(streamId, connection)
 	streamWriteUIntN(streamId, self.eventType, 1)
-	streamWriteStringOrEmpty(streamId, self.groupName)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.groupName)
 end
 
 function AutoDriveGroupsEvent:readStream(streamId, connection)

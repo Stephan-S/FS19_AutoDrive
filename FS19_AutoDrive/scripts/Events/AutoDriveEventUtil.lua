@@ -1,30 +1,30 @@
 function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
     local idFullTable = {}
-    local idString = ""
+    --local idString = ""
     local idCounter = 0
 
     local xTable = {}
-    local xString = ""
+    --local xString = ""
 
     local yTable = {}
-    local yString = ""
+    --local yString = ""
 
     local zTable = {}
-    local zString = ""
+    --local zString = ""
 
     local outTable = {}
-    local outString = ""
+    --local outString = ""
 
     local incomingTable = {}
-    local incomingString = ""
+    --local incomingString = ""
 
     local markerNamesTable = {}
-    local markerNames = ""
+    --local markerNames = ""
 
     local markerIDsTable = {}
-    local markerIDs = ""
+    --local markerIDs = ""
 
-    local wayPointsInCurrentMessage = 0
+    --local wayPointsInCurrentMessage = 0
 
     for i = startId, endId, 1 do
         local p = AutoDrive.mapWayPoints[i]
@@ -64,14 +64,14 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
             streamWriteFloat32(streamId, xTable[i])
             streamWriteFloat32(streamId, yTable[i])
             streamWriteFloat32(streamId, zTable[i])
-            streamWriteStringOrEmpty(streamId, outTable[i])
-            streamWriteStringOrEmpty(streamId, incomingTable[i])
+            AutoDrive.streamWriteStringOrEmpty(streamId, outTable[i])
+            AutoDrive.streamWriteStringOrEmpty(streamId, incomingTable[i])
             if markerIDsTable[1] ~= nil then
-                streamWriteStringOrEmpty(streamId, markerIDsTable[i])
-                streamWriteStringOrEmpty(streamId, markerNamesTable[i])
+                AutoDrive.streamWriteStringOrEmpty(streamId, markerIDsTable[i])
+                AutoDrive.streamWriteStringOrEmpty(streamId, markerNamesTable[i])
             else
-                streamWriteStringOrEmpty(streamId, "")
-                streamWriteStringOrEmpty(streamId, "")
+                AutoDrive.streamWriteStringOrEmpty(streamId, "")
+                AutoDrive.streamWriteStringOrEmpty(streamId, "")
             end
             i = i + 1
         end
@@ -79,18 +79,15 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
 end
 
 function AutoDrive:writeMapMarkersToStream(streamId)
-    local markerIDs = ""
-    local markerNames = ""
-    local markerCounter = 0
-    for i in pairs(AutoDrive.mapMarker) do
-        markerCounter = markerCounter + 1
-    end
+    --local markerIDs = ""
+    --local markerNames = ""
+    local markerCounter = AutoDrive.tableLength(AutoDrive.mapMarker)
     streamWriteInt32(streamId, markerCounter)
     local i = 1
     while i <= markerCounter do
         streamWriteInt32(streamId, AutoDrive.mapMarker[i].id)
-        streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].name)
-        streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].group)
+        AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].name)
+        AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].group)
         i = i + 1
     end
 
@@ -103,7 +100,7 @@ end
 function AutoDrive:writeGroupsToStream(streamId)
     streamWriteInt32(streamId, AutoDrive.tableLength(AutoDrive.groups))
     for groupName, groupID in pairs(AutoDrive.groups) do
-        streamWriteStringOrEmpty(streamId, groupName)
+        AutoDrive.streamWriteStringOrEmpty(streamId, groupName)
         streamWriteFloat32(streamId, groupID)
     end
 end
@@ -120,27 +117,26 @@ function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
         wp.y = streamReadFloat32(streamId)
         wp.z = streamReadFloat32(streamId)
 
-        local outString = streamReadStringOrEmpty(streamId)
-        local outTable = StringUtil.splitString(",", outString)
+        local outTable = StringUtil.splitString(",", AutoDrive.streamReadStringOrEmpty(streamId))
         wp["out"] = {}
         for i2, outString in pairs(outTable) do
             wp["out"][i2] = tonumber(outString)
         end
 
-        local incomingString = streamReadStringOrEmpty(streamId)
+        local incomingString = AutoDrive.streamReadStringOrEmpty(streamId)
         local incomingTable = StringUtil.splitString(",", incomingString)
         wp["incoming"] = {}
         local incoming_counter = 1
-        for i2, incomingID in pairs(incomingTable) do
+        for _, incomingID in pairs(incomingTable) do
             if incomingID ~= "" then
                 wp["incoming"][incoming_counter] = tonumber(incomingID)
             end
             incoming_counter = incoming_counter + 1
         end
 
-        local markerIDsString = streamReadStringOrEmpty(streamId)
+        local markerIDsString = AutoDrive.streamReadStringOrEmpty(streamId)
         local markerIDsTable = StringUtil.splitString(",", markerIDsString)
-        local markerNamesString = streamReadStringOrEmpty(streamId)
+        local markerNamesString = AutoDrive.streamReadStringOrEmpty(streamId)
         local markerNamesTable = StringUtil.splitString(",", markerNamesString)
         wp["marker"] = {}
         for i2, markerName in pairs(markerNamesTable) do
@@ -162,8 +158,8 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
     local mapMarkerCount = 1
     while mapMarkerCount <= numberOfMapMarkers do
         local markerId = streamReadInt32(streamId)
-        local markerName = streamReadStringOrEmpty(streamId)
-        local markerGroup = streamReadStringOrEmpty(streamId)
+        local markerName = AutoDrive.streamReadStringOrEmpty(streamId)
+        local markerGroup = AutoDrive.streamReadStringOrEmpty(streamId)
         local marker = {}
 
         if AutoDrive.mapWayPoints[markerId] ~= nil then
@@ -189,7 +185,7 @@ function AutoDrive:readGroupsFromStream(streamId)
     local numberOfGroups = streamReadInt32(streamId)
     local loopCounter = 1
     while loopCounter <= numberOfGroups do
-        local groupName = streamReadStringOrEmpty(streamId)
+        local groupName = AutoDrive.streamReadStringOrEmpty(streamId)
         local groupID = streamReadFloat32(streamId)
         if groupName ~= nil and groupName ~= "" then
             AutoDrive.groups[groupName] = groupID
@@ -199,7 +195,7 @@ function AutoDrive:readGroupsFromStream(streamId)
     AutoDrive.groups["All"] = 1
 end
 
-function streamReadStringOrEmpty(streamId)
+function AutoDrive.streamReadStringOrEmpty(streamId)
     local string = streamReadString(streamId)
     if string == nil or string == "nil" then
         string = ""
@@ -207,28 +203,28 @@ function streamReadStringOrEmpty(streamId)
     return string
 end
 
-function streamWriteStringOrEmpty(streamId, string)
+function AutoDrive.streamWriteStringOrEmpty(streamId, string)
     if string == nil or string == "" then
         string = "nil"
     end
     streamWriteString(streamId, string)
 end
 
-function streamWriteInt32OrEmpty(streamId, value)
+function AutoDrive.streamWriteInt32OrEmpty(streamId, value)
     if value == nil then
         value = 0
     end
     streamWriteInt32(streamId, value)
 end
 
-function streamWriteInt16Or1337(streamId, value)
+function AutoDrive.streamWriteInt16Or1337(streamId, value)
     if value == nil then
         value = 1337
     end
     streamWriteInt16(streamId, value)
 end
 
-function streamReadInt16Or1337(streamId)
+function AutoDrive.streamReadInt16Or1337(streamId)
     local val = streamReadInt16(streamId)
     if val == nil then
         val = 1337

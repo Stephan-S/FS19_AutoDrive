@@ -283,7 +283,7 @@ function ADSensor:getBoxShape()
 end
 
 function ADSensor:getCorners(box)
-    local box = box
+    --local box = box
     if box == nil then
         box = self:getBoxShape()
     end

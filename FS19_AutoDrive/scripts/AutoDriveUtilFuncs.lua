@@ -31,7 +31,7 @@ function AutoDrive.boxesIntersect(a, b)
 			-- for each vertex in the first shape, project it onto the line perpendicular to the edge
 			-- and keep track of the min and max of these values
 
-			for j, corner in pairs(polygons[1]) do
+			for _, corner in pairs(polygons[1]) do
 				local projected = normal.x * corner.x + normal.z * corner.z
 				if minA == nil or projected < minA then
 					minA = projected

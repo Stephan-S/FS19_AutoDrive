@@ -4,15 +4,15 @@ AutoDriveDeleteMapMarkerEvent_mt = Class(AutoDriveDeleteMapMarkerEvent, Event)
 InitEventClass(AutoDriveDeleteMapMarkerEvent, "AutoDriveDeleteMapMarkerEvent")
 
 function AutoDriveDeleteMapMarkerEvent:emptyNew()
-	local self = Event:new(AutoDriveDeleteMapMarkerEvent_mt)
-	self.className = "AutoDriveDeleteMapMarkerEvent"
-	return self
+	local o = Event:new(AutoDriveDeleteMapMarkerEvent_mt)
+	o.className = "AutoDriveDeleteMapMarkerEvent"
+	return o
 end
 
 function AutoDriveDeleteMapMarkerEvent:new(markerId)
-	local self = AutoDriveDeleteMapMarkerEvent:emptyNew()
-	self.markerId = markerId
-	return self
+	local o = AutoDriveDeleteMapMarkerEvent:emptyNew()
+	o.markerId = markerId
+	return o
 end
 
 function AutoDriveDeleteMapMarkerEvent:writeStream(streamId, connection)

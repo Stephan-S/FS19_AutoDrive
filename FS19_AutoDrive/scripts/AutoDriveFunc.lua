@@ -45,7 +45,7 @@ function AutoDrive:startAD(vehicle)
 
 	
 	if g_server ~= nil then
-		local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, false) --(vehicle.ad.mode ~= AutoDrive.MODE_LOAD)
+		local trailers, _ = AutoDrive.getTrailersOf(vehicle, false) --(vehicle.ad.mode ~= AutoDrive.MODE_LOAD)
 		local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
 		local maxCapacity = fillLevel + leftCapacity
 

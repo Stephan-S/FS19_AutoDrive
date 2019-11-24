@@ -1,7 +1,7 @@
 AutoDriveTON = {}
 
 function AutoDriveTON:new()
-    o = {}
+    local o = {}
     setmetatable(o, self)
     self.__index = self
     o.elapsedTime = 0

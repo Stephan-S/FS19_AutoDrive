@@ -1,16 +1,16 @@
 ADFruitSensor = ADInheritsFrom(ADSensor)
 
 function ADFruitSensor:new(vehicle, sensorParameters)
-    local self = ADFruitSensor:create()
-    self:init(vehicle, ADSensor.TYPE_FRUIT, sensorParameters)
-    self.fruitType = 0
-    self.foundFruitType = 0
+    local o = ADFruitSensor:create()
+    o:init(vehicle, ADSensor.TYPE_FRUIT, sensorParameters)
+    o.fruitType = 0
+    o.foundFruitType = 0
 
     if sensorParameters.fruitType ~= nil then
-        self.fruitType = sensorParameters.fruitType
+        o.fruitType = sensorParameters.fruitType
     end
 
-    return self
+    return o
 end
 
 function ADFruitSensor:onUpdate(dt)
@@ -22,7 +22,7 @@ function ADFruitSensor:onUpdate(dt)
         --if foundFruit then
         -- self.fruitType = foundFruitType;
         --end;
-        foundFruit, foundFruitType = self:checkForFruitInArea(corners)
+        foundFruit, _ = self:checkForFruitInArea(corners)
     else
         foundFruit = self:checkForFruitTypeInArea(self.fruitType, corners)
     end

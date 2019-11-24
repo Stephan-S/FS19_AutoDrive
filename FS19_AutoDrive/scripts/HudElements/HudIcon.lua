@@ -1,16 +1,16 @@
 ADHudIcon = ADInheritsFrom(ADGenericHudElement)
 
 function ADHudIcon:new(posX, posY, width, height, image, layer, name)
-    local self = ADHudIcon:create()
-    self:init(posX, posY, width, height)
-    self.layer = layer
-    self.name = name
-    self.image = image
-    self.isVisible = true
+    local o = ADHudIcon:create()
+    o:init(posX, posY, width, height)
+    o.layer = layer
+    o.name = name
+    o.image = image
+    o.isVisible = true
 
-    self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height)
+    o.ov = Overlay:new(o.image, o.position.x, o.position.y, o.size.width, o.size.height)
 
-    return self
+    return o
 end
 
 function ADHudIcon:onDraw(vehicle)

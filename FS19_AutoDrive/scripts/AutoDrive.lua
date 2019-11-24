@@ -184,19 +184,19 @@ function AutoDrive:loadMap(name)
 	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
 	--    DelayedCallBack:new(
 	--    function()
-	--        g_gui:showGui("adEnterDriverNameGui")
+	--        g_gui:showGui("ADEnterDriverNameGui")
 	--    end
 	--)
 	--AutoDrive.delayedCallBacks.openEnterTargetNameGUI =
 	--    DelayedCallBack:new(
 	--    function()
-	--        g_gui:showGui("adEnterTargetNameGui")
+	--        g_gui:showGui("ADEnterTargetNameGui")
 	--    end
 	--)
 	--AutoDrive.delayedCallBacks.openEnterGroupNameGUI =
 	--    DelayedCallBack:new(
 	--    function()
-	--        g_gui:showGui("adEnterGroupNameGui")
+	--        g_gui:showGui("ADEnterGroupNameGui")
 	--    end
 	--)
 end

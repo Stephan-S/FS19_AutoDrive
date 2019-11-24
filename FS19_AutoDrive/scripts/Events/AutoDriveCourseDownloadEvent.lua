@@ -4,14 +4,14 @@ AutoDriveCourseDownloadEvent_mt = Class(AutoDriveCourseDownloadEvent, Event)
 InitEventClass(AutoDriveCourseDownloadEvent, "AutoDriveCourseDownloadEvent")
 
 function AutoDriveCourseDownloadEvent:emptyNew()
-	local self = Event:new(AutoDriveCourseDownloadEvent_mt)
-	self.className = "AutoDriveCourseDownloadEvent"
-	return self
+	local o = Event:new(AutoDriveCourseDownloadEvent_mt)
+	o.className = "AutoDriveCourseDownloadEvent"
+	return o
 end
 
 function AutoDriveCourseDownloadEvent:new()
-	local self = AutoDriveCourseDownloadEvent:emptyNew()
-	return self
+	local o = AutoDriveCourseDownloadEvent:emptyNew()
+	return o
 end
 
 function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
@@ -25,7 +25,7 @@ function AutoDriveCourseDownloadEvent:writeStream(streamId, connection)
 		--g_logManager:devInfo("Broadcasting waypoints from " .. AutoDrive.requestedWaypointCount .. " to " ..  math.min(AutoDrive.requestedWaypointCount + (AutoDrive.WAYPOINTS_PER_PACKET -1), AutoDrive.mapWayPointsCounter));
 
 		if g_server ~= nil then
-			for userID, user in pairs(AutoDrive.Server.Users) do
+			for _, user in pairs(AutoDrive.Server.Users) do
 				user.ackReceived = false
 			end
 		end

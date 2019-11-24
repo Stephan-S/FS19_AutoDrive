@@ -322,7 +322,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then
                         --vehicle.ad.isPaused = true
-                        fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(allFillables)
+                        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(nil)
                         local maxCapacity = fillLevel + leftCapacity
 
                         if vehicle.ad.mode == AutoDrive.MODE_LOAD and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001))) then
@@ -371,13 +371,13 @@ end
 
 function AutoDrive:driveToNextWayPoint(vehicle, dt)
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    xl, yl, zl = worldToLocal(vehicle.components[1].node, vehicle.ad.targetX, y, vehicle.ad.targetZ)
+    --local xl, yl, zl = worldToLocal(vehicle.components[1].node, vehicle.ad.targetX, y, vehicle.ad.targetZ)
 
     vehicle.ad.speedOverride = -1
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint - 1] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1] ~= nil then
-        local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1]
-        local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint]
-        local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint - 1]
+        --local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1]
+        --local wp_current = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint]
+        --local wp_ref = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint - 1]
         local highestAngle = 0
         local distanceToLookAhead = math.min(15, AutoDrive.getSetting("lookAheadBraking")) --restrict lookahead braking for now and see how it goes
 
@@ -427,9 +427,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
             vehicle.ad.speedOverride = 17
         elseif highestAngle < 20 then
             vehicle.ad.speedOverride = 16
-        elseif highestAngle < 30 then
-            vehicle.ad.speedOverride = 13
-        elseif highestAngle < 90 then
+        else
             vehicle.ad.speedOverride = 13
         end
     end
@@ -463,11 +461,11 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         vehicle.ad.speedOverride = math.min(AutoDrive.DEADLOCKSPEED, vehicle.ad.speedOverride)
     end
 
-    local wp_new = nil
-
-    if wp_new ~= nil then
-        xl, yl, zl = worldToLocal(vehicle.components[1].node, wp_new.x, y, wp_new.z)
-    end
+    --local wp_new = nil
+    --
+    --if wp_new ~= nil then
+    --    xl, yl, zl = worldToLocal(vehicle.components[1].node, wp_new.x, y, wp_new.z)
+    --end
 
     if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_LOAD then --or vehicle.ad.mode == AutoDrive.MODE_UNLOAD
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload]
@@ -597,7 +595,7 @@ function AutoDrive:driveToLastWaypoint(vehicle, dt)
         vehicle.ad.timeTillDeadLock = 15000
         if math.abs(vehicle.lastSpeedReal) > 0.0013 then
             finalSpeed = 0.001
-            acceleration = -0.6
+            local acceleration = -0.6
             AIVehicleUtil.driveInDirection(vehicle, dt, maxAngle, acceleration, 0.2, maxAngle / 2, vehicle.ad.allowedToDrive, vehicle.ad.drivingForward, lx, lz, finalSpeed, 0.5)
         else
             AutoDrive:getVehicleToStop(vehicle, false, dt)

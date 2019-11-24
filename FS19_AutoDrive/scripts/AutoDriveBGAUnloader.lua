@@ -1377,7 +1377,7 @@ end
 function AutoDriveBGA:driveInDirection(vehicle, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
     if lx ~= nil and lz ~= nil then
         local dot = lz
-        angle = math.deg(math.acos(dot))
+        local angle = math.deg(math.acos(dot))
         if angle < 0 then
             angle = angle + 180
         end

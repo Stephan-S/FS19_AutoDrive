@@ -4,66 +4,66 @@ AutoDriveUpdateEvent_mt = Class(AutoDriveUpdateEvent, Event)
 InitEventClass(AutoDriveUpdateEvent, "AutoDriveUpdateEvent")
 
 function AutoDriveUpdateEvent:emptyNew()
-	local self = Event:new(AutoDriveUpdateEvent_mt)
-	self.className = "AutoDriveUpdateEvent"
-	return self
+	local o = Event:new(AutoDriveUpdateEvent_mt)
+	o.className = "AutoDriveUpdateEvent"
+	return o
 end
 
 function AutoDriveUpdateEvent:new(vehicle)
 	if AutoDrive == nil then
 		return
 	end
-	local self = AutoDriveUpdateEvent:emptyNew()
-	self.vehicle = vehicle
+	local o = AutoDriveUpdateEvent:emptyNew()
+	o.vehicle = vehicle
 
-	self.isActive = vehicle.ad.isActive
-	self.isStopping = vehicle.ad.isStopping
-	self.drivingForward = vehicle.ad.drivingForward
-	self.initialized = vehicle.ad.initialized
-	self.wayPoints = vehicle.ad.wayPoints
-	self.wayPointsChanged = vehicle.ad.wayPointsChanged
-	self.creationMode = vehicle.ad.creationMode
-	self.creationModeDual = vehicle.ad.creationModeDual
-	self.currentWayPoint = vehicle.ad.currentWayPoint
-	self.targetSelected = vehicle.ad.targetSelected
-	self.mapMarkerSelected = vehicle.ad.mapMarkerSelected
-	self.nameOfSelectedTarget = vehicle.ad.nameOfSelectedTarget
+	o.isActive = vehicle.ad.isActive
+	o.isStopping = vehicle.ad.isStopping
+	o.drivingForward = vehicle.ad.drivingForward
+	o.initialized = vehicle.ad.initialized
+	o.wayPoints = vehicle.ad.wayPoints
+	o.wayPointsChanged = vehicle.ad.wayPointsChanged
+	o.creationMode = vehicle.ad.creationMode
+	o.creationModeDual = vehicle.ad.creationModeDual
+	o.currentWayPoint = vehicle.ad.currentWayPoint
+	o.targetSelected = vehicle.ad.targetSelected
+	o.mapMarkerSelected = vehicle.ad.mapMarkerSelected
+	o.nameOfSelectedTarget = vehicle.ad.nameOfSelectedTarget
 
-	self.mode = vehicle.ad.mode
-	self.targetSpeed = vehicle.ad.targetSpeed
-	self.createMapPoints = vehicle.ad.createMapPoints
-	self.showClosestPoint = vehicle.ad.showClosestPoint
-	self.selectedDebugPoint = vehicle.ad.selectedDebugPoint
-	self.showSelectedDebugPoint = vehicle.ad.showSelectedDebugPoint
-	self.changeSelectedDebugPoint = vehicle.ad.changeSelectedDebugPoint
-	self.iteratedDebugPoints = vehicle.ad.iteratedDebugPoints
-	self.inDeadLock = vehicle.ad.inDeadLock
-	self.timeTillDeadLock = vehicle.ad.timeTillDeadLock
-	self.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter
+	o.mode = vehicle.ad.mode
+	o.targetSpeed = vehicle.ad.targetSpeed
+	o.createMapPoints = vehicle.ad.createMapPoints
+	o.showClosestPoint = vehicle.ad.showClosestPoint
+	o.selectedDebugPoint = vehicle.ad.selectedDebugPoint
+	o.showSelectedDebugPoint = vehicle.ad.showSelectedDebugPoint
+	o.changeSelectedDebugPoint = vehicle.ad.changeSelectedDebugPoint
+	o.iteratedDebugPoints = vehicle.ad.iteratedDebugPoints
+	o.inDeadLock = vehicle.ad.inDeadLock
+	o.timeTillDeadLock = vehicle.ad.timeTillDeadLock
+	o.inDeadLockRepairCounter = vehicle.ad.inDeadLockRepairCounter
 
-	self.name = vehicle.ad.driverName
+	o.name = vehicle.ad.driverName
 
-	self.moduleInitialized = vehicle.ad.moduleInitialized
-	self.currentInput = vehicle.ad.currentInput
+	o.moduleInitialized = vehicle.ad.moduleInitialized
+	o.currentInput = vehicle.ad.currentInput
 
-	self.isUnloading = vehicle.ad.isUnloading
-	self.isPaused = vehicle.ad.isPaused
-	self.onRouteToSecondTarget = vehicle.ad.onRouteToSecondTarget
-	self.isLoading = vehicle.ad.isLoading
-	self.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex
-	self.startedLoadingAtTrigger = vehicle.ad.startedLoadingAtTrigger
-	self.combineState = vehicle.ad.combineState
+	o.isUnloading = vehicle.ad.isUnloading
+	o.isPaused = vehicle.ad.isPaused
+	o.onRouteToSecondTarget = vehicle.ad.onRouteToSecondTarget
+	o.isLoading = vehicle.ad.isLoading
+	o.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex
+	o.startedLoadingAtTrigger = vehicle.ad.startedLoadingAtTrigger
+	o.combineState = vehicle.ad.combineState
 
-	self.targetSelected_Unload = vehicle.ad.targetSelected_Unload
-	self.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload
-	self.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload
+	o.targetSelected_Unload = vehicle.ad.targetSelected_Unload
+	o.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload
+	o.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload
 
-	self.onRouteToPark = vehicle.ad.onRouteToPark
+	o.onRouteToPark = vehicle.ad.onRouteToPark
 
-	self.enableAI = vehicle.ad.enableAI
-	self.disableAI = vehicle.ad.disableAI
+	o.enableAI = vehicle.ad.enableAI
+	o.disableAI = vehicle.ad.disableAI
 
-	return self
+	return o
 end
 
 function AutoDriveUpdateEvent:writeStream(streamId, connection)
@@ -89,50 +89,50 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 
 	if self.wayPointsChanged then
 		self.wayPointsString = ""
-		for i, point in pairs(self.wayPoints) do
+		for _, point in pairs(self.wayPoints) do
 			if self.wayPointsString == "" then
 				self.wayPointsString = self.wayPointsString .. point.id
 			else
 				self.wayPointsString = self.wayPointsString .. "," .. point.id
 			end
 		end
-		streamWriteStringOrEmpty(streamId, self.wayPointsString)
+		AutoDrive.streamWriteStringOrEmpty(streamId, self.wayPointsString)
 		self.vehicle.ad.wayPointsChanged = false
 	end
 
 	streamWriteBool(streamId, self.creationMode)
 	streamWriteBool(streamId, self.creationModeDual)
-	streamWriteInt16Or1337(streamId, self.currentWayPoint)
-	streamWriteInt16Or1337(streamId, self.targetSelected)
-	streamWriteInt16Or1337(streamId, self.mapMarkerSelected)
-	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget)
+	AutoDrive.streamWriteInt16Or1337(streamId, self.currentWayPoint)
+	AutoDrive.streamWriteInt16Or1337(streamId, self.targetSelected)
+	AutoDrive.streamWriteInt16Or1337(streamId, self.mapMarkerSelected)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget)
 
 	streamWriteInt8(streamId, self.mode)
 	streamWriteUInt8(streamId, self.targetSpeed)
 	streamWriteBool(streamId, self.createMapPoints)
 	streamWriteBool(streamId, self.showClosestPoint)
-	streamWriteInt16Or1337(streamId, self.selectedDebugPoint)
+	AutoDrive.streamWriteInt16Or1337(streamId, self.selectedDebugPoint)
 	streamWriteBool(streamId, self.showSelectedDebugPoint)
 	streamWriteBool(streamId, self.changeSelectedDebugPoint)
 
 	self.debugPointsIteratedString = ""
-	for i, point in pairs(self.iteratedDebugPoints) do
+	for _, point in pairs(self.iteratedDebugPoints) do
 		if self.debugPointsIteratedString == "" then
 			self.debugPointsIteratedString = self.debugPointsIteratedString .. point.id
 		else
 			self.debugPointsIteratedString = self.debugPointsIteratedString .. "," .. point.id
 		end
 	end
-	streamWriteStringOrEmpty(streamId, self.debugPointsIteratedString)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.debugPointsIteratedString)
 
 	streamWriteBool(streamId, self.inDeadLock)
 	streamWriteFloat32(streamId, self.timeTillDeadLock)
 	streamWriteInt8(streamId, self.inDeadLockRepairCounter)
 
-	streamWriteStringOrEmpty(streamId, self.name)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.name)
 
 	streamWriteBool(streamId, self.moduleInitialized)
-	streamWriteStringOrEmpty(streamId, self.currentInput)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.currentInput)
 
 	streamWriteBool(streamId, self.isUnloading)
 	streamWriteBool(streamId, self.isPaused)
@@ -142,17 +142,17 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteBool(streamId, self.startedLoadingAtTrigger)
 	streamWriteInt8(streamId, self.combineState)
 
-	streamWriteInt16Or1337(streamId, self.targetSelected_Unload)
-	streamWriteInt16Or1337(streamId, self.mapMarkerSelected_Unload)
-	streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
+	AutoDrive.streamWriteInt16Or1337(streamId, self.targetSelected_Unload)
+	AutoDrive.streamWriteInt16Or1337(streamId, self.mapMarkerSelected_Unload)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
 
 	streamWriteBool(streamId, self.onRouteToPark)
 
 	streamWriteInt8(streamId, self.enableAI)
 	streamWriteInt8(streamId, self.disableAI)
 
-	streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage)
-	streamWriteInt32OrEmpty(streamId, NetworkUtil.getObjectId(AutoDrive.print.referencedVehicle))
+	AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage)
+	AutoDrive.streamWriteInt32OrEmpty(streamId, NetworkUtil.getObjectId(AutoDrive.print.referencedVehicle))
 	--g_logManager:devInfo("event writeStream")
 end
 
@@ -183,10 +183,10 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 	local wayPoints = {}
 	if wayPointsChanged == true then
-		local wayPointsString = streamReadStringOrEmpty(streamId)
+		local wayPointsString = AutoDrive.streamReadStringOrEmpty(streamId)
 		local wayPointID = StringUtil.splitString(",", wayPointsString)
-		for i, id in pairs(wayPointID) do
-			if id ~= "" then
+		for i, wpId in pairs(wayPointID) do
+			if wpId ~= "" then
 				wayPoints[i] = AutoDrive.mapWayPoints[tonumber(id)]
 			end
 		end
@@ -194,24 +194,24 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 	local creationMode = streamReadBool(streamId)
 	local creationModeDual = streamReadBool(streamId)
-	local currentWayPoint = streamReadInt16Or1337(streamId)
-	local targetSelected = streamReadInt16Or1337(streamId)
-	local mapMarkerSelected = streamReadInt16Or1337(streamId)
-	local nameOfSelectedTarget = streamReadStringOrEmpty(streamId)
+	local currentWayPoint = AutoDrive.streamReadInt16Or1337(streamId)
+	local targetSelected = AutoDrive.streamReadInt16Or1337(streamId)
+	local mapMarkerSelected = AutoDrive.streamReadInt16Or1337(streamId)
+	local nameOfSelectedTarget = AutoDrive.streamReadStringOrEmpty(streamId)
 
 	local mode = streamReadInt8(streamId)
 	local targetSpeed = streamReadUInt8(streamId)
 	local createMapPoints = streamReadBool(streamId)
 	local showClosestPoint = streamReadBool(streamId)
-	local selectedDebugPoint = streamReadInt16Or1337(streamId)
+	local selectedDebugPoint = AutoDrive.streamReadInt16Or1337(streamId)
 	local showSelectedDebugPoint = streamReadBool(streamId)
 	local changeSelectedDebugPoint = streamReadBool(streamId)
 
-	local DebugPointsIteratedString = streamReadStringOrEmpty(streamId)
+	local DebugPointsIteratedString = AutoDrive.streamReadStringOrEmpty(streamId)
 	local DebugPointsID = StringUtil.splitString(",", DebugPointsIteratedString)
 	local iteratedDebugPoints = {}
-	for i, id in pairs(DebugPointsID) do
-		if id ~= "" then
+	for i, pId in pairs(DebugPointsID) do
+		if pId ~= "" then
 			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(id)]
 		end
 	end
@@ -220,10 +220,10 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local timeTillDeadLock = streamReadFloat32(streamId)
 	local inDeadLockRepairCounter = streamReadInt8(streamId)
 
-	local name = streamReadStringOrEmpty(streamId)
+	local name = AutoDrive.streamReadStringOrEmpty(streamId)
 
 	local moduleInitialized = streamReadBool(streamId)
-	local currentInput = streamReadStringOrEmpty(streamId)
+	local currentInput = AutoDrive.streamReadStringOrEmpty(streamId)
 
 	local isUnloading = streamReadBool(streamId)
 	local isPaused = streamReadBool(streamId)
@@ -233,16 +233,16 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local startedLoadingAtTrigger = streamReadBool(streamId)
 	local combineState = streamReadInt8(streamId)
 
-	local targetSelected_Unload = streamReadInt16Or1337(streamId)
-	local mapMarkerSelected_Unload = streamReadInt16Or1337(streamId)
-	local nameOfSelectedTarget_Unload = streamReadStringOrEmpty(streamId)
+	local targetSelected_Unload = AutoDrive.streamReadInt16Or1337(streamId)
+	local mapMarkerSelected_Unload = AutoDrive.streamReadInt16Or1337(streamId)
+	local nameOfSelectedTarget_Unload = AutoDrive.streamReadStringOrEmpty(streamId)
 
 	local onRouteToPark = streamReadBool(streamId)
 
 	local enableAI = streamReadInt8(streamId)
 	local disableAI = streamReadInt8(streamId)
 
-	local AD_currentMessage = streamReadStringOrEmpty(streamId)
+	local AD_currentMessage = AutoDrive.streamReadStringOrEmpty(streamId)
 
 	if g_server ~= nil then
 		vehicle.ad.currentInput = currentInput
