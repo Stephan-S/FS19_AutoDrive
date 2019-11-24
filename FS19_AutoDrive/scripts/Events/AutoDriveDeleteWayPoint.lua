@@ -4,15 +4,15 @@ AutoDriveDeleteWayPoint_mt = Class(AutoDriveDeleteWayPoint, Event)
 InitEventClass(AutoDriveDeleteWayPoint, "AutoDriveDeleteWayPoint")
 
 function AutoDriveDeleteWayPoint:emptyNew()
-	local self = Event:new(AutoDriveDeleteWayPoint_mt)
-	self.className = "AutoDriveDeleteWayPoint"
-	return self
+	local o = Event:new(AutoDriveDeleteWayPoint_mt)
+	o.className = "AutoDriveDeleteWayPoint"
+	return o
 end
 
 function AutoDriveDeleteWayPoint:new(wayPointId)
-	local self = AutoDriveDeleteWayPoint:emptyNew()
-	self.wayPointId = wayPointId
-	return self
+	local o = AutoDriveDeleteWayPoint:emptyNew()
+	o.wayPointId = wayPointId
+	return o
 end
 
 function AutoDriveDeleteWayPoint:writeStream(streamId, connection)

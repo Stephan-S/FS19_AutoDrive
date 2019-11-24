@@ -1,21 +1,21 @@
 ADHudButton = ADInheritsFrom(ADGenericHudElement)
 
 function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, toolTip, state, visible)
-    local self = ADHudButton:create()
-    self:init(posX, posY, width, height)
-    self.primaryAction = primaryAction
-    self.secondaryAction = secondaryAction
-    self.toolTip = toolTip
-    self.state = state
-    self.isVisible = visible
+    local o = ADHudButton:create()
+    o:init(posX, posY, width, height)
+    o.primaryAction = primaryAction
+    o.secondaryAction = secondaryAction
+    o.toolTip = toolTip
+    o.state = state
+    o.isVisible = visible
 
-    self.layer = 5
+    o.layer = 5
 
-    self.images = self:readImages()
+    o.images = o:readImages()
 
-    self.ov = Overlay:new(self.images[self.state], self.position.x, self.position.y, self.size.width, self.size.height)
+    o.ov = Overlay:new(o.images[o.state], o.position.x, o.position.y, o.size.width, o.size.height)
 
-    return self
+    return o
 end
 
 function ADHudButton:readImages()

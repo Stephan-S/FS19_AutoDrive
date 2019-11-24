@@ -5,51 +5,51 @@
 -- @author Stephan Schlosser
 -- @date 08/04/2019
 
-adSettings = {}
+ADSettings = {}
 
-local adSettings_mt = Class(adSettings, TabbedMenu)
+local ADSettings_mt = Class(ADSettings, TabbedMenu)
 
-adSettings.CONTROLS = {"autoDriveSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings"}
+ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings"}
 
-function adSettings:new(target, custom_mt)
-    local self = TabbedMenu:new(nil, adSettings_mt, g_messageCenter, g_i18n, g_gui.inputManager)
-    self.returnScreenName = ""
-    self.settingElements = {}
+function ADSettings:new()
+    local o = TabbedMenu:new(nil, ADSettings_mt, g_messageCenter, g_i18n, g_gui.inputManager)
+    o.returnScreenName = ""
+    o.settingElements = {}
 
-    self:registerControls(adSettings.CONTROLS)
+    o:registerControls(ADSettings.CONTROLS)
 
-    self.activePageID = 1
-    return self
+    o.activePageID = 1
+    return o
 end
 
-function adSettings:onGuiSetupFinished()
-    adSettings:superClass().onGuiSetupFinished(self)
+function ADSettings:onGuiSetupFinished()
+    ADSettings:superClass().onGuiSetupFinished(self)
 
     self:setupPages()
 end
 
-function adSettings:onClose()
+function ADSettings:onClose()
     self:applySettings()
-    adSettings:superClass().onClose(self)
+    ADSettings:superClass().onClose(self)
 end
 
-function adSettings:onOpen()
-    adSettings:superClass().onOpen(self)
+function ADSettings:onOpen()
+    ADSettings:superClass().onOpen(self)
 
     self.inputDisableTime = 200
 end
 
-function adSettings:setupPages()
+function ADSettings:setupPages()
     local alwaysVisiblePredicate = self:makeIsAlwaysVisiblePredicate()
 
     local orderedPages = {
-        {self.autoDriveSettings, alwaysVisiblePredicate, AutoDrive.directory .. "textures/GUI_Icons.dds", adSettings.TAB_UV.SETTINGS_GENERAL, "autoDriveSettings"},
-        {self.autoDriveVehicleSettings, alwaysVisiblePredicate, g_baseUIFilename, adSettings.TAB_UV.SETTINGS_VEHICLE, "autoDriveVehicleSettings"},
-        {self.autoDriveCombineUnloadSettings, alwaysVisiblePredicate, AutoDrive.directory .. "textures/GUI_Icons.dds", adSettings.TAB_UV.SETTINGS_UNLOAD, "autoDriveCombineUnloadSettings"}
+        {self.autoDriveSettings, alwaysVisiblePredicate, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_GENERAL, "autoDriveSettings"},
+        {self.autoDriveVehicleSettings, alwaysVisiblePredicate, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, "autoDriveVehicleSettings"},
+        {self.autoDriveCombineUnloadSettings, alwaysVisiblePredicate, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_UNLOAD, "autoDriveCombineUnloadSettings"}
     }
 
     for i, pageDef in ipairs(orderedPages) do
-        local page, predicate, uiFilename, iconUVs, name = unpack(pageDef)
+        local page, predicate, uiFilename, iconUVs, _ = unpack(pageDef)
         self:registerPage(page, i, predicate)
 
         page.callBackParent = self
@@ -60,14 +60,14 @@ function adSettings:setupPages()
     end
 end
 
-function adSettings:makeIsAlwaysVisiblePredicate()
+function ADSettings:makeIsAlwaysVisiblePredicate()
     return function()
         return true
     end
 end
 
 --- Page tab UV coordinates for display elements.
-adSettings.TAB_UV = {
+ADSettings.TAB_UV = {
     SETTINGS_GENERAL = {385, 0, 128, 128},
     SETTINGS_VEHICLE = {0, 209, 65, 65},
     SETTINGS_UNLOAD = {0, 0, 128, 128},
@@ -76,7 +76,7 @@ adSettings.TAB_UV = {
 }
 
 --- Define default properties and retrieval collections for menu buttons.
-function adSettings:setupMenuButtonInfo()
+function ADSettings:setupMenuButtonInfo()
     local onButtonBackFunction = self.clickBackCallback
 
     self.defaultMenuButtonInfo = {
@@ -96,18 +96,18 @@ function adSettings:setupMenuButtonInfo()
     --}
 end
 
-function adSettings:onClickBack()
+function ADSettings:onClickBack()
     -- We can't call applySettings here or we will apply setting two times
     --self:applySettings()
-    adSettings:superClass().onClickBack(self)
+    ADSettings:superClass().onClickBack(self)
 end
 
-function adSettings:onClickOK()
-    --adSettings:superClass().onClickOk(self);
+function ADSettings:onClickOK()
+    --ADSettings:superClass().onClickOk(self);
     self:onClickBack()
 end
 
-function adSettings:applySettings()
+function ADSettings:applySettings()
     local page = self:getActivePage()
     if page == nil then
         return
@@ -130,11 +130,11 @@ function adSettings:applySettings()
     AutoDriveUserDataEvent.sendToServer()
 end
 
-function adSettings:onClickReset()
+function ADSettings:onClickReset()
     self:resetCurrentPageGUISettings()
 end
 
-function adSettings:resetCurrentPageGUISettings()
+function ADSettings:resetCurrentPageGUISettings()
     local page = self:getActivePage()
     if page == nil then
         return
@@ -152,6 +152,6 @@ function adSettings:resetCurrentPageGUISettings()
     end
 end
 
-function adSettings:getActivePage()
-    return self[adSettings.CONTROLS[self.activePageID]]
+function ADSettings:getActivePage()
+    return self[ADSettings.CONTROLS[self.activePageID]]
 end

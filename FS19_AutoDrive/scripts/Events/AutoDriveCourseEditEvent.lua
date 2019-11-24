@@ -4,15 +4,15 @@ AutoDriveCourseEditEvent_mt = Class(AutoDriveCourseEditEvent, Event)
 InitEventClass(AutoDriveCourseEditEvent, "AutoDriveCourseEditEvent")
 
 function AutoDriveCourseEditEvent:emptyNew()
-	local self = Event:new(AutoDriveCourseEditEvent_mt)
-	self.className = "AutoDriveCourseEditEvent"
-	return self
+	local o = Event:new(AutoDriveCourseEditEvent_mt)
+	o.className = "AutoDriveCourseEditEvent"
+	return o
 end
 
 function AutoDriveCourseEditEvent:new(point)
-	local self = AutoDriveCourseEditEvent:emptyNew()
-	self.point = point
-	return self
+	local o = AutoDriveCourseEditEvent:emptyNew()
+	o.point = point
+	return o
 end
 
 function AutoDriveCourseEditEvent:writeStream(streamId, connection)
@@ -44,10 +44,10 @@ function AutoDriveCourseEditEvent:writeStream(streamId, connection)
 		streamWriteFloat32(streamId, self.point.x)
 		streamWriteFloat32(streamId, self.point.y)
 		streamWriteFloat32(streamId, self.point.z)
-		streamWriteStringOrEmpty(streamId, outString)
-		streamWriteStringOrEmpty(streamId, incomingString)
-		streamWriteStringOrEmpty(streamId, markerIDsString)
-		streamWriteStringOrEmpty(streamId, markerNamesString)
+		AutoDrive.streamWriteStringOrEmpty(streamId, outString)
+		AutoDrive.streamWriteStringOrEmpty(streamId, incomingString)
+		AutoDrive.streamWriteStringOrEmpty(streamId, markerIDsString)
+		AutoDrive.streamWriteStringOrEmpty(streamId, markerNamesString)
 	end
 end
 
@@ -60,27 +60,26 @@ function AutoDriveCourseEditEvent:readStream(streamId, connection)
 		point.y = streamReadFloat32(streamId)
 		point.z = streamReadFloat32(streamId)
 
-		local outString = streamReadStringOrEmpty(streamId)
-		local outTable = StringUtil.splitString(",", outString)
+		local outTable = StringUtil.splitString(",", AutoDrive.streamReadStringOrEmpty(streamId))
 		point["out"] = {}
 		for i2, outString in pairs(outTable) do
 			point["out"][i2] = tonumber(outString)
 		end
 
-		local incomingString = streamReadStringOrEmpty(streamId)
+		local incomingString = AutoDrive.streamReadStringOrEmpty(streamId)
 		local incomingTable = StringUtil.splitString(",", incomingString)
 		point["incoming"] = {}
 		local incoming_counter = 1
-		for i2, incomingID in pairs(incomingTable) do
+		for _, incomingID in pairs(incomingTable) do
 			if incomingID ~= "" then
 				point["incoming"][incoming_counter] = tonumber(incomingID)
 			end
 			incoming_counter = incoming_counter + 1
 		end
 
-		local markerIDsString = streamReadStringOrEmpty(streamId)
+		local markerIDsString = AutoDrive.streamReadStringOrEmpty(streamId)
 		local markerIDsTable = StringUtil.splitString(",", markerIDsString)
-		local markerNamesString = streamReadStringOrEmpty(streamId)
+		local markerNamesString = AutoDrive.streamReadStringOrEmpty(streamId)
 		local markerNamesTable = StringUtil.splitString(",", markerNamesString)
 		point["marker"] = {}
 		for i2, markerName in pairs(markerNamesTable) do

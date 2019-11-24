@@ -4,25 +4,25 @@ AutoDriveChangeMapMarkerGroupEvent_mt = Class(AutoDriveChangeMapMarkerGroupEvent
 InitEventClass(AutoDriveChangeMapMarkerGroupEvent, "AutoDriveChangeMapMarkerGroupEvent")
 
 function AutoDriveChangeMapMarkerGroupEvent:emptyNew()
-	local self = Event:new(AutoDriveChangeMapMarkerGroupEvent_mt)
-	self.className = "AutoDriveChangeMapMarkerGroupEvent"
-	return self
+	local o = Event:new(AutoDriveChangeMapMarkerGroupEvent_mt)
+	o.className = "AutoDriveChangeMapMarkerGroupEvent"
+	return o
 end
 
 function AutoDriveChangeMapMarkerGroupEvent:new(groupName, markerId)
-	local self = AutoDriveChangeMapMarkerGroupEvent:emptyNew()
-	self.groupName = groupName
-	self.markerId = markerId
-	return self
+	local o = AutoDriveChangeMapMarkerGroupEvent:emptyNew()
+	o.groupName = groupName
+	o.markerId = markerId
+	return o
 end
 
 function AutoDriveChangeMapMarkerGroupEvent:writeStream(streamId, connection)
-	streamWriteStringOrEmpty(streamId, self.groupName)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.groupName)
 	streamWriteUInt8(streamId, self.markerId)
 end
 
 function AutoDriveChangeMapMarkerGroupEvent:readStream(streamId, connection)
-	self.groupName = streamReadStringOrEmpty(streamId)
+	self.groupName = AutoDrive.streamReadStringOrEmpty(streamId)
 	self.markerId = streamReadUInt8(streamId)
 	self:run(connection)
 end

@@ -5,48 +5,48 @@
 -- @author Stephan Schlosser
 -- @date 09/06/2019
 
-adEnterGroupNameGui = {}
+ADEnterGroupNameGui = {}
 
-local adEnterGroupNameGui_mt = Class(adEnterGroupNameGui, ScreenElement)
+local ADEnterGroupNameGui_mt = Class(ADEnterGroupNameGui, ScreenElement)
 
-function adEnterGroupNameGui:new(target, custom_mt)
-    local self = ScreenElement:new(target, adEnterGroupNameGui_mt)
-    self.returnScreenName = ""
-    self.textInputElement = nil
-    return self
+function ADEnterGroupNameGui:new(target)
+    local o = ScreenElement:new(target, ADEnterGroupNameGui_mt)
+    o.returnScreenName = ""
+    o.textInputElement = nil
+    return o
 end
 
-function adEnterGroupNameGui:onCreateTitleElement(element)
+function ADEnterGroupNameGui:onCreateTitleElement(element)
     element:setText(g_i18n:getText("gui_ad_enterGroupNameTitle"))
 end
 
-function adEnterGroupNameGui:onCreateTextElement(element)
+function ADEnterGroupNameGui:onCreateTextElement(element)
     element:setText(g_i18n:getText("gui_ad_enterGroupNameText"))
 end
 
-function adEnterGroupNameGui:onCreateInputElement(element)
+function ADEnterGroupNameGui:onCreateInputElement(element)
     self.textInputElement = element
     element.text = ""
 end
 
-function adEnterGroupNameGui:onOpen()
-    adEnterGroupNameGui:superClass().onOpen(self)
+function ADEnterGroupNameGui:onOpen()
+    ADEnterGroupNameGui:superClass().onOpen(self)
     FocusManager:setFocus(self.textInputElement)
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
     self.textInputElement:setText("")
 end
 
-function adEnterGroupNameGui:onClickOk()
-    adEnterGroupNameGui:superClass().onClickOk(self)
+function ADEnterGroupNameGui:onClickOk()
+    ADEnterGroupNameGui:superClass().onClickOk(self)
     AutoDrive.addGroup(self.textInputElement.text)
     self:onClickBack()
 end
 
-function adEnterGroupNameGui:onClickBack()
-    adEnterGroupNameGui:superClass().onClickBack(self)
+function ADEnterGroupNameGui:onClickBack()
+    ADEnterGroupNameGui:superClass().onClickBack(self)
 end
 
-function adEnterGroupNameGui:onClose()
-    adEnterGroupNameGui:superClass().onClose(self)
+function ADEnterGroupNameGui:onClose()
+    ADEnterGroupNameGui:superClass().onClose(self)
 end

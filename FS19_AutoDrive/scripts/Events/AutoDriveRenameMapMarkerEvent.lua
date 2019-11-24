@@ -4,25 +4,25 @@ AutoDriveRenameMapMarkerEvent_mt = Class(AutoDriveRenameMapMarkerEvent, Event)
 InitEventClass(AutoDriveRenameMapMarkerEvent, "AutoDriveRenameMapMarkerEvent")
 
 function AutoDriveRenameMapMarkerEvent:emptyNew()
-	local self = Event:new(AutoDriveRenameMapMarkerEvent_mt)
-	self.className = "AutoDriveRenameMapMarkerEvent"
-	return self
+	local o = Event:new(AutoDriveRenameMapMarkerEvent_mt)
+	o.className = "AutoDriveRenameMapMarkerEvent"
+	return o
 end
 
 function AutoDriveRenameMapMarkerEvent:new(newName, markerId)
-	local self = AutoDriveRenameMapMarkerEvent:emptyNew()
-	self.newName = newName
-	self.markerId = markerId
-	return self
+	local o = AutoDriveRenameMapMarkerEvent:emptyNew()
+	o.newName = newName
+	o.markerId = markerId
+	return o
 end
 
 function AutoDriveRenameMapMarkerEvent:writeStream(streamId, connection)
-	streamWriteStringOrEmpty(streamId, self.newName)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.newName)
 	streamWriteUInt8(streamId, self.markerId)
 end
 
 function AutoDriveRenameMapMarkerEvent:readStream(streamId, connection)
-	self.newName = streamReadStringOrEmpty(streamId)
+	self.newName = AutoDrive.streamReadStringOrEmpty(streamId)
 	self.markerId = streamReadUInt8(streamId)
 	self:run(connection)
 end

@@ -95,14 +95,14 @@ function AutoDrive.readFromXML(xmlFile)
 		AutoDrive.lastSetSpeed = lastSetSpeed
 	end
 
-	for settingName, setting in pairs(AutoDrive.settings) do
+	for settingName, _ in pairs(AutoDrive.settings) do
 		local value = getXMLFloat(xmlFile, "AutoDrive." .. settingName)
 		if value ~= nil then
 			AutoDrive.settings[settingName].current = value
 		end
 	end
 
-	for feature, enabled in pairs(AutoDrive.experimentalFeatures) do
+	for feature, _ in pairs(AutoDrive.experimentalFeatures) do
 		AutoDrive.experimentalFeatures[feature] = Utils.getNoNil(getXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled"), AutoDrive.experimentalFeatures[feature])
 	end
 
@@ -194,9 +194,9 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	local markerNamesString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerNames")
+	local markerNamesSplitted = {}
 	if markerNamesString ~= nil then
 		local markerNamesTable = markerNamesString:split(";")
-		local markerNamesSplitted = {}
 		for i, outer in pairs(markerNamesTable) do
 			local markerNames = outer:split(",")
 			markerNamesSplitted[i] = markerNames
@@ -214,10 +214,10 @@ function AutoDrive.readFromXML(xmlFile)
 			wp["id"] = tonumber(id)
 			wp["out"] = {}
 			if outSplitted[i] ~= nil then
-				for i2, outString in pairs(outSplitted[i]) do
-					local number = tonumber(outString)
+				for i2, outStr in pairs(outSplitted[i]) do
+					local number = tonumber(outStr)
 					if number ~= -1 then
-						wp["out"][i2] = tonumber(outString)
+						wp["out"][i2] = tonumber(outStr)
 					end
 				end
 			end
@@ -225,7 +225,7 @@ function AutoDrive.readFromXML(xmlFile)
 			wp["incoming"] = {}
 			local incoming_counter = 1
 			if incomingSplitted[i] ~= nil then
-				for i2, incomingID in pairs(incomingSplitted[i]) do
+				for _, incomingID in pairs(incomingSplitted[i]) do
 					if incomingID ~= "" then
 						local number = tonumber(incomingID)
 						if number ~= -1 then
@@ -248,7 +248,7 @@ function AutoDrive.readFromXML(xmlFile)
 			else
 				if markerIDSplitted[i] ~= nil then
 					if markerIDSplitted[i][1] == "=" then
-						for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+						for _, marker in pairs(AutoDrive.mapMarker) do
 							wp.marker[marker.name] = tonumber(markerIDSplitted[i][2])
 						end
 					else
@@ -257,7 +257,7 @@ function AutoDrive.readFromXML(xmlFile)
 						end
 					end
 				else
-					for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+					for _, marker in pairs(AutoDrive.mapMarker) do
 						wp.marker[marker.name] = -1
 					end
 				end
@@ -288,8 +288,8 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	local recalculate = true
-	local recalculateString = getXMLString(xmlFile, "AutoDrive.Recalculation")
+	recalculate = true
+	recalculateString = getXMLString(xmlFile, "AutoDrive.Recalculation")
 	if recalculateString == "true" then
 		recalculate = true
 	end
@@ -319,7 +319,7 @@ function AutoDrive.saveToXML(xmlFile)
 	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud)
 	setXMLFloat(xmlFile, "AutoDrive.lastSetSpeed", AutoDrive.lastSetSpeed)
 
-	for settingName, setting in pairs(AutoDrive.settings) do
+	for settingName, _ in pairs(AutoDrive.settings) do
 		setXMLFloat(xmlFile, "AutoDrive." .. settingName, AutoDrive.settings[settingName].current)
 	end
 
@@ -328,28 +328,28 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	local idFullTable = {}
-	local idString = ""
+	--local idString = ""
 
 	local xTable = {}
-	local xString = ""
+	--local xString = ""
 
 	local yTable = {}
-	local yString = ""
+	--local yString = ""
 
 	local zTable = {}
-	local zString = ""
+	--local zString = ""
 
 	local outTable = {}
-	local outString = ""
+	--local outString = ""
 
 	local incomingTable = {}
-	local incomingString = ""
+	--local incomingString = ""
 
-	local markerNamesTable = {}
-	local markerNames = ""
+	--local markerNamesTable = {}
+	--local markerNames = ""
 
 	local markerIDsTable = {}
-	local markerIDs = ""
+	--local markerIDs = ""
 
 	for i, p in pairs(AutoDrive.mapWayPoints) do
 		idFullTable[i] = p.id
@@ -387,9 +387,9 @@ function AutoDrive.saveToXML(xmlFile)
 			end
 		else
 			local markerCounter = 1
-			local innerMarkerNamesTable = {}
+			--local innerMarkerNamesTable = {}
 			local innerMarkerIDsTable = {}
-			for markerIndex, marker in pairs(AutoDrive.mapMarker) do
+			for _, marker in pairs(AutoDrive.mapMarker) do
 				innerMarkerIDsTable[markerCounter] = p.marker[marker.name]
 				markerCounter = markerCounter + 1
 			end
@@ -419,8 +419,8 @@ function AutoDrive.saveToXML(xmlFile)
 end
 
 function AutoDrive.exportRoutes()
-	path = getUserProfileAppPath()
-	file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+	local path = getUserProfileAppPath()
+	local file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
 
 	createFolder(path .. "FS19_AutoDrive_Export")
 	createFolder(path .. "FS19_AutoDrive_Import")
@@ -433,8 +433,8 @@ function AutoDrive.exportRoutes()
 end
 
 function AutoDrive.importRoutes()
-	path = getUserProfileAppPath()
-	file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
+	local path = getUserProfileAppPath()
+	local file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
 
 	createFolder(path .. "FS19_AutoDrive_Import")
 

@@ -457,7 +457,7 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
 
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ccInfos.chasePos.x, vehicle.ccInfos.chasePos.y, vehicle.ccInfos.chasePos.z)
     AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1)
-    drivingEnabled = true
+    --drivingEnabled = true
 end
 
 function AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
@@ -515,9 +515,9 @@ function AutoDrive:reverseVehicle(vehicle, dt)
     local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, -1)
     x = x + rx
     z = z + rz
-    local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
+    --local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
     AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1)
-    drivingEnabled = true
+    --drivingEnabled = true
 end
 
 function AutoDrive:handlePureChaseMode(vehicle, dt)

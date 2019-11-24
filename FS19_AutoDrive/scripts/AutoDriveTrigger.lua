@@ -14,18 +14,18 @@ function AutoDrive.getAllTriggers()
         if ownedItem.storeItem ~= nil then
             if ownedItem.storeItem.categoryName == "SILOS" then
                 --DebugUtil.printTableRecursively(ownedItem, ":", 0, 3);
-                local trigger = {}
-                for __, item in pairs(ownedItem.items) do
+                --local trigger = {}
+                for _, item in pairs(ownedItem.items) do
                     if item.unloadingStation ~= nil then
                         for _, unloadTrigger in pairs(item.unloadingStation.unloadTriggers) do
                             --DebugUtil.printTableRecursively(unloadTrigger, ":", 0, 3);
-                            local triggerId = unloadTrigger.exactFillRootNode
-                            trigger = {
-                                triggerId = triggerId,
-                                acceptedFillTypes = item.storages[1].fillTypes,
-                                capacity = item.storages[1].capacityPerFillType,
-                                fillLevels = item.storages[1].fillLevels
-                            }
+                            --local triggerId = unloadTrigger.exactFillRootNode
+                            --trigger = {
+                            --    triggerId = triggerId,
+                            --    acceptedFillTypes = item.storages[1].fillTypes,
+                            --    capacity = item.storages[1].capacityPerFillType,
+                            --    fillLevels = item.storages[1].fillLevels
+                            --}
                             --g_logManager:devInfo("AutoDrive - found silo unloading trigger: " .. ownedItem.storeItem.categoryName .. " with capacity: " .. trigger.capacity);
 
                             AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
@@ -35,7 +35,7 @@ function AutoDrive.getAllTriggers()
 
                     if item.loadingStation ~= nil then
                         for _, loadTrigger in pairs(item.loadingStation.loadTriggers) do
-                            local triggerId = loadTrigger.triggerNode
+                            --local triggerId = loadTrigger.triggerNode
                             --g_logManager:devInfo("AutoDrive - found silo loading trigger: " .. ownedItem.storeItem.categoryName);
 
                             AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
@@ -50,16 +50,16 @@ function AutoDrive.getAllTriggers()
     end
 
     if g_currentMission.placeables ~= nil then
-        local counter = 0
-        for placeableIndex, placeable in pairs(g_currentMission.placeables) do
+        --local counter = 0
+        for _, placeable in pairs(g_currentMission.placeables) do
             if placeable.sellingStation ~= nil then
-                local trigger = {}
+                --local trigger = {}
                 for _, unloadTrigger in pairs(placeable.sellingStation.unloadTriggers) do
-                    local triggerId = unloadTrigger.exactFillRootNode
-                    trigger = {
-                        triggerId = triggerId,
-                        acceptedFillTypes = placeable.sellingStation.acceptedFillTypes
-                    }
+                    --local triggerId = unloadTrigger.exactFillRootNode
+                    --trigger = {
+                    --    triggerId = triggerId,
+                    --    acceptedFillTypes = placeable.sellingStation.acceptedFillTypes
+                    --}
 
                     --g_logManager:devInfo("AutoDrive - found selling unloading trigger: " .. placeable.sellingStation.stationName);
 
@@ -69,15 +69,15 @@ function AutoDrive.getAllTriggers()
             end
 
             if placeable.unloadingStation ~= nil then
-                local trigger = {}
+                --local trigger = {}
                 for _, unloadTrigger in pairs(placeable.unloadingStation.unloadTriggers) do
-                    local triggerId = unloadTrigger.exactFillRootNode
-                    trigger = {
-                        triggerId = triggerId,
-                        acceptedFillTypes = placeable.storages[1].fillTypes,
-                        capacity = placeable.storages[1].capacityPerFillType,
-                        fillLevels = placeable.storages[1].fillLevels
-                    }
+                    --local triggerId = unloadTrigger.exactFillRootNode
+                    --trigger = {
+                    --    triggerId = triggerId,
+                    --    acceptedFillTypes = placeable.storages[1].fillTypes,
+                    --    capacity = placeable.storages[1].capacityPerFillType,
+                    --    fillLevels = placeable.storages[1].fillLevels
+                    --}
                     AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
                     AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadTrigger
                 end
@@ -88,21 +88,21 @@ function AutoDrive.getAllTriggers()
                     local myModule = placeable.modulesById[i]
                     --DebugUtil.printTableRecursively(myModule,":",0,1);
                     if myModule.unloadPlace ~= nil then
-                        local triggerId = myModule.unloadPlace.target.unloadPlace.exactFillRootNode
-                        local trigger = {
-                            triggerId = triggerId,
-                            acceptedFillTypes = myModule.unloadPlace.fillTypes
-                        }
+                        --local triggerId = myModule.unloadPlace.target.unloadPlace.exactFillRootNode
+                        --local trigger = {
+                        --    triggerId = triggerId,
+                        --    acceptedFillTypes = myModule.unloadPlace.fillTypes
+                        --}
                         AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
                         AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = myModule.unloadPlace
                     end
 
                     if myModule.feedingTrough ~= nil then
-                        local triggerId = myModule.feedingTrough.target.feedingTrough.exactFillRootNode
-                        local trigger = {
-                            triggerId = triggerId,
-                            acceptedFillTypes = myModule.feedingTrough.fillTypes
-                        }
+                        --local triggerId = myModule.feedingTrough.target.feedingTrough.exactFillRootNode
+                        --local trigger = {
+                        --    triggerId = triggerId,
+                        --    acceptedFillTypes = myModule.feedingTrough.fillTypes
+                        --}
                         AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
                         AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = myModule.feedingTrough
                     end
@@ -116,7 +116,7 @@ function AutoDrive.getAllTriggers()
 
             if placeable.buyingStation ~= nil then
                 for _, loadTrigger in pairs(placeable.buyingStation.loadTriggers) do
-                    local triggerId = loadTrigger.triggerNode
+                    --local triggerId = loadTrigger.triggerNode
                     AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
                     AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadTrigger
                 end
@@ -124,7 +124,7 @@ function AutoDrive.getAllTriggers()
 
             if placeable.loadingStation ~= nil then
                 for _, loadTrigger in pairs(placeable.loadingStation.loadTriggers) do
-                    local triggerId = loadTrigger.triggerNode
+                    --local triggerId = loadTrigger.triggerNode
 
                     AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
                     AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadTrigger
@@ -162,13 +162,13 @@ function AutoDrive.getAllTriggers()
         for i = 1, #g_company.loadedFactories do
             local factory = g_company.loadedFactories[i]
             if factory.registeredUnloadingTriggers then
-                for name, unloadingTrigger in pairs(factory.registeredUnloadingTriggers) do
+                for _, unloadingTrigger in pairs(factory.registeredUnloadingTriggers) do
                     if unloadingTrigger.trigger then
                         AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
                         AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadingTrigger.trigger
                     end
                 end
-                for name, loadingTrigger in pairs(factory.registeredLoadingTriggers) do
+                for _, loadingTrigger in pairs(factory.registeredLoadingTriggers) do
                     if loadingTrigger.trigger then
                         AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
                         AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadingTrigger.trigger
@@ -194,13 +194,13 @@ end
 
 function AutoDrive.getClosestRefuelTrigger(vehicle)
     local refuelTriggers = AutoDrive.getRefuelTriggers()
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
 
     local closestRefuelTrigger = nil
     local closestDistance = math.huge
 
     for _, refuelTrigger in pairs(refuelTriggers) do
-        local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
+        local triggerX, _, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
         local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
 
         if distance < closestDistance then
@@ -220,7 +220,7 @@ function AutoDrive.getRefuelDestinations()
     for mapMarkerID, mapMarker in pairs(AutoDrive.mapMarker) do
         local x, z = AutoDrive.mapWayPoints[mapMarker.id].x, AutoDrive.mapWayPoints[mapMarker.id].z
         for _, refuelTrigger in pairs(refuelTriggers) do
-            local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
+            local triggerX, _, triggerZ = AutoDrive.getTriggerPos(refuelTrigger)
             local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
             if distance < AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
                 --g_logManager:devInfo("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
@@ -235,7 +235,7 @@ end
 function AutoDrive.getClosestRefuelDestination(vehicle)
     local refuelDestinations = AutoDrive.getRefuelDestinations()
 
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local closestRefuelDestination = nil
     local closestDistance = math.huge
 

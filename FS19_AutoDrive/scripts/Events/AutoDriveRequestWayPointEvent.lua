@@ -4,14 +4,14 @@ AutoDriveRequestWayPointEvent_mt = Class(AutoDriveRequestWayPointEvent, Event)
 InitEventClass(AutoDriveRequestWayPointEvent, "AutoDriveRequestWayPointEvent")
 
 function AutoDriveRequestWayPointEvent:emptyNew()
-	local self = Event:new(AutoDriveRequestWayPointEvent_mt)
-	self.className = "AutoDriveRequestWayPointEvent"
-	return self
+	local o = Event:new(AutoDriveRequestWayPointEvent_mt)
+	o.className = "AutoDriveRequestWayPointEvent"
+	return o
 end
 
 function AutoDriveRequestWayPointEvent:new()
-	local self = AutoDriveRequestWayPointEvent:emptyNew()
-	return self
+	local o = AutoDriveRequestWayPointEvent:emptyNew()
+	return o
 end
 
 function AutoDriveRequestWayPointEvent:writeStream(streamId, connection)

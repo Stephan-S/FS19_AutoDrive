@@ -11,15 +11,15 @@ function DelayedCallBack:new(callBack, callBackSelf)
     if DelayedCallBack_mt == nil then
         DelayedCallBack_mt = Class(DelayedCallBack)
     end
-    local self = {}
-    setmetatable(self, DelayedCallBack_mt)
-    self.callBack = callBack
-    self.callBackSelf = callBackSelf
-    self.callBackCalled = true
-    self.delay = 0
-    self.delayCounter = 0
-    self.skipOneFrame = false
-    return self
+    local o = {}
+    setmetatable(o, DelayedCallBack_mt)
+    o.callBack = callBack
+    o.callBackSelf = callBackSelf
+    o.callBackCalled = true
+    o.delay = 0
+    o.delayCounter = 0
+    o.skipOneFrame = false
+    return o
 end
 
 function DelayedCallBack:update(dt)

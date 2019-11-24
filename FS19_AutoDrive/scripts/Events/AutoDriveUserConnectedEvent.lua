@@ -4,9 +4,9 @@ AutoDriveUserConnectedEvent_mt = Class(AutoDriveUserConnectedEvent, Event)
 InitEventClass(AutoDriveUserConnectedEvent, "AutoDriveUserConnectedEvent")
 
 function AutoDriveUserConnectedEvent:emptyNew()
-	local self = Event:new(AutoDriveUserConnectedEvent_mt)
-	self.className = "AutoDriveUserConnectedEvent"
-	return self
+	local o = Event:new(AutoDriveUserConnectedEvent_mt)
+	o.className = "AutoDriveUserConnectedEvent"
+	return o
 end
 
 function AutoDriveUserConnectedEvent:new()

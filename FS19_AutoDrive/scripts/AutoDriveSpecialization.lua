@@ -570,11 +570,11 @@ end
 
 function AutoDrive:onDrawCreationMode(vehicle)
     local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
-    for i, point in pairs(AutoDrive.mapWayPoints) do
+    for _, point in pairs(AutoDrive.mapWayPoints) do
         local distance = AutoDrive:getDistance(point.x, point.z, x1, z1)
         if distance < 50 then
             if point.out ~= nil then
-                for i2, neighbor in pairs(point.out) do
+                for _, neighbor in pairs(point.out) do
                     local testDual = false
                     for _, incoming in pairs(point.incoming) do
                         if incoming == neighbor then
@@ -582,14 +582,14 @@ function AutoDrive:onDrawCreationMode(vehicle)
                         end
                     end
 
-                    target = AutoDrive.mapWayPoints[neighbor]
+                    local target = AutoDrive.mapWayPoints[neighbor]
                     if target ~= nil then
                         if testDual == true then
                             AutoDrive:drawLine(point, AutoDrive.mapWayPoints[neighbor], 0, 0, 1, 1)
                         else
-                            local deltaX = AutoDrive.mapWayPoints[neighbor].x - point.x
-                            local deltaY = AutoDrive.mapWayPoints[neighbor].y - point.y
-                            local deltaZ = AutoDrive.mapWayPoints[neighbor].z - point.z
+                            --local deltaX = AutoDrive.mapWayPoints[neighbor].x - point.x
+                            --local deltaY = AutoDrive.mapWayPoints[neighbor].y - point.y
+                            --local deltaZ = AutoDrive.mapWayPoints[neighbor].z - point.z
                             AutoDrive:drawLine(point, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
 
                             local vecX = point.x - AutoDrive.mapWayPoints[neighbor].x
@@ -635,9 +635,9 @@ function AutoDrive:onDrawCreationMode(vehicle)
         end
     end
 
-    for markerID, marker in pairs(AutoDrive.mapMarker) do
-        local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
-        local x2, y2, z2 = getWorldTranslation(marker.node)
+    for _, marker in pairs(AutoDrive.mapMarker) do
+        x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+        local x2, _, z2 = getWorldTranslation(marker.node)
         local distance = AutoDrive:getDistance(x2, z2, x1, z1)
         if distance < 50 then
             DebugUtil.drawDebugNode(marker.node, marker.name)
@@ -646,7 +646,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 
     if vehicle.ad.createMapPoints and vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
         local closest = AutoDrive:findClosestWayPoint(vehicle)
-        local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+        x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
 
         if vehicle.ad.showClosestPoint == true then
             AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1)
@@ -654,8 +654,8 @@ function AutoDrive:onDrawCreationMode(vehicle)
     end
 
     if vehicle.ad.createMapPoints and vehicle.ad.showSelectedDebugPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-        local closest = AutoDrive:findClosestWayPoint(vehicle)
-        local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+        --local closest = AutoDrive:findClosestWayPoint(vehicle)
+        x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
         if vehicle.ad.showSelectedDebugPoint == true then
             if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
                 AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], 1, 1, 0, 1)

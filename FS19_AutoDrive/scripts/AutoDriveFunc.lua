@@ -44,20 +44,20 @@ function AutoDrive:startAD(vehicle)
 	end
 
 	if g_server ~= nil then
-		local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD))
+		local trailers, _ = AutoDrive.getTrailersOf(vehicle, (vehicle.ad.mode ~= AutoDrive.MODE_LOAD))
 		local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
 		local maxCapacity = fillLevel + leftCapacity
 
 		vehicle.ad.skipStart = false
 		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
-				vehicle.ad.skipStart = true
+				vehicle.ad.skipStart = true			  									  -- nil
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
 				vehicle.ad.wayPointsChanged = true
 				vehicle.ad.onRouteToSecondTarget = true
 			end
 		else
-			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] ~= nil then
+			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] ~= nil then			  -- nil
 				vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected)
 				vehicle.ad.wayPointsChanged = true
 				vehicle.ad.onRouteToSecondTarget = false

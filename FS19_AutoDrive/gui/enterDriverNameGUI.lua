@@ -5,54 +5,54 @@
 -- @author Stephan Schlosser
 -- @date 09/06/2019
 
-adEnterDriverNameGui = {}
+ADEnterDriverNameGui = {}
 
-local adEnterDriverNameGui_mt = Class(adEnterDriverNameGui, ScreenElement)
+local ADEnterDriverNameGui_mt = Class(ADEnterDriverNameGui, ScreenElement)
 
-function adEnterDriverNameGui:new(target, custom_mt)
-    local self = ScreenElement:new(target, adEnterDriverNameGui_mt)
-    self.returnScreenName = ""
-    self.textInputElement = nil
-    return self
+function ADEnterDriverNameGui:new(target)
+    local o = ScreenElement:new(target, ADEnterDriverNameGui_mt)
+    o.returnScreenName = ""
+    o.textInputElement = nil
+    return o
 end
 
-function adEnterDriverNameGui:onCreateTitleElement(element)
+function ADEnterDriverNameGui:onCreateTitleElement(element)
     element:setText(g_i18n:getText("gui_ad_enterDriverNameTitle"))
 end
 
-function adEnterDriverNameGui:onCreateTextElement(element)
+function ADEnterDriverNameGui:onCreateTextElement(element)
     element:setText(g_i18n:getText("gui_ad_enterDriverNameText"))
 end
 
-function adEnterDriverNameGui:onCreateInputElement(element)
+function ADEnterDriverNameGui:onCreateInputElement(element)
     self.textInputElement = element
     element.text = ""
 end
 
-function adEnterDriverNameGui:onOpen()
-    adEnterDriverNameGui:superClass().onOpen(self)
+function ADEnterDriverNameGui:onOpen()
+    ADEnterDriverNameGui:superClass().onOpen(self)
     FocusManager:setFocus(self.textInputElement)
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
     self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
 end
 
-function adEnterDriverNameGui:onClickOk()
-    adEnterDriverNameGui:superClass().onClickOk(self)
+function ADEnterDriverNameGui:onClickOk()
+    ADEnterDriverNameGui:superClass().onClickOk(self)
     AutoDrive.renameDriver(g_currentMission.controlledVehicle, self.textInputElement.text)
     self:onClickBack()
 end
 
-function adEnterDriverNameGui:onClickResetButton()
+function ADEnterDriverNameGui:onClickResetButton()
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
         self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
     end
 end
 
-function adEnterDriverNameGui:onClickBack()
-    adEnterDriverNameGui:superClass().onClickBack(self)
+function ADEnterDriverNameGui:onClickBack()
+    ADEnterDriverNameGui:superClass().onClickBack(self)
 end
 
-function adEnterDriverNameGui:onClose()
-    adEnterDriverNameGui:superClass().onClose(self)
+function ADEnterDriverNameGui:onClose()
+    ADEnterDriverNameGui:superClass().onClose(self)
 end

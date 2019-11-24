@@ -300,13 +300,13 @@ end
 
 function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
     if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
-        trailer = attachedImplement
+        local trailer = attachedImplement
         AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
         AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
     end
     if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then
         if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then
-            trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
+            local trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
         end
