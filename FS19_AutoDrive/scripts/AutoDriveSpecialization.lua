@@ -4,7 +4,7 @@ end
 
 function AutoDrive.registerEventListeners(vehicleType)
     -- "onReadUpdateStream", "onWriteUpdateStream"
-    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onLeaveVehicle", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream"}) do
+    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream"}) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -301,7 +301,11 @@ function AutoDrive:init()
     self.ad.destinationFilterText = ""
 end
 
-function AutoDrive:onLeaveVehicle()
+
+function AutoDrive:onPreLeaveVehicle()
+    if self.ad == nil then
+        return;
+    end;
     -- We have to do that only for the player who were in the vehicle ( this also fix mouse cursor hiding bug in MP )
     if self.getIsEntered ~= nil and self:getIsEntered() then
         local storedshowingHud = self.ad.showingHud
@@ -315,6 +319,7 @@ function AutoDrive:onLeaveVehicle()
         end
     end
 end
+Enterable.leaveVehicle = Utils.prependedFunction(Enterable.leaveVehicle, AutoDrive.onPreLeaveVehicle)
 
 function AutoDrive:onToggleMouse(vehicle)
     if g_inputBinding:getShowMouseCursor() == true then
