@@ -331,7 +331,7 @@ AutoDrive.settings.exitField = {
     text = "gui_ad_exitField",
     tooltip = "gui_ad_exitField_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.showHelp = {
@@ -589,7 +589,7 @@ AutoDrive.settings.preCallDriver = {
     text = "gui_ad_preCallDriver",
     tooltip = "gui_ad_preCallDriver_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.preCallLevel = {
@@ -600,7 +600,7 @@ AutoDrive.settings.preCallLevel = {
     text = "gui_ad_preCallLevel",
     tooltip = "gui_ad_preCallLevel_tooltip",
     translate = false,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.chaseCombine = {
@@ -611,7 +611,7 @@ AutoDrive.settings.chaseCombine = {
     text = "gui_ad_chaseCombine",
     tooltip = "gui_ad_chaseCombine_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.distributeToFolder = {

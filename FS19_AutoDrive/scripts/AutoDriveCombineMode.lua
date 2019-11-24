@@ -400,7 +400,8 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
         end
     end
 
-    if AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) then
+    --only stop chasing if combine turn includes reversing or there is no fruit in front of the combine at this stage
+    if AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) and (vehicle.ad.currentCombine.lastSpeedReal < 0) then
         --g_logManager:devInfo("Chasing combine - stopped - combineIsTurning");
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     end
@@ -437,23 +438,25 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
     if AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) > 60 then
         --g_logManager:devInfo("Angle to chase pos too high: " .. AutoDrive:getAngleToChasePos(vehicle, chasePos));
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY
+        vehicle.ad.reverseTimer = 2000
     end
 
     if vehicle.ad.sensors.frontSensor:pollInfo() and (vehicle.ccInfos.chaseSide ~= AutoDrive.ccSIDE_REAR) then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Front sensor collision")
         vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
+        vehicle.ad.reverseTimer = 2000
     end
 end
 
 function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
-
-    if vehicle.ccInfos.distanceToCombine < 7
+    if vehicle.ad.reverseTimer > 0 then
+        AutoDrive:reverseVehicle(vehicle, dt)
+        vehicle.ad.reverseTimer = vehicle.ad.reverseTimer - dt
+    elseif vehicle.ccInfos.distanceToCombine < 7
         or (AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) and vehicle.ccInfos.distanceToCombine < 20) then --(not vehicle.ad.currentCombine:getIsBufferCombine()) and
         AutoDrive:reverseVehicle(vehicle, dt)
-        vehicle.ad.reverseTimer = 11000
     else
         AutoDrive:getVehicleToStop(vehicle, false, dt)
-        vehicle.ad.reverseTimer = 11000
     end
 
     --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
@@ -463,11 +466,13 @@ function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
     --if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
         --vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
     --end
-    if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 45 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
+    if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 50 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING
+        vehicle.ad.reverseTimer = 11000
     end
     if vehicle.ad.noMovementTimer.elapsedTime > 20000 then
         AutoDrive:registerDriverAsAvailableUnloader(vehicle)
+        vehicle.ad.reverseTimer = 11000
     end
 end
 
@@ -476,13 +481,13 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
     local finalSpeed = AutoDrive.SPEED_ON_FIELD
     local acc = 1
     local allowedToDrive = true
-
-    if vehicle.ccInfos.distanceToChasePos < 5 then
-        finalSpeed = (vehicle.ad.currentCombine.lastSpeedReal * 3600)
-    end
-
+    
     if vehicle.ccInfos.distanceToChasePos < 2 then
         finalSpeed = 2
+    elseif vehicle.ccInfos.distanceToChasePos < 5 then
+        finalSpeed = (vehicle.ad.currentCombine.lastSpeedReal * 3600)
+    elseif vehicle.ccInfos.distanceToChasePos < 10 then
+        finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10);
     end
 
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ccInfos.chasePos.x, vehicle.ccInfos.chasePos.y, vehicle.ccInfos.chasePos.z)
@@ -500,7 +505,7 @@ function AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
 
     local pausedForSomeTime = vehicle.ad.noMovementTimer:done()
     if vehicle.ad.currentCombine ~= nil then
-        if ((not AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper)) and pausedForSomeTime and vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo()) or (vehicle.ad.noMovementTimer.elapsedTime > 60000) then
+        if ((not AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper)) and pausedForSomeTime and vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo()) or (vehicle.ad.noMovementTimer.elapsedTime > 30000) then
             AutoDrive:retriggerPreDrive(vehicle)
             vehicle.ad.reverseTimer = 11000
         end
