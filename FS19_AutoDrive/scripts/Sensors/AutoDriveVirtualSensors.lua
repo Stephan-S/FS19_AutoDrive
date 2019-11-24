@@ -68,6 +68,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.width = 7
     local leftSensor = ADCollSensor:new(vehicle, sensorParameters)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    sensorParameters.width = 6
     local leftSensorField = ADFieldSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["leftSensor"] = leftSensor
     vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit
@@ -79,6 +80,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.width = 7
     local rightSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    sensorParameters.width = 6
     local rightSensorField = ADFieldSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightSensor"] = rightSensor
     vehicle.ad.sensors["rightSensorFruit"] = rightSensorFruit
