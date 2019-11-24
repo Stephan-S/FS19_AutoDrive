@@ -68,8 +68,10 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.width = 7
     local leftSensor = ADCollSensor:new(vehicle, sensorParameters)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    local leftSensorField = ADFieldSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["leftSensor"] = leftSensor
     vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit
+    vehicle.ad.sensors["leftSensorField"] = leftSensorField
 
     sensorParameters.position = ADSensor.POS_RIGHT
     sensorParameters.dynamicLength = false
@@ -77,13 +79,15 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.width = 7
     local rightSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    local rightSensorField = ADFieldSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["rightSensor"] = rightSensor
     vehicle.ad.sensors["rightSensorFruit"] = rightSensorFruit
+    vehicle.ad.sensors["rightSensorField"] = rightSensorField
 
     sensorParameters.position = ADSensor.POS_FRONT_LEFT
     sensorParameters.dynamicLength = false
     sensorParameters.dynamicRotation = false
-    sensorParameters.width = 5
+    sensorParameters.width = 4
     sensorParameters.length = vehicle.sizeLength * 2
     local leftFrontSensor = ADCollSensor:new(vehicle, sensorParameters)
     local leftFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
@@ -93,7 +97,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_FRONT_RIGHT
     sensorParameters.dynamicLength = false
     sensorParameters.dynamicRotation = false
-    sensorParameters.width = 5
+    sensorParameters.width = 4
     sensorParameters.length = vehicle.sizeLength * 2
     local rightFrontSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rightFrontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
@@ -191,10 +195,10 @@ function ADSensor:getLocationByPosition()
         location.x = vehicle.sizeWidth / 2 + 1 + self.width / 2
         location.z = -vehicle.sizeLength / 2
     elseif self.position == ADSensor.POS_FRONT_LEFT then
-        location.x = vehicle.sizeWidth + 1 + self.width / 2
+        location.x = vehicle.sizeWidth + 2.5 + self.width / 2
         location.z = vehicle.sizeLength / 2
     elseif self.position == ADSensor.POS_FRONT_RIGHT then
-        location.x = -vehicle.sizeWidth - 1 - self.width / 2
+        location.x = -vehicle.sizeWidth - 2.5 - self.width / 2
         location.z = vehicle.sizeLength / 2
     elseif self.position == ADSensor.POS_FIXED and self.location ~= nil then
         return self.location
@@ -311,14 +315,14 @@ function ADSensor:onDrawDebug(box)
         local red = 0
         local blue = 0
         if self:isTriggered() then
-            if self.sensorType == ADSensor.TYPE_FRUIT then
+            if self.sensorType == ADSensor.TYPE_FRUIT or self.sensorType == ADSensor.TYPE_FIELDBORDER then
                 blue = 1
             else
                 red = 1
             end
         end
 
-        if self.sensorType == ADSensor.TYPE_FRUIT then
+        if self.sensorType == ADSensor.TYPE_FRUIT or self.sensorType == ADSensor.TYPE_FIELDBORDER then
             local corners = self:getCorners(box)
             corners[1].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[1].x, 1, corners[1].z)
             corners[2].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[2].x, 1, corners[2].z)
@@ -329,9 +333,9 @@ function ADSensor:onDrawDebug(box)
             AutoDrive:drawLine(corners[2], corners[3], 1, blue, 0, 1)
             AutoDrive:drawLine(corners[3], corners[1], 1, blue, 0, 1)
 
-            AutoDrive:drawLine(corners[1], corners[3], 1, blue, 1, 1)
+            AutoDrive:drawLine(corners[2], corners[3], 1, blue, 1, 1)
             AutoDrive:drawLine(corners[3], corners[4], 1, blue, 1, 1)
-            AutoDrive:drawLine(corners[4], corners[1], 1, blue, 1, 1)
+            AutoDrive:drawLine(corners[4], corners[2], 1, blue, 1, 1)
         else
             DebugUtil.drawOverlapBox(box.x, box.y, box.z, box.rx, box.ry, 0, box.size[1], box.size[2], box.size[3], red, blue, 0)
         end

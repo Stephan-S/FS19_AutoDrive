@@ -47,8 +47,8 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
             followDistance = 0
         end
 
-        local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo()
-        local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo()
+        local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
+        local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
 
         local leftFrontBlocked = combine.ad.sensors.leftFrontSensorFruit:pollInfo()
         local rightFrontBlocked = combine.ad.sensors.rightFrontSensorFruit:pollInfo()
@@ -178,7 +178,7 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
         targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[2].id]
     end
 
-    local exitStrategy = AutoDrive.getSetting("exitField")
+    local exitStrategy = AutoDrive.getSetting("exitField", driver)
     if exitStrategy == 1 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS then
         if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
             preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[5].id]

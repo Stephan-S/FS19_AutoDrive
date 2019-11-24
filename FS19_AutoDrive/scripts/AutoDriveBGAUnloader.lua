@@ -1200,7 +1200,7 @@ function AutoDriveBGA:driveToBGAUnload(vehicle, dt)
 
     self:handleDriveStrategy(vehicle, dt)
 
-    if vehicle.bga.inShovelRangeTimer:timer(self:getShovelInTrailerRange(vehicle), 250, dt) then
+    if vehicle.bga.inShovelRangeTimer:timer(self:getShovelInTrailerRange(vehicle), 350, dt) then
         vehicle.bga.action = AutoDriveBGA.ACTION_UNLOAD
     end
     if vehicle.bga.targetTrailer == nil or (vehicle.bga.trailerLeftCapacity <= 0.1) then

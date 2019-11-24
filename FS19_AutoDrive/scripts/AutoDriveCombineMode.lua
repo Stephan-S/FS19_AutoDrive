@@ -46,8 +46,8 @@ function AutoDrive:handleCombineHarvester(vehicle, dt)
         if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
             vehicle.ad.tryingToCallDriver = true
             AutoDrive:callDriverToCombine(vehicle)
-        elseif (((fillLevel / maxCapacity) >= AutoDrive.getSetting("preCallLevel") and (fillLevel / maxCapacity) <= 0.96 and AutoDrive.getSetting("preCallDriver")) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) then
-            if vehicle.ad.sensors.frontSensorFruit:pollInfo() then
+        elseif (((fillLevel / maxCapacity) >= AutoDrive.getSetting("preCallLevel", vehicle) and (fillLevel / maxCapacity) <= 0.96 and AutoDrive.getSetting("preCallDriver", vehicle)) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) then
+            if vehicle.ad.sensors.frontSensorFruit:pollInfo() or (vehicle:getIsAIActive() and vehicle.lastSpeedReal <= 0.0003 and vehicle:getIsBufferCombine()) then
                 vehicle.ad.tryingToCallDriver = true
                 AutoDrive:preCallDriverToCombine(vehicle)
             end
@@ -179,7 +179,7 @@ function AutoDrive:handleReachedWayPointCombine(vehicle)
     elseif vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS then
         AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, true)
     elseif vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
-        if AutoDrive.getSetting("chaseCombine") or (vehicle.ad.currentCombine ~= nil and vehicle.ad.currentCombine:getIsBufferCombine()) then
+        if AutoDrive.getSetting("chaseCombine", vehicle) or (vehicle.ad.currentCombine ~= nil and vehicle.ad.currentCombine:getIsBufferCombine()) then
             --g_logManager:devInfo("Switching to chasing combine");
             vehicle.ad.wayPoints = {}
             vehicle.ad.combineState = AutoDrive.CHASE_COMBINE
@@ -352,8 +352,20 @@ function AutoDrive:updateChaseModeInfos(vehicle, dt)
     vehicle.ccInfos.combineHeadingDiff:timer((vehicle.ccInfos.angleToCombineHeading > 20), 7000, dt)
 
     vehicle.ccInfos.isChopper = combine:getIsBufferCombine()
-    vehicle.ccInfos.leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo()
-    vehicle.ccInfos.rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo()
+    vehicle.ccInfos.leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
+    vehicle.ccInfos.rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
+    
+    --start looking ahead a little if both sides are free currently
+    vehicle.ccInfos.frontLeftBlocked = combine.ad.sensors.leftFrontSensorFruit:pollInfo()
+    vehicle.ccInfos.frontRightBlocked = combine.ad.sensors.rightFrontSensorFruit:pollInfo()
+    if (not vehicle.ccInfos.leftBlocked) and (not vehicle.ccInfos.rightBlocked) then
+        if vehicle.ccInfos.frontLeftBlocked then
+            vehicle.ccInfos.leftBlocked = true;
+        elseif vehicle.ccInfos.frontRightBlocked then
+            vehicle.ccInfos.rightBlocked = true;
+        end;
+    end;
+    
     vehicle.ccInfos.chasePos, vehicle.ccInfos.chaseSide = AutoDrive:getPipeChasePosition(vehicle, combine, vehicle.ccInfos.isChopper, vehicle.ccInfos.leftBlocked, vehicle.ccInfos.rightBlocked)
     vehicle.ccInfos.distanceToCombine = MathUtil.vector2Length(vehicle.ccInfos.combineWorldX - vehicle.ccInfos.worldX, vehicle.ccInfos.combineWorldZ - vehicle.ccInfos.worldZ)
     vehicle.ccInfos.distanceToChasePos = MathUtil.vector2Length(vehicle.ccInfos.chasePos.x - vehicle.ccInfos.worldX, vehicle.ccInfos.chasePos.z - vehicle.ccInfos.worldZ)
@@ -362,7 +374,7 @@ function AutoDrive:updateChaseModeInfos(vehicle, dt)
     vehicle.ccInfos.maxCapacity = vehicle.ccInfos.fillLevel + vehicle.ccInfos.leftCapacity
     vehicle.ccInfos.combineFillLevel = (vehicle.ccInfos.fillLevel / vehicle.ccInfos.maxCapacity)
 
-    vehicle.ccInfos.doneUnloading, vehicle.ccInfos.trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle)
+    vehicle.ccInfos.doneUnloading, vehicle.ccInfos.trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle)   
 end
 
 function AutoDrive:initChaseMode(vehicle, dt)
@@ -393,7 +405,11 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
         vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     end
 
-    if vehicle.ccInfos.trailerFillLevel >= ((AutoDrive.getSetting("unloadFillLevel", vehicle)) - 0.001) and (not (vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING)) then
+    if vehicle.ccInfos.trailerFillLevel >= 0.999 and vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING then
+        vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
+    end;    
+
+    if vehicle.ccInfos.trailerFillLevel >= 0.999 and (vehicle.ad.ccMode ~= AutoDrive.CC_MODE_REVERSE_FROM_COLLISION) then        
         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
         AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine)
         AutoDrive:unregisterDriverAsUnloader(vehicle)
@@ -412,9 +428,10 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
     if vehicle.ad.currentCombine == nil then
         return
     end
-    if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
-        vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
-    end
+
+    --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
+        --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
+    --end
 
     --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
     if AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) > 60 then
@@ -429,11 +446,24 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
 end
 
 function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
-    AutoDrive:getVehicleToStop(vehicle, false, dt)
-    if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
-        vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
+
+    if vehicle.ccInfos.distanceToCombine < 7
+        or (AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) and vehicle.ccInfos.distanceToCombine < 20) then --(not vehicle.ad.currentCombine:getIsBufferCombine()) and
+        AutoDrive:reverseVehicle(vehicle, dt)
+        vehicle.ad.reverseTimer = 11000
+    else
+        AutoDrive:getVehicleToStop(vehicle, false, dt)
+        vehicle.ad.reverseTimer = 11000
     end
-    if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 40 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
+
+    --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
+        --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
+    --end
+
+    --if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
+        --vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
+    --end
+    if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 45 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING
     end
     if vehicle.ad.noMovementTimer.elapsedTime > 20000 then
@@ -472,6 +502,7 @@ function AutoDrive:chaseModeWaitForCombineToTurn(vehicle, dt)
     if vehicle.ad.currentCombine ~= nil then
         if ((not AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper)) and pausedForSomeTime and vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo()) or (vehicle.ad.noMovementTimer.elapsedTime > 60000) then
             AutoDrive:retriggerPreDrive(vehicle)
+            vehicle.ad.reverseTimer = 11000
         end
     end
 end
@@ -479,12 +510,16 @@ end
 function AutoDrive:retriggerPreDrive(vehicle)
     --g_logManager:devInfo("Chasing combine - stopped - recalculating new path");
     if vehicle.ad.currentCombine ~= nil then
-        AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil, true)
-        AutoDrive.waitingUnloadDrivers[vehicle] = nil
-        vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE
-        vehicle.ad.reverseTimer = 11000
-        vehicle.ccInfos.combineHeadingDiff:timer(false)
-        vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE
+        if vehicle.ccInfos.distanceToChasePos < 25 and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 40 and vehicle.ccInfos.angleToCombineHeading < 90 then
+            vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING;
+        else
+            AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil, true)
+            AutoDrive.waitingUnloadDrivers[vehicle] = nil
+            vehicle.ad.combineState = AutoDrive.PREDRIVE_COMBINE
+            vehicle.ad.reverseTimer = 11000
+            vehicle.ccInfos.combineHeadingDiff:timer(false)
+            vehicle.ad.ccMode = AutoDrive.CC_MODE_IDLE
+        end
     end
 end
 
@@ -564,9 +599,10 @@ function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
         return false
     end
     local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStage ~= nil and combine.cp.turnStage > 0))
+    local cpIsTurningTwo = combine.cp.driver and combine.cp.driver.turnIsDriving or combine.cp.driver.fieldworkState == combine.cp.driver.states.TURNING
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true)
     local combineSteering = false --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
-    local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering
+    local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
     --g_logManager:devInfo("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " isChopper: " .. AutoDrive.boolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
     if ((isChopper and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not isChopper))) and (not combineIsTurning) then
         return false
@@ -778,7 +814,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
         vehicle.ad.onRouteToSecondTarget = false
         vehicle.ad.currentTrailer = 1
         vehicle.ad.designatedTrailerFillLevel = math.huge
-        if AutoDrive.getSetting("distributeToFolder") and AutoDrive.getSetting("useFolders") then -- make this setting switchable
+        if AutoDrive.getSetting("distributeToFolder", vehicle) and AutoDrive.getSetting("useFolders") then
             AutoDrive:setNextTargetInFolder(vehicle)
         end
     end
