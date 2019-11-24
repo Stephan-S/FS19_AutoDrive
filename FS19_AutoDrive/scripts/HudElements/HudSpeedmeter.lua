@@ -1,18 +1,18 @@
 ADHudSpeedmeter = ADInheritsFrom(ADGenericHudElement)
 
 function ADHudSpeedmeter:new(posX, posY, width, height)
-    local self = ADHudSpeedmeter:create()
-    self:init(posX, posY, width, height)
-    self.primaryAction = "input_increaseSpeed"
-    self.secondaryAction = "input_decreaseSpeed"
+    local o = ADHudSpeedmeter:create()
+    o:init(posX, posY, width, height)
+    o.primaryAction = "input_increaseSpeed"
+    o.secondaryAction = "input_decreaseSpeed"
 
-    self.layer = 5
+    o.layer = 5
 
-    self.image = AutoDrive.directory .. "textures/speedmeter.dds"
+    o.image = AutoDrive.directory .. "textures/speedmeter.dds"
 
-    self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height)
+    o.ov = Overlay:new(o.image, o.position.x, o.position.y, o.size.width, o.size.height)
 
-    return self
+    return o
 end
 
 function ADHudSpeedmeter:onDraw(vehicle, uiScale)

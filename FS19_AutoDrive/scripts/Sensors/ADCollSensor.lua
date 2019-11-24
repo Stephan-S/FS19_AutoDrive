@@ -20,17 +20,17 @@ ADCollSensor.mask_trigger_cutters = 26
 ADCollSensor.mask_kinematic_objects_wo_coll = 30
 
 function ADCollSensor:new(vehicle, sensorParameters)
-    local self = ADCollSensor:create()
-    self:init(vehicle, ADSensor.TYPE_COLLISION, sensorParameters)
-    self.hit = false
-    self.newHit = false
-    self.collisionHits = 0
-    self.timeOut = AutoDriveTON:new()
-    --self.vehicle = vehicle; --test collbox and coll bits mode
+    local o = ADCollSensor:create()
+    o:init(vehicle, ADSensor.TYPE_COLLISION, sensorParameters)
+    o.hit = false
+    o.newHit = false
+    o.collisionHits = 0
+    o.timeOut = AutoDriveTON:new()
+    --o.vehicle = vehicle; --test collbox and coll bits mode
 
-    self.mask = ADCollSensor:buildMask()
+    o.mask = ADCollSensor:buildMask()
 
-    return self
+    return o
 end
 
 function ADCollSensor:buildMask()

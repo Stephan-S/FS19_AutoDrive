@@ -4,26 +4,26 @@ AutoDriveRenameDriverEvent_mt = Class(AutoDriveRenameDriverEvent, Event)
 InitEventClass(AutoDriveRenameDriverEvent, "AutoDriveRenameDriverEvent")
 
 function AutoDriveRenameDriverEvent:emptyNew()
-	local self = Event:new(AutoDriveRenameDriverEvent_mt)
-	self.className = "AutoDriveRenameDriverEvent"
-	return self
+	local o = Event:new(AutoDriveRenameDriverEvent_mt)
+	o.className = "AutoDriveRenameDriverEvent"
+	return o
 end
 
 function AutoDriveRenameDriverEvent:new(vehicle, name)
-	local self = AutoDriveRenameDriverEvent:emptyNew()
-	self.vehicle = vehicle
-	self.name = name
-	return self
+	local o = AutoDriveRenameDriverEvent:emptyNew()
+	o.vehicle = vehicle
+	o.name = name
+	return o
 end
 
 function AutoDriveRenameDriverEvent:writeStream(streamId, connection)
 	streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
-	streamWriteStringOrEmpty(streamId, self.name)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.name)
 end
 
 function AutoDriveRenameDriverEvent:readStream(streamId, connection)
 	self.vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
-	self.name = streamReadStringOrEmpty(streamId)
+	self.name = AutoDrive.streamReadStringOrEmpty(streamId)
 	self:run(connection)
 end
 

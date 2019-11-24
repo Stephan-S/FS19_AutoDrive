@@ -4,17 +4,17 @@ AutoDriveUserDataEvent_mt = Class(AutoDriveUserDataEvent, Event)
 InitEventClass(AutoDriveUserDataEvent, "AutoDriveUserDataEvent")
 
 function AutoDriveUserDataEvent:emptyNew()
-    local self = Event:new(AutoDriveUserDataEvent_mt)
-    self.className = "AutoDriveUserDataEvent"
-    return self
+    local o = Event:new(AutoDriveUserDataEvent_mt)
+    o.className = "AutoDriveUserDataEvent"
+    return o
 end
 
 function AutoDriveUserDataEvent:new(hudX, hudY, guiScale)
-    local self = AutoDriveUserDataEvent:emptyNew()
-    self.hudX = hudX
-    self.hudY = hudY
-    self.guiScale = guiScale
-    return self
+    local o = AutoDriveUserDataEvent:emptyNew()
+    o.hudX = hudX
+    o.hudY = hudY
+    o.guiScale = guiScale
+    return o
 end
 
 function AutoDriveUserDataEvent:writeStream(streamId, connection)

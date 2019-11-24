@@ -13,54 +13,54 @@ ADPullDownList.EXPANDED_UP = 1
 ADPullDownList.MAX_SHOWN = 25
 
 function ADPullDownList:new(posX, posY, width, height, type, selected)
-    local self = ADPullDownList:create()
-    self:init(posX, posY, width, height)
-    self.selected = selected
-    self.type = type
-    self.size.height = AutoDrive.Hud.buttonHeight
+    local o = ADPullDownList:create()
+    o:init(posX, posY, width, height)
+    o.selected = selected
+    o.type = type
+    o.size.height = AutoDrive.Hud.buttonHeight
 
     AutoDrive.pullDownListExpanded = 0
 
-    self.rightIconPos = {x = self.position.x + self.size.width - AutoDrive.Hud.buttonWidth / 2 - AutoDrive.Hud.gapWidth, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
-    self.rightIconPos2 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth / 2) * 2 - AutoDrive.Hud.gapWidth * 3, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
-    self.rightIconPos3 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth / 2) * 3 - AutoDrive.Hud.gapWidth * 5, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
-    self.rightIconPos4 = {x = self.position.x + self.size.width - (AutoDrive.Hud.buttonWidth / 2) * 4 - AutoDrive.Hud.gapWidth * 6, y = self.position.y + (self.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
+    o.rightIconPos = {x = o.position.x + o.size.width - AutoDrive.Hud.buttonWidth / 2 - AutoDrive.Hud.gapWidth, y = o.position.y + (o.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
+    o.rightIconPos2 = {x = o.position.x + o.size.width - (AutoDrive.Hud.buttonWidth / 2) * 2 - AutoDrive.Hud.gapWidth * 3, y = o.position.y + (o.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
+    o.rightIconPos3 = {x = o.position.x + o.size.width - (AutoDrive.Hud.buttonWidth / 2) * 3 - AutoDrive.Hud.gapWidth * 5, y = o.position.y + (o.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
+    o.rightIconPos4 = {x = o.position.x + o.size.width - (AutoDrive.Hud.buttonWidth / 2) * 4 - AutoDrive.Hud.gapWidth * 6, y = o.position.y + (o.size.height - AutoDrive.Hud.buttonHeight / 2) / 2}
 
 
-    self.iconSize = {width = AutoDrive.Hud.buttonWidth / 2, height = AutoDrive.Hud.buttonHeight / 2}
-    self.rowSize = {width = AutoDrive.Hud.buttonWidth / 2, height = AutoDrive.Hud.listItemHeight / 2}
+    o.iconSize = {width = AutoDrive.Hud.buttonWidth / 2, height = AutoDrive.Hud.buttonHeight / 2}
+    o.rowSize = {width = AutoDrive.Hud.buttonWidth / 2, height = AutoDrive.Hud.listItemHeight / 2}
 
-    self.layer = 6
+    o.layer = 6
 
-    self.imageBG = AutoDrive.directory .. "textures/4xlongBorderFilled.dds"
-    self.imageBGTop = AutoDrive.directory .. "textures/4xlongBorderTopFilled.dds"
-    self.imageBGBottom = AutoDrive.directory .. "textures/4xlongBorderBottomFilled.dds"
-    self.imageBGStretch = AutoDrive.directory .. "textures/4xlongBorderStretchFilled.dds"
-    self.imageExpand = AutoDrive.directory .. "textures/arrowExpand.dds"
-    self.imageCollapse = AutoDrive.directory .. "textures/arrowCollapse.dds"
-    self.imageUp = AutoDrive.directory .. "textures/arrowUp.dds"
-    self.imageDown = AutoDrive.directory .. "textures/arrowDown.dds"
-    self.imagePlus = AutoDrive.directory .. "textures/plusSign.dds"
-    self.imageMinus = AutoDrive.directory .. "textures/minusSign.dds"
-    self.imageRight = AutoDrive.directory .. "textures/arrowRight.dds"
-    self.imageFilter = AutoDrive.directory .. "textures/zoom.dds"
+    o.imageBG = AutoDrive.directory .. "textures/4xlongBorderFilled.dds"
+    o.imageBGTop = AutoDrive.directory .. "textures/4xlongBorderTopFilled.dds"
+    o.imageBGBottom = AutoDrive.directory .. "textures/4xlongBorderBottomFilled.dds"
+    o.imageBGStretch = AutoDrive.directory .. "textures/4xlongBorderStretchFilled.dds"
+    o.imageExpand = AutoDrive.directory .. "textures/arrowExpand.dds"
+    o.imageCollapse = AutoDrive.directory .. "textures/arrowCollapse.dds"
+    o.imageUp = AutoDrive.directory .. "textures/arrowUp.dds"
+    o.imageDown = AutoDrive.directory .. "textures/arrowDown.dds"
+    o.imagePlus = AutoDrive.directory .. "textures/plusSign.dds"
+    o.imageMinus = AutoDrive.directory .. "textures/minusSign.dds"
+    o.imageRight = AutoDrive.directory .. "textures/arrowRight.dds"
+    o.imageFilter = AutoDrive.directory .. "textures/zoom.dds"
 
-    self.ovBG = Overlay:new(self.imageBG, self.position.x, self.position.y, self.size.width, self.size.height)
-    self.ovExpand = Overlay:new(self.imageExpand, self.rightIconPos.x, self.rightIconPos.y, self.iconSize.width, self.iconSize.height)
+    o.ovBG = Overlay:new(o.imageBG, o.position.x, o.position.y, o.size.width, o.size.height)
+    o.ovExpand = Overlay:new(o.imageExpand, o.rightIconPos.x, o.rightIconPos.y, o.iconSize.width, o.iconSize.height)
 
-    self.state = ADPullDownList.STATE_COLLAPSED
-    self.isVisible = true
+    o.state = ADPullDownList.STATE_COLLAPSED
+    o.isVisible = true
 
-    self:createSelection()
+    o:createSelection()
 
-    self.expandedSize = {width = self.size.width, height = self.rowSize.height * ADPullDownList.MAX_SHOWN + self.size.height / 2}
-    if self.position.y >= 0.5 then
-        self.direction = ADPullDownList.EXPANDED_DOWN
+    o.expandedSize = {width = o.size.width, height = o.rowSize.height * ADPullDownList.MAX_SHOWN + o.size.height / 2}
+    if o.position.y >= 0.5 then
+        o.direction = ADPullDownList.EXPANDED_DOWN
     else
-        self.direction = ADPullDownList.EXPANDED_UP
+        o.direction = ADPullDownList.EXPANDED_UP
     end
 
-    return self
+    return o
 end
 
 function ADPullDownList:onDraw(vehicle, uiScale)
@@ -100,7 +100,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             end
             local actualTarget = ""
 
-            for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
+            for _, mapMarker in pairs(AutoDrive.mapMarker) do
                 if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)] ~= nil then
                     if mapMarker.id == vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id then
                         actualTarget = mapMarker.name
@@ -242,7 +242,7 @@ function ADPullDownList:getListElementByIndex(vehicle, index)
                 counter = counter + 1
             end
             if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not AutoDrive.getSetting("useFolders")) then
-                for id, entry in pairs(entries) do
+                for _, entry in pairs(entries) do
                     if vehicle.ad.destinationFilterText == "" or string.match(entry.displayName:lower(), vehicle.ad.destinationFilterText:lower()) then
                         if counter == index then
                             return {displayName = entry.displayName, returnValue = entry.returnValue, isFolder = false}
@@ -403,7 +403,7 @@ function ADPullDownList:sortGroups()
     self.fakeGroupIDs[1] = 1
 
     local i = 2
-    for groupID, groupName in pairs(inverseTable) do
+    for _, groupName in pairs(inverseTable) do
         if groupName ~= "All" then
             self.options[i] = {}
             self.groups[groupName] = i
@@ -556,7 +556,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive.mouseWheelActive = true
             return true
         elseif button == 5 and isUp then
-            local oldSelected = self.selected
+            --local oldSelected = self.selected
             if self:getListElementByIndex(vehicle, self.selected + 1) ~= nil then
                 self.selected = self.selected + 1
                 if self:getListElementByIndex(vehicle, self.hovered + 1) ~= nil then
@@ -689,7 +689,7 @@ function ADPullDownList:setSelected(vehicle)
         end
     elseif self.type == ADPullDownList.TYPE_FILLTYPE then
         local index = 1
-        for groupID, entries in pairs(self.options) do
+        for _, entries in pairs(self.options) do
             --index = index + 1;
             for _, entry in pairs(entries) do
                 if entry.returnValue == vehicle.ad.unloadFillTypeIndex then
@@ -738,7 +738,7 @@ function ADPullDownList:sortCurrentItems()
         return a < b
     end
 
-    for id, list in pairs(self.options) do
+    for id, _ in pairs(self.options) do
         table.sort(self.options[id], sort_func)
     end
 end
@@ -772,7 +772,7 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
         mapMarkerName = vehicle.ad.nameOfSelectedTarget_Unload;
     end;
 
-    for groupID, entries in pairs(self.options) do
+    for _, entries in pairs(self.options) do
         for i, entry in pairs(entries) do
             if entry.returnValue == mapMarkerID then
                 table.remove(entries, i)

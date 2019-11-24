@@ -1,54 +1,54 @@
 function AutoDrive:loadGUI()
 	--g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
 	AutoDrive.gui = {}
-	AutoDrive.gui["adEnterDriverNameGui"] = adEnterDriverNameGui:new()
-	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "adEnterDriverNameGui", AutoDrive.gui.adEnterDriverNameGui)
-	AutoDrive.gui["adEnterTargetNameGui"] = adEnterTargetNameGui:new()
-	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "adEnterTargetNameGui", AutoDrive.gui.adEnterTargetNameGui)
-	AutoDrive.gui["adEnterGroupNameGui"] = adEnterGroupNameGui:new()
-	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "adEnterGroupNameGui", AutoDrive.gui.adEnterGroupNameGui)
-	AutoDrive.gui["adEnterDestinationFilterGui"] = adEnterDestinationFilterGui:new()
-	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "adEnterDestinationFilterGui", AutoDrive.gui.adEnterDestinationFilterGui)
+	AutoDrive.gui["ADEnterDriverNameGui"] = ADEnterDriverNameGui:new()
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
+	AutoDrive.gui["ADEnterTargetNameGui"] = ADEnterTargetNameGui:new()
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "ADEnterTargetNameGui", AutoDrive.gui.ADEnterTargetNameGui)
+	AutoDrive.gui["ADEnterGroupNameGui"] = ADEnterGroupNameGui:new()
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "ADEnterGroupNameGui", AutoDrive.gui.ADEnterGroupNameGui)
+	AutoDrive.gui["ADEnterDestinationFilterGui"] = ADEnterDestinationFilterGui:new()
+	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
 
-	AutoDrive.gui["adSettingsPage"] = adSettingsPage:new()
-	AutoDrive.gui["adVehicleSettingsPage"] = adVehicleSettingsPage:new()
-	AutoDrive.gui["adCombineUnloadSettingsPage"] = adVehicleSettingsPage:new()
-	AutoDrive.gui["adSettings"] = adSettings:new()
+	AutoDrive.gui["ADSettingsPage"] = ADSettingsPage:new()
+	AutoDrive.gui["ADVehicleSettingsPage"] = ADVehicleSettingsPage:new()
+	AutoDrive.gui["ADCombineUnloadSettingsPage"] = ADVehicleSettingsPage:new()
+	AutoDrive.gui["ADSettings"] = ADSettings:new()
 
-	g_gui:loadGui(AutoDrive.directory .. "gui/settingsPage.xml", "autoDriveSettingsFrame", AutoDrive.gui.adSettingsPage, true)
-	g_gui:loadGui(AutoDrive.directory .. "gui/vehicleSettingsPage.xml", "autoDriveVehicleSettingsFrame", AutoDrive.gui.adVehicleSettingsPage, true)
-	g_gui:loadGui(AutoDrive.directory .. "gui/combineUnloadSettingsPage.xml", "autoDriveCombineUnloadSettingsFrame", AutoDrive.gui.adCombineUnloadSettingsPage, true)
-	g_gui:loadGui(AutoDrive.directory .. "gui/settings.xml", "adSettings", AutoDrive.gui.adSettings)
+	g_gui:loadGui(AutoDrive.directory .. "gui/settingsPage.xml", "autoDriveSettingsFrame", AutoDrive.gui.ADSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/vehicleSettingsPage.xml", "autoDriveVehicleSettingsFrame", AutoDrive.gui.ADVehicleSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/combineUnloadSettingsPage.xml", "autoDriveCombineUnloadSettingsFrame", AutoDrive.gui.ADCombineUnloadSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/settings.xml", "ADSettings", AutoDrive.gui.ADSettings)
 end
 
 function AutoDrive:onOpenSettings()
-	if AutoDrive.gui.adSettings.isOpen then
-		AutoDrive.gui.adSettings:onClickBack()
+	if AutoDrive.gui.ADSettings.isOpen then
+		AutoDrive.gui.ADSettings:onClickBack()
 	elseif g_gui.currentGui == nil then
-		g_gui:showGui("adSettings")
+		g_gui:showGui("ADSettings")
 	end
 end
 
 function AutoDrive:onOpenEnterDriverName()
-	if not AutoDrive.gui.adEnterDriverNameGui.isOpen then
-		g_gui:showGui("adEnterDriverNameGui")
+	if not AutoDrive.gui.ADEnterDriverNameGui.isOpen then
+		g_gui:showGui("ADEnterDriverNameGui")
 	end
 end
 
 function AutoDrive:onOpenEnterTargetName()
-	if not AutoDrive.gui.adEnterTargetNameGui.isOpen then
-		g_gui:showGui("adEnterTargetNameGui")
+	if not AutoDrive.gui.ADEnterTargetNameGui.isOpen then
+		g_gui:showGui("ADEnterTargetNameGui")
 	end
 end
 
 function AutoDrive:onOpenEnterGroupName()
-	if not AutoDrive.gui.adEnterGroupNameGui.isOpen then
-		g_gui:showGui("adEnterGroupNameGui")
+	if not AutoDrive.gui.ADEnterGroupNameGui.isOpen then
+		g_gui:showGui("ADEnterGroupNameGui")
 	end
 end
 
 function AutoDrive:onOpenEnterDestinationFilter()
-	if not AutoDrive.gui.adEnterDestinationFilterGui.isOpen then
-		g_gui:showGui("adEnterDestinationFilterGui")
+	if not AutoDrive.gui.ADEnterDestinationFilterGui.isOpen then
+		g_gui:showGui("ADEnterDestinationFilterGui")
 	end
 end

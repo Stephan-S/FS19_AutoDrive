@@ -5,34 +5,34 @@
 -- @author Stephan Schlosser
 -- @date 08/04/2019
 
-adSettingsPage = {}
+ADSettingsPage = {}
 
-local adSettingsPage_mt = Class(adSettingsPage, TabbedMenuFrameElement)
+local ADSettingsPage_mt = Class(ADSettingsPage, TabbedMenuFrameElement)
 
-adSettingsPage.CONTROLS = {
+ADSettingsPage.CONTROLS = {
     CONTAINER = "container"
 }
 
-function adSettingsPage:new(target, custom_mt)
-    local self = TabbedMenuFrameElement:new(target, adSettingsPage_mt)
-    self.returnScreenName = ""
-    self.settingElements = {}
-    self:registerControls(adSettingsPage.CONTROLS)
-    return self
+function ADSettingsPage:new(target)
+    local o = TabbedMenuFrameElement:new(target, ADSettingsPage_mt)
+    o.returnScreenName = ""
+    o.settingElements = {}
+    o:registerControls(ADSettingsPage.CONTROLS)
+    return o
 end
 
-function adSettingsPage:onFrameOpen()
-    adSettingsPage:superClass().onFrameOpen(self)
+function ADSettingsPage:onFrameOpen()
+    ADSettingsPage:superClass().onFrameOpen(self)
     FocusManager:setFocus(self.backButton)
     self:updateMyGUISettings()
     self.callBackParent.activePageID = self.callBackParentWithID
 end
 
-function adSettingsPage:onFrameClose()
-    adSettingsPage:superClass().onFrameClose(self)
+function ADSettingsPage:onFrameClose()
+    ADSettingsPage:superClass().onFrameClose(self)
 end
 
-function adSettingsPage:onCreateAutoDriveSetting(element)
+function ADSettingsPage:onCreateAutoDriveSetting(element)
     self.settingElements[element.name] = element
     local setting = AutoDrive.settings[element.name]
     element.labelElement.text = g_i18n:getText(setting.text)
@@ -49,33 +49,33 @@ function adSettingsPage:onCreateAutoDriveSetting(element)
     element:setTexts(labels)
 end
 
-function adSettingsPage:copyAttributes(src)
-    adSettingsPage:superClass().copyAttributes(self, src)
+function ADSettingsPage:copyAttributes(src)
+    ADSettingsPage:superClass().copyAttributes(self, src)
 
     self.ui = src.ui
     self.i18n = src.i18n
 end
 
-function adSettingsPage:initialize()
+function ADSettingsPage:initialize()
 end
 
 --- Get the frame's main content element's screen size.
-function adSettingsPage:getMainElementSize()
+function ADSettingsPage:getMainElementSize()
     return self.container.size
 end
 
 --- Get the frame's main content element's screen position.
-function adSettingsPage:getMainElementPosition()
+function ADSettingsPage:getMainElementPosition()
     return self.container.absPosition
 end
 
-function adSettingsPage:updateToolTipBoxVisibility(box)
+function ADSettingsPage:updateToolTipBoxVisibility(box)
     local hasText = box.text ~= nil and box.text ~= ""
     box:setVisible(hasText)
 end
 
-function adSettingsPage:updateMyGUISettings()
-    for settingName, settingElement in pairs(self.settingElements) do
+function ADSettingsPage:updateMyGUISettings()
+    for settingName, _ in pairs(self.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
             local setting = AutoDrive.settings[settingName]
             if setting ~= nil and setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
@@ -86,6 +86,6 @@ function adSettingsPage:updateMyGUISettings()
     end
 end
 
-function adSettingsPage:updateGUISettings(settingName, index)
+function ADSettingsPage:updateGUISettings(settingName, index)
     self.settingElements[settingName]:setState(index, false)
 end

@@ -4,21 +4,21 @@ AutoDriveCreateMapMarkerEvent_mt = Class(AutoDriveCreateMapMarkerEvent, Event)
 InitEventClass(AutoDriveCreateMapMarkerEvent, "AutoDriveCreateMapMarkerEvent")
 
 function AutoDriveCreateMapMarkerEvent:emptyNew()
-	local self = Event:new(AutoDriveCreateMapMarkerEvent_mt)
-	self.className = "AutoDriveCreateMapMarkerEvent"
-	return self
+	local o = Event:new(AutoDriveCreateMapMarkerEvent_mt)
+	o.className = "AutoDriveCreateMapMarkerEvent"
+	return o
 end
 
 function AutoDriveCreateMapMarkerEvent:new(wayPointId, markerName)
-	local self = AutoDriveCreateMapMarkerEvent:emptyNew()
-	self.wayPointId = wayPointId
-	self.markerName = markerName
-	return self
+	local o = AutoDriveCreateMapMarkerEvent:emptyNew()
+	o.wayPointId = wayPointId
+	o.markerName = markerName
+	return o
 end
 
 function AutoDriveCreateMapMarkerEvent:writeStream(streamId, connection)
 	streamWriteUIntN(streamId, self.wayPointId, 17)
-	streamWriteStringOrEmpty(streamId, self.markerName)
+	AutoDrive.streamWriteStringOrEmpty(streamId, self.markerName)
 end
 
 function AutoDriveCreateMapMarkerEvent:readStream(streamId, connection)

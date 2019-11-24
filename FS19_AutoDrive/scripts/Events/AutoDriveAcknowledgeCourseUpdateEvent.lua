@@ -4,15 +4,15 @@ AutoDriveAcknowledgeCourseUpdateEvent_mt = Class(AutoDriveAcknowledgeCourseUpdat
 InitEventClass(AutoDriveAcknowledgeCourseUpdateEvent, "AutoDriveAcknowledgeCourseUpdateEvent")
 
 function AutoDriveAcknowledgeCourseUpdateEvent:emptyNew()
-    local self = Event:new(AutoDriveAcknowledgeCourseUpdateEvent_mt)
-    self.className = "AutoDriveAcknowledgeCourseUpdateEvent"
-    return self
+    local o = Event:new(AutoDriveAcknowledgeCourseUpdateEvent_mt)
+    o.className = "AutoDriveAcknowledgeCourseUpdateEvent"
+    return o
 end
 
 function AutoDriveAcknowledgeCourseUpdateEvent:new(highestIndex)
-    local self = AutoDriveAcknowledgeCourseUpdateEvent:emptyNew()
-    self.highestIndex = highestIndex
-    return self
+    local o = AutoDriveAcknowledgeCourseUpdateEvent:emptyNew()
+    o.highestIndex = highestIndex
+    return o
 end
 
 function AutoDriveAcknowledgeCourseUpdateEvent:writeStream(streamId, connection)
