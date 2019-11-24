@@ -358,6 +358,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
 
                     if vehicle.ad.startedLoadingAtTrigger == false then
                         vehicle.ad.isPaused = true
+                        vehicle.ad.waitingToBeLoaded = true;
                     end
 
                     vehicle.ad.loopCounterCurrent = vehicle.ad.loopCounterCurrent + 1

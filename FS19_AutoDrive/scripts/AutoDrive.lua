@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.6.9-14"
+AutoDrive.Version = "1.0.6.9-16"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -96,6 +96,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
 	AutoDrive:loadGUI()
 
 	g_logManager:devInfo("[AutoDrive] Map title: %s", g_currentMission.missionInfo.map.title)

@@ -5,8 +5,10 @@ function AutoDrive.handleTrailers(vehicle, dt)
 
     local isLoading = false
     if AutoDrive.shouldLoadOnTrigger(vehicle) then
+        --g_logManager:devInfo(vehicle.ad.driverName .. " - shouldLoadOnTrigger");
         local loadPairs = AutoDrive.getTriggerAndTrailerPairs(vehicle)
-        for _, pair in pairs(loadPairs) do
+        --g_logManager:devInfo(vehicle.ad.driverName .. " - #loadPairs: " .. #loadPairs);
+        for _, pair in pairs(loadPairs) do            
             local trailer = pair.trailer
             local trigger = pair.trigger
 
@@ -25,11 +27,13 @@ function AutoDrive.handleTrailers(vehicle, dt)
         end
     end
 
-    if vehicle.ad.isLoading and (vehicle.ad.trigger == nil or (not vehicle.ad.trigger.isLoading)) then
-        local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
-
-        if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") then
+    local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
+    local vehicleIsPausedForLoading = vehicle.ad.isPaused and vehicle.ad.waitingToBeLoaded;
+    local vehicleIsPausedForTrigger = vehicle.ad.isLoading and (vehicle.ad.trigger == nil or (not vehicle.ad.trigger.isLoading))
+    if vehicleIsPausedForLoading or vehicleIsPausedForTrigger then
+        if ((fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo")) and vehicleIsPausedForTrigger) or (vehicleIsPausedForLoading and vehicleFull) then
             --g_logManager:devInfo(vehicle.ad.driverName .. " - done loading");
+            vehicle.ad.waitingToBeLoaded = false;
             vehicle.ad.isLoading = false
             vehicle.ad.isLoadingToFillUnitIndex = nil
             vehicle.ad.isLoadingToTrailer = nil
@@ -106,6 +110,8 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                             vehicle.ad.isUnloadingWithTrailer = trailer
                             vehicle.ad.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
                         end
+                    else
+                        vehicle.ad.isUnloadingToBunkerSilo = false;
                     end
                 end
             end
@@ -113,7 +119,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
     end
 
     local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)
-    local shouldCloseTrailer = AutoDrive.getFillUnitEmptyForSomeTime(vehicle.ad.isUnloadingWithTrailer, fillUnitEmpty)
+    local shouldCloseTrailer = AutoDrive.getFillUnitEmptyForSomeTime(vehicle.ad.isUnloadingWithTrailer, fillUnitEmpty, dt)
     if fillUnitEmpty then
         if vehicle.ad.isUnloadingWithTrailer.setDischargeState and vehicle.ad.isUnloadingWithTrailer.getTipState then
             if vehicle.ad.isUnloadingWithTrailer:getTipState() ~= Trailer.TIPSTATE_CLOSED and vehicle.ad.isUnloadingWithTrailer:getTipState() ~= Trailer.TIPSTATE_CLOSING then
@@ -592,7 +598,7 @@ function AutoDrive.findAndSetBestTipPoint(vehicle, trailer)
     if trailer.getCanDischargeToObject ~= nil and trailer.getCurrentDischargeNode ~= nil then
         dischargeCondition = (not trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()))
     end
-    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) then
+    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) and trailer.getCurrentDischargeNode ~= nil then
         local spec = trailer.spec_trailer
         if spec == nil then
             return
@@ -889,12 +895,12 @@ function AutoDrive.startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigge
     end
 end
 
-function AutoDrive.getFillUnitEmptyForSomeTime(trailer, fillUnitEmpty)
+function AutoDrive.getFillUnitEmptyForSomeTime(trailer, fillUnitEmpty, dt)
     if trailer ~= nil then
         if trailer.emptyTimer == nil then
             trailer.emptyTimer = AutoDriveTON:new()
         end
-        return trailer.emptyTimer:timer(fillUnitEmpty, 1000, nil)
+        return trailer.emptyTimer:timer(fillUnitEmpty, 1000, dt)
     end
     return false
 end

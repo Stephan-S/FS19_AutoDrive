@@ -216,6 +216,7 @@ function AutoDrive:init()
     self.ad.currentTrailer = 1
     self.ad.usePathFinder = false
     self.ad.onRouteToPark = false
+    self.ad.waitingToBeLoaded = false;
 
     if AutoDrive ~= nil then
         local set = false
@@ -417,6 +418,8 @@ function AutoDrive:createVehicleInfoTable(vehicle)
     infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle)
     infoTable["trafficDetected"] = vehicle.ad.trafficDetected
     infoTable["isStuckInTraffic"] = AutoDrive.getIsStuckInTraffic(vehicle)
+    infoTable["initialized"] = vehicle.ad.initialized
+    infoTable["waitingToBeLoaded"] = vehicle.ad.waitingToBeLoaded
 
     local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
     local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)
