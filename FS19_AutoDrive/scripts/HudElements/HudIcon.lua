@@ -13,13 +13,13 @@ function ADHudIcon:new(posX, posY, width, height, image, layer, name)
     return o
 end
 
-function ADHudIcon:onDraw(vehicle)
+function ADHudIcon:onDraw(vehicle, uiScale)
     self:updateVisibility(vehicle)
 
     self:updateIcon(vehicle)
 
     if self.name == "header" then
-        self:onDrawHeader(vehicle)
+        self:onDrawHeader(vehicle, uiScale)
     end
 
     if self.isVisible then
@@ -27,11 +27,7 @@ function ADHudIcon:onDraw(vehicle)
     end
 end
 
-function ADHudIcon:onDrawHeader(vehicle)
-    local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive.getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive.getSetting("guiScale")
-    end
+function ADHudIcon:onDrawHeader(vehicle, uiScale)
     local adFontSize = 0.009 * uiScale
     local textHeight = getTextHeight(adFontSize, "text")
     local adPosX = self.position.x + AutoDrive.Hud.gapWidth

@@ -195,6 +195,9 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 
 	--local continueX = self.posX + (self.cols - 3) * self.borderX + (self.cols - 4) * self.buttonWidth;
 	--table.insert(self.hudElements, ADHudButton:new(continueX, self.row4, self.buttonWidth, self.buttonHeight, "input_continue", nil, "input_AD_continue", 1, true));
+
+	-- Refreshing layer sequence must be called, after all elements have been added
+	self:refreshHudElementsLayerSequence()
 end
 
 function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, visible)
@@ -209,6 +212,13 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, 
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
 	local tooltip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
 	table.insert(self.hudElements, ADHudButton:new(posX, posY, self.buttonWidth, self.buttonHeight, primaryAction, secondaryAction, toolTip, state, visible))
+end
+
+function AutoDriveHud:refreshHudElementsLayerSequence()
+	-- Sort the elements by their layer index, for optimizing drawHud and mouseEvent methods
+	table.sort(self.hudElements, function(a,b)
+		return a.layer < b.layer
+	end)
 end
 
 function AutoDriveHud:drawHud(vehicle)
@@ -230,14 +240,8 @@ function AutoDriveHud:drawHud(vehicle)
 		local ovWidth = self.Background.width
 		local ovHeight = self.Background.height
 
-		local layer = 0
-		while layer <= 10 do
-			for id, element in pairs(self.hudElements) do
-				if element.layer == layer then
-					element:onDraw(vehicle)
-				end
-			end
-			layer = layer + 1
+		for _, element in ipairs(self.hudElements) do  -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
+			element:onDraw(vehicle, uiScale)
 		end
 	end
 end
@@ -260,17 +264,16 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	if mouseActiveForAutoDrive then
 		local mouseEventHandled = false
 		AutoDrive.mouseWheelActive = false
-		local layer = 10
-		while layer >= 0 and (not mouseEventHandled) do
-			for id, element in pairs(self.hudElements) do
-				if element.layer == layer then
-					mouseEventHandled = mouseEventHandled or element:mouseEvent(vehicle, posX, posY, isDown, isUp, button, layer)
-				end
-				if mouseEventHandled then
-					break
-				end
+		-- Start with highest layer value (last in array), and then iterate backwards.
+		for i=#self.hudElements,1,-1 do
+			local element = self.hudElements[i]
+			local layer = element.layer
+			mouseEventHandled = element:mouseEvent(vehicle, posX, posY, isDown, isUp, button, layer)
+			if mouseEventHandled then
+				-- Maybe a PullDownList have been expanded/collapsed, so need to refresh layer sequence
+				self:refreshHudElementsLayerSequence()
+				break
 			end
-			layer = layer - 1
 		end
 
 		if (not mouseEventHandled) and (AutoDrive.pullDownListExpanded > 0) and (button >= 1 and button <= 3 and isUp) then
@@ -344,6 +347,8 @@ function AutoDriveHud:closeAllPullDownLists(vehicle)
 			hudElement:collapse(vehicle, false)
 		end
 	end
+	-- PullDownList(s) have been collapsed, so need to refresh layer sequence
+	self:refreshHudElementsLayerSequence()
 end
 
 --blatant copy of Courseplay's implementation. So all credit goes to their dev team :-)

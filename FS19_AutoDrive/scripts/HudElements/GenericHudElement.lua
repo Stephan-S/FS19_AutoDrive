@@ -21,7 +21,7 @@ function ADGenericHudElement:mouseEvent(vehicle, posX, posY, isDown, isUp, butto
     return false
 end
 
-function ADGenericHudElement:onDraw(vehicle)
+function ADGenericHudElement:onDraw(vehicle, uiScale)
 end
 
 function ADInheritsFrom(baseClass)

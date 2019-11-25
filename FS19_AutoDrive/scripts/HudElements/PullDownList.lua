@@ -63,7 +63,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     return o
 end
 
-function ADPullDownList:onDraw(vehicle)
+function ADPullDownList:onDraw(vehicle, uiScale)
     if not (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.mode == AutoDrive.MODE_LOAD or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER) then
         return
     end
@@ -71,10 +71,7 @@ function ADPullDownList:onDraw(vehicle)
     if self.isVisible == false then
         return
     end
-    local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive.getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive.getSetting("guiScale")
-    end
+
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
     setTextColor(1, 1, 1, 1)
     setTextBold(false)
@@ -83,6 +80,13 @@ function ADPullDownList:onDraw(vehicle)
     if self.state == ADPullDownList.STATE_COLLAPSED then
         self.ovBG:render()
         self.ovExpand:render()
+
+        if  (AutoDrive.pullDownListExpanded ~= 0)
+        and ((AutoDrive.pullDownListExpanded > self.type and AutoDrive.pullDownListDirection == ADPullDownList.EXPANDED_UP) or
+             (AutoDrive.pullDownListExpanded < self.type and AutoDrive.pullDownListDirection == ADPullDownList.EXPANDED_DOWN)) then
+            -- Do not draw text, as other pull-down-list is expanded and "blocks" the visiblity of this text
+            return
+        end
 
         local text = self.text
         local textWidth = getTextWidth(adFontSize, text)
@@ -116,15 +120,13 @@ function ADPullDownList:onDraw(vehicle)
             end
         end
 
-        if not (AutoDrive.pullDownListExpanded > self.type and self.direction == ADPullDownList.EXPANDED_UP) and not (AutoDrive.pullDownListExpanded < self.type and self.direction == ADPullDownList.EXPANDED_DOWN and (AutoDrive.pullDownListExpanded ~= 0)) then
-            renderText(posX, posY, adFontSize, text)
-        end
+        renderText(posX, posY, adFontSize, text)
     else
         self.ovTop:render()
         self.ovStretch:render()
         self.ovBottom:render()
         --AutoDrive.pullDownListExpanded = self.type;
-        
+
         for i = 1, ADPullDownList.MAX_SHOWN, 1 do
             local listEntry = self:getListElementByDisplayIndex(vehicle, i)
             if listEntry ~= nil then
@@ -147,7 +149,7 @@ function ADPullDownList:onDraw(vehicle)
                 else
                     textTargetWidth = math.abs(self.rightIconPos.x - self.position.x) + AutoDrive.Hud.gapWidth
                 end
-                text = self:shortenTextToWidth(text, textTargetWidth)
+                text = self:shortenTextToWidth(text, textTargetWidth, uiScale)
 
                 local textPosition = self:getTextPositionByDisplayIndex(i)
 
@@ -171,12 +173,12 @@ function ADPullDownList:onDraw(vehicle)
                             end
                         else
                             listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                            listEntry.ovPlus:render()                             
+                            listEntry.ovPlus:render()
                             listEntry.ovFilter = Overlay:new(self.imageFilter, self.rightIconPos4.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                             listEntry.ovFilter:render()
                         end
                     else
-                        if (listEntry.displayName == "All") then                             
+                        if (listEntry.displayName == "All") then
                             listEntry.ovFilter = Overlay:new(self.imageFilter, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                             listEntry.ovFilter:render()
                         end
@@ -213,16 +215,12 @@ function ADPullDownList:onDraw(vehicle)
     end
 end
 
-function ADPullDownList:shortenTextToWidth(textInput, width)
+function ADPullDownList:shortenTextToWidth(textInput, width, uiScale)
     local text = textInput
     if textInput == nil then
         return ""
     end
 
-    local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive.getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive.getSetting("guiScale")
-    end
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
 
     local textWidth = getTextWidth(adFontSize, text)
@@ -599,6 +597,7 @@ function ADPullDownList:expand(vehicle)
     self.state = ADPullDownList.STATE_EXPANDED
 
     AutoDrive.pullDownListExpanded = self.type
+    AutoDrive.pullDownListDirection = self.direction
 
     --possibly adjust height to number of elements (visible)
     self.expandedSize.height = math.min(self:getItemCount(), ADPullDownList.MAX_SHOWN) * AutoDrive.Hud.listItemHeight + self.size.height / 2
@@ -774,7 +773,7 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
     local mapMarkerName = vehicle.ad.nameOfSelectedTarget
     local targetGroupName = hitElement.returnValue
 
-    if self.type == ADPullDownList.TYPE_UNLOAD then        
+    if self.type == ADPullDownList.TYPE_UNLOAD then
         mapMarkerID = vehicle.ad.mapMarkerSelected_Unload;
         mapMarkerName = vehicle.ad.nameOfSelectedTarget_Unload;
     end;
