@@ -196,10 +196,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--local continueX = self.posX + (self.cols - 3) * self.borderX + (self.cols - 4) * self.buttonWidth;
 	--table.insert(self.hudElements, ADHudButton:new(continueX, self.row4, self.buttonWidth, self.buttonHeight, "input_continue", nil, "input_AD_continue", 1, true));
 
-	-- Sort the elements by their layer index, for optimizing drawHud and mouseEvent methods
-	table.sort(self.hudElements, function(a,b)
-		return a.layer < b.layer
-	end)
+	-- Refreshing layer sequence must be called, after all elements have been added
+	self:refreshHudElementsLayerSequence()
 end
 
 function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, visible)
@@ -214,6 +212,13 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, 
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
 	local tooltip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
 	table.insert(self.hudElements, ADHudButton:new(posX, posY, self.buttonWidth, self.buttonHeight, primaryAction, secondaryAction, toolTip, state, visible))
+end
+
+function AutoDriveHud:refreshHudElementsLayerSequence()
+	-- Sort the elements by their layer index, for optimizing drawHud and mouseEvent methods
+	table.sort(self.hudElements, function(a,b)
+		return a.layer < b.layer
+	end)
 end
 
 function AutoDriveHud:drawHud(vehicle)
@@ -265,6 +270,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			local layer = element.layer
 			mouseEventHandled = element:mouseEvent(vehicle, posX, posY, isDown, isUp, button, layer)
 			if mouseEventHandled then
+				-- Maybe a PullDownList have been expanded/collapsed, so need to refresh layer sequence
+				self:refreshHudElementsLayerSequence()
 				break
 			end
 		end
@@ -340,6 +347,8 @@ function AutoDriveHud:closeAllPullDownLists(vehicle)
 			hudElement:collapse(vehicle, false)
 		end
 	end
+	-- PullDownList(s) have been collapsed, so need to refresh layer sequence
+	self:refreshHudElementsLayerSequence()
 end
 
 --blatant copy of Courseplay's implementation. So all credit goes to their dev team :-)

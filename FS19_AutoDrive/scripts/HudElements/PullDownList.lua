@@ -81,6 +81,13 @@ function ADPullDownList:onDraw(vehicle, uiScale)
         self.ovBG:render()
         self.ovExpand:render()
 
+        if  (AutoDrive.pullDownListExpanded ~= 0)
+        and ((AutoDrive.pullDownListExpanded > self.type and AutoDrive.pullDownListDirection == ADPullDownList.EXPANDED_UP) or
+             (AutoDrive.pullDownListExpanded < self.type and AutoDrive.pullDownListDirection == ADPullDownList.EXPANDED_DOWN)) then
+            -- Do not draw text, as other pull-down-list is expanded and "blocks" the visiblity of this text
+            return
+        end
+
         local text = self.text
         local textWidth = getTextWidth(adFontSize, text)
         while textWidth > (self.size.width - 3 * AutoDrive.Hud.gapWidth - self.iconSize.width) do
@@ -113,9 +120,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             end
         end
 
-        if not (AutoDrive.pullDownListExpanded > self.type and self.direction == ADPullDownList.EXPANDED_UP) and not (AutoDrive.pullDownListExpanded < self.type and self.direction == ADPullDownList.EXPANDED_DOWN and (AutoDrive.pullDownListExpanded ~= 0)) then
-            renderText(posX, posY, adFontSize, text)
-        end
+        renderText(posX, posY, adFontSize, text)
     else
         self.ovTop:render()
         self.ovStretch:render()
@@ -592,6 +597,7 @@ function ADPullDownList:expand(vehicle)
     self.state = ADPullDownList.STATE_EXPANDED
 
     AutoDrive.pullDownListExpanded = self.type
+    AutoDrive.pullDownListDirection = self.direction
 
     --possibly adjust height to number of elements (visible)
     self.expandedSize.height = math.min(self:getItemCount(), ADPullDownList.MAX_SHOWN) * AutoDrive.Hud.listItemHeight + self.size.height / 2
