@@ -12,6 +12,26 @@ ADPullDownList.EXPANDED_UP = 1
 
 ADPullDownList.MAX_SHOWN = 25
 
+
+function ADPullDownList:initReusableOverlaysOnlyOnce()
+    local function overlayReuseOrNew(overlay, imageFilename)
+        if overlay == nil then
+            overlay = Overlay:new(imageFilename, 0, 0, self.iconSize.width, self.iconSize.height)
+        end
+        return overlay
+    end
+
+    -- For avoiding creating/destroying multiple Overlay objects in onDraw, so here we only create
+    -- one instance of each icon (overlay). Then in onDraw we use the game engine's renderOverlay()
+    -- API method directly. Should reduce excessive memory allocation/deallocation tremendously.
+    ADPullDownList.ovCollapse = overlayReuseOrNew(ADPullDownList.ovCollapse ,self.imageCollapse)
+    ADPullDownList.ovExpand   = overlayReuseOrNew(ADPullDownList.ovExpand   ,self.imageExpand)
+    ADPullDownList.ovAddHere  = overlayReuseOrNew(ADPullDownList.ovAddHere  ,self.imageRight)
+    ADPullDownList.ovMinus    = overlayReuseOrNew(ADPullDownList.ovMinus    ,self.imageMinus)
+    ADPullDownList.ovPlus     = overlayReuseOrNew(ADPullDownList.ovPlus     ,self.imagePlus)
+    ADPullDownList.ovFilter   = overlayReuseOrNew(ADPullDownList.ovFilter   ,self.imageFilter)
+end
+
 function ADPullDownList:new(posX, posY, width, height, type, selected)
     local o = ADPullDownList:create()
     o:init(posX, posY, width, height)
@@ -60,6 +80,8 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
         o.direction = ADPullDownList.EXPANDED_UP
     end
 
+    o:initReusableOverlaysOnlyOnce()
+
     return o
 end
 
@@ -73,8 +95,6 @@ function ADPullDownList:onDraw(vehicle, uiScale)
     end
 
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
-    setTextColor(1, 1, 1, 1)
-    setTextBold(false)
     setTextAlignment(RenderText.ALIGN_LEFT)
 
     if self.state == ADPullDownList.STATE_COLLAPSED then
@@ -88,16 +108,17 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             return
         end
 
-        local text = self.text
-        local textWidth = getTextWidth(adFontSize, text)
-        while textWidth > (self.size.width - 3 * AutoDrive.Hud.gapWidth - self.iconSize.width) do
-            text = string.sub(text, 1, string.len(text) - 1)
-            textWidth = getTextWidth(adFontSize, text)
-        end
+        local text = self:shortenTextToWidth(self.text, (self.size.width - 3 * AutoDrive.Hud.gapWidth - self.iconSize.width), adFontSize)
+
         local textHeight = getTextHeight(adFontSize, text)
 
         local posX = self.position.x + AutoDrive.Hud.gapWidth
         local posY = self.position.y + (self.size.height - textHeight) / 2
+
+        setTextBold(false)
+        setTextColor(1, 1, 1, 1)
+
+        -- TODO: Move this out of onDraw, as it SHOULD NOT be checked at-every-frame-update whether text needs to be rendered in green or not.
         if vehicle.ad.isActive then
             local targetToCheck = "nil"
             if self.type == ADPullDownList.TYPE_TARGET then
@@ -107,10 +128,14 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             end
             local actualTarget = ""
 
-            for _, mapMarker in pairs(AutoDrive.mapMarker) do
-                if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)] ~= nil then
-                    if mapMarker.id == vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id then
-                        actualTarget = mapMarker.name
+            if vehicle.ad.wayPoints ~= nil then
+                local vehicleDestination = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)]
+                if vehicleDestination ~= nil then
+                    for _, mapMarker in pairs(AutoDrive.mapMarker) do
+                        if mapMarker.id == vehicleDestination.id then
+                            actualTarget = mapMarker.name
+                            break
+                        end
                     end
                 end
             end
@@ -125,7 +150,8 @@ function ADPullDownList:onDraw(vehicle, uiScale)
         self.ovTop:render()
         self.ovStretch:render()
         self.ovBottom:render()
-        --AutoDrive.pullDownListExpanded = self.type;
+
+        local useFolders = AutoDrive.getSetting("useFolders")
 
         for i = 1, ADPullDownList.MAX_SHOWN, 1 do
             local listEntry = self:getListElementByDisplayIndex(vehicle, i)
@@ -137,50 +163,43 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                         text = text .. " " .. g_i18n:getText("gui_ad_filter") .. ": " .. vehicle.ad.destinationFilterText;
                     end;
                 end
-                if listEntry.isFolder == false and self.type ~= ADPullDownList.TYPE_FILLTYPE and AutoDrive.getSetting("useFolders") then
+                if listEntry.isFolder == false and self.type ~= ADPullDownList.TYPE_FILLTYPE and useFolders then
                     text = "   " .. text
                 end
-                local textTargetWidth = math.abs(self.rightIconPos2.x - self.position.x) - AutoDrive.Hud.gapWidth
-                if self.type == ADPullDownList.TYPE_FILLTYPE then
-                    textTargetWidth = math.abs(self.rightIconPos.x - self.position.x) + AutoDrive.Hud.gapWidth
-                end
+                local textTargetWidth --= math.abs(self.rightIconPos2.x - self.position.x) - AutoDrive.Hud.gapWidth
+                --if self.type == ADPullDownList.TYPE_FILLTYPE then
+                --    textTargetWidth = math.abs(self.rightIconPos.x - self.position.x) + AutoDrive.Hud.gapWidth
+                --end
                 if listEntry.isFolder then
                     textTargetWidth = math.abs(self.rightIconPos3.x - self.position.x) - AutoDrive.Hud.gapWidth
                 else
                     textTargetWidth = math.abs(self.rightIconPos.x - self.position.x) + AutoDrive.Hud.gapWidth
                 end
-                text = self:shortenTextToWidth(text, textTargetWidth, uiScale)
+                text = self:shortenTextToWidth(text, textTargetWidth, adFontSize)
 
-                local textPosition = self:getTextPositionByDisplayIndex(i)
+                local textPosition = self:getTextPositionByDisplayIndex(i, uiScale)
 
                 if listEntry.isFolder then
                     if vehicle.ad.groups[listEntry.displayName] then
-                        listEntry.ovCollapse = Overlay:new(self.imageCollapse, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                        listEntry.ovCollapse:render()
+                        renderOverlay(ADPullDownList.ovCollapse.overlayId, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                     else
-                        listEntry.ovExpand = Overlay:new(self.imageExpand, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                        listEntry.ovExpand:render()
+                        renderOverlay(ADPullDownList.ovExpand.overlayId, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                     end
 
                     if vehicle.ad.createMapPoints == true then
-                        listEntry.ovAddHere = Overlay:new(self.imageRight, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                        listEntry.ovAddHere:render()
+                        renderOverlay(ADPullDownList.ovAddHere.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
 
                         if (listEntry.displayName ~= "All") then
                             if self:getItemCountForGroup(listEntry.displayName) <= 0 then
-                                listEntry.ovMinus = Overlay:new(self.imageMinus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                                listEntry.ovMinus:render()
+                                renderOverlay(ADPullDownList.ovMinus.overlayId, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                             end
                         else
-                            listEntry.ovPlus = Overlay:new(self.imagePlus, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                            listEntry.ovPlus:render()
-                            listEntry.ovFilter = Overlay:new(self.imageFilter, self.rightIconPos4.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                            listEntry.ovFilter:render()
+                            renderOverlay(ADPullDownList.ovPlus.overlayId, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovFilter.overlayId, self.rightIconPos4.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                         end
                     else
                         if (listEntry.displayName == "All") then
-                            listEntry.ovFilter = Overlay:new(self.imageFilter, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                            listEntry.ovFilter:render()
+                            renderOverlay(ADPullDownList.ovFilter.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                         end
                     end
                 --else
@@ -192,17 +211,19 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 --end;
                 end
 
-                setTextBold(false)
                 if self.hovered == self.selected + (i - 1) and listEntry.isFolder == false then
+                    setTextBold(false)
                     setTextColor(0, 1, 0, 1)
                 else
                     if listEntry.isFolder == false then
+                        setTextBold(false)
                         setTextColor(1, 1, 1, 1)
                     else
                         setTextBold(true)
                         setTextColor(0.0, 0.569, 0.835, 1)
                     end
                 end
+
                 renderText(textPosition.x, textPosition.y, adFontSize, text)
             else
                 if i == 1 then
@@ -215,21 +236,12 @@ function ADPullDownList:onDraw(vehicle, uiScale)
     end
 end
 
-function ADPullDownList:shortenTextToWidth(textInput, width, uiScale)
-    local text = textInput
+function ADPullDownList:shortenTextToWidth(textInput, maxWidth, fontSize)
     if textInput == nil then
         return ""
     end
-
-    local adFontSize = AutoDrive.FONT_SCALE * uiScale
-
-    local textWidth = getTextWidth(adFontSize, text)
-    while textWidth > width do
-        text = string.sub(text, 1, string.len(text) - 1)
-        textWidth = getTextWidth(adFontSize, text)
-    end
-
-    return text
+    local maxNumChars = getTextLineLength(fontSize, textInput, maxWidth)
+    return utf8Substr(textInput, 0, maxNumChars)
 end
 
 function ADPullDownList:getListElementByDisplayIndex(vehicle, index)
@@ -239,14 +251,15 @@ end
 function ADPullDownList:getListElementByIndex(vehicle, index)
     local counter = 1
     if self.type ~= ADPullDownList.TYPE_FILLTYPE then
+        local useFolders = AutoDrive.getSetting("useFolders")
         for groupID, entries in pairs(self.options) do
-            if AutoDrive.getSetting("useFolders") then
+            if useFolders then
                 if counter == index then
                     return {displayName = self:groupIDToGroupName(self.fakeGroupIDs[groupID]), returnValue = self:groupIDToGroupName(self.fakeGroupIDs[groupID]), isFolder = true}
                 end
                 counter = counter + 1
             end
-            if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not AutoDrive.getSetting("useFolders")) then
+            if vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] == true or (not useFolders) then
                 for _, entry in pairs(entries) do
                     if vehicle.ad.destinationFilterText == "" or string.match(entry.displayName:lower(), vehicle.ad.destinationFilterText:lower()) then
                         if counter == index then
@@ -275,13 +288,9 @@ function ADPullDownList:getBoxPositionByDisplayIndex(index)
     return {x = posX, y = posY, width = self.expandedSize.width, height = self.size.height}
 end
 
-function ADPullDownList:getTextPositionByDisplayIndex(index)
+function ADPullDownList:getTextPositionByDisplayIndex(index, uiScale)
     local boxPos = self:getBoxPositionByDisplayIndex(index)
 
-    local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive.getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive.getSetting("guiScale")
-    end
     local adFontSize = AutoDrive.FONT_SCALE * uiScale
     local textHeight = getTextHeight(adFontSize, "text")
 
@@ -290,10 +299,15 @@ function ADPullDownList:getTextPositionByDisplayIndex(index)
 end
 
 function ADPullDownList:getElementAt(vehicle, posX, posY)
+    local uiScale = g_gameSettings:getValue("uiScale")
+    if AutoDrive.getSetting("guiScale") ~= 0 then
+        uiScale = AutoDrive.getSetting("guiScale")
+    end
+
     for i = 1, ADPullDownList.MAX_SHOWN, 1 do
         local listEntry = self:getListElementByDisplayIndex(vehicle, i)
         if listEntry ~= nil then
-            local boxPos = self:getTextPositionByDisplayIndex(i)
+            local boxPos = self:getTextPositionByDisplayIndex(i, uiScale)
 
             if posX >= boxPos.x and posX <= (boxPos.x + boxPos.width) and posY >= boxPos.y and posY <= (boxPos.y + boxPos.height) then
                 local hitIcon = 0
@@ -316,9 +330,6 @@ end
 
 function ADPullDownList:updateState(vehicle)
     local newState, newSelection = self:getNewState(vehicle)
-    if newState ~= self.state or newSelection ~= self.selected then
-        self.ov = Overlay:new(self.images[newState], self.position.x, self.position.y, self.size.width, self.size.height)
-    end
     self.state = newState
     self.selected = newSelection
     self:updateVisibility(vehicle)
@@ -359,8 +370,10 @@ function ADPullDownList:createSelection()
 end
 
 function ADPullDownList:createSelection_Target()
+    local useFolders = AutoDrive.getSetting("useFolders")
+
     self.options = {}
-    if AutoDrive.getSetting("useFolders") then
+    if useFolders then
         self:sortGroups()
     else
         self.options[1] = {}
@@ -371,7 +384,7 @@ function ADPullDownList:createSelection_Target()
     end
 
     for markerID, marker in pairs(AutoDrive.mapMarker) do
-        if AutoDrive.getSetting("useFolders") then
+        if useFolders then
             table.insert(self.options[self.groups[marker.group]], {displayName = marker.name, returnValue = markerID})
         else
             table.insert(self.options[1], {displayName = marker.name, returnValue = markerID})
@@ -652,8 +665,9 @@ function ADPullDownList:setSelected(vehicle)
     self.hovered = 1
     if self.type == ADPullDownList.TYPE_TARGET then
         local index = 1
+        local useFolders = AutoDrive.getSetting("useFolders")
         for groupID, entries in pairs(self.options) do
-            if AutoDrive.getSetting("useFolders") then
+            if useFolders then
                 index = index + 1
             end
             for _, entry in pairs(entries) do
@@ -673,8 +687,9 @@ function ADPullDownList:setSelected(vehicle)
         end
     elseif self.type == ADPullDownList.TYPE_UNLOAD then
         local index = 1
+        local useFolders = AutoDrive.getSetting("useFolders")
         for groupID, entries in pairs(self.options) do
-            if AutoDrive.getSetting("useFolders") then
+            if useFolders then
                 index = index + 1
             end
             for _, entry in pairs(entries) do

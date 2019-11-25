@@ -37,9 +37,7 @@ end
 
 function ADHudButton:updateState(vehicle)
     local newState = self:getNewState(vehicle)
-    if newState ~= self.state then
-        self.ov = Overlay:new(self.images[newState], self.position.x, self.position.y, self.size.width, self.size.height)
-    end
+    self.ov:setImage(self.images[newState])
     self.state = newState
 end
 

@@ -85,7 +85,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     if textWidth > self.size.width - 4 * AutoDrive.Hud.gapWidth then
         --expand header bar and split text
         if self.isExpanded == nil or self.isExpanded == false then
-            self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height + textHeight + AutoDrive.Hud.gapHeight)
+            self.ov:setDimension(nil, self.size.height + textHeight + AutoDrive.Hud.gapHeight)
             self.isExpanded = true
         end
 
@@ -128,7 +128,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     else
         if self.isExpanded ~= nil and self.isExpanded == true then
             self.isExpanded = false
-            self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height)
+            self.ov:resetDimensions()
         end
 
         if AutoDrive.pullDownListExpanded == 0 then
@@ -169,8 +169,6 @@ function ADHudIcon:updateIcon(vehicle)
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
         elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
-        else
-            newIcon = nil
         end
     elseif self.name == "destinationOverlay" then
         if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
@@ -179,13 +177,9 @@ function ADHudIcon:updateIcon(vehicle)
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
         elseif vehicle.ad.mode ~= AutoDrive.MODE_BGA then
             newIcon = AutoDrive.directory .. "textures/destination.dds"
-        else
-            newIcon = nil
         end
     end
 
-    if newIcon ~= self.image then
-        self.image = newIcon
-        self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height)
-    end
+    self.image = newIcon
+    self.ov:setImage(self.image)
 end
