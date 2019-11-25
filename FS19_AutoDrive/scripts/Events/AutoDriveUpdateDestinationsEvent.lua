@@ -41,7 +41,7 @@ function AutoDriveUpdateDestinationsEvent:writeStream(streamId, connection)
 	streamWriteInt16(streamId, self.mapMarkerSelected_Unload)
 	AutoDrive.streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
 
-	streamWriteInt8(streamId, self.unloadFillTypeIndex)
+	streamWriteUInt16(streamId, self.unloadFillTypeIndex)
 end
 
 function AutoDriveUpdateDestinationsEvent:readStream(streamId, connection)
@@ -60,7 +60,7 @@ function AutoDriveUpdateDestinationsEvent:readStream(streamId, connection)
 	local mapMarkerSelected_Unload = streamReadInt16(streamId)
 	local nameOfSelectedTarget_Unload = AutoDrive.streamReadStringOrEmpty(streamId)
 
-	local unloadFillTypeIndex = streamReadInt8(streamId)
+	local unloadFillTypeIndex = streamReadUInt16(streamId)
 
 	vehicle.ad.targetSelected = targetSelected
 	vehicle.ad.mapMarkerSelected = mapMarkerSelected
