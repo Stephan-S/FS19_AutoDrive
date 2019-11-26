@@ -299,6 +299,8 @@ function AutoDrive:init()
     self.ccInfos = {}
     self.ad.distanceToCombine = math.huge
     self.ad.destinationFilterText = ""
+    self.ad.pointsInProximity = {};
+    self.ad.lastPointCheckedForProximity = 1;
 end
 
 
@@ -576,75 +578,13 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
     end
 end
 
-function AutoDrive:onDrawCreationMode(vehicle)
-    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
-    for _, point in pairs(AutoDrive.mapWayPoints) do
-        local distance = AutoDrive:getDistance(point.x, point.z, x1, z1)
-        if distance < 50 then
-            if point.out ~= nil then
-                for _, neighbor in pairs(point.out) do
-                    local testDual = false
-                    for _, incoming in pairs(point.incoming) do
-                        if incoming == neighbor then
-                            testDual = true
-                        end
-                    end
+function AutoDrive:onDrawCreationMode(vehicle)     
+    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)   
+    
+    AutoDrive.drawPointsInProximity(vehicle)
 
-                    local target = AutoDrive.mapWayPoints[neighbor]
-                    if target ~= nil then
-                        if testDual == true then
-                            AutoDrive:drawLine(point, AutoDrive.mapWayPoints[neighbor], 0, 0, 1, 1)
-                        else
-                            --local deltaX = AutoDrive.mapWayPoints[neighbor].x - point.x
-                            --local deltaY = AutoDrive.mapWayPoints[neighbor].y - point.y
-                            --local deltaZ = AutoDrive.mapWayPoints[neighbor].z - point.z
-                            AutoDrive:drawLine(point, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
-
-                            local vecX = point.x - AutoDrive.mapWayPoints[neighbor].x
-                            local vecZ = point.z - AutoDrive.mapWayPoints[neighbor].z
-
-                            local angleRad = math.atan2(vecZ, vecX)
-
-                            angleRad = AutoDrive.normalizeAngle(angleRad)
-
-                            local arrowLength = 0.3
-
-                            local arrowLeft = AutoDrive.normalizeAngle(angleRad + math.rad(-20))
-                            local arrowRight = AutoDrive.normalizeAngle(angleRad + math.rad(20))
-
-                            local arrowLeftX = AutoDrive.mapWayPoints[neighbor].x + math.cos(arrowLeft) * arrowLength
-                            local arrowLeftZ = AutoDrive.mapWayPoints[neighbor].z + math.sin(arrowLeft) * arrowLength
-
-                            local arrowRightX = AutoDrive.mapWayPoints[neighbor].x + math.cos(arrowRight) * arrowLength
-                            local arrowRightZ = AutoDrive.mapWayPoints[neighbor].z + math.sin(arrowRight) * arrowLength
-
-                            local arrowPointLeft = {}
-                            arrowPointLeft.x = arrowLeftX
-                            arrowPointLeft.y = AutoDrive.mapWayPoints[neighbor].y
-                            arrowPointLeft.z = arrowLeftZ
-
-                            local arrowPointRight = {}
-                            arrowPointRight.x = arrowRightX
-                            arrowPointRight.y = AutoDrive.mapWayPoints[neighbor].y
-                            arrowPointRight.z = arrowRightZ
-
-                            AutoDrive:drawLine(arrowPointLeft, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
-                            AutoDrive:drawLine(arrowPointRight, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
-                        end
-                    end
-                end
-            end
-        end
-
-        if (AutoDrive.tableLength(point.out) == 0) and (AutoDrive.tableLength(point.incoming) == 0) then
-            local node = createTransformGroup("X")
-            setTranslation(node, point.x, point.y + 4, point.z)
-            DebugUtil.drawDebugNode(node, "X")
-        end
-    end
-
+    --Draw close destination (names)
     for _, marker in pairs(AutoDrive.mapMarker) do
-        x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
         local x2, _, z2 = getWorldTranslation(marker.node)
         local distance = AutoDrive:getDistance(x2, z2, x1, z1)
         if distance < 50 then
@@ -652,18 +592,17 @@ function AutoDrive:onDrawCreationMode(vehicle)
         end
     end
 
+    --Draw line to closest point
     if vehicle.ad.createMapPoints and vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
         local closest = AutoDrive:findClosestWayPoint(vehicle)
-        x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
 
         if vehicle.ad.showClosestPoint == true then
             AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1)
         end
     end
 
+    --Draw line to selected neighbor point
     if vehicle.ad.createMapPoints and vehicle.ad.showSelectedDebugPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-        --local closest = AutoDrive:findClosestWayPoint(vehicle)
-        x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
         if vehicle.ad.showSelectedDebugPoint == true then
             if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
                 AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], 1, 1, 0, 1)
@@ -671,6 +610,102 @@ function AutoDrive:onDrawCreationMode(vehicle)
         end
     end
 end
+
+function AutoDrive.getNewPointsInProximity(vehicle)
+    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+
+    if AutoDrive.mapWayPoints[1] ~= nil then
+        local newPointsToDraw = {};
+        local pointsCheckedThisFrame = 0;
+        --only handly a limited amount of points per frame
+        while pointsCheckedThisFrame < 1000 and pointsCheckedThisFrame < AutoDrive.mapWayPointsCounter do
+            pointsCheckedThisFrame = pointsCheckedThisFrame + 1;
+            vehicle.ad.lastPointCheckedForProximity = vehicle.ad.lastPointCheckedForProximity + 1;
+            if vehicle.ad.lastPointCheckedForProximity > AutoDrive.mapWayPointsCounter then
+                vehicle.ad.lastPointCheckedForProximity = 1;
+            end;
+            local pointToCheck = AutoDrive.mapWayPoints[vehicle.ad.lastPointCheckedForProximity];
+            if AutoDrive:getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < 50 then
+                table.insert(newPointsToDraw, pointToCheck.id, pointToCheck);
+            end;
+        end;
+        --go through all stored points to check if they are still in proximity
+        for id, point in pairs(vehicle.ad.pointsInProximity) do
+            if AutoDrive:getDistance(point.x, point.z, x1, z1) < 50 and newPointsToDraw[id] == nil then
+                table.insert(newPointsToDraw, id, point);
+            end;
+        end;
+        --replace stored list with update
+        vehicle.ad.pointsInProximity = newPointsToDraw;
+    end;
+end;
+
+function AutoDrive.drawPointsInProximity(vehicle)    
+    AutoDrive.getNewPointsInProximity(vehicle)
+
+    for _, point in pairs(vehicle.ad.pointsInProximity) do
+        if point.out ~= nil then
+            for _, neighbor in pairs(point.out) do
+                --check if outgoing connection is a dual way connection
+                local testDual = false
+                for _, incoming in pairs(point.incoming) do
+                    if incoming == neighbor then
+                        testDual = true
+                    end
+                end
+
+                local target = AutoDrive.mapWayPoints[neighbor]
+                if target ~= nil then
+                    if testDual == true then
+                        --draw simple line
+                        AutoDrive:drawLine(point, AutoDrive.mapWayPoints[neighbor], 0, 0, 1, 1)
+                    else
+                        --draw line with direction markers (arrow)
+                        AutoDrive:drawLine(point, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
+
+                        local vecX = point.x - AutoDrive.mapWayPoints[neighbor].x
+                        local vecZ = point.z - AutoDrive.mapWayPoints[neighbor].z
+
+                        local angleRad = math.atan2(vecZ, vecX)
+
+                        angleRad = AutoDrive.normalizeAngle(angleRad)
+
+                        local arrowLength = 0.3
+
+                        local arrowLeft = AutoDrive.normalizeAngle(angleRad + math.rad(-20))
+                        local arrowRight = AutoDrive.normalizeAngle(angleRad + math.rad(20))
+
+                        local arrowLeftX = AutoDrive.mapWayPoints[neighbor].x + math.cos(arrowLeft) * arrowLength
+                        local arrowLeftZ = AutoDrive.mapWayPoints[neighbor].z + math.sin(arrowLeft) * arrowLength
+
+                        local arrowRightX = AutoDrive.mapWayPoints[neighbor].x + math.cos(arrowRight) * arrowLength
+                        local arrowRightZ = AutoDrive.mapWayPoints[neighbor].z + math.sin(arrowRight) * arrowLength
+
+                        local arrowPointLeft = {}
+                        arrowPointLeft.x = arrowLeftX
+                        arrowPointLeft.y = AutoDrive.mapWayPoints[neighbor].y
+                        arrowPointLeft.z = arrowLeftZ
+
+                        local arrowPointRight = {}
+                        arrowPointRight.x = arrowRightX
+                        arrowPointRight.y = AutoDrive.mapWayPoints[neighbor].y
+                        arrowPointRight.z = arrowRightZ
+
+                        AutoDrive:drawLine(arrowPointLeft, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
+                        AutoDrive:drawLine(arrowPointRight, AutoDrive.mapWayPoints[neighbor], 0, 1, 0, 1)
+                    end
+                end
+            end
+        end
+
+        --just a quick way to highlight single (forgotten) points with no connections
+        if (AutoDrive.tableLength(point.out) == 0) and (AutoDrive.tableLength(point.incoming) == 0) then
+            local node = createTransformGroup("X")
+            setTranslation(node, point.x, point.y + 4, point.z)
+            DebugUtil.drawDebugNode(node, "X")
+        end
+    end
+end;
 
 function AutoDrive:preRemoveVehicle(vehicle)
     if vehicle.ad ~= nil and vehicle.ad.isActive then
