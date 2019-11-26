@@ -13,13 +13,13 @@ function ADHudIcon:new(posX, posY, width, height, image, layer, name)
     return o
 end
 
-function ADHudIcon:onDraw(vehicle)
+function ADHudIcon:onDraw(vehicle, uiScale)
     self:updateVisibility(vehicle)
 
     self:updateIcon(vehicle)
 
     if self.name == "header" then
-        self:onDrawHeader(vehicle)
+        self:onDrawHeader(vehicle, uiScale)
     end
 
     if self.isVisible then
@@ -27,11 +27,7 @@ function ADHudIcon:onDraw(vehicle)
     end
 end
 
-function ADHudIcon:onDrawHeader(vehicle)
-    local uiScale = g_gameSettings:getValue("uiScale")
-    if AutoDrive.getSetting("guiScale") ~= 0 then
-        uiScale = AutoDrive.getSetting("guiScale")
-    end
+function ADHudIcon:onDrawHeader(vehicle, uiScale)
     local adFontSize = 0.009 * uiScale
     local textHeight = getTextHeight(adFontSize, "text")
     local adPosX = self.position.x + AutoDrive.Hud.gapWidth
@@ -89,7 +85,7 @@ function ADHudIcon:onDrawHeader(vehicle)
     if textWidth > self.size.width - 4 * AutoDrive.Hud.gapWidth then
         --expand header bar and split text
         if self.isExpanded == nil or self.isExpanded == false then
-            self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height + textHeight + AutoDrive.Hud.gapHeight)
+            self.ov:setDimension(nil, self.size.height + textHeight + AutoDrive.Hud.gapHeight)
             self.isExpanded = true
         end
 
@@ -132,7 +128,7 @@ function ADHudIcon:onDrawHeader(vehicle)
     else
         if self.isExpanded ~= nil and self.isExpanded == true then
             self.isExpanded = false
-            self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height)
+            self.ov:resetDimensions()
         end
 
         if AutoDrive.pullDownListExpanded == 0 then
@@ -173,8 +169,6 @@ function ADHudIcon:updateIcon(vehicle)
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
         elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
-        else
-            newIcon = nil
         end
     elseif self.name == "destinationOverlay" then
         if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
@@ -183,13 +177,9 @@ function ADHudIcon:updateIcon(vehicle)
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
         elseif vehicle.ad.mode ~= AutoDrive.MODE_BGA then
             newIcon = AutoDrive.directory .. "textures/destination.dds"
-        else
-            newIcon = nil
         end
     end
 
-    if newIcon ~= self.image then
-        self.image = newIcon
-        self.ov = Overlay:new(self.image, self.position.x, self.position.y, self.size.width, self.size.height)
-    end
+    self.image = newIcon
+    self.ov:setImage(self.image)
 end

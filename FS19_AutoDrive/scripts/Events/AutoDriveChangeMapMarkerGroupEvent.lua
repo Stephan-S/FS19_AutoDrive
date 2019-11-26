@@ -31,10 +31,14 @@ function AutoDriveChangeMapMarkerGroupEvent:run(connection)
 	if g_server ~= nil and connection:getIsServer() == false then
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveChangeMapMarkerGroupEvent.sendEvent(self.groupName, self.markerId)
-	else
-		-- If the event is coming from the server, both clients and server have to change the marker group
-		AutoDrive.changeMapMarkerGroup(self.groupName, self.markerId, false)
+		--Dedicated server doesn't seem to receive the broadcasts, even when sent with local=true, so we have to do the action here as well
+		if g_dedicatedServerInfo == nil then
+			return
+		end
 	end
+
+	-- If the event is coming from the server, both clients and server have to change the marker group
+	AutoDrive.changeMapMarkerGroup(self.groupName, self.markerId, false)
 end
 
 function AutoDriveChangeMapMarkerGroupEvent.sendEvent(groupName, markerId)

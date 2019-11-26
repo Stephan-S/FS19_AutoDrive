@@ -28,7 +28,7 @@ function ADHudButton:readImages()
     return images
 end
 
-function ADHudButton:onDraw(vehicle)
+function ADHudButton:onDraw(vehicle, uiScale)
     self:updateState(vehicle)
     if self.isVisible then
         self.ov:render()
@@ -37,9 +37,7 @@ end
 
 function ADHudButton:updateState(vehicle)
     local newState = self:getNewState(vehicle)
-    if newState ~= self.state then
-        self.ov = Overlay:new(self.images[newState], self.position.x, self.position.y, self.size.width, self.size.height)
-    end
+    self.ov:setImage(self.images[newState])
     self.state = newState
 end
 
@@ -187,6 +185,9 @@ end
 
 function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
     if self.isVisible then
+        vehicle.ad.sToolTip = self.toolTip
+        vehicle.ad.nToolTipWait = 5
+
         if button == 1 and isUp then
             AutoDrive:InputHandling(vehicle, self.primaryAction)
             AutoDrive:InputHandlingSenderOnly(vehicle, self.primaryAction)
@@ -195,11 +196,6 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive:InputHandling(vehicle, self.secondaryAction)
             AutoDrive:InputHandlingSenderOnly(vehicle, self.secondaryAction)
             return true
-        end
-
-        if (not isDown) and (not isUp) and self.isVisible then
-            vehicle.ad.sToolTip = self.toolTip
-            vehicle.ad.nToolTipWait = 5
         end
     end
 

@@ -119,6 +119,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.groupCounter = 1
 
 	AutoDrive.pullDownListExpanded = 0
+	AutoDrive.pullDownListDirection = 0
 
 	AutoDrive.lastSetSpeed = 50
 

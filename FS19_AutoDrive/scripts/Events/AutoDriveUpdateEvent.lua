@@ -111,7 +111,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteUInt8(streamId, self.targetSpeed)
 	streamWriteBool(streamId, self.createMapPoints)
 	streamWriteBool(streamId, self.showClosestPoint)
-	AutoDrive.streamWriteInt16Or1337(streamId, self.selectedDebugPoint)
+	streamWriteInt32(streamId, self.selectedDebugPoint)
 	streamWriteBool(streamId, self.showSelectedDebugPoint)
 	streamWriteBool(streamId, self.changeSelectedDebugPoint)
 
@@ -138,7 +138,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteBool(streamId, self.isPaused)
 	streamWriteBool(streamId, self.onRouteToSecondTarget)
 	streamWriteBool(streamId, self.isLoading)
-	streamWriteInt8(streamId, self.unloadFillTypeIndex)
+	streamWriteUInt16(streamId, self.unloadFillTypeIndex)
 	streamWriteBool(streamId, self.startedLoadingAtTrigger)
 	streamWriteInt8(streamId, self.combineState)
 
@@ -203,7 +203,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local targetSpeed = streamReadUInt8(streamId)
 	local createMapPoints = streamReadBool(streamId)
 	local showClosestPoint = streamReadBool(streamId)
-	local selectedDebugPoint = AutoDrive.streamReadInt16Or1337(streamId)
+	local selectedDebugPoint = streamReadInt32(streamId)
 	local showSelectedDebugPoint = streamReadBool(streamId)
 	local changeSelectedDebugPoint = streamReadBool(streamId)
 
@@ -212,7 +212,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local iteratedDebugPoints = {}
 	for i, pId in pairs(DebugPointsID) do
 		if pId ~= "" then
-			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(id)]
+			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(pId)]
 		end
 	end
 
@@ -229,7 +229,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local isPaused = streamReadBool(streamId)
 	local onRouteToSecondTarget = streamReadBool(streamId)
 	local isLoading = streamReadBool(streamId)
-	local unloadFillTypeIndex = streamReadInt8(streamId)
+	local unloadFillTypeIndex = streamReadUInt16(streamId)
 	local startedLoadingAtTrigger = streamReadBool(streamId)
 	local combineState = streamReadInt8(streamId)
 

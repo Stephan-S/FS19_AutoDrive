@@ -110,8 +110,6 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                             vehicle.ad.isUnloadingWithTrailer = trailer
                             vehicle.ad.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
                         end
-                    else
-                        vehicle.ad.isUnloadingToBunkerSilo = false;
                     end
                 end
             end
@@ -136,6 +134,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                 end
             end
         end
+        vehicle.ad.isUnloadingToBunkerSilo = false;
     end
     AutoDrive.continueIfAllTrailersClosed(vehicle, trailers, dt)
 end
