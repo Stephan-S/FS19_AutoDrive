@@ -212,7 +212,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local iteratedDebugPoints = {}
 	for i, pId in pairs(DebugPointsID) do
 		if pId ~= "" then
-			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(id)]
+			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(pId)]
 		end
 	end
 
