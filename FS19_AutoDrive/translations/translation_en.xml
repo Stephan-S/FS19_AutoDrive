@@ -167,6 +167,13 @@
 		<text name="gui_ad_shovelHeight"						text="Shovel height" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
 		
+		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
+		<text name="gui_ad_restoreButtonText"					text="Restore" />
+		<text name="gui_ad_settingsClosingDialog_title"			text="All changes will be lost" />
+		<text name="gui_ad_settingsClosingDialog_text"			text="Are you sure you want to close the settings without saving?" />
+
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
 		<text name="ad_helpTitle_01"							text="AD - Introduction" />

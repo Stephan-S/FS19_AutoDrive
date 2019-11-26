@@ -10,14 +10,14 @@ function AutoDrive:loadGUI()
 	AutoDrive.gui["ADEnterDestinationFilterGui"] = ADEnterDestinationFilterGui:new()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
 
-	AutoDrive.gui["ADSettingsPage"] = ADSettingsPage:new()
-	AutoDrive.gui["ADVehicleSettingsPage"] = ADVehicleSettingsPage:new()
-	AutoDrive.gui["ADCombineUnloadSettingsPage"] = ADVehicleSettingsPage:new()
-	AutoDrive.gui["ADSettings"] = ADSettings:new()
+	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
+	AutoDrive.gui.ADVehicleSettingsPage = ADSettingsPage:new()
+	AutoDrive.gui.ADCombineUnloadSettingsPage = ADSettingsPage:new()
+	AutoDrive.gui.ADSettings = ADSettings:new()
 
-	g_gui:loadGui(AutoDrive.directory .. "gui/settingsPage.xml", "autoDriveSettingsFrame", AutoDrive.gui.ADSettingsPage, true)
-	g_gui:loadGui(AutoDrive.directory .. "gui/vehicleSettingsPage.xml", "autoDriveVehicleSettingsFrame", AutoDrive.gui.ADVehicleSettingsPage, true)
-	g_gui:loadGui(AutoDrive.directory .. "gui/combineUnloadSettingsPage.xml", "autoDriveCombineUnloadSettingsFrame", AutoDrive.gui.ADCombineUnloadSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/settingsPage.xml", "ADSettingsFrame", AutoDrive.gui.ADSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/vehicleSettingsPage.xml", "ADVehicleSettingsFrame", AutoDrive.gui.ADVehicleSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/combineUnloadSettingsPage.xml", "ADCombineUnloadSettingsFrame", AutoDrive.gui.ADCombineUnloadSettingsPage, true)
 	g_gui:loadGui(AutoDrive.directory .. "gui/settings.xml", "ADSettings", AutoDrive.gui.ADSettings)
 end
 
