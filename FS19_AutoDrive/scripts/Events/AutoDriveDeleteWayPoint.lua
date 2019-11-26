@@ -28,14 +28,10 @@ function AutoDriveDeleteWayPoint:run(connection)
 	if g_server ~= nil and connection:getIsServer() == false then
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveDeleteWayPoint.sendEvent(self.wayPointId)
-		--Dedicated server doesn't seem to receive the broadcasts, even when sent with local=true, so we have to do the action here as well
-		if g_dedicatedServerInfo == nil then
-			return
-		end
+	else
+		-- If the event is coming from the server, both clients and server have to delete the way point
+		AutoDrive.removeMapWayPoint(self.wayPointId, false)
 	end
-
-	-- If the event is coming from the server, both clients and server have to delete the way point
-	AutoDrive.removeMapWayPoint(self.wayPointId, false)
 end
 
 function AutoDriveDeleteWayPoint.sendEvent(wayPointId)

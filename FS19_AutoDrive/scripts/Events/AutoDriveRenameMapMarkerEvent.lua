@@ -31,14 +31,10 @@ function AutoDriveRenameMapMarkerEvent:run(connection)
 	if g_server ~= nil and connection:getIsServer() == false then
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveRenameMapMarkerEvent.sendEvent(self.newName, self.markerId)
-		--Dedicated server doesn't seem to receive the broadcasts, even when sent with local=true, so we have to do the action here as well
-		if g_dedicatedServerInfo == nil then
-			return
-		end
+	else
+		-- If the event is coming from the server, both clients and server have to rename the marker
+		AutoDrive.renameMapMarker(self.newName, self.markerId, false)
 	end
-
-	-- If the event is coming from the server, both clients and server have to rename the marker
-	AutoDrive.renameMapMarker(self.newName, self.markerId, false)
 end
 
 function AutoDriveRenameMapMarkerEvent.sendEvent(newName, markerId)

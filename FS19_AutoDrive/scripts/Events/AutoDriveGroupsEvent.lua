@@ -33,17 +33,13 @@ function AutoDriveGroupsEvent:run(connection)
 	if g_server ~= nil and connection:getIsServer() == false then
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveGroupsEvent.sendEvent(self.groupName, self.eventType)
-		--Dedicated server doesn't seem to receive the broadcasts, even when sent with local=true, so we have to do the action here as well
-		if g_dedicatedServerInfo == nil then
-			return
+	else
+		-- If the event is coming from the server, both clients and server have to do the job
+		if self.eventType == AutoDriveGroupsEvent.TYPE_ADD then
+			AutoDrive.addGroup(self.groupName, false)
+		elseif self.eventType == AutoDriveGroupsEvent.TYPE_REMOVE then
+			AutoDrive.removeGroup(self.groupName, false)
 		end
-	end
-	
-	-- If the event is coming from the server, both clients and server have to do the job
-	if self.eventType == AutoDriveGroupsEvent.TYPE_ADD then
-		AutoDrive.addGroup(self.groupName, false)
-	elseif self.eventType == AutoDriveGroupsEvent.TYPE_REMOVE then
-		AutoDrive.removeGroup(self.groupName, false)
 	end
 end
 
