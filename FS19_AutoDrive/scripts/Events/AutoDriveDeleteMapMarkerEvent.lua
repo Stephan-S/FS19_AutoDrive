@@ -28,10 +28,13 @@ function AutoDriveDeleteMapMarkerEvent:run(connection)
 	if g_server ~= nil and connection:getIsServer() == false then
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveDeleteMapMarkerEvent.sendEvent(self.markerId)
-	else
-		-- If the event is coming from the server, both clients and server have to delete the marker
-		AutoDrive.removeMapMarker(self.markerId, false)
+		--Dedicated server doesn't seem to receive the broadcasts, even when sent with local=true, so we have to do the action here as well
+		if g_dedicatedServerInfo == nil then
+			return
+		end
 	end
+
+	AutoDrive.removeMapMarker(self.markerId, false)
 end
 
 function AutoDriveDeleteMapMarkerEvent.sendEvent(markerId)

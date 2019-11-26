@@ -45,7 +45,7 @@ function AutoDriveUserDataEvent:run(connection)
         AutoDrive.usersData[uniqueId].hudY = self.hudY
         AutoDrive.usersData[uniqueId].guiScale = self.guiScale
     else
-        -- Applyng data if we are on the client
+        -- Applying data if we are on the client
         AutoDrive.Hud:createHudAt(self.hudX, self.hudY)
         AutoDrive.setSettingState("guiScale", self.guiScale)
     end

@@ -3,6 +3,7 @@ function AutoDrive:startAD(vehicle)
 	vehicle.ad.creationMode = false
 	vehicle.ad.startedLoadingAtTrigger = false
 	vehicle.ad.onRouteToPark = false
+	vehicle.ad.isStoppingWithError = false
 
 	vehicle.forceIsActive = true
 	vehicle.spec_motorized.stopMotorOnLeave = false
@@ -52,8 +53,11 @@ function AutoDrive:startAD(vehicle)
 		vehicle.ad.skipStart = false
 		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
-				vehicle.ad.skipStart = true
+				vehicle.ad.skipStart = true				
+				vehicle.ad.onRouteToSecondTarget = true
 			end
+		else			
+            vehicle.ad.onRouteToSecondTarget = false;
 		end
 	end	
 
@@ -179,8 +183,6 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 			vehicle:raiseAIEvent("onAIEnd", "onAIImplementEnd")
 		end
 	end
-
-	vehicle.ad.isStoppingWithError = false
 
 	if vehicle.bga ~= nil then
 		vehicle.bga.state = AutoDriveBGA.STATE_IDLE

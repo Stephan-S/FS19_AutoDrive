@@ -31,10 +31,13 @@ function AutoDriveCreateMapMarkerEvent:run(connection)
 	if g_server ~= nil and connection:getIsServer() == false then
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveCreateMapMarkerEvent.sendEvent(self.wayPointId, self.markerName)
-	else
-		-- If the event is coming from the server, both clients and server have to create the marker
-		AutoDrive.createMapMarker(self.wayPointId, self.markerName, false)
+		--Dedicated server doesn't seem to receive the broadcasts, even when sent with local=true, so we have to do the action here as well
+		if g_dedicatedServerInfo == nil then
+			return
+		end
 	end
+
+	AutoDrive.createMapMarker(self.wayPointId, self.markerName, false)
 end
 
 function AutoDriveCreateMapMarkerEvent.sendEvent(wayPointId, markerName)
