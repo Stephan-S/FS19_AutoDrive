@@ -298,8 +298,8 @@ function AutoDrive:init()
     self.ccInfos = {}
     self.ad.distanceToCombine = math.huge
     self.ad.destinationFilterText = ""
-    self.ad.pointsInProximity = {};
-    self.ad.lastPointCheckedForProximity = 1;
+    self.ad.pointsInProximity = {}
+    self.ad.lastPointCheckedForProximity = 1
 end
 
 function AutoDrive:onPreLeaveVehicle()
@@ -576,9 +576,9 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
     end
 end
 
-function AutoDrive:onDrawCreationMode(vehicle)     
-    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)   
-    
+function AutoDrive:onDrawCreationMode(vehicle)
+    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+
     AutoDrive.drawPointsInProximity(vehicle)
 
     --Draw close destination (names)
@@ -610,35 +610,35 @@ function AutoDrive:onDrawCreationMode(vehicle)
 end
 
 function AutoDrive.getNewPointsInProximity(vehicle)
-    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+    local x1, _, z1 = getWorldTranslation(vehicle.components[1].node)
 
     if AutoDrive.mapWayPoints[1] ~= nil then
-        local newPointsToDraw = {};
-        local pointsCheckedThisFrame = 0;
+        local newPointsToDraw = {}
+        local pointsCheckedThisFrame = 0
         --only handly a limited amount of points per frame
         while pointsCheckedThisFrame < 1000 and pointsCheckedThisFrame < AutoDrive.mapWayPointsCounter do
-            pointsCheckedThisFrame = pointsCheckedThisFrame + 1;
-            vehicle.ad.lastPointCheckedForProximity = vehicle.ad.lastPointCheckedForProximity + 1;
+            pointsCheckedThisFrame = pointsCheckedThisFrame + 1
+            vehicle.ad.lastPointCheckedForProximity = vehicle.ad.lastPointCheckedForProximity + 1
             if vehicle.ad.lastPointCheckedForProximity > AutoDrive.mapWayPointsCounter then
-                vehicle.ad.lastPointCheckedForProximity = 1;
-            end;
-            local pointToCheck = AutoDrive.mapWayPoints[vehicle.ad.lastPointCheckedForProximity];
+                vehicle.ad.lastPointCheckedForProximity = 1
+            end
+            local pointToCheck = AutoDrive.mapWayPoints[vehicle.ad.lastPointCheckedForProximity]
             if AutoDrive:getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < 50 then
-                table.insert(newPointsToDraw, pointToCheck.id, pointToCheck);
-            end;
-        end;
+                table.insert(newPointsToDraw, pointToCheck.id, pointToCheck)
+            end
+        end
         --go through all stored points to check if they are still in proximity
         for id, point in pairs(vehicle.ad.pointsInProximity) do
             if AutoDrive:getDistance(point.x, point.z, x1, z1) < 50 and newPointsToDraw[id] == nil then
-                table.insert(newPointsToDraw, id, point);
-            end;
-        end;
+                table.insert(newPointsToDraw, id, point)
+            end
+        end
         --replace stored list with update
-        vehicle.ad.pointsInProximity = newPointsToDraw;
-    end;
-end;
+        vehicle.ad.pointsInProximity = newPointsToDraw
+    end
+end
 
-function AutoDrive.drawPointsInProximity(vehicle)    
+function AutoDrive.drawPointsInProximity(vehicle)
     AutoDrive.getNewPointsInProximity(vehicle)
 
     for _, point in pairs(vehicle.ad.pointsInProximity) do
@@ -703,7 +703,7 @@ function AutoDrive.drawPointsInProximity(vehicle)
             DebugUtil.drawDebugNode(node, "X")
         end
     end
-end;
+end
 
 function AutoDrive:preRemoveVehicle(vehicle)
     if vehicle.ad ~= nil and vehicle.ad.isActive then
@@ -761,43 +761,32 @@ function AutoDrive:updateAILights(superFunc)
 end
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
-    --    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
-    --        if self.ad.isActive then
-    --            lx = lx or 0
-    --            lz = lz or 1
-    --
-    --            local realSpeed = math.abs(self.lastSpeedReal) * 3600 -- Convert speed to km/h
-    --            local speedFactor = AutoDrive.SD_MAX_SPEED_FACTOR - math.min(realSpeed, AutoDrive.SD_MAX_SPEED_FACTOR) + AutoDrive.SD_MIN_SPEED_FACTOR
-    --            local xSpeedFactor = speedFactor
-    --            local ySpeedFactor = speedFactor
-    --            if (self.ad.smootherDriving.lastLx > 0 and self.ad.smootherDriving.lastLx > lx) or (self.ad.smootherDriving.lastLx < 0 and self.ad.smootherDriving.lastLx < lx) then
-    --                -- If the steering is going back straight it must rotate faster
-    --                xSpeedFactor = xSpeedFactor / AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER
-    --            end
-    --            xSpeedFactor = math.max(xSpeedFactor, 1)
-    --            ySpeedFactor = math.max(ySpeedFactor, 1)
-    --
-    --            self.ad.smootherDriving.lastLx = self.ad.smootherDriving.lastLx + ((lx - self.ad.smootherDriving.lastLx) / xSpeedFactor)
-    --            self.ad.smootherDriving.lastLz = self.ad.smootherDriving.lastLz + ((lz - self.ad.smootherDriving.lastLz) / ySpeedFactor)
-    --            self.ad.smootherDriving.lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed + ((maxSpeed - self.ad.smootherDriving.lastMaxSpeed) / 100)
-    --
-    --            if maxSpeed == 0 and self.ad.smootherDriving.lastMaxSpeed < 6 then
-    --                -- Hard braking, is needed to prevent combine's pipe overstep
-    --                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
-    --            end
-    --
-    --            lx = self.ad.smootherDriving.lastLx
-    --            lz = self.ad.smootherDriving.lastLz
-    --            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
-    --        else
-    --            self.ad.smootherDriving.lastLx = 0
-    --            self.ad.smootherDriving.lastLz = 1
-    --            self.ad.smootherDriving.lastMaxSpeed = 0
-    --        end
-    --    end
 
     if self.getMotorStartTime ~= nil then
         allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
+    end
+
+    if self.ad ~= nil then
+        if self.ad.isActive and allowedToDrive then
+            slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
+
+            local accFactor = 2 / 1000 -- km h / s converted to km h / ms
+            accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 3000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
+            if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
+                self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)
+            else
+                self.ad.smootherDriving.lastMaxSpeed = math.max(self.ad.smootherDriving.lastMaxSpeed - accFactor * dt, maxSpeed)
+            end
+
+            --if maxSpeed == 0 and self.ad.smootherDriving.lastMaxSpeed < 6 then
+            -- Hard braking, is needed to prevent combine's pipe overstep
+            --self.ad.smootherDriving.lastMaxSpeed = maxSpeed
+            --end
+
+            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
+        else
+            self.ad.smootherDriving.lastMaxSpeed = 0
+        end
     end
 
     local angle = 0
