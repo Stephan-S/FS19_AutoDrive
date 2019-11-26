@@ -9,9 +9,7 @@ ADSettingsPage = {}
 
 local ADSettingsPage_mt = Class(ADSettingsPage, TabbedMenuFrameElement)
 
-ADSettingsPage.CONTROLS = {
-    CONTAINER = "container"
-}
+ADSettingsPage.CONTROLS = {"container", "pageTitle", "settingsContainer", "ingameMenuHelpBox", "headerIcon"}
 
 function ADSettingsPage:new(target)
     local o = TabbedMenuFrameElement:new(target, ADSettingsPage_mt)
@@ -23,9 +21,11 @@ end
 
 function ADSettingsPage:onFrameOpen()
     ADSettingsPage:superClass().onFrameOpen(self)
-    FocusManager:setFocus(self.backButton)
-    self:updateMyGUISettings()
-    self.callBackParent.activePageID = self.callBackParentWithID
+    FocusManager:unsetHighlight(FocusManager.currentFocusData.highlightElement)
+    FocusManager:unsetFocus(FocusManager.currentFocusData.focusElement)
+    if not self:hasChanges() then
+        self:updateMyGUISettings()
+    end
 end
 
 function ADSettingsPage:onFrameClose()
@@ -47,31 +47,73 @@ function ADSettingsPage:onCreateAutoDriveSetting(element)
         end
     end
     element:setTexts(labels)
+
+    local iconElem = element.elements[6]
+    if iconElem ~= nil then
+        if setting.isVehicleSpecific then
+            iconElem:setImageUVs(nil, unpack(getNormalizedUVs(ADSettings.ICON_UV.VEHICLE)))
+        else
+            iconElem:setImageUVs(nil, unpack(getNormalizedUVs(ADSettings.ICON_UV.GLOBAL)))
+        end
+    end
 end
 
-function ADSettingsPage:copyAttributes(src)
-    ADSettingsPage:superClass().copyAttributes(self, src)
+function ADSettingsPage:onOptionChange(state, element)
+    local setting = AutoDrive.settings[element.name]
+    if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[element.name] ~= nil then
+        setting = g_currentMission.controlledVehicle.ad.settings[element.name]
+    end
+    setting.new = state
 
-    self.ui = src.ui
-    self.i18n = src.i18n
+    local iconElem = element.elements[6]
+    if iconElem ~= nil then
+        if setting.new ~= setting.current then
+            iconElem:setImageColor(iconElem.overlayState, unpack(ADSettings.ICON_COLOR.CHANGED))
+        else
+            iconElem:setImageColor(iconElem.overlayState, unpack(ADSettings.ICON_COLOR.DEFAULT))
+        end
+    end
 end
 
-function ADSettingsPage:initialize()
+function ADSettingsPage:onOpen()
+    --for _, settingElement in pairs(self.settingElements) do
+    --    local iconElem = settingElement.elements[6]
+    --    if iconElem ~= nil then
+    --        iconElem:setImageColor(iconElem.overlayState, unpack(ADSettings.ICON_COLOR.DEFAULT))
+    --    end
+    --end
 end
 
---- Get the frame's main content element's screen size.
+function ADSettingsPage:hasChanges()
+    for settingName, _ in pairs(self.settingElements) do
+        if AutoDrive.settings[settingName] ~= nil then
+            local setting = AutoDrive.settings[settingName]
+            if setting ~= nil then
+                if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
+                    setting = g_currentMission.controlledVehicle.ad.settings[settingName]
+                end
+                if setting.new ~= nil and setting.new ~= setting.current then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+----- Get the frame's main content element's screen size.
 function ADSettingsPage:getMainElementSize()
-    return self.container.size
+    return self.settingsContainer.size
 end
 
 --- Get the frame's main content element's screen position.
 function ADSettingsPage:getMainElementPosition()
-    return self.container.absPosition
+    return self.settingsContainer.absPosition
 end
 
-function ADSettingsPage:updateToolTipBoxVisibility(box)
+function ADSettingsPage:onIngameMenuHelpTextChanged(box)
     local hasText = box.text ~= nil and box.text ~= ""
-    box:setVisible(hasText)
+    self.ingameMenuHelpBox:setVisible(hasText)
 end
 
 function ADSettingsPage:updateMyGUISettings()
@@ -86,6 +128,8 @@ function ADSettingsPage:updateMyGUISettings()
     end
 end
 
-function ADSettingsPage:updateGUISettings(settingName, index)
-    self.settingElements[settingName]:setState(index, false)
+function ADSettingsPage:updateGUISettings(settingName, state)
+    local element = self.settingElements[settingName]
+    element:setState(state, false)
+    self:onOptionChange(state, element)
 end

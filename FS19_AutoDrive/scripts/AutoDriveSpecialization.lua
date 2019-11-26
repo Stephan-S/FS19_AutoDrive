@@ -35,11 +35,11 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
         end
 
         -- attach our actions
-        local __, eventName
+        local _, eventName
         local toggleButton = false
         local showF1Help = AutoDrive.getSetting("showHelp")
         for _, action in pairs(AutoDrive.actions) do
-            __, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, AutoDrive.onActionCall, toggleButton, true, false, true)
+            _, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, AutoDrive.onActionCall, toggleButton, true, false, true)
             g_inputBinding:setActionEventTextVisibility(eventName, action[2] and showF1Help)
             if showF1Help then
                 g_inputBinding:setActionEventTextPriority(eventName, action[3])
@@ -110,8 +110,7 @@ function AutoDrive:onPostLoad(savegame)
             local groupString = getXMLString(xmlFile, key .. "#groups")
             if groupString ~= nil then
                 local groupTable = groupString:split(";")
-                local temp = {}
-                for i, groupCombined in pairs(groupTable) do
+                for _, groupCombined in pairs(groupTable) do
                     local groupNameAndBool = groupCombined:split(",")
                     if tonumber(groupNameAndBool[2]) >= 1 then
                         self.ad.groups[groupNameAndBool[1]] = true
@@ -216,7 +215,7 @@ function AutoDrive:init()
     self.ad.currentTrailer = 1
     self.ad.usePathFinder = false
     self.ad.onRouteToPark = false
-    self.ad.waitingToBeLoaded = false;
+    self.ad.waitingToBeLoaded = false
 
     if AutoDrive ~= nil then
         local set = false
@@ -289,7 +288,7 @@ function AutoDrive:init()
     if self.ad.groups == nil then
         self.ad.groups = {}
     end
-    for groupName, groupIds in pairs(AutoDrive.groups) do
+    for groupName, _ in pairs(AutoDrive.groups) do
         if self.ad.groups[groupName] == nil then
             self.ad.groups[groupName] = false
         end
@@ -303,11 +302,10 @@ function AutoDrive:init()
     self.ad.lastPointCheckedForProximity = 1;
 end
 
-
 function AutoDrive:onPreLeaveVehicle()
     if self.ad == nil then
-        return;
-    end;
+        return
+    end
     -- We have to do that only for the player who were in the vehicle ( this also fix mouse cursor hiding bug in MP )
     if self.getIsEntered ~= nil and self:getIsEntered() then
         local storedshowingHud = self.ad.showingHud
@@ -462,7 +460,7 @@ function AutoDrive:createVehicleInfoTable(vehicle)
             infoTable["Filllevels"]["trailer_" .. trailerIndex]["filled"] = trailerFull
             infoTable["Filllevels"]["trailer_" .. trailerIndex]["empty"] = trailerEmpty
 
-            for fillUnitIndex, fillUnit in pairs(trailer:getFillUnits()) do
+            for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
                 local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, nil)
                 local unitMaxCapacity = unitFillLevel + unitLeftCapacity
                 vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, fillUnitIndex)
@@ -513,7 +511,7 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 
     if self.ad.groups ~= nil then
         local combinedString = ""
-        for groupName, groupEntries in pairs(AutoDrive.groups) do
+        for groupName, _ in pairs(AutoDrive.groups) do
             for myGroupName, value in pairs(self.ad.groups) do
                 if groupName == myGroupName then
                     if string.len(combinedString) > 0 then
@@ -763,40 +761,40 @@ function AutoDrive:updateAILights(superFunc)
 end
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
-    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
-        if self.ad.isActive then
-            lx = lx or 0
-            lz = lz or 1
-
-            local realSpeed = math.abs(self.lastSpeedReal) * 3600 -- Convert speed to km/h
-            local speedFactor = AutoDrive.SD_MAX_SPEED_FACTOR - math.min(realSpeed, AutoDrive.SD_MAX_SPEED_FACTOR) + AutoDrive.SD_MIN_SPEED_FACTOR
-            local xSpeedFactor = speedFactor
-            local ySpeedFactor = speedFactor
-            if (self.ad.smootherDriving.lastLx > 0 and self.ad.smootherDriving.lastLx > lx) or (self.ad.smootherDriving.lastLx < 0 and self.ad.smootherDriving.lastLx < lx) then
-                -- If the steering is going back straight it must rotate faster
-                xSpeedFactor = xSpeedFactor / AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER
-            end
-            xSpeedFactor = math.max(xSpeedFactor, 1)
-            ySpeedFactor = math.max(ySpeedFactor, 1)
-
-            self.ad.smootherDriving.lastLx = self.ad.smootherDriving.lastLx + ((lx - self.ad.smootherDriving.lastLx) / xSpeedFactor)
-            self.ad.smootherDriving.lastLz = self.ad.smootherDriving.lastLz + ((lz - self.ad.smootherDriving.lastLz) / ySpeedFactor)
-            self.ad.smootherDriving.lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed + ((maxSpeed - self.ad.smootherDriving.lastMaxSpeed) / 100)
-
-            if maxSpeed == 0 and self.ad.smootherDriving.lastMaxSpeed < 6 then
-                -- Hard braking, is needed to prevent combine's pipe overstep
-                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
-            end
-
-            lx = self.ad.smootherDriving.lastLx
-            lz = self.ad.smootherDriving.lastLz
-            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
-        else
-            self.ad.smootherDriving.lastLx = 0
-            self.ad.smootherDriving.lastLz = 1
-            self.ad.smootherDriving.lastMaxSpeed = 0
-        end
-    end
+    --    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
+    --        if self.ad.isActive then
+    --            lx = lx or 0
+    --            lz = lz or 1
+    --
+    --            local realSpeed = math.abs(self.lastSpeedReal) * 3600 -- Convert speed to km/h
+    --            local speedFactor = AutoDrive.SD_MAX_SPEED_FACTOR - math.min(realSpeed, AutoDrive.SD_MAX_SPEED_FACTOR) + AutoDrive.SD_MIN_SPEED_FACTOR
+    --            local xSpeedFactor = speedFactor
+    --            local ySpeedFactor = speedFactor
+    --            if (self.ad.smootherDriving.lastLx > 0 and self.ad.smootherDriving.lastLx > lx) or (self.ad.smootherDriving.lastLx < 0 and self.ad.smootherDriving.lastLx < lx) then
+    --                -- If the steering is going back straight it must rotate faster
+    --                xSpeedFactor = xSpeedFactor / AutoDrive.SD_RETURN_SPEED_FACTOR_MULTIPLIER
+    --            end
+    --            xSpeedFactor = math.max(xSpeedFactor, 1)
+    --            ySpeedFactor = math.max(ySpeedFactor, 1)
+    --
+    --            self.ad.smootherDriving.lastLx = self.ad.smootherDriving.lastLx + ((lx - self.ad.smootherDriving.lastLx) / xSpeedFactor)
+    --            self.ad.smootherDriving.lastLz = self.ad.smootherDriving.lastLz + ((lz - self.ad.smootherDriving.lastLz) / ySpeedFactor)
+    --            self.ad.smootherDriving.lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed + ((maxSpeed - self.ad.smootherDriving.lastMaxSpeed) / 100)
+    --
+    --            if maxSpeed == 0 and self.ad.smootherDriving.lastMaxSpeed < 6 then
+    --                -- Hard braking, is needed to prevent combine's pipe overstep
+    --                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
+    --            end
+    --
+    --            lx = self.ad.smootherDriving.lastLx
+    --            lz = self.ad.smootherDriving.lastLz
+    --            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
+    --        else
+    --            self.ad.smootherDriving.lastLx = 0
+    --            self.ad.smootherDriving.lastLz = 1
+    --            self.ad.smootherDriving.lastMaxSpeed = 0
+    --        end
+    --    end
 
     if self.getMotorStartTime ~= nil then
         allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)

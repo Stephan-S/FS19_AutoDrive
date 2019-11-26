@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-3"
+AutoDrive.Version = "1.0.7.0-5"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -89,8 +89,6 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/vehicleSettingsPage.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/combineUnloadSettingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveBGAUnloader.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))

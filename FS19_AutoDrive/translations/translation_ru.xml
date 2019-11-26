@@ -167,6 +167,13 @@
 		<text name="gui_ad_shovelHeight"						text="Высота ковша" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
 
+		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
+		<text name="gui_ad_restoreButtonText" 					text="Restore" />
+		<text name="gui_ad_settingsClosingDialog_title" 		text="All changes will be lost" />
+		<text name="gui_ad_settingsClosingDialog_text" 			text="Are you sure you want to close the settings without saving?" />
+
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 
 		<text name="ad_helpTitle_01"							text="AD - Введение" />

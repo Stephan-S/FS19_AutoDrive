@@ -55,9 +55,16 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 				if setting ~= nil and setting.isVehicleSpecific and (setting.isSynchronized == nil or setting.isSynchronized) then
 					local newSettingsValue = streamReadInt16(streamId)
 					vehicle.ad.settings[settingName].current = newSettingsValue
+					vehicle.ad.settings[settingName].new = newSettingsValue -- Also update 'new' field to prevent a following incoerence state of 'hasChanges()' function on settings pages
 				end
 			end
 		end
+	end
+
+	-- If the current user is editing the settings the gui will be closed and then opened to show new settings
+	if g_gui.currentGui.name == "ADSettings" then
+		g_gui:showGui()
+		g_gui:showGui("ADSettings")
 	end
 
 	-- Server have to broadcast to all clients
