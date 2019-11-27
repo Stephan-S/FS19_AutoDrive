@@ -6,7 +6,7 @@ function AutoDrive:ContiniousRecalculation()
 	if recalcTable.continue == true then
 		if recalcTable.initializedWaypoints == false then
 			g_logManager:info("[AutoDrive] %s Recalculating started", getDate("%H:%M:%S"))
-			for i2, point in pairs(mapPoints) do
+			for _, point in pairs(mapPoints) do
 				point.marker = {}
 			end
 			recalcTable.initializedWaypoints = true
@@ -84,7 +84,7 @@ function AutoDrive:ContiniousRecalculation()
 		AutoDrive.Recalculation.continue = true
 		AutoDrive.Recalculation.initializedWaypoints = false
 		AutoDrive.Recalculation.nextMarker = nil
-		for i, marker in pairs(AutoDrive.mapMarker) do
+		for i, _ in pairs(AutoDrive.mapMarker) do
 			if AutoDrive.Recalculation.nextMarker == nil then
 				AutoDrive.Recalculation.nextMarker = i
 			end
@@ -131,14 +131,14 @@ function AutoDrive:dijkstra(Graph, start, setToUse)
 			--trying to speed things up. Changes only occur in workDistances
 			--if i only have elements in workDistances with values ~= math.huge, I can speed up the process of finding the next shortest id
 			if workGraph.workQEntries > (numberOfWayPoints / 2) then
-				for i, element in pairs(workDistances) do
+				for i, _ in pairs(workDistances) do
 					if workQ[i] ~= nil and workDistances[i] <= shortest then
 						shortest = workDistances[i]
 						shortest_id = i
 					end
 				end
 			else
-				for i, element in pairs(workQ) do
+				for i, _ in pairs(workQ) do
 					if workDistances[i] ~= nil and workDistances[i] <= shortest then
 						shortest = workDistances[i]
 						shortest_id = i
@@ -147,7 +147,7 @@ function AutoDrive:dijkstra(Graph, start, setToUse)
 			end
 
 			if shortest_id == -1 then
-				for i, element in pairs(workQ) do
+				for i, _ in pairs(workQ) do
 					if workDistances[i] == nil then
 						workDistances[i] = math.huge
 						shortest = workDistances[i]
@@ -170,7 +170,7 @@ function AutoDrive:dijkstra(Graph, start, setToUse)
 						longLine = false
 					end
 
-					for i, linkedNodeId in pairs(workQ[shortest_id]) do
+					for _, linkedNodeId in pairs(workQ[shortest_id]) do
 						local wp = workQ[linkedNodeId]
 
 						if wp ~= nil then
@@ -282,7 +282,7 @@ function AutoDrive:dijkstraInit(Graph, start, setToUse)
 	if recalcTable.dijkstraStep == 2 or forcedInit then
 		local useFastestRoute = AutoDrive.getSetting("useFastestRoute")
 		workDistances[start] = 0
-		for i, id in pairs(workQ[start]) do
+		for _, id in pairs(workQ[start]) do
 			local distanceToAdd = 0
 			if useFastestRoute == true then
 				distanceToAdd = AutoDrive:getDriveTimeBetweenNodes(start, id, nil, nil, nil) --first segments, only 2 points, no angle
