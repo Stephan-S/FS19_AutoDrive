@@ -15,7 +15,7 @@ end
 
 function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
     -- continue on client side only
-    -- TODO: I think we should remove that since everyone isClient even the dedicated server
+    -- TODO: I think we should remove that since everyone 'isClient' even the dedicated server (if I'm not wrong)
     if not self.isClient then
         return
     end
@@ -592,7 +592,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 
     --Draw line to closest point
     if vehicle.ad.createMapPoints and vehicle.ad.showClosestPoint == true and AutoDrive.mapWayPoints[1] ~= nil then
-        local closest = AutoDrive:findClosestWayPoint(vehicle)
+        local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
 
         if vehicle.ad.showClosestPoint == true then
             AutoDrive:drawLine(AutoDrive.createVector(x1, y1 + 3.5 - AutoDrive.getSetting("lineHeight"), z1), AutoDrive.mapWayPoints[closest], 1, 0, 0, 1)

@@ -164,7 +164,7 @@ end
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)
     --g_logManager:devInfo("startPathPlanningToStartPosition " .. driver.ad.driverName );
     local driverWorldX, driverWorldY, driverWorldZ = getWorldTranslation(driver.components[1].node)
-    local driverRx, driverRy, driverRz = localDirectionToWorld(driver.components[1].node, 0, 0, 1)
+    local driverRx, _, driverRz = localDirectionToWorld(driver.components[1].node, 0, 0, 1)
     local driverVector = {x = driverRx, z = driverRz}
     local startX = driverWorldX + AutoDrive.PATHFINDER_START_DISTANCE * driverRx
     local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE * driverRz
@@ -185,9 +185,9 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
             targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[6].id]
         end
     elseif exitStrategy == 2 and driver.ad.combineState ~= AutoDrive.DRIVE_TO_PARK_POS then
-        --local closest = AutoDrive:findClosestWayPoint(driver)
+        --local closest, _ = AutoDrive:findClosestWayPoint(driver)
         local closest = AutoDrive:findMatchingWayPointForVehicle(driver)
-        local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
+        waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
         if waypointsToUnload ~= nil and waypointsToUnload[2] ~= nil then
             preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[1].id]
             targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[2].id]
