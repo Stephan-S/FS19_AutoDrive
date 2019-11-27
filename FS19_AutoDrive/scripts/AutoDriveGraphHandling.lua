@@ -221,7 +221,7 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 		else
 			-- Finding the map waypoint where the marker should be
 			local markerFound = false
-			for mId, marker in pairs(AutoDrive.mapMarker) do
+			for mId, _ in pairs(AutoDrive.mapMarker) do
 				-- Checking if the way point id matches the marker id
 				if mId == markerId then
 					markerFound = true
@@ -233,9 +233,9 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 					if AutoDrive.mapMarker[mId + 1] ~= nil then
 						AutoDrive.mapMarker[mId] = AutoDrive.mapMarker[mId + 1]
 					else
-						-- Not sure about that but MarkChanged() should be enough
-						-- No it isnt't. Since the xml file isn't deleted but rather overwritten, we have to remove waypoints that are no longer valid!
-						removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
+						if g_server ~= nil then
+							removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
+						end
 						AutoDrive.mapMarker[mId] = nil
 					end
 				end
@@ -248,15 +248,15 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 					if vehicle.ad ~= nil then
 						if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= markerId then
 							-- TODO: Should we remove the parking reference if it was on the delete marker?
-							vehicle.ad.parkDestination = vehicle.ad.parkDestination - 1
+							vehicle.ad.parkDestination = math.max(vehicle.ad.parkDestination - 1, 1)
 						end
 						if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected >= markerId then
-							vehicle.ad.mapMarkerSelected = vehicle.ad.mapMarkerSelected - 1
+							vehicle.ad.mapMarkerSelected = math.max(vehicle.ad.mapMarkerSelected - 1, 1)
 							vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
 							vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
 						end
 						if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= markerId then
-							vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload - 1
+							vehicle.ad.mapMarkerSelected_Unload = math.max(vehicle.ad.mapMarkerSelected_Unload - 1, 1)
 							vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
 							vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
 						end
@@ -564,7 +564,7 @@ end
 
 function AutoDrive:findClosestWayPoint(veh)
 	if veh.ad.closest ~= nil then
-		return veh.ad.closest, veh.ad.closestDistance;
+		return veh.ad.closest, veh.ad.closestDistance
 	end
 
 	--returns waypoint closest to vehicle position
@@ -600,7 +600,7 @@ function AutoDrive:findMatchingWayPointForVehicle(veh)
 		return AutoDrive:findClosestWayPoint(veh)
 	end
 
-	return bestPoint, distance;
+	return bestPoint, distance
 end
 
 function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
@@ -649,7 +649,7 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 		end
 	end
 
-	return closest, distance;
+	return closest, distance
 end
 
 function AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)
