@@ -36,7 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Donnez un nom au chauffeur" />
 		<text name="input_ADIncLoopCounter"						text="AD: Augmenter le nombre de répétitions" />
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
-		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />
@@ -72,7 +72,7 @@
 		<text name="gui_ad_mapMarkerDetour"						text="Détour maximum" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Détour maximum quand des destinations doivent être évités." />
 		<text name="gui_ad_siloEmpty"							text="Quand le silo est vide" />
-		<text name="gui_ad_siloEmpty_tooltip"					text="Détermine comment un transporteur devrait réagir à un silo vide." />
+		<text name="gui_ad_siloEmpty_tooltip"					text="Détermine comment un chauffeur devrait réagir à un silo vide." />
 		<text name="gui_ad_useFolders"							text="Utiliser des dossiers" />
 		<text name="gui_ad_useFolders_tooltip"					text="Trier les points de destination dans des dossiers." />
 		<text name="gui_ad_wait"								text="Attente" />
@@ -114,7 +114,7 @@
 		<text name="gui_ad_recalculationSpeed"					text="Vitesse de calcul" />
 		<text name="gui_ad_recalculationSpeed_tooltip"			text="Des valeurs plus élevées peuvent conduire à un jeu saccadé." />
 		<text name="gui_ad_showNextPath"						text="Montrer chemin suivant" />
-		<text name="gui_ad_showNextPath_tooltip"				text="Activer/Désactiver l'affichage des 2 prochains points de passage." />
+		<text name="gui_ad_showNextPath_tooltip"				text="Activer/Désactiver l'affichage des deux prochains points de passage." />
 		<text name="gui_ad_avoidFruit"							text="Éviter les cultures" />
 		<text name="gui_ad_avoidFruit_tooltip"					text="Les déchargements de moissonneuses tentent d'éviter les cultures autant que possible." />
 		<text name="gui_ad_pathFinderTime"						text="Temps de recherche (max)" />
@@ -131,10 +131,10 @@
 		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Permet de choisir le chargement des semences et de l'engrais, si l'un ou l'autre est sélectionné." />
 		<text name="gui_ad_shovelWidth"							text="Largeur de la pelle (ajout)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée." />
-		<text name="gui_ad_preCallDriver"						text="Appeler chauffeur plus tôt" />
+		<text name="gui_ad_preCallDriver"						text="Appel anticipé pour charger" />
 		<text name="gui_ad_preCallDriver_tooltip"				text="Appel anticipé du chauffeur au niveau de remplissage défini." />
-		<text name="gui_ad_preCallLevel"						text="Appeler chauffeur au niveau" />
-		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur pour déchargement au niveau défini." />
+		<text name="gui_ad_preCallLevel"						text="Appel anticipé pour décharger" />
+		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur au niveau de déchargement défini." />
 		<text name="gui_ad_chaseCombine"						text="Suivre la moissonneuse" />
 		<text name="gui_ad_chaseCombine_tooltip"				text="Le chauffeur décharge et suit la moissonneuse après avoir reçu un appel anticipé." />
 		<text name="gui_ad_distributeToFolder"					text="Objectifs multiples" />
@@ -159,20 +159,20 @@
 		<text name="gui_ad_autoRecalculate_tooltip"				text="Déclenche automatiquement un recalcul au démarrage du véhicule." />
 		<text name="gui_ad_autoRefuel"							text="Faire le plein automatiquement" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Lorsque le niveau du réservoir est bas, la station-service la plus proche est automatiquement ajoutée dans les trajets." />
-		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Turns off the vehicle when the destination is reached (and the player is not driving)" />
+		<text name="gui_ad_fuelSaving"							text="Économies de carburant" />
+		<text name="gui_ad_fuelSaving_tooltip"					text="Arrête le moteur des véhicules lorsque la destination est atteinte (et que le joueur ne les conduits pas)" />
 		<text name="gui_ad_filter"								text="Filtrage" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Changer le filtre de destination" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Entrez le filtre de destination:" />
 		<text name="gui_ad_shovelHeight"						text="Hauteur de pelle" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la hauteur de pelle détectée automatiquement n’est pas correcte au sol, utilisez cette valeur pour ajuster" />
 		
-		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
-		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
-		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
-		<text name="gui_ad_restoreButtonText" 					text="Restore" />
-		<text name="gui_ad_settingsClosingDialog_title"			text="All changes will be lost" />
-		<text name="gui_ad_settingsClosingDialog_text"			text="Are you sure you want to close the settings without saving?" />
+		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Paramètres de déchargements moissonneuses - AutoDrive" />
+		<text name="gui_ad_restoreButtonText" 					text="Restaurer" />
+		<text name="gui_ad_settingsClosingDialog_title"			text="Tous les changements seront perdus" />
+		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
 		<text name="statistic_driversHired" 					text="Drivers currently hired" />
@@ -194,8 +194,8 @@
 		
 		<text name="ad_helpTitle_04"							text="AD mode - Ramassage et livraison" />
 		<text name="ad_helpText_04_01"							text="Dans ce mode, vous pouvez sélectionner des destinations. Une pour le chargement (Ramassage), et la seconde pour le point de déchargement (livraison)." />
-		<text name="ad_helpText_04_02"							text="Si AutoDrive est activé, il examinera le niveau de remplissage actuel des remorques/outils connectés. Si cette valeur est supérieure au niveau défini ‘Appeler chauffeur au niveau’ (voir les paramètres), le chauffeur se dirigera directement vers la destination de déchargement." />
-		<text name="ad_helpText_04_03"							text="Sinon, il se dirigera d'abord vers la destination du chargement. En fonction du paramètre sélectionné (‘Quand le silo est vide’), le chauffeur attendra que le niveau de chargement soit déchargé au-delà du niveau ‘Appeler chauffeur au niveau’ ou continuera jusqu’à la destination de déchargement." />
+		<text name="ad_helpText_04_02"							text="Si AutoDrive est activé, il examinera le niveau de remplissage actuel des remorques/outils connectés. Si cette valeur est supérieure au niveau défini ‘Appel anticipé pour décharger’ (voir les paramètres), le chauffeur se dirigera directement vers la destination de déchargement." />
+		<text name="ad_helpText_04_03"							text="Sinon, il se dirigera d'abord vers la destination du chargement. En fonction du paramètre sélectionné (‘Quand le silo est vide’), le chauffeur attendra que le niveau de chargement soit déchargé au-delà du niveau ‘Appel anticipé pour décharger’ ou continuera jusqu’à la destination de déchargement." />
 		<text name="ad_helpText_04_04"							text="Dans les deux cas, le chauffeur essaiera d’abord de charger le type de remplissage sélectionné sur n’importe quel déclencheur disponible dans la plage fournie ‘Zone maxi du silo’ (voir les paramètres) avant la destination du chargement." />
 		<text name="ad_helpText_04_05"							text="De plus, vous pouvez sélectionner un compteur de répétition avant de démarrer le chauffeur. Si vous définissez ce compteur sur 2, le chauffeur s’arrêtera 2 fois après avoir atteint la destination de déchargement. Si ce paramètre (voir HUD) est laissé par défaut, le chauffeur commencera toujours un nouveau cycle." />
 		
@@ -211,7 +211,7 @@
 		<text name="ad_helpText_06_03"							text="Donc, cette documentation décrira d'abord le comportement de base, puis ajoutera comment les paramètres affectent le comportement." />
 		
 		<text name="ad_helpTitle_07"							text="AD mode - Déchargement de la moissonneuse - Basique - 1" />
-		<text name="ad_helpText_07_01"							text="Le chauffeur décidera au démarrage de se rendre sur le champ ou de décharger d’abord (voir Ramassage et livraison). S'il atteint l'emplacement sur le champ, il est enregistré en tant que chauffeur disponible. Si une moissonneuse-batteuse est au niveau de remplissage de 100% et a un tuyau de déchargement ouvert, elle appellera automatiquement les chauffeurs enregistrés et choisira celui qui est le plus proche d'elle. En fonction du paramètre 'Trouver un chauffeur', tous les chauffeurs dans une zone de 300 mètres sont acceptés (oui) ou seuls les chauffeurs ayant les mêmes destinations attribués que sur le Hud de la moissonneuse (non)." />
+		<text name="ad_helpText_07_01"							text="Le chauffeur décidera au démarrage de se rendre sur le champ ou de décharger d’abord (voir Ramassage et livraison). S'il atteint l'emplacement sur le champ, il est enregistré en tant que chauffeur disponible. Si une moissonneuse a un niveau de remplissage de 100% et le tuyau de déchargement ouvert, elle appellera automatiquement les chauffeurs enregistrés et choisira celui qui est le plus proche d'elle. En fonction du paramètre 'Trouver un chauffeur', tous les chauffeurs dans une zone de 300 mètres sont acceptés (oui) ou seuls les chauffeurs ayant les mêmes destinations attribués que sur le Hud de la moissonneuse (non)." />
 		<text name="ad_helpText_07_02"							text="" />
 		<text name="ad_helpText_07_03"							text="Important: Il n'est pas nécessaire d'activer AutoDrive sur la moissonneuse. Seule la cible sélectionnée est requise." />
 		<text name="ad_helpText_07_04"							text="" />
@@ -236,9 +236,9 @@
 		<text name="ad_helpText_11_01"							text="Cette option permet de s’assurer que le planificateur d'itinéraire n’acceptera que les cellules de la grille qui ne contiennent aucune culture ou n’ont que peu de cultures. Important: si aucun itinéraire sans culture ne peut être calculé dans le temps imparti (voir les paramètres), le planificateur d'itinéraire passera en mode de secours qui ignore les bordures des cultures et des champs!" />
 		
 		<text name="ad_helpTitle_12"							text="AD mode - Déchargement de la moissonneuse - Suivre la moissonneuse" />
-		<text name="ad_helpText_12_01"							text="Appeler chauffeur plus tôt/Suivre la moissonneuse" />
+		<text name="ad_helpText_12_01"							text="Appel anticipé pour charger/Suivre la moissonneuse" />
 		<text name="ad_helpText_12_02"							text="" />
-		<text name="ad_helpText_12_03"							text="These options can be used to either simply follow the harvester with some distance (Pre call driver on / chase combine off). Or to have the unloader actively unload while the harvester is still driving. When the harvester reaches the set fill level (Pre call level), it will already call the driver to it’s current location. Once the driver reaches this point it will re-evaluate. If he is close to the harvester (less than 60 meters) and the ‘chase combine’ setting is on, he will start following him by line of sight. Otherwise he will retrigger a path finding process to the new harvester location. While chasing, he will sense if the pipe is currently in the fruit or not. If it isn't in the fruit, he will start targeting the pipe location, otherwise he will follow the harvester with some distance. When the driver reaches it’s ‘Unload at’ level he will immediately start planning a path to the selected field exit (see settings). Thus it makes sense to set the level to 100% in this mode. This way he won’t accidentally try to cut in front of the harvester or leave before being completely filled." />
+		<text name="ad_helpText_12_03"							text="Chacune de ces options peut être utilisée pour suivre simplement la moissonneuse avec une certaine distance (Appel anticipé pour charger ON/Suivre la moissonneuse OFF). Ou pour avoir un chauffeur actif qui décharge la moissonneuse pendant qu'elle continue toujours son travail. Lorsque la moissonneuse atteint le niveau de déchargement défini (Appel anticipé pour décharger), elle aura déjà appelé le chauffeur à son emplacement actuel. Une fois que le chauffeur a atteint ce point, il réévaluera. S'il est proche de la moissonneuse (moins de 60 mètres) et que le paramètre ‘Suivre la moissonneuse’ est sur ON, il va commencer à la suivre en ligne de mire. Sinon, il relancera un processus de recherche de chemin vers le nouveau lieu de récolte. Tout en poursuivant, il sentira si le tuyau est actuellement dans la culture ou non. Si ce dernier n'est pas dans la culture, il commencera à cibler l'emplacement du tuyau, sinon il suivra la moissonneuse avec une certaine distance. Lorsque le chauffeur atteint son niveau ‘Décharger le contenu’, il commence immédiatement à planifier un chemin vers la sortie de champ sélectionnée (voir les paramètres). Il est donc judicieux de régler le niveau à 100% dans ce mode. De cette façon, il n’essaiera pas accidentellement de passer devant la moissonneuse ou de partir avant d’être complètement rempli." />
 		<text name="ad_helpTitle_13"							text="AD mode - Vider silo (bunker)" />
 		<text name="ad_helpText_13_01"							text="Ce mode ne peut être utilisé qu'avec des véhicules équipés d'une pelle. L'idée de base est une solution en un clic pour vider les silos bunker à accès direct. Au démarrage, le véhicule vérifiera les conditions requises. Il faut un silo bunkers rempli à proximité (~ 100 m?) et une pelle attachée. Si les deux conditions sont remplies, le véhicule initialisera l’axe de son chargeur frontal pour obtenir les valeurs correctes pour les mouvements de montée/descente, de chargement/déchargement et d’extension/rétraction. Ensuite, il divisera la largeur du silo bunker en morceaux aussi larges que son addition pelle + pelle (voir les réglages) et commencera à la première ligne. Si la première ou la dernière ligne finit par heurter le mur du silo, vous devez augmenter la valeur de l'ajout de pelle dans les paramètres et redémarrer le chauffeur. Cela peut se produire si la largeur de ramassage de la pelle n’est pas adaptée aux dimensions physiques ou si la définition du silo se trouve à l’intérieur de mur, ce qui n’est pas inhabituel dans la mesure où il est plus facile de développer un beau silo. Une fois que la pelle est remplie et que le véhicule est sorti du bunker, il recherche un véhicule avec une remorque attachée (avec de l'espace disponible) et commence à s'y rendre." />
 		<text name="ad_helpText_13_02"							text="" />
