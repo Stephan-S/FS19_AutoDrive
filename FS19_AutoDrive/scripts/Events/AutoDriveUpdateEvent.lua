@@ -153,7 +153,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt8(streamId, self.enableAI)
 	streamWriteInt8(streamId, self.disableAI)
 
-	streamWriteUInt32(streamId, self.mapWayPointsCounter)
+	streamWriteInt32(streamId, self.mapWayPointsCounter)
 
 	AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage)
 	AutoDrive.streamWriteInt32OrEmpty(streamId, NetworkUtil.getObjectId(AutoDrive.print.referencedVehicle))
@@ -246,7 +246,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local enableAI = streamReadInt8(streamId)
 	local disableAI = streamReadInt8(streamId)
 
-	local mapWayPointsCounter = streamReadUInt32(streamId)
+	local mapWayPointsCounter = streamReadInt32(streamId)
 
 	local AD_currentMessage = AutoDrive.streamReadStringOrEmpty(streamId)
 
