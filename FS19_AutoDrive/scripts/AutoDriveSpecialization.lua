@@ -842,3 +842,30 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
         WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
     end
 end
+
+function AIVehicle:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    local spec = self.spec_aiVehicle
+
+    if self.isClient then
+        local actionEvent = spec.actionEvents[InputAction.TOGGLE_AI]
+        if actionEvent ~= nil then
+            local showAction = false
+
+            if self:getIsActiveForInput(true, true) then
+                -- If ai is active we always display the dismiss helper action
+                -- But only if the AutoDrive is not active :)
+                showAction = self:getCanStartAIVehicle() or (self:getIsAIActive() and (self.ad == nil or not self.ad.isActive))
+
+                if showAction then
+                    if self:getIsAIActive() then
+                        g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_dismissEmployee"))
+                    else
+                        g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_hireEmployee"))
+                    end
+                end
+            end
+
+            g_inputBinding:setActionEventActive(actionEvent.actionEventId, showAction)
+        end
+    end
+end
