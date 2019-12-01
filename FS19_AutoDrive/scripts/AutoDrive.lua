@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-10"
+AutoDrive.Version = "1.0.7.0-11"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -301,9 +301,10 @@ function AutoDrive.handlePerFrameOperations(dt)
 
 		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
 			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
+			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and vehicle.cp.driver.turnIsDriving or vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING
 			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
 			local combineSteering = false --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
-			local combineIsTurning = cpIsTurning or aiIsTurning or combineSteering
+			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
 			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
 		end
 	end
