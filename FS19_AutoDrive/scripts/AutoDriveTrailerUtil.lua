@@ -133,6 +133,13 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                     vehicle.ad.isPausedForTrailersClosing = true
                 end
             end
+            if vehicle.ad.isPaused and vehicle.ad.isUnloadingWithTrailer:getTipState() == Trailer.TIPSTATE_CLOSED then
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - trailer has no tipState animation - continue")
+                vehicle.ad.isPausedForTrailersClosing = true
+            end
+        else
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - trailer has no tipState animation")
+            vehicle.ad.isPausedForTrailersClosing = true
         end
         vehicle.ad.isUnloadingToBunkerSilo = false
     end
@@ -445,7 +452,9 @@ function AutoDrive.checkForDieselTankOnlyFuel(object)
     local adBlueUnitCount = 0
     local otherFillUnitsCapacity = 0
     local dieselFillUnitCapacity = 0
+    local numberOfFillUnits = 0
     for fillUnitIndex, _ in pairs(object:getFillUnits()) do
+        numberOfFillUnits = numberOfFillUnits + 1;
         local dieselFillUnit = false
         for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
             if fillType == 33 then
@@ -463,7 +472,7 @@ function AutoDrive.checkForDieselTankOnlyFuel(object)
         end
     end
 
-    return (dieselFuelUnitCount == adBlueUnitCount) or (dieselFillUnitCapacity < otherFillUnitsCapacity)
+    return ((dieselFuelUnitCount == adBlueUnitCount) or (dieselFillUnitCapacity < otherFillUnitsCapacity)) and numberOfFillUnits > 1
 end
 
 function AutoDrive.checkTrailerStatesAndAttributes(vehicle, trailers)
