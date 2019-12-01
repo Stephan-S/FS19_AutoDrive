@@ -29,6 +29,7 @@ function AutoDriveDeleteMapMarkerEvent:run(connection)
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveDeleteMapMarkerEvent.sendEvent(self.markerId)
 	else
+		-- If the event is coming from the server, both clients and server have to delete the map marker
 		AutoDrive.removeMapMarker(self.markerId, false)
 	end
 end

@@ -275,7 +275,7 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
     if vehicle.typeDesc == "truck" then
         min_distance = 3
     end
-    --ToDo: If vehicle is quadtrack then also min_distance = 6;
+    -- If vehicle is quadtrack then also min_distance = 6;
     if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
         min_distance = 6
     end
@@ -294,7 +294,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         if (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
             --g_logManager:devInfo("Shutting down");
             local target = vehicle.ad.nameOfSelectedTarget
-            for markerIndex, mapMarker in pairs(AutoDrive.mapMarker) do
+            for _, mapMarker in pairs(AutoDrive.mapMarker) do
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and mapMarker.id == vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id then
                     target = mapMarker.name
                 end
@@ -309,7 +309,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 if vehicle.ad.onRouteToSecondTarget == true then
                     vehicle.ad.timeTillDeadLock = 15000
 
-                    local closest = AutoDrive:findClosestWayPoint(vehicle)
+                    local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
                     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
                         closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
                     end
@@ -343,7 +343,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                             AutoDrive:setNextTargetInFolder(vehicle)
                         end
 
-                        local closest = AutoDrive:findClosestWayPoint(vehicle)
+                        local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
                         if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
                             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
                         end

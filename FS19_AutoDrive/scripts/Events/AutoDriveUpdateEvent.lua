@@ -63,6 +63,8 @@ function AutoDriveUpdateEvent:new(vehicle)
 	o.enableAI = vehicle.ad.enableAI
 	o.disableAI = vehicle.ad.disableAI
 
+	o.mapWayPointsCounter = AutoDrive.mapWayPointsCounter;
+
 	return o
 end
 
@@ -150,6 +152,8 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 
 	streamWriteInt8(streamId, self.enableAI)
 	streamWriteInt8(streamId, self.disableAI)
+
+	streamWriteInt32(streamId, self.mapWayPointsCounter)
 
 	AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.print.currentMessage)
 	AutoDrive.streamWriteInt32OrEmpty(streamId, NetworkUtil.getObjectId(AutoDrive.print.referencedVehicle))
@@ -242,6 +246,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local enableAI = streamReadInt8(streamId)
 	local disableAI = streamReadInt8(streamId)
 
+	local mapWayPointsCounter = streamReadInt32(streamId)
+
 	local AD_currentMessage = AutoDrive.streamReadStringOrEmpty(streamId)
 
 	if g_server ~= nil then
@@ -311,6 +317,8 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 		vehicle.ad.enableAI = enableAI
 		vehicle.ad.disableAI = disableAI
+
+		AutoDrive.mapWayPointsCounter = mapWayPointsCounter;
 
 		AutoDrive.print.currentMessage = AD_currentMessage
 		local refVehicleInt = streamReadInt32(streamId)
@@ -489,6 +497,10 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	remained = remained and self.onRouteToPark == oldEvent.onRouteToPark
 	if self.onRouteToPark ~= oldEvent.onRouteToPark then
 		reason = reason .. " onRouteToPark"
+	end
+	remained = remained and self.mapWayPointsCounter == oldEvent.mapWayPointsCounter
+	if self.mapWayPointsCounter ~= oldEvent.mapWayPointsCounter then
+		reason = reason .. " mapWayPointsCounter"
 	end
 
 	if reason ~= "" then

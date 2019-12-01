@@ -44,7 +44,6 @@ function AutoDrive:startAD(vehicle)
 		vehicle.ad.enableAI = 5
 	end
 
-	
 	if g_server ~= nil then
 		local trailers, _ = AutoDrive.getTrailersOf(vehicle, false) --(vehicle.ad.mode ~= AutoDrive.MODE_LOAD)
 		local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
@@ -53,25 +52,29 @@ function AutoDrive:startAD(vehicle)
 		vehicle.ad.skipStart = false
 		if ((vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD) and (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", vehicle) + 0.001)))) or (vehicle.ad.mode == AutoDrive.MODE_LOAD and leftCapacity > (maxCapacity * 0.3)) then -- 0.3 value can be changed in the future for a modifiable fill percentage threshold in setings
 			if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] ~= nil then
-				vehicle.ad.skipStart = true				
+				vehicle.ad.skipStart = true
 				vehicle.ad.onRouteToSecondTarget = true
 			end
-		else			
-            vehicle.ad.onRouteToSecondTarget = false;
+		else
+			vehicle.ad.onRouteToSecondTarget = false
 		end
-	end	
+	end
 
 	vehicle.ad.driverOnTheWay = false
 	vehicle.ad.tryingToCallDriver = false
 	vehicle.ad.currentTrailer = 1
-	vehicle.ad.loopCounterCurrent = 0	
-    vehicle.ad.waitingToBeLoaded = false;
+	vehicle.ad.loopCounterCurrent = 0
+	vehicle.ad.waitingToBeLoaded = false
 
 	if vehicle.ad.mode == AutoDrive.MODE_BGA then
 		vehicle.bga.state = AutoDriveBGA.STATE_INIT
 	end
 
 	AutoDriveHud:createMapHotspot(vehicle)
+	if vehicle.isServer then
+		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", 1)
+		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", 1)
+	end
 end
 
 function AutoDrive:stopAD(vehicle, withError)
@@ -114,7 +117,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.isLoadingToFillUnitIndex = nil
 	vehicle.ad.isLoadingToTrailer = nil
 	vehicle.ad.trigger = nil
-    vehicle.ad.waitingToBeLoaded = false;
+	vehicle.ad.waitingToBeLoaded = false
 
 	if vehicle.ad.currentCombine ~= nil then
 		vehicle.ad.currentCombine.ad.currentDriver = nil
@@ -205,6 +208,11 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	if vehicle.setBeaconLightsVisibility ~= nil then
 		vehicle:setBeaconLightsVisibility(false)
 	end
+
+	if vehicle.isServer then
+		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", -1)
+		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
+	end
 end
 
 function AutoDrive:getVehicleToStop(vehicle, brake, dt)
@@ -268,7 +276,7 @@ function AutoDrive:detectAdTrafficOnRoute(vehicle)
 
 			local dualRoutePoints = {}
 			local counter = 0
-			idToCheck = 0; -- dont look behind anymore -3
+			idToCheck = 0 -- dont look behind anymore -3
 			while (dualRoute == true) or (idToCheck < 5) do
 				local startNode = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + idToCheck]
 				local targetNode = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + idToCheck + 1]

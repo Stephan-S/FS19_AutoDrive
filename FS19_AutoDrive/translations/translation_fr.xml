@@ -173,6 +173,9 @@
 		<text name="gui_ad_restoreButtonText" 					text="Restaurer" />
 		<text name="gui_ad_settingsClosingDialog_title"			text="Tous les changements seront perdus" />
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
+
+		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
+		<text name="statistic_driversHired" 					text="Drivers currently hired" />
 		
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

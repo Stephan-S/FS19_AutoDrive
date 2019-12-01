@@ -125,7 +125,7 @@ function AutoDriveBGA:getCurrentStates(vehicle)
     end
 end
 
-function AutoDriveBGA:checkIfPossibleToRestart(vehicle, dt)
+function AutoDriveBGA:checkIfPossibleToRestart(vehicle)
     if vehicle.bga.targetTrailer == nil then
         vehicle.bga.targetTrailer, vehicle.bga.targetDriver = self:findCloseTrailer(vehicle)
         vehicle.bga.trailerFillLevel, vehicle.bga.trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
@@ -299,7 +299,7 @@ function AutoDriveBGA:handleInitAxis(vehicle, dt)
         elseif vehicle.bga.initAxisState == AutoDriveBGA.INITAXIS_STATE_ROTATOR_CHECK then
             rotationObject = vehicle.bga.shovelRotator
             rotationTarget = vehicle.bga.shovelRotator.rotationTarget
-            local newHeight = self:getShovelHeight(vehicle)
+            --local newHeight = self:getShovelHeight(vehicle)
             local _, dy, _ = localDirectionToWorld(vehicle.bga.shovel.spec_shovel.shovelDischargeInfo.node, 0, 0, 1)
             local newAngle = math.acos(dy)
             if (newAngle > vehicle.bga.initAxisStartShovelRotation) == (rotationTarget > vehicle.bga.initAxisStartRotation) then
@@ -445,7 +445,7 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
             else
                 --make sure shovel hasnt't lifted wheels
                 local allWheelsOnGround = self:checkIfAllWheelsOnGround(vehicle)
-                local onGroundForLongTime = vehicle.bga.wheelsOnGround:timer(allWheelsOnGround, 300, dt)
+                --local onGroundForLongTime = vehicle.bga.wheelsOnGround:timer(allWheelsOnGround, 300, dt)
                 local liftedForLongTime = vehicle.bga.wheelsOffGround:timer(not allWheelsOnGround, 300, dt)
                 if liftedForLongTime and vehicle.bga.armMain ~= nil then --or (not onGroundForLongTime)
                     self:steerAxisTo(vehicle, vehicle.bga.armMain, vehicle.bga.armMain.moveUpSign * math.pi, 33, dt)
@@ -455,9 +455,9 @@ function AutoDriveBGA:handleShovel(vehicle, dt)
     end
 end
 
-function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
+function AutoDriveBGA:moveShovelToTarget(vehicle, _, dt)
     if vehicle.bga.shovelTarget == AutoDriveBGA.SHOVELSTATE_LOADING then
-        vehicle.bga.shovelTargetHeight = -0.20 + AutoDrive.getSetting("shovelHeight", vehicle);
+        vehicle.bga.shovelTargetHeight = -0.20 + AutoDrive.getSetting("shovelHeight", vehicle)
         vehicle.bga.shovelTargetAngle = vehicle.bga.shovelRotator.horizontalPosition + vehicle.bga.shovelRotator.moveUpSign * 0.07
         if vehicle.bga.armExtender ~= nil then
             vehicle.bga.shovelTargetExtension = vehicle.bga.armExtender.transMin
@@ -490,11 +490,11 @@ function AutoDriveBGA:moveShovelToTarget(vehicle, target, dt)
 
     local targetFactorHeight = math.max(5, math.min((math.abs(self:getShovelHeight(vehicle) - vehicle.bga.shovelTargetHeight) * 200), 100))
     local targetFactorExtender = 0
-    local extenderTargetReached = true
+    --local extenderTargetReached = true
     if vehicle.bga.armExtender ~= nil then
-        if math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[vehicle.bga.armExtender.translationAxis]) >= 0.01 then
-            extenderTargetReached = false
-        end
+        --if math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[vehicle.bga.armExtender.translationAxis]) >= 0.01 then
+        --extenderTargetReached = false
+        --end
         targetFactorExtender = math.max(5, math.min((math.abs(vehicle.bga.shovelTargetExtension - vehicle.bga.armExtender.curTrans[vehicle.bga.armExtender.translationAxis]) * 100), 70))
     end
 
@@ -586,7 +586,7 @@ function AutoDriveBGA:getVehicleShovel(vehicle)
 
     if vehicle.bga.shovel ~= nil then
         --split into axis
-        for i, axis in pairs(vehicle.bga.shovelAxisOne) do
+        for _, axis in pairs(vehicle.bga.shovelAxisOne) do
             if axis.axis == "AXIS_FRONTLOADER_ARM" then
                 vehicle.bga.armMain = axis
             elseif axis.axis == "AXIS_FRONTLOADER_ARM2" then
@@ -595,7 +595,7 @@ function AutoDriveBGA:getVehicleShovel(vehicle)
                 vehicle.bga.shovelRotator = axis
             end
         end
-        for i, axis in pairs(vehicle.bga.shovelAxisTwo) do
+        for _, axis in pairs(vehicle.bga.shovelAxisTwo) do
             if axis.axis == "AXIS_FRONTLOADER_ARM" then
                 vehicle.bga.armMain = axis
             elseif axis.axis == "AXIS_FRONTLOADER_ARM2" then
@@ -614,12 +614,12 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
     for _, vehicle in pairs(g_currentMission.vehicles) do
         if vehicle ~= bgaVehicle and self:vehicleHasTrailersAttached(vehicle) and vehicle.ad ~= nil then
             if self:getDistanceBetween(vehicle, bgaVehicle) < closestDistance and vehicle.ad.noMovementTimer:done() and (not vehicle.ad.isUnloading) then
-                local hasAttached, trailers = self:vehicleHasTrailersAttached(vehicle)
-                for index, trailer in pairs(trailers) do
+                local _, trailers = self:vehicleHasTrailersAttached(vehicle)
+                for _, trailer in pairs(trailers) do
                     if trailer ~= nil then
-                        local trailerFillLevel = 0
+                        --local trailerFillLevel = 0
                         local trailerLeftCapacity = 0
-                        trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
+                        _, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
                         if trailerLeftCapacity >= 10 then
                             closestDistance = self:getDistanceBetween(trailer, bgaVehicle)
                             closest = vehicle
@@ -631,23 +631,23 @@ function AutoDriveBGA:findCloseTrailer(bgaVehicle)
         end
     end
     if closest ~= nil then
-        local trailerFillLevel = 0
-        local trailerLeftCapacity = 0
-        trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(closestTrailer)
+        --local trailerFillLevel = 0
+        --local trailerLeftCapacity = 0
+        --trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(closestTrailer)
         return closestTrailer, closest
     end
     return
 end
 
 function AutoDriveBGA:getDistanceBetween(vehicleOne, vehicleTwo)
-    local x1, y1, z1 = getWorldTranslation(vehicleOne.components[1].node)
-    local x2, y2, z2 = getWorldTranslation(vehicleTwo.components[1].node)
+    local x1, _, z1 = getWorldTranslation(vehicleOne.components[1].node)
+    local x2, _, z2 = getWorldTranslation(vehicleTwo.components[1].node)
 
     return math.sqrt(math.pow(x2 - x1, 2) + math.pow(z2 - z1, 2))
 end
 
 function AutoDriveBGA:vehicleHasTrailersAttached(vehicle)
-    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle)
     local tipTrailers = {}
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
@@ -667,9 +667,9 @@ end
 function AutoDriveBGA:checkCurrentTrailerStillValid(vehicle)
     if vehicle.bga.targetTrailer ~= nil and vehicle.bga.targetDriver ~= nil then
         local tooFast = math.abs(vehicle.bga.targetDriver.lastSpeedReal) > 0.002
-        local trailerFillLevel = 0
+        --local trailerFillLevel = 0
         local trailerLeftCapacity = 0
-        trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
+        _, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(vehicle.bga.targetTrailer)
         local tooFull = trailerLeftCapacity < 1
 
         return not (tooFull or tooFast)
@@ -679,7 +679,7 @@ function AutoDriveBGA:checkCurrentTrailerStillValid(vehicle)
 end
 
 function AutoDriveBGA:getTargetBunker(vehicle)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local closestDistance = math.huge
     local closest = nil
     for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
@@ -715,7 +715,7 @@ function AutoDriveBGA:getTargetBunkerLoadingSide(vehicle)
     local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz --      | ---- |
     local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1) --      3 ---- 4    4 = 2 + vecH
 
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
 
     vehicle.bga.vecW = {x = (x2 - x1), z = (z2 - z1)}
     vehicle.bga.vecH = {x = (x3 - x1), z = (z3 - z1)}
@@ -756,8 +756,8 @@ function AutoDriveBGA:getBunkerCenter(trigger)
 end
 
 function AutoDriveBGA:isAlmostInBunkerSiloArea(vehicle, distanceToCheck)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    local tx, ty, tz = x, y, z + distanceToCheck
+    --local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    --local tx, ty, tz = x, y, z + distanceToCheck
     local trigger = vehicle.bga.targetBunker
     local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz
     local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz
@@ -767,7 +767,7 @@ function AutoDriveBGA:isAlmostInBunkerSiloArea(vehicle, distanceToCheck)
 
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
     --create bounding box to check for vehicle
-    local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
+    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
     local vehicleVector = {x = rx, z = rz}
     local width = vehicle.sizeWidth
     local length = vehicle.sizeLength
@@ -899,7 +899,7 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
             offsetX = -5
         end
         local x, y, z = getWorldTranslation(node)
-        local rx, ry, rz = localDirectionToWorld(node, offsetX, 0, offsetZ)
+        local rx, _, rz = localDirectionToWorld(node, offsetX, 0, offsetZ)
         x = x + rx
         z = z + rz
         local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
@@ -919,7 +919,7 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
             offsetX = -5
         end
         local x, y, z = getWorldTranslation(node)
-        local rx, ry, rz = localDirectionToWorld(node, offsetX, 0, offsetZ)
+        local rx, _, rz = localDirectionToWorld(node, offsetX, 0, offsetZ)
         x = x + rx
         z = z + rz
         local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
@@ -933,7 +933,7 @@ function AutoDriveBGA:handleDriveStrategy(vehicle, dt)
         -- if vehicle.getAIVehicleDirectionNode ~= nil then
         --node = vehicle:getAIVehicleDirectionNode();
         --end;
-        local x, y, z = getWorldTranslation(node)
+        local _, y, _ = getWorldTranslation(node)
         local lx, lz = AIVehicleUtil.getDriveDirection(node, vehicle.bga.targetPoint.x, y, vehicle.bga.targetPoint.z)
         local driveForwards = true
         if vehicle.bga.driveStrategy == AutoDriveBGA.DRIVESTRATEGY_REVERSE then
@@ -953,17 +953,17 @@ function AutoDriveBGA:getDriveStrategyToTarget(vehicle, drivingForward, dt)
 end
 
 function AutoDriveBGA:getDriveStrategyToTrailerInit(vehicle, dt)
-    local xT, yT, zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node)
+    local xT, _, zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node)
 
-    local rx, ry, rz = localDirectionToWorld(vehicle.bga.targetTrailer.components[1].node, 1, 0, 0)
-    local vehicleVector = {x = rx, z = rz}
+    local rx, _, rz = localDirectionToWorld(vehicle.bga.targetTrailer.components[1].node, 1, 0, 0)
+    --local vehicleVector = {x = rx, z = rz}
     local offSideLeft = {x = xT + rx * 10, z = zT + rz * 10}
 
-    local rx, ry, rz = localDirectionToWorld(vehicle.bga.targetTrailer.components[1].node, -1, 0, 0)
-    local vehicleVector = {x = rx, z = rz}
-    local offSideRight = {x = xT + rx * 10, z = zT + rz * 10}
+    local lx, _, lz = localDirectionToWorld(vehicle.bga.targetTrailer.components[1].node, -1, 0, 0)
+    --local vehicleVector = {x = lx, z = lz}
+    local offSideRight = {x = xT + lx * 10, z = zT + lz * 10}
 
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
 
     local distanceToLeft = math.sqrt(math.pow(offSideLeft.x - x, 2) + math.pow(offSideLeft.z - z, 2))
     local distanceToRight = math.sqrt(math.pow(offSideRight.x - x, 2) + math.pow(offSideRight.z - z, 2))
@@ -980,7 +980,7 @@ function AutoDriveBGA:getDriveStrategyToTrailerInit(vehicle, dt)
 end
 
 function AutoDriveBGA:getDriveStrategyToTrailer(vehicle, dt)
-    local xT, yT, zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node)
+    local xT, _, zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node)
 
     vehicle.bga.targetPoint = {x = xT, z = zT}
 
@@ -1036,11 +1036,11 @@ function AutoDriveBGA:getDriveStrategyByAngle(vehicle, angleToTarget, drivingFor
 end
 
 function AutoDriveBGA:getAngleToTarget(vehicle)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
     if vehicle.spec_articulatedAxis ~= nil and vehicle.spec_articulatedAxis.rotSpeed ~= nil then
-        rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, MathUtil.sign(vehicle.spec_articulatedAxis.rotSpeed) * math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
-        rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, MathUtil.sign(vehicle.spec_articulatedAxis.rotSpeed) * math.sin(vehicle.rotatedTime) / 2, 0, (1 + math.cos(vehicle.rotatedTime)) / 2)
+        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, MathUtil.sign(vehicle.spec_articulatedAxis.rotSpeed) * math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
+        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, MathUtil.sign(vehicle.spec_articulatedAxis.rotSpeed) * math.sin(vehicle.rotatedTime) / 2, 0, (1 + math.cos(vehicle.rotatedTime)) / 2)
     end
     local vehicleVector = {x = rx, z = rz}
 
@@ -1151,7 +1151,7 @@ function AutoDriveBGA:driveToBGAUnloadInit(vehicle, dt)
 
     self:handleDriveStrategy(vehicle, dt)
 
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
 
     if math.sqrt(math.pow(vehicle.bga.targetPoint.x - x, 2) + math.pow(vehicle.bga.targetPoint.z - z, 2)) <= 4 then
         vehicle.bga.action = AutoDriveBGA.ACTION_DRIVETOUNLOAD
@@ -1197,7 +1197,7 @@ end
 function AutoDriveBGA:handleBGAUnload(vehicle, dt)
     AutoDrive:getVehicleToStop(vehicle, false, dt)
     vehicle.bga.shovelTarget = AutoDriveBGA.SHOVELSTATE_UNLOAD
-    local xV, yV, zV = getWorldTranslation(vehicle.components[1].node)
+    local xV, _, zV = getWorldTranslation(vehicle.components[1].node)
     vehicle.bga.shovelUnloadPosition = {x = xV, z = zV}
 
     if vehicle.bga.shovelFillLevel <= 0.01 then
@@ -1235,11 +1235,11 @@ function AutoDriveBGA:reverseFromBGAUnload(vehicle, dt)
     -- if vehicle.getAIVehicleDirectionNode ~= nil then
     --     node = vehicle:getAIVehicleDirectionNode();
     -- end;
-    local x, y, z = getWorldTranslation(node)
-    local rx, ry, rz = localDirectionToWorld(node, 0, 0, -1)
+    local x, _, z = getWorldTranslation(node)
+    local rx, _, rz = localDirectionToWorld(node, 0, 0, -1)
     x = x + rx
     z = z + rz
-    local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
+    --local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
     AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1)
 
     if vehicle.bga.shovelUnloadPosition ~= nil then
@@ -1256,13 +1256,13 @@ function AutoDriveBGA:reverseFromBGAUnload(vehicle, dt)
     end
 end
 
-function AutoDriveBGA:getVehicleToPause(vehicle, dt)
+function AutoDriveBGA:getVehicleToPause(vehicle)
     vehicle.bga.state = AutoDriveBGA.STATE_WAITING_FOR_RESTART
 end
 
 function AutoDriveBGA:getShovelInTrailerRange(vehicle)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    local xT, yT, zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node)
+    --local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    --local xT, yT, zT = getWorldTranslation(vehicle.bga.targetTrailer.components[1].node)
     local dischargeNode = vehicle.bga.shovel:getCurrentDischargeNode()
     if dischargeNode ~= nil then
         local dischargeTarget = dischargeNode.dischargeObject
@@ -1282,7 +1282,7 @@ function AutoDriveBGA:determineHighestShovelOffset(vehicle)
 end
 
 function AutoDriveBGA:getDistanceToTarget(vehicle)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
     return MathUtil.vector2Length(x - vehicle.bga.targetPoint.x, z - vehicle.bga.targetPoint.z)
 end
 
@@ -1306,7 +1306,7 @@ function AutoDriveBGA:checkForFillLevelInCurrentRow(vehicle)
         offsetToUse = 0
         fromOtherSide = true
     end
-    local inFront = 0
+    --local inFront = 0
 
     local p1, p2 = self:getTargetBunkerLoadingSide(vehicle)
     if fromOtherSide ~= nil and fromOtherSide == true then
@@ -1314,7 +1314,7 @@ function AutoDriveBGA:checkForFillLevelInCurrentRow(vehicle)
     end
     local normalizedVec = {x = (p2.x - p1.x) / (math.abs(p2.x - p1.x) + math.abs(p2.z - p1.z)), z = (p2.z - p1.z) / (math.abs(p2.x - p1.x) + math.abs(p2.z - p1.z))}
     --get ortho for 'inFront' parameter
-    local ortho = {x = -normalizedVec.z, z = normalizedVec.x}
+    --local ortho = {x = -normalizedVec.z, z = normalizedVec.x}
     --get shovel offset correct position on silo line
     local offset = (vehicle.bga.shovelWidth * (0.0 + offsetToUse))
     local targetPoint = {x = p1.x + normalizedVec.x * offset, z = p1.z + normalizedVec.z * offset}

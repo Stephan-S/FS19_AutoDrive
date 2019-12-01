@@ -155,9 +155,12 @@ end
 function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 	if vehicle ~= nil and vehicle.ad ~= nil then
 		if vehicle.ad.createMapPoints == true and AutoDrive.Recalculation.continue == false then
+
+			local closestWayPoint, _ = AutoDrive:findClosestWayPoint(vehicle)
+
 			-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
 			if input == "input_createMapMarker" then
-				if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+				if AutoDrive.mapWayPoints[closestWayPoint] == nil then
 					return
 				end
 				AutoDrive.editSelectedMapMarker = false
@@ -173,17 +176,17 @@ function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 			end
 			-- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
 			if input == "input_removeMapMarker" then
-				if AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+				if AutoDrive.mapWayPoints[closestWayPoint] == nil then
 					return
 				end
-				AutoDrive.removeMapMarkerByWayPoint(AutoDrive:findClosestWayPoint(vehicle))
+				AutoDrive.removeMapMarkerByWayPoint(closestWayPoint)
 			end
 			-- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
 			if input == "input_removeWaypoint" then
-				if AutoDrive.mapWayPoints[1] == nil or AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(vehicle)] == nil then
+				if AutoDrive.mapWayPoints[1] == nil or AutoDrive.mapWayPoints[closestWayPoint] == nil then
 					return
 				end
-				AutoDrive.removeMapWayPoint(AutoDrive:findClosestWayPoint(vehicle))
+				AutoDrive.removeMapWayPoint(closestWayPoint)
 			end
 		end
 		if input == "input_nameDriver" then
@@ -324,7 +327,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return
 		end
-		local closest = AutoDrive:findClosestWayPoint(vehicle)
+		local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
 		AutoDrive:toggleConnectionBetween(AutoDrive.mapWayPoints[closest], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
 	end
 
@@ -332,7 +335,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
 			return
 		end
-		local closest = AutoDrive:findClosestWayPoint(vehicle)
+		local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
 		AutoDrive:toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], AutoDrive.mapWayPoints[closest])
 	end
 
@@ -431,7 +434,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			vehicle.ad.isPaused = false
 			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
 				if AutoDrive.getDistanceToTargetPosition(vehicle) < 10 then
-					local closest = AutoDrive:findClosestWayPoint(vehicle)
+					local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
 					vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
 					vehicle.ad.wayPointsChanged = true
 					vehicle.ad.currentWayPoint = 1

@@ -63,7 +63,7 @@ function ADEnterTargetNameGui:onOpen()
         self.editId = g_currentMission.controlledVehicle.ad.mapMarkerSelected
         self.editName = AutoDrive.mapMarker[self.editId].name
     else
-        local closest = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
+        local closest, _ = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
         if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
             local cId = AutoDrive.mapWayPoints[closest].id
             for i, mapMarker in pairs(AutoDrive.mapMarker) do
