@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-10"
+AutoDrive.Version = "1.0.7.0-13"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -537,5 +537,48 @@ function AutoDrive:loadTriggerDelete(superFunc)
 	end
 	superFunc(self)
 end
+
+function AutoDrive:FarmStats_saveToXMLFile(xmlFile, key)
+	key = key .. ".statistics"
+	setXMLFloat(xmlFile, key .. ".driversTraveledDistance", self.statistics.driversTraveledDistance.total)
+end
+FarmStats.saveToXMLFile = Utils.appendedFunction(FarmStats.saveToXMLFile, AutoDrive.FarmStats_saveToXMLFile)
+
+function AutoDrive:FarmStats_loadFromXMLFile(xmlFile, key)
+	key = key .. ".statistics"
+	self.statistics["driversTraveledDistance"] = {session = 0, total = 0}
+	self.statistics["driversHired"] = {session = 0, total = 0}
+	self.statistics["driversTraveledDistance"].total = Utils.getNoNil(getXMLFloat(xmlFile, key .. ".driversTraveledDistance"), 0)
+end
+FarmStats.loadFromXMLFile = Utils.appendedFunction(FarmStats.loadFromXMLFile, AutoDrive.FarmStats_loadFromXMLFile)
+
+function AutoDrive:FarmStats_getStatisticData(superFunc)
+	if superFunc ~= nil then
+		superFunc(self)
+	end
+	if not g_currentMission.missionDynamicInfo.isMultiplayer or not g_currentMission.missionDynamicInfo.isClient then
+		local firstCall = self.statisticDataRev["driversHired"] == nil or self.statisticDataRev["driversTraveledDistance"] == nil
+		self:addStatistic("driversHired", nil, self:getSessionValue("driversHired"), nil, "%s")
+		self:addStatistic("driversTraveledDistance", g_i18n:getMeasuringUnit(), g_i18n:getDistance(self:getSessionValue("driversTraveledDistance")), g_i18n:getDistance(self:getTotalValue("driversTraveledDistance")), "%.2f")
+		if firstCall then
+			-- Moving position of our stats
+			local statsLength = AutoDrive.tableLength(self.statisticData)
+			local dTdPosition = 14
+			-- Backuo of our new stats
+			local driversHired = self.statisticData[statsLength - 1]
+			local driversTraveledDistance = self.statisticData[statsLength]
+			-- Moving 'driversHired' one position up
+			self.statisticData[statsLength - 1] = self.statisticData[statsLength - 2]
+			self.statisticData[statsLength - 2] = driversHired
+			-- Moving 'driversTraveledDistance' to 14th position
+			for i = statsLength - 1, dTdPosition, -1 do
+				self.statisticData[i + 1] = self.statisticData[i]
+			end
+			self.statisticData[dTdPosition] = driversTraveledDistance
+		end
+	end
+	return Utils.getNoNil(self.statisticData, {})
+end
+FarmStats.getStatisticData = Utils.overwrittenFunction(FarmStats.getStatisticData, AutoDrive.FarmStats_getStatisticData)
 
 addModEventListener(AutoDrive)

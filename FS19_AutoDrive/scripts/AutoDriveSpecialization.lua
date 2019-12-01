@@ -399,6 +399,10 @@ function AutoDrive:onUpdate(dt)
     else
         self.ad.stuckInTrafficTimer = 0
     end
+
+    if self.isServer and self.ad.isActive and self.lastMovedDistance > 0 then
+        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
+    end
 end
 
 function AutoDrive:createVehicleInfoTable(vehicle)
@@ -761,7 +765,6 @@ function AutoDrive:updateAILights(superFunc)
 end
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
-
     if self.getMotorStartTime ~= nil then
         allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
     end
