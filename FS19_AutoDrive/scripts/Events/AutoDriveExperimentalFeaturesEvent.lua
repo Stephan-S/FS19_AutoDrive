@@ -1,10 +1,10 @@
 AutoDriveExperimentalFeaturesEvent = {}
-AutoDriveRenameDriverEvent_mt = Class(AutoDriveExperimentalFeaturesEvent, Event)
+AutoDriveExperimentalFeaturesEvent_mt = Class(AutoDriveExperimentalFeaturesEvent, Event)
 
 InitEventClass(AutoDriveExperimentalFeaturesEvent, "AutoDriveExperimentalFeaturesEvent")
 
 function AutoDriveExperimentalFeaturesEvent:emptyNew()
-    local o = Event:new(AutoDriveRenameDriverEvent_mt)
+    local o = Event:new(AutoDriveExperimentalFeaturesEvent_mt)
     o.className = "AutoDriveExperimentalFeaturesEvent"
     return o
 end
@@ -31,7 +31,7 @@ function AutoDriveExperimentalFeaturesEvent:run(connection)
     if g_server ~= nil and connection:getIsServer() == false then
         -- If the event is coming from a client, server have only to broadcast
         AutoDriveExperimentalFeaturesEvent.sendEvent(self.featureName, self.state)
-	else   
+    else
         -- If the event is coming from the server, both clients and server have to act
         if self.featureName ~= "" then
             AutoDrive.experimentalFeatures[self.featureName] = self.state
