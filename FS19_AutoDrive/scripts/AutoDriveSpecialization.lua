@@ -592,7 +592,11 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 end
 
 function AutoDrive:onDrawCreationMode(vehicle)
-    local x1, y1, z1 = getWorldTranslation(vehicle.ad.frontNode)
+    local startNode = vehicle.ad.frontNode
+    if AutoDrive.getSetting("autoConnectStart") then
+        startNode = vehicle.components[1].node
+    end
+    local x1, y1, z1 = getWorldTranslation(startNode)
 
     AutoDrive.drawPointsInProximity(vehicle)
 

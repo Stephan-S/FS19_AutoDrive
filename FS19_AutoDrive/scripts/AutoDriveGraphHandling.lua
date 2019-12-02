@@ -567,8 +567,12 @@ function AutoDrive:findClosestWayPoint(veh)
 		return veh.ad.closest, veh.ad.closestDistance
 	end
 
+	local startNode = veh.ad.frontNode
+	if AutoDrive.getSetting("autoConnectStart") then
+		startNode = veh.components[1].node
+	end
 	--returns waypoint closest to vehicle position
-	local x1, _, z1 = getWorldTranslation(veh.ad.frontNode)
+	local x1, _, z1 = getWorldTranslation(startNode)
 	local closest = -1
 	local distance = math.huge --AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
 	if AutoDrive.mapWayPoints[1] ~= nil then
@@ -588,9 +592,13 @@ function AutoDrive:findClosestWayPoint(veh)
 end
 
 function AutoDrive:findMatchingWayPointForVehicle(veh)
+	local startNode = veh.ad.frontNode
+	if AutoDrive.getSetting("autoConnectStart") then
+		startNode = veh.components[1].node
+	end
 	--returns waypoint closest to vehicle position and with the most suited heading
-	local x1, _, z1 = getWorldTranslation(veh.ad.frontNode)
-	local rx, _, rz = localDirectionToWorld(veh.ad.frontNode, 0, 0, 1)
+	local x1, _, z1 = getWorldTranslation(startNode)
+	local rx, _, rz = localDirectionToWorld(startNode, 0, 0, 1)
 	local vehicleVector = {x = rx, z = rz}
 	local point = {x = x1, z = z1}
 
@@ -666,9 +674,13 @@ function AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)
 end
 
 function AutoDrive:findMatchingWayPointForReverseDirection(veh)
+	local startNode = veh.ad.frontNode
+	if AutoDrive.getSetting("autoConnectStart") then
+		startNode = veh.components[1].node
+	end
 	--returns waypoint closest to vehicle position and with the most suited heading
-	local x1, _, z1 = getWorldTranslation(veh.components[1].node)
-	local rx, _, rz = localDirectionToWorld(veh.components[1].node, 0, 0, 1)
+	local x1, _, z1 = getWorldTranslation(startNode)
+	local rx, _, rz = localDirectionToWorld(startNode, 0, 0, 1)
 	local vehicleVector = {x = -rx, z = -rz}
 	local point = {x = x1, z = z1}
 
