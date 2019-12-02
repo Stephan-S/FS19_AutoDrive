@@ -348,17 +348,19 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
                         end
                         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
-                        vehicle.ad.wayPointsChanged = true
-                        vehicle.ad.currentWayPoint = 1
+                        if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                            vehicle.ad.wayPointsChanged = true
+                            vehicle.ad.currentWayPoint = 1
 
-                        vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
-                        vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
-                        vehicle.ad.onRouteToSecondTarget = true
+                            vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
+                            vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
+                            vehicle.ad.onRouteToSecondTarget = true
+                        end
                     end
 
                     if vehicle.ad.startedLoadingAtTrigger == false then
                         vehicle.ad.isPaused = true
-                        vehicle.ad.waitingToBeLoaded = true;
+                        vehicle.ad.waitingToBeLoaded = true
                     end
 
                     vehicle.ad.loopCounterCurrent = vehicle.ad.loopCounterCurrent + 1
