@@ -638,8 +638,10 @@ function AutoDrive.getNewPointsInProximity(vehicle)
                 vehicle.ad.lastPointCheckedForProximity = 1
             end
             local pointToCheck = AutoDrive.mapWayPoints[vehicle.ad.lastPointCheckedForProximity]
-            if AutoDrive:getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < 50 then
-                table.insert(newPointsToDraw, pointToCheck.id, pointToCheck)
+            if pointToCheck ~= nil then
+                if AutoDrive:getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < 50 then
+                    table.insert(newPointsToDraw, pointToCheck.id, pointToCheck)
+                end
             end
         end
         --go through all stored points to check if they are still in proximity
