@@ -796,7 +796,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
                 -- Hard braking, is needed to prevent combine's pipe overstep and crash
                 self.ad.smootherDriving.lastMaxSpeed = maxSpeed
             end
-            AutoDrive.renderTable(0.1, 0.9, 0.012, {maxSpeed = maxSpeed, lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed})
+            --AutoDrive.renderTable(0.1, 0.9, 0.012, {maxSpeed = maxSpeed, lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed})
             maxSpeed = self.ad.smootherDriving.lastMaxSpeed
         else
             self.ad.smootherDriving.lastMaxSpeed = 0
