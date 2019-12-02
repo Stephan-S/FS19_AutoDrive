@@ -125,6 +125,12 @@ function AutoDrive:onPostLoad(savegame)
     end
 
     AutoDrive.init(self)
+
+    -- Creating a new transform on front of the vehicle
+    self.ad.frontNode = createTransformGroup(self:getName() .. "_frontNode")
+    link(self.components[1].node, self.ad.frontNode)
+    setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 1.5)
+    self.ad.frontNodeGizmo = DebugGizmo:new()
 end
 
 function AutoDrive:init()
@@ -559,6 +565,11 @@ function AutoDrive:onDraw()
     if (self.ad.createMapPoints or self.ad.displayMapPoints) and self == g_currentMission.controlledVehicle then
         AutoDrive:onDrawCreationMode(self)
     end
+
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) and self.ad.frontNodeGizmo ~= nil then
+        self.ad.frontNodeGizmo:createWithNode(self.ad.frontNode, getName(self.ad.frontNode), false)
+        self.ad.frontNodeGizmo:draw()
+    end
 end
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
@@ -581,7 +592,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 end
 
 function AutoDrive:onDrawCreationMode(vehicle)
-    local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+    local x1, y1, z1 = getWorldTranslation(vehicle.ad.frontNode)
 
     AutoDrive.drawPointsInProximity(vehicle)
 

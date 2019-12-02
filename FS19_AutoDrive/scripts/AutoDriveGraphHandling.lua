@@ -568,7 +568,7 @@ function AutoDrive:findClosestWayPoint(veh)
 	end
 
 	--returns waypoint closest to vehicle position
-	local x1, _, z1 = getWorldTranslation(veh.components[1].node)
+	local x1, _, z1 = getWorldTranslation(veh.ad.frontNode)
 	local closest = -1
 	local distance = math.huge --AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
 	if AutoDrive.mapWayPoints[1] ~= nil then
@@ -589,8 +589,8 @@ end
 
 function AutoDrive:findMatchingWayPointForVehicle(veh)
 	--returns waypoint closest to vehicle position and with the most suited heading
-	local x1, y1, z1 = getWorldTranslation(veh.components[1].node)
-	local rx, ry, rz = localDirectionToWorld(veh.components[1].node, 0, 0, 1)
+	local x1, _, z1 = getWorldTranslation(veh.ad.frontNode)
+	local rx, _, rz = localDirectionToWorld(veh.ad.frontNode, 0, 0, 1)
 	local vehicleVector = {x = rx, z = rz}
 	local point = {x = x1, z = z1}
 
@@ -610,7 +610,7 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 	local distance = -1
 	local lastAngleToPoint = -1
 	local lastAngleToVehicle = -1
-	for i, id in pairs(candidates) do
+	for _, id in pairs(candidates) do
 		local toCheck = AutoDrive.mapWayPoints[id]
 		local nextP = nil
 		local outIndex = 1
@@ -667,8 +667,8 @@ end
 
 function AutoDrive:findMatchingWayPointForReverseDirection(veh)
 	--returns waypoint closest to vehicle position and with the most suited heading
-	local x1, y1, z1 = getWorldTranslation(veh.components[1].node)
-	local rx, ry, rz = localDirectionToWorld(veh.components[1].node, 0, 0, 1)
+	local x1, _, z1 = getWorldTranslation(veh.components[1].node)
+	local rx, _, rz = localDirectionToWorld(veh.components[1].node, 0, 0, 1)
 	local vehicleVector = {x = -rx, z = -rz}
 	local point = {x = x1, z = z1}
 
