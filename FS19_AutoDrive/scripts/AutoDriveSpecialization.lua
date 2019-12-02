@@ -782,21 +782,21 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
 
     if self.ad ~= nil then
         if self.ad.isActive and allowedToDrive then
-            slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
+            --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 
             local accFactor = 2 / 1000 -- km h / s converted to km h / ms
-            accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 3000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
+            accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 2000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
             if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
                 self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)
             else
                 self.ad.smootherDriving.lastMaxSpeed = math.max(self.ad.smootherDriving.lastMaxSpeed - accFactor * dt, maxSpeed)
             end
 
-            --if maxSpeed == 0 and self.ad.smootherDriving.lastMaxSpeed < 6 then
-            -- Hard braking, is needed to prevent combine's pipe overstep
-            --self.ad.smootherDriving.lastMaxSpeed = maxSpeed
-            --end
-
+            if maxSpeed < 1 then
+                -- Hard braking, is needed to prevent combine's pipe overstep and crash
+                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
+            end
+            AutoDrive.renderTable(0.1, 0.9, 0.012, {maxSpeed = maxSpeed, lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed})
             maxSpeed = self.ad.smootherDriving.lastMaxSpeed
         else
             self.ad.smootherDriving.lastMaxSpeed = 0
