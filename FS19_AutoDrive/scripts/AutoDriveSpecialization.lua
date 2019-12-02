@@ -78,7 +78,7 @@ function AutoDrive:onPostLoad(savegame)
             end
             local targetSpeed = getXMLInt(xmlFile, key .. "#targetSpeed")
             if targetSpeed ~= nil then
-                self.ad.targetSpeed = targetSpeed
+                self.ad.targetSpeed = math.min(targetSpeed, AutoDrive.getVehicleMaxSpeed(self))
             end
 
             local mapMarkerSelected = getXMLInt(xmlFile, key .. "#mapMarkerSelected")
@@ -172,7 +172,7 @@ function AutoDrive:init()
         self.ad.mode = AutoDrive.MODE_DRIVETO
     end
     if self.ad.targetSpeed == nil then
-        self.ad.targetSpeed = AutoDrive.lastSetSpeed
+        self.ad.targetSpeed = AutoDrive.getVehicleMaxSpeed(self) --math.min(AutoDrive.getVehicleMaxSpeed(self), AutoDrive.lastSetSpeed)
     end
     self.ad.createMapPoints = false
     self.ad.displayMapPoints = false
@@ -197,7 +197,7 @@ function AutoDrive:init()
 
     self.ad.moduleInitialized = true
     self.ad.currentInput = ""
-    self.ad.lastSpeed = self.ad.targetSpeed
+    --self.ad.lastSpeed = self.ad.targetSpeed
     self.ad.speedOverride = -1
 
     self.ad.isUnloading = false

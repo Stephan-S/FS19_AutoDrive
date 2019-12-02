@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-18"
+AutoDrive.Version = "1.0.7.0-19"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -117,7 +117,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.pullDownListExpanded = 0
 	AutoDrive.pullDownListDirection = 0
 
-	AutoDrive.lastSetSpeed = 50
+	--AutoDrive.lastSetSpeed = 50
 
 	AutoDrive.print = {}
 	AutoDrive.print.currentMessage = nil
@@ -437,6 +437,15 @@ function AutoDrive.getIsStuckInTraffic(vehicle)
 		return vehicle.ad.stuckInTrafficTimer >= 1000 -- 1 second
 	end
 	return false
+end
+
+function AutoDrive.getVehicleMaxSpeed(vehicle)
+	-- 255 is the max value to prevent errors with MP sync
+	if vehicle ~= nil and vehicle.spec_motorized ~= nil and vehicle.spec_motorized.motor ~= nil then
+		local motor = vehicle.spec_motorized.motor
+		return math.min(math.min(motor:getSpeedLimit(), motor:getMaximumForwardSpeed() * 3.6), 255)
+	end
+	return 255
 end
 
 function AutoDrive:zoomSmoothly(superFunc, offset)

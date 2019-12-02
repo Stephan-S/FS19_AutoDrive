@@ -155,7 +155,6 @@ end
 function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 	if vehicle ~= nil and vehicle.ad ~= nil then
 		if vehicle.ad.createMapPoints == true and AutoDrive.Recalculation.continue == false then
-
 			local closestWayPoint, _ = AutoDrive:findClosestWayPoint(vehicle)
 
 			-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
@@ -354,17 +353,17 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_increaseSpeed" then
-		if vehicle.ad.targetSpeed < 100 then
+		if vehicle.ad.targetSpeed < AutoDrive.getVehicleMaxSpeed(vehicle) then
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed + 1
 		end
-		AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
+		--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
 	end
 
 	if input == "input_decreaseSpeed" then
 		if vehicle.ad.targetSpeed > 2 then
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed - 1
 		end
-		AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
+		--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
 	end
 
 	if input == "input_recalculate" then

@@ -283,7 +283,7 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
 end
 
 function AutoDrive:handleReachedWayPoint(vehicle)
-    vehicle.ad.lastSpeed = vehicle.ad.speedOverride
+    --vehicle.ad.lastSpeed = vehicle.ad.speedOverride
     vehicle.ad.timeTillDeadLock = 15000
 
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1] ~= nil then

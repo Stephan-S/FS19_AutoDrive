@@ -107,7 +107,7 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.isUnloading = false
 	vehicle.ad.isLoading = false
 	vehicle.ad.initialized = false
-	vehicle.ad.lastSpeed = 10
+	--vehicle.ad.lastSpeed = 10
 	vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED
 	vehicle.ad.combineUnloadInFruit = false
 	vehicle.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER
