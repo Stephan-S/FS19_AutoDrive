@@ -354,18 +354,18 @@ function AutoDrive:updateChaseModeInfos(vehicle, dt)
     vehicle.ccInfos.isChopper = combine:getIsBufferCombine()
     vehicle.ccInfos.leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
     vehicle.ccInfos.rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
-    
+
     --start looking ahead a little if both sides are free currently
     vehicle.ccInfos.frontLeftBlocked = combine.ad.sensors.leftFrontSensorFruit:pollInfo()
     vehicle.ccInfos.frontRightBlocked = combine.ad.sensors.rightFrontSensorFruit:pollInfo()
     if (not vehicle.ccInfos.leftBlocked) and (not vehicle.ccInfos.rightBlocked) then
         if vehicle.ccInfos.frontLeftBlocked then
-            vehicle.ccInfos.leftBlocked = true;
+            vehicle.ccInfos.leftBlocked = true
         elseif vehicle.ccInfos.frontRightBlocked then
-            vehicle.ccInfos.rightBlocked = true;
-        end;
-    end;
-    
+            vehicle.ccInfos.rightBlocked = true
+        end
+    end
+
     vehicle.ccInfos.chasePos, vehicle.ccInfos.chaseSide = AutoDrive:getPipeChasePosition(vehicle, combine, vehicle.ccInfos.isChopper, vehicle.ccInfos.leftBlocked, vehicle.ccInfos.rightBlocked)
     vehicle.ccInfos.distanceToCombine = MathUtil.vector2Length(vehicle.ccInfos.combineWorldX - vehicle.ccInfos.worldX, vehicle.ccInfos.combineWorldZ - vehicle.ccInfos.worldZ)
     vehicle.ccInfos.distanceToChasePos = MathUtil.vector2Length(vehicle.ccInfos.chasePos.x - vehicle.ccInfos.worldX, vehicle.ccInfos.chasePos.z - vehicle.ccInfos.worldZ)
@@ -374,7 +374,7 @@ function AutoDrive:updateChaseModeInfos(vehicle, dt)
     vehicle.ccInfos.maxCapacity = vehicle.ccInfos.fillLevel + vehicle.ccInfos.leftCapacity
     vehicle.ccInfos.combineFillLevel = (vehicle.ccInfos.fillLevel / vehicle.ccInfos.maxCapacity)
 
-    vehicle.ccInfos.doneUnloading, vehicle.ccInfos.trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle)   
+    vehicle.ccInfos.doneUnloading, vehicle.ccInfos.trailerFillLevel = AutoDrive:checkDoneUnloading(vehicle)
 end
 
 function AutoDrive:initChaseMode(vehicle, dt)
@@ -408,9 +408,9 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
 
     if vehicle.ccInfos.trailerFillLevel >= 0.999 and vehicle.ad.ccMode == AutoDrive.CC_MODE_CHASING then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
-    end;    
+    end
 
-    if vehicle.ccInfos.trailerFillLevel >= 0.999 and (vehicle.ad.ccMode ~= AutoDrive.CC_MODE_REVERSE_FROM_COLLISION) then        
+    if vehicle.ccInfos.trailerFillLevel >= 0.999 and (vehicle.ad.ccMode ~= AutoDrive.CC_MODE_REVERSE_FROM_COLLISION) then
         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
         AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine)
         AutoDrive:unregisterDriverAsUnloader(vehicle)
@@ -431,7 +431,7 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
     end
 
     --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
-        --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
+    --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     --end
 
     --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
@@ -452,19 +452,18 @@ function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
     if vehicle.ad.reverseTimer > 0 then
         AutoDrive:reverseVehicle(vehicle, dt)
         vehicle.ad.reverseTimer = vehicle.ad.reverseTimer - dt
-    elseif vehicle.ccInfos.distanceToCombine < 7
-        or (AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) and vehicle.ccInfos.distanceToCombine < 20) then --(not vehicle.ad.currentCombine:getIsBufferCombine()) and
+    elseif vehicle.ccInfos.distanceToCombine < 7 or (AutoDrive:combineIsTurning(vehicle, vehicle.ad.currentCombine, vehicle.ccInfos.isChopper) and vehicle.ccInfos.distanceToCombine < 20) then --(not vehicle.ad.currentCombine:getIsBufferCombine()) and
         AutoDrive:reverseVehicle(vehicle, dt)
     else
         AutoDrive:getVehicleToStop(vehicle, false, dt)
     end
 
     --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
-        --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
+    --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
     --end
 
     --if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
-        --vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
+    --vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
     --end
     if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 50 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING
@@ -481,13 +480,13 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
     local finalSpeed = AutoDrive.SPEED_ON_FIELD
     local acc = 1
     local allowedToDrive = true
-    
+
     if vehicle.ccInfos.distanceToChasePos < 2 then
         finalSpeed = 2
     elseif vehicle.ccInfos.distanceToChasePos < 5 then
         finalSpeed = (vehicle.ad.currentCombine.lastSpeedReal * 3600)
     elseif vehicle.ccInfos.distanceToChasePos < 10 then
-        finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10);
+        finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10)
     end
 
     local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ccInfos.chasePos.x, vehicle.ccInfos.chasePos.y, vehicle.ccInfos.chasePos.z)
@@ -516,7 +515,7 @@ function AutoDrive:retriggerPreDrive(vehicle)
     --g_logManager:devInfo("Chasing combine - stopped - recalculating new path");
     if vehicle.ad.currentCombine ~= nil then
         if vehicle.ccInfos.distanceToChasePos < 25 and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 40 and vehicle.ccInfos.angleToCombineHeading < 90 then
-            vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING;
+            vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING
         else
             AutoDrivePathFinder:startPathPlanningToCombine(vehicle, vehicle.ad.currentCombine, nil, true)
             AutoDrive.waitingUnloadDrivers[vehicle] = nil
@@ -838,36 +837,38 @@ end
 function AutoDrive:setNextTargetInFolder(vehicle)
     local mapMarkerCurrent = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload]
     local group = mapMarkerCurrent.group
-    local firstMarkerInGroup = nil
-    local nextMarkerInGroup = nil
-    local markerSeen = false
-    for markerID, marker in pairs(AutoDrive.mapMarker) do
-        if marker.group == group then
-            if firstMarkerInGroup == nil then
-                firstMarkerInGroup = markerID
-            end
+    if group ~= "All" then
+        local firstMarkerInGroup = nil
+        local nextMarkerInGroup = nil
+        local markerSeen = false
+        for markerID, marker in pairs(AutoDrive.mapMarker) do
+            if marker.group == group then
+                if firstMarkerInGroup == nil then
+                    firstMarkerInGroup = markerID
+                end
 
-            if markerSeen and nextMarkerInGroup == nil then
-                nextMarkerInGroup = markerID
-            end
+                if markerSeen and nextMarkerInGroup == nil then
+                    nextMarkerInGroup = markerID
+                end
 
-            if markerID == vehicle.ad.mapMarkerSelected_Unload then
-                markerSeen = true
+                if markerID == vehicle.ad.mapMarkerSelected_Unload then
+                    markerSeen = true
+                end
             end
         end
-    end
 
-    local markerToSet = vehicle.ad.mapMarkerSelected_Unload
-    if nextMarkerInGroup ~= nil then
-        markerToSet = nextMarkerInGroup
-    elseif firstMarkerInGroup ~= nil then
-        markerToSet = firstMarkerInGroup
-    end
+        local markerToSet = vehicle.ad.mapMarkerSelected_Unload
+        if nextMarkerInGroup ~= nil then
+            markerToSet = nextMarkerInGroup
+        elseif firstMarkerInGroup ~= nil then
+            markerToSet = firstMarkerInGroup
+        end
 
-    vehicle.ad.mapMarkerSelected_Unload = markerToSet
-    if AutoDrive.mapMarker[markerToSet] ~= nil then
-        vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[markerToSet].id
-        vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[markerToSet].name
+        vehicle.ad.mapMarkerSelected_Unload = markerToSet
+        if AutoDrive.mapMarker[markerToSet] ~= nil then
+            vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[markerToSet].id
+            vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[markerToSet].name
+        end
     end
 end
 
