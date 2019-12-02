@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-22"
+AutoDrive.Version = "1.0.7.0-23"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -550,7 +550,9 @@ end
 
 function AutoDrive:FarmStats_saveToXMLFile(xmlFile, key)
 	key = key .. ".statistics"
-	setXMLFloat(xmlFile, key .. ".driversTraveledDistance", self.statistics.driversTraveledDistance.total)
+	if self.statistics.driversTraveledDistance ~= nil then
+		setXMLFloat(xmlFile, key .. ".driversTraveledDistance", self.statistics.driversTraveledDistance.total)
+	end
 end
 FarmStats.saveToXMLFile = Utils.appendedFunction(FarmStats.saveToXMLFile, AutoDrive.FarmStats_saveToXMLFile)
 
@@ -574,7 +576,7 @@ function AutoDrive:FarmStats_getStatisticData(superFunc)
 			-- Moving position of our stats
 			local statsLength = AutoDrive.tableLength(self.statisticData)
 			local dTdPosition = 14
-			-- Backuo of our new stats
+			-- Backup of our new stats
 			local driversHired = self.statisticData[statsLength - 1]
 			local driversTraveledDistance = self.statisticData[statsLength]
 			-- Moving 'driversHired' one position up

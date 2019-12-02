@@ -100,6 +100,10 @@ end
 
 function AutoDrive:disableAutoDriveFunctions(vehicle)
 	--g_logManager:devInfo("Disabling vehicle .. " .. vehicle.name);
+	if vehicle.isServer and vehicle.ad.isActive then
+		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", -1)
+		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
+	end
 	vehicle.ad.currentWayPoint = 0
 	vehicle.ad.drivingForward = true
 	vehicle.ad.isActive = false
@@ -207,11 +211,6 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 
 	if vehicle.setBeaconLightsVisibility ~= nil then
 		vehicle:setBeaconLightsVisibility(false)
-	end
-
-	if vehicle.isServer then
-		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", -1)
-		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
 	end
 end
 
