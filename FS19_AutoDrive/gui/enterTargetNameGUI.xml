@@ -3,25 +3,25 @@
     <GuiElement type="empty" profile="newLayer" />
     <GuiElement type="bitmap" profile="dialogFullscreenBg" />
 
-    <GuiElement type="bitmap" profile="yesNoDialogBg" id="dialogElement">
+    <GuiElement type="bitmap" profile="yesNoDialogBg">
         <GuiElement type="bitmap" profile="dialogHeaderDocked">
-            <GuiElement type="text" profile="dialogHeaderText" text="" onCreate="onCreateTitleElement" id="dialogTitleElement" />
+            <GuiElement type="text" profile="dialogHeaderText" id="titleElement" />
         </GuiElement>
 
-        <GuiElement type="text" profile="sleepDialogText" text="" onCreate="onCreateTextElement" id="dialogTextElement" />
+        <GuiElement type="text" profile="sleepDialogText" text="$l10n_gui_ad_enterTargetNameText" />
 
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" />
+        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" focusInit="onOpen" maxCharacters="30" />
 
-        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsCreate" onCreate="onCreateButtonsCreate">
-            <GuiElement type="button" profile="buttonBack" id="backButtonCreate" text="$l10n_button_back" onClick="onClickBack" />
-            <GuiElement type="button" profile="buttonOK" id="createButton" text="" onClick="onClickCreateButton" onCreate="onCreateCreateButton" />
+        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsCreateElement">
+            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
+            <GuiElement type="button" profile="buttonOK" text="$l10n_gui_ad_createButtonText" onClick="onClickOK" />
         </GuiElement>
 
-        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsEdit" onCreate="onCreateButtonsEdit">
-            <GuiElement type="button" profile="buttonBack" id="backButtonEdit" text="$l10n_button_back" onClick="onClickBack" />
-            <GuiElement type="button" profile="buttonActivate" id="renameButton" text="$l10n_button_rename" onClick="onClickRenameButton" />
-            <GuiElement type="button" profile="buttonCancel" id="resetButton" text="$l10n_button_reset" onClick="onClickResetButton" />
-            <GuiElement type="button" profile="buttonDelete" id="deleteButton" text="$l10n_button_delete" onClick="onClickDeleteButton" />
+        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsEditElement">
+            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
+            <GuiElement type="button" profile="buttonOK" text="$l10n_button_rename" onClick="onClickOK" />
+            <GuiElement type="button" profile="buttonCancel" text="$l10n_button_reset" onClick="onClickCancel" />
+            <GuiElement type="button" profile="buttonActivate" text="$l10n_button_delete" onClick="onClickActivate" />
         </GuiElement>
     </GuiElement>
 </GUI>

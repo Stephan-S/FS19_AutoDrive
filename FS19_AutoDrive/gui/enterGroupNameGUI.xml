@@ -3,17 +3,17 @@
     <GuiElement type="empty" profile="newLayer" />
     <GuiElement type="bitmap" profile="dialogFullscreenBg" />
 
-    <GuiElement type="bitmap" profile="yesNoDialogBg" id="dialogElement">
+    <GuiElement type="bitmap" profile="yesNoDialogBg">
         <GuiElement type="bitmap" profile="dialogHeaderDocked">
-            <GuiElement type="text" profile="dialogHeaderText" text="" onCreate="onCreateTitleElement" id="dialogTitleElement" />
+            <GuiElement type="text" profile="dialogHeaderText" text="$l10n_gui_ad_enterGroupNameTitle" />
         </GuiElement>
 
-        <GuiElement type="text" profile="sleepDialogText" text="" onCreate="onCreateTextElement" id="dialogTextElement" />
+        <GuiElement type="text" profile="sleepDialogText" text="$l10n_gui_ad_enterGroupNameText" />
 
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" />
+        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" focusInit="onOpen" maxCharacters="20" />
 
-        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
-            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" id="backButton" />
+        <GuiElement type="flowLayout" profile="buttonBoxDocked">
+            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
             <GuiElement type="button" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" />
         </GuiElement>
     </GuiElement>

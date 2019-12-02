@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-24"
+AutoDrive.Version = "1.0.7.0-25"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false

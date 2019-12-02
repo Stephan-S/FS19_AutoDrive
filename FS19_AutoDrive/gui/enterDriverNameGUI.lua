@@ -6,6 +6,7 @@
 -- @date 09/06/2019
 
 ADEnterDriverNameGui = {}
+ADEnterDriverNameGui.CONTROLS = {"textInputElement"}
 
 local ADEnterDriverNameGui_mt = Class(ADEnterDriverNameGui, ScreenElement)
 
@@ -13,37 +14,28 @@ function ADEnterDriverNameGui:new(target)
     local o = ScreenElement:new(target, ADEnterDriverNameGui_mt)
     o.returnScreenName = ""
     o.textInputElement = nil
+    o:registerControls(ADEnterDriverNameGui.CONTROLS)
     return o
-end
-
-function ADEnterDriverNameGui:onCreateTitleElement(element)
-    element:setText(g_i18n:getText("gui_ad_enterDriverNameTitle"))
-end
-
-function ADEnterDriverNameGui:onCreateTextElement(element)
-    element:setText(g_i18n:getText("gui_ad_enterDriverNameText"))
-end
-
-function ADEnterDriverNameGui:onCreateInputElement(element)
-    self.textInputElement = element
-    element.text = ""
 end
 
 function ADEnterDriverNameGui:onOpen()
     ADEnterDriverNameGui:superClass().onOpen(self)
-    FocusManager:setFocus(self.textInputElement)
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
-    self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
+    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
+    end
 end
 
 function ADEnterDriverNameGui:onClickOk()
     ADEnterDriverNameGui:superClass().onClickOk(self)
-    AutoDrive.renameDriver(g_currentMission.controlledVehicle, self.textInputElement.text)
+    if g_currentMission.controlledVehicle ~= nil then
+        AutoDrive.renameDriver(g_currentMission.controlledVehicle, self.textInputElement.text)
+    end
     self:onClickBack()
 end
 
-function ADEnterDriverNameGui:onClickResetButton()
+function ADEnterDriverNameGui:onClickCancel()
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
         self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
     end
@@ -51,8 +43,4 @@ end
 
 function ADEnterDriverNameGui:onClickBack()
     ADEnterDriverNameGui:superClass().onClickBack(self)
-end
-
-function ADEnterDriverNameGui:onClose()
-    ADEnterDriverNameGui:superClass().onClose(self)
 end

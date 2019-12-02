@@ -6,57 +6,27 @@
 -- @date 08/08/2019
 
 ADEnterTargetNameGui = {}
+ADEnterTargetNameGui.CONTROLS = {"titleElement", "textInputElement", "buttonsCreateElement", "buttonsEditElement"}
 
 local ADEnterTargetNameGui_mt = Class(ADEnterTargetNameGui, ScreenElement)
 
 function ADEnterTargetNameGui:new(target)
     local o = ScreenElement:new(target, ADEnterTargetNameGui_mt)
     o.returnScreenName = ""
-    o.textInputElement = nil
-    o.createButtonElement = nil
-    o.buttonsEditElement = nil
-    o.buttonsCreateElement = nil
-    o.titleElement = nil
     o.editName = nil
     o.editId = nil
     o.edit = false
+    o:registerControls(ADEnterTargetNameGui.CONTROLS)
     return o
-end
-
-function ADEnterTargetNameGui:onCreateInputElement(element)
-    self.textInputElement = element
-    element.text = ""
-end
-
-function ADEnterTargetNameGui:onCreateTitleElement(element)
-    self.titleElement = element
-end
-
-function ADEnterTargetNameGui:onCreateTextElement(element)
-    element:setText(g_i18n:getText("gui_ad_enterTargetNameText"))
-end
-
-function ADEnterTargetNameGui:onCreateCreateButton(element)
-    self.createButtonElement = element
-    element:setText(g_i18n:getText("gui_ad_createButtonText"))
-end
-
-function ADEnterTargetNameGui:onCreateButtonsCreate(element)
-    self.buttonsCreateElement = element
-end
-
-function ADEnterTargetNameGui:onCreateButtonsEdit(element)
-    self.buttonsEditElement = element
 end
 
 function ADEnterTargetNameGui:onOpen()
     ADEnterTargetNameGui:superClass().onOpen(self)
+    self.textInputElement.blockTime = 0
+    self.textInputElement:onFocusActivate()
     self.editName = nil
     self.editId = nil
     self.edit = false
-    FocusManager:setFocus(self.textInputElement)
-    self.textInputElement.blockTime = 0
-    self.textInputElement:onFocusActivate()
 
     -- If editSelectedMapMarker is true, we have to edit the map marker selected on the pull down list otherwise we can go for closest waypoint
     if AutoDrive.editSelectedMapMarker ~= nil and AutoDrive.editSelectedMapMarker == true then
@@ -93,31 +63,27 @@ function ADEnterTargetNameGui:onOpen()
     self.buttonsEditElement:setVisible(self.edit)
 end
 
-function ADEnterTargetNameGui:onClickCreateButton()
+function ADEnterTargetNameGui:onClickOk()
     ADEnterTargetNameGui:superClass().onClickOk(self)
-    AutoDrive.createMapMarkerOnClosest(g_currentMission.controlledVehicle, self.textInputElement.text)
+    if self.edit then
+        AutoDrive.renameMapMarker(self.textInputElement.text, self.editId)
+    else
+        AutoDrive.createMapMarkerOnClosest(g_currentMission.controlledVehicle, self.textInputElement.text)
+    end
     self:onClickBack()
 end
 
-function ADEnterTargetNameGui:onClickRenameButton()
-    ADEnterTargetNameGui:superClass().onClickOk(self)
-    AutoDrive.renameMapMarker(self.textInputElement.text, self.editId)
-    self:onClickBack()
-end
-
-function ADEnterTargetNameGui:onClickDeleteButton()
+function ADEnterTargetNameGui:onClickActivate()
+    ADEnterTargetNameGui:superClass().onClickActivate(self)
     AutoDrive.removeMapMarker(self.editId)
     self:onClickBack()
 end
 
-function ADEnterTargetNameGui:onClickResetButton()
+function ADEnterTargetNameGui:onClickCancel()
+    ADEnterTargetNameGui:superClass().onClickCancel(self)
     self.textInputElement:setText(self.editName)
 end
 
 function ADEnterTargetNameGui:onClickBack()
     ADEnterTargetNameGui:superClass().onClickBack(self)
-end
-
-function ADEnterTargetNameGui:onClose()
-    ADEnterTargetNameGui:superClass().onClose(self)
 end

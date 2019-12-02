@@ -3,19 +3,19 @@
     <GuiElement type="empty" profile="newLayer" />
     <GuiElement type="bitmap" profile="dialogFullscreenBg" />
 
-    <GuiElement type="bitmap" profile="yesNoDialogBg" id="dialogElement">
+    <GuiElement type="bitmap" profile="yesNoDialogBg">
         <GuiElement type="bitmap" profile="dialogHeaderDocked">
-            <GuiElement type="text" profile="dialogHeaderText" text="" onCreate="onCreateTitleElement" id="dialogTitleElement" />
+            <GuiElement type="text" profile="dialogHeaderText" text="$l10n_gui_ad_enterDestinationFilterTitle" />
         </GuiElement>
 
-        <GuiElement type="text" profile="sleepDialogText" text="" onCreate="onCreateTextElement" id="dialogTextElement" />
+        <GuiElement type="text" profile="sleepDialogText" text="$l10n_gui_ad_enterDestinationFilterText" />
 
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onCreate="onCreateInputElement" />
+        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" focusInit="onOpen" maxCharacters="10" />
 
-        <GuiElement type="flowLayout" profile="buttonBoxDocked" id="buttonsPC">
-            <GuiElement type="button" profile="buttonBack" id="backButton" text="$l10n_button_back" onClick="onClickBack" />
-            <GuiElement type="button" profile="buttonOK" id="okButton" text="$l10n_button_ok" onClick="onClickOk" />
-            <GuiElement type="button" profile="buttonCancel" id="cancelButton" text="$l10n_button_reset" onClick="onClickResetButton" />
+        <GuiElement type="flowLayout" profile="buttonBoxDocked">
+            <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
+            <GuiElement type="button" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" />
+            <GuiElement type="button" profile="buttonCancel" text="$l10n_button_reset" onClick="onClickCancel" />
         </GuiElement>
     </GuiElement>
 </GUI>
