@@ -32,20 +32,20 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     local wpBehind
 
     local firstBinIsOnDriver = false
-    local trailers, trailerCount = AutoDrive.getTrailersOf(driver)
+    local trailers, _ = AutoDrive.getTrailersOf(driver)
     if trailers[1] ~= nil and driver == trailers[1] then
         firstBinIsOnDriver = true
     end
 
     if dischargeNode == nil then
-        local followDistance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
-        local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
-        local maxCapacity = fillLevel + leftCapacity
-        local combineFillLevel = (fillLevel / maxCapacity)
+        --local followDistance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
+        --local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
+        --local maxCapacity = fillLevel + leftCapacity
+        --local combineFillLevel = (fillLevel / maxCapacity)
 
-        if combineFillLevel <= 0.80 or combine:getIsBufferCombine() then
-            followDistance = 0
-        end
+        --if combineFillLevel <= 0.80 or combine:getIsBufferCombine() then
+        --    followDistance = 0
+        --end
 
         local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
         local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
@@ -67,7 +67,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         wpBehind = {x = pipeChasePos.x - AutoDrive.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - AutoDrive.PATHFINDER_TARGET_DISTANCE * rz}
         driver.ad.waitForPreDriveTimer = 10000
     else
-        local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
+        local nodeX, _, nodeZ = getWorldTranslation(dischargeNode)
         local pipeOffset = AutoDrive.getSetting("pipeOffset", driver)
         local trailerOffset = AutoDrive.getSetting("trailerOffset", driver)
         local lengthOffset = 5 + driver.sizeLength / 2
@@ -85,7 +85,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     end
 
     local driverWorldX, driverWorldY, driverWorldZ = getWorldTranslation(driver.components[1].node)
-    local driverRx, driverRy, driverRz = localDirectionToWorld(driver.components[1].node, 0, 0, 1)
+    local driverRx, _, driverRz = localDirectionToWorld(driver.components[1].node, 0, 0, 1)
     local driverVector = {x = driverRx, z = driverRz}
 
     local startDistance = AutoDrive.PATHFINDER_START_DISTANCE
@@ -873,7 +873,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
 
                 if (pf.smoothIndex > 1) then
                     local worldPosPrevious = pf.wayPoints[pf.smoothIndex - 1]
-                    local length = MathUtil.vector3Length(worldPos.x - worldPosPrevious.x, worldPos.y - worldPosPrevious.y, worldPos.z - worldPosPrevious.z)
+                    length = MathUtil.vector3Length(worldPos.x - worldPosPrevious.x, worldPos.y - worldPosPrevious.y, worldPos.z - worldPosPrevious.z)
                     local angleBetween = math.atan(math.abs(worldPos.y - worldPosPrevious.y) / length)
 
                     if angleBetween > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
@@ -1139,7 +1139,7 @@ function AutoDrive:checkForVehiclesInBox(boundingBox, excludedVehicles)
         end
 
         if (not isExcluded) and otherVehicle ~= nil and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then
-            local x, y, z = getWorldTranslation(otherVehicle.components[1].node)
+            local x, _, z = getWorldTranslation(otherVehicle.components[1].node)
             local distance = MathUtil.vector2Length(boundingBox[1].x - x, boundingBox[1].z - z)
             if distance < 50 then
                 if AutoDrive.boxesIntersect(boundingBox, AutoDrive:getBoundingBoxForVehicle(otherVehicle, false)) == true then
@@ -1155,19 +1155,19 @@ end
 function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
     --create bounding box to check for vehicle
-    local rx, ry, rz = 0, 0, 0
+    local rx, _, rz = 0, 0, 0
     local lookAheadDistance = 0
     local width = vehicle.sizeWidth
     local length = vehicle.sizeLength
     if dynamicSize then
         --Box should be a lookahead box which adjusts to vehicle steering rotation
-        rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
+        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
         lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 10 + 2
         if vehicle.ad ~= nil and vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 2] == nil then
             width = width * 2 / 3
         end
     else
-        rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
+        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
     end
     local vehicleVector = {x = rx, z = rz}
     local ortho = {x = -vehicleVector.z, z = vehicleVector.x}
@@ -1302,7 +1302,7 @@ end
 
 function AutoDrivePathFinder.drawDebugForCreatedRoute(pf)
     if pf.chainStartToTarget ~= nil then
-        for chainIndex, cell in pairs(pf.chainStartToTarget) do
+        for _, cell in pairs(pf.chainStartToTarget) do
             local shape = AutoDrivePathFinder.getShapeDefByDirectionType(pf, cell)
             if shape.x ~= nil then
                 local pointA = {
@@ -1339,7 +1339,7 @@ function AutoDrivePathFinder.drawDebugForCreatedRoute(pf)
                     angleRad = AutoDrive.normalizeAngle(angleRad)
                     local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2))
                     local sideLength = widthOfColBox / 2
-                    local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox
+                    --local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox
 
                     local leftAngle = AutoDrive.normalizeAngle(angleRad + math.rad(-90))
                     local rightAngle = AutoDrive.normalizeAngle(angleRad + math.rad(90))

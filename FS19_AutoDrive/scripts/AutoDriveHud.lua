@@ -210,7 +210,7 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, 
 
 	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
-	local tooltip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
+	--toolTip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
 	table.insert(self.hudElements, ADHudButton:new(posX, posY, self.buttonWidth, self.buttonHeight, primaryAction, secondaryAction, toolTip, state, visible))
 end
 
@@ -237,8 +237,8 @@ function AutoDriveHud:drawHud(vehicle)
 		end
 		self.lastUIScale = uiScale
 
-		local ovWidth = self.Background.width
-		local ovHeight = self.Background.height
+		--local ovWidth = self.Background.width
+		--local ovHeight = self.Background.height
 
 		for _, element in ipairs(self.hudElements) do  -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
 			element:onDraw(vehicle, uiScale)
@@ -332,7 +332,7 @@ function AutoDriveHud:getModeName(vehicle)
 end
 
 function AutoDriveHud:has_value(tab, val)
-	for index, value in ipairs(tab) do
+	for _, value in ipairs(tab) do
 		if value == val then
 			return true
 		end
@@ -356,7 +356,7 @@ function AutoDriveHud:createMapHotspot(vehicle)
 	-- Since this function and 'deleteMapHotspot' are called 4 times on clients (maybe we should fix that) we need to ensure tha only one map hotspot is created
 	-- The previous solution wasn't working, to be honest I have no idea why...
 	if vehicle.ad.isActive and vehicle.ad.mapHotSpotActive == nil then
-		local hotspotX, _, hotspotZ = getWorldTranslation(vehicle.rootNode)
+		--local hotspotX, _, hotspotZ = getWorldTranslation(vehicle.rootNode)
 		local _, textSize = getNormalizedScreenValues(0, 6) --Textsize local _, textSize = getNormalizedScreenValues(0, 9)
 		local _, textOffsetY = getNormalizedScreenValues(0, 15) --Distance to icon -- local _, textOffsetY = getNormalizedScreenValues(0, 24)
 		local width, height = getNormalizedScreenValues(10, 10) --Triggersize -- local width, height = getNormalizedScreenValues(18, 18)

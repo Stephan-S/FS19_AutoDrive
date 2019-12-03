@@ -6,7 +6,7 @@ function AutoDrive.handleMultiplayer(dt)
             if AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter and AutoDrive.requestedWaypoints == true then
                 AutoDrive.requestedWaypointCount = highestIndex
                 --g_logManager:devInfo("Highest index of all users was: " .. highestIndex);
-                for userID, user in pairs(AutoDrive.Server.Users) do
+                for _, user in pairs(AutoDrive.Server.Users) do
                     user.ackReceived = false
                 end
                 AutoDriveCourseDownloadEvent:sendEvent()

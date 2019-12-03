@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-27"
+AutoDrive.Version = "1.0.7.0-28"
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.configChanged = false
@@ -443,7 +443,7 @@ function AutoDrive.getVehicleMaxSpeed(vehicle)
 	-- 255 is the max value to prevent errors with MP sync
 	if vehicle ~= nil and vehicle.spec_motorized ~= nil and vehicle.spec_motorized.motor ~= nil then
 		local motor = vehicle.spec_motorized.motor
-		return math.min(math.min(motor:getSpeedLimit(), motor:getMaximumForwardSpeed() * 3.6), 255)
+		return math.min(motor:getMaximumForwardSpeed() * 3.6, 255)
 	end
 	return 255
 end

@@ -58,15 +58,15 @@ end
 function AutoDrive:callDriverToCombine(combine)
     local spec = combine.spec_pipe
     if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
-        local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
+        local worldX, _, worldZ = getWorldTranslation(combine.components[1].node)
 
         for _, dischargeNode in pairs(combine.spec_dischargeable.dischargeNodes) do
-            local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
+            --local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
             if AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0 then
                 local closestDriver = nil
                 local closestDistance = math.huge
                 for _, driver in pairs(AutoDrive.waitingUnloadDrivers) do
-                    local driverX, driverY, driverZ = getWorldTranslation(driver.components[1].node)
+                    local driverX, _, driverZ = getWorldTranslation(driver.components[1].node)
                     local distance = math.sqrt(math.pow((driverX - worldX), 2) + math.pow((driverZ - worldZ), 2))
 
                     if distance < closestDistance and ((distance < 300 and AutoDrive.getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
@@ -106,13 +106,13 @@ function AutoDrive:callDriverToCombine(combine)
 end
 
 function AutoDrive:preCallDriverToCombine(combine)
-    local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
+    local worldX, _, worldZ = getWorldTranslation(combine.components[1].node)
 
     if AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0 then
         local closestDriver = nil
         local closestDistance = math.huge
         for _, driver in pairs(AutoDrive.waitingUnloadDrivers) do
-            local driverX, driverY, driverZ = getWorldTranslation(driver.components[1].node)
+            local driverX, _, driverZ = getWorldTranslation(driver.components[1].node)
             local distance = math.sqrt(math.pow((driverX - worldX), 2) + math.pow((driverZ - worldZ), 2))
 
             if distance < closestDistance and ((distance < 300 and AutoDrive.getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
@@ -238,11 +238,11 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 local acc = 1
                 local allowedToDrive = true
 
-                local x, y, z = getWorldTranslation(vehicle.components[1].node)
-                local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
+                local x, _, z = getWorldTranslation(vehicle.components[1].node)
+                local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
                 x = x + rx
                 z = z + rz
-                local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
+                --local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
                 AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, nil, nil, finalSpeed, 1)
                 drivingEnabled = true
             end
@@ -256,15 +256,15 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                         local acc = 1
                         local allowedToDrive = true
 
-                        local node = vehicle.components[1].node
-                        if vehicle.getAIVehicleDirectionNode ~= nil then
-                            node = vehicle:getAIVehicleDirectionNode()
-                        end
-                        local x, y, z = getWorldTranslation(vehicle.components[1].node)
-                        local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, -1)
+                        --local node = vehicle.components[1].node
+                        --if vehicle.getAIVehicleDirectionNode ~= nil then
+                        --    node = vehicle:getAIVehicleDirectionNode()
+                        --end
+                        local x, _, z = getWorldTranslation(vehicle.components[1].node)
+                        local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, -1)
                         x = x + rx
                         z = z + rz
-                        local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
+                        --local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
                         AIVehicleUtil.driveInDirection(vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, nil, nil, finalSpeed, 1)
                         drivingEnabled = true
                     else
@@ -546,12 +546,12 @@ function AutoDrive:reverseVehicle(vehicle, dt)
     local acc = 1
     local allowedToDrive = true
 
-    local node = vehicle.components[1].node
-    if vehicle.getAIVehicleDirectionNode ~= nil then
-        node = vehicle:getAIVehicleDirectionNode()
-    end
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, -1)
+    --local node = vehicle.components[1].node
+    --if vehicle.getAIVehicleDirectionNode ~= nil then
+    --    node = vehicle:getAIVehicleDirectionNode()
+    --end
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, -1)
     x = x + rx
     z = z + rz
     --local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
@@ -616,7 +616,7 @@ end
 
 function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked, rightBlocked)
     local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
+    local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
     local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
     local nodeX, nodeY, nodeZ = worldX, worldY, worldZ
@@ -674,8 +674,8 @@ end
 
 function AutoDrive:getCombineChasePosition(vehicle, combine)
     local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
-    local combineVector = {x = rx, z = rz}
+    local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
+    --local combineVector = {x = rx, z = rz}
 
     local distance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
     if combine:getIsBufferCombine() then
@@ -690,11 +690,11 @@ function AutoDrive:getAngleToCombineHeading(vehicle, combine)
         return math.huge
     end
 
-    local combineWorldX, combineWorldY, combineWorldZ = getWorldTranslation(combine.components[1].node)
-    local combineRx, combineRy, combineRz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
+    --local combineWorldX, combineWorldY, combineWorldZ = getWorldTranslation(combine.components[1].node)
+    local combineRx, _, combineRz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
 
-    local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
+    --local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineRx, z = combineRz}))
 end
@@ -704,8 +704,8 @@ function AutoDrive:getAngleToChasePos(vehicle, chasePos)
         return math.huge
     end
 
-    local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
-    local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
+    local worldX, _, worldZ = getWorldTranslation(vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = chasePos.x - worldX, z = chasePos.z - worldZ}))
 end
@@ -756,7 +756,7 @@ function AutoDrive:restartPathFinder(vehicle)
 end
 
 function AutoDrive:checkDoneUnloading(vehicle)
-    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle)
     local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailers[vehicle.ad.currentTrailer])
     local maxCapacity = fillLevel + leftCapacity
 
@@ -885,7 +885,7 @@ function AutoDrive:checkIfShortcutToCombinePossible(vehicle, dt)
     if vehicle.ad.checkShortcutTimer:done() then
         vehicle.ad.checkShortcutTimer:timer(false)
 
-        local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
+        local worldX, _, worldZ = getWorldTranslation(vehicle.components[1].node)
         local distanceToLastWayPoint = math.huge
         if vehicle.ad.wayPoints ~= nil then
             distanceToLastWayPoint = MathUtil.vector2Length(worldX - vehicle.ad.wayPoints[#vehicle.ad.wayPoints].x, worldZ - vehicle.ad.wayPoints[#vehicle.ad.wayPoints].z)

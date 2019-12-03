@@ -18,8 +18,8 @@ function AutoDrive:handleDriving(vehicle, dt)
     end
 
     if vehicle.components ~= nil and vehicle.isServer then
-        local x, y, z = getWorldTranslation(vehicle.components[1].node)
-        local xl, yl, zl = worldToLocal(vehicle.components[1].node, x, y, z)
+        local x, _, z = getWorldTranslation(vehicle.components[1].node)
+        --local xl, yl, zl = worldToLocal(vehicle.components[1].node, x, y, z)
 
         if vehicle.ad.isActive == true and vehicle.ad.isPaused == false then
             if vehicle.ad.initialized == false then
@@ -146,7 +146,7 @@ end
 
 function AutoDrive:checkForDeadLock(vehicle, dt)
     if (vehicle.ad.isActive == true) and (vehicle.bga.isActive == false) and vehicle.isServer and vehicle.ad.isStopping == false then
-        local x, y, z = getWorldTranslation(vehicle.components[1].node)
+        local x, _, z = getWorldTranslation(vehicle.components[1].node)
         if (AutoDrive:getDistance(x, z, vehicle.ad.targetX, vehicle.ad.targetZ) < 15) then
             vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt
             if vehicle.ad.timeTillDeadLock < 0 and vehicle.ad.timeTillDeadLock ~= -1 then
@@ -212,7 +212,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS
         else
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --decide if we are already on field and are allowed to park on field then
-                local x, y, z = getWorldTranslation(vehicle.components[1].node)
+                local x, _, z = getWorldTranslation(vehicle.components[1].node)
                 local node = AutoDrive.mapWayPoints[closest]
                 if AutoDrive.getSetting("parkInField", vehicle) and AutoDrive:getDistance(x, z, node.x, node.z) > 20 then
                     AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
@@ -492,7 +492,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     end
 
     local finalSpeed = vehicle.ad.speedOverride
-    local finalAcceleration = true
+    --local finalAcceleration = true
 
     local node = vehicle.components[1].node
     -- if vehicle.getAIVehicleDirectionNode ~= nil then
@@ -579,7 +579,7 @@ end
 
 function AutoDrive:driveToLastWaypoint(vehicle, dt)
     --g_logManager:devInfo("Reaching last waypoint - slowing down");
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local _, y, _ = getWorldTranslation(vehicle.components[1].node)
     local finalSpeed = 8
     -- if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE then
     --     finalSpeed = vehicle.ad.lastUsedSpeed;
@@ -634,8 +634,8 @@ function AutoDrive:handleDeadlock(vehicle, dt)
             if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + lookAhead] ~= nil then
                 --figure out best moment to switch to next waypoint!
 
-                local x, y, z = getWorldTranslation(vehicle.components[1].node)
-                local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
+                local x, _, z = getWorldTranslation(vehicle.components[1].node)
+                local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
                 local vehicleVector = {x = rx, z = rz}
 
                 local wpAhead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + lookAhead - 1]
@@ -669,7 +669,7 @@ end
 function AutoDrive:getLookAheadTarget(vehicle)
     --start driving to the nextWayPoint when closing in on current waypoint in order to avoid harsh steering angles and oversteering
 
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local targetX = vehicle.ad.targetX
     local targetZ = vehicle.ad.targetZ
     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1] ~= nil then

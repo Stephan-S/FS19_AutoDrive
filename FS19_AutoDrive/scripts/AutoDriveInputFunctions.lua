@@ -1,5 +1,5 @@
 function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
-	--g_logManager:devInfo("AutoDrive onActionCall.." .. actionName);
+	--g_logManager:devInfo("AutoDrive onActionCall " .. actionName);
 
 	if actionName == "ADSilomode" then
 		--g_logManager:devInfo("sending event to InputHandling");
@@ -356,14 +356,14 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.targetSpeed < AutoDrive.getVehicleMaxSpeed(vehicle) then
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed + 1
 		end
-		--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
+	--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
 	end
 
 	if input == "input_decreaseSpeed" then
 		if vehicle.ad.targetSpeed > 2 then
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed - 1
 		end
-		--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
+	--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
 	end
 
 	if input == "input_recalculate" then
@@ -679,7 +679,7 @@ function AutoDrive:toggleConnectionBetween(startNode, targetNode)
 		startNode.out[out_counter] = targetNode.id
 
 		local incomingCounter = 1
-		for _, id in pairs(targetNode.incoming) do
+		for _, _ in pairs(targetNode.incoming) do
 			incomingCounter = incomingCounter + 1
 		end
 		targetNode.incoming[incomingCounter] = startNode.id

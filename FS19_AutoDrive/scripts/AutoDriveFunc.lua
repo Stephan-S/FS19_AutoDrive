@@ -225,12 +225,12 @@ function AutoDrive:getVehicleToStop(vehicle, brake, dt)
 		allowedToDrive = true
 	end
 
-	local node = vehicle.components[1].node
-	if vehicle.getAIVehicleDirectionNode ~= nil then
-		node = vehicle:getAIVehicleDirectionNode()
-	end
+	--local node = vehicle.components[1].node
+	--if vehicle.getAIVehicleDirectionNode ~= nil then
+	--	node = vehicle:getAIVehicleDirectionNode()
+	--end
 	local x, y, z = getWorldTranslation(vehicle.components[1].node)
-	local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
+	local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
 	x = x + rx
 	z = z + rz
 	local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, x, y, z)
@@ -343,7 +343,7 @@ end
 
 function AutoDrive:detectTraffic(vehicle)
 	local x, y, z = getWorldTranslation(vehicle.components[1].node)
-	local rx, ry, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
+	local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
 	local vehicleVector = {x = rx, z = rz}
 	local width = vehicle.sizeWidth
 	local length = vehicle.sizeLength
@@ -386,7 +386,7 @@ function AutoDrive:detectTraffic(vehicle)
 		}
 
 		boxCenter.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, boxCenter.x, 300, boxCenter.z), y) + 1.5 + offsetCompensation
-		local rx, ry, rz = getWorldRotation(vehicle.components[1].node)
+		--local rx, ry, rz = getWorldRotation(vehicle.components[1].node)
 		local shapes = overlapBox(boxCenter.x, boxCenter.y, boxCenter.z, rotX, box.ry, 0, box.size[1], box.size[2], box.size[3], "collisionTestCallback", nil, AIVehicleUtil.COLLISION_MASK, true, true, true) --AIVehicleUtil.COLLISION_MASK
 
 		local red = 0
@@ -423,7 +423,7 @@ function AutoDrive:checkIsConnected(toCheck, other)
 		return false
 	end
 
-	for _i, impl in pairs(toCheck:getAttachedImplements()) do
+	for _, impl in pairs(toCheck:getAttachedImplements()) do
 		if impl.object ~= nil then
 			if impl.object == other then
 				return true
