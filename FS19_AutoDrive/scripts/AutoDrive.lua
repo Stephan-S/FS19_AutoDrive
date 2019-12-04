@@ -1,7 +1,12 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-28"
+AutoDrive.Version = "1.0.7.0-29"
+
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
+AutoDrive.experimentalFeatures.redLinePosition = false
+
+AutoDrive.developmentControls = false
+
 AutoDrive.configChanged = false
 AutoDrive.handledRecalculation = true
 
@@ -78,19 +83,13 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterGroupNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterDestinationFilterGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveBGAUnloader.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 	AutoDrive:loadGUI()
 
 	g_logManager:devInfo("[AutoDrive] Map title: %s", g_currentMission.missionInfo.map.title)
@@ -103,6 +102,17 @@ function AutoDrive:loadMap(name)
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ";", "_")
 
 	g_logManager:devInfo("[AutoDrive] Parsed map title: %s", AutoDrive.loadedMap)
+
+	-- That's probably bad, but for the moment I can't find another way to know if development controls are enabled
+	local gameXmlFilePath = getUserProfileAppPath() .. "game.xml"
+	if fileExists(gameXmlFilePath) then
+		local gameXmlFile = loadXMLFile("game_XML", gameXmlFilePath)
+		if gameXmlFile ~= nil then
+			if hasXMLProperty(gameXmlFile, "game.development.controls") then
+				AutoDrive.developmentControls = Utils.getNoNil(getXMLBool(gameXmlFile, "game.development.controls"), AutoDrive.developmentControls)
+			end
+		end
+	end
 
 	AutoDrive.mapWayPoints = {}
 	AutoDrive.mapWayPointsCounter = 0

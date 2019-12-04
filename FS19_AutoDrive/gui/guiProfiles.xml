@@ -147,4 +147,34 @@
         <Value name="position" value="80px 20px" />
     </Profile>
 
+    <Profile name="autoDriveDebugSettingsCheckbox" extends="baseReference" with="lightFrame">
+        <Value name="size" value="300px 48px" />
+        <Value name="frameThickness" value="1dp 1dp 1dp 1dp" />
+        <Value name="imageColor" value="$preset_colorGlassMedium" />
+        <Value name="imageDisabledColor" value="$preset_colorGlass" />
+        <Value name="margin" value="24px 12px 48px 32px" />
+    </Profile>
+
+    <Profile name="autoDriveDebugSettingsCheckboxToggle" extends="ingameMenuMPActionsListPermissionCheckbox" with="anchorMiddleLeft">
+        <Value name="frameThickness" value="0 0 1dp 0" />
+    </Profile>
+
+    <Profile name="autoDriveDebugSettingsCheckboxToggleTick" extends="ingameMenuMPActionsListPermissionCheckboxTick">
+    </Profile>
+
+    <Profile name="autoDriveDebugSettingsCheckboxToggleUntick" extends="ingameMenuMPActionsListPermissionCheckboxUntick">
+    </Profile>
+
+    <Profile name="autoDriveDebugSettingsCheckboxToggleIcon" extends="baseReference" with="lightFrame">
+        <Value name="size" value="48px 48px" />
+        <Value name="position" value="48px 0px" />
+        <Value name="imageFilename" value="g_autoDriveDebugUIFilename" />
+        <Value name="imageUVs" value="0px 0px 128px 128px" />
+        <Value name="frameThickness" value="0 0 1dp 0" />
+    </Profile>
+
+    <Profile name="autoDriveDebugSettingsCheckboxToggleText" extends="textDefault" with="anchorMiddleLeft">
+        <Value name="position" value="109px 0px" />
+    </Profile>
+
 </GUIProfiles>

@@ -1,25 +1,55 @@
 function AutoDrive:loadGUI()
-	--g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
+	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterGroupNameGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/enterDestinationFilterGUI.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/debugSettingsPage.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/experimentalFeaturesSettingsPage.lua", AutoDrive.directory))
+	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
+
+	g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
 	AutoDrive.gui = {}
-	AutoDrive.gui["ADEnterDriverNameGui"] = ADEnterDriverNameGui:new()
+	AutoDrive.gui.ADEnterDriverNameGui = ADEnterDriverNameGui:new()
+	AutoDrive.gui.ADEnterTargetNameGui = ADEnterTargetNameGui:new()
+	AutoDrive.gui.ADEnterGroupNameGui = ADEnterGroupNameGui:new()
+	AutoDrive.gui.ADEnterDestinationFilterGui = ADEnterDestinationFilterGui:new()
+
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
-	AutoDrive.gui["ADEnterTargetNameGui"] = ADEnterTargetNameGui:new()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "ADEnterTargetNameGui", AutoDrive.gui.ADEnterTargetNameGui)
-	AutoDrive.gui["ADEnterGroupNameGui"] = ADEnterGroupNameGui:new()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "ADEnterGroupNameGui", AutoDrive.gui.ADEnterGroupNameGui)
-	AutoDrive.gui["ADEnterDestinationFilterGui"] = ADEnterDestinationFilterGui:new()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
 
 	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
 	AutoDrive.gui.ADVehicleSettingsPage = ADSettingsPage:new()
 	AutoDrive.gui.ADCombineUnloadSettingsPage = ADSettingsPage:new()
+	AutoDrive.gui.ADDebugSettingsPage = ADDebugSettingsPage:new()
+	AutoDrive.gui.ADExperimentalFeaturesSettingsPage = ADExperimentalFeaturesSettingsPage:new()
 	AutoDrive.gui.ADSettings = ADSettings:new()
 
 	g_gui:loadGui(AutoDrive.directory .. "gui/settingsPage.xml", "ADSettingsFrame", AutoDrive.gui.ADSettingsPage, true)
 	g_gui:loadGui(AutoDrive.directory .. "gui/vehicleSettingsPage.xml", "ADVehicleSettingsFrame", AutoDrive.gui.ADVehicleSettingsPage, true)
 	g_gui:loadGui(AutoDrive.directory .. "gui/combineUnloadSettingsPage.xml", "ADCombineUnloadSettingsFrame", AutoDrive.gui.ADCombineUnloadSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/debugSettingsPage.xml", "ADDebugSettingsFrame", AutoDrive.gui.ADDebugSettingsPage, true)
+	g_gui:loadGui(AutoDrive.directory .. "gui/experimentalFeaturesSettingsPage.xml", "ADExperimentalFeaturesSettingsFrame", AutoDrive.gui.ADExperimentalFeaturesSettingsPage, true)
 	g_gui:loadGui(AutoDrive.directory .. "gui/settings.xml", "ADSettings", AutoDrive.gui.ADSettings)
 end
+
+function AutoDrive.guiOverlay_loadOverlay(superFunc, ...)
+	local overlay = superFunc(...)
+	if overlay == nil then
+		return nil
+	end
+
+	if overlay.filename == "g_autoDriveDebugUIFilename" then
+		overlay.filename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
+	elseif overlay.filename == "g_autoDriveUIFilename" then
+		overlay.filename = AutoDrive.directory .. "textures/GUI_Icons.dds"
+	end
+
+	return overlay
+end
+GuiOverlay.loadOverlay = AutoDrive.overwrittenStaticFunction(GuiOverlay.loadOverlay, AutoDrive.guiOverlay_loadOverlay)
 
 function AutoDrive:onOpenSettings()
 	if AutoDrive.gui.ADSettings.isOpen then

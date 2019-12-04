@@ -9,7 +9,7 @@ ADSettingsPage = {}
 
 local ADSettingsPage_mt = Class(ADSettingsPage, TabbedMenuFrameElement)
 
-ADSettingsPage.CONTROLS = {"container", "pageTitle", "settingsContainer", "ingameMenuHelpBox", "headerIcon"}
+ADSettingsPage.CONTROLS = {"settingsContainer", "ingameMenuHelpBox", "headerIcon"}
 
 function ADSettingsPage:new(target)
     local o = TabbedMenuFrameElement:new(target, ADSettingsPage_mt)
@@ -73,15 +73,6 @@ function ADSettingsPage:onOptionChange(state, element)
             iconElem:setImageColor(iconElem.overlayState, unpack(ADSettings.ICON_COLOR.DEFAULT))
         end
     end
-end
-
-function ADSettingsPage:onOpen()
-    --for _, settingElement in pairs(self.settingElements) do
-    --    local iconElem = settingElement.elements[6]
-    --    if iconElem ~= nil then
-    --        iconElem:setImageColor(iconElem.overlayState, unpack(ADSettings.ICON_COLOR.DEFAULT))
-    --    end
-    --end
 end
 
 function ADSettingsPage:hasChanges()

@@ -568,7 +568,7 @@ function AutoDrive:findClosestWayPoint(veh)
 	end
 
 	local startNode = veh.ad.frontNode
-	if AutoDrive.getSetting("autoConnectStart") then
+	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
 		startNode = veh.components[1].node
 	end
 	--returns waypoint closest to vehicle position
@@ -593,7 +593,7 @@ end
 
 function AutoDrive:findMatchingWayPointForVehicle(veh)
 	local startNode = veh.ad.frontNode
-	if AutoDrive.getSetting("autoConnectStart") then
+	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
 		startNode = veh.components[1].node
 	end
 	--returns waypoint closest to vehicle position and with the most suited heading
@@ -675,7 +675,7 @@ end
 
 function AutoDrive:findMatchingWayPointForReverseDirection(veh)
 	local startNode = veh.ad.frontNode
-	if AutoDrive.getSetting("autoConnectStart") then
+	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
 		startNode = veh.components[1].node
 	end
 	--returns waypoint closest to vehicle position and with the most suited heading

@@ -9,7 +9,7 @@ ADSettings = {}
 
 local ADSettings_mt = Class(ADSettings, TabbedMenu)
 
-ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings"}
+ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings"}
 
 --- Page tab UV coordinates for display elements.
 ADSettings.TAB_UV = {
@@ -17,7 +17,9 @@ ADSettings.TAB_UV = {
     SETTINGS_VEHICLE = {0, 209, 65, 65},
     SETTINGS_UNLOAD = {0, 0, 128, 128},
     SETTINGS_LOAD = {0, 129, 128, 128},
-    SETTINGS_NAVIGATION = {0, 257, 128, 128}
+    SETTINGS_NAVIGATION = {0, 257, 128, 128},
+    SETTINGS_DEBUG = {0, 128, 128, 128},
+    SETTINGS_EXPFEAT = {128, 128, 128, 128}
 }
 
 ADSettings.ICON_UV = {
@@ -43,32 +45,38 @@ function ADSettings:onGuiSetupFinished()
 end
 
 function ADSettings:setupPages()
-    local enablePredicate = function()
+
+    local alwaysEnabled = function()
         return true
     end
 
+    local developmentControlsEnabled = function()
+        return AutoDrive.developmentControls
+    end
+
     local orderedPages = {
-        {self.autoDriveSettings, enablePredicate, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_GENERAL},
-        {self.autoDriveVehicleSettings, enablePredicate, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE},
-        {self.autoDriveCombineUnloadSettings, enablePredicate, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_UNLOAD}
+        {self.autoDriveSettings, alwaysEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_GENERAL, false},
+        {self.autoDriveVehicleSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
+        {self.autoDriveCombineUnloadSettings, alwaysEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
+        {self.autoDriveDebugSettings, developmentControlsEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_DEBUG, true},
+        {self.autoDriveExperimentalFeaturesSettings, alwaysEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_EXPFEAT, true}
     }
 
     for i, pageDef in ipairs(orderedPages) do
-        local page, ePredicate, uiFilename, iconUVs = unpack(pageDef)
+        local page, predicate, uiFilename, iconUVs, isAutonomous = unpack(pageDef)
         local normalizedIconUVs = getNormalizedUVs(iconUVs)
-        self:registerPage(page, i, ePredicate)
+        self:registerPage(page, i, predicate)
         self:addPageTab(page, uiFilename, normalizedIconUVs) -- use the global here because the value changes with resolution settings
+        page.isAutonomous = isAutonomous
         page.headerIcon:setImageFilename(uiFilename)
         page.headerIcon:setImageUVs(nil, unpack(normalizedIconUVs))
+        if page.setupMenuButtonInfo ~= nil then
+            page:setupMenuButtonInfo(self)
+        end
     end
 end
 
 function ADSettings:onOpen()
-    for _, pageName in pairs(ADSettings.CONTROLS) do
-        if self[pageName].onOpen ~= nil then
-            self[pageName]:onOpen()
-        end
-    end
     ADSettings:superClass().onOpen(self)
     self.inputDisableTime = 200
 end
@@ -112,7 +120,7 @@ end
 
 function ADSettings:onClickReset()
     local page = self:getActivePage()
-    if page == nil then
+    if page == nil or page.isAutonomous then
         return
     end
     self:resetPage(page)
@@ -120,7 +128,7 @@ end
 
 function ADSettings:onClickRestore()
     local page = self:getActivePage()
-    if page == nil then
+    if page == nil or page.isAutonomous then
         return
     end
     self:restorePage(page)
@@ -141,7 +149,7 @@ function ADSettings:applySettings()
             if setting.new ~= setting.current then
                 if setting.new ~= nil then
                     -- We could even print this with our debug system, but since GIANTS itself prints every changed config, for the moment we will do the same
-                    g_logManager:info('Setting \'%s\' changed from "%s" to "%s"', settingName, setting.values[setting.current], setting.values[setting.new])
+                    g_logManager:devInfo('Setting \'%s\' changed from "%s" to "%s"', settingName, setting.values[setting.current], setting.values[setting.new])
                     setting.current = setting.new
                 end
             end
@@ -152,6 +160,9 @@ function ADSettings:applySettings()
 end
 
 function ADSettings:resetPage(page)
+    if page == nil or page.isAutonomous then
+        return
+    end
     if page:hasChanges() then
         for settingName, _ in pairs(page.settingElements) do
             if AutoDrive.settings[settingName] ~= nil then
@@ -167,6 +178,9 @@ function ADSettings:resetPage(page)
 end
 
 function ADSettings:restorePage(page)
+    if page == nil or page.isAutonomous then
+        return
+    end
     for settingName, _ in pairs(page.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
             local setting = AutoDrive.settings[settingName]
@@ -185,7 +199,7 @@ end
 
 function ADSettings:pagesHasChanges()
     for _, pageName in pairs(ADSettings.CONTROLS) do
-        if self[pageName]:hasChanges() then
+        if not self[pageName].isAutonomous and self[pageName]:hasChanges() then
             return true
         end
     end

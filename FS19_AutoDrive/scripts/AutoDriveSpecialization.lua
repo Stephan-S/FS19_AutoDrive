@@ -52,8 +52,6 @@ function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
     self.ad = {}
     self.ad.smootherDriving = {}
-    self.ad.smootherDriving.lastLx = 0
-    self.ad.smootherDriving.lastLz = 1
     self.ad.smootherDriving.lastMaxSpeed = 0
     self.ad.stuckInTrafficTimer = 0
     self.ad.targetSelected = -1
@@ -593,7 +591,7 @@ end
 
 function AutoDrive:onDrawCreationMode(vehicle)
     local startNode = vehicle.ad.frontNode
-    if AutoDrive.getSetting("autoConnectStart") then
+    if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
         startNode = vehicle.components[1].node
     end
     local x1, y1, z1 = getWorldTranslation(startNode)
@@ -786,7 +784,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
         allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
     end
 
-    if self.ad ~= nil then
+    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
         if self.ad.isActive and allowedToDrive then
             --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 

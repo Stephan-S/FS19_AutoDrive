@@ -170,12 +170,24 @@
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Paramètres de déchargements moissonneuses - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
+		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimental Features Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Restaurer" />
 		<text name="gui_ad_settingsClosingDialog_title"			text="Tous les changements seront perdus" />
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distance de conduite des chauffeurs" />
 		<text name="statistic_driversHired" 					text="Chauffeurs actuellement embauchés" />
+
+		<text name="gui_ad_debugChannelVehicle" 				text="Vehicles" />
+		<text name="gui_ad_debugChannelCombine" 				text="Combines" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Trailers" />
+		<text name="gui_ad_debugChannelDev" 					text="Developing" />
+		<text name="gui_ad_debugChannelPath" 					text="Pathfinding" />
+		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
+		<text name="gui_ad_debugChannelAll" 					text="Everything" />
 		
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
