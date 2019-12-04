@@ -42,3 +42,13 @@ end
 function ADEnterDestinationFilterGui:onClickBack()
     ADEnterDestinationFilterGui:superClass().onClickBack(self)
 end
+
+function ADEnterDestinationFilterGui:onEnterPressed(_, isClick)
+    if not isClick then
+        self:onClickOk()
+    end
+end
+
+function ADEnterDestinationFilterGui:onEscPressed()
+    self:onClickBack()
+end

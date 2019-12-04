@@ -34,3 +34,13 @@ end
 function ADEnterGroupNameGui:onClickBack()
     ADEnterGroupNameGui:superClass().onClickBack(self)
 end
+
+function ADEnterGroupNameGui:onEnterPressed(_, isClick)
+    if not isClick then
+        self:onClickOk()
+    end
+end
+
+function ADEnterGroupNameGui:onEscPressed()
+    self:onClickBack()
+end

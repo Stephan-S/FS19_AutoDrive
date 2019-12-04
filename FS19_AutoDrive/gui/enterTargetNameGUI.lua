@@ -87,3 +87,13 @@ end
 function ADEnterTargetNameGui:onClickBack()
     ADEnterTargetNameGui:superClass().onClickBack(self)
 end
+
+function ADEnterTargetNameGui:onEnterPressed(_, isClick)
+    if not isClick then
+        self:onClickOk()
+    end
+end
+
+function ADEnterTargetNameGui:onEscPressed()
+    self:onClickBack()
+end

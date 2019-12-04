@@ -44,3 +44,13 @@ end
 function ADEnterDriverNameGui:onClickBack()
     ADEnterDriverNameGui:superClass().onClickBack(self)
 end
+
+function ADEnterDriverNameGui:onEnterPressed(_, isClick)
+    if not isClick then
+        self:onClickOk()
+    end
+end
+
+function ADEnterDriverNameGui:onEscPressed()
+    self:onClickBack()
+end

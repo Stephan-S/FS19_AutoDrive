@@ -10,7 +10,7 @@
 
         <GuiElement type="text" profile="sleepDialogText" text="$l10n_gui_ad_enterDestinationFilterText" />
 
-        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" focusInit="onOpen" maxCharacters="10" />
+        <GuiElement type="textInput" profile="dialogTextInput" id="textInputElement" onEnterPressed="onEnterPressed" onEscPressed="onEscPressed" focusInit="onOpen" maxCharacters="10" />
 
         <GuiElement type="flowLayout" profile="buttonBoxDocked">
             <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
