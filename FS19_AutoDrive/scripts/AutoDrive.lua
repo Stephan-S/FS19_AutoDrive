@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-30"
+AutoDrive.Version = "1.0.7.0-31"
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
@@ -558,6 +558,11 @@ function AutoDrive:loadTriggerDelete(superFunc)
 	superFunc(self)
 end
 
+AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}
+for _, statName in pairs(AutoDrive.STAT_NAMES) do
+	table.insert(FarmStats.STAT_NAMES, statName)
+end
+
 function AutoDrive:FarmStats_saveToXMLFile(xmlFile, key)
 	key = key .. ".statistics"
 	if self.statistics.driversTraveledDistance ~= nil then
@@ -568,8 +573,6 @@ FarmStats.saveToXMLFile = Utils.appendedFunction(FarmStats.saveToXMLFile, AutoDr
 
 function AutoDrive:FarmStats_loadFromXMLFile(xmlFile, key)
 	key = key .. ".statistics"
-	self.statistics["driversTraveledDistance"] = {session = 0, total = 0}
-	self.statistics["driversHired"] = {session = 0, total = 0}
 	self.statistics["driversTraveledDistance"].total = Utils.getNoNil(getXMLFloat(xmlFile, key .. ".driversTraveledDistance"), 0)
 end
 FarmStats.loadFromXMLFile = Utils.appendedFunction(FarmStats.loadFromXMLFile, AutoDrive.FarmStats_loadFromXMLFile)

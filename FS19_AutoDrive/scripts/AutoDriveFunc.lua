@@ -85,16 +85,13 @@ end
 function AutoDrive:stopVehicle(vehicle, dt)
 	if math.abs(vehicle.lastSpeedReal) < 0.0015 then
 		vehicle.ad.isStopping = false
-	end
-
-	if vehicle.ad.isStopping then
-		AutoDrive:getVehicleToStop(vehicle, true, dt)
-	else
 		-- We don't need that, since the motor is turned off automatically when the helper is kicked out
 		--if AutoDrive.getSetting("fuelSaving") and vehicle.isServer and (vehicle.getIsEntered == nil or not vehicle:getIsEntered()) and vehicle.spec_motorized.isMotorStarted then
 		--	vehicle:stopMotor()
 		--end
 		AutoDrive:disableAutoDriveFunctions(vehicle)
+	else
+		AutoDrive:getVehicleToStop(vehicle, true, dt)
 	end
 end
 

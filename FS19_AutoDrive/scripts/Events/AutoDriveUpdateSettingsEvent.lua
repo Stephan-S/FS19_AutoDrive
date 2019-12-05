@@ -62,7 +62,7 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 	end
 
 	-- If the current user is editing the settings the gui will be closed and then opened to show new settings
-	if g_gui.currentGui.name == "ADSettings" then
+	if g_gui.currentGui ~= nil and g_gui.currentGui.name == "ADSettings" then
 		g_gui:showGui()
 		g_gui:showGui("ADSettings")
 	end

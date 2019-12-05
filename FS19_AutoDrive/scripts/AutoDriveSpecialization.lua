@@ -564,7 +564,7 @@ function AutoDrive:onDraw()
         AutoDrive:onDrawCreationMode(self)
     end
 
-    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) and self.ad.frontNodeGizmo ~= nil then
+    if AutoDrive.experimentalFeatures.redLinePosition and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) and self.ad.frontNodeGizmo ~= nil then
         self.ad.frontNodeGizmo:createWithNode(self.ad.frontNode, getName(self.ad.frontNode), false)
         self.ad.frontNodeGizmo:draw()
     end

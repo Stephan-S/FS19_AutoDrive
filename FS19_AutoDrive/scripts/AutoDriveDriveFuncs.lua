@@ -291,15 +291,16 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
     else
-        if (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and vehicle.ad.mode ~= AutoDrive.MODE_LOAD then
-            --g_logManager:devInfo("Shutting down");
+        if
+            (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and
+                (vehicle.ad.mode == AutoDrive.MODE_LOAD and not vehicle.ad.onRouteToSecondTarget)
+         then
             local target = vehicle.ad.nameOfSelectedTarget
             for _, mapMarker in pairs(AutoDrive.mapMarker) do
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and mapMarker.id == vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id then
                     target = mapMarker.name
                 end
             end
-
             AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target)
             AutoDrive:stopAD(vehicle, false)
         else
