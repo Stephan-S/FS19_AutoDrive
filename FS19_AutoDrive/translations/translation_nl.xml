@@ -166,6 +166,8 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Filter tekst invoeren:" />
 		<text name="gui_ad_shovelHeight"						text="Shovel height" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
+		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

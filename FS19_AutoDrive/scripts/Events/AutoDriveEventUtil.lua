@@ -178,6 +178,7 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
         end
     end
     AutoDrive.mapMarkerCounter = numberOfMapMarkers
+    AutoDrive:notifyDestinationListeners()
 end
 
 function AutoDrive:readGroupsFromStream(streamId)

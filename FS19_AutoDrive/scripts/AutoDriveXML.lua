@@ -10,7 +10,7 @@ function AutoDrive.loadStoredXML()
 		AutoDrive.adXml = loadXMLFile("AutoDrive_XML", xmlFile)
 
 		local VersionCheck = getXMLString(AutoDrive.adXml, "AutoDrive.version")
-		if VersionCheck ~= AutoDrive.Version then
+		if VersionCheck ~= AutoDrive.version then
 			AutoDrive.versionUpdate = true
 		end
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
@@ -306,7 +306,7 @@ function AutoDrive.saveToXML(xmlFile)
 		return
 	end
 
-	setXMLString(xmlFile, "AutoDrive.Version", AutoDrive.Version)
+	setXMLString(xmlFile, "AutoDrive.version", AutoDrive.version)
 	if AutoDrive.handledRecalculation ~= true then
 		setXMLString(xmlFile, "AutoDrive.Recalculation", "true")
 		g_logManager:devInfo("[AutoDrive] Set to recalculating routes")

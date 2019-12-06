@@ -40,7 +40,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     local secondLineText = ""
 
     local textToShow = "AutoDrive"
-    textToShow = textToShow .. " - " .. AutoDrive.Version
+    textToShow = textToShow .. " - " .. AutoDrive.version
     textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle)
 
     if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then

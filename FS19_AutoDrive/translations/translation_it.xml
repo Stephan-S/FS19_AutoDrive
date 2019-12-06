@@ -166,6 +166,8 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Inserisci testo filtro:" />
 		<text name="gui_ad_shovelHeight"						text="Altezza pala" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Se l'altezza della pala rilevata automaticamente non è corretta. Utilizzare questo per regolare l'altezza dal suolo" />
+		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />

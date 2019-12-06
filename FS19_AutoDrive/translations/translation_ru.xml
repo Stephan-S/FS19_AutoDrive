@@ -166,6 +166,8 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Введите текст фильтра:" />
 		<text name="gui_ad_shovelHeight"						text="Высота ковша" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
+		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />

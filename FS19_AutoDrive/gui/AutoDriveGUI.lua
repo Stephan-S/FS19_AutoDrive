@@ -35,21 +35,21 @@ function AutoDrive:loadGUI()
 	g_gui:loadGui(AutoDrive.directory .. "gui/settings.xml", "ADSettings", AutoDrive.gui.ADSettings)
 end
 
-function AutoDrive.guiOverlay_loadOverlay(superFunc, ...)
+function AutoDrive.GuiOverlay_loadOverlay(superFunc, ...)
 	local overlay = superFunc(...)
 	if overlay == nil then
 		return nil
 	end
 
 	if overlay.filename == "g_autoDriveDebugUIFilename" then
-		overlay.filename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
+		overlay.filename = g_autoDriveDebugUIFilename
 	elseif overlay.filename == "g_autoDriveUIFilename" then
-		overlay.filename = AutoDrive.directory .. "textures/GUI_Icons.dds"
+		overlay.filename = g_autoDriveUIFilename
 	end
 
 	return overlay
 end
-GuiOverlay.loadOverlay = AutoDrive.overwrittenStaticFunction(GuiOverlay.loadOverlay, AutoDrive.guiOverlay_loadOverlay)
+GuiOverlay.loadOverlay = AutoDrive.overwrittenStaticFunction(GuiOverlay.loadOverlay, AutoDrive.GuiOverlay_loadOverlay)
 
 function AutoDrive:onOpenSettings()
 	if AutoDrive.gui.ADSettings.isOpen then

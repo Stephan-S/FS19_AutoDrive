@@ -45,7 +45,6 @@ function ADSettings:onGuiSetupFinished()
 end
 
 function ADSettings:setupPages()
-
     local alwaysEnabled = function()
         return true
     end
@@ -55,11 +54,11 @@ function ADSettings:setupPages()
     end
 
     local orderedPages = {
-        {self.autoDriveSettings, alwaysEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_GENERAL, false},
+        {self.autoDriveSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_GENERAL, false},
         {self.autoDriveVehicleSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
-        {self.autoDriveCombineUnloadSettings, alwaysEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
-        {self.autoDriveDebugSettings, developmentControlsEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_DEBUG, true},
-        {self.autoDriveExperimentalFeaturesSettings, alwaysEnabled, AutoDrive.directory .. "textures/GUI_Icons.dds", ADSettings.TAB_UV.SETTINGS_EXPFEAT, true}
+        {self.autoDriveCombineUnloadSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
+        {self.autoDriveDebugSettings, developmentControlsEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_DEBUG, true},
+        {self.autoDriveExperimentalFeaturesSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_EXPFEAT, true}
     }
 
     for i, pageDef in ipairs(orderedPages) do
