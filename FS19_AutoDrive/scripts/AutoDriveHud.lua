@@ -216,9 +216,12 @@ end
 
 function AutoDriveHud:refreshHudElementsLayerSequence()
 	-- Sort the elements by their layer index, for optimizing drawHud and mouseEvent methods
-	table.sort(self.hudElements, function(a,b)
-		return a.layer < b.layer
-	end)
+	table.sort(
+		self.hudElements,
+		function(a, b)
+			return a.layer < b.layer
+		end
+	)
 end
 
 function AutoDriveHud:drawHud(vehicle)
@@ -240,7 +243,7 @@ function AutoDriveHud:drawHud(vehicle)
 		--local ovWidth = self.Background.width
 		--local ovHeight = self.Background.height
 
-		for _, element in ipairs(self.hudElements) do  -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
+		for _, element in ipairs(self.hudElements) do -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
 			element:onDraw(vehicle, uiScale)
 		end
 	end
@@ -265,7 +268,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		local mouseEventHandled = false
 		AutoDrive.mouseWheelActive = false
 		-- Start with highest layer value (last in array), and then iterate backwards.
-		for i=#self.hudElements,1,-1 do
+		for i = #self.hudElements, 1, -1 do
 			local element = self.hudElements[i]
 			local layer = element.layer
 			mouseEventHandled = element:mouseEvent(vehicle, posX, posY, isDown, isUp, button, layer)

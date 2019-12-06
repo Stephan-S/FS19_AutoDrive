@@ -205,6 +205,42 @@ function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
 	end
 end
 
+function AutoDrive.dumpTable(inputTable, name, maxDepth)
+	maxDepth = maxDepth or 5
+	print(name .. " = {}")
+	local function dumpTableRecursively(inputTable, name, depth, maxDepth)
+		if depth >= maxDepth then
+			return
+		end
+		for k, v in pairs(inputTable) do
+			local newName = string.format("%s.%s", name, k)
+			if type(k) == "number" then
+				newName = string.format("%s[%s]", name, k)
+			end
+			if type(v) ~= "table" and type(v) ~= "function" then
+				print(string.format("%s = %s", newName, v))
+			end
+			if type(v) == "table" then
+				print(newName .. " = {}")
+				dumpTableRecursively(v, newName, depth + 1, maxDepth)
+			end
+		end
+	end
+	for k, v in pairs(inputTable) do
+		local newName = string.format("%s.%s", name, k)
+		if type(k) == "number" then
+			newName = string.format("%s[%s]", name, k)
+		end
+		if type(v) ~= "table" and type(v) ~= "function" then
+			print(string.format("%s = %s", newName, v))
+		end
+		if type(v) == "table" then
+			print(newName .. " = {}")
+			dumpTableRecursively(v, newName, 1, maxDepth)
+		end
+	end
+end
+
 addConsoleCommand("ADsetDebugChannel", "Set new debug channel", "setDebugChannel", AutoDrive)
 
 function AutoDrive:setDebugChannel(newDebugChannel)

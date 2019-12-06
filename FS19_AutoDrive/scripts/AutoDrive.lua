@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.Version = "1.0.7.0-31"
+AutoDrive.Version = "1.0.7.0-32"
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
@@ -186,6 +186,8 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.delayedCallBacks = {}
 
+	AutoDrive.mapHotspotsBuffer = {}
+
 	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
 	--    DelayedCallBack:new(
 	--    function()
@@ -216,6 +218,37 @@ function AutoDrive:firstRun()
 		AutoDrive.getAllTriggers()
 		AutoDrive.searchedTriggers = true
 	end
+	AutoDrive.updateDestinationsMapHotspots()
+	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
+end
+
+function AutoDrive.updateDestinationsMapHotspots()
+	--AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
+
+	---- Removing all old map hotspots
+	--for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+	--	g_currentMission:removeMapHotspot(mh)
+	--end
+
+	---- Filling the buffer
+	--local missingAmount = AutoDrive.tableLength(AutoDrive.mapMarker) - AutoDrive.tableLength(AutoDrive.mapHotspotsBuffer)
+	--if missingAmount > 0 then
+	--	for i = 1, missingAmount do
+	--		local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+	--		mh:setBorderedImage(nil, getNormalizedUVs({213, 179, -170, -170}))
+	--		mh.visible = false
+	--		table.insert(AutoDrive.mapHotspotsBuffer, mh)
+	--	end
+	--end
+
+	---- Updating and adding hotspots
+	--for index, marker in ipairs(AutoDrive.mapMarker) do
+	--	local mh = AutoDrive.mapHotspotsBuffer[index]
+	--	mh:setText(marker.name)
+	--	local x, _, z = getWorldTranslation(marker.node)
+	--	mh:setWorldPosition(x, z)
+	--	g_currentMission:addMapHotspot(mh)
+	--end
 end
 
 function AutoDrive:saveSavegame()
@@ -234,6 +267,13 @@ function AutoDrive:saveSavegame()
 end
 
 function AutoDrive:deleteMap()
+	-- Removing and deleting all map hotspots
+	for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+		g_currentMission:removeMapHotspot(mh)
+		mh:delete()
+	end
+	AutoDrive.mapHotspotsBuffer = {}
+	AutoDrive:unRegisterDestinationListener(AutoDrive)
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
@@ -412,7 +452,7 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 					end
 				end
 			end
-			-- Moving all markers in the delete group to default group
+			-- Moving all markers in the deleted group to default group
 			for markerID, _ in pairs(AutoDrive.mapMarker) do
 				if AutoDrive.mapMarker[markerID].group == groupName then
 					AutoDrive.mapMarker[markerID].group = "All"

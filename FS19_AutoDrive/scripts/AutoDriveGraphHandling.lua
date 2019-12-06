@@ -94,7 +94,7 @@ function AutoDrive.removeMapWayPoint(wayPointId, sendEvent)
 			AutoDrive.totalNumberOfWayPointsToReceive = mapWayPointsCounter
 
 			-- Calling external interop listeners
-			AutoDrive:notifyDestinationListeners()
+			-- AutoDrive:notifyDestinationListeners()
 
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
