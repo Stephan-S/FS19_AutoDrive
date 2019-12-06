@@ -36,7 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Assegna un nome all'autista" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumenta contatore ciclo" />
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
-		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -166,14 +166,14 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Inserisci testo filtro:" />
 		<text name="gui_ad_shovelHeight"						text="Altezza pala" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Se l'altezza della pala rilevata automaticamente non è corretta. Utilizzare questo per regolare l'altezza dal suolo" />
-		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
-		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
+		<text name="gui_ad_showMarkersOnMap"					text="Visualizza marcatori " />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Visualizza marcatori/destinazioni sulla mappa in gioco" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Impostazioni Mietitrebbia" />
-		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
-		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimental Features Settings - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title" 			text="Impostazioni debug" />
+		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Impostazione funzioni sperimentali" />
 		<text name="gui_ad_restoreButtonText" 					text="Ripristina" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Tutte le modifiche andranno perse" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Sei sicuro di voler uscire da impostazioni senza salvare?" />
@@ -181,15 +181,15 @@
 		<text name="statistic_driversTraveledDistance" 			text="Distanza percorsa dagli autisti" />
 		<text name="statistic_driversHired" 					text="Autisti attualmente assunti" />
 		
-		<text name="gui_ad_debugChannelVehicle" 				text="Vehicles" />
-		<text name="gui_ad_debugChannelCombine" 				text="Combines" />
-		<text name="gui_ad_debugChannelTrailer" 				text="Trailers" />
-		<text name="gui_ad_debugChannelDev" 					text="Developing" />
-		<text name="gui_ad_debugChannelPath" 					text="Pathfinding" />
-		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
-		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
-		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
-		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+		<text name="gui_ad_debugChannelVehicle" 				text="Veicoli" />
+		<text name="gui_ad_debugChannelCombine" 				text="Trebbie" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Rimorchi" />
+		<text name="gui_ad_debugChannelDev" 					text="Sviluppatori" />
+		<text name="gui_ad_debugChannelPath" 					text="Cerca percorso" />
+		<text name="gui_ad_debugChannelSensor" 					text="Sensore" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Rete" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfaccia esterna" />
+		<text name="gui_ad_debugChannelAll" 					text="Tutto" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
