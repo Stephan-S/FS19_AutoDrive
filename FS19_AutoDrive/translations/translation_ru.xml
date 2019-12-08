@@ -166,18 +166,30 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Введите текст фильтра:" />
 		<text name="gui_ad_shovelHeight"						text="Высота ковша" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
-		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
-		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
+		<text name="gui_ad_showMarkersOnMap"					text="Отображать маркеры" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Отображать маркеры/пункты назначения на карте" />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Настройки разгрузки комбайна - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title"				text="Настройки отладки - AutoDrive" />
+		<text name="gui_ad_eFeaturesSettingsPage_title"			text="Настройки экспериментальных функций - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Восстоновить" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Все изменения будут утеряны" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Вы уверены, что хотите закрыть окно настроек без сохранения?" />
 
-		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
-		<text name="statistic_driversHired" 					text="Drivers currently hired" />
+		<text name="statistic_driversTraveledDistance" 			text="Расстояние от водителей" />
+		<text name="statistic_driversHired" 					text="Водители в настоящее время наняты" />
+
+		<text name="gui_ad_debugChannelVehicle" 				text="Автомобили" />
+		<text name="gui_ad_debugChannelCombine" 				text="Комбайны" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Прицепы" />
+		<text name="gui_ad_debugChannelDev" 					text="Developing" />
+		<text name="gui_ad_debugChannelPath" 					text="Поиск пути" />
+		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
+		<text name="gui_ad_debugChannelAll" 					text="Все" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 
