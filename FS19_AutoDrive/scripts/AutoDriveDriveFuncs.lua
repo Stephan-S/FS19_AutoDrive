@@ -293,7 +293,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
     else
         if
             (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and
-                (vehicle.ad.mode ~= AutoDrive.MODE_LOAD or not vehicle.ad.onRouteToSecondTarget)
+                (vehicle.ad.mode ~= AutoDrive.MODE_LOAD)
          then
             local target = vehicle.ad.nameOfSelectedTarget
             for _, mapMarker in pairs(AutoDrive.mapMarker) do
@@ -334,7 +334,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 else
                     vehicle.ad.timeTillDeadLock = 15000
 
-                    if vehicle.ad.callBackFunction ~= nil then
+                    if vehicle.ad.callBackFunction ~= nil or (vehicle.ad.mode == AutoDrive.MODE_LOAD) then
                         AutoDrive:stopAD(vehicle, false)
                         return
                     end

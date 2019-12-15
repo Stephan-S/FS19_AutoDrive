@@ -38,15 +38,6 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     end
 
     if dischargeNode == nil then
-        --local followDistance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
-        --local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
-        --local maxCapacity = fillLevel + leftCapacity
-        --local combineFillLevel = (fillLevel / maxCapacity)
-
-        --if combineFillLevel <= 0.80 or combine:getIsBufferCombine() then
-        --    followDistance = 0
-        --end
-
         local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
         local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
 

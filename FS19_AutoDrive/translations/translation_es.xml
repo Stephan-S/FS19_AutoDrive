@@ -168,6 +168,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la altura de la pala detectada automáticamente es incorrecta. Utilice esta utilidad para ajustar la altura del suelo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Mostrar marcadores" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Mostrar marcadores/destinos en el mapa del juego" />
+		<text name="gui_ad_useLiveMode"							text="Use live mode" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />

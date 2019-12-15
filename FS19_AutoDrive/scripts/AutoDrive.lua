@@ -92,6 +92,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveDijkstraLive.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 	AutoDrive:loadGUI()
 

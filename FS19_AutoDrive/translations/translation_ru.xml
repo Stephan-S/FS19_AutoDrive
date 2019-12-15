@@ -168,6 +168,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
 		<text name="gui_ad_showMarkersOnMap"					text="Отображать маркеры" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Отображать маркеры/пункты назначения на карте" />
+		<text name="gui_ad_useLiveMode"							text="Use live mode" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />

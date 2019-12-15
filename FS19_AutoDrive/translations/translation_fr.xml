@@ -47,8 +47,8 @@
 		<text name="AD_new_marker"								text="Nouvel objectif:" />
 		<text name="AD_new_marker_helptext"						text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
 		<text name="AD_Recalculationg_routes_status"			text="Recalcul des routes. Veuilllez patienter. Terminé:" />
-		<text name="AD_No_Trailer"								text="Ne touve pas de remorque" />
-		<text name="AD_No_Bunker"								text="Ne touve pas le silo (bunker)" />
+		<text name="AD_No_Trailer"								text="Ne trouve pas de remorque" />
+		<text name="AD_No_Bunker"								text="Ne trouve pas le silo (bunker)" />
 		<text name="AD_No_Shovel"								text="Ne trouve pas de pelle" />
 		<text name="AD_MODE_DRIVETO"							text="Conduite" />
 		<text name="AD_MODE_DELIVERTO"							text="Livraison" />
@@ -177,6 +177,8 @@
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
 		<text name="gui_ad_showMarkersOnMap"					text="Afficher les marqueurs" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Affiche les marqueurs/destinations en jeu sur la carte" />
+		<text name="gui_ad_useLiveMode"							text="Use live mode" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distance de conduite des chauffeurs" />
 		<text name="statistic_driversHired" 					text="Chauffeurs actuellement embauchés" />

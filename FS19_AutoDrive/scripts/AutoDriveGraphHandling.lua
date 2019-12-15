@@ -508,7 +508,7 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, past, maxDrivingSpeed
 		end
 	end
 
-	return driveTime
+	return driveTime, angle
 end
 
 function AutoDrive:getDriveTimeForWaypoints(wps, currentWaypoint, maxDrivingSpeed)
@@ -544,6 +544,14 @@ function AutoDrive:getHighestConsecutiveIndex()
 end
 
 function AutoDrive:FastShortestPath(graph, start, markerName, markerID)
+	if AutoDrive.getSetting("useLiveMode") then
+		return AutoDrive:FastShortestPathLive(graph, start, markerName, markerID)
+	end;
+
+	return AutoDrive:FastShortestPathPreCalculated(graph, start, markerName, markerID)
+end
+
+function AutoDrive:FastShortestPathPreCalculated(graph, start, markerName, markerID)
 	local id = start
 	if nil == id or nil == graph[id] then
 		return {}

@@ -166,8 +166,10 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Zielfilter eingeben:" />
 		<text name="gui_ad_shovelHeight"						text="Schaufelhöhe" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Falls die automatisch erkannte Zielhöhe nicht korrekt auf dem Boden ist, nutze diesen Wert zum Anpassen" />
-		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
-		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
+		<text name="gui_ad_showMarkersOnMap"					text="Ziele auf Karte" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Zeigt die Ziele auf der Karte an" />
+		<text name="gui_ad_useLiveMode"							text="Live Modus" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="Routen werden bei Bedarf berechnet und müssen nicht vorher statisch neuberechnet werden" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
