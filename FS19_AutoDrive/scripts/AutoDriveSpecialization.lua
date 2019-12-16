@@ -11,6 +11,7 @@ end
 
 function AutoDrive.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateAILights", AutoDrive.updateAILights)
+    SpecializationUtil.registerOverwrittenFunction(vehicleType, "getCanMotorRun", AutoDrive.getCanMotorRun)
 end
 
 function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
@@ -776,6 +777,14 @@ function AutoDrive:updateAILights(superFunc)
         return
     else
         superFunc(self)
+    end
+end
+
+function AutoDrive:getCanMotorRun(superFunc)
+    if self.ad ~= nil and self.ad.isActive and AutoDrive.shouldStopMotor(self) then
+        return false
+    else
+        return superFunc(self)
     end
 end
 
