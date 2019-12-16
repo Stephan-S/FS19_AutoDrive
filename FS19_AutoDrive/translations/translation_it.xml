@@ -168,8 +168,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Se l'altezza della pala rilevata automaticamente non è corretta. Utilizzare questo per regolare l'altezza dal suolo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Visualizza marcatori " />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Visualizza marcatori/destinazioni sulla mappa in gioco" />
-		<text name="gui_ad_useLiveMode"							text="Use live mode" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
+		<text name="gui_ad_useLiveMode"							text="Usa modalità live" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="I percorsi sono calcolati su richiesta e non precalcolati" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />
