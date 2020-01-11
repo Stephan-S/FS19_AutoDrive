@@ -36,7 +36,7 @@
 		<text name="input_ADNameDriver"							text="AD: Asignar nombre al conductor" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumentar los ciclos" />
 		<text name="input_ADParkVehicle"						text="AD: Aparcar Vehículo" />
-		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
 		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino deestacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"								text="Conductor de" />
@@ -103,7 +103,7 @@
 		<text name="gui_ad_gui_scale"							text="Escala del gui para AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Dejar la escala por defecto de la configuración del juego" />
 		<text name="gui_ad_exitField"							text="Ruta de salida del campo" />
-		<text name="gui_ad_exitField_tooltip"					text="Estrategia de lka ruta de salida del campo cuando vaya a descargar" />
+		<text name="gui_ad_exitField_tooltip"					text="Estrategia de la ruta de salida del campo cuando vaya a descargar" />
 		<text name="gui_ad_default"								text="Por defecto" />
 		<text name="gui_ad_after_start"							text="Antes del inicio" />
 		<text name="gui_ad_closest"								text="Punto más cercano" />
@@ -170,8 +170,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la altura de la pala detectada automáticamente es incorrecta. Utilice esta utilidad para ajustar la altura del suelo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Mostrar marcadores" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Mostrar marcadores/destinos en el mapa del juego" />
-		<text name="gui_ad_useLiveMode"							text="Use live mode" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
+		<text name="gui_ad_useLiveMode"							text="poner en modo live" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="las rutas se realizan bajo demanda y no precalculadss" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />

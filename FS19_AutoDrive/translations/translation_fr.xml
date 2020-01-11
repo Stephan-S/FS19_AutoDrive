@@ -162,12 +162,12 @@
 		<text name="gui_ad_autoRefuel"							text="Faire le plein automatiquement" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Lorsque le niveau du réservoir est bas, la station-service la plus proche est automatiquement ajoutée dans les trajets." />
 		<text name="gui_ad_fuelSaving"							text="Économies de carburant" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Arrête le moteur des véhicules lorsque la destination est atteinte (et que le joueur ne les conduits pas)" />
+		<text name="gui_ad_fuelSaving_tooltip"					text="Arrête le moteur des véhicules lorsque la destination est atteinte (et que le joueur ne les conduits pas)." />
 		<text name="gui_ad_filter"								text="Filtrage" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Changer le filtre de destination" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Entrez le filtre de destination:" />
 		<text name="gui_ad_shovelHeight"						text="Hauteur de pelle" />
-		<text name="gui_ad_shovelHeight_tooltip"				text="Si la hauteur de pelle détectée automatiquement n’est pas correcte au sol, utilisez cette valeur pour ajuster" />
+		<text name="gui_ad_shovelHeight_tooltip"				text="Si la hauteur de pelle détectée automatiquement n’est pas correcte au sol, utilisez cette valeur pour ajuster." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
@@ -178,9 +178,9 @@
 		<text name="gui_ad_settingsClosingDialog_title"			text="Tous les changements seront perdus" />
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
 		<text name="gui_ad_showMarkersOnMap"					text="Afficher les marqueurs" />
-		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Affiche les marqueurs/destinations en jeu sur la carte" />
-		<text name="gui_ad_useLiveMode"							text="Use live mode" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Affiche les marqueurs/destinations en jeu sur la carte." />
+		<text name="gui_ad_useLiveMode"							text="Utiliser le mode live" />
+		<text name="gui_ad_useLiveMode_tooltip"					text="Les chemins sont calculés à la demande et non précalculés." />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distance de conduite des chauffeurs" />
 		<text name="statistic_driversHired" 					text="Chauffeurs actuellement embauchés" />
