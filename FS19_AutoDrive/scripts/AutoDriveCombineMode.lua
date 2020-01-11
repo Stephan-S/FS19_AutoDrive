@@ -481,10 +481,10 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
     local acc = 1
     local allowedToDrive = true
 
-    if vehicle.ccInfos.distanceToChasePos < 2 then
-        finalSpeed = 2
+    if vehicle.ccInfos.distanceToChasePos < 0.5 then
+        finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 5)
     elseif vehicle.ccInfos.distanceToChasePos < 5 then
-        finalSpeed = (vehicle.ad.currentCombine.lastSpeedReal * 3600)
+        finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10)
     elseif vehicle.ccInfos.distanceToChasePos < 10 then
         finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10)
     end
@@ -632,7 +632,8 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
             sideIndex = AutoDrive.ccSIDE_RIGHT
         else
             --g_logManager:devInfo("Taking rear side");
-            nodeX, nodeY, nodeZ = worldX - combineVector.x * 6, worldY, worldZ - combineVector.z * 6
+            local distanceToRear = AutoDrive.getSetting("followDistance", vehicle);
+            nodeX, nodeY, nodeZ = worldX - combineVector.x * distanceToRear, worldY, worldZ - combineVector.z * distanceToRear
             sideIndex = AutoDrive.ccSIDE_REAR
         end
     else

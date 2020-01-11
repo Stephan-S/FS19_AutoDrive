@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Odstup od kombajnu" />
 		<text name="gui_ad_trailerOffset"						text="Posun ke kombajnu vpřed/vzad" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Posun vpřed/vzad vzhledem ke kombajnu, pokud kombajn nemůže vysypat odvozci" />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Kontola vpřed" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Kontrola trasy pro rychlost zatáčení" />
 		<text name="gui_ad_lookahead_braking"					text="Kontrola vzad" />

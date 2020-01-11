@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Pipe Offset" />
 		<text name="gui_ad_trailerOffset"						text="Trailer offset" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Offset of trailer unloading position - front/rear" />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Look ahead distance (turn)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="The distance the vehicle looks ahead to adjust steering to follow the next segment" />
 		<text name="gui_ad_lookahead_braking"					text="Look ahead distance (brake)" />

@@ -87,7 +87,7 @@ function AutoDrive:handleDriving(vehicle, dt)
 end
 
 function AutoDrive.shouldStopMotor(vehicle)
-    return (vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE or AutoDrive.getIsStuckInTraffic(vehicle)) and vehicle.lastSpeedReal < 0.0001
+    return (vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE or AutoDrive.getIsStuckInTraffic(vehicle)) and vehicle.lastSpeedReal < 0.0001 and (not g_currentMission.missionInfo.automaticMotorStartEnabled)
 end
 
 function AutoDrive:checkActiveAttributesSet(vehicle)

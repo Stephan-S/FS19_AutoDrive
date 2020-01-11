@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Distanza dal tubo" />
 		<text name="gui_ad_trailerOffset"						text="Regolazione posizione scarico" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Regola la posizione del rimorchio per lo scarico - Avanti/Dietro" />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Distanza d'avanti (sterzata)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso" />
 		<text name="gui_ad_lookahead_braking"					text="Distanza d'avanti (frenata)" />

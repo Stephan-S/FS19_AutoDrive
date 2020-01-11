@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Abstand Rohr" />
 		<text name="gui_ad_trailerOffset"						text="Abstand Hänger" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Abstand Hänger - Längsachse" />
+		<text name="gui_ad_followDistance"						text="Abstand Häcksler" />
+		<text name="gui_ad_followDistance_tooltip"				text="Abstand vom Häcksler, wenn von hinten abgefahren/gefolgt wird" />
 		<text name="gui_ad_lookahead_turning"					text="Distanz Vorausschauen (Lenkung)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken" />
 		<text name="gui_ad_lookahead_braking"					text="Distanz Vorausschauen (Bremse)" />

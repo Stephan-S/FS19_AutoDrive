@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_trailerOffset"						text="Смещение прицепа" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Продольное смещение позиции разгрузки прицепа." />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Просматривать при повороте на" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Расстояние, на которое водитель при повороте 'смотрит' вперед, чтобы управлять рулением, для следования к следующему сегменту." />
 		<text name="gui_ad_lookahead_braking"					text="Просматривать при торможении" />

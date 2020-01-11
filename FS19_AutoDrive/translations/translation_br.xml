@@ -60,6 +60,8 @@
 		<text name="gui_ad_Setting"								text="AutoDrive - Configuração" />
 		<text name="gui_ad_pipe_offset"							text="Distancia do tubo" />
 		<text name="gui_ad_trailerOffset"						text="Deslocamento do reboque" />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Deslocamento da posição de descarga do reboque - dianteira/traseira" />
 		<text name="gui_ad_lookahead_turning"					text="Distância à frente (desvio)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distância que o veículo olha para frente para ajustar a direção para seguir o próximo segmento" />

@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Desplazamiento de tubería" />
 		<text name="gui_ad_trailerOffset"						text="desplazamiento del remolque" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="desplazamiento del remolque para posición de descarga - delante/atras" />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Distancia hacia delante (cruces)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="La distancia que el vehículo mira hacia adelante para ajustar la dirección a seguir en el siguiente segmento" />
 		<text name="gui_ad_lookahead_braking"					text="Distancia hacia delante (giros)" />

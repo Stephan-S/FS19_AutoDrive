@@ -61,6 +61,8 @@
 		<text name="gui_ad_pipe_offset"							text="Afstand Pijp" />
 		<text name="gui_ad_trailerOffset"						text="Trailer afstand" />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Afstand van trailer naar lospositie - voor/achter" />
+		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Vooruitkijk Afstand (Sturen)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="De afstand die het voertuig vooruit kijkt om de besturing aan te passen om het volgende segment te volgen" />
 		<text name="gui_ad_lookahead_braking"					text="Vooruitkijk Afstand (Remmen)" />
