@@ -268,11 +268,9 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
             vehicle.typeName == "pdlc_claasPack.combineDrivableCrawlers"
      then
         min_distance = 6
-    end
-    if vehicle.typeDesc == "telehandler" then
+    elseif vehicle.typeDesc == "telehandler" or vehicle.spec_crabSteering ~= nil then	--If vehicle has 4 steering wheels like xerion or hardi self Propelled sprayer then also min_distance = 3;
         min_distance = 3
-    end
-    if vehicle.typeDesc == "truck" then
+    elseif vehicle.typeDesc == "truck" then
         min_distance = 3
     end
     -- If vehicle is quadtrack then also min_distance = 6;
@@ -349,7 +347,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
                         end
                         vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
-                        if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                        if vehicle.ad.wayPoints[1] ~= nil then
                             vehicle.ad.wayPointsChanged = true
                             vehicle.ad.currentWayPoint = 1
 

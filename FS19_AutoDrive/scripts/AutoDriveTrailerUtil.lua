@@ -79,7 +79,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                 if (trigger.bunkerSiloArea == nil) then
                     if (distance < AutoDrive.getSetting("maxTriggerDistance")) then
                         if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
-                            if trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF then
+                            if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and not vehicle.ad.isPaused and trailer.spec_pipe.currentState >= 2)then
                                 AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
                                 trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
                                 vehicle.ad.isPaused = true
@@ -87,6 +87,8 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                                 vehicle.ad.isUnloadingWithTrailer = trailer
                                 vehicle.ad.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
                             end
+                        elseif trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe ~= nil and vehicle.ad.isUnloading and vehicle.ad.isPaused then
+							vehicle.ad.isPausedForTrailersClosing = true
                         end
 
                         if trailer.getDischargeState ~= nil then
@@ -133,13 +135,15 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                     vehicle.ad.isPausedForTrailersClosing = true
                 end
             end
-            if vehicle.ad.isPaused and vehicle.ad.isUnloadingWithTrailer:getTipState() == Trailer.TIPSTATE_CLOSED then
+            if vehicle.ad.isPaused and vehicle.ad.isUnloadingWithTrailer:getTipState() == Trailer.TIPSTATE_CLOSED and distance < AutoDrive.getSetting("maxTriggerDistance") and not vehicle.ad.isPausedForTrailersClosing then
                 AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - trailer has no tipState animation - continue")
                 vehicle.ad.isPausedForTrailersClosing = true
             end
-        else
+        elseif distance < AutoDrive.getSetting("maxTriggerDistance") then	--when does this happens? bug fixed: isPausedForTrailersClosing==true makes skipping next isPaused=true
             AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - trailer has no tipState animation")
             vehicle.ad.isPausedForTrailersClosing = true
+		elseif not vehicle.ad.isPaused then
+			vehicle.ad.isPausedForTrailersClosing = false
         end
         vehicle.ad.isUnloadingToBunkerSilo = false
     end
