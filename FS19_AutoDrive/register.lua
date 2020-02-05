@@ -73,7 +73,7 @@ for eName, eId in pairs(EventIds) do
 end
 
 function AutoDriveRegister:loadMap(name)
-	g_logManager:info("[AutoDrive] Loaded mod version %s (by Stephan)", self.version)
+	g_logManager:info("[AutoDrive] Loaded mod version %s (by Stephan). Full version number: %s", self.version, AutoDrive.version)
 end
 
 function AutoDriveRegister:deleteMap()
