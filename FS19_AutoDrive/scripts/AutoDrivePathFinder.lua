@@ -152,7 +152,7 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
     driver.ad.pf.restrictToField = startIsOnField and endIsOnField
 end
 
-function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit)
+function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit, PreviousStartPosition)
     --g_logManager:devInfo("startPathPlanningToStartPosition " .. driver.ad.driverName );
     local driverWorldX, driverWorldY, driverWorldZ = getWorldTranslation(driver.components[1].node)
     local driverRx, _, driverRz = localDirectionToWorld(driver.components[1].node, 0, 0, 1)
@@ -161,10 +161,15 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE * driverRz
 
     local targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id]
-    local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
-    local targetVector = {}
-    local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
-    if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
+	local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
+	local targetVector = {}
+	local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
+    if PreviousStartPosition ~= nil then
+		targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[PreviousStartPosition].id]
+		preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
+		waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[PreviousStartPosition].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id)
+ 	end
+	if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
         preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[1].id]
         targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[2].id]
     end

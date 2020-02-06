@@ -316,17 +316,19 @@ end
 
 function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
     if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
-        local trailer = attachedImplement
-        AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
-        AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
+		if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == "frontloaderTool") then	--avoid trying to fill shovels and levellers atached
+			local trailer = attachedImplement
+			AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
+			AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
+		end
     end
-    if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then
+    --[[if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then			--not needed since checking every single implement, counts fillLevel as double for hooklift containers
         if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then
             local trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
         end
-    end
+    end]]--
 
     if attachedImplement.getAttachedImplements ~= nil then
         for _, implement in pairs(attachedImplement:getAttachedImplements()) do
