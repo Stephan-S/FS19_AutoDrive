@@ -30,106 +30,132 @@
             <mm1>
                 <id>7354.000000</id>
                 <name>F01 Abfahrer</name>
+                <group>Default</group>
             </mm1>
             <mm2>
                 <id>4960.000000</id>
 				<name>F02 Abfahrer</name>
+                <group>Default</group>
             </mm2>
             <mm3>
                 <id>133.000000</id>
                 <name>Parken Truck1</name>
+                <group>Default</group>
             </mm3>
             <mm4>
                 <id>176.000000</id>
                 <name>Parken Truck2</name>
+                <group>Default</group>
             </mm4>
             <mm5>
                 <id>419.000000</id>
                 <name>Shop</name>
+                <group>Default</group>
             </mm5>
             <mm6>
                 <id>696.000000</id>
                 <name>Machineparking Hof</name>
+                <group>Default</group>
             </mm6>
             <mm7>
                 <id>1382.000000</id>
                 <name>Abladen Getreidespeicher</name>
+                <group>Default</group>
             </mm7>
             <mm8>
                 <id>2923.000000</id>
                 <name>F14 Abfahrer</name>
+                <group>Default</group>
             </mm8>
             <mm9>
                 <id>2964.000000</id>
                 <name>F13 Abfahrer</name>
+                <group>Default</group>
             </mm9>
             <mm10>
                 <id>3006.000000</id>
                 <name>F20 Abfahrer</name>
+                <group>Default</group>
             </mm10>
             <mm11>
                 <id>3167.000000</id>
                 <name>F07 Abfahrer</name>
+                <group>Default</group>
             </mm11>
             <mm12>
                 <id>3336.000000</id>
                 <name>F15 Abfahrer</name>
+                <group>Default</group>
             </mm12>
             <mm13>
                 <id>3379.000000</id>
                 <name>F16 Abfahrer</name>
+                <group>Default</group>
             </mm13>
             <mm14>
                 <id>3429.000000</id>
                 <name>F06 Abfahrer</name>
+                <group>Default</group>
             </mm14>
             <mm15>
                 <id>3512.000000</id>
                 <name>F05 Abfahrer</name>
+                <group>Default</group>
             </mm15>
             <mm16>
                 <id>3827.000000</id>
                 <name>F04 Abfahrer</name>
+                <group>Default</group>
             </mm16>
             <mm17>
                 <id>3898.000000</id>
                 <name>F03 Abfahrer</name>
+                <group>Default</group>
             </mm17>
             <mm18>
                 <id>3946.000000</id>
                 <name>F03a Abfahrer</name>
+                <group>Default</group>
             </mm18>
             <mm19>
                 <id>3994.000000</id>
                 <name>F10a Abfahrer</name>
+                <group>Default</group>
             </mm19>
             <mm20>
                 <id>4063.000000</id>
                 <name>F10 Abfahrer</name>
+                <group>Default</group>
             </mm20>
             <mm21>
                 <id>4099.000000</id>
                 <name>F19 Abfahrer</name>
+                <group>Default</group>
             </mm21>
             <mm22>
                 <id>4113.000000</id>
                 <name>Warteplatz Hof</name>
+                <group>Default</group>
             </mm22>
             <mm23>
                 <id>4195.000000</id>
                 <name>F11 Abfahrer</name>
+                <group>Default</group>
             </mm23>
             <mm24>
                 <id>4273.000000</id>
                 <name>F12 Abfahrer</name>
+                <group>Default</group>
             </mm24>
             <mm25>
                 <id>4418.000000</id>
                 <name>F18 Abfahrer </name>
+                <group>Default</group>
             </mm25>
             <mm26>
                 <id>4536.000000</id>
                 <name>Abladen Bahnsilo 05</name>
+                <group>Default</group>
             </mm26>
             <mm27>
                 
@@ -137,292 +163,365 @@
             <mm28>
                 <id>5631.000000</id>
                 <name>Abladen Zuckerwerk</name>
+                <group>Default</group>
             </mm28>
             <mm29>
                 <id>6311.000000</id>
                 <name>Abladen Bahnsilo 04</name>
+                <group>Default</group>
             </mm29>
             <mm30>
                 <id>6416.000000</id>
                 <name>F17 Abfahrer</name>
+                <group>Default</group>
             </mm30>
 			<id>94.000000</id>
 			<name>Laden Hofsilo</name>
+                <group>Default</group>
             <mm31>
                 <id>6516.000000</id>
                 <name>F23 Abfahrer</name>
+                <group>Default</group>
             </mm31>
             <mm32>
                 <id>6602.000000</id>
                 <name>F22 Abfahrer</name>
+                <group>Default</group>
             </mm32>
             <mm33>
                 <id>6650.000000</id>
                 <name>F09 Abfahrer</name>
+                <group>Default</group>
             </mm33>
             <mm34>
                 <id>6750.000000</id>
                 <name>Abladen Heizwerk</name>
+                <group>Default</group>
             </mm34>
             <mm35>
                 <id>6777.000000</id>
                 <name>F24a Abfahrer</name>
+                <group>Default</group>
             </mm35>
             <mm36>
                 <id>7293.000000</id>
                 <name>F23a Abfahrer</name>
+                <group>Default</group>
             </mm36>
             <mm37>
                 <id>33.000000</id>
 				<name>Abladen Hofsilo</name>
+                <group>Default</group>
             </mm37>
             <mm38>
                 <id>7413.000000</id>
                 <name>Abladen Supermarkt</name>
+                <group>Default</group>
             </mm38>
             <mm39>
                 <id>9995.000000</id>
                 <name>Laden Gartencenter a</name>
+                <group>Default</group>
             </mm39>
             <mm40>
                 <id>10023.000000</id>
                 <name>Laden Gartencenter b</name>
+                <group>Default</group>
             </mm40>
             <mm41>
                 <id>10083.000000</id>
                 <name>Abladen Gartencenter</name>
+                <group>Default</group>
             </mm41>
             <mm42>
                 <id>10228.000000</id>
                 <name>F25 Abfahrer</name>
+                <group>Default</group>
             </mm42>
             <mm43>
                 <id>10348.000000</id>
                 <name>F26 Abfahrer</name>
+                <group>Default</group>
             </mm43>
             <mm44>
                 <id>10372.000000</id>
                 <name>F28 Abfahrer</name>
+                <group>Default</group>
             </mm44>
             <mm45>
                 <id>10758.000000</id>
                 <name>Abladen Brauerei</name>
+                <group>Default</group>
             </mm45>
             <mm46>
                 <id>10883.000000</id>
                 <name>Abladen Transporthub</name>
+                <group>Default</group>
             </mm46>
             <mm47>
                 <id>11003.000000</id>
                 <name>Abladen Spinnerei</name>
+                <group>Default</group>
             </mm47>
             <mm48>
                 <id>11403.000000</id>
                 <name>Abladen Molkerei</name>
+                <group>Default</group>
             </mm48>
             <mm49>
                 <id>11487.000000</id>
                 <name>Abladen Getreidemuhle</name>
+                <group>Default</group>
             </mm49>
             <mm50>
                 <id>12067.000000</id>
                 <name>F38 Abfahrer</name>
+                <group>Default</group>
             </mm50>
             <mm51>
                 <id>12168.000000</id>
                 <name>F30 Abfahrer</name>
+                <group>Default</group>
             </mm51>
             <mm52>
                 <id>12231.000000</id>
                 <name>F40 Abfahrer</name>
+                <group>Default</group>
             </mm52>
             <mm53>
                 <id>12301.000000</id>
                 <name>F43 Abfahrer</name>
+                <group>Default</group>
             </mm53>
             <mm54>
                 <id>12418.000000</id>
                 <name>F48 Abfahrer</name>
+                <group>Default</group>
             </mm54>
             <mm55>
                 <id>12576.000000</id>
                 <name>F39 Abfahrer</name>
+                <group>Default</group>
             </mm55>
             <mm56>
                 <id>12611.000000</id>
                 <name>F37 Abfahrer</name>
+                <group>Default</group>
             </mm56>
             <mm57>
                 <id>12660.000000</id>
                 <name>F29 Abfahrer</name>
+                <group>Default</group>
             </mm57>
             <mm58>
                 <id>13149.000000</id>
                 <name>F33 Abfahrer</name>
+                <group>Default</group>
             </mm58>
             <mm59>
                 <id>13205.000000</id>
                 <name>F36 Abfahrer</name>
+                <group>Default</group>
             </mm59>
             <mm60>
                 <id>13271.000000</id>
                 <name>F32 Abfahrer</name>
+                <group>Default</group>
             </mm60>
             <mm61>
                 <id>13784.000000</id>
                 <name>Abladen Ranch</name>
+                <group>Default</group>
             </mm61>
             <mm62>
                 <id>13841.000000</id>
                 <name>Viehhandel</name>
+                <group>Default</group>
             </mm62>
             <mm63>
                 <id>13897.000000</id>
                 <name>F42 Abfahrer</name>
+                <group>Default</group>
             </mm63>
             <mm64>
                 <id>13939.000000</id>
                 <name>F46 Abfahrer</name>
+                <group>Default</group>
             </mm64>
             <mm65>
                 <id>16600.000000</id>
                 <name>F49 Abfahrer</name>
+                <group>Default</group>
             </mm65>
             <mm66>
                 <id>16691.000000</id>
                 <name>F55 Abfahrer</name>
+                <group>Default</group>
             </mm66>
             <mm67>
                 <id>16735.000000</id>
                 <name>F56 Abfahrer</name>
+                <group>Default</group>
             </mm67>
             <mm68>
                 <id>17299.000000</id>
                 <name>F61 Abfahrer</name>
+                <group>Default</group>
             </mm68>
             <mm69>
                 <id>17360.000000</id>
                 <name>F60 Abfahrer</name>
+                <group>Default</group>
             </mm69>
             <mm70>
                 <id>17461.000000</id>
                 <name>F54 Abfahrer </name>
+                <group>Default</group>
             </mm70>
             <mm71>
                 <id>17525.000000</id>
                 <name>F59 Abfahrer</name>
+                <group>Default</group>
             </mm71>
             <mm72>
                 <id>17552.000000</id>
                 <name>F54a Abfahrer</name>
+                <group>Default</group>
             </mm72>
             <mm73>
                 <id>17615.000000</id>
                 <name>F53 Abfahrer</name>
+                <group>Default</group>
             </mm73>
             <mm74>
                 <id>17654.000000</id>
                 <name>F59a Abfahrer</name>
+                <group>Default</group>
             </mm74>
             <mm75>
                 <id>17685.000000</id>
                 <name>F50 Abfahrer</name>
+                <group>Default</group>
             </mm75>
             <mm76>
                 <id>17933.000000</id>
                 <name>Abladen Bahnsilo 2</name>
+                <group>Default</group>
             </mm76>
             <mm77>
                 <id>18431.000000</id>
                 <name>F21 Abfahrer</name>
+                <group>Default</group>
             </mm77>
             <mm78>
                 <id>18864.000000</id>
                 <name>F35 Abfahrer</name>
+                <group>Default</group>
             </mm78>
             <mm79>
                 <id>18925.000000</id>
                 <name>F34 Abfahrer</name>
+                <group>Default</group>
             </mm79>
             <mm80>
                 <id>18982.000000</id>
                 <name>F41 Abfahrer</name>
+                <group>Default</group>
             </mm80>
             <mm81>
                 <id>19038.000000</id>
                 <name>F44 Abfahrer</name>
+                <group>Default</group>
             </mm81>
             <mm82>
                 <id>19095.000000</id>
                 <name>F31 Abfahrer</name>
+                <group>Default</group>
             </mm82>
             <mm83>
                 <id>19133.000000</id>
                 <name>F27 Abfahrer</name>
+                <group>Default</group>
             </mm83>
             <mm84>
                 <id>19148.000000</id>
                 <name>Abladen Bahnsilo 3</name>
+                <group>Default</group>
             </mm84>
             <mm85>
                 <id>19150.000000</id>
                 <name>Laden Kalk(zuckerw.)</name>
+                <group>Default</group>
             </mm85>
             <mm86>
                 <id>19205.000000</id>
                 <name>Laden Bahnhofsilo 01</name>
+                <group>Default</group>
             </mm86>
             <mm87>
                 <id>19244.000000</id>
                 <name>Laden Bahnsilo 02</name>
+                <group>Default</group>
             </mm87>
             <mm88>
                 <id>19280.000000</id>
                 <name>Laden Bahnsilo 03</name>
+                <group>Default</group>
             </mm88>
             <mm89>
                 <id>19307.000000</id>
                 <name>Laden Bahnsilo 04</name>
+                <group>Default</group>
             </mm89>
             <mm90>
                 <id>19382.000000</id>
                 <name>Laden Bahnsilo 05</name>
+                <group>Default</group>
             </mm90>
             <mm91>
                 <id>19417.000000</id>
                 <name>Abladen Hafen</name>
+                <group>Default</group>
             </mm91>
             <mm92>
                 <id>19811.000000</id>
                 <name>F24 Abfahrer</name>
+                <group>Default</group>
             </mm92>
             <mm93>
                 <id>19935.000000</id>
                 <name>F57 Abfahrer</name>
+                <group>Default</group>
             </mm93>
             <mm94>
                 <id>19937.000000</id>
                 <name>F51 Abfahrer</name>
+                <group>Default</group>
             </mm94>
             <mm95>
                 <id>19940.000000</id>
                 <name>F45 Abfahrer</name>
+                <group>Default</group>
             </mm95>
             <mm96>
                 <id>19948.000000</id>
                 <name>F52 Abfahrer</name>
+                <group>Default</group>
             </mm96>
             <mm97>
                 <id>19950.000000</id>
                 <name>F58 Abfahrer </name>
+                <group>Default</group>
             </mm97>
             <mm98>
                 <id>19955.000000</id>
                 <name>F47 Abfahrer</name>
+                <group>Default</group>
             </mm98>
             <mm99>
                 <id>19986.000000</id>
                 <name>F08 Abfahrer</name>
+                <group>Default</group>
             </mm99>
         </mapmarker>
     </FS19_Dondiego_Map>
