@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <AutoDrive>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.0.1</Version>
     <Recalculation>false</Recalculation>
     <HudX>0.829687</HudX>
     <HudY>0.285926</HudY>
@@ -20,58 +20,72 @@
             <mm1>
                 <id>438.000000</id>
                 <name>Shop</name>
+                <group>Default</group>
             </mm1>
             <mm2>
                 <id>1670.000000</id>
                 <name>Restaurant</name>
+                <group>Default</group>
             </mm2>
             <mm3>
                 <id>2052.000000</id>
                 <name>Ranch</name>
+                <group>Default</group>
             </mm3>
             <mm4>
                 <id>2424.000000</id>
                 <name>Field 17</name>
+                <group>Default</group>
             </mm4>
             <mm5>
                 <id>2441.000000</id>
                 <name>Field 16</name>
+                <group>Default</group>
             </mm5>
             <mm6>
                 <id>2772.000000</id>
                 <name>Field 4</name>
+                <group>Default</group>
             </mm6>
             <mm7>
                 <id>3951.000000</id>
                 <name>Field 15</name>
+                <group>Default</group>
             </mm7>
             <mm8>
                 <id>6214.000000</id>
                 <name>Field 2</name>
+                <group>Default</group>
             </mm8>
             <mm9>
                 <id>6682.000000</id>
                 <name>Railroad Silo West</name>
+                <group>Default</group>
             </mm9>
             <mm10>
                 <id>6801.000000</id>
                 <name>Port Grain Elevator</name>
+                <group>Default</group>
             </mm10>
             <mm11>
                 <id>7006.000000</id>
                 <name>Field 1</name>
+                <group>Default</group>
             </mm11>
             <mm12>
                 <id>7120.000000</id>
                 <name>Barn</name>
+                <group>Default</group>
             </mm12>
             <mm13>
                 <id>7271.000000</id>
                 <name>Animal Handler</name>
+                <group>Default</group>
             </mm13>
             <mm14>
                 <id>7318.000000</id>
                 <name>Central Grain Elevator</name>
+                <group>Default</group>
             </mm14>
         </mapmarker>
     </Ravenport>
