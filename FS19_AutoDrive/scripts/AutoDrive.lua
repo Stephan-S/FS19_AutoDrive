@@ -552,8 +552,8 @@ function AutoDrive:onFillTypeSelection(superFunc, fillType)
 			if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
 				self.validFillableObject = fillableObject.object
 				self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
-            	end
-        end
+			end
+		end
 		local validFillableObject = self.validFillableObject
 		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
 			local fillUnitIndex = self.validFillableFillUnitIndex
