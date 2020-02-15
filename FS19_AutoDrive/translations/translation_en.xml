@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Create/Edit Target" />
 		<text name="input_ADRenameMapMarker"					text="AD: Edit selected Target" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Delete Waypoint" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Update ways" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Delete closest Target" />
 		<text name="input_ADSelectNextFillType"					text="AD: Select Next Filltype" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Select Previous Filltype" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="can't calculate a path" />
 		<text name="AD_new_marker"								text="New Goal:" />
 		<text name="AD_new_marker_helptext"						text="Please enter new name (Stop with enter key)" />
-		<text name="AD_Recalculationg_routes_status"			text="Recalculating routes. Please wait. Finished:" />
 		<text name="AD_No_Trailer"								text="couldn't find trailer" />
 		<text name="AD_No_Bunker"								text="couldn't find silo bunker" />
 		<text name="AD_No_Shovel"								text="couldn't find a connected shovel" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Driver wages will be multiplied with this value" />
 		<text name="gui_ad_smoothField"							text="Smoother field driving" />
 		<text name="gui_ad_smoothField_tooltip"					text="Generated field courses to and from combine will be smoothed (experimental)" />
-		<text name="gui_ad_recalculationSpeed"					text="Calculation speed" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Higher values will lead to laggy gameplay while recalculating" />
 		<text name="gui_ad_showNextPath"						text="Show next path" />
 		<text name="gui_ad_showNextPath_tooltip"				text="En/Disable the display of the next two waypoints" />
 		<text name="gui_ad_avoidFruit"							text="Avoid fruit" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Insert driver name:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Create Folder" />
 		<text name="gui_ad_enterGroupNameText"					text="Insert folder name:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
 		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
@@ -170,8 +164,6 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
 		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
-		<text name="gui_ad_useLiveMode"							text="Use live mode" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

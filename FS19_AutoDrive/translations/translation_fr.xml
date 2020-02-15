@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Créer nouvelle destination" />
 		<text name="input_ADRenameMapMarker"					text="AD: Renommer destination actuelle" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Effacer point de passage" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Màj des points" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Éffacer point destination" />
 		<text name="input_ADSelectNextFillType"					text="AD: Sélect. prochain type de fruit" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Sélect. précédent type de fruit" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="n'a pas pu calculer un chemin d'accès à la destination" />
 		<text name="AD_new_marker"								text="Nouvel objectif:" />
 		<text name="AD_new_marker_helptext"						text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
-		<text name="AD_Recalculationg_routes_status"			text="Recalcul des routes. Veuilllez patienter. Terminé:" />
 		<text name="AD_No_Trailer"								text="Ne trouve pas de remorque" />
 		<text name="AD_No_Bunker"								text="Ne trouve pas le silo (bunker)" />
 		<text name="AD_No_Shovel"								text="Ne trouve pas de pelle" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Avec cette option, les coûts salariaux des chauffeurs sont multipliés." />
 		<text name="gui_ad_smoothField"							text="Conduite adoucie au champ" />
 		<text name="gui_ad_smoothField_tooltip"					text="Les itinéraires vers/depuis les moissonneuses sont lissés - Expérimental." />
-		<text name="gui_ad_recalculationSpeed"					text="Vitesse de calcul" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Des valeurs plus élevées peuvent conduire à un jeu saccadé." />
 		<text name="gui_ad_showNextPath"						text="Montrer chemin suivant" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Activer/Désactiver l'affichage des deux prochains points de passage." />
 		<text name="gui_ad_avoidFruit"							text="Éviter les cultures" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Entrez le nom du chauffeur:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Créer un dossier" />
 		<text name="gui_ad_enterGroupNameText"					text="Entrez le nom du dossier:" />
-		<text name="gui_ad_autoRecalculate"						text="Recalculer automatiquement" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Déclenche automatiquement un recalcul au démarrage du véhicule." />
 		<text name="gui_ad_autoRefuel"							text="Faire le plein automatiquement" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Lorsque le niveau du réservoir est bas, la station-service la plus proche est automatiquement ajoutée dans les trajets." />
 		<text name="gui_ad_fuelSaving"							text="Économies de carburant" />
@@ -179,8 +173,6 @@
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
 		<text name="gui_ad_showMarkersOnMap"					text="Afficher les marqueurs" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Affiche les marqueurs/destinations en jeu sur la carte." />
-		<text name="gui_ad_useLiveMode"							text="Utiliser le mode live" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Les chemins sont calculés à la demande et non précalculés." />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distance de conduite des chauffeurs" />
 		<text name="statistic_driversHired" 					text="Chauffeurs actuellement embauchés" />

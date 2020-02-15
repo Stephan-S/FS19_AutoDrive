@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.0-37"
+AutoDrive.version = "1.0.7.0-38"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
@@ -12,7 +12,6 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.developmentControls = false
 
 AutoDrive.configChanged = false
-AutoDrive.handledRecalculation = true
 
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
@@ -29,7 +28,6 @@ AutoDrive.actions = {
 	{"ADDebugCreateConnection", false, 0},
 	{"ADDebugCreateMapMarker", false, 0},
 	{"ADDebugDeleteWayPoint", false, 0},
-	{"ADDebugForceUpdate", false, 0},
 	{"ADDebugDeleteDestination", false, 3},
 	{"ADSilomode", false, 0},
 	{"ADOpenGUI", true, 2},
@@ -80,7 +78,6 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveLineDraw.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDriveFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrigger.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveDijkstra.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveUtilFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
@@ -184,9 +181,6 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}
-
-	AutoDrive.Recalculation = {}
-	AutoDrive.Recalculation.continue = false
 
 	AutoDrive.delayedCallBacks = {}
 
@@ -419,7 +413,6 @@ end
 
 function AutoDrive.MarkChanged()
 	AutoDrive.configChanged = true
-	AutoDrive.handledRecalculation = false
 end
 
 function AutoDrive.GetChanged()

@@ -1,30 +1,16 @@
 function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
     local idFullTable = {}
-    --local idString = ""
     local idCounter = 0
 
     local xTable = {}
-    --local xString = ""
 
     local yTable = {}
-    --local yString = ""
 
     local zTable = {}
-    --local zString = ""
 
     local outTable = {}
-    --local outString = ""
 
     local incomingTable = {}
-    --local incomingString = ""
-
-    local markerNamesTable = {}
-    --local markerNames = ""
-
-    local markerIDsTable = {}
-    --local markerIDs = ""
-
-    --local wayPointsInCurrentMessage = 0
 
     for i = startId, endId, 1 do
         local p = AutoDrive.mapWayPoints[i]
@@ -42,18 +28,6 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
             innerIncomingTable[incomingIndex] = incomingID
         end
         incomingTable[idCounter] = table.concat(innerIncomingTable, ",")
-
-        local markerCounter = 1
-        local innerMarkerNamesTable = {}
-        local innerMarkerIDsTable = {}
-        for i2, marker in pairs(p.marker) do
-            innerMarkerIDsTable[markerCounter] = marker
-            innerMarkerNamesTable[markerCounter] = i2
-            markerCounter = markerCounter + 1
-        end
-
-        markerNamesTable[idCounter] = table.concat(innerMarkerNamesTable, ",")
-        markerIDsTable[idCounter] = table.concat(innerMarkerIDsTable, ",")
     end
 
     if idFullTable[1] ~= nil then
@@ -66,21 +40,13 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
             streamWriteFloat32(streamId, zTable[i])
             AutoDrive.streamWriteStringOrEmpty(streamId, outTable[i])
             AutoDrive.streamWriteStringOrEmpty(streamId, incomingTable[i])
-            if markerIDsTable[1] ~= nil then
-                AutoDrive.streamWriteStringOrEmpty(streamId, markerIDsTable[i])
-                AutoDrive.streamWriteStringOrEmpty(streamId, markerNamesTable[i])
-            else
-                AutoDrive.streamWriteStringOrEmpty(streamId, "")
-                AutoDrive.streamWriteStringOrEmpty(streamId, "")
-            end
+
             i = i + 1
         end
     end
 end
 
 function AutoDrive:writeMapMarkersToStream(streamId)
-    --local markerIDs = ""
-    --local markerNames = ""
     local markerCounter = AutoDrive.tableLength(AutoDrive.mapMarker)
     streamWriteInt32(streamId, markerCounter)
     local i = 1
@@ -132,17 +98,6 @@ function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
                 wp["incoming"][incoming_counter] = tonumber(incomingID)
             end
             incoming_counter = incoming_counter + 1
-        end
-
-        local markerIDsString = AutoDrive.streamReadStringOrEmpty(streamId)
-        local markerIDsTable = StringUtil.splitString(",", markerIDsString)
-        local markerNamesString = AutoDrive.streamReadStringOrEmpty(streamId)
-        local markerNamesTable = StringUtil.splitString(",", markerNamesString)
-        wp["marker"] = {}
-        for i2, markerName in pairs(markerNamesTable) do
-            if markerName ~= "" then
-                wp.marker[markerName] = tonumber(markerIDsTable[i2])
-            end
         end
 
         AutoDrive.mapWayPoints[wp.id] = wp

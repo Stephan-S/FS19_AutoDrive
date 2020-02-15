@@ -29,25 +29,13 @@ function AutoDriveCourseEditEvent:writeStream(streamId, connection)
 		end
 		local outString = "" .. table.concat(outTable, ",")
 
-		local markerIDTable = {}
-		local markerNamesTable = {}
-		local markerIDCounter = 1
-		for markerName, markerID in pairs(self.point.marker) do
-			markerIDTable[markerIDCounter] = markerID
-			markerNamesTable[markerIDCounter] = markerName
-			markerIDCounter = markerIDCounter + 1
-		end
-		local markerIDsString = "" .. table.concat(markerIDTable, ",")
-		local markerNamesString = "" .. table.concat(markerNamesTable, ",")
-
+		
 		streamWriteInt16(streamId, self.point.id)
 		streamWriteFloat32(streamId, self.point.x)
 		streamWriteFloat32(streamId, self.point.y)
 		streamWriteFloat32(streamId, self.point.z)
 		AutoDrive.streamWriteStringOrEmpty(streamId, outString)
 		AutoDrive.streamWriteStringOrEmpty(streamId, incomingString)
-		AutoDrive.streamWriteStringOrEmpty(streamId, markerIDsString)
-		AutoDrive.streamWriteStringOrEmpty(streamId, markerNamesString)
 	end
 end
 
@@ -75,17 +63,6 @@ function AutoDriveCourseEditEvent:readStream(streamId, connection)
 				point["incoming"][incoming_counter] = tonumber(incomingID)
 			end
 			incoming_counter = incoming_counter + 1
-		end
-
-		local markerIDsString = AutoDrive.streamReadStringOrEmpty(streamId)
-		local markerIDsTable = StringUtil.splitString(",", markerIDsString)
-		local markerNamesString = AutoDrive.streamReadStringOrEmpty(streamId)
-		local markerNamesTable = StringUtil.splitString(",", markerNamesString)
-		point["marker"] = {}
-		for i2, markerName in pairs(markerNamesTable) do
-			if markerName ~= "" then
-				point.marker[markerName] = tonumber(markerIDsTable[i2])
-			end
 		end
 
 		AutoDrive.mapWayPoints[point.id] = point

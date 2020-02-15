@@ -446,17 +446,6 @@ AutoDrive.settings.smoothField = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.recalculationSpeed = {
-    values = { 0.5,    1,    1.5,    2,    5,    10,    25,    50,    100,    250,    500,    1000},
-    texts = {"x0.5", "x1", "x1.5", "x2", "x5", "x10", "x25", "x50", "x100", "x250", "x500", "x1000"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_recalculationSpeed",
-    tooltip = "gui_ad_recalculationSpeed_tooltip",
-    translate = false,
-    isVehicleSpecific = false
-}
-
 AutoDrive.settings.showNextPath = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},
@@ -748,17 +737,6 @@ AutoDrive.settings.showTooltips = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.autoRecalculate = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 1,
-    current = 1,
-    text = "gui_ad_autoRecalculate",
-    tooltip = "gui_ad_autoRecalculate_tooltip",
-    translate = true,
-    isVehicleSpecific = false
-}
-
 AutoDrive.settings.autoRefuel = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},
@@ -788,17 +766,6 @@ AutoDrive.settings.showMarkersOnMap = {
     current = 2,
     text = "gui_ad_showMarkersOnMap",
     tooltip = "gui_ad_showMarkersOnMap_tooltip",
-    translate = true,
-    isVehicleSpecific = false
-}
-
-AutoDrive.settings.useLiveMode = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_useLiveMode",
-    tooltip = "gui_ad_useLiveMode_tooltip",
     translate = true,
     isVehicleSpecific = false
 }

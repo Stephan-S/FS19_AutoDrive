@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Crear/Editar destino" />
 		<text name="input_ADRenameMapMarker"					text="AD: Editar el destino seleccionado" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Eliminar waypoint" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Actualización Rutas" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Eliminar el destino más cercano" />
 		<text name="input_ADSelectNextFillType"					text="AD: Seleccionar Filltype siguiente" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Seleccionar Filltype anterior" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="no puedo calcular una ruta" />
 		<text name="AD_new_marker"								text="Nuevo destino: " />
 		<text name="AD_new_marker_helptext"						text="Por favor, introduzca un nuevo nombre (Guardar con la tecla Intro)" />
-		<text name="AD_Recalculationg_routes_status"			text="Recalculando rutas. Espera. Terminado: " />
 		<text name="AD_No_Trailer"								text="no puedo encontrar el tráiler" />
 		<text name="AD_No_Bunker"								text="no puedo encontrar silo bunker" />
 		<text name="AD_No_Shovel"								text="no puedo encontrar una pala conectada" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="El salario del conductor estará basado en este valor" />
 		<text name="gui_ad_smoothField"							text="Conducción en los campos más lenta" />
 		<text name="gui_ad_smoothField_tooltip"					text="Las rutas generadas en los campos, hacia y desde la cosechadora serán más lentos (experimental)" />
-		<text name="gui_ad_recalculationSpeed"					text="Rendimiento al recalcular rutas" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Valores muy altos conducirán a una falta jugabilidad mientras se recalcula" />
 		<text name="gui_ad_showNextPath"						text="Mostrar siguiente ruta" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Activar / Desacticar mostrar los siguientes waypoints" />
 		<text name="gui_ad_avoidFruit"							text="Evitar destruir sosechas" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Añadir nombre al conductor: " />
 		<text name="gui_ad_enterGroupNameTitle"					text="Crear Carpeta" />
 		<text name="gui_ad_enterGroupNameText"					text="Insertar nobre de destino: " />
-		<text name="gui_ad_autoRecalculate"						text="Recálculo Automático" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Iniciar el nuevo cálculo automáticamente si es necesario." />
 		<text name="gui_ad_autoRefuel"							text="Repostaje automático" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Conduzca hacia el destino de repostaje (cerca del disparador de reabastecimiento) cuando el nivel de combustible sea bajo." />
 		<text name="gui_ad_fuelSaving"							text="Ahorro de combustible" />
@@ -170,8 +164,6 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la altura de la pala detectada automáticamente es incorrecta. Utilice esta utilidad para ajustar la altura del suelo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Mostrar marcadores" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Mostrar marcadores/destinos en el mapa del juego" />
-		<text name="gui_ad_useLiveMode"							text="poner en modo live" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="las rutas se realizan bajo demanda y no precalculadss" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />

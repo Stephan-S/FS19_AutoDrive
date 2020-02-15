@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Создать/Редактировать новую локацию" />
 		<text name="input_ADRenameMapMarker"					text="AD: Редактировать выбранную локацию" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Удалить путевую точку" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Обновить маршруты" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Удалить ближайшую локацию" />
 		<text name="input_ADSelectNextFillType"					text="AD: Выбрать следующую продукцию" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Выбрать предыдущую продукцию" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="не может рассчитать маршрут" />
 		<text name="AD_new_marker"								text="Новая локация:" />
 		<text name="AD_new_marker_helptext"						text="Введите новое название (завершить по Enter)" />
-		<text name="AD_Recalculationg_routes_status"			text="Пересчитываются маршруты. Пожалуйста подождите. Завершено:" />
 		<text name="AD_No_Trailer"								text="не могу найти прицеп" />
 		<text name="AD_No_Bunker"								text="не могу найти силосную яму" />
 		<text name="AD_No_Shovel"								text="не могу найти присоединённый ковш" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Заработная плата водителя будет увеличена на указанное значение." />
 		<text name="gui_ad_smoothField"							text="Сглаживать маршруты на поле" />
 		<text name="gui_ad_smoothField_tooltip"					text="Сгенерированные полевые маршруты к комбайну и обратно будут сглаживаться (экспериментальная функция)." />
-		<text name="gui_ad_recalculationSpeed"					text="Скорость расчета" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Более высокие значения приведут к замедлению игрового процесса при пересчете." />
 		<text name="gui_ad_showNextPath"						text="Показать дальнейшее направление" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Вкл/Отключить отображение следующих двух путевых точек." />
 		<text name="gui_ad_avoidFruit"							text="Избегать посевов" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Введите имя водителя:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Создание папки" />
 		<text name="gui_ad_enterGroupNameText"					text="Введите название папки:" />
-		<text name="gui_ad_autoRecalculate"						text="Автоматический пересчет" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Автоматически начать пересчет при необходимости." />
 		<text name="gui_ad_autoRefuel"							text="Автодозаправка топливом" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Двигаться к месту заправки (ближайший триггер заправки), если уровень топлива низкий." />
 		<text name="gui_ad_fuelSaving"							text="Экономить топливо" />
@@ -170,8 +164,6 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
 		<text name="gui_ad_showMarkersOnMap"					text="Отображать маркеры" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Отображать маркеры/пункты назначения на карте." />
-		<text name="gui_ad_useLiveMode"							text="Расчет в реальном времени" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Пути рассчитываются лишь по требованию, а не предварительно." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />

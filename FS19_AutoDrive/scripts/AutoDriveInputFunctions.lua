@@ -95,9 +95,6 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "AD_import_routes" then
 		AutoDrive:InputHandling(self, "input_importRoutes")
 	end
-	if actionName == "ADDebugForceUpdate" then
-		AutoDrive:InputHandling(self, "input_recalculate")
-	end
 	if actionName == "AD_upload_routes" then
 		AutoDrive:InputHandling(self, "input_uploadRoutes")
 	end
@@ -154,7 +151,7 @@ end
 -- Now the MP sync is delegated to dedicated events
 function AutoDrive:InputHandlingSenderOnly(vehicle, input)
 	if vehicle ~= nil and vehicle.ad ~= nil then
-		if vehicle.ad.createMapPoints == true and AutoDrive.Recalculation.continue == false then
+		if vehicle.ad.createMapPoints == true then
 			local closestWayPoint, _ = AutoDrive:findClosestWayPoint(vehicle)
 
 			-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
@@ -219,10 +216,6 @@ function AutoDrive:InputHandlingClientOnly(vehicle, input)
 		else
 			g_logManager:error("[AutoDrive] User is not admin and is not allowed to upload course")
 		end
-	end
-
-	if input == "input_recalculate" then --make sure the hud button shows active recalculation when server is busy
-		AutoDrive.Recalculation.continue = true
 	end
 end
 
@@ -364,17 +357,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed - 1
 		end
 	--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
-	end
-
-	if input == "input_recalculate" then
-		if AutoDrive.requestedWaypoints == true then
-			return
-		end
-		if AutoDrive.Recalculation.continue == nil or AutoDrive.Recalculation.continue == false then
-			AutoDrive:ContiniousRecalculation()
-		else
-			AutoDrive.Recalculation.continue = false
-		end
 	end
 
 	if input == "input_nextTarget_Unload" then

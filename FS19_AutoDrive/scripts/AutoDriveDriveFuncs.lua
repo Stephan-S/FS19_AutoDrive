@@ -180,16 +180,7 @@ end
 
 function AutoDrive:initializeAD(vehicle, dt)
     vehicle.ad.timeTillDeadLock = 15000
-
-    if AutoDrive.handledRecalculation == false and AutoDrive.getSetting("autoRecalculate") then
-        if AutoDrive.Recalculation ~= nil then
-            if AutoDrive.Recalculation.continue == nil or AutoDrive.Recalculation.continue == false then
-                AutoDrive:ContiniousRecalculation()
-            end
-        end
-        return
-    end
-
+   
     if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
         if AutoDrive:initializeADCombine(vehicle, dt) == true then
             return

@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Crea nuova destinazione" />
 		<text name="input_ADRenameMapMarker"					text="AD: Rinomina destinazione corrente" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Elimina punto" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Ricalcola percorsi" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Elimina destinazione" />
 		<text name="input_ADSelectNextFillType"					text="AD: Prodotto successivo" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Prodotto precedente" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="impossibile calcolare un percorso" />
 		<text name="AD_new_marker"								text="Nuovo obbiettivo:" />
 		<text name="AD_new_marker_helptext"						text="Inserisci il nome (Termina con invio)" />
-		<text name="AD_Recalculationg_routes_status"			text="Sto ricalcolando i percorsi. Attendere. Finito:" />
 		<text name="AD_No_Trailer"								text="impossibile trovare il rimorchio" />
 		<text name="AD_No_Bunker"								text="impossibile trovare il bunker" />
 		<text name="AD_No_Shovel"								text="impossibile trovare una pala collegata" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Il salario del autista sarà moltiplicato per questo valore" />
 		<text name="gui_ad_smoothField"							text="Guida più fluida sul campo" />
 		<text name="gui_ad_smoothField_tooltip"					text="I percorsi generati da e verso la mietitrebbia saranno più rotondi (sperimentale)" />
-		<text name="gui_ad_recalculationSpeed"					text="Velocità di calcolo" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Valori più alti possono portare a un gioco a scatti" />
 		<text name="gui_ad_showNextPath"						text="Mostra il percorso successivo" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Attiva/disattiva visualizzazione dei prossimi due waypoint" />
 		<text name="gui_ad_avoidFruit"							text="Evita raccolto" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Inserisci nome autista:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Crea Cartella" />
 		<text name="gui_ad_enterGroupNameText"					text="Inserisci nome cartella:" />
-		<text name="gui_ad_autoRecalculate"						text="Ricalcolo automatico" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Avvia ricalcolo automaticamente, se necessario." />
 		<text name="gui_ad_autoRefuel"							text="Rifornimento Automatico" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Si dirige verso la destinazione di rifornimento (vicino al punto di rifornimento) quando il livello del carburante è basso." />
 		<text name="gui_ad_fuelSaving"							text="Risparmio carburante" />
@@ -170,8 +164,6 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Se l'altezza della pala rilevata automaticamente non è corretta. Utilizzare questo per regolare l'altezza dal suolo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Visualizza marcatori " />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Visualizza marcatori/destinazioni sulla mappa in gioco" />
-		<text name="gui_ad_useLiveMode"							text="Usa modalità live" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="I percorsi sono calcolati su richiesta e non precalcolati" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />

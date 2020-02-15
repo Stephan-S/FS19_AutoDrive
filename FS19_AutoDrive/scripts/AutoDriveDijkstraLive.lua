@@ -306,7 +306,7 @@ function AutoDrive:dijkstraLiveShortestPath(Graph, start_id, target_id)
 	return wp
 end
 
-function AutoDrive:FastShortestPathLive(Graph, start, markerName, markerID)
+function AutoDrive:FastShortestPath(Graph, start, markerName, markerID)
 	local wp = {}
 	local start_id = start
 	local target_id = 0

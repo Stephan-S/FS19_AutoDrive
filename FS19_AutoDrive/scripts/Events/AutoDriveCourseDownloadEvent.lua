@@ -66,9 +66,6 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 
 	if (numberOfMapMarkers ~= nil) and (numberOfMapMarkers > 0) then
 		AutoDrive.mapMarker = {}
-		if AutoDrive.Recalculation ~= nil then
-			AutoDrive.Recalculation.continue = false --used to signal a client that recalculation is over
-		end
 		--g_logManager:devInfo("Received mapMarkers: " .. numberOfMapMarkers);
 
 		AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)

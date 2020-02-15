@@ -137,24 +137,6 @@ function ADHudButton:getNewState(vehicle)
         end
     end
 
-    if self.primaryAction == "input_recalculate" then
-        if vehicle.ad.createMapPoints == true then --for now i want this button always visible, since you might want to recalculate after editing the autodrive settings.
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
-
-        if AutoDrive.Recalculation ~= nil then
-            if AutoDrive.Recalculation.continue == true then
-                newState = 2
-            else
-                newState = 1
-            end
-        else
-            newState = 1
-        end
-    end
-
     if self.primaryAction == "input_removeWaypoint" then
         if vehicle.ad.createMapPoints == true then
             self.isVisible = true

@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Maak Een Nieuwe Bestemming" />
 		<text name="input_ADRenameMapMarker"					text="AD: Hernoem Huidige Bestemming" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Verwijder RoutePunt" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Routes Opnieuw Berekenen" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Bestemming Verwijderen" />
 		<text name="input_ADSelectNextFillType"					text="AD: Selecteer Volgende Vulling type" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Selecteer Vorige Vulling type" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="kan geen route calculeren" />
 		<text name="AD_new_marker"								text="Nieuwe Bestemming:" />
 		<text name="AD_new_marker_helptext"						text="Voer naam in (Sluit af met de Enter-toets)" />
-		<text name="AD_Recalculationg_routes_status"			text="Routes Herberekenen. Even wachten a.u.b. Voltooid:" />
 		<text name="AD_No_Trailer"								text="geen trailer gevonden" />
 		<text name="AD_No_Bunker"								text="geen Silo Bunker gevonden" />
 		<text name="AD_No_Shovel"								text="geen shovel gevonden" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Het loon van de bestuurder wordt vermenigvuldigd met deze waarde" />
 		<text name="gui_ad_smoothField"							text="Soepeler rijden in het veld" />
 		<text name="gui_ad_smoothField_tooltip"					text="Gegenereerde routes naar/vanaf de Combine worden vloeiend gemaakt (experimenteel)" />
-		<text name="gui_ad_recalculationSpeed"					text="Snelheid van het Berekenen" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Hogere waarden leiden tot schokkerige gameplay tijdens het herberekenen" />
 		<text name="gui_ad_showNextPath"						text="Volgend pad weergeven" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Schakel de weergave van de volgende twee RoutePunten In/Uit" />
 		<text name="gui_ad_avoidFruit"							text="Fruit vermijden" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Geef chauffeur een naam:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Maak folder" />
 		<text name="gui_ad_enterGroupNameText"					text="Geef folder een naam:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch hercalculeren" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start als nodig hercalculatie automatisch." />
 		<text name="gui_ad_autoRefuel"							text="Automatisch tanken" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Naar tank bestemming rijden (dichtbij tank trigger) als de tank bijna leeg is." />
 		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
@@ -170,8 +164,6 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
 		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
-		<text name="gui_ad_useLiveMode"							text="Use live mode" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

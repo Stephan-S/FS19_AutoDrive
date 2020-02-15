@@ -73,20 +73,6 @@ function AutoDrive.readFromXML(xmlFile)
 		return
 	end
 
-	local recalculate = true
-	local recalculateString = getXMLString(xmlFile, "AutoDrive.Recalculation")
-	if recalculateString == "true" then
-		recalculate = true
-		AutoDrive.MarkChanged()
-	end
-	if recalculateString == "false" then
-		recalculate = false
-	end
-	if recalculateString == nil then
-		g_logManager:devInfo("[AutoDrive] Starting a new configuration file")
-		return
-	end
-
 	AutoDrive.HudX = getXMLFloat(xmlFile, "AutoDrive.HudX")
 	AutoDrive.HudY = getXMLFloat(xmlFile, "AutoDrive.HudY")
 	AutoDrive.showingHud = getXMLBool(xmlFile, "AutoDrive.HudShow")
@@ -180,33 +166,6 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	local markerIDString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID")
-	local markerIDSplitted = {}
-	if markerIDString ~= nil then
-		local markerIDTable = markerIDString:split(";")
-		for i, outer in pairs(markerIDTable) do
-			local markerID = outer:split(",")
-			markerIDSplitted[i] = markerID
-			if markerID == nil then
-				markerIDSplitted[i] = {outer}
-			end
-		end
-	end
-
-	local markerNamesString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerNames")
-	local markerNamesSplitted = nil
-	if markerNamesString ~= nil then
-		markerNamesSplitted = {}
-		local markerNamesTable = markerNamesString:split(";")
-		for i, outer in pairs(markerNamesTable) do
-			local markerNames = outer:split(",")
-			markerNamesSplitted[i] = markerNames
-			if markerNames == nil then
-				markerNamesSplitted[i] = {outer}
-			end
-		end
-	end
-
 	local wp_counter = 0
 	for i, id in pairs(idTable) do
 		if id ~= "" then
@@ -237,33 +196,6 @@ function AutoDrive.readFromXML(xmlFile)
 				end
 			end
 
-			wp["marker"] = {}
-			if markerNamesSplitted ~= nil then
-				if markerNamesSplitted[i] ~= nil then
-					for i2, markerName in pairs(markerNamesSplitted[i]) do
-						if markerName ~= "" then
-							wp.marker[markerName] = tonumber(markerIDSplitted[i][i2])
-						end
-					end
-				end
-			else
-				if markerIDSplitted[i] ~= nil then
-					if markerIDSplitted[i][1] == "=" then
-						for _, marker in pairs(AutoDrive.mapMarker) do
-							wp.marker[marker.name] = tonumber(markerIDSplitted[i][2])
-						end
-					else
-						for markerIndex, marker in pairs(AutoDrive.mapMarker) do
-							wp.marker[marker.name] = tonumber(markerIDSplitted[i][markerIndex])
-						end
-					end
-				else
-					for _, marker in pairs(AutoDrive.mapMarker) do
-						wp.marker[marker.name] = -1
-					end
-				end
-			end
-
 			wp.x = tonumber(xTable[i])
 			wp.y = tonumber(yTable[i])
 			wp.z = tonumber(zTable[i])
@@ -288,16 +220,6 @@ function AutoDrive.readFromXML(xmlFile)
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
-
-	recalculate = true
-	recalculateString = getXMLString(xmlFile, "AutoDrive.Recalculation")
-	if recalculateString == "true" then
-		recalculate = true
-	end
-	if recalculateString == "false" then
-		recalculate = false
-	end
-	AutoDrive.handledRecalculation = not recalculate
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -307,14 +229,7 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	setXMLString(xmlFile, "AutoDrive.version", AutoDrive.version)
-	if AutoDrive.handledRecalculation ~= true then
-		setXMLString(xmlFile, "AutoDrive.Recalculation", "true")
-		g_logManager:devInfo("[AutoDrive] Set to recalculating routes")
-	else
-		setXMLString(xmlFile, "AutoDrive.Recalculation", "false")
-		g_logManager:devInfo("[AutoDrive] Set to not recalculating routes")
-	end
-
+	
 	setXMLFloat(xmlFile, "AutoDrive.HudX", AutoDrive.HudX)
 	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY)
 	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud)
@@ -328,29 +243,19 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled", enabled)
 	end
 
+	removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID")
+
 	local idFullTable = {}
-	--local idString = ""
 
 	local xTable = {}
-	--local xString = ""
 
 	local yTable = {}
-	--local yString = ""
 
 	local zTable = {}
-	--local zString = ""
 
 	local outTable = {}
-	--local outString = ""
 
 	local incomingTable = {}
-	--local incomingString = ""
-
-	--local markerNamesTable = {}
-	--local markerNames = ""
-
-	local markerIDsTable = {}
-	--local markerIDs = ""
 
 	for i, p in pairs(AutoDrive.mapWayPoints) do
 		idFullTable[i] = p.id
@@ -366,36 +271,7 @@ function AutoDrive.saveToXML(xmlFile)
 		incomingTable[i] = table.concat(p.incoming, ",")
 		if incomingTable[i] == nil or incomingTable[i] == "" then
 			incomingTable[i] = "-1"
-		end
-
-		local allMarkerIdsMatch = true
-		local lastMarker = nil
-		local firstMarker = nil
-		for i2, marker in pairs(p.marker) do
-			if lastMarker == nil then
-				lastMarker = marker
-				firstMarker = i2
-			else
-				if lastMarker ~= marker then
-					allMarkerIdsMatch = false
-				end
-			end
-		end
-
-		if allMarkerIdsMatch == true then
-			if p.marker[firstMarker] ~= nil then
-				markerIDsTable[i] = "=," .. p.marker[firstMarker]
-			end
-		else
-			local markerCounter = 1
-			--local innerMarkerNamesTable = {}
-			local innerMarkerIDsTable = {}
-			for _, marker in pairs(AutoDrive.mapMarker) do
-				innerMarkerIDsTable[markerCounter] = p.marker[marker.name]
-				markerCounter = markerCounter + 1
-			end
-			markerIDsTable[i] = table.concat(innerMarkerIDsTable, ",")
-		end
+		end		
 	end
 
 	if idFullTable[1] ~= nil then
@@ -405,9 +281,6 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.z", table.concat(zTable, ","))
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out", table.concat(outTable, ";"))
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming", table.concat(incomingTable, ";"))
-		if markerIDsTable[1] ~= nil then
-			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID", table.concat(markerIDsTable, ";"))
-		end
 	end
 
 	for i in pairs(AutoDrive.mapMarker) do

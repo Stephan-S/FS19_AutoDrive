@@ -118,14 +118,6 @@ function AutoDrive.renameMapMarker(newName, markerId, sendEvent)
 			-- Renaming map marker
 			AutoDrive.mapMarker[markerId].name = newName
 
-			-- Updating all waypoints with new marker name
-			for _, mapPoint in pairs(AutoDrive.mapWayPoints) do
-				-- Adding marker with new name
-				mapPoint.marker[newName] = mapPoint.marker[oldName]
-				-- Removing marker with old name
-				mapPoint.marker[oldName] = nil
-			end
-
 			if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == oldName then
 				-- nameOfSelectedTarget must be updated only if we are renaming the marker selected on the pullDownList
 				g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = newName
@@ -394,32 +386,6 @@ function AutoDrive:handleRecording(vehicle)
 	end
 end
 
-function AutoDrive:handleRecalculation(vehicle)
-	if AutoDrive.Recalculation ~= nil and ((vehicle == g_currentMission.controlledVehicle and g_server ~= nil) or (g_server ~= nil)) then
-		if AutoDrive.Recalculation.continue == true then
-			if AutoDrive.Recalculation.nextCalculationSkipFrames <= 0 then
-				AutoDrive.recalculationPercentage = AutoDrive:ContiniousRecalculation()
-				AutoDrive.Recalculation.nextCalculationSkipFrames = 0
-
-				AutoDrive.recalculationPercentage = math.min(AutoDrive.recalculationPercentage, 100)
-				local currentDestination = ""
-				if AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers + 1] ~= nil then
-					currentDestination = "  - " .. AutoDrive.mapMarker[AutoDrive.Recalculation.handledMarkers + 1].name
-				end
-
-				-- TODO: We should try to improve that, currently it isn't really synchronized with recalculation
-				AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Recalculationg_routes_status") .. " " .. AutoDrive.recalculationPercentage .. "%" .. currentDestination)
-				AutoDrive.print.showMessageFor = 500
-				if AutoDrive.recalculationPercentage == 100 then
-					AutoDrive.print.showMessageFor = 5000
-				end
-			else
-				AutoDrive.Recalculation.nextCalculationSkipFrames = AutoDrive.Recalculation.nextCalculationSkipFrames - 1
-			end
-		end
-	end
-end
-
 function AutoDrive:isDualRoad(start, target)
 	if start == nil or target == nil or start.incoming == nil or target.id == nil then
 		return false
@@ -541,33 +507,6 @@ function AutoDrive:getHighestConsecutiveIndex()
 	end
 
 	return (toCheckFor - 1)
-end
-
-function AutoDrive:FastShortestPath(graph, start, markerName, markerID)
-	if AutoDrive.getSetting("useLiveMode") then
-		return AutoDrive:FastShortestPathLive(graph, start, markerName, markerID)
-	end;
-
-	return AutoDrive:FastShortestPathPreCalculated(graph, start, markerName, markerID)
-end
-
-function AutoDrive:FastShortestPathPreCalculated(graph, start, markerName, markerID)
-	local id = start
-	if nil == id or nil == graph[id] then
-		return {}
-	end
-	local wp = {}
-	while id ~= -1 and id ~= nil do
-		table.insert(wp, graph[id])
-		if #wp > 5000 then
-			return {} --something went wrong. prevent overflow here
-		end
-		if id == markerID or nil == AutoDrive.mapWayPoints[id] then
-			break
-		end
-		id = AutoDrive.mapWayPoints[id].marker[markerName]
-	end
-	return AutoDrive:graphcopy(wp)
 end
 
 function AutoDrive:findClosestWayPoint(veh)
@@ -716,23 +655,21 @@ function AutoDrive:graphcopy(graph)
 
 		local out = copyArrayElements(graphElem.out)
 		local incoming = copyArrayElements(graphElem.incoming)
-		local marker = copyArrayElements(graphElem.marker)
 
-		newGraph[i] = AutoDrive:createNode(graphElem.id, graphElem.x, graphElem.y, graphElem.z, out, incoming, marker)
+		newGraph[i] = AutoDrive:createNode(graphElem.id, graphElem.x, graphElem.y, graphElem.z, out, incoming)
 	end
 
 	return newGraph
 end
 
-function AutoDrive:createNode(id, x, y, z, out, incoming, marker)
+function AutoDrive:createNode(id, x, y, z, out, incoming)
 	return {
 		id = id,
 		x = x,
 		y = y,
 		z = z,
 		out = out,
-		incoming = incoming,
-		marker = marker
+		incoming = incoming
 	}
 end
 

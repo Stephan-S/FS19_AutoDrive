@@ -55,7 +55,6 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="ADDebugCreateConnection" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugCreateMapMarker" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugDeleteWayPoint" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADDebugForceUpdate" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugDeleteDestination" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectNextFillType" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectPreviousFillType" category="VEHICLE" ignoreComboMask="false" />

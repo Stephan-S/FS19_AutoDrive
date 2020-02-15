@@ -379,7 +379,6 @@ function AutoDrive:onUpdate(dt)
 
     self.ad.closest = nil
 
-    AutoDrive:handleRecalculation(self)
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriving(self, dt)

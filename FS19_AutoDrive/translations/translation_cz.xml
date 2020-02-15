@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Vytvořit nový cíl" />
 		<text name="input_ADRenameMapMarker"					text="AD: Přejmenovat cíl" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Smazat cíl" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Aktualizovat trasu" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Smazat cíl" />
 		<text name="input_ADSelectNextFillType"					text="AD: Vybrat následující druh nákladu" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Vybrat předchozí druh nákladu" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="can't calculate a path" />
 		<text name="AD_new_marker"								text="Nový cíl:" />
 		<text name="AD_new_marker_helptext"						text="Zadejte nový cíl (Zastavíte Enterem)" />
-		<text name="AD_Recalculationg_routes_status"			text="Přepočítání trasy. Čekejte. Dokončeno:" />
 		<text name="AD_No_Trailer"								text="Nemohu nalézt odvozce" />
 		<text name="AD_No_Bunker"								text="Nemohu nalézt silážní jámu" />
 		<text name="AD_No_Shovel"								text="Lžíce není připojena" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Mzda zaměstnance bude upravena podle této hodnoty" />
 		<text name="gui_ad_smoothField"							text="Vylepšené řízení na poli" />
 		<text name="gui_ad_smoothField_tooltip"					text="Generovaná trasa k a od kombajnu bude pravidelnější" />
-		<text name="gui_ad_recalculationSpeed"					text="Rychlost generování trasy" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Snižte hodnotu, pokud Vám laguje hra" />
 		<text name="gui_ad_showNextPath"						text="Zobrazovat následující trasu" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Zobrazuje směr k dalšímu bodu na trase" />
 		<text name="gui_ad_avoidFruit"							text="Nevjíždět do porostu" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Vytovořit jméno řidiče:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Vytvořit adresář" />
 		<text name="gui_ad_enterGroupNameText"					text="Vytvořit název adresáře:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatic Recalculation" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Start recalculation automatically if required." />
 		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
 		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
@@ -170,8 +164,6 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
 		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
-		<text name="gui_ad_useLiveMode"							text="Use live mode" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Paths are calculated on demand and not precalculated" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

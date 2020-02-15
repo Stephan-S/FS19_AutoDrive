@@ -26,7 +26,6 @@
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Neues Ziel erstellen" />
 		<text name="input_ADRenameMapMarker"					text="AD: Aktuelles Ziel umbenennen" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Wegpunkt löschen" />
-		<text name="input_ADDebugForceUpdate"					text="AD: Wege neu berechnen" />
 		<text name="input_ADDebugDeleteDestination"				text="AD: Ziel löschen" />
 		<text name="input_ADSelectNextFillType"					text="AD: Nächster Fruchttyp" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Vorheriger Fruchttyp" />
@@ -46,7 +45,6 @@
 		<text name="AD_cannot_find_path"						text="hat keinen Pfad zum Ziel berechnen können" />
 		<text name="AD_new_marker"								text="Neues Ziel:" />
 		<text name="AD_new_marker_helptext"						text="Namen eingeben - Beenden mit Enter-Taste" />
-		<text name="AD_Recalculationg_routes_status"			text="Routen werden neuberechnet. Bitte warten. Berechnet:" />
 		<text name="AD_No_Trailer"								text="konnte keinen Anhänger finden" />
 		<text name="AD_No_Bunker"								text="konnte kein Fahrsilo finden" />
 		<text name="AD_No_Shovel"								text="konnte keine Schaufel finden" />
@@ -113,8 +111,6 @@
 		<text name="gui_ad_driverWages_tooltip"					text="Mit diesem Faktor werden die Lohnkosten der Fahrer multipliziert" />
 		<text name="gui_ad_smoothField"							text="Feldstrecken glätten" />
 		<text name="gui_ad_smoothField_tooltip"					text="Strecken zu/vom Drescher werden geglättet - Experimental" />
-		<text name="gui_ad_recalculationSpeed"					text="Berechnungsgeschwindigkeit" />
-		<text name="gui_ad_recalculationSpeed_tooltip"			text="Höhere Werte können zu einem ruckelnden Spiel führen" />
 		<text name="gui_ad_showNextPath"						text="Zeige nächsten Pfad" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Anzeige der nächsten 2 Wegpunkte an/ausschalten" />
 		<text name="gui_ad_avoidFruit"							text="Fruchtumfahrung" />
@@ -157,8 +153,6 @@
 		<text name="gui_ad_enterDriverNameText"					text="Fahrernamen eingeben:" />
 		<text name="gui_ad_enterGroupNameTitle"					text="Ordner erstellen" />
 		<text name="gui_ad_enterGroupNameText"					text="Ordnernamen eingeben:" />
-		<text name="gui_ad_autoRecalculate"						text="Automatisch Neuberechnen" />
-		<text name="gui_ad_autoRecalculate_tooltip"				text="Automatisch eine Neuberechnung anstoßen wenn ein Fahrzeug gestartet wird." />
 		<text name="gui_ad_autoRefuel"							text="Automatisch Auftanken" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Bei einem niedrigen Tanklevel wird automatisch ein Ziel in Tankstellennähe angefahren." />
 		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
@@ -170,30 +164,28 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Falls die automatisch erkannte Zielhöhe nicht korrekt auf dem Boden ist, nutze diesen Wert zum Anpassen" />
 		<text name="gui_ad_showMarkersOnMap"					text="Ziele auf Karte" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Zeigt die Ziele auf der Karte an" />
-		<text name="gui_ad_useLiveMode"							text="Live Modus" />
-		<text name="gui_ad_useLiveMode_tooltip"					text="Routen werden bei Bedarf berechnet und müssen nicht vorher statisch neuberechnet werden" />
 		
-		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
-		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
-		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
-		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
-		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimental Features Settings - AutoDrive" />
-		<text name="gui_ad_restoreButtonText" 					text="Restore" />
-		<text name="gui_ad_settingsClosingDialog_title" 		text="All changes will be lost" />
-		<text name="gui_ad_settingsClosingDialog_text" 			text="Are you sure you want to close the settings without saving?" />
+		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
+		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimentelle Features - AutoDrive" />
+		<text name="gui_ad_restoreButtonText" 					text="Wiederherstellen" />
+		<text name="gui_ad_settingsClosingDialog_title" 		text="Alle Änderungen gehen verloren" />
+		<text name="gui_ad_settingsClosingDialog_text" 			text="Wirklich ohne Speichern schließen?" />
 
-		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
-		<text name="statistic_driversHired" 					text="Drivers currently hired" />
+		<text name="statistic_driversTraveledDistance" 			text="Gefahrene Strecke der Fahrer" />
+		<text name="statistic_driversHired" 					text="Eingestellte Fahrer" />
 
-		<text name="gui_ad_debugChannelVehicle" 				text="Vehicles" />
-		<text name="gui_ad_debugChannelCombine" 				text="Combines" />
-		<text name="gui_ad_debugChannelTrailer" 				text="Trailers" />
-		<text name="gui_ad_debugChannelDev" 					text="Developing" />
-		<text name="gui_ad_debugChannelPath" 					text="Pathfinding" />
-		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
-		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
-		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
-		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+		<text name="gui_ad_debugChannelVehicle" 				text="Fahrzeuge" />
+		<text name="gui_ad_debugChannelCombine" 				text="Drescher" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Anhänger" />
+		<text name="gui_ad_debugChannelDev" 					text="Entwickler" />
+		<text name="gui_ad_debugChannelPath" 					text="Pfadfindung" />
+		<text name="gui_ad_debugChannelSensor" 					text="Sensoren" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Netzwerk" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="Externe Schnittstelle" />
+		<text name="gui_ad_debugChannelAll" 					text="Alles" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
