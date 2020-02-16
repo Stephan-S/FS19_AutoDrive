@@ -413,6 +413,13 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	if input == "input_continue" then
 		if vehicle.ad.isPaused == true then
 			vehicle.ad.isPaused = false
+
+			vehicle.ad.waitingToBeLoaded = false
+            vehicle.ad.isLoading = false
+            vehicle.ad.isLoadingToFillUnitIndex = nil
+            vehicle.ad.isLoadingToTrailer = nil
+            vehicle.ad.trigger = nil
+
 			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
 				if AutoDrive.getDistanceToTargetPosition(vehicle) < 10 then
 					local closest, _ = AutoDrive:findClosestWayPoint(vehicle)

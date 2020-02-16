@@ -896,7 +896,7 @@ function AutoDrive.startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigge
 
         for _, fillType in pairs(toCheck) do
             vehicle.ad.unloadFillTypeIndex = fillType
-            if AutoDrive.fillTypesMatch(vehicle, trigger, trailer) then
+            if AutoDrive.fillTypesMatch(vehicle, trigger, trailer, nil, fillUnitIndex) then
                 AutoDrive.startLoadingAtTrigger(vehicle, trigger, vehicle.ad.unloadFillTypeIndex, fillUnitIndex, trailer)
                 vehicle.ad.unloadFillTypeIndex = storedFillType
                 return
