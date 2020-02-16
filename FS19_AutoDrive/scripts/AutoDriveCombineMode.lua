@@ -481,11 +481,16 @@ function AutoDrive:driveToChasePosition(vehicle, dt)
     local acc = 1
     local allowedToDrive = true
 
-    if vehicle.ccInfos.distanceToChasePos < 0.5 then
+    local distanceToChasePos = 0
+    if not vehicle.ccInfos.isChopper then --we can keep the chasepos a few meters getAngleToCombineHeading
+        distanceToChasePos = 2
+    end;
+
+    if vehicle.ccInfos.distanceToChasePos < (0.5 + distanceToChasePos) then
         finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 5)
-    elseif vehicle.ccInfos.distanceToChasePos < 5 then
+    elseif vehicle.ccInfos.distanceToChasePos < (5 + distanceToChasePos) then
         finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10)
-    elseif vehicle.ccInfos.distanceToChasePos < 10 then
+    elseif vehicle.ccInfos.distanceToChasePos < (10 + distanceToChasePos) then
         finalSpeed = math.max((vehicle.ad.currentCombine.lastSpeedReal * 3600), 10)
     end
 
@@ -616,6 +621,7 @@ end
 
 function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked, rightBlocked)
     local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
+    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
     local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
@@ -655,8 +661,13 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
                 local pipeOffset = AutoDrive.getSetting("pipeOffset", vehicle)
                 local trailerOffset = AutoDrive.getSetting("trailerOffset", vehicle)
 
+                local trailer = AutoDrive.getTrailersOf(vehicle, true)[1];
+                local fillRootNode = trailer:getFillUnitRootNode(1);
+                local fillNodeX, fillNodeY, fillNodeZ = getWorldTranslation(fillRootNode)
+                local diffX, diffY, diffZ = worldToLocal(vehicle.components[1].node, fillNodeX, fillNodeY, fillNodeZ)
+
                 nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
-                nodeX, nodeY, nodeZ = (nodeX + (vehicle.sizeLength / 2 + 8 + trailerOffset) * rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (vehicle.sizeLength / 2 + 8 + trailerOffset) * rz - pipeOffset * combineNormalVector.z
+                nodeX, nodeY, nodeZ = (nodeX + (-diffZ + 2) * rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (-diffZ + 2) * rz - pipeOffset * combineNormalVector.z
 
                 sideIndex = AutoDrive.ccSIDE_LEFT
             end
@@ -680,7 +691,7 @@ function AutoDrive:getCombineChasePosition(vehicle, combine)
 
     local distance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
     if combine:getIsBufferCombine() then
-        distance = distance - 35
+        distance = distance - 15
     end
 
     return {x = worldX - distance * rx, y = worldY, z = worldZ - distance * rz}
