@@ -419,4 +419,35 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 	end
 end
 
+function AutoDrive:mapHotSpotClicked(superFunc)	
+	if self.isADMarker then
+		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
+		end
+	end	
+
+    return self.hasDetails
+end
+
+
+function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isUp, button, eventUsed)
+	local eventUsed = superFunc(self, posX, posY, isDown, isUp, button, eventUsed)
+	if not eventUsed then
+		if isUp and button == Input.MOUSE_BUTTON_RIGHT then
+			for _, hotspot in pairs(self.ingameMap.hotspots) do
+				if self.ingameMap.filter[hotspot.category] and hotspot.visible and hotspot.category ~= MapHotspot.CATEGORY_FIELD_DEFINITION and hotspot.category ~= MapHotspot.CATEGORY_COLLECTABLE and hotspot:getIsActive() then
+					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
+						if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+							g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload = hotspot.markerID
+						end
+						break
+					end
+				end
+			end
+		end;
+	end
+
+	return eventUsed
+end
+
 -- TODO: Maybe we should add a console command that allows to run console commands to server

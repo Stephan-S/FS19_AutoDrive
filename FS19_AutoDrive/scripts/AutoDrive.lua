@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.0-38"
+AutoDrive.version = "1.0.7.0-39"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
@@ -169,8 +169,8 @@ function AutoDrive:loadMap(name)
 	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad)
 	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
 
-	-- I can't find AutoDrive.fillTriggerOnCreate, are we still using it?
-	FillTrigger.onCreate = Utils.overwrittenFunction(FillTrigger.onCreate, AutoDrive.fillTriggerOnCreate)
+	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
+	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
 
 	if g_server ~= nil then
 		AutoDrive.Server = {}
@@ -250,6 +250,7 @@ function AutoDrive.updateDestinationsMapHotspots()
 			local x, _, z = getWorldTranslation(marker.node)
 			mh:setWorldPosition(x, z)
 			mh.enabled = true
+			mh.markerID = index;
 			g_currentMission:addMapHotspot(mh)
 		end
 	end
@@ -279,6 +280,7 @@ function AutoDrive:deleteMap()
 		end
 	end
 	AutoDrive.mapHotspotsBuffer = {}
+	
 	AutoDrive:unRegisterDestinationListener(AutoDrive)
 end
 
