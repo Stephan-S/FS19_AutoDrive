@@ -289,12 +289,6 @@ public class AutoDriveEditor extends JFrame {
                 String incomingString = node.getNodeValue();
                 String[] incomingValueArrays = incomingString.split(";");
 
-                nodeList = eElement.getElementsByTagName("markerID").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
-                String markerIdsString = node.getNodeValue();
-                String[] markerIdsArrays = markerIdsString.split(";");
-
-
                 for (int i=0; i<ids.length; i++) {
                     int id = Integer.parseInt(ids[i]);
                     double x = Double.parseDouble(xValues[i]);
@@ -336,47 +330,6 @@ public class AutoDriveEditor extends JFrame {
                     for (int incoming=0; incoming<incomingNodes.length; incoming++) {
                         if (Integer.parseInt(incomingNodes[incoming]) != -1) {
                             mapNode.incoming.add(nodes.get(Integer.parseInt(incomingNodes[incoming])-1));
-                        }
-                    }
-                }
-
-                for (int i=0; i<ids.length && i < markerIdsArrays.length ; i++) {
-                    MapNode mapNode = nodes.get(i);
-                    String[] markerIDs = markerIdsArrays[i].split(",");
-
-                    boolean allTargetsSame = false;
-                    int targetIndex = 0;
-                    for (int markerIndex=0; markerIndex<markerIDs.length; markerIndex++) {
-                        if(markerIDs[markerIndex].equals("=")) {
-                            allTargetsSame = true;
-                        }
-                        else {
-                            targetIndex = Integer.parseInt(markerIDs[markerIndex]);
-                        }
-                    }
-
-                    if (allTargetsSame) {
-                        MapNode markerTarget = null;
-                        if(targetIndex != -1) {
-                            markerTarget = nodes.get(targetIndex-1);
-                        }
-                        for (MapMarker iter : mapMarkers) {
-                            mapNode.directions.put(iter , markerTarget);
-                        }
-                    }
-                    else {
-                        for (int markerIndex = 0; markerIndex < markerIDs.length; markerIndex++) {
-                            MapNode markerTarget = null;
-                            if (Integer.parseInt(markerIDs[markerIndex]) - 1 >= 0) {
-                                if (Integer.parseInt(markerIDs[markerIndex]) < nodes.size()) {
-                                    markerTarget = nodes.get(Integer.parseInt(markerIDs[markerIndex]) - 1);
-                                } else {
-                                    markerTarget = null;
-                                }
-                            }
-                            if (mapMarkers.size() > markerIndex) {
-                                mapNode.directions.put(mapMarkers.get(markerIndex), markerTarget);
-                            }
                         }
                     }
                 }
@@ -457,8 +410,6 @@ public class AutoDriveEditor extends JFrame {
 
             Node AutoDrive = doc.getFirstChild();
             Element root = doc.getDocumentElement();
-            Node recalculation = doc.getElementsByTagName("Recalculation").item(0);
-            recalculation.setTextContent("true");
 
             Node waypoints = doc.getElementsByTagName("waypoints").item(0);
 
@@ -571,46 +522,6 @@ public class AutoDriveEditor extends JFrame {
                         }
                     }
                     node.setTextContent(outgoingString);
-                }
-
-                if ("markerID".equals(node.getNodeName())) {
-                    String markerString = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        String markerPerNode = "";
-                        int markerIndex = 0;
-                        boolean allTheSame = true;
-                        int lastId = -1;
-                        for (Map.Entry<MapMarker, MapNode> entry : mapNode.directions.entrySet()) {
-                            MapNode markerTargetNode = entry.getValue();
-                            if (markerTargetNode != null) {
-                                markerPerNode += entry.getValue().id;
-                                allTheSame = allTheSame && (lastId == -1 || lastId == entry.getValue().id);
-                                lastId = entry.getValue().id;
-                            }
-                            else {
-                                markerPerNode += "-1";
-                            }
-                            if (markerIndex<(mapNode.directions.size()-1)) {
-                                markerPerNode += ",";
-                            }
-                            markerIndex++;
-
-                        }
-                        if (markerPerNode == "") {
-                            markerPerNode = "-1";
-                        }
-                        if(allTheSame) {
-                            markerString += "=," + lastId;
-                        }
-                        else {
-                            markerString += markerPerNode;
-                        }
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
-                            markerString = markerString + ";";
-                        }
-                    }
-                    node.setTextContent(markerString);
                 }
             }
 

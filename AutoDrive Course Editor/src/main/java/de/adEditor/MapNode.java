@@ -7,7 +7,6 @@ public class MapNode {
 
     public LinkedList<MapNode> incoming;
     public LinkedList<MapNode> outgoing;
-    public TreeMap<MapMarker, MapNode> directions;
     public double x, y, z;
     public int id;
 
@@ -18,7 +17,6 @@ public class MapNode {
         this.z = z;
         this.incoming = new LinkedList<>();
         this.outgoing = new LinkedList<>();
-        this.directions = new TreeMap<>();
     }
 
 

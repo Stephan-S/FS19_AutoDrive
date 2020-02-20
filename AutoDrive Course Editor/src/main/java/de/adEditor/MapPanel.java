@@ -208,10 +208,6 @@ public class MapPanel extends JPanel{
         }
         MapNode mapNode = new MapNode(this.roadMap.mapNodes.size()+1, screenX, -1, screenY);
 
-        for (MapMarker mapMarker : this.roadMap.mapMarkers) {
-            mapNode.directions.put(mapMarker, null);
-        }
-
         this.roadMap.mapNodes.add(mapNode);
         this.repaint();
     }

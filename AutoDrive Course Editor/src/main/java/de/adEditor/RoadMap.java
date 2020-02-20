@@ -19,9 +19,6 @@ public class RoadMap {
 
     public void addMapMarker(MapMarker mapMarker) {
         this.mapMarkers.add(mapMarker);
-        for (MapNode mapNode : this.mapNodes) {
-            mapNode.directions.put(mapMarker, null);
-        }
     }
 
     public void removeMapNode(MapNode toDelete) {
@@ -57,17 +54,6 @@ public class RoadMap {
     }
 
     public void removeMapMarker(MapMarker mapMarker) {
-        for (MapNode mapNode : this.mapNodes) {
-            LinkedList<MapMarker> toDeleteList = new LinkedList<>();
-            for (Map.Entry<MapMarker,MapNode>  entry : mapNode.directions.entrySet() ) {
-                if (entry.getKey().name.equals(mapMarker.name)) {
-                    toDeleteList.add(entry.getKey());
-                }
-            }
-            if (toDeleteList.size() > 0 ) {
-                mapNode.directions.entrySet().removeIf(e -> (e.getKey().name.equals(mapMarker.name)));
-            }
-        }
         LinkedList<MapMarker> mapMarkersToKeep = new LinkedList<>();
         for (MapMarker mapMarkerIter : this.mapMarkers) {
             if (mapMarkerIter.mapNode.id != mapMarker.mapNode.id) {
