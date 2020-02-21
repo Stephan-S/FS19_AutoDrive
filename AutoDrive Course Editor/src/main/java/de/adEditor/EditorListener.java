@@ -5,6 +5,7 @@ import org.xml.sax.SAXException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -70,9 +71,10 @@ public class EditorListener implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     editor.mapPanel.image = ImageIO.read(fc.getSelectedFile());
+                    editor.mapPanel.setPreferredSize(new Dimension(1024, 768));
+                    editor.mapPanel.setMinimumSize(new Dimension(1024, 768));
+                    editor.mapPanel.revalidate();
                     editor.pack();
-                    editor.repaint();
-                    editor.mapPanel.repaint();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

@@ -11,7 +11,6 @@ public class MapPanel extends JPanel{
 
     public BufferedImage image;
     private BufferedImage resizedImage;
-    private BufferedImage croppedImage;
 
     public double x = 0.5;
     public double y = 0.5;
@@ -106,7 +105,7 @@ public class MapPanel extends JPanel{
         }
     }
 
-    public void resizeMap() {
+    private void resizeMap() {
         int widthScaled = (int) (this.getWidth() / zoomLevel);
         int heightScaled = (int) (this.getHeight() / zoomLevel);
 
@@ -126,7 +125,7 @@ public class MapPanel extends JPanel{
         int offsetX = (centerX-(widthScaled/2));
         int offsetY = (centerY-(heightScaled/2));
 
-        croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
+        BufferedImage croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
 
         resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), image.getType());
         Graphics2D g2 = resizedImage.createGraphics();
