@@ -250,7 +250,7 @@ function AutoDrive.updateDestinationsMapHotspots()
 			local x, _, z = getWorldTranslation(marker.node)
 			mh:setWorldPosition(x, z)
 			mh.enabled = true
-			mh.markerID = index;
+			mh.markerID = index
 			g_currentMission:addMapHotspot(mh)
 		end
 	end
@@ -272,7 +272,8 @@ function AutoDrive:saveSavegame()
 end
 
 function AutoDrive:deleteMap()
-	if g_dedicatedServerInfo == nil then
+	-- this function is called even befor the game is compeltely started in case you insert a wrong password for mp game, so we need to check that "mapHotspotsBuffer" and "unRegisterDestinationListener" are not nil
+	if g_dedicatedServerInfo == nil and AutoDrive.mapHotspotsBuffer ~= nil then
 		-- Removing and deleting all map hotspots
 		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
 			g_currentMission:removeMapHotspot(mh)
@@ -280,8 +281,10 @@ function AutoDrive:deleteMap()
 		end
 	end
 	AutoDrive.mapHotspotsBuffer = {}
-	
-	AutoDrive:unRegisterDestinationListener(AutoDrive)
+
+	if (AutoDrive.unRegisterDestinationListener ~= nil) then
+		AutoDrive:unRegisterDestinationListener(AutoDrive)
+	end
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
@@ -542,12 +545,12 @@ end
 
 function AutoDrive:onFillTypeSelection(superFunc, fillType)
 	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
-		for _, fillableObject in pairs(self.fillableObjects) do	--copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
+		for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
 			if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
 				self.validFillableObject = fillableObject.object
 				self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
 			end
-		end		
+		end
 		local validFillableObject = self.validFillableObject
 		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
 			local fillUnitIndex = self.validFillableFillUnitIndex
