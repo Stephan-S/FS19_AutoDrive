@@ -58,8 +58,8 @@
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"							text="Décalage du tuyau (pipe)" />
 		<text name="gui_ad_trailerOffset"						text="Décalage vertical (remorque)" />
-		<text name="gui_ad_followDistance"						text="Distance combine" />
-		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
+		<text name="gui_ad_followDistance"						text="Distance de moissonneuse" />
+		<text name="gui_ad_followDistance_tooltip"				text="Distance de la moissonneuse depuis son extrémité arrière, lorsqu'elle est suivie." />
 		<text name="gui_ad_trailerOffset_tooltip"				text="Avancer/reculer (remorque), par rapport à la moissonneuse lorsque celle-ci est décentrée." />
 		<text name="gui_ad_lookahead_turning"					text="Distance devant vous (virage)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant." />
