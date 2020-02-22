@@ -1,5 +1,7 @@
 package de.adEditor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,9 +71,13 @@ public class AutoDriveEditor extends JFrame {
 
     public File loadedFile, savedFile;
 
+    private static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
+
+
     public AutoDriveEditor() {
         super("AutoDrive Course Editor 0.1");
 
+        LOG.info("AutoDrive start.................");
         this.setLayout(new BorderLayout());
 
         // create a new panel with GridBagLayout manager
