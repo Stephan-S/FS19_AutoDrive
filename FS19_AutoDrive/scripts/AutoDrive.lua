@@ -91,6 +91,12 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDijkstraLive.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
+
+	if g_server ~= nil then
+		AutoDrive.AutoDriveSync = AutoDriveSync:new(g_server ~= nil, g_client ~= nil)
+		AutoDrive.AutoDriveSync:register(false)
+	end
+
 	AutoDrive:loadGUI()
 
 	g_logManager:devInfo("[AutoDrive] Map title: %s", g_currentMission.missionInfo.map.title)
@@ -150,6 +156,10 @@ function AutoDrive:loadMap(name)
 	if g_server ~= nil then
 		AutoDrive.usersData = {}
 		AutoDrive.loadUsersData()
+		AutoDrive.Server = {}
+		AutoDrive.Server.Users = {}
+	else
+		AutoDrive.highestIndex = 1
 	end
 
 	AutoDrive:initLineDrawing()
@@ -171,13 +181,6 @@ function AutoDrive:loadMap(name)
 
 	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
 	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
-
-	if g_server ~= nil then
-		AutoDrive.Server = {}
-		AutoDrive.Server.Users = {}
-	else
-		AutoDrive.highestIndex = 1
-	end
 
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}

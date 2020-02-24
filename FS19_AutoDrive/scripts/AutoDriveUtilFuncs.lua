@@ -419,16 +419,15 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 	end
 end
 
-function AutoDrive:mapHotSpotClicked(superFunc)	
+function AutoDrive:mapHotSpotClicked(superFunc)
 	if self.isADMarker then
 		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
 			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
 		end
-	end	
+	end
 
-    return self.hasDetails
+	return self.hasDetails
 end
-
 
 function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isUp, button, eventUsed)
 	local eventUsed = superFunc(self, posX, posY, isDown, isUp, button, eventUsed)
@@ -444,7 +443,7 @@ function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isU
 					end
 				end
 			end
-		end;
+		end
 	end
 
 	return eventUsed

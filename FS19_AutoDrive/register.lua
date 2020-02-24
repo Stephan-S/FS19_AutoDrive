@@ -9,6 +9,7 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/AutoDriveSync.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveSpecialization.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveDelayedCallBacks.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveTON.lua", g_currentModDirectory))

@@ -1,41 +1,41 @@
 function AutoDrive.handleMultiplayer(dt)
-    if g_server ~= nil then
-        local allAcksReceived, highestIndex = AutoDrive:checkUsers()
+    --if g_server ~= nil then
+    --    local allAcksReceived, highestIndex = AutoDrive:checkUsers()
 
-        if allAcksReceived == true and AutoDrive.tableLength(AutoDrive.Server.Users) > 0 then
-            if AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter and AutoDrive.requestedWaypoints == true then
-                AutoDrive.requestedWaypointCount = highestIndex
-                --g_logManager:devInfo("Highest index of all users was: " .. highestIndex);
-                for _, user in pairs(AutoDrive.Server.Users) do
-                    user.ackReceived = false
-                end
-                AutoDriveCourseDownloadEvent:sendEvent()
-            else
-                --g_logManager:devInfo("Done sending network!");
-                AutoDrive.requestedWaypoints = false
-            end
-        end
+    --    if allAcksReceived == true and AutoDrive.tableLength(AutoDrive.Server.Users) > 0 then
+    --        if AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter and AutoDrive.requestedWaypoints == true then
+    --            AutoDrive.requestedWaypointCount = highestIndex
+    --            --g_logManager:devInfo("Highest index of all users was: " .. highestIndex);
+    --            for _, user in pairs(AutoDrive.Server.Users) do
+    --                user.ackReceived = false
+    --            end
+    --            AutoDriveCourseDownloadEvent:sendEvent()
+    --        else
+    --            g_logManager:devInfo("Done sending network!")
+    --            AutoDrive.requestedWaypoints = false
+    --        end
+    --    end
 
-        if AutoDrive.tableLength(AutoDrive.Server.Users) == 0 then
-            AutoDrive.requestedWaypoints = false
-        end
-    end
+    --    if AutoDrive.tableLength(AutoDrive.Server.Users) == 0 then
+    --        AutoDrive.requestedWaypoints = false
+    --    end
+    --end
 
-    if g_server == nil then
-        if AutoDrive.requestWayPointTimer >= 0 then
-            AutoDrive.requestWayPointTimer = AutoDrive.requestWayPointTimer - dt
-        end
+    --if g_server == nil then
+    --    if AutoDrive.requestWayPointTimer >= 0 then
+    --        AutoDrive.requestWayPointTimer = AutoDrive.requestWayPointTimer - dt
+    --    end
 
-        if AutoDrive.requestedWaypoints ~= true and AutoDrive.requestWayPointTimer < 0 then
-            AutoDriveRequestWayPointEvent:sendEvent()
-            AutoDrive.requestedWaypoints = true
-            AutoDrive.requestWayPointTimer = 10000
-        end
+    --    if AutoDrive.requestedWaypoints ~= true and AutoDrive.requestWayPointTimer < 0 then
+    --        AutoDriveRequestWayPointEvent:sendEvent()
+    --        AutoDrive.requestedWaypoints = true
+    --        AutoDrive.requestWayPointTimer = 10000
+    --    end
 
-        if AutoDrive.playerSendsMapToServer == true and AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter then
-            AutoDriveCourseDownloadEvent:sendEvent()
-        end
-    end
+    --    if AutoDrive.playerSendsMapToServer == true and AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter then
+    --        AutoDriveCourseDownloadEvent:sendEvent()
+    --    end
+    --end
 end
 
 function AutoDrive.handleVehicleMultiplayer(vehicle, dt)
