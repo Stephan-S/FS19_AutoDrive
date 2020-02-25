@@ -463,9 +463,11 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 end
 
 function AutoDrive:mapHotSpotClicked(superFunc)
-	if self.isADMarker then
+	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") then
 		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
 			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
+			g_currentMission.controlledVehicle.ad.targetSelected = AutoDrive.mapMarker[self.markerID].id
+			g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[self.markerID].name
 		end
 	end
 
@@ -479,8 +481,10 @@ function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isU
 			for _, hotspot in pairs(self.ingameMap.hotspots) do
 				if self.ingameMap.filter[hotspot.category] and hotspot.visible and hotspot.category ~= MapHotspot.CATEGORY_FIELD_DEFINITION and hotspot.category ~= MapHotspot.CATEGORY_COLLECTABLE and hotspot:getIsActive() then
 					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
-						if hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+						if AutoDrive.getSetting("showMarkersOnMap") and hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
 							g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload = hotspot.markerID
+							g_currentMission.controlledVehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[hotspot.markerID].id
+							g_currentMission.controlledVehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[hotspot.markerID].name
 						end
 						break
 					end
