@@ -71,14 +71,12 @@ AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveTrailerUtil.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveLineDraw.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDriveFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrigger.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveUtilFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
@@ -207,6 +205,7 @@ function AutoDrive:loadMap(name)
 	--        g_gui:showGui("ADEnterGroupNameGui")
 	--    end
 	--)
+	AutoDriveBenchmarks.Run()
 end
 
 function AutoDrive:firstRun()

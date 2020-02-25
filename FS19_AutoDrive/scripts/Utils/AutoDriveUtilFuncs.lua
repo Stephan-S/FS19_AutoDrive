@@ -67,6 +67,49 @@ function AutoDrive.boxesIntersect(a, b)
 	return true
 end
 
+function table:containsKey(key)
+	return self[key] ~= nil
+end
+
+function table:containsValue(value)
+	local i = 0
+	while i < #self do
+		i = i + 1
+		if self[i] == value then
+			return true
+		end
+	end
+end
+
+function table:indexOf(value)
+	local i = 0
+	while i < #self do
+		i = i + 1
+		if self[i] == value then
+			return i
+		end
+	end
+	return nil
+end
+
+function table:removeValue(value)
+	local removed = false
+	local i = 0
+	while i < #self do
+		i = i + 1
+		if removed then
+			self[i - 1] = self[i]
+		end
+		if self[i] == value then
+			removed = true
+		end
+	end
+	if removed then
+		table.remove(self, i)
+	end
+	return removed
+end
+
 function string:split(sep)
 	sep = sep or ":"
 	local fields = {}
