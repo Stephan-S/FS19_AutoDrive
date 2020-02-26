@@ -77,7 +77,7 @@ public class AutoDriveEditor extends JFrame {
     public AutoDriveEditor() {
         super("AutoDrive Course Editor 0.1");
 
-        LOG.info("AutoDrive start.................");
+        LOG.info("AutoDrive start.............................................................................................");
         this.setLayout(new BorderLayout());
 
         // create a new panel with GridBagLayout manager
@@ -201,7 +201,7 @@ public class AutoDriveEditor extends JFrame {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.error(ex.getMessage(), ex);
         }
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -219,7 +219,7 @@ public class AutoDriveEditor extends JFrame {
         Document doc = dBuilder.parse(fXmlFile);
         doc.getDocumentElement().normalize();
 
-        System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+        LOG.info("Root element :{}", doc.getDocumentElement().getNodeName());
 
         NodeList markerList = doc.getElementsByTagName("mapmarker");
         LinkedList<MapMarker> mapMarkers = new LinkedList<>();
@@ -253,14 +253,14 @@ public class AutoDriveEditor extends JFrame {
 
         NodeList nList = doc.getElementsByTagName("waypoints");
 
-        System.out.println("----------------------------");
+        LOG.info("----------------------------");
 
         LinkedList<MapNode> nodes = new LinkedList<>();
         for (int temp = 0; temp < nList.getLength(); temp++) {
 
             Node nNode = nList.item(temp);
 
-            System.out.println("\nCurrent Element :" + nNode.getNodeName());
+            LOG.info("Current Element :{}", nNode.getNodeName());
 
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
@@ -350,7 +350,7 @@ public class AutoDriveEditor extends JFrame {
         NodeList adNodes = ADNode.getChildNodes();
         Node mapNameNode = nList.item(0).getParentNode();
         String mapName = mapNameNode.getNodeName();
-        System.out.println("Loaded config for map: " + mapNameNode.getNodeName());
+        LOG.info("Loaded config for map: {}", mapNameNode.getNodeName());
 
         String mapPath = "/mapImages/" + mapName + ".png";
         URL url = AutoDriveEditor.class.getResource(mapPath);
@@ -371,7 +371,7 @@ public class AutoDriveEditor extends JFrame {
                         mapPath = "./" + mapName + ".png";
                         image = ImageIO.read(new File(mapPath));
                     } catch (Exception e3) {
-                        System.out.println("Editor has no map file for map: " + mapName);
+                        LOG.info("Editor has no map file for map: {}", mapName);
                     }
                 }
             }
@@ -394,7 +394,7 @@ public class AutoDriveEditor extends JFrame {
     }
 
     public void saveMap(String oldPath, String newPath) {
-        System.out.println("SaveMap called");
+        LOG.info("SaveMap called");
         try {
             String filepath = oldPath;
             File file = null;
@@ -402,7 +402,7 @@ public class AutoDriveEditor extends JFrame {
                 filepath = URLDecoder.decode(filepath, "UTF-8");
                 file = new File(filepath);
             } catch(UnsupportedEncodingException e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage(), e);
             }
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -576,7 +576,7 @@ public class AutoDriveEditor extends JFrame {
                     newPathEndIndex = newPath.lastIndexOf("_init_config");
                 }
                 newMapName = newPath.substring(newPathStartIndex, newPathEndIndex);
-                System.out.println("Found new map name in: " + newPath + " : " + newMapName);
+                LOG.info("Found new map name in: {} : {}", newPath , newMapName);
             }
             doc.renameNode(mapNameNode, null, newMapName);
 
@@ -592,10 +592,10 @@ public class AutoDriveEditor extends JFrame {
             StreamResult result = new StreamResult(new File(filepath));
             transformer.transform(source, result);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
-        System.out.println("Done");
+        LOG.info("Done save");
     }
 
 

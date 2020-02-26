@@ -1,5 +1,8 @@
 package de.adEditor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -8,6 +11,9 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 
 public class MouseListener implements java.awt.event.MouseListener, MouseMotionListener, MouseWheelListener {
+
+    private static Logger LOG = LoggerFactory.getLogger(MouseListener.class);
+
     MapPanel mapPanel;
     boolean isDragging = false;
     boolean isDraggingNode = false;
@@ -77,7 +83,7 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
             }
         }
         if (e.getButton() == MouseEvent.BUTTON3) {
-            System.out.println("Rectangle start set at " + e.getX() + "/" + e.getY());
+            LOG.info("Rectangle start set at {}/{}", e.getX(), e.getY());
             rectangleStart = new Point2D.Double(e.getX(), e.getY());
         }
     }
@@ -90,11 +96,11 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
         }
         if (e.getButton() == MouseEvent.BUTTON3) {
             rectangleEnd = new Point2D.Double(e.getX(), e.getY());
-            System.out.println("Rectangle end set at " + e.getX() + "/" + e.getY());
+            LOG.info("Rectangle end set at {}/{}", e.getX(), e.getY());
             if (rectangleStart != null) {
                 if (this.mapPanel.editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING) {
 
-                    System.out.println("Removing all nodes in area");
+                    LOG.info("Removing all nodes in area");
                     this.mapPanel.removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
                     this.mapPanel.repaint();
                 }

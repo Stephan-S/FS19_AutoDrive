@@ -1,5 +1,7 @@
 package de.adEditor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
@@ -12,6 +14,7 @@ import java.io.IOException;
 
 public class EditorListener implements ActionListener {
 
+    private static Logger LOG = LoggerFactory.getLogger(EditorListener.class);
     public AutoDriveEditor editor;
 
     final JFileChooser fc = new JFileChooser();
@@ -22,7 +25,7 @@ public class EditorListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("ActionCommand: " + e.getActionCommand());
+        LOG.info("ActionCommand: {}", e.getActionCommand());
         if (e.getActionCommand().equals("Save")) {
             int returnVal = fc.showSaveDialog(editor);
 
@@ -61,7 +64,7 @@ public class EditorListener implements ActionListener {
                     editor.repaint();
                     editor.mapPanel.repaint();
                 } catch (ParserConfigurationException | SAXException | IOException e1) {
-                    e1.printStackTrace();
+                    LOG.error(e1.getMessage(), e1);
                 }
             }
         }
@@ -76,7 +79,7 @@ public class EditorListener implements ActionListener {
                     editor.mapPanel.revalidate();
                     editor.pack();
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    LOG.error(e1.getMessage(), e1);
                 }
             }
         }
