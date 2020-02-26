@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.1"
+AutoDrive.version = "1.0.7.1-1"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
@@ -672,7 +672,7 @@ function AutoDrive:MapHotspot_getIsVisible(superFunc)
 	if superFunc ~= nil then
 		superReturn = superFunc(self)
 	end
-	return superReturn and (not self.isADMarker or AutoDrive.getSetting("showMarkersOnMap"))
+	return superReturn and ((not self.isADMarker) or AutoDrive.getSetting("showMarkersOnMap"))
 end
 MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 

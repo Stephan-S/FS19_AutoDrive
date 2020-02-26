@@ -254,7 +254,11 @@ end
 function AutoDrive.hasToRefuel(vehicle)
     local spec = vehicle.spec_motorized
 
-    return vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) <= AutoDrive.REFUEL_LEVEL
+    if spec.consumersByFillTypeName ~= nil and spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
+        return vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) <= AutoDrive.REFUEL_LEVEL
+    end
+    
+    return false;
 end
 
 function AutoDrive.startRefuelingWhenInRange(vehicle, dt)
