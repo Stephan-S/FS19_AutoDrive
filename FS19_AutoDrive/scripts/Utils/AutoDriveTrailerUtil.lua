@@ -398,7 +398,7 @@ function AutoDrive.getFillLevelAndCapacityOf(trailer, selectedFillType)
             end
         end
     end
-    -- g_logManager:devInfo("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. AutoDrive.tableLength(fullFillUnits));
+    -- g_logManager:devInfo("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. #fullFillUnits);
     -- for index, value in pairs(fullFillUnits) do
     --     g_logManager:devInfo("Unit full: " .. index .. " " .. AutoDrive.boolToString(value));
     -- end;

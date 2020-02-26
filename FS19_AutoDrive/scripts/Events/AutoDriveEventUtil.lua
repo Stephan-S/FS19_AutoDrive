@@ -47,7 +47,7 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
 end
 
 function AutoDrive:writeMapMarkersToStream(streamId)
-    local markerCounter = AutoDrive.tableLength(AutoDrive.mapMarker)
+    local markerCounter = #AutoDrive.mapMarker
     streamWriteInt32(streamId, markerCounter)
     local i = 1
     while i <= markerCounter do
@@ -64,7 +64,7 @@ function AutoDrive:writeMapMarkersToStream(streamId)
 end
 
 function AutoDrive:writeGroupsToStream(streamId)
-    streamWriteInt32(streamId, AutoDrive.tableLength(AutoDrive.groups))
+    streamWriteInt32(streamId, table.count(AutoDrive.groups))
     for groupName, groupID in pairs(AutoDrive.groups) do
         AutoDrive.streamWriteStringOrEmpty(streamId, groupName)
         streamWriteFloat32(streamId, groupID)

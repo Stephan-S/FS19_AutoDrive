@@ -2,7 +2,7 @@ function AutoDrive.handleMultiplayer(dt)
     --if g_server ~= nil then
     --    local allAcksReceived, highestIndex = AutoDrive:checkUsers()
 
-    --    if allAcksReceived == true and AutoDrive.tableLength(AutoDrive.Server.Users) > 0 then
+    --    if allAcksReceived == true and #AutoDrive.Server.Users > 0 then
     --        if AutoDrive.requestedWaypointCount < AutoDrive.mapWayPointsCounter and AutoDrive.requestedWaypoints == true then
     --            AutoDrive.requestedWaypointCount = highestIndex
     --            --g_logManager:devInfo("Highest index of all users was: " .. highestIndex);
@@ -16,7 +16,7 @@ function AutoDrive.handleMultiplayer(dt)
     --        end
     --    end
 
-    --    if AutoDrive.tableLength(AutoDrive.Server.Users) == 0 then
+    --    if #AutoDrive.Server.Users == 0 then
     --        AutoDrive.requestedWaypoints = false
     --    end
     --end
@@ -60,7 +60,7 @@ function AutoDrive:checkUsers()
     local aliveUsers = {}
     local highestIndex = AutoDrive.requestedWaypointCount
 
-    --g_logManager:devInfo("Current users: " .. AutoDrive.tableLength(AutoDrive.Server.Users));
+    --g_logManager:devInfo("Current users: " .. #AutoDrive.Server.Users);
     for userID, user in pairs(AutoDrive.Server.Users) do
         allAcksReceived = allAcksReceived and user.ackReceived
         if user.ackReceived == false then

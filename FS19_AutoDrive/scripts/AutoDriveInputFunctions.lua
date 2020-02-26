@@ -522,16 +522,16 @@ function AutoDrive:inputRecord(vehicle, dual)
 		vehicle.ad.creationModeDual = false
 
 		if AutoDrive.getSetting("autoConnectEnd") then
-			if vehicle.ad.wayPoints ~= nil and AutoDrive.tableLength(vehicle.ad.wayPoints) > 0 then
+			if vehicle.ad.wayPoints ~= nil and #vehicle.ad.wayPoints > 0 then
 				local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle)
 				if targetID ~= nil then
 					local targetNode = AutoDrive.mapWayPoints[targetID]
 					if targetNode ~= nil then
-						targetNode.incoming[AutoDrive.tableLength(targetNode.incoming) + 1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id
-						vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].out[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].out) + 1] = targetNode.id
+						targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.wayPoints[#vehicle.ad.wayPoints].id
+						vehicle.ad.wayPoints[#vehicle.ad.wayPoints].out[#vehicle.ad.wayPoints[#vehicle.ad.wayPoints].out + 1] = targetNode.id
 						if dual == true then
-							targetNode.out[AutoDrive.tableLength(targetNode.out) + 1] = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].id
-							vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming[AutoDrive.tableLength(vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)].incoming) + 1] = targetNode.id
+							targetNode.out[#targetNode.out + 1] = vehicle.ad.wayPoints[#vehicle.ad.wayPoints].id
+							vehicle.ad.wayPoints[#vehicle.ad.wayPoints].incoming[#vehicle.ad.wayPoints[#vehicle.ad.wayPoints].incoming + 1] = targetNode.id
 						end
 
 						AutoDriveCourseEditEvent:sendEvent(targetNode)
@@ -639,7 +639,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 			end
 		end
 		-- If more than one point found, then arrange them from inner closest to further out
-		if AutoDrive.tableLength(candidateDebugPoints) > 1 then
+		if #candidateDebugPoints > 1 then
 			-- Sort by distance
 			table.sort(
 				candidateDebugPoints,
@@ -658,7 +658,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 
 			-- But try to find a node with no IncomingRoads, and use that as starting from
 			for idx, point in pairs(vehicle.ad.iteratedDebugPoints) do
-				if AutoDrive.tableLength(point.incoming) < 1 then
+				if #point.incoming < 1 then
 					vehicle.ad.selectedDebugPoint = idx
 					break -- Since array was already sorted by distance, we dont need to search for another one
 				end

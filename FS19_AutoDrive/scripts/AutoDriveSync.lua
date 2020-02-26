@@ -147,7 +147,7 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     -- writing the amount of groups we are going to send
-    local groupsCount = AutoDrive.tableLength(AutoDrive.groups)
+    local groupsCount = table.count(AutoDrive.groups)
     streamWriteUIntN(streamId, groupsCount, AutoDriveSync.GC_SEND_NUM_BITS)
     g_logManager:info(string.format("[AutoDriveSync] Writing %s groups", groupsCount))
     -- writing groups

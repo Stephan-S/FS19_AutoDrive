@@ -716,7 +716,7 @@ function AutoDrive.drawPointsInProximity(vehicle)
         end
 
         --just a quick way to highlight single (forgotten) points with no connections
-        if (AutoDrive.tableLength(point.out) == 0) and (AutoDrive.tableLength(point.incoming) == 0) then
+        if (#point.out == 0) and (#point.incoming == 0) then
             local node = createTransformGroup("X")
             setTranslation(node, point.x, point.y + 4, point.z)
             DebugUtil.drawDebugNode(node, "X")

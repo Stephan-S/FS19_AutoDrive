@@ -367,7 +367,7 @@ function AutoDriveBenchmarks.ArraySize()
 
     local func3 = function(v)
         local size = 0
-        local length = AutoDrive.tableLength
+        local length = table.count
         for i = 1, 100000 do
             size = length(v)
         end

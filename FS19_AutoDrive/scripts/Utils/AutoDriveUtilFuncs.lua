@@ -1,14 +1,3 @@
-function AutoDrive.tableLength(T)
-	if T == nil then
-		return 0
-	end
-	local count = 0
-	for _ in pairs(T) do
-		count = count + 1
-	end
-	return count
-end
-
 function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
@@ -97,6 +86,16 @@ function table:removeValue(value)
 		end
 	end
 	return false
+end
+
+function table:count()
+	local c = 0
+	if self ~= nil then
+		for _ in pairs(self) do
+			c = c + 1
+		end
+	end
+	return c
 end
 
 function string:split(sep)
@@ -399,7 +398,7 @@ function AutoDrive:ServerBroadcastEvent(superFunc, event, sendLocal, ignoreConne
 	eCopy.sendLocal = sendLocal or false
 	eCopy.ignoreConnection = ignoreConnection or "nil"
 	eCopy.force = force or false
-	eCopy.clients = AutoDrive.tableLength(self.clientConnections) - 1
+	eCopy.clients = table.count(self.clientConnections) - 1
 	superFunc(self, event, sendLocal, ignoreConnection, ghostObject, force)
 	eCopy.size = AutoDrive.debug.lastSentEventSize
 	if eCopy.clients > 0 then

@@ -60,11 +60,11 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
 
     local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, bestPoint, markerName, AutoDrive.mapMarker[viaID].id)
 
-    if toViaID == nil or AutoDrive.tableLength(toViaID) < 1 then
+    if toViaID == nil or #toViaID < 1 then
         return
     end
 
-    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[AutoDrive.tableLength(toViaID)].id, AutoDrive.mapMarker[destinationID].name, AutoDrive.mapMarker[destinationID].id)
+    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[#toViaID].id, AutoDrive.mapMarker[destinationID].name, AutoDrive.mapMarker[destinationID].id)
 
     for i, wayPoint in pairs(fromViaID) do
         if i > 1 then
@@ -119,14 +119,14 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.mapMarkerSelected_Unload = unloadDestinationID
                 vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
                 vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
-				AutoDrive:startAD(vehicle)
+                AutoDrive:startAD(vehicle)
             elseif unloadDestinationID == -3 then --park
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
                 vehicle.ad.mode = 1
-				AutoDrive:startAD(vehicle)
+                AutoDrive:startAD(vehicle)
                 vehicle.ad.onRouteToPark = true
-			else	--unloadDestinationID == -2 refuel
-				AutoDrive:startAD(vehicle)
+            else --unloadDestinationID == -2 refuel
+                AutoDrive:startAD(vehicle)
             end
         end
     end
@@ -135,38 +135,37 @@ end
 function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StartDrivingWithPathFinder(%s, %s, %s, %s, %s)", destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive == false then
-		if unloadDestinationID < -1 then
-			if unloadDestinationID == -3 then	--park
-				local PreviousStartPosition = vehicle.ad.mapMarkerSelected
-				AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-				vehicle.ad.usePathFinder = true
-				local ignoreFruit = false
-				AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, PreviousStartPosition)
-			elseif unloadDestinationID == -2 then	--refuel
-				local driverWorldX, driverWorldY, driverWorldZ = getWorldTranslation(vehicle.components[1].node)
-				vehicle.ad.storedMapMarkerSelected = vehicle.ad.mapMarkerSelected
-				vehicle.ad.storedMode = vehicle.ad.mode
+        if unloadDestinationID < -1 then
+            if unloadDestinationID == -3 then --park
+                local PreviousStartPosition = vehicle.ad.mapMarkerSelected
+                AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
+                vehicle.ad.usePathFinder = true
+                local ignoreFruit = false
+                AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, PreviousStartPosition)
+            elseif unloadDestinationID == -2 then --refuel
+                vehicle.ad.storedMapMarkerSelected = vehicle.ad.mapMarkerSelected
+                vehicle.ad.storedMode = vehicle.ad.mode
 
-				local refuelDestination = AutoDrive.getClosestRefuelDestination(vehicle)
+                local refuelDestination = AutoDrive.getClosestRefuelDestination(vehicle)
 
-				if refuelDestination ~= nil then
-					vehicle.ad.mapMarkerSelected = refuelDestination
-					vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-					vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
-					vehicle.ad.mode = 1
-					vehicle.ad.onRouteToRefuel = true
-					AutoDrive:StartDriving(vehicle, vehicle.ad.mapMarkerSelected, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-					vehicle.ad.usePathFinder = true
-					local ignoreFruit = false
-					AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, vehicle.ad.storedMapMarkerSelected)
-				end
-			end
-		else
-			AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-			vehicle.ad.usePathFinder = true
-			local ignoreFruit = false
-			AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, nil)
-		end
+                if refuelDestination ~= nil then
+                    vehicle.ad.mapMarkerSelected = refuelDestination
+                    vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
+                    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+                    vehicle.ad.mode = 1
+                    vehicle.ad.onRouteToRefuel = true
+                    AutoDrive:StartDriving(vehicle, vehicle.ad.mapMarkerSelected, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
+                    vehicle.ad.usePathFinder = true
+                    local ignoreFruit = false
+                    AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, vehicle.ad.storedMapMarkerSelected)
+                end
+            end
+        else
+            AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
+            vehicle.ad.usePathFinder = true
+            local ignoreFruit = false
+            AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, nil)
+        end
     end
 end
 

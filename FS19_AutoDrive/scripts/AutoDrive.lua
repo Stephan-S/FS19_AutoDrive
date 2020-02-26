@@ -232,7 +232,7 @@ function AutoDrive.updateDestinationsMapHotspots()
 		end
 
 		-- Filling the buffer
-		local missingAmount = AutoDrive.tableLength(AutoDrive.mapMarker) - AutoDrive.tableLength(AutoDrive.mapHotspotsBuffer)
+		local missingAmount = #AutoDrive.mapMarker - #AutoDrive.mapHotspotsBuffer
 		if missingAmount > 0 then
 			local width, height = getNormalizedScreenValues(9, 9)
 			for i = 1, missingAmount do
@@ -320,10 +320,10 @@ function AutoDrive:update(dt)
 		self:firstRun()
 	end
 	--if (g_currentMission.controlledVehicle ~= nil) then
-		--AutoDrive.renderTable(0.05, 0.95, 0.013, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
-		--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
-			--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
-		--end
+	--AutoDrive.renderTable(0.05, 0.95, 0.013, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+	--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
+	--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
+	--end
 	--	--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
 	--	--	local printTable = {}
 	--	--	printTable.g_logManager = g_logManager
@@ -435,7 +435,7 @@ function AutoDrive.addGroup(groupName, sendEvent)
 			-- Propagating group creation all over the network
 			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_ADD)
 		else
-			AutoDrive.groupCounter = AutoDrive.tableLength(AutoDrive.groups) + 1
+			AutoDrive.groupCounter = table.count(AutoDrive.groups) + 1
 			AutoDrive.groups[groupName] = AutoDrive.groupCounter
 			for _, vehicle in pairs(g_currentMission.vehicles) do
 				if (vehicle.ad ~= nil) then
@@ -481,7 +481,7 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 			end
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
-			AutoDrive.groupCounter = AutoDrive.tableLength(AutoDrive.groups)
+			AutoDrive.groupCounter = table.count(AutoDrive.groups)
 		end
 	end
 end
@@ -648,7 +648,7 @@ function AutoDrive:FarmStats_getStatisticData(superFunc)
 		self:addStatistic("driversTraveledDistance", g_i18n:getMeasuringUnit(), g_i18n:getDistance(self:getSessionValue("driversTraveledDistance")), g_i18n:getDistance(self:getTotalValue("driversTraveledDistance")), "%.2f")
 		if firstCall then
 			-- Moving position of our stats
-			local statsLength = AutoDrive.tableLength(self.statisticData)
+			local statsLength = #self.statisticData
 			local dTdPosition = 14
 			-- Backup of our new stats
 			local driversHired = self.statisticData[statsLength - 1]

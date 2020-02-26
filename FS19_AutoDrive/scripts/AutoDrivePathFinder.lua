@@ -161,15 +161,15 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     local startZ = driverWorldZ + AutoDrive.PATHFINDER_START_DISTANCE * driverRz
 
     local targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id]
-	local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
-	local targetVector = {}
-	local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
+    local preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
+    local targetVector = {}
+    local waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected_Unload].id)
     if PreviousStartPosition ~= nil then
-		targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[PreviousStartPosition].id]
-		preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
-		waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[PreviousStartPosition].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id)
- 	end
-	if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
+        targetPoint = AutoDrive.mapWayPoints[AutoDrive.mapMarker[PreviousStartPosition].id]
+        preTargetPoint = AutoDrive.mapWayPoints[targetPoint.incoming[1]]
+        waypointsToUnload = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, AutoDrive.mapMarker[PreviousStartPosition].id, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].name, AutoDrive.mapMarker[driver.ad.mapMarkerSelected].id)
+    end
+    if waypointsToUnload ~= nil and waypointsToUnload[6] ~= nil then
         preTargetPoint = AutoDrive.mapWayPoints[waypointsToUnload[1].id]
         targetPoint = AutoDrive.mapWayPoints[waypointsToUnload[2].id]
     end
@@ -733,7 +733,7 @@ function AutoDrivePathFinder:createWayPoints(pf)
     if pf.smoothStep == 2 then
         if pf.appendWayPointCount ~= nil then
             for i = 1, pf.appendWayPointCount, 1 do
-                pf.wayPoints[AutoDrive.tableLength(pf.wayPoints) + 1] = pf.appendWayPoints[i]
+                pf.wayPoints[#pf.wayPoints + 1] = pf.appendWayPoints[i]
             end
             pf.smoothStep = 3
         end
@@ -745,7 +745,7 @@ function AutoDrivePathFinder:smoothResultingPPPath(pf)
     local filteredIndex = 1
     local filteredWPs = {}
 
-    while index < AutoDrive.tableLength(pf.wayPoints) - 1 do
+    while index < #pf.wayPoints - 1 do
         local node = pf.wayPoints[index]
         local nodeAhead = pf.wayPoints[index + 1]
         local nodeTwoAhead = pf.wayPoints[index + 2]
@@ -762,7 +762,7 @@ function AutoDrivePathFinder:smoothResultingPPPath(pf)
         index = index + 1
     end
 
-    while index <= AutoDrive.tableLength(pf.wayPoints) do
+    while index <= #pf.wayPoints do
         local node = pf.wayPoints[index]
         filteredWPs[filteredIndex] = node
         filteredIndex = filteredIndex + 1
@@ -779,7 +779,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
         pf.filteredWPs = {}
 
         --add first few without filtering
-        while pf.smoothIndex < AutoDrive.tableLength(pf.wayPoints) and pf.smoothIndex < 3 do
+        while pf.smoothIndex < #pf.wayPoints and pf.smoothIndex < 3 do
             pf.filteredWPs[pf.filteredIndex] = pf.wayPoints[pf.smoothIndex]
             pf.filteredIndex = pf.filteredIndex + 1
             pf.smoothIndex = pf.smoothIndex + 1
@@ -791,7 +791,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
     local unfilteredEndPointCount = 5
     if pf.smoothStep == 1 then
         local stepsThisFrame = 0
-        while pf.smoothIndex < AutoDrive.tableLength(pf.wayPoints) - unfilteredEndPointCount and stepsThisFrame < 1 do
+        while pf.smoothIndex < #pf.wayPoints - unfilteredEndPointCount and stepsThisFrame < 1 do
             stepsThisFrame = stepsThisFrame + 1
 
             local node = pf.wayPoints[pf.smoothIndex]
@@ -816,7 +816,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
             local foundCollision = false
 
             local stepsOfLookAheadThisFrame = 0
-            while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex + pf.totalEagerSteps) < (AutoDrive.tableLength(pf.wayPoints) - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < unfilteredEndPointCount do
+            while (foundCollision == false or pf.totalEagerSteps < 30) and ((pf.smoothIndex + pf.totalEagerSteps) < (#pf.wayPoints - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < unfilteredEndPointCount do
                 stepsOfLookAheadThisFrame = stepsOfLookAheadThisFrame + 1
                 local nodeAhead = pf.wayPoints[pf.smoothIndex + pf.totalEagerSteps + 1]
                 local nodeTwoAhead = pf.wayPoints[pf.smoothIndex + pf.totalEagerSteps + 2]
@@ -901,20 +901,20 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 pf.totalEagerSteps = pf.totalEagerSteps + 1
             end
 
-            if pf.totalEagerSteps >= 30 or ((pf.smoothIndex + pf.totalEagerSteps) >= (AutoDrive.tableLength(pf.wayPoints) - unfilteredEndPointCount)) then
+            if pf.totalEagerSteps >= 30 or ((pf.smoothIndex + pf.totalEagerSteps) >= (#pf.wayPoints - unfilteredEndPointCount)) then
                 pf.smoothIndex = pf.smoothIndex + math.max(1, (pf.lookAheadIndex)) --(pf.lookAheadIndex-2)
                 pf.totalEagerSteps = 0
             end
         end
 
-        if pf.smoothIndex >= AutoDrive.tableLength(pf.wayPoints) - unfilteredEndPointCount then
+        if pf.smoothIndex >= #pf.wayPoints - unfilteredEndPointCount then
             pf.smoothStep = 2
         end
     end
 
     if pf.smoothStep == 2 then
         --add remaining points without filtering
-        while pf.smoothIndex <= AutoDrive.tableLength(pf.wayPoints) do
+        while pf.smoothIndex <= #pf.wayPoints do
             local node = pf.wayPoints[pf.smoothIndex]
             pf.filteredWPs[pf.filteredIndex] = node
             pf.filteredIndex = pf.filteredIndex + 1

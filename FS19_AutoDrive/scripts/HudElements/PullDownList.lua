@@ -125,7 +125,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             local actualTarget = ""
 
             if vehicle.ad.wayPoints ~= nil then
-                local vehicleDestination = vehicle.ad.wayPoints[AutoDrive.tableLength(vehicle.ad.wayPoints)]
+                local vehicleDestination = vehicle.ad.wayPoints[#vehicle.ad.wayPoints]
                 if vehicleDestination ~= nil then
                     for _, mapMarker in pairs(AutoDrive.mapMarker) do
                         if mapMarker.id == vehicleDestination.id then

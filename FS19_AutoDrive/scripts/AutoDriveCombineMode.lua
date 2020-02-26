@@ -62,7 +62,7 @@ function AutoDrive:callDriverToCombine(combine)
 
         for _, dischargeNode in pairs(combine.spec_dischargeable.dischargeNodes) do
             --local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
-            if AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0 then
+            if table.count(AutoDrive.waitingUnloadDrivers) > 0 then
                 local closestDriver = nil
                 local closestDistance = math.huge
                 for _, driver in pairs(AutoDrive.waitingUnloadDrivers) do
@@ -108,7 +108,7 @@ end
 function AutoDrive:preCallDriverToCombine(combine)
     local worldX, _, worldZ = getWorldTranslation(combine.components[1].node)
 
-    if AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0 then
+    if table.count(AutoDrive.waitingUnloadDrivers) > 0 then
         local closestDriver = nil
         local closestDistance = math.huge
         for _, driver in pairs(AutoDrive.waitingUnloadDrivers) do
@@ -148,7 +148,7 @@ function AutoDrive:preCallDriverToCombine(combine)
 end
 
 function AutoDrive:combineIsCallingDriver(combine)
-    return (combine.ad ~= nil) and ((combine.ad.tryingToCallDriver and AutoDrive.tableLength(AutoDrive.waitingUnloadDrivers) > 0) or combine.ad.driverOnTheWay)
+    return (combine.ad ~= nil) and ((combine.ad.tryingToCallDriver and table.count(AutoDrive.waitingUnloadDrivers) > 0) or combine.ad.driverOnTheWay)
 end
 
 function AutoDrive:handleReachedWayPointCombine(vehicle)
