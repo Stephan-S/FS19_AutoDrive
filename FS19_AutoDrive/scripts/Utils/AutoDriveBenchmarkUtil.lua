@@ -34,7 +34,7 @@ function AutoDriveBenchmark:EndBench()
     local minMean = math.min(unpack(means))
     for name, values in pairs(self.currentBenchData) do
         local score = (values.mean / minMean - 1) * 100
-        print(string.format("#######  '%s' ---> mean: %s -- variance: %s -- min: %s -- max: %s -- time: +%.0f%%", name, values.mean, values.variance, values.min, values.max, score))
+        print(string.format("#######  '%s' ---> mean: %s -- var: %s -- min: %s -- max: %s -- time: +%.0f%%", name, values.mean, values.variance, values.min, values.max, score))
     end
     print("###########################################################################################################")
     print("")

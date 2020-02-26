@@ -34,7 +34,7 @@ source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.l
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveUserConnectedEvent.lua", g_currentModDirectory))
---source(Utils.getFilename("scripts/Events/AutoDriveToggleConnectionEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveToggleConnectionEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveExperimentalFeaturesEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveDelayedCallBacks.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))

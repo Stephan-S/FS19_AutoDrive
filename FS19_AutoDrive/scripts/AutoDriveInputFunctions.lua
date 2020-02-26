@@ -53,22 +53,22 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_showClosest")
 	end
 	if actionName == "ADDebugCreateConnection" then
-		AutoDrive:InputHandling(self, "input_toggleConnection")
+		AutoDrive.InputHandlingSenderOnly(self, "input_toggleConnection")
 	end
 	if actionName == "ADDebugChangeNeighbor" then
 		AutoDrive:InputHandling(self, "input_nextNeighbor")
 	end
 	if actionName == "ADDebugCreateMapMarker" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_createMapMarker")
+		AutoDrive.InputHandlingSenderOnly(self, "input_createMapMarker")
 	end
 	if actionName == "ADRenameMapMarker" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_editMapMarker")
+		AutoDrive.InputHandlingSenderOnly(self, "input_editMapMarker")
 	end
 	if actionName == "ADDebugDeleteDestination" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_removeMapMarker")
+		AutoDrive.InputHandlingSenderOnly(self, "input_removeMapMarker")
 	end
 	if actionName == "ADNameDriver" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_nameDriver")
+		AutoDrive.InputHandlingSenderOnly(self, "input_nameDriver")
 	end
 	if actionName == "AD_Speed_up" then
 		AutoDrive:InputHandling(self, "input_increaseSpeed")
@@ -79,15 +79,15 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	end
 
 	if actionName == "ADToggleHud" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_toggleHud")
+		AutoDrive.InputHandlingSenderOnly(self, "input_toggleHud")
 	end
 
 	if actionName == "ADToggleMouse" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_toggleMouse")
+		AutoDrive.InputHandlingSenderOnly(self, "input_toggleMouse")
 	end
 
 	if actionName == "ADDebugDeleteWayPoint" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_removeWaypoint")
+		AutoDrive.InputHandlingSenderOnly(self, "input_removeWaypoint")
 	end
 	if actionName == "AD_export_routes" then
 		AutoDrive:InputHandling(self, "input_exportRoutes")
@@ -105,7 +105,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_previousFillType")
 	end
 	if actionName == "ADOpenGUI" then
-		AutoDrive:InputHandlingSenderOnly(self, "input_openGUI")
+		AutoDrive.InputHandlingSenderOnly(self, "input_openGUI")
 	end
 	if actionName == "ADCallDriver" then
 		AutoDrive:InputHandling(self, "input_callDriver")
@@ -149,50 +149,57 @@ end
 
 -- This new kind of handling should prevent unwanted behaviours such as GUI shown on player who hosts the game on non-dedicated games
 -- Now the MP sync is delegated to dedicated events
-function AutoDrive:InputHandlingSenderOnly(vehicle, input)
+function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 	if vehicle ~= nil and vehicle.ad ~= nil then
 		if vehicle.ad.createMapPoints == true then
 			local closestWayPoint, _ = AutoDrive:findClosestWayPoint(vehicle)
 
-			-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
-			if input == "input_createMapMarker" then
-				if AutoDrive.mapWayPoints[closestWayPoint] == nil then
-					return
-				end
-				AutoDrive.editSelectedMapMarker = false
-				AutoDrive:onOpenEnterTargetName()
-			end
 			-- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
 			if input == "input_editMapMarker" then
 				if AutoDrive.mapWayPoints[1] == nil or vehicle.ad.mapMarkerSelected == nil or vehicle.ad.mapMarkerSelected == -1 then
 					return
 				end
 				AutoDrive.editSelectedMapMarker = true
-				AutoDrive:onOpenEnterTargetName()
+				AutoDrive.onOpenEnterTargetName()
 			end
-			-- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
-			if input == "input_removeMapMarker" then
-				if AutoDrive.mapWayPoints[closestWayPoint] == nil then
-					return
+
+			if AutoDrive.mapWayPoints[closestWayPoint] ~= nil then
+				-- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
+				if input == "input_removeWaypoint" then
+					AutoDrive.removeMapWayPoint(closestWayPoint)
 				end
-				AutoDrive.removeMapMarkerByWayPoint(closestWayPoint)
-			end
-			-- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
-			if input == "input_removeWaypoint" then
-				if AutoDrive.mapWayPoints[1] == nil or AutoDrive.mapWayPoints[closestWayPoint] == nil then
-					return
+
+				-- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
+				if input == "input_removeMapMarker" then
+					AutoDrive.removeMapMarkerByWayPoint(closestWayPoint)
 				end
-				AutoDrive.removeMapWayPoint(closestWayPoint)
+
+				-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
+				if input == "input_createMapMarker" then
+					AutoDrive.editSelectedMapMarker = false
+					AutoDrive.onOpenEnterTargetName()
+				end
+
+				if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
+					if input == "input_toggleConnection" then
+						AutoDrive.toggleConnectionBetween(AutoDrive.mapWayPoints[closestWayPoint], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
+					end
+
+					if input == "input_toggleConnectionInverted" then
+						AutoDrive.toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], AutoDrive.mapWayPoints[closestWayPoint])
+					end
+				end
 			end
 		end
+
 		if input == "input_nameDriver" then
-			AutoDrive:onOpenEnterDriverName()
+			AutoDrive.onOpenEnterDriverName()
 		end
 		if input == "input_setDestinationFilter" then
-			AutoDrive:onOpenEnterDestinationFilter()
+			AutoDrive.onOpenEnterDestinationFilter()
 		end
 		if input == "input_openGUI" and vehicle == g_currentMission.controlledVehicle then
-			AutoDrive:onOpenSettings()
+			AutoDrive.onOpenSettings()
 		end
 		if input == "input_toggleHud" and vehicle == g_currentMission.controlledVehicle then
 			AutoDrive.Hud:toggleHud(vehicle)
@@ -315,22 +322,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		AutoDrive:inputShowNeighbors(vehicle)
 	end
 
-	if input == "input_toggleConnection" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return
-		end
-		local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
-		AutoDrive:toggleConnectionBetween(AutoDrive.mapWayPoints[closest], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
-	end
-
-	if input == "input_toggleConnectionInverted" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return
-		end
-		local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
-		AutoDrive:toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], AutoDrive.mapWayPoints[closest])
-	end
-
 	if input == "input_nextNeighbor" then
 		if AutoDrive.requestedWaypoints == true then
 			return
@@ -415,10 +406,10 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			vehicle.ad.isPaused = false
 
 			vehicle.ad.waitingToBeLoaded = false
-            vehicle.ad.isLoading = false
-            vehicle.ad.isLoadingToFillUnitIndex = nil
-            vehicle.ad.isLoadingToTrailer = nil
-            vehicle.ad.trigger = nil
+			vehicle.ad.isLoading = false
+			vehicle.ad.isLoadingToFillUnitIndex = nil
+			vehicle.ad.isLoadingToTrailer = nil
+			vehicle.ad.trigger = nil
 
 			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
 				if AutoDrive.getDistanceToTargetPosition(vehicle) < 10 then
@@ -623,61 +614,6 @@ function AutoDrive:inputPreviousTarget(vehicle)
 		vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
 		vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
 	end
-end
-
-function AutoDrive:toggleConnectionBetween(startNode, targetNode)
-	if ((startNode == nil) or (targetNode == nil)) then
-		return
-	end
-	local out_counter = 1
-	local exists = false
-	for i in pairs(startNode.out) do
-		if exists == true then
-			startNode.out[out_counter] = startNode.out[i]
-			out_counter = out_counter + 1
-		else
-			if startNode.out[i] == targetNode.id then
-				AutoDrive.MarkChanged()
-				startNode.out[i] = nil
-
-				if AutoDrive.loadedMap ~= nil and AutoDrive.adXml ~= nil then
-					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.wp" .. startNode.id .. ".out" .. i)
-				end
-
-				local incomingExists = false
-				for _, i2 in pairs(targetNode.incoming) do
-					if i2 == startNode.id or incomingExists then
-						incomingExists = true
-						if targetNode.incoming[_ + 1] ~= nil then
-							targetNode.incoming[_] = targetNode.incoming[_ + 1]
-							targetNode.incoming[_ + 1] = nil
-						else
-							targetNode.incoming[_] = nil
-						end
-					end
-				end
-
-				exists = true
-			else
-				out_counter = out_counter + 1
-			end
-		end
-	end
-
-	if exists == false then
-		startNode.out[out_counter] = targetNode.id
-
-		local incomingCounter = 1
-		for _, _ in pairs(targetNode.incoming) do
-			incomingCounter = incomingCounter + 1
-		end
-		targetNode.incoming[incomingCounter] = startNode.id
-
-		AutoDrive.MarkChanged()
-	end
-
-	AutoDriveCourseEditEvent:sendEvent(startNode)
-	AutoDriveCourseEditEvent:sendEvent(targetNode)
 end
 
 function AutoDrive:nextSelectedDebugPoint(vehicle, increase)

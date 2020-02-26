@@ -63,7 +63,7 @@ function AutoDriveUpdateEvent:new(vehicle)
 	o.enableAI = vehicle.ad.enableAI
 	o.disableAI = vehicle.ad.disableAI
 
-	o.mapWayPointsCounter = AutoDrive.mapWayPointsCounter;
+	o.mapWayPointsCounter = AutoDrive.mapWayPointsCounter
 
 	return o
 end
@@ -318,7 +318,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.enableAI = enableAI
 		vehicle.ad.disableAI = disableAI
 
-		AutoDrive.mapWayPointsCounter = mapWayPointsCounter;
+		AutoDrive.mapWayPointsCounter = mapWayPointsCounter
 
 		AutoDrive.print.currentMessage = AD_currentMessage
 		local refVehicleInt = streamReadInt32(streamId)
@@ -504,7 +504,7 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	end
 
 	if reason ~= "" then
-		--g_logManager:devInfo("Vehicle " .. self.vehicle.ad.driverName .. " sends update. Reason: " .. reason);
+		--g_logManager:info("Vehicle " .. self.vehicle.ad.driverName .. " sends update. Reason: " .. reason)
 		self.reason = reason
 	end
 

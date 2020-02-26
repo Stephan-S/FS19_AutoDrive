@@ -270,6 +270,26 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 	end
 end
 
+function AutoDrive.toggleConnectionBetween(startNode, endNode, sendEvent)
+	if sendEvent == nil or sendEvent == true then
+		-- Propagating connection toggling all over the network
+		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode)
+	else
+		if table.containsValue(startNode.out, endNode.id) or table.containsValue(endNode.incoming, startNode.id) then
+			table.removeValue(startNode.out, endNode.id)
+			table.removeValue(endNode.incoming, startNode.id)
+		else
+			table.insert(startNode.out, endNode.id)
+			table.insert(endNode.incoming, startNode.id)
+		end
+
+		if g_server ~= nil then
+			-- On the server we must mark the change
+			AutoDrive.MarkChanged()
+		end
+	end
+end
+
 function AutoDrive:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 	AutoDrive.MarkChanged()
 	if vehicle.ad.createMapPoints == true then

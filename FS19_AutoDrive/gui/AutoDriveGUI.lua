@@ -51,7 +51,7 @@ function AutoDrive.GuiOverlay_loadOverlay(superFunc, ...)
 end
 GuiOverlay.loadOverlay = AutoDrive.overwrittenStaticFunction(GuiOverlay.loadOverlay, AutoDrive.GuiOverlay_loadOverlay)
 
-function AutoDrive:onOpenSettings()
+function AutoDrive.onOpenSettings()
 	if AutoDrive.gui.ADSettings.isOpen then
 		AutoDrive.gui.ADSettings:onClickBack()
 	elseif g_gui.currentGui == nil then
@@ -59,25 +59,25 @@ function AutoDrive:onOpenSettings()
 	end
 end
 
-function AutoDrive:onOpenEnterDriverName()
+function AutoDrive.onOpenEnterDriverName()
 	if not AutoDrive.gui.ADEnterDriverNameGui.isOpen then
 		g_gui:showGui("ADEnterDriverNameGui")
 	end
 end
 
-function AutoDrive:onOpenEnterTargetName()
+function AutoDrive.onOpenEnterTargetName()
 	if not AutoDrive.gui.ADEnterTargetNameGui.isOpen then
 		g_gui:showGui("ADEnterTargetNameGui")
 	end
 end
 
-function AutoDrive:onOpenEnterGroupName()
+function AutoDrive.onOpenEnterGroupName()
 	if not AutoDrive.gui.ADEnterGroupNameGui.isOpen then
 		g_gui:showGui("ADEnterGroupNameGui")
 	end
 end
 
-function AutoDrive:onOpenEnterDestinationFilter()
+function AutoDrive.onOpenEnterDestinationFilter()
 	if not AutoDrive.gui.ADEnterDestinationFilterGui.isOpen then
 		g_gui:showGui("ADEnterDestinationFilterGui")
 	end

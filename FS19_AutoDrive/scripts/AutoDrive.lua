@@ -320,7 +320,10 @@ function AutoDrive:update(dt)
 		self:firstRun()
 	end
 	--if (g_currentMission.controlledVehicle ~= nil) then
-	--	--	AutoDrive.renderTable(0.1, 0.9, 0.015, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+		--AutoDrive.renderTable(0.05, 0.95, 0.013, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+		--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
+			--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
+		--end
 	--	--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
 	--	--	local printTable = {}
 	--	--	printTable.g_logManager = g_logManager

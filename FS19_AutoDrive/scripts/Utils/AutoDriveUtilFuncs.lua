@@ -72,42 +72,31 @@ function table:containsKey(key)
 end
 
 function table:containsValue(value)
-	local i = 0
-	while i < #self do
-		i = i + 1
-		if self[i] == value then
+	for _, v in pairs(self) do
+		if v == value then
 			return true
 		end
 	end
+	return false
 end
 
 function table:indexOf(value)
-	local i = 0
-	while i < #self do
-		i = i + 1
-		if self[i] == value then
-			return i
+	for k, v in pairs(self) do
+		if v == value then
+			return k
 		end
 	end
 	return nil
 end
 
 function table:removeValue(value)
-	local removed = false
-	local i = 0
-	while i < #self do
-		i = i + 1
-		if removed then
-			self[i - 1] = self[i]
-		end
-		if self[i] == value then
-			removed = true
+	for k, v in pairs(self) do
+		if v == value then
+			table.remove(self, k)
+			return true
 		end
 	end
-	if removed then
-		table.remove(self, i)
-	end
-	return removed
+	return false
 end
 
 function string:split(sep)

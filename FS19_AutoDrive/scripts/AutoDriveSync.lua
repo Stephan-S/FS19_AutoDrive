@@ -7,7 +7,7 @@ AutoDriveSync.GC_SEND_NUM_BITS = 10 -- 0 -> 1023
 
 AutoDriveSync_mt = Class(AutoDriveSync, Object)
 
-InitObjectClass(AutoDriveSync, "AutoDriveSyncc")
+InitObjectClass(AutoDriveSync, "AutoDriveSync")
 
 function AutoDriveSync:new(isServer, isClient, customMt)
     local ads = Object:new(isServer, isClient, customMt or AutoDriveSync_mt)
@@ -30,28 +30,26 @@ function AutoDriveSync:readStream(streamId)
     -- reading the amount of bits we are going to use as "MWPC_SEND_NUM_BITS"
     AutoDriveSync.MWPC_SEND_NUM_BITS = streamReadUIntN(streamId, AutoDriveSync.MWPC_SNB_SEND_NUM_BITS)
 
-    -- reading amount of waypoints we are going to send
+    -- reading amount of waypoints we are going to read
     AutoDrive.mapWayPointsCounter = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
-    g_logManager:devInfo(string.format("Reading %s way points", AutoDrive.mapWayPointsCounter))
+    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s way points", AutoDrive.mapWayPointsCounter))
 
     -- reading waypoints
     for i = 1, AutoDrive.mapWayPointsCounter do
-        local wp = {}
-        wp.id = i
-        wp.x = NetworkUtil.readCompressedWorldPosition(streamId, paramsXZ)
-        wp.y = NetworkUtil.readCompressedWorldPosition(streamId, paramsY)
-        wp.z = NetworkUtil.readCompressedWorldPosition(streamId, paramsXZ)
+        local x = NetworkUtil.readCompressedWorldPosition(streamId, paramsXZ)
+        local y = NetworkUtil.readCompressedWorldPosition(streamId, paramsY)
+        local z = NetworkUtil.readCompressedWorldPosition(streamId, paramsXZ)
 
-        wp.out = {}
-        -- reading amount of out nodes we are going to send
+        local wp = {id = i, x = x, y = y, z = z, out = {}, incoming = {}}
+
+        -- reading amount of out nodes we are going to read
         local outCount = streamReadUIntN(streamId, AutoDriveSync.OIWPC_SEND_NUM_BITS)
         -- reading out nodes
         for ii = 1, outCount do
             wp.out[ii] = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
         end
 
-        wp.incoming = {}
-        -- reading amount of incoming nodes we are going to send
+        -- reading amount of incoming nodes we are going to read
         local incomingCount = streamReadUIntN(streamId, AutoDriveSync.OIWPC_SEND_NUM_BITS)
         -- reading incoming nodes
         for ii = 1, incomingCount do
@@ -61,33 +59,29 @@ function AutoDriveSync:readStream(streamId)
         AutoDrive.mapWayPoints[wp.id] = wp
     end
 
-    -- reading amount of markers we are going to send
+    -- reading amount of markers we are going to read
     AutoDrive.mapMarkerCounter = streamReadUIntN(streamId, AutoDriveSync.MC_SEND_NUM_BITS)
-    g_logManager:devInfo(string.format("Reading %s markers", AutoDrive.mapMarkerCounter))
+    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s markers", AutoDrive.mapMarkerCounter))
     -- reading markers
     for ii = 1, AutoDrive.mapMarkerCounter do
         local markerId = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
         if AutoDrive.mapWayPoints[markerId] ~= nil then
-            local marker = {}
-            marker.id = markerId
-            marker.name = AutoDrive.streamReadStringOrEmpty(streamId)
-            marker.group = AutoDrive.streamReadStringOrEmpty(streamId)
+            local marker = {id = markerId, name = AutoDrive.streamReadStringOrEmpty(streamId), group = AutoDrive.streamReadStringOrEmpty(streamId)}
 
-            local node = createTransformGroup(marker.name)
-            setTranslation(node, AutoDrive.mapWayPoints[markerId].x, AutoDrive.mapWayPoints[markerId].y + 4, AutoDrive.mapWayPoints[markerId].z)
-            marker.node = node
+            marker.node = createTransformGroup(marker.name)
+            setTranslation(marker.node, AutoDrive.mapWayPoints[markerId].x, AutoDrive.mapWayPoints[markerId].y + 4, AutoDrive.mapWayPoints[markerId].z)
 
             AutoDrive.mapMarker[ii] = marker
         else
-            g_logManager:error(string.format("[AutoDrive] Error receiving marker %s (%s)", AutoDrive.streamReadStringOrEmpty(streamId), markerId))
+            g_logManager:error(string.format("[AutoDriveSync] Error receiving marker %s (%s)", AutoDrive.streamReadStringOrEmpty(streamId), markerId))
             -- we have to read everything to keep the right reading order
             _ = AutoDrive.streamReadStringOrEmpty(streamId)
         end
     end
 
-    -- reading amount of groups we are going to send
+    -- reading amount of groups we are going to read
     local groupsCount = streamReadUIntN(streamId, AutoDriveSync.GC_SEND_NUM_BITS)
-    g_logManager:devInfo(string.format("Reading %s groups", groupsCount))
+    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s groups", groupsCount))
     -- reading groups
     for i = 1, groupsCount do
         local gId = streamReadUIntN(streamId, AutoDriveSync.GC_SEND_NUM_BITS)
@@ -99,7 +93,7 @@ function AutoDriveSync:readStream(streamId)
     AutoDrive.groups["All"] = 1
 
     offset = streamGetReadOffset(streamId) - offset
-    g_logManager:devInfo(string.format("Read %s bits (%s bytes)", offset, offset / 8))
+    g_logManager:devInfo(string.format("[AutoDriveSync] Read %s bits (%s bytes)", offset, offset / 8))
     AutoDriveSync:superClass().readStream(self, streamId)
 end
 
@@ -110,32 +104,31 @@ function AutoDriveSync:writeStream(streamId)
     local offset = streamGetWriteOffset(streamId)
 
     -- writing the amount of bits we are going to use as "MWPC_SEND_NUM_BITS"
-    AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(AutoDrive.mapWayPointsCounter, 2))
+    AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(AutoDrive.mapWayPointsCounter + 1, 2))
     streamWriteUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS, AutoDriveSync.MWPC_SNB_SEND_NUM_BITS)
 
     -- writing the amount of waypoints we are going to send
-    streamWriteUIntN(streamId, AutoDrive.tableLength(AutoDrive.mapWayPoints), AutoDriveSync.MWPC_SEND_NUM_BITS)
-    g_logManager:info(string.format("Writing %s waypoints", AutoDrive.mapWayPointsCounter))
+    streamWriteUIntN(streamId, #AutoDrive.mapWayPoints, AutoDriveSync.MWPC_SEND_NUM_BITS)
+    g_logManager:info(string.format("[AutoDriveSync] Writing %s waypoints", AutoDrive.mapWayPointsCounter))
 
     -- writing waypoints
-    for i = 1, AutoDrive.mapWayPointsCounter do
-        local wp = AutoDrive.mapWayPoints[i]
+    for i, wp in pairs(AutoDrive.mapWayPoints) do
         if wp.id ~= i then
-            g_logManager:error(string.format("Waypoint number %s have a wrong id %s", i, wp.id))
+            g_logManager:error(string.format("[AutoDriveSync] Waypoint number %s have a wrong id %s", i, wp.id))
         end
         NetworkUtil.writeCompressedWorldPosition(streamId, wp.x, paramsXZ)
         NetworkUtil.writeCompressedWorldPosition(streamId, wp.y, paramsY)
         NetworkUtil.writeCompressedWorldPosition(streamId, wp.z, paramsXZ)
 
         -- writing the amount of out nodes we are going to send
-        streamWriteUIntN(streamId, AutoDrive.tableLength(wp.out), AutoDriveSync.OIWPC_SEND_NUM_BITS)
+        streamWriteUIntN(streamId, #wp.out, AutoDriveSync.OIWPC_SEND_NUM_BITS)
         -- writing out nodes
         for _, out in pairs(wp.out) do
             streamWriteUIntN(streamId, out, AutoDriveSync.MWPC_SEND_NUM_BITS)
         end
 
         -- writing the amount of incoming nodes we are going to send
-        streamWriteUIntN(streamId, AutoDrive.tableLength(wp.incoming), AutoDriveSync.OIWPC_SEND_NUM_BITS)
+        streamWriteUIntN(streamId, #wp.incoming, AutoDriveSync.OIWPC_SEND_NUM_BITS)
         -- writing incoming nodes
         for _, incoming in pairs(wp.incoming) do
             streamWriteUIntN(streamId, incoming, AutoDriveSync.MWPC_SEND_NUM_BITS)
@@ -143,8 +136,8 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     -- writing the amount of markers we are going to send
-    local markersCount = AutoDrive.tableLength(AutoDrive.mapMarker)
-    g_logManager:info(string.format("Writing %s markers", markersCount))
+    local markersCount = #AutoDrive.mapMarker
+    g_logManager:info(string.format("[AutoDriveSync] Writing %s markers", markersCount))
     streamWriteUIntN(streamId, markersCount, AutoDriveSync.MC_SEND_NUM_BITS)
     -- writing markers
     for _, marker in pairs(AutoDrive.mapMarker) do
@@ -156,7 +149,7 @@ function AutoDriveSync:writeStream(streamId)
     -- writing the amount of groups we are going to send
     local groupsCount = AutoDrive.tableLength(AutoDrive.groups)
     streamWriteUIntN(streamId, groupsCount, AutoDriveSync.GC_SEND_NUM_BITS)
-    g_logManager:info(string.format("Writing %s groups", groupsCount))
+    g_logManager:info(string.format("[AutoDriveSync] Writing %s groups", groupsCount))
     -- writing groups
     for gName, gId in pairs(AutoDrive.groups) do
         streamWriteUIntN(streamId, gId, AutoDriveSync.GC_SEND_NUM_BITS)
@@ -164,7 +157,7 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     offset = streamGetWriteOffset(streamId) - offset
-    g_logManager:info(string.format("Written %s bits (%s bytes)", offset, offset / 8))
+    g_logManager:info(string.format("[AutoDriveSync] Written %s bits (%s bytes)", offset, offset / 8))
     AutoDriveSync:superClass().writeStream(self, streamId)
 end
 
