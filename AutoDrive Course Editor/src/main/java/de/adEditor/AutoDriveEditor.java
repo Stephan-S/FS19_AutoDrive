@@ -55,8 +55,9 @@ public class AutoDriveEditor extends JFrame {
     public JToggleButton connectNodes;
     public JToggleButton createNode;
     public JToggleButton createDestination;
-    public JToggleButton fourTimesMap;
-    public JToggleButton sixteenTimesMap;
+    public JRadioButton oneTimesMap;
+    public JRadioButton fourTimesMap;
+    public JRadioButton sixteenTimesMap;
 
     public MapNode selected = null;
 
@@ -64,8 +65,6 @@ public class AutoDriveEditor extends JFrame {
     public boolean isSixteenTimesMap = false;
 
     public int editorState = EDITORSTATE_MOVING;
-
-    public EditorListener editorListener;
 
     public MouseListener mouseListener;
 
@@ -78,7 +77,8 @@ public class AutoDriveEditor extends JFrame {
         super("AutoDrive Course Editor 0.1");
 
         LOG.info("AutoDrive start.............................................................................................");
-        this.setLayout(new BorderLayout());
+        setTractorIcon();
+        setLayout(new BorderLayout());
 
         // create a new panel with GridBagLayout manager
         mapPanel = new MapPanel(this);
@@ -90,70 +90,94 @@ public class AutoDriveEditor extends JFrame {
         // add the panel to this frame
         add(mapPanel, BorderLayout.CENTER);
 
-        this.editorListener = new EditorListener(this);
+        EditorListener editorListener = new EditorListener(this);
 
         buttonPanel = new JPanel(new FlowLayout());
 
-        loadRoadMapButton = new JButton("Load Config");
-        loadRoadMapButton.addActionListener(this.editorListener);
+        JPanel configBox = new JPanel();
+        configBox.setBorder(BorderFactory.createTitledBorder("Config"));
+        buttonPanel.add(configBox);
+
+        loadRoadMapButton = new JButton("Load");
+        loadRoadMapButton.addActionListener(editorListener);
         loadRoadMapButton.setActionCommand("Load");
-        buttonPanel.add(loadRoadMapButton);
-
-        loadImageButton = new JButton("Load Map");
-        loadImageButton.addActionListener(this.editorListener);
-        loadImageButton.setActionCommand("Load Image");
-        buttonPanel.add(loadImageButton);
-
-        moveNode = new JToggleButton("Move Nodes");
-        moveNode.addActionListener(this.editorListener);
-        moveNode.setActionCommand(MOVE_NODES);
-        buttonPanel.add(moveNode);
-
-        connectNodes = new JToggleButton("Connect Nodes");
-        connectNodes.addActionListener(this.editorListener);
-        connectNodes.setActionCommand(CONNECT_NODES);
-        connectNodes.setName(CONNECT_NODES);
-        buttonPanel.add(connectNodes);
-
-        removeNode = new JToggleButton("Delete Nodes");
-        removeNode.addActionListener(this.editorListener);
-        removeNode.setActionCommand(REMOVE_NODES);
-        buttonPanel.add(removeNode);
-
-        removeDestination = new JToggleButton("Delete Destination");
-        removeDestination.addActionListener(this.editorListener);
-        removeDestination.setActionCommand(REMOVE_DESTINATIONS);
-        buttonPanel.add(removeDestination);
-
-        createNode = new JToggleButton("Create Node");
-        createNode.addActionListener(this.editorListener);
-        createNode.setActionCommand(CREATE_NODES);
-        buttonPanel.add(createNode);
-
-        createDestination = new JToggleButton("Create Destination");
-        createDestination.addActionListener(this.editorListener);
-        createDestination.setActionCommand(CREATE_DESTINATIONS);
-        buttonPanel.add(createDestination);
-
-        fourTimesMap = new JToggleButton(" 4x");
-        fourTimesMap.addActionListener(this.editorListener);
-        fourTimesMap.setActionCommand("FourTimesMap");
-        buttonPanel.add(fourTimesMap);
-
-        sixteenTimesMap = new JToggleButton(" 16x");
-        sixteenTimesMap.addActionListener(this.editorListener);
-        sixteenTimesMap.setActionCommand("SixteenTimesMap");
-        buttonPanel.add(sixteenTimesMap);
+        configBox.add(loadRoadMapButton);
 
         saveButton = new JButton("Save");
-        saveButton.addActionListener(this.editorListener);
+        saveButton.addActionListener(editorListener);
         saveButton.setActionCommand("Save");
-        buttonPanel.add(saveButton);
+        saveButton.setEnabled(false);
+        configBox.add(saveButton);
+
+        JPanel mapBox = new JPanel();
+        mapBox.setBorder(BorderFactory.createTitledBorder("Map and zoom factor"));
+        buttonPanel.add(mapBox);
+
+        loadImageButton = new JButton("Load Map");
+        loadImageButton.addActionListener(editorListener);
+        loadImageButton.setActionCommand("Load Image");
+        mapBox.add(loadImageButton);
+
+        ButtonGroup zoomGroup = new ButtonGroup();
+        oneTimesMap = new JRadioButton(" 1x");
+        oneTimesMap.addActionListener(editorListener);
+        oneTimesMap.setActionCommand("OneTimesMap");
+        oneTimesMap.setSelected(true);
+        mapBox.add(oneTimesMap);
+        zoomGroup.add(oneTimesMap);
+
+        fourTimesMap = new JRadioButton(" 4x");
+        fourTimesMap.addActionListener(editorListener);
+        fourTimesMap.setActionCommand("FourTimesMap");
+        mapBox.add(fourTimesMap);
+        zoomGroup.add(fourTimesMap);
+
+        sixteenTimesMap = new JRadioButton(" 16x");
+        sixteenTimesMap.addActionListener(editorListener);
+        sixteenTimesMap.setActionCommand("SixteenTimesMap");
+        mapBox.add(sixteenTimesMap);
+        zoomGroup.add(sixteenTimesMap);
+
+        JPanel nodeBox = new JPanel();
+        nodeBox.setBorder(BorderFactory.createTitledBorder("Nodes"));
+        buttonPanel.add(nodeBox);
+
+        moveNode = new JToggleButton("Move Nodes");
+        moveNode.addActionListener(editorListener);
+        moveNode.setActionCommand(MOVE_NODES);
+        nodeBox.add(moveNode);
+
+        connectNodes = new JToggleButton("Connect Nodes");
+        connectNodes.addActionListener(editorListener);
+        connectNodes.setActionCommand(CONNECT_NODES);
+        connectNodes.setName(CONNECT_NODES);
+        nodeBox.add(connectNodes);
+
+        removeNode = new JToggleButton("Delete Nodes");
+        removeNode.addActionListener(editorListener);
+        removeNode.setActionCommand(REMOVE_NODES);
+        nodeBox.add(removeNode);
+
+        removeDestination = new JToggleButton("Delete Destination");
+        removeDestination.addActionListener(editorListener);
+        removeDestination.setActionCommand(REMOVE_DESTINATIONS);
+        nodeBox.add(removeDestination);
+
+        createNode = new JToggleButton("Create Node");
+        createNode.addActionListener(editorListener);
+        createNode.setActionCommand(CREATE_NODES);
+        nodeBox.add(createNode);
+
+        createDestination = new JToggleButton("Create Destination");
+        createDestination.addActionListener(editorListener);
+        createDestination.setActionCommand(CREATE_DESTINATIONS);
+        nodeBox.add(createDestination);
 
         updateButtons();
+        nodeBoxSetEnabled(false);
+        mapBoxSetEnabled(false);
 
         this.add(buttonPanel, BorderLayout.NORTH);
-
 
         this.mouseListener = new MouseListener(mapPanel);
 
@@ -164,6 +188,34 @@ public class AutoDriveEditor extends JFrame {
         pack();
         setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void setTractorIcon() {
+        try {
+            URL url = AutoDriveEditor.class.getResource("/tractor.png");
+            if (url != null) {
+                BufferedImage tractorImage = ImageIO.read(url);
+                setIconImage(tractorImage);
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    private void nodeBoxSetEnabled(boolean enabled) {
+        moveNode.setEnabled(enabled);
+        connectNodes.setEnabled(enabled);
+        removeNode.setEnabled(enabled);
+        removeDestination.setEnabled(enabled);
+        createNode.setEnabled(enabled);
+        createDestination.setEnabled(enabled);
+    }
+
+    private void mapBoxSetEnabled(boolean enabled) {
+        loadImageButton.setEnabled(enabled);
+        oneTimesMap.setEnabled(enabled);
+        fourTimesMap.setEnabled(enabled);
+        sixteenTimesMap.setEnabled(enabled);
     }
 
     public void updateButtons() {
@@ -207,12 +259,16 @@ public class AutoDriveEditor extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                Handler globalExceptionHandler = new Handler();
+                Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
                 new AutoDriveEditor().setVisible(true);
             }
         });
     }
 
     public RoadMap loadFile(String path) throws ParserConfigurationException, IOException, SAXException {
+        LOG.info("loadFile: {}", path);
+
         File fXmlFile = new File(path);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -371,6 +427,7 @@ public class AutoDriveEditor extends JFrame {
                         mapPath = "./" + mapName + ".png";
                         image = ImageIO.read(new File(mapPath));
                     } catch (Exception e3) {
+                        mapBoxSetEnabled(true);
                         LOG.info("Editor has no map file for map: {}", mapName);
                     }
                 }
@@ -389,6 +446,10 @@ public class AutoDriveEditor extends JFrame {
             mapPanel.repaint();
         }
 
+        saveButton.setEnabled(true);
+        nodeBoxSetEnabled(true);
+
+        LOG.info("loadFile end.");
         return roadMap;
 
     }
@@ -598,6 +659,13 @@ public class AutoDriveEditor extends JFrame {
         LOG.info("Done save");
     }
 
+}
 
+class Handler implements Thread.UncaughtExceptionHandler {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(Handler.class);
+
+    public void uncaughtException(Thread t, Throwable e) {
+        LOGGER.info(e.getMessage(), e);
+    }
 }
