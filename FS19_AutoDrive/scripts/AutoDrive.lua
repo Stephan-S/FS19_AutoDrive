@@ -221,6 +221,15 @@ function AutoDrive:firstRun()
 	end
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
+	AutoDrive.checkYPositionIntegrity()
+end
+
+function AutoDrive.checkYPositionIntegrity()
+	for _, wp in pairs(AutoDrive.mapWayPoints) do
+		if wp.y == -1 then
+			wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
+		end
+	end
 end
 
 function AutoDrive:saveSavegame()
