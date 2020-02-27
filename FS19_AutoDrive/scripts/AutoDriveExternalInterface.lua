@@ -92,7 +92,7 @@ function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
         local distance = math.huge
 
         for i in pairs(AutoDrive.mapWayPoints) do
-            local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, x, z)
+            local dis = AutoDrive.getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, x, z)
             if dis < distance and dis >= minDistance then
                 closest = i
                 distance = dis

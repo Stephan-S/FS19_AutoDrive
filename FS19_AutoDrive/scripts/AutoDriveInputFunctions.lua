@@ -632,7 +632,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 		local x1, _, z1 = getWorldTranslation(vehicle.components[1].node)
 		local candidateDebugPoints = {}
 		for _, point in pairs(AutoDrive.mapWayPoints) do
-			local distance = AutoDrive:getDistance(point.x, point.z, x1, z1)
+			local distance = AutoDrive.getDistance(point.x, point.z, x1, z1)
 			if distance < 15 then
 				-- Add new element consisting of 'distance' (for sorting) and 'point'
 				table.insert(candidateDebugPoints, {distance = distance, point = point})

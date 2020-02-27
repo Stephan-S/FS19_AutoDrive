@@ -24,7 +24,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 					distanceToAdd, angle = AutoDrive:getDriveTimeBetweenNodes(current, linked, nil, nil, false)
 				end
 			else
-				distanceToAdd = AutoDrive:getDistanceBetweenNodes(current, linked)
+				distanceToAdd = AutoDrive.getDistanceBetweenNodes(current, linked)
 				if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 					local wp_current = AutoDrive.mapWayPoints[current]
 					local wp_ahead = AutoDrive.mapWayPoints[linked]
@@ -64,7 +64,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				distanceToAdd, angle = AutoDrive:getDriveTimeBetweenNodes(current, linked, nil, nil, false)
 			end
 		else
-			distanceToAdd = AutoDrive:getDistanceBetweenNodes(current, linked)
+			distanceToAdd = AutoDrive.getDistanceBetweenNodes(current, linked)
 			if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 				local wp_current = AutoDrive.mapWayPoints[current]
 				local wp_ahead = AutoDrive.mapWayPoints[linked]
@@ -181,7 +181,7 @@ function AutoDrive:dijkstraLive(start, target)
 										distanceToAdd, angle = AutoDrive:getDriveTimeBetweenNodes(shortest_id, linkedNodeId, nil, nil, false)
 									end
 								else
-									distanceToAdd = AutoDrive:getDistanceBetweenNodes(shortest_id, linkedNodeId)
+									distanceToAdd = AutoDrive.getDistanceBetweenNodes(shortest_id, linkedNodeId)
 									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
 										local wp_current = AutoDrive.mapWayPoints[shortest_id]
 										local wp_ahead = AutoDrive.mapWayPoints[linkedNodeId]

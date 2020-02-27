@@ -8,76 +8,43 @@ function AutoDrive.removeMapWayPoint(wayPointId, sendEvent)
 			AutoDrive.removeMapMarkerByWayPoint(wayPointId, false)
 
 			local mapWayPoint = AutoDrive.mapWayPoints[wayPointId]
-
-			-- Removing node on all out going nodes
-			for _, node in pairs(mapWayPoint.out) do
-				local deleted = false
-				for incomingId, incoming in pairs(AutoDrive.mapWayPoints[node].incoming) do
-					if incoming == mapWayPoint.id then
-						deleted = true
-					end
-					if deleted then
-						if AutoDrive.mapWayPoints[node].incoming[incomingId + 1] ~= nil then
-							AutoDrive.mapWayPoints[node].incoming[incomingId] = AutoDrive.mapWayPoints[node].incoming[incomingId + 1]
-						else
-							AutoDrive.mapWayPoints[node].incoming[incomingId] = nil
-						end
-					end
-				end
-			end
-
 			local mapWayPoints = AutoDrive.mapWayPoints
-			local mapWayPointsCounter = AutoDrive.mapWayPointsCounter
 
-			-- Removing node on all incoming nodes
-			for _, node in pairs(mapWayPoints) do
-				local deleted = false
-				for outgoingId, outgoing in pairs(node.out) do
-					if outgoing == mapWayPoint.id then
-						deleted = true
-					end
-
-					if deleted then
-						if node.out[outgoingId + 1] ~= nil then
-							node.out[outgoingId] = node.out[outgoingId + 1]
-						else
-							node.out[outgoingId] = nil
-						end
-					end
+			-- Removing incoming node reference on all out nodes
+			for _, id in pairs(mapWayPoint.out) do
+				local incomingId = table.indexOf(mapWayPoints[id].incoming, mapWayPoint.id)
+				if incomingId ~= nil then
+					table.remove(mapWayPoints[id].incoming, incomingId)
 				end
 			end
+
+			-- Removing out node reference on all incoming nodes
+			for _, id in pairs(mapWayPoint.incoming) do
+				local outId = table.indexOf(mapWayPoints[id].out, mapWayPoint.id)
+				if outId ~= nil then
+					table.remove(mapWayPoints[id].out, outId)
+				end
+			end
+
+			-- Removing waypoint from waypoints array
+			table.remove(mapWayPoints, wayPointId)
+			AutoDrive.mapWayPointsCounter = AutoDrive.mapWayPointsCounter - 1
 
 			-- Adjusting ids for all succesive nodes :(
-			local deleted = false
-			for nodeID, node in pairs(mapWayPoints) do
-				for outGoingIndex, outGoingNodeID in pairs(node.out) do
-					if outGoingNodeID > mapWayPoint.id then
-						node.out[outGoingIndex] = outGoingNodeID - 1
+			for _, wp in pairs(mapWayPoints) do
+				if wp.id > wayPointId then
+					wp.id = wp.id - 1
+				end
+				for i, outId in pairs(wp.out) do
+					if outId > wayPointId then
+						wp.out[i] = outId - 1
 					end
 				end
-
-				for incomingIndex, incomingNodeID in pairs(node.incoming) do
-					if incomingNodeID > mapWayPoint.id then
-						node.incoming[incomingIndex] = incomingNodeID - 1
+				for i, incomingId in pairs(wp.incoming) do
+					if incomingId > wayPointId then
+						wp.incoming[i] = incomingId - 1
 					end
 				end
-
-				if nodeID > mapWayPoint.id then
-					mapWayPoints[nodeID - 1] = node
-					node.id = node.id - 1
-
-					if mapWayPoints[nodeID + 1] == nil then
-						deleted = true
-						mapWayPoints[nodeID] = nil
-						mapWayPointsCounter = mapWayPointsCounter - 1
-					end
-				end
-			end
-
-			-- Must have been last added waypoint that got deleted. handle this here:
-			if deleted == false then
-				mapWayPoints[mapWayPointsCounter] = nil
-				mapWayPointsCounter = mapWayPointsCounter - 1
 			end
 
 			-- Adjusting way point id in markers
@@ -86,15 +53,6 @@ function AutoDrive.removeMapWayPoint(wayPointId, sendEvent)
 					marker.id = marker.id - 1
 				end
 			end
-
-			AutoDrive.mapWayPoints = mapWayPoints
-			AutoDrive.mapWayPointsCounter = mapWayPointsCounter
-			-- Small workaround to prevent 'AD_synchronizing' to being showed after waypoint deletion even if sync is not happening
-			-- TODO: We should check why 'requestedWaypoints' is always true on clients, if it turns false when sync isn't happening we can remove this workaround
-			AutoDrive.totalNumberOfWayPointsToReceive = mapWayPointsCounter
-
-			-- Calling external interop listeners
-			-- AutoDrive:notifyDestinationListeners()
 
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
@@ -196,7 +154,7 @@ function AutoDrive.removeMapMarkerByWayPoint(wayPointId, sendEvent)
 		-- Finding the map waypoint where the marker should be
 		local mapWayPoint = AutoDrive.mapWayPoints[wayPointId]
 		for markerId, marker in pairs(AutoDrive.mapMarker) do
-			-- Checking if the way point id matches the marker id
+			-- Checking if the waypoint id matches the marker id
 			if marker.id == mapWayPoint.id then
 				AutoDrive.removeMapMarker(markerId, sendEvent)
 				break
@@ -211,30 +169,10 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 			-- Propagating marker deletion all over the network
 			AutoDriveDeleteMapMarkerEvent.sendEvent(markerId)
 		else
-			-- Finding the map waypoint where the marker should be
-			local markerFound = false
-			for mId, _ in pairs(AutoDrive.mapMarker) do
-				-- Checking if the way point id matches the marker id
-				if mId == markerId then
-					markerFound = true
-					AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1
-				end
-				-- If the map marker have been found
-				if markerFound then
-					-- Shifting all other markers back and deleting the last
-					if AutoDrive.mapMarker[mId + 1] ~= nil then
-						AutoDrive.mapMarker[mId] = AutoDrive.mapMarker[mId + 1]
-					else
-						if g_server ~= nil then
-							removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mId)
-						end
-						AutoDrive.mapMarker[mId] = nil
-					end
-				end
-			end
+			if AutoDrive.mapMarker[markerId] ~= nil then
+				table.remove(AutoDrive.mapMarker, markerId)
+				AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter - 1
 
-			-- If the map marker have been deleted
-			if markerFound then
 				-- Removing references to it on all vehicles
 				for _, vehicle in pairs(g_currentMission.vehicles) do
 					if vehicle.ad ~= nil then
@@ -253,6 +191,10 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 							vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
 						end
 					end
+				end
+
+				if g_server ~= nil then
+					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. markerId)
 				end
 			end
 
@@ -354,7 +296,7 @@ function AutoDrive:handleRecording(vehicle)
 			if startPoint ~= nil then
 				local startNode = AutoDrive.mapWayPoints[startPoint]
 				if startNode ~= nil then
-					if AutoDrive:getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
+					if AutoDrive.getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
 						table.insert(startNode.out, vehicle.ad.wayPoints[i].id)
 						table.insert(vehicle.ad.wayPoints[i].incoming, startNode.id)
 
@@ -372,7 +314,7 @@ function AutoDrive:handleRecording(vehicle)
 		if i == 2 then
 			local x, y, z = getWorldTranslation(vehicle.components[1].node)
 			local wp = vehicle.ad.wayPoints[i - 1]
-			if AutoDrive:getDistance(x, z, wp.x, wp.z) > 3 then
+			if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then
 				if vehicle.ad.createMapPoints == true then
 					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
@@ -397,7 +339,7 @@ function AutoDrive:handleRecording(vehicle)
 				max_distance = 0.5
 			end
 
-			if AutoDrive:getDistance(x, z, wp.x, wp.z) > max_distance then
+			if AutoDrive.getDistance(x, z, wp.x, wp.z) > max_distance then
 				if vehicle.ad.createMapPoints == true then
 					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
@@ -418,8 +360,8 @@ function AutoDrive:isDualRoad(start, target)
 	return false
 end
 
-function AutoDrive:getDistanceBetweenNodes(start, target)
-	local euclidianDistance = AutoDrive:getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
+function AutoDrive.getDistanceBetweenNodes(start, target)
+	local euclidianDistance = AutoDrive.getDistance(AutoDrive.mapWayPoints[start].x, AutoDrive.mapWayPoints[start].z, AutoDrive.mapWayPoints[target].x, AutoDrive.mapWayPoints[target].z)
 
 	local distance = euclidianDistance
 
@@ -477,7 +419,7 @@ function AutoDrive:getDriveTimeBetweenNodes(start, target, past, maxDrivingSpeed
 		drivingSpeed = math.min(drivingSpeed, 4)
 	end
 
-	local drivingDistance = AutoDrive:getDistance(wp_ahead.x, wp_ahead.z, wp_current.x, wp_current.z)
+	local drivingDistance = AutoDrive.getDistance(wp_ahead.x, wp_ahead.z, wp_current.x, wp_current.z)
 
 	driveTime = (drivingDistance) / (drivingSpeed * (1000 / 3600))
 
@@ -538,24 +480,25 @@ function AutoDrive:findClosestWayPoint(veh)
 	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
 		startNode = veh.components[1].node
 	end
+
 	--returns waypoint closest to vehicle position
 	local x1, _, z1 = getWorldTranslation(startNode)
 	local closest = -1
-	local distance = math.huge --AutoDrive:getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
+	local minDistance = math.huge --AutoDrive.getDistance(AutoDrive.mapWayPoints[1].x,AutoDrive.mapWayPoints[1].z,x1,z1);
 	if AutoDrive.mapWayPoints[1] ~= nil then
-		for i in pairs(AutoDrive.mapWayPoints) do
-			local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, x1, z1)
-			if dis < distance then
-				closest = i
-				distance = dis
+		for _, wp in pairs(AutoDrive.mapWayPoints) do
+			local distance = AutoDrive.getDistance(wp.x, wp.z, x1, z1)
+			if distance < minDistance then
+				closest = wp.id
+				minDistance = distance
 			end
 		end
 	end
 
 	veh.ad.closest = closest
-	veh.ad.closestDistance = distance
+	veh.ad.closestDistance = minDistance
 
-	return closest, distance
+	return closest, minDistance
 end
 
 function AutoDrive:findMatchingWayPointForVehicle(veh)
@@ -579,7 +522,7 @@ function AutoDrive:findMatchingWayPointForVehicle(veh)
 end
 
 function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
-	local candidates = AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)
+	local candidates = AutoDrive.getWayPointsInRange(point, rangeMin, rangeMax)
 
 	local closest = -1
 	local distance = -1
@@ -599,7 +542,7 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 				local vecToVehicle = {x = toCheck.x - point.x, z = toCheck.z - point.z}
 				local angleToNextPoint = AutoDrive.angleBetween(direction, vecToNextPoint)
 				local angleToVehicle = AutoDrive.angleBetween(direction, vecToVehicle)
-				local dis = AutoDrive:getDistance(toCheck.x, toCheck.z, point.x, point.z)
+				local dis = AutoDrive.getDistance(toCheck.x, toCheck.z, point.x, point.z)
 				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
 					closest = toCheck.id
 					distance = dis
@@ -627,13 +570,13 @@ function AutoDrive:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
 	return closest, distance
 end
 
-function AutoDrive:getWayPointsInRange(point, rangeMin, rangeMax)
+function AutoDrive.getWayPointsInRange(point, rangeMin, rangeMax)
 	local inRange = {}
 
-	for i in pairs(AutoDrive.mapWayPoints) do
-		local dis = AutoDrive:getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, point.x, point.z)
+	for _, wp in pairs(AutoDrive.mapWayPoints) do
+		local dis = AutoDrive.getDistance(wp.x, wp.z, point.x, point.z)
 		if dis < rangeMax and dis > rangeMin then
-			table.insert(inRange, i)
+			table.insert(inRange)
 		end
 	end
 
@@ -691,19 +634,4 @@ function AutoDrive:createNode(id, x, y, z, out, incoming)
 		out = out,
 		incoming = incoming
 	}
-end
-
-function AutoDrive:getDistance(x1, z1, x2, z2)
-	return math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2))
-end
-
-function AutoDrive:handleYPositionIntegrityCheck(vehicle)
-	if AutoDrive.handledIntegrity ~= true then
-		for _, wp in pairs(AutoDrive.mapWayPoints) do
-			if wp.y == -1 then
-				wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
-			end
-		end
-		AutoDrive.handledIntegrity = true
-	end
 end

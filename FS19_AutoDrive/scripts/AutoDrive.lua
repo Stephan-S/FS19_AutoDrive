@@ -178,6 +178,7 @@ function AutoDrive:loadMap(name)
 	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
 
 	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
+	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
 
 	AutoDrive.waitingUnloadDrivers = {}
@@ -220,42 +221,6 @@ function AutoDrive:firstRun()
 	end
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
-end
-
-function AutoDrive.updateDestinationsMapHotspots()
-	if g_dedicatedServerInfo == nil then
-		AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
-
-		-- Removing all old map hotspots
-		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
-			g_currentMission:removeMapHotspot(mh)
-		end
-
-		-- Filling the buffer
-		local missingAmount = #AutoDrive.mapMarker - #AutoDrive.mapHotspotsBuffer
-		if missingAmount > 0 then
-			local width, height = getNormalizedScreenValues(9, 9)
-			for i = 1, missingAmount do
-				local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
-				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
-				mh:setSize(width, height)
-				mh:setTextOptions(0)
-				mh.isADMarker = true
-				table.insert(AutoDrive.mapHotspotsBuffer, mh)
-			end
-		end
-
-		-- Updating and adding hotspots
-		for index, marker in ipairs(AutoDrive.mapMarker) do
-			local mh = AutoDrive.mapHotspotsBuffer[index]
-			mh:setText(marker.name)
-			local x, _, z = getWorldTranslation(marker.node)
-			mh:setWorldPosition(x, z)
-			mh.enabled = true
-			mh.markerID = index
-			g_currentMission:addMapHotspot(mh)
-		end
-	end
 end
 
 function AutoDrive:saveSavegame()
@@ -324,7 +289,7 @@ function AutoDrive:update(dt)
 	--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
 	--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
 	--end
-	--	--	AutoDrive.renderTable(0.3, 0.9, 0.008, AutoDrive.mapMarker)
+	--AutoDrive.renderTable(0.3, 0.98, 0.008, AutoDrive.mapMarker)
 	--	--	local printTable = {}
 	--	--	printTable.g_logManager = g_logManager
 	--	--	printTable.LogManager = LogManager
@@ -666,14 +631,5 @@ function AutoDrive:FarmStats_getStatisticData(superFunc)
 	return Utils.getNoNil(self.statisticData, {})
 end
 FarmStats.getStatisticData = Utils.overwrittenFunction(FarmStats.getStatisticData, AutoDrive.FarmStats_getStatisticData)
-
-function AutoDrive:MapHotspot_getIsVisible(superFunc)
-	local superReturn = true
-	if superFunc ~= nil then
-		superReturn = superFunc(self)
-	end
-	return superReturn and ((not self.isADMarker) or AutoDrive.getSetting("showMarkersOnMap"))
-end
-MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 
 addModEventListener(AutoDrive)

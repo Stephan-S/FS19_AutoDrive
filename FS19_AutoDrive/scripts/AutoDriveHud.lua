@@ -389,3 +389,81 @@ function AutoDriveHud:deleteMapHotspot(vehicle)
 		vehicle.ad.mapHotSpotActive = nil
 	end
 end
+
+function AutoDrive:mapHotSpotClicked(superFunc)
+	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") then
+		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
+			g_currentMission.controlledVehicle.ad.targetSelected = AutoDrive.mapMarker[self.markerID].id
+			g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[self.markerID].name
+		end
+	end
+
+	return self.hasDetails
+end
+
+function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isUp, button, eventUsed)
+	eventUsed = superFunc(self, posX, posY, isDown, isUp, button, eventUsed)
+	if not eventUsed then
+		if isUp and button == Input.MOUSE_BUTTON_RIGHT then
+			for _, hotspot in pairs(self.ingameMap.hotspots) do
+				if self.ingameMap.filter[hotspot.category] and hotspot.visible and hotspot.category ~= MapHotspot.CATEGORY_FIELD_DEFINITION and hotspot.category ~= MapHotspot.CATEGORY_COLLECTABLE and hotspot:getIsActive() then
+					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
+						if AutoDrive.getSetting("showMarkersOnMap") and hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+							g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload = hotspot.markerID
+							g_currentMission.controlledVehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[hotspot.markerID].id
+							g_currentMission.controlledVehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[hotspot.markerID].name
+						end
+						break
+					end
+				end
+			end
+		end
+	end
+
+	return eventUsed
+end
+
+function AutoDrive:MapHotspot_getIsVisible(superFunc)
+	local superReturn = true
+	if superFunc ~= nil then
+		superReturn = superFunc(self)
+	end
+	return superReturn and ((not self.isADMarker) or AutoDrive.getSetting("showMarkersOnMap"))
+end
+
+function AutoDrive.updateDestinationsMapHotspots()
+	if g_dedicatedServerInfo == nil then
+		AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
+
+		-- Removing all old map hotspots
+		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+			g_currentMission:removeMapHotspot(mh)
+		end
+
+		-- Filling the buffer
+		local missingAmount = #AutoDrive.mapMarker - #AutoDrive.mapHotspotsBuffer
+		if missingAmount > 0 then
+			local width, height = getNormalizedScreenValues(9, 9)
+			for i = 1, missingAmount do
+				local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
+				mh:setSize(width, height)
+				mh:setTextOptions(0)
+				mh.isADMarker = true
+				table.insert(AutoDrive.mapHotspotsBuffer, mh)
+			end
+		end
+
+		-- Updating and adding hotspots
+		for index, marker in ipairs(AutoDrive.mapMarker) do
+			local mh = AutoDrive.mapHotspotsBuffer[index]
+			mh:setText(marker.name)
+			local x, _, z = getWorldTranslation(marker.node)
+			mh:setWorldPosition(x, z)
+			mh.enabled = true
+			mh.markerID = index
+			g_currentMission:addMapHotspot(mh)
+		end
+	end
+end

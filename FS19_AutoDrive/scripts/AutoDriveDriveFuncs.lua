@@ -32,14 +32,14 @@ function AutoDrive:handleDriving(vehicle, dt)
 
                 local closeToWayPoint = false
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 1] ~= nil then
-                    if AutoDrive:getDistance(x, z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < min_distance then
+                    if AutoDrive.getDistance(x, z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < min_distance then
                         closeToWayPoint = true
-                    elseif (not AutoDrive:isOnField(vehicle)) and vehicle.ad.currentWayPoint <= 3 and AutoDrive:getDistance(x, z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < (min_distance * 5) then
+                    elseif (not AutoDrive:isOnField(vehicle)) and vehicle.ad.currentWayPoint <= 3 and AutoDrive.getDistance(x, z, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z) < (min_distance * 5) then
                         closeToWayPoint = true
                     end
                 end
 
-                if closeToWayPoint or AutoDrive:getDistance(x, z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
+                if closeToWayPoint or AutoDrive.getDistance(x, z, vehicle.ad.targetX, vehicle.ad.targetZ) < min_distance then
                     AutoDrive:handleReachedWayPoint(vehicle)
                 end
 
@@ -147,7 +147,7 @@ end
 function AutoDrive:checkForDeadLock(vehicle, dt)
     if (vehicle.ad.isActive == true) and (vehicle.bga.isActive == false) and vehicle.isServer and vehicle.ad.isStopping == false then
         local x, _, z = getWorldTranslation(vehicle.components[1].node)
-        if (AutoDrive:getDistance(x, z, vehicle.ad.targetX, vehicle.ad.targetZ) < 15) then
+        if (AutoDrive.getDistance(x, z, vehicle.ad.targetX, vehicle.ad.targetZ) < 15) then
             vehicle.ad.timeTillDeadLock = vehicle.ad.timeTillDeadLock - dt
             if vehicle.ad.timeTillDeadLock < 0 and vehicle.ad.timeTillDeadLock ~= -1 then
                 --g_logManager:devInfo("Deadlock reached due to timer");
@@ -205,7 +205,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --decide if we are already on field and are allowed to park on field then
                 local x, _, z = getWorldTranslation(vehicle.components[1].node)
                 local node = AutoDrive.mapWayPoints[closest]
-                if AutoDrive.getSetting("parkInField", vehicle) and AutoDrive:getDistance(x, z, node.x, node.z) > 20 then
+                if AutoDrive.getSetting("parkInField", vehicle) and AutoDrive.getDistance(x, z, node.x, node.z) > 20 then
                     AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
                     vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
                     vehicle.ad.wayPoints = {}
@@ -394,8 +394,8 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
                 local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
                 angle = math.abs(angle)
                 if
-                    AutoDrive:getDistance(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= distanceToLookAhead and
-                        AutoDrive:getDistance(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z, x, z) <= distanceToLookAhead
+                    AutoDrive.getDistance(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= distanceToLookAhead and
+                        AutoDrive.getDistance(vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x, vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z, x, z) <= distanceToLookAhead
                  then
                     highestAngle = math.max(highestAngle, angle)
                 else
@@ -424,7 +424,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         end
     end
 
-    local distanceToTarget = AutoDrive:getDistanceToLastWaypoint(vehicle, 10)
+    local distanceToTarget = AutoDrive.getDistanceToLastWaypoint(vehicle, 10)
 
     if vehicle.ad.speedOverride == -1 then
         vehicle.ad.speedOverride = vehicle.ad.targetSpeed
@@ -463,8 +463,8 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
         local destination = AutoDrive.mapWayPoints[vehicle.ad.targetSelected_Unload]
         local start = AutoDrive.mapWayPoints[vehicle.ad.targetSelected]
         if destination ~= nil and start ~= nil then
-            local distance1 = AutoDrive:getDistance(x, z, destination.x, destination.z)
-            local distance2 = AutoDrive:getDistance(x, z, start.x, start.z)
+            local distance1 = AutoDrive.getDistance(x, z, destination.x, destination.z)
+            local distance2 = AutoDrive.getDistance(x, z, start.x, start.z)
             if distance1 < 20 or distance2 < 20 then
                 if vehicle.ad.speedOverride > 12 then
                     vehicle.ad.speedOverride = 12
@@ -547,7 +547,7 @@ function AutoDrive:driveToNextWayPoint(vehicle, dt)
     --vehicle,dt,steeringAngleLimit,acceleration,slowAcceleration,slowAngleLimit,allowedToDrive,moveForwards,lx,lz,maxSpeed,slowDownFactor,angle
 end
 
-function AutoDrive:getDistanceToLastWaypoint(vehicle, maxLookAheadPar)
+function AutoDrive.getDistanceToLastWaypoint(vehicle, maxLookAheadPar)
     local distance = 0
     local maxLookAhead = maxLookAheadPar
     if maxLookAhead == nil then
@@ -667,12 +667,12 @@ function AutoDrive:getLookAheadTarget(vehicle)
 
         local lookAheadID = 1
         local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
-        local distanceToCurrentTarget = AutoDrive:getDistance(x, z, wp_current.x, wp_current.z)
+        local distanceToCurrentTarget = AutoDrive.getDistance(x, z, wp_current.x, wp_current.z)
         --if vehicle.ad.currentWayPoint <= 2 then
         --lookAheadDistance = 0;
         --end;
         local wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + lookAheadID]
-        local distanceToNextTarget = AutoDrive:getDistance(x, z, wp_ahead.x, wp_ahead.z)
+        local distanceToNextTarget = AutoDrive.getDistance(x, z, wp_ahead.x, wp_ahead.z)
         if distanceToCurrentTarget < distanceToNextTarget then
             lookAheadDistance = lookAheadDistance - distanceToCurrentTarget
         end
@@ -685,7 +685,7 @@ function AutoDrive:getLookAheadTarget(vehicle)
             end
             wp_current = wp_ahead
             wp_ahead = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + lookAheadID]
-            distanceToNextTarget = AutoDrive:getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z)
+            distanceToNextTarget = AutoDrive.getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z)
         end
 
         local distX = wp_ahead.x - wp_current.x

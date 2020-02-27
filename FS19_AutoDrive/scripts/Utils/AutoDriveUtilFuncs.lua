@@ -1,3 +1,7 @@
+function AutoDrive.getDistance(x1, z1, x2, z2)
+	return math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2))
+end
+
 function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
@@ -175,7 +179,7 @@ end
 
 function AutoDrive.round(num)
 	local under = math.floor(num)
-	local upper = math.floor(num) + 1
+	local upper = math.ceil(num)
 	local underV = -(under - num)
 	local upperV = upper - num
 	if (upperV > underV) then
@@ -197,6 +201,9 @@ function AutoDrive.getWorldDirection(fromX, fromY, fromZ, toX, toY, toZ)
 end
 
 function AutoDrive.renderTable(posX, posY, textSize, inputTable, maxDepth)
+	if inputTable == nil then
+		return
+	end
 	maxDepth = maxDepth or 2
 	local function renderTableRecursively(posX, posY, textSize, inputTable, depth, maxDepth, i)
 		if depth >= maxDepth then
@@ -448,40 +455,6 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 	return function(...)
 		return newFunc(oldFunc, ...)
 	end
-end
-
-function AutoDrive:mapHotSpotClicked(superFunc)
-	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") then
-		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
-			g_currentMission.controlledVehicle.ad.targetSelected = AutoDrive.mapMarker[self.markerID].id
-			g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[self.markerID].name
-		end
-	end
-
-	return self.hasDetails
-end
-
-function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isUp, button, eventUsed)
-	local eventUsed = superFunc(self, posX, posY, isDown, isUp, button, eventUsed)
-	if not eventUsed then
-		if isUp and button == Input.MOUSE_BUTTON_RIGHT then
-			for _, hotspot in pairs(self.ingameMap.hotspots) do
-				if self.ingameMap.filter[hotspot.category] and hotspot.visible and hotspot.category ~= MapHotspot.CATEGORY_FIELD_DEFINITION and hotspot.category ~= MapHotspot.CATEGORY_COLLECTABLE and hotspot:getIsActive() then
-					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
-						if AutoDrive.getSetting("showMarkersOnMap") and hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-							g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload = hotspot.markerID
-							g_currentMission.controlledVehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[hotspot.markerID].id
-							g_currentMission.controlledVehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[hotspot.markerID].name
-						end
-						break
-					end
-				end
-			end
-		end
-	end
-
-	return eventUsed
 end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server

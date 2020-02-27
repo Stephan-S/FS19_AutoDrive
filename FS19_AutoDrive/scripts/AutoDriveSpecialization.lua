@@ -382,7 +382,6 @@ function AutoDrive:onUpdate(dt)
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriving(self, dt)
-    AutoDrive:handleYPositionIntegrityCheck(self)
     AutoDrive:handleVehicleIntegrity(self)
     AutoDrive.handleVehicleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)
@@ -601,7 +600,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
     --Draw close destination (names)
     for _, marker in pairs(AutoDrive.mapMarker) do
         local x2, _, z2 = getWorldTranslation(marker.node)
-        local distance = AutoDrive:getDistance(x2, z2, x1, z1)
+        local distance = AutoDrive.getDistance(x2, z2, x1, z1)
         if distance < 50 then
             DebugUtil.drawDebugNode(marker.node, marker.name)
         end
@@ -641,14 +640,14 @@ function AutoDrive.getNewPointsInProximity(vehicle)
             end
             local pointToCheck = AutoDrive.mapWayPoints[vehicle.ad.lastPointCheckedForProximity]
             if pointToCheck ~= nil then
-                if AutoDrive:getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < 50 then
+                if AutoDrive.getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < 50 then
                     table.insert(newPointsToDraw, pointToCheck.id, pointToCheck)
                 end
             end
         end
         --go through all stored points to check if they are still in proximity
         for id, point in pairs(vehicle.ad.pointsInProximity) do
-            if AutoDrive:getDistance(point.x, point.z, x1, z1) < 50 and newPointsToDraw[id] == nil then
+            if AutoDrive.getDistance(point.x, point.z, x1, z1) < 50 and newPointsToDraw[id] == nil then
                 table.insert(newPointsToDraw, id, point)
             end
         end

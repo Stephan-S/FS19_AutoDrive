@@ -351,7 +351,7 @@ function AutoDrive.getDistanceToUnloadPosition(vehicle)
     if destination == nil then
         return math.huge
     end
-    return AutoDrive:getDistance(x, z, destination.x, destination.z)
+    return AutoDrive.getDistance(x, z, destination.x, destination.z)
 end
 
 function AutoDrive.getDistanceToTargetPosition(vehicle)
@@ -363,7 +363,7 @@ function AutoDrive.getDistanceToTargetPosition(vehicle)
     if destination == nil then
         return math.huge
     end
-    return AutoDrive:getDistance(x, z, destination.x, destination.z)
+    return AutoDrive.getDistance(x, z, destination.x, destination.z)
 end
 
 function AutoDrive.getFillLevelAndCapacityOfAll(trailers, selectedFillType)
