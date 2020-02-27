@@ -38,3 +38,4 @@ modConfig.json
 .vscode
 tmp
 AutoDrive Course Editor/target
+AutoDrive Course Editor/*.log
