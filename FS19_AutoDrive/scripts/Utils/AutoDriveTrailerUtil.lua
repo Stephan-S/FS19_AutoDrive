@@ -79,7 +79,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                 if (trigger.bunkerSiloArea == nil) then
                     if (distance < AutoDrive.getSetting("maxTriggerDistance")) then
                         if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
-                            if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and not vehicle.ad.isPaused and trailer.spec_pipe.currentState >= 2)then
+                            if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and not vehicle.ad.isPaused and trailer.spec_pipe.currentState >= 2) then
                                 AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
                                 trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
                                 vehicle.ad.isPaused = true
@@ -88,7 +88,7 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                                 vehicle.ad.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
                             end
                         elseif trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe ~= nil and vehicle.ad.isUnloading and vehicle.ad.isPaused then
-							vehicle.ad.isPausedForTrailersClosing = true
+                            vehicle.ad.isPausedForTrailersClosing = true
                         end
 
                         if trailer.getDischargeState ~= nil then
@@ -139,11 +139,11 @@ function AutoDrive.handleTrailersUnload(vehicle, trailers, fillLevel, leftCapaci
                 AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - trailer has no tipState animation - continue")
                 vehicle.ad.isPausedForTrailersClosing = true
             end
-        elseif distance < AutoDrive.getSetting("maxTriggerDistance") then	--when does this happens? bug fixed: isPausedForTrailersClosing==true makes skipping next isPaused=true
+        elseif distance < AutoDrive.getSetting("maxTriggerDistance") then --when does this happens? bug fixed: isPausedForTrailersClosing==true makes skipping next isPaused=true
             AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "Stopped unloading - trailer has no tipState animation")
             vehicle.ad.isPausedForTrailersClosing = true
-		elseif not vehicle.ad.isPaused then
-			vehicle.ad.isPausedForTrailersClosing = false
+        elseif not vehicle.ad.isPaused then
+            vehicle.ad.isPausedForTrailersClosing = false
         end
         vehicle.ad.isUnloadingToBunkerSilo = false
     end
@@ -316,21 +316,22 @@ end
 
 function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
     if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
-		if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == "frontloaderTool") then	--avoid trying to fill shovels and levellers atached
-			local trailer = attachedImplement
-			AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
-			AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
-		end
+        if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == "frontloaderTool") then --avoid trying to fill shovels and levellers atached
+            local trailer = attachedImplement
+            AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
+            AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
+        end
     end
+     --
     --[[if attachedImplement.vehicleType.specializationsByName["hookLiftTrailer"] ~= nil then			--not needed since checking every single implement, counts fillLevel as double for hooklift containers
         if attachedImplement.spec_hookLiftTrailer.attachedContainer ~= nil then
             local trailer = attachedImplement.spec_hookLiftTrailer.attachedContainer.object
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
         end
-    end]]--
-
-    if attachedImplement.getAttachedImplements ~= nil then
+    end]] if
+        attachedImplement.getAttachedImplements ~= nil
+     then
         for _, implement in pairs(attachedImplement:getAttachedImplements()) do
             AutoDrive.getTrailersOfImplement(implement.object)
         end
@@ -460,7 +461,7 @@ function AutoDrive.checkForDieselTankOnlyFuel(object)
     local dieselFillUnitCapacity = 0
     local numberOfFillUnits = 0
     for fillUnitIndex, _ in pairs(object:getFillUnits()) do
-        numberOfFillUnits = numberOfFillUnits + 1;
+        numberOfFillUnits = numberOfFillUnits + 1
         local dieselFillUnit = false
         for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
             if fillType == 33 then
@@ -690,13 +691,15 @@ function AutoDrive.checkForTriggerProximity(vehicle)
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local allFillables, _ = AutoDrive.getTrailersOf(vehicle, false)
 
+    local distanceToSlowDownAt = 15 * math.max(1, ((vehicle.lastSpeedReal * 3600) / 30))
+
     if shouldUnload then
         --g_logManager:devInfo("Should unload");
         for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
             local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
-                if distance < 15 then
+                if distance < distanceToSlowDownAt then
                     --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
@@ -723,7 +726,8 @@ function AutoDrive.checkForTriggerProximity(vehicle)
                 for _, trailer in pairs(allFillables) do
                     hasRequiredFillType = hasRequiredFillType or AutoDrive.fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes)
                 end
-                if distance < 15 and hasRequiredFillType then
+
+                if distance < distanceToSlowDownAt and hasRequiredFillType then
                     --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
