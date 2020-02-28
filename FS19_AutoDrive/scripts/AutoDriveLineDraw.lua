@@ -44,7 +44,7 @@ function AutoDrive:drawJobs()
     AutoDrive.LineDraw.jobCounter = 0
 end
 
-function AutoDrive:drawLine(startPoint, targetPoint, r, g, b, a)
+function AutoDrive.drawLine(startPoint, targetPoint, r, g, b, a)
     if (startPoint == nil or targetPoint == nil) then
         return
     end

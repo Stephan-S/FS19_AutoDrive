@@ -11,6 +11,8 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 
 AutoDrive.developmentControls = false
 
+--AutoDrive.renderTime = 0
+
 AutoDrive.configChanged = false
 
 AutoDrive.actions = {
@@ -209,6 +211,7 @@ function AutoDrive:loadMap(name)
 end
 
 function AutoDrive:firstRun()
+	AutoDriveBenchmarks.FirstRun()
 	if g_server == nil then
 		-- Here we could ask to server the initial sync
 		AutoDriveUserConnectedEvent.sendEvent()
@@ -329,6 +332,9 @@ function AutoDrive:update(dt)
 	AutoDrive.handlePrintMessage(dt)
 
 	AutoDrive.handleMultiplayer(dt)
+
+	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
+	--AutoDrive.renderTime = 0
 end
 
 function AutoDrive:draw()

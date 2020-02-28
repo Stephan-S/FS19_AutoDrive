@@ -113,15 +113,11 @@ function AutoDrive.createMapMarker(markerId, markerName, sendEvent)
 		else
 			local mapWayPoint = AutoDrive.mapWayPoints[markerId]
 
-			-- Creating the transform for the new map marker
-			local node = createTransformGroup(markerName)
-			setTranslation(node, mapWayPoint.x, mapWayPoint.y + 4, mapWayPoint.z)
-
 			-- Increasing the map makers count
 			AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
 
 			-- Creating the new map marker
-			AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = markerId, name = markerName, node = node, group = "All"}
+			AutoDrive.mapMarker[AutoDrive.mapMarkerCounter] = {id = markerId, name = markerName, group = "All"}
 
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()

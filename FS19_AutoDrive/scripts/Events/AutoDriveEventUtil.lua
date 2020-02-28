@@ -118,10 +118,6 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
         local marker = {}
 
         if AutoDrive.mapWayPoints[markerId] ~= nil then
-            local node = createTransformGroup(markerName)
-            setTranslation(node, AutoDrive.mapWayPoints[markerId].x, AutoDrive.mapWayPoints[markerId].y + 4, AutoDrive.mapWayPoints[markerId].z)
-            marker.node = node
-
             marker.id = markerId
             marker.name = markerName
             marker.group = markerGroup

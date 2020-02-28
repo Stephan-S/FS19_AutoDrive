@@ -1204,10 +1204,10 @@ function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
         }
     end
 
-    --AutoDrive:drawLine(boundingBox[1], boundingBox[2], 1, 0, 0, 1);
-    --AutoDrive:drawLine(boundingBox[2], boundingBox[3], 1, 0, 0, 1);
-    --AutoDrive:drawLine(boundingBox[3], boundingBox[4], 1, 0, 0, 1);
-    --AutoDrive:drawLine(boundingBox[4], boundingBox[1], 1, 0, 0, 1);
+    --AutoDrive.drawLine(boundingBox[1], boundingBox[2], 1, 0, 0, 1);
+    --AutoDrive.drawLine(boundingBox[2], boundingBox[3], 1, 0, 0, 1);
+    --AutoDrive.drawLine(boundingBox[3], boundingBox[4], 1, 0, 0, 1);
+    --AutoDrive.drawLine(boundingBox[4], boundingBox[1], 1, 0, 0, 1);
 
     return boundingBox
 end
@@ -1217,12 +1217,12 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
     local pointTargetUp = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.targetCell)
     pointTarget.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTarget.x, 1, pointTarget.z) + 3
     pointTargetUp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTargetUp.x, 1, pointTargetUp.z) + 6
-    AutoDrive:drawLine(pointTarget, pointTargetUp, 0, 0, 1, 1)
+    AutoDrive.drawLine(pointTarget, pointTargetUp, 0, 0, 1, 1)
     local pointStart = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.startCell)
     local pointStartUp = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.startCell)
     pointStart.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointStart.x, 1, pointStart.z) + 3
     pointStartUp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointStartUp.x, 1, pointStartUp.z) + 6
-    AutoDrive:drawLine(pointStart, pointStartUp, 0, 0, 1, 1)
+    AutoDrive.drawLine(pointStart, pointStartUp, 0, 0, 1, 1)
 
     for _, cell in pairs(pf.grid) do
         local size = 0.3
@@ -1245,23 +1245,23 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
 
         if cell.hasInfo == true then
             if cell.isRestricted == true then
-                AutoDrive:drawLine(pointA, pointB, 1, 0, 0, 1)
+                AutoDrive.drawLine(pointA, pointB, 1, 0, 0, 1)
                 if cell.hasCollision == true then
-                    AutoDrive:drawLine(pointC, pointD, 1, 1, 0, 1)
+                    AutoDrive.drawLine(pointC, pointD, 1, 1, 0, 1)
                 else
-                    AutoDrive:drawLine(pointC, pointD, 1, 0, 1, 1)
+                    AutoDrive.drawLine(pointC, pointD, 1, 0, 1, 1)
                 end
             else
-                AutoDrive:drawLine(pointA, pointB, 0, 1, 0, 1)
+                AutoDrive.drawLine(pointA, pointB, 0, 1, 0, 1)
                 if cell.hasCollision == true then
-                    AutoDrive:drawLine(pointC, pointD, 1, 1, 0, 1)
+                    AutoDrive.drawLine(pointC, pointD, 1, 1, 0, 1)
                 else
-                    AutoDrive:drawLine(pointC, pointD, 1, 0, 1, 1)
+                    AutoDrive.drawLine(pointC, pointD, 1, 0, 1, 1)
                 end
             end
         else
-            AutoDrive:drawLine(pointA, pointB, 0, 0, 1, 1)
-            AutoDrive:drawLine(pointC, pointD, 0, 0, 1, 1)
+            AutoDrive.drawLine(pointA, pointB, 0, 0, 1, 1)
+            AutoDrive.drawLine(pointC, pointD, 0, 0, 1, 1)
         end
     end
 
@@ -1283,8 +1283,8 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
     pointD.z = pointD.z - pf.vectorX.z * size + pf.vectorZ.z * size
     pointD.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointD.x, 1, pointD.z) + 3
 
-    AutoDrive:drawLine(pointA, pointB, 1, 1, 1, 1)
-    AutoDrive:drawLine(pointC, pointD, 1, 1, 1, 1)
+    AutoDrive.drawLine(pointA, pointB, 1, 1, 1, 1)
+    AutoDrive.drawLine(pointC, pointD, 1, 1, 1, 1)
 
     local pointAB = AutoDrivePathFinder:gridLocationToWorldLocation(pf, pf.targetCell)
     pointAB.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointAB.x, 1, pointAB.z) + 3
@@ -1293,7 +1293,7 @@ function AutoDrivePathFinder:drawDebugForPF(pf)
     pointTargetVector.x = pointTargetVector.x + pf.targetVector.x * 10
     pointTargetVector.z = pointTargetVector.z + pf.targetVector.z * 10
     pointTargetVector.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTargetVector.x, 1, pointTargetVector.z) + 3
-    AutoDrive:drawLine(pointAB, pointTargetVector, 1, 1, 1, 1)
+    AutoDrive.drawLine(pointAB, pointTargetVector, 1, 1, 1, 1)
 end
 
 function AutoDrivePathFinder.drawDebugForCreatedRoute(pf)
@@ -1322,8 +1322,8 @@ function AutoDrivePathFinder.drawDebugForCreatedRoute(pf)
                     z = shape.z - shape.widthZ * math.cos(shape.angleRad) - shape.widthX * math.sin(shape.angleRad)
                 }
 
-                AutoDrive:drawLine(pointA, pointC, 1, 1, 1, 1)
-                AutoDrive:drawLine(pointB, pointD, 1, 1, 1, 1)
+                AutoDrive.drawLine(pointA, pointC, 1, 1, 1, 1)
+                AutoDrive.drawLine(pointB, pointD, 1, 1, 1, 1)
 
                 if cell.incoming ~= nil then
                     local worldPos_cell = AutoDrivePathFinder:gridLocationToWorldLocation(pf, cell)
@@ -1355,22 +1355,19 @@ function AutoDrivePathFinder.drawDebugForCreatedRoute(pf)
                     local inY = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_incoming.x, 1, worldPos_incoming.z) + 1
                     local currentY = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos_cell.x, 1, worldPos_cell.z) + 1
 
-                    AutoDrive:drawLine({x = cornerX, y = inY, z = cornerZ}, {x = corner2X, y = currentY, z = corner2Z}, 1, 0, 0, 1)
-                    AutoDrive:drawLine({x = corner2X, y = currentY, z = corner2Z}, {x = corner3X, y = currentY, z = corner3Z}, 1, 0, 0, 1)
-                    AutoDrive:drawLine({x = corner3X, y = currentY, z = corner3Z}, {x = corner4X, y = inY, z = corner4Z}, 1, 0, 0, 1)
-                    AutoDrive:drawLine({x = corner4X, y = inY, z = corner4Z}, {x = cornerX, y = inY, z = cornerZ}, 1, 0, 0, 1)
+                    AutoDrive.drawLine({x = cornerX, y = inY, z = cornerZ}, {x = corner2X, y = currentY, z = corner2Z}, 1, 0, 0, 1)
+                    AutoDrive.drawLine({x = corner2X, y = currentY, z = corner2Z}, {x = corner3X, y = currentY, z = corner3Z}, 1, 0, 0, 1)
+                    AutoDrive.drawLine({x = corner3X, y = currentY, z = corner3Z}, {x = corner4X, y = inY, z = corner4Z}, 1, 0, 0, 1)
+                    AutoDrive.drawLine({x = corner4X, y = inY, z = corner4Z}, {x = cornerX, y = inY, z = cornerZ}, 1, 0, 0, 1)
                 end
             end
         end
     end
 
     for i, waypoint in pairs(pf.wayPoints) do
-        local node = createTransformGroup("Node " .. i)
-        setTranslation(node, waypoint.x, waypoint.y + 4, waypoint.z)
-        DebugUtil.drawDebugNode(node, "Node " .. i)
-
+        Utils.renderTextAtWorldPosition(waypoint.x, waypoint.y + 4, waypoint.z, "Node " .. i, getCorrectTextSize(0.013), 0)
         if i > 1 then
-            AutoDrive:drawLine(waypoint, pf.wayPoints[i - 1], 0, 1, 1, 1)
+            AutoDrive.drawLine(waypoint, pf.wayPoints[i - 1], 0, 1, 1, 1)
         end
     end
 end
