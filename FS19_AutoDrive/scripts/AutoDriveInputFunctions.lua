@@ -89,14 +89,8 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADDebugDeleteWayPoint" then
 		AutoDrive.InputHandlingSenderOnly(self, "input_removeWaypoint")
 	end
-	if actionName == "AD_export_routes" then
-		AutoDrive:InputHandling(self, "input_exportRoutes")
-	end
-	if actionName == "AD_import_routes" then
-		AutoDrive:InputHandling(self, "input_importRoutes")
-	end
-	if actionName == "AD_upload_routes" then
-		AutoDrive:InputHandling(self, "input_uploadRoutes")
+	if actionName == "AD_routes_manager" then
+		AutoDrive.InputHandlingSenderOnly(self, "input_routesManager")
 	end
 	if actionName == "ADSelectNextFillType" then
 		AutoDrive:InputHandling(self, "input_nextFillType")
@@ -126,10 +120,6 @@ function AutoDrive:InputHandling(vehicle, input)
 	vehicle.ad.currentInput = input
 	if vehicle.ad.currentInput == nil then
 		return
-	end
-
-	if g_server == nil then
-		AutoDrive:InputHandlingClientOnly(vehicle, input)
 	end
 
 	AutoDrive:InputHandlingClientAndServer(vehicle, input)
@@ -207,21 +197,8 @@ function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 		if input == "input_toggleMouse" and vehicle == g_currentMission.controlledVehicle then
 			g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor())
 		end
-	end
-end
-
-function AutoDrive:InputHandlingClientOnly(vehicle, input)
-	if input == "input_uploadRoutes" then
-		if vehicle.ad.createMapPoints == false then
-			return
-		end
-		local user = g_currentMission.userManager:getUserByUserId(g_currentMission.playerUserId)
-		if user:getIsMasterUser() then
-			g_logManager:info("[AutoDrive] User is admin and allowed to upload course")
-			AutoDrive.playerSendsMapToServer = true
-			AutoDrive.requestedWaypointCount = 1
-		else
-			g_logManager:error("[AutoDrive] User is not admin and is not allowed to upload course")
+		if input == "input_routesManager" then
+			AutoDrive.onOpenRoutesManager()
 		end
 	end
 end
@@ -238,20 +215,6 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		else
 			AutoDrive:startAD(vehicle)
 		end
-	end
-
-	if input == "input_exportRoutes" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
-			return
-		end
-		AutoDrive.exportRoutes()
-	end
-
-	if input == "input_importRoutes" then
-		if vehicle.ad.createMapPoints == false then
-			return
-		end
-		AutoDrive.importRoutes()
 	end
 
 	if input == "input_goToVehicle" then

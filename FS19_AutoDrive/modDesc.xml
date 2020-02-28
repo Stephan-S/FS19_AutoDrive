@@ -59,9 +59,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<action name="ADSelectNextFillType" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectPreviousFillType" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADRecord" category="VEHICLE" ignoreComboMask="false" />
-		<action name="AD_export_routes" category="VEHICLE" ignoreComboMask="false" />
-		<action name="AD_import_routes" category="VEHICLE" ignoreComboMask="false" />
-		<action name="AD_upload_routes" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_routes_manager" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSilomode" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADOpenGUI" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADCallDriver" category="VEHICLE" ignoreComboMask="false" />
@@ -129,14 +127,8 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 		<actionBinding action="ADRecord">
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_3" axisComponent="+" neutralInput="0" index="1" />
 		</actionBinding>
-		<actionBinding action="AD_import_routes">
+		<actionBinding action="AD_routes_manager">
 			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_lctrl KEY_KP_1" axisComponent="+" neutralInput="0" index="1" />
-		</actionBinding>
-		<actionBinding action="AD_export_routes">
-			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_2" axisComponent="+" neutralInput="0" index="1" />
-		</actionBinding>
-		<actionBinding action="AD_upload_routes">
-			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_3" axisComponent="+" neutralInput="0" index="1" />
 		</actionBinding>
 		<actionBinding action="ADSilomode">
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_4+" axisComponent="+" neutralInput="0" index="1" />

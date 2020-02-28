@@ -12,9 +12,7 @@
 		<text name="input_ADSelectPreviousTarget"				text="AD: Предыдущая локация" />
 		<text name="input_AD_Speed_up"							text="AD: Увеличить скорость" />
 		<text name="input_AD_Speed_down"						text="AD: Уменьшить скорость" />
-		<text name="input_AD_export_routes"						text="AD: Экспортировать маршруты" />
-		<text name="input_AD_import_routes"						text="AD: Импортировать маршруты" />
-		<text name="input_AD_upload_routes"						text="AD: Выгрузить маршруты" />
+		<text name="input_AD_routes_manager" 					text="AD: Open routes manager" />
 		<text name="input_AD_continue"							text="AD: Продолжить" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Следующая точка разгрузки" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Предыдущая точка разгрузки" />
@@ -173,6 +171,15 @@
 		<text name="gui_ad_restoreButtonText" 					text="Восстановить" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Все изменения будут утеряны" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Вы уверены, что хотите закрыть окно настроек без сохранения?" />
+		
+		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
+		<text name="gui_ad_button_export" 						text="Export" />
+		<text name="gui_ad_button_import" 						text="Import" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Расстояние от водителей" />
 		<text name="statistic_driversHired" 					text="Водители в настоящее время наняты" />

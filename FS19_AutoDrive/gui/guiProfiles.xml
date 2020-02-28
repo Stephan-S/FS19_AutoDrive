@@ -177,4 +177,55 @@
         <Value name="position" value="109px 0px" />
     </Profile>
 
+    <Profile name="autoDriveRoutesManagerNavigationBox" extends="emptyPanel" with="lightFrame">
+        <Value name="size" value="720px 600px" />
+        <Value name="position" value="0px -125px" />
+        <Value name="screenAlign" value="topCenter" />
+        <Value name="positionOrigin" value="topCenter" />
+    </Profile>
+
+    <Profile name="autoDriveRoutesManagerList" extends="list">
+        <Value name="size" value="692px 600px" />
+        <Value name="selectOnScroll" value="true" />
+        <Value name="screenAlign" value="topLeft" />
+        <Value name="positionOrigin" value="topLeft" />
+        <Value name="isHorizontalList" value="false" />
+        <Value name="itemsPerCol" value="13" />
+        <Value name="listItemHeight" value="46px" />
+        <Value name="listItemWidth" value="690px" />
+        <Value name="rowBackgroundProfile" value="autoDriveRoutesManagerListItem" />
+        <Value name="rowBackgroundProfileAlternate" value="autoDriveRoutesManagerListItemAlternate" />
+    </Profile>
+
+    <Profile name="autoDriveRoutesManagerListItem" extends="listItem">
+        <Value name="imageColor" value="$preset_colorListRowBackground" />
+        <Value name="imageFocusedColor" value="$preset_colorMainUI" />
+        <Value name="imageSelectedColor" value="$preset_colorMainUI" />
+        <Value name="size" value="690px 46px" />
+        <Value name="position" value="0px 0px" />
+    </Profile>
+
+    <Profile name="autoDriveRoutesManagerListItemAlternate" extends="autoDriveRoutesManagerListItem" with="alternateRow anchorMiddleLeft" />
+
+
+    <Profile name="autoDriveRoutesManagerItemText" extends="textDefault">
+        <Value name="size" value="610px 46px" />
+        <Value name="textMaxWidth" value="360px" />
+        <Value name="textVerticalAlignment" value="middle" />
+        <Value name="textSize" value="16px" />
+        <Value name="textBold" value="true" />
+        <Value name="textOffset" value="40px 2px" />
+        <Value name="textFocusedOffset" value="40px 2px" />
+    </Profile>
+
+    <Profile name="autoDriveRoutesManagerItemDate" extends="textDefault">
+        <Value name="size" value="610px 46px" />
+        <Value name="textMaxWidth" value="360px" />
+        <Value name="textVerticalAlignment" value="middle" />
+        <Value name="textSize" value="14px" />
+        <Value name="textBold" value="false" />
+        <Value name="textOffset" value="40px 2px" />
+        <Value name="textFocusedOffset" value="40px 2px" />
+        <Value name="textAlignment" value="right" />
+    </Profile>
 </GUIProfiles>

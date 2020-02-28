@@ -1,4 +1,5 @@
 function AutoDrive:loadGUI()
+	source(Utils.getFilename("gui/routesManagerGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterGroupNameGUI.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
@@ -14,11 +15,13 @@ function AutoDrive:loadGUI()
 	AutoDrive.gui.ADEnterTargetNameGui = ADEnterTargetNameGui:new()
 	AutoDrive.gui.ADEnterGroupNameGui = ADEnterGroupNameGui:new()
 	AutoDrive.gui.ADEnterDestinationFilterGui = ADEnterDestinationFilterGui:new()
+	AutoDrive.gui.ADRoutesManagerGui = ADRoutesManagerGui:new()
 
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "ADEnterTargetNameGui", AutoDrive.gui.ADEnterTargetNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "ADEnterGroupNameGui", AutoDrive.gui.ADEnterGroupNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
+	g_gui:loadGui(AutoDrive.directory .. "gui/routesManagerGUI.xml", "ADRoutesManagerGui", AutoDrive.gui.ADRoutesManagerGui)
 
 	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
 	AutoDrive.gui.ADVehicleSettingsPage = ADSettingsPage:new()
@@ -80,5 +83,11 @@ end
 function AutoDrive.onOpenEnterDestinationFilter()
 	if not AutoDrive.gui.ADEnterDestinationFilterGui.isOpen then
 		g_gui:showGui("ADEnterDestinationFilterGui")
+	end
+end
+
+function AutoDrive.onOpenRoutesManager()
+	if not AutoDrive.gui.ADRoutesManagerGui.isOpen then
+		g_gui:showGui("ADRoutesManagerGui")
 	end
 end

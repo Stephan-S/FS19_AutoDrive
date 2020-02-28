@@ -129,7 +129,7 @@ function ADHudButton:getNewState(vehicle)
         end
     end
 
-    if self.primaryAction == "input_exportRoutes" then
+    if self.primaryAction == "input_routesManager" then
         if vehicle.ad.createMapPoints == true then
             self.isVisible = true
         else

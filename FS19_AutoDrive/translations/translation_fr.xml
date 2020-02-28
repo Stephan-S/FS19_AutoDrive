@@ -12,9 +12,7 @@
 		<text name="input_ADSelectPreviousTarget"				text="AD: Sélect. destination précédente" />
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
 		<text name="input_AD_Speed_down"						text="AD: Réduire la vitesse" />
-		<text name="input_AD_export_routes"						text="AD: Exporter routes" />
-		<text name="input_AD_import_routes"						text="AD: Importer routes" />
-		<text name="input_AD_upload_routes"						text="AD: Téléverser routes" />
+		<text name="input_AD_routes_manager"					text="AD: Open routes manager" />
 		<text name="input_AD_continue"							text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
@@ -173,6 +171,15 @@
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
 		<text name="gui_ad_showMarkersOnMap"					text="Afficher les marqueurs" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Affiche les marqueurs/destinations en jeu sur la carte." />
+		
+		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
+		<text name="gui_ad_button_export" 						text="Export" />
+		<text name="gui_ad_button_import" 						text="Import" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distance de conduite des chauffeurs" />
 		<text name="statistic_driversHired" 					text="Chauffeurs actuellement embauchés" />

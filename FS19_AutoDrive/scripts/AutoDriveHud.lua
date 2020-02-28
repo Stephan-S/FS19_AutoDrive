@@ -171,8 +171,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.buttonCounter = self.buttonCounter + 1
 	self:AddButton("input_debug", "input_displayMapPoints", "input_ADActivateDebug", 1, true)
 
-	self.buttonCounter = self.buttonCounter + 1
-	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, true)
+	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, false)
+	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
 	self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false)
 	self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false)
 	self:AddButton("input_toggleConnection", "input_toggleConnectionInverted", "input_ADDebugCreateConnection", 1, false)
@@ -185,7 +185,6 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--self:AddButton("input_continue", nil,"input_AD_continue", 1, true);
 	--self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true);
 	--self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true);
-	--self:AddButton("input_exportRoutes", nil, "input_AD_export_routes", 1, false);
 
 	--local parkX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth;
 	--table.insert(self.hudElements, ADHudButton:new(parkX, self.row4, self.buttonWidth, self.buttonHeight, "input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true));
