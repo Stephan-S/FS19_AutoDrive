@@ -690,7 +690,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local allFillables, _ = AutoDrive.getTrailersOf(vehicle, false)
 
-    local distanceToSlowDownAt = 15 * Math.max(1, ((vehicle.lastSpeedReal * 3600) / 30));
+    local distanceToSlowDownAt = 15 * math.max(1, ((vehicle.lastSpeedReal * 3600) / 30));
 
     if shouldUnload then
         --g_logManager:devInfo("Should unload");
