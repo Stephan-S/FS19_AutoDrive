@@ -690,7 +690,13 @@ function AutoDrive.checkForTriggerProximity(vehicle)
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local allFillables, _ = AutoDrive.getTrailersOf(vehicle, false)
 
-    local distanceToSlowDownAt = 15 * math.max(1, ((vehicle.lastSpeedReal * 3600) / 30));
+    local totalMass = vehicle:getTotalMass(false)
+    local massFactor = math.max(1, math.min(3, (totalMass + 20) / 30))
+    if vehicle.lastSpeedReal * 3600 < 15 then
+        massFactor = 1
+    end
+    local speedFactor = math.max(0.5, math.min(4, (((vehicle.lastSpeedReal * 3600) + 10) / 20.0)))
+    local distanceToSlowDownAt = 15 * speedFactor * massFactor;
 
     if shouldUnload then
         --g_logManager:devInfo("Should unload");
@@ -772,6 +778,12 @@ function AutoDrive.shouldUnloadAtTrigger(vehicle)
 
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
         if (AutoDrive.getDistanceToUnloadPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance")) then -- (vehicle.ad.onRouteToSecondTarget) and
+            return true
+        end
+    end
+
+    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+        if (AutoDrive.getDistanceToTargetPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance")) then -- (vehicle.ad.onRouteToSecondTarget) and
             return true
         end
     end
