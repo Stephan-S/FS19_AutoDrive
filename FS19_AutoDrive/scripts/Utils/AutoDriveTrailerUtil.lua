@@ -690,13 +690,15 @@ function AutoDrive.checkForTriggerProximity(vehicle)
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local allFillables, _ = AutoDrive.getTrailersOf(vehicle, false)
 
+    local distanceToSlowDownAt = 15 * Math.max(1, ((vehicle.lastSpeedReal * 3600) / 30));
+
     if shouldUnload then
         --g_logManager:devInfo("Should unload");
         for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
             local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
-                if distance < 15 then
+                if distance < distanceToSlowDownAt then
                     --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
@@ -723,7 +725,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
                 for _, trailer in pairs(allFillables) do
                     hasRequiredFillType = hasRequiredFillType or AutoDrive.fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes)
                 end
-                if distance < 15 and hasRequiredFillType then
+                if distance < distanceToSlowDownAt and hasRequiredFillType then
                     --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
