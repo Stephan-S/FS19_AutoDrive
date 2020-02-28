@@ -576,7 +576,7 @@ function AutoDrive.getWayPointsInRange(point, rangeMin, rangeMax)
 	for _, wp in pairs(AutoDrive.mapWayPoints) do
 		local dis = AutoDrive.getDistance(wp.x, wp.z, point.x, point.z)
 		if dis < rangeMax and dis > rangeMin then
-			table.insert(inRange)
+			table.insert(inRange, wp.id)
 		end
 	end
 
