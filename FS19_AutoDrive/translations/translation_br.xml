@@ -178,6 +178,8 @@
 		<text name="gui_ad_button_import" 						text="Import" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
 		<text name="statistic_driversHired" 					text="Drivers currently hired" />

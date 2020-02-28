@@ -27,14 +27,13 @@ function AutoDriveRoutesManager.load()
             if not hasXMLProperty(AutoDriveRoutesManager.xml, key) then
                 break
             end
-            local id = getXMLInt(AutoDriveRoutesManager.xml, key .. "#id")
             local name = getXMLString(AutoDriveRoutesManager.xml, key .. "#name")
             local fileName = getXMLString(AutoDriveRoutesManager.xml, key .. "#fileName")
             local map = getXMLString(AutoDriveRoutesManager.xml, key .. "#map")
             local revision = getXMLInt(AutoDriveRoutesManager.xml, key .. "#revision")
             local date = getXMLString(AutoDriveRoutesManager.xml, key .. "#date")
-            AutoDriveRoutesManager.routes[id] = {id = id, name = name, fileName = fileName, map = map, revision = revision, date = date}
             i = i + 1
+            AutoDriveRoutesManager.routes[i] = {name = name, fileName = fileName, map = map, revision = revision, date = date}
         end
     else
         AutoDriveRoutesManager.xml = createXMLFile("autoDriveRoutesManager_xml", AutoDriveRoutesManager.xmlFile, "autoDriveRoutesManager")
@@ -91,7 +90,7 @@ function AutoDriveRoutesManager.export(name)
         route.date = getDate("%Y/%m/%d %H:%M:%S")
         saveXml = loadXMLFile("routeExport_xml", AutoDriveRoutesManager.routesFolder .. route.fileName)
     else
-        route = {id = #AutoDriveRoutesManager.routes + 1, name = name, fileName = fileName, map = mapName, revision = AutoDriveRoutesManager.revision, date = getDate("%Y/%m/%d %H:%M:%S")}
+        route = {name = name, fileName = fileName, map = mapName, revision = AutoDriveRoutesManager.revision, date = getDate("%Y/%m/%d %H:%M:%S")}
         table.insert(AutoDriveRoutesManager.routes, route)
         saveXml = createXMLFile("routeExport_xml", AutoDriveRoutesManager.routesFolder .. fileName, "routeExport")
     end
@@ -101,16 +100,24 @@ function AutoDriveRoutesManager.export(name)
     saveXMLFile(saveXml)
     delete(saveXml)
 
-    -- updating routes.xml
-    local key = "autoDriveRoutesManager.routes.route(" .. route.id - 1 .. ")"
-    removeXMLProperty(AutoDriveRoutesManager.xml, key)
-    setXMLInt(AutoDriveRoutesManager.xml, key .. "#id", route.id)
-    setXMLString(AutoDriveRoutesManager.xml, key .. "#name", route.name)
-    setXMLString(AutoDriveRoutesManager.xml, key .. "#fileName", route.fileName)
-    setXMLString(AutoDriveRoutesManager.xml, key .. "#map", route.map)
-    setXMLInt(AutoDriveRoutesManager.xml, key .. "#revision", route.revision)
-    setXMLString(AutoDriveRoutesManager.xml, key .. "#date", route.date)
-    saveXMLFile(AutoDriveRoutesManager.xml)
+    AutoDriveRoutesManager.saveRoutes()
+end
+
+function AutoDriveRoutesManager.remove(name)
+    local mapName = AutoDrive.loadedMap
+    local routeIndex =
+        table.f_indexOf(
+        AutoDriveRoutesManager.routes,
+        function(v)
+            return v.name == name and v.map == mapName
+        end
+    )
+
+    if routeIndex ~= nil then
+        local route = table.remove(AutoDriveRoutesManager.routes, routeIndex)
+        getfenv(0).deleteFile(AutoDriveRoutesManager.routesFolder .. route.fileName)
+        AutoDriveRoutesManager.saveRoutes()
+    end
 end
 
 function AutoDriveRoutesManager.getFileName()
@@ -120,6 +127,21 @@ function AutoDriveRoutesManager.getFileName()
         fileName = string.random(16)
     end
     return fileName
+end
+
+function AutoDriveRoutesManager.saveRoutes()
+    -- updating routes.xml
+    removeXMLProperty(AutoDriveRoutesManager.xml, "autoDriveRoutesManager.routes")
+    for i, route in pairs(AutoDriveRoutesManager.routes) do
+        local key = string.format("autoDriveRoutesManager.routes.route(%d)", i - 1)
+        removeXMLProperty(AutoDriveRoutesManager.xml, key)
+        setXMLString(AutoDriveRoutesManager.xml, key .. "#name", route.name)
+        setXMLString(AutoDriveRoutesManager.xml, key .. "#fileName", route.fileName)
+        setXMLString(AutoDriveRoutesManager.xml, key .. "#map", route.map)
+        setXMLInt(AutoDriveRoutesManager.xml, key .. "#revision", route.revision)
+        setXMLString(AutoDriveRoutesManager.xml, key .. "#date", route.date)
+    end
+    saveXMLFile(AutoDriveRoutesManager.xml)
 end
 
 function AutoDriveRoutesManager.getRoutes(map)

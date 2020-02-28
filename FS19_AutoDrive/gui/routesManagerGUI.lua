@@ -75,6 +75,20 @@ function ADRoutesManagerGui:onClickBack()
     ADRoutesManagerGui:superClass().onClickBack(self)
 end
 
+function ADRoutesManagerGui:onClickActivate()
+    if #self.routes > 0 then
+        g_gui:showYesNoDialog({text = g_i18n:getText("gui_ad_routeDeleteWarn_text"):format(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name), title = g_i18n:getText("gui_ad_routeDeleteWarn_title"), callback = self.onDeleteDialogCallback, target = self})
+    end
+    ADRoutesManagerGui:superClass().onClickActivate(self)
+end
+
+function ADRoutesManagerGui:onDeleteDialogCallback(yes)
+    if yes then
+        AutoDriveRoutesManager.remove(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
+        self:refreshItems()
+    end
+end
+
 function ADRoutesManagerGui:onEnterPressed(_, isClick)
     if not isClick then
     --self:onClickOk()
