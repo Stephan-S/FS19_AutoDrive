@@ -466,6 +466,7 @@ function AutoDrive:createVehicleInfoTable(vehicle)
             infoTable["Filllevels"]["trailer_" .. trailerIndex]["maxCapacity"] = trailerMaxCapacity
             infoTable["Filllevels"]["trailer_" .. trailerIndex]["filled"] = trailerFull
             infoTable["Filllevels"]["trailer_" .. trailerIndex]["empty"] = trailerEmpty
+            infoTable["Filllevels"]["trailer_" .. trailerIndex]["length"] = trailer.sizeLength
 
             for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
                 local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, nil)

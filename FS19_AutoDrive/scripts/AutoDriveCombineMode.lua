@@ -661,13 +661,19 @@ function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked
                 local pipeOffset = AutoDrive.getSetting("pipeOffset", vehicle)
                 local trailerOffset = AutoDrive.getSetting("trailerOffset", vehicle)
 
-                local trailer = AutoDrive.getTrailersOf(vehicle, true)[1];
-                local fillRootNode = trailer:getFillUnitRootNode(1);
-                local fillNodeX, fillNodeY, fillNodeZ = getWorldTranslation(fillRootNode)
-                local diffX, diffY, diffZ = worldToLocal(vehicle.components[1].node, fillNodeX, fillNodeY, fillNodeZ)
+                local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, true)
+                local trailer = trailers[vehicle.ad.currentTrailer];
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
+                if (trailerFillLevel > 0.99 or trailerLeftCapacity < 0.01) and vehicle.ad.currentTrailer < trailerCount then
+                    vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
+                    trailer = AutoDrive.getTrailersOf(vehicle, true)[vehicle.ad.currentTrailer];
+                end
+
+                local trailerX, trailerY, trailerZ = getWorldTranslation(trailer.components[1].node)
+                local _, _, diffZ = worldToLocal(vehicle.components[1].node, trailerX, trailerY, trailerZ)
 
                 nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
-                nodeX, nodeY, nodeZ = (nodeX + (-diffZ + 2) * rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (-diffZ + 2) * rz - pipeOffset * combineNormalVector.z
+                nodeX, nodeY, nodeZ = (nodeX + (-diffZ + 2 + trailerOffset) * rx) - pipeOffset * combineNormalVector.x, nodeY, nodeZ + (-diffZ + 2 + trailerOffset) * rz - pipeOffset * combineNormalVector.z
 
                 sideIndex = AutoDrive.ccSIDE_LEFT
             end
