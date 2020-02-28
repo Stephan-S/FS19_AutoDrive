@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.1-1"
+AutoDrive.version = "1.0.7.1-2"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
@@ -35,9 +35,7 @@ AutoDrive.actions = {
 	{"ADSelectNextFillType", false, 0},
 	{"ADSelectPreviousFillType", false, 0},
 	{"ADRecord", false, 0},
-	{"AD_export_routes", false, 0},
-	{"AD_import_routes", false, 0},
-	{"AD_upload_routes", false, 0},
+	{"AD_routes_manager", false, 0},
 	{"ADGoToVehicle", false, 3},
 	{"ADNameDriver", false, 0},
 	{"ADRenameMapMarker", false, 0},
@@ -207,6 +205,7 @@ function AutoDrive:loadMap(name)
 	--    end
 	--)
 	AutoDriveBenchmarks.Run()
+	AutoDriveRoutesManager.load()
 end
 
 function AutoDrive:firstRun()
@@ -261,6 +260,8 @@ function AutoDrive:deleteMap()
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
+	AutoDriveRoutesManager.delete()
+	delete(AutoDrive.adXml)
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)

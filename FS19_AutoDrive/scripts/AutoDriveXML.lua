@@ -32,14 +32,18 @@ function AutoDrive.loadInitConfig(xmlFile, createNewXML)
 
 	if fileExists(initConfFile) then
 		g_logManager:devInfo("[AutoDrive] Loading init config from " .. initConfFile)
-		AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
+		local xmlId = loadXMLFile("AutoDrive_XML_temp", initConfFile)
+		AutoDrive.readFromXML(xmlId)
+		delete(xmlId)
 	else
 		g_logManager:devWarning("[AutoDrive] Can't load init config from " .. initConfFile)
 		-- Loading custom init config from mod map
 		initConfFile = g_currentMission.missionInfo.map.baseDirectory .. "AutoDrive_" .. AutoDrive.loadedMap .. "_init_config.xml"
 		if fileExists(initConfFile) then
 			g_logManager:devInfo("[AutoDrive] Loading init config from " .. initConfFile)
-			AutoDrive.readFromXML(loadXMLFile("AutoDrive_XML_temp", initConfFile))
+			local xmlId = loadXMLFile("AutoDrive_XML_temp", initConfFile)
+			AutoDrive.readFromXML(xmlId)
+			delete(xmlId)
 		else
 			g_logManager:devWarning("[AutoDrive] Can't load init config from " .. initConfFile)
 		end
@@ -51,7 +55,6 @@ function AutoDrive.loadInitConfig(xmlFile, createNewXML)
 		AutoDrive.adXml = createXMLFile("AutoDrive_XML", xmlFile, "AutoDrive")
 		saveXMLFile(AutoDrive.adXml)
 	end
-	--AutoDrive.saveToXML(AutoDrive.adXml)
 end
 
 function AutoDrive.getXMLFile()
@@ -229,7 +232,7 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	setXMLString(xmlFile, "AutoDrive.version", AutoDrive.version)
-	
+
 	setXMLFloat(xmlFile, "AutoDrive.HudX", AutoDrive.HudX)
 	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY)
 	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud)
@@ -271,7 +274,7 @@ function AutoDrive.saveToXML(xmlFile)
 		incomingTable[i] = table.concat(p.incoming, ",")
 		if incomingTable[i] == nil or incomingTable[i] == "" then
 			incomingTable[i] = "-1"
-		end		
+		end
 	end
 
 	if idFullTable[1] ~= nil then
@@ -290,61 +293,6 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	saveXMLFile(xmlFile)
-end
-
-function AutoDrive.exportRoutes()
-	local path = getUserProfileAppPath()
-	local file = path .. "FS19_AutoDrive_Export/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
-
-	createFolder(path .. "FS19_AutoDrive_Export")
-	createFolder(path .. "FS19_AutoDrive_Import")
-
-	g_logManager:devInfo("[AutoDrive] Creating xml file at " .. file)
-	local adXml = createXMLFile("AutoDrive_export_XML", file, "AutoDrive")
-	saveXMLFile(adXml)
-	AutoDrive.saveToXML(adXml)
-	g_logManager:devInfo("[AutoDrive] Finished exporting routes")
-end
-
-function AutoDrive.importRoutes()
-	local path = getUserProfileAppPath()
-	local file = path .. "FS19_AutoDrive_Import/AutoDrive_" .. AutoDrive.loadedMap .. "_config.xml"
-
-	createFolder(path .. "FS19_AutoDrive_Import")
-
-	g_logManager:devInfo("[AutoDrive] Trying to load xml file from " .. file)
-	if fileExists(file) then
-		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. file)
-		local adXml = loadXMLFile("AutoDrive_XML", file)
-
-		local VersionCheck = getXMLString(adXml, "AutoDrive.version")
-		local MapCheck = hasXMLProperty(adXml, "AutoDrive." .. AutoDrive.loadedMap)
-		if VersionCheck == nil or MapCheck == false then
-			g_logManager:devInfo("[AutoDrive] Version Check or Map check failed - cannot import")
-		else
-			AutoDrive.readFromXML(adXml)
-			AutoDrive.requestedWaypoints = true
-			AutoDrive.requestedWaypointCount = 1
-			AutoDrive.MarkChanged()
-		end
-	end
-end
-
-function AutoDrive.tableEntriesAreEqual(list)
-	local match = true
-	local toCompare = nil
-
-	for _, element in pairs(list) do
-		if toCompare == nil then
-			toCompare = element
-		else
-			if toCompare ~= element then
-				match = false
-			end
-		end
-	end
-
-	return match
 end
 
 function AutoDrive.loadUsersData()
@@ -386,4 +334,125 @@ function AutoDrive.saveUsersData()
 	end
 	saveXMLFile(xmlFile)
 	delete(xmlFile)
+end
+
+function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
+	-- writing waypoints
+	removeXMLProperty(xmlId, rootNode .. ".waypoints")
+	do
+		local key = string.format("%s.waypoints", rootNode)
+		setXMLInt(xmlId, key .. "#c", #waypoints)
+
+		local xt = {}
+		local yt = {}
+		local zt = {}
+		local ot = {}
+		local it = {}
+
+		-- localization for better performances
+		local frmt = string.format
+		local cnl = table.concatNil
+
+		for i, w in pairs(waypoints) do
+			xt[i] = frmt("%.2f", w.x)
+			yt[i] = frmt("%.2f", w.y)
+			zt[i] = frmt("%.2f", w.z)
+			ot[i] = cnl(w.out, ",") or "-1"
+			it[i] = cnl(w.incoming, ",") or "-1"
+		end
+
+		setXMLString(xmlId, key .. ".x", table.concat(xt, ";"))
+		setXMLString(xmlId, key .. ".y", table.concat(yt, ";"))
+		setXMLString(xmlId, key .. ".z", table.concat(zt, ";"))
+		setXMLString(xmlId, key .. ".out", table.concat(ot, ";"))
+		setXMLString(xmlId, key .. ".in", table.concat(it, ";"))
+	end
+
+	-- writing markers
+	removeXMLProperty(xmlId, rootNode .. ".markers")
+	for i, m in pairs(markers) do
+		local key = string.format("%s.markers.m(%d)", rootNode, i - 1)
+		setXMLInt(xmlId, key .. "#i", m.id)
+		setXMLString(xmlId, key .. "#n", m.name)
+		setXMLString(xmlId, key .. "#g", m.group)
+	end
+
+	-- writing groups
+	removeXMLProperty(xmlId, rootNode .. ".groups")
+	do
+		local i = 0
+		for name, _ in pairs(groups) do
+			local key = string.format("%s.groups.g(%d)", rootNode, i)
+			setXMLString(xmlId, key .. "#n", name)
+			i = i + 1
+		end
+	end
+end
+
+function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
+	-- reading waypoints
+	do
+		local key = string.format("%s.waypoints", rootNode)
+		local waypointsCount = getXMLInt(xmlId, key .. "#c")
+		local xt = getXMLString(xmlId, key .. ".x"):split(";")
+		local yt = getXMLString(xmlId, key .. ".y"):split(";")
+		local zt = getXMLString(xmlId, key .. ".z"):split(";")
+		local ot = getXMLString(xmlId, key .. ".out"):split(";")
+		local it = getXMLString(xmlId, key .. ".in"):split(";")
+
+		-- localization for better performances
+		local tnum = tonumber
+		local tbin = table.insert
+		local stsp = string.split
+
+		for i = 1, waypointsCount do
+			local wp = {id = i, x = tnum(xt[i]), y = tnum(yt[i]), z = tnum(zt[i]), out = {}, incoming = {}}
+			if ot[i] ~= "-1" then
+				for _, out in pairs(stsp(ot[i], ",")) do
+					tbin(wp.out, tnum(out))
+				end
+			end
+			if it[i] ~= "-1" then
+				for _, incoming in pairs(stsp(it[i], ",")) do
+					tbin(wp.incoming, tnum(incoming))
+				end
+			end
+			waypoints[i] = wp
+			i = i + 1
+		end
+	end
+
+	-- reading markers
+	do
+		local i = 0
+		while true do
+			local key = string.format("%s.markers.m(%d)", rootNode, i)
+			if not hasXMLProperty(xmlId, key) then
+				break
+			end
+			local id = getXMLInt(xmlId, key .. "#i")
+			local name = getXMLString(xmlId, key .. "#n")
+			local group = getXMLString(xmlId, key .. "#g")
+
+			local node = createTransformGroup(name)
+			setTranslation(node, waypoints[id].x, waypoints[id].y + 4, waypoints[id].z)
+
+			i = i + 1
+			markers[i] = {id = id, name = name, group = group, node = node}
+		end
+	end
+
+	-- reading groups
+	do
+		local i = 0
+		while true do
+			local key = string.format("%s.groups.g(%d)", rootNode, i)
+			if not hasXMLProperty(xmlId, key) then
+				break
+			end
+			local groupName = getXMLString(xmlId, key .. "#n")
+			i = i + 1
+			groups[groupName] = i
+		end
+	end
 end

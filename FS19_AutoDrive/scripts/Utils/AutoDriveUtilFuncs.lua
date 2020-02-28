@@ -1,3 +1,68 @@
+string.randomCharset = {
+	"0",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+	"A",
+	"B",
+	"C",
+	"D",
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	"N",
+	"O",
+	"P",
+	"Q",
+	"R",
+	"S",
+	"T",
+	"U",
+	"V",
+	"W",
+	"X",
+	"Y",
+	"Z",
+	"a",
+	"b",
+	"c",
+	"d",
+	"e",
+	"f",
+	"g",
+	"h",
+	"i",
+	"j",
+	"k",
+	"l",
+	"m",
+	"n",
+	"o",
+	"p",
+	"q",
+	"r",
+	"s",
+	"t",
+	"u",
+	"v",
+	"w",
+	"x",
+	"y",
+	"z"
+}
+
 function AutoDrive.getDistance(x1, z1, x2, z2)
 	return math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2))
 end
@@ -60,13 +125,18 @@ function AutoDrive.boxesIntersect(a, b)
 	return true
 end
 
-function table:containsKey(key)
-	return self[key] ~= nil
-end
-
-function table:containsValue(value)
+function table:contains(value)
 	for _, v in pairs(self) do
 		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
+function table:f_contains(func)
+	for _, v in pairs(self) do
+		if func(v) then
 			return true
 		end
 	end
@@ -82,6 +152,34 @@ function table:indexOf(value)
 	return nil
 end
 
+function table:f_indexOf(func)
+	for k, v in pairs(self) do
+		if func(v) then
+			return k
+		end
+	end
+	return nil
+end
+
+function table:f_find(func)
+	for _, v in pairs(self) do
+		if func(v) then
+			return v
+		end
+	end
+	return nil
+end
+
+function table:f_filter(func)
+	local new = {}
+	for _, v in pairs(self) do
+		if func(v) then
+			table.insert(new, v)
+		end
+	end
+	return new
+end
+
 function table:removeValue(value)
 	for k, v in pairs(self) do
 		if v == value then
@@ -92,6 +190,14 @@ function table:removeValue(value)
 	return false
 end
 
+function table:f_remove(func)
+	for k, v in pairs(self) do
+		if func(v) then
+			table.remove(self, k)
+		end
+	end
+end
+
 function table:count()
 	local c = 0
 	if self ~= nil then
@@ -100,6 +206,26 @@ function table:count()
 		end
 	end
 	return c
+end
+
+function table:f_count(func)
+	local c = 0
+	if self ~= nil then
+		for _, v in pairs(self) do
+			if func(v) then
+				c = c + 1
+			end
+		end
+	end
+	return c
+end
+
+function table:concatNil(sep, i, j)
+	local res = table.concat(self, sep, i, j)
+	if res == "" then
+		res = nil
+	end
+	return res
 end
 
 function string:split(sep)
@@ -113,6 +239,21 @@ function string:split(sep)
 		end
 	)
 	return fields
+end
+
+function string.random(length)
+	local res = ""
+	for i = 1, length do
+		res = res .. string.char(math.random(97, 122))
+	end
+	return res
+end
+
+function string.random(length)
+	if not length or length <= 0 then
+		return ""
+	end
+	return string.random(length - 1) .. string.randomCharset[math.random(1, #string.randomCharset)]
 end
 
 function AutoDrive.printMessage(vehicle, newMessage)

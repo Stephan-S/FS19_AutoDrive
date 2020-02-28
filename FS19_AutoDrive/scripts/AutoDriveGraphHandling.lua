@@ -217,7 +217,7 @@ function AutoDrive.toggleConnectionBetween(startNode, endNode, sendEvent)
 		-- Propagating connection toggling all over the network
 		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode)
 	else
-		if table.containsValue(startNode.out, endNode.id) or table.containsValue(endNode.incoming, startNode.id) then
+		if table.contains(startNode.out, endNode.id) or table.contains(endNode.incoming, startNode.id) then
 			table.removeValue(startNode.out, endNode.id)
 			table.removeValue(endNode.incoming, startNode.id)
 		else
