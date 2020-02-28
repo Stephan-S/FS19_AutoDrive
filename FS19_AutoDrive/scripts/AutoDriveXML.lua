@@ -215,11 +215,7 @@ function AutoDrive.readFromXML(xmlFile)
 	end
 
 	for markerIndex, marker in pairs(AutoDrive.mapMarker) do
-		if AutoDrive.mapWayPoints[marker.id] ~= nil then
-			local node = createTransformGroup(marker.name)
-			setTranslation(node, AutoDrive.mapWayPoints[marker.id].x, AutoDrive.mapWayPoints[marker.id].y + 4, AutoDrive.mapWayPoints[marker.id].z)
-			marker.node = node
-		else
+		if AutoDrive.mapWayPoints[marker.id] == nil then
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
@@ -434,11 +430,8 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 			local name = getXMLString(xmlId, key .. "#n")
 			local group = getXMLString(xmlId, key .. "#g")
 
-			local node = createTransformGroup(name)
-			setTranslation(node, waypoints[id].x, waypoints[id].y + 4, waypoints[id].z)
-
 			i = i + 1
-			markers[i] = {id = id, name = name, group = group, node = node}
+			markers[i] = {id = id, name = name, group = group}
 		end
 	end
 

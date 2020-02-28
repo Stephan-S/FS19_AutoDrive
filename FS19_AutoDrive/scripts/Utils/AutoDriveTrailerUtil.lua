@@ -697,7 +697,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
                 if distance < 15 then
-                    --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                    --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
             end
@@ -724,7 +724,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
                     hasRequiredFillType = hasRequiredFillType or AutoDrive.fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes)
                 end
                 if distance < 15 and hasRequiredFillType then
-                    --AutoDrive:drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                    --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
             end

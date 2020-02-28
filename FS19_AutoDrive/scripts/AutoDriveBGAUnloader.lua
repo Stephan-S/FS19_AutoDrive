@@ -60,7 +60,7 @@ function AutoDriveBGA:handleBGA(vehicle, dt)
 
     --if vehicle.bga.targetPoint ~= nil then
     --local x,y,z = getWorldTranslation( vehicle.components[1].node );
-    --AutoDrive:drawLine({x=x,y=y+3,z=z}, {x=vehicle.bga.targetPoint.x, y=y+3,z=vehicle.bga.targetPoint.z}, 0, 0, 1, 1);
+    --AutoDrive.drawLine({x=x,y=y+3,z=z}, {x=vehicle.bga.targetPoint.x, y=y+3,z=vehicle.bga.targetPoint.z}, 0, 0, 1, 1);
     --end;
 
     if vehicle.bga.state == AutoDriveBGA.STATE_INIT then

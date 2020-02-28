@@ -332,7 +332,6 @@ end
 --#######  'Operator' ---> mean: 1.02 -- var: 1   -- min: 0  -- max: 2  -- time: +0%     #######
 --##############################################################################################
 
-
 --###################################################################################################
 --############################  AutoDriveBenchmark ( Test Medium )  #################################
 --###################################################################################################
@@ -340,7 +339,6 @@ end
 --#######  'Getn'     ---> mean: 2.12   -- var: 0.5 -- min: 2   -- max: 3   -- time: +68%     #######
 --#######  'Operator' ---> mean: 1.26   -- var: 1.5 -- min: 0   -- max: 3   -- time: +0%      #######
 --###################################################################################################
-
 
 --#######################################################################################################
 --###############################  AutoDriveBenchmark ( Test Big )  #####################################
@@ -407,6 +405,71 @@ function AutoDriveBenchmarks.ArraySize()
     AutoDriveBenchmark:EndBench()
 end
 
+--#####################################################################################################################
+--####################################  AutoDriveBenchmark ( Node Position )  #########################################
+--#####################################################################################################################
+--#######  'getWorldTranslation L'        ---> mean: 155.2  -- var: 19.5 -- min: 147 -- max: 186 -- time: +0%   #######
+--#######  'getWorldTranslation G'        ---> mean: 167.96 -- var: 16   -- min: 161 -- max: 193 -- time: +8%   #######
+--#######  'getTerrainHeightAtWorldPos L' ---> mean: 191.4  -- var: 9.5  -- min: 188 -- max: 207 -- time: +23%  #######
+--#######  'getTerrainHeightAtWorldPos G' ---> mean: 226.88 -- var: 19   -- min: 217 -- max: 255 -- time: +46%  #######
+--#####################################################################################################################
+function AutoDriveBenchmarks.nodePosition()
+    local func1 = function(v)
+        local y = 0
+        for i = 1, 10000 do
+            for _, p in pairs(v) do
+                y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, p[1], 0, p[2])
+            end
+        end
+    end
+
+    local func12 = function(v)
+        local y = 0
+        local tRN = g_currentMission.terrainRootNode
+        local gTH = getTerrainHeightAtWorldPos
+        for i = 1, 10000 do
+            for _, p in pairs(v) do
+                y = gTH(tRN, p[1], 0, p[2])
+            end
+        end
+    end
+
+    local func2 = function(v)
+        local x, y, z = 0
+        for i = 1, 10000 do
+            for _, node in pairs(v) do
+                x, y, z = getWorldTranslation(node)
+            end
+        end
+    end
+
+    local func22 = function(v)
+        local x, y, z = 0
+        local gWT = getWorldTranslation
+        for i = 1, 10000 do
+            for _, node in pairs(v) do
+                x, y, z = gWT(node)
+            end
+        end
+    end
+
+    local worldPositions = {{302, 732}, {802, 332}, {1010, 632}, {262, 1002}, {702, 832}, {502, 532}, {802, 332}, {502, 932}, {102, 432}, {602, 132}}
+    local nodes = {}
+    for i, v in pairs(worldPositions) do
+        local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, v[1], 0, v[2])
+        local node = createTransformGroup("test_" .. i)
+        setWorldTranslation(node, v[1], y, v[2])
+        nodes[i] = node
+    end
+
+    AutoDriveBenchmark:BeginBench("Node Position")
+    AutoDriveBenchmark:Bench("getTerrainHeightAtWorldPos G", func1, worldPositions)
+    AutoDriveBenchmark:Bench("getTerrainHeightAtWorldPos L", func12, worldPositions)
+    AutoDriveBenchmark:Bench("getWorldTranslation G", func2, nodes)
+    AutoDriveBenchmark:Bench("getWorldTranslation L", func22, nodes)
+    AutoDriveBenchmark:EndBench()
+end
+
 function AutoDriveBenchmarks.Run()
     if not AutoDriveBenchmarks.enabled then
         return
@@ -439,4 +502,12 @@ function AutoDriveBenchmarks.Run()
     --AutoDriveBenchmarks.Test()
 
     --AutoDriveBenchmarks.ArraySize()
+end
+
+function AutoDriveBenchmarks.FirstRun()
+    if not AutoDriveBenchmarks.enabled then
+        return
+    end
+
+    --AutoDriveBenchmarks.nodePosition()
 end

@@ -458,8 +458,8 @@ function AutoDrive.updateDestinationsMapHotspots()
 		for index, marker in ipairs(AutoDrive.mapMarker) do
 			local mh = AutoDrive.mapHotspotsBuffer[index]
 			mh:setText(marker.name)
-			local x, _, z = getWorldTranslation(marker.node)
-			mh:setWorldPosition(x, z)
+			local wp = AutoDrive.mapWayPoints[marker.id]
+			mh:setWorldPosition(wp.x, wp.z)
 			mh.enabled = true
 			mh.markerID = index
 			g_currentMission:addMapHotspot(mh)

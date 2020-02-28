@@ -710,7 +710,7 @@ function AutoDrive:getLookAheadTarget(vehicle)
     end
 
     --local x,y,z = getWorldTranslation(vehicle.components[1].node);
-    --AutoDrive:drawLine(AutoDrive.createVector(targetX,y, targetZ), AutoDrive.createVector(x,y,z), 1, 0, 1, 1);
+    --AutoDrive.drawLine(AutoDrive.createVector(targetX,y, targetZ), AutoDrive.createVector(x,y,z), 1, 0, 1, 1);
     return targetX, targetZ
 end
 

@@ -67,10 +67,6 @@ function AutoDriveSync:readStream(streamId)
         local markerId = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
         if AutoDrive.mapWayPoints[markerId] ~= nil then
             local marker = {id = markerId, name = AutoDrive.streamReadStringOrEmpty(streamId), group = AutoDrive.streamReadStringOrEmpty(streamId)}
-
-            marker.node = createTransformGroup(marker.name)
-            setTranslation(marker.node, AutoDrive.mapWayPoints[markerId].x, AutoDrive.mapWayPoints[markerId].y + 4, AutoDrive.mapWayPoints[markerId].z)
-
             AutoDrive.mapMarker[i] = marker
         else
             g_logManager:error(string.format("[AutoDriveSync] Error receiving marker %s (%s)", AutoDrive.streamReadStringOrEmpty(streamId), markerId))
