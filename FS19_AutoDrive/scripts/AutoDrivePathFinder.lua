@@ -606,7 +606,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
         cell.isRestricted = cell.isRestricted or (pf.restrictToField and (not pf.fallBackMode) and (not AutoDrivePathFinder:checkIsOnField(worldPos.x, y, worldPos.z)))
 
         local boundingBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
-        if AutoDrive:checkForVehiclesInBox(boundingBox) then
+        if AutoDrive:checkForVehiclesInBox(pf, boundingBox) then
             cell.isRestricted = true
             cell.hasCollision = true
         end
@@ -887,7 +887,7 @@ function AutoDrivePathFinder:smoothResultingPPPath_Refined(pf)
                 end
 
                 local cellBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
-                hasCollision = hasCollision or AutoDrive:checkForVehiclesInBox(cellBox)
+                hasCollision = hasCollision or AutoDrive:checkForVehiclesInBox(pf, cellBox)
 
                 foundCollision = hasCollision
 
@@ -1120,10 +1120,10 @@ function AutoDrive:checkForVehicleCollision(vehicle, excludedVehicles, dynamicSi
         excludedVehicles = {}
     end
     table.insert(excludedVehicles, vehicle)
-    return AutoDrive:checkForVehiclesInBox(AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize), excludedVehicles)
+    return AutoDrive:checkForVehiclesInBox(nil, AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize), excludedVehicles)
 end
 
-function AutoDrive:checkForVehiclesInBox(boundingBox, excludedVehicles)
+function AutoDrive:checkForVehiclesInBox(pf, boundingBox, excludedVehicles)
     for _, otherVehicle in pairs(g_currentMission.vehicles) do
         local isExcluded = false
         if excludedVehicles ~= nil and otherVehicle ~= nil then
@@ -1142,15 +1142,56 @@ function AutoDrive:checkForVehiclesInBox(boundingBox, excludedVehicles)
                     return true
                 end
             end
+
+            if pf ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.wayPoints ~= nil then
+                local lastWp = nil
+                -- check for other pathfinder steered vehicles and avoid any intersection with their routes
+                for index, wp in pairs(otherVehicle.ad.wayPoints) do
+                    if lastWp ~= nil and wp.id == nil and index >= otherVehicle.ad.currentWayPoint then
+                        local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2))
+                        local sideLength = widthOfColBox / 2
+
+                        local vectorX = lastWp.x - wp.x
+                        local vectorZ = lastWp.z - wp.z
+                        local angleRad = math.atan2(-vectorZ, vectorX)
+                        angleRad = AutoDrive.normalizeAngle(angleRad)
+                        local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox
+
+                        local leftAngle = AutoDrive.normalizeAngle(angleRad + math.rad(-90))
+                        local rightAngle = AutoDrive.normalizeAngle(angleRad + math.rad(90))
+
+                        local cornerX = wp.x - math.cos(leftAngle) * sideLength
+                        local cornerZ = wp.z + math.sin(leftAngle) * sideLength
+
+                        local corner2X = lastWp.x - math.cos(leftAngle) * sideLength
+                        local corner2Z = lastWp.z + math.sin(leftAngle) * sideLength
+
+                        local corner3X = lastWp.x - math.cos(rightAngle) * sideLength
+                        local corner3Z = lastWp.z + math.sin(rightAngle) * sideLength
+
+                        local corner4X = wp.x - math.cos(rightAngle) * sideLength
+                        local corner4Z = wp.z + math.sin(rightAngle) * sideLength
+                        local cellBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
+
+                        if AutoDrive.boxesIntersect(boundingBox, cellBox) == true then
+                            return true
+                        end
+
+                        if AutoDrive.boxesIntersect(boundingBox, AutoDrive:getBoundingBoxForVehicleAtPosition(otherVehicle, {x=wp.x, y=wp.y, z=wp.z}, false)) == true then
+                            return true
+                        end
+                    end
+                    lastWp = wp
+                end
+            end
         end
     end
 
     return false
 end
 
-function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    --create bounding box to check for vehicle
+function AutoDrive:getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
+    local x, y, z = position.x, position.y, position.z
     local rx, _, rz = 0, 0, 0
     local lookAheadDistance = 0
     local width = vehicle.sizeWidth
@@ -1210,6 +1251,14 @@ function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
     --AutoDrive.drawLine(boundingBox[4], boundingBox[1], 1, 0, 0, 1);
 
     return boundingBox
+end
+
+function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
+    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    
+    local position = {x=x, y=y, z=z}; 
+
+    return AutoDrive:getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
 end
 
 function AutoDrivePathFinder:drawDebugForPF(pf)
