@@ -18,7 +18,9 @@ function AutoDrive.handleTrailers(vehicle, dt)
                 if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999 and (not vehicle.ad.isLoading) and (not trigger.isLoading) then
                     if trigger:getIsActivatable(trailer) then
                         AutoDrive.startLoadingCorrectFillTypeAtTrigger(vehicle, trailer, trigger, i)
-                    --g_logManager:devInfo(vehicle.ad.driverName .. " - started loading with fillUnit: " .. i);
+                        --g_logManager:devInfo(vehicle.ad.driverName .. " - started loading with fillUnit: " .. i);
+                    else
+                        --g_logManager:devInfo(vehicle.ad.driverName .. " - trigger:getIsActivatable(trailer): false ");
                     end
                 end
             end
@@ -231,6 +233,11 @@ function AutoDrive.fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTyp
                         typesMatch = true
                         matchInThisUnit = true
                     end
+                    if fillTrigger.source ~= nil and fillTrigger.source.gcId ~= nil and fillTrigger.source.fillLevels ~= nil and fillTrigger.source.fillLevels[index] then
+                        typesMatch = true
+                        matchInThisUnit = true
+                    end
+                    
                     --fillTriggers
                     if fillTrigger.source ~= nil and fillTrigger.source.productLines ~= nil then --is gc trigger
                         for _, subSource in pairs(fillTrigger.source.providedFillTypes) do
@@ -276,7 +283,8 @@ function AutoDrive.fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTyp
                     if fillTrigger.source.productLines ~= nil then --is gc trigger
                         return true
                     else
-                        if fillTrigger.source.providedFillTypes[allowedFillType] then
+                        if (fillTrigger.source.providedFillTypes ~= nil and fillTrigger.source.providedFillTypes[allowedFillType]) or 
+                            (fillTrigger.source.fillLevels ~= nil and fillTrigger.source.fillLevels[allowedFillType]) then
                             return true
                         end
                     end
@@ -688,7 +696,7 @@ function AutoDrive.checkForTriggerProximity(vehicle)
         return false
     end
 
-    local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local x, y, z = getWorldTranslation(vehicle.components[1].node)
     local allFillables, _ = AutoDrive.getTrailersOf(vehicle, false)
 
     local totalMass = vehicle:getTotalMass(false)
@@ -697,26 +705,12 @@ function AutoDrive.checkForTriggerProximity(vehicle)
         massFactor = 1
     end
     local speedFactor = math.max(0.5, math.min(4, (((vehicle.lastSpeedReal * 3600) + 10) / 20.0)))
-    local distanceToSlowDownAt = 15 * speedFactor * massFactor;
-
-    if shouldUnload then
-        --g_logManager:devInfo("Should unload");
-        for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
-            local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
-            if triggerX ~= nil then
-                local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
-                if distance < distanceToSlowDownAt then
-                    --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
-                    return true
-                end
-            end
-        end
-    end
+    local distanceToSlowDownAt = 15 * speedFactor * massFactor;  
 
     if shouldLoad then
         --g_logManager:devInfo("Should load");
         for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-            local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
+            local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
 
@@ -734,6 +728,22 @@ function AutoDrive.checkForTriggerProximity(vehicle)
                 end
 
                 if distance < distanceToSlowDownAt and hasRequiredFillType then
+                    --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                    return true
+                end
+
+
+            end
+        end
+    end
+
+    if shouldUnload then
+        --g_logManager:devInfo("Should unload");
+        for _, trigger in pairs(AutoDrive.Triggers.tipTriggers) do
+            local triggerX, triggerY, triggerZ = AutoDrive.getTriggerPos(trigger)
+            if triggerX ~= nil then
+                local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
+                if distance < distanceToSlowDownAt then
                     --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
                     return true
                 end
@@ -858,6 +868,15 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                     local gcFillLevels = {}
                     if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
                         gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(g_currentMission:getFarmId(), trigger.managerId)
+                    end
+                    if #fillLevels == 0 and #gcFillLevels == 0 and trigger.source ~= nil and trigger.source.gcId ~= nil and trigger.source.fillLevels ~= nil then
+                        --g_logManager:devInfo("Adding gm fill levels now")
+                        for index, fillLevel in pairs(trigger.source.fillLevels) do
+                            if fillLevel ~= nil and fillLevel[1] ~= nil then
+                                --g_logManager:devInfo("Adding gm fill levels now - adding " .. index .. " with value: " .. fillLevel[1])
+                                fillLevels[index] = fillLevel[1]
+                            end
+                        end
                     end
                     local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and fillLevels[vehicle.ad.unloadFillTypeIndex] > 0) or (gcFillLevels[vehicle.ad.unloadFillTypeIndex] ~= nil and gcFillLevels[vehicle.ad.unloadFillTypeIndex] > 0)
 
