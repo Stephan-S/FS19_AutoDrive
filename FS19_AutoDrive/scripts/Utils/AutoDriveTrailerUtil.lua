@@ -241,12 +241,12 @@ function AutoDrive.fillTypesMatch(vehicle, fillTrigger, workTool, allowedFillTyp
                     --fillTriggers
                     if fillTrigger.source ~= nil and fillTrigger.source.productLines ~= nil then --is gc trigger
                         for _, subSource in pairs(fillTrigger.source.providedFillTypes) do
-                            if type(subSource) == "table" then
+                            --if type(subSource) == "table" then
                                 if subSource[index] ~= nil then
                                     typesMatch = true
                                     matchInThisUnit = true
                                 end
-                            end
+                            --end
                         end
                     end
 
@@ -714,22 +714,24 @@ function AutoDrive.checkForTriggerProximity(vehicle)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
 
-                local hasRequiredFillType = false
-                local allowedFillTypes = {vehicle.ad.unloadFillTypeIndex}
-                if vehicle.ad.unloadFillTypeIndex == 13 or vehicle.ad.unloadFillTypeIndex == 43 or vehicle.ad.unloadFillTypeIndex == 44 then
-                    allowedFillTypes = {}
-                    table.insert(allowedFillTypes, 13)
-                    table.insert(allowedFillTypes, 43)
-                    table.insert(allowedFillTypes, 44)
-                end
+                if distance < distanceToSlowDownAt then
+                    local hasRequiredFillType = false
+                    local allowedFillTypes = {vehicle.ad.unloadFillTypeIndex}
+                    if vehicle.ad.unloadFillTypeIndex == 13 or vehicle.ad.unloadFillTypeIndex == 43 or vehicle.ad.unloadFillTypeIndex == 44 then
+                        allowedFillTypes = {}
+                        table.insert(allowedFillTypes, 13)
+                        table.insert(allowedFillTypes, 43)
+                        table.insert(allowedFillTypes, 44)
+                    end
 
-                for _, trailer in pairs(allFillables) do
-                    hasRequiredFillType = hasRequiredFillType or AutoDrive.fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes)
-                end
+                    for _, trailer in pairs(allFillables) do
+                        hasRequiredFillType = hasRequiredFillType or AutoDrive.fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes)
+                    end
 
-                if distance < distanceToSlowDownAt and hasRequiredFillType then
-                    --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
-                    return true
+                    if hasRequiredFillType then
+                        --AutoDrive.drawLine({x=x, y=y+4, z=z}, {x=triggerX, y=triggerY + 4, z=triggerZ}, 0, 1, 1, 1);
+                        return true
+                    end
                 end
 
 
