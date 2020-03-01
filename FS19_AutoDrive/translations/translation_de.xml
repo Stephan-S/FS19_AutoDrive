@@ -164,6 +164,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Falls die automatisch erkannte Zielhöhe nicht korrekt auf dem Boden ist, nutze diesen Wert zum Anpassen" />
 		<text name="gui_ad_showMarkersOnMap"					text="Ziele auf Karte" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Zeigt die Ziele auf der Karte an" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Ziele anwählbar" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Ziele als Ziel/Abladepunkt übernehmen, wenn auf Karte geclicked" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />

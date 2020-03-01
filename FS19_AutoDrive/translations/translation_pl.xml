@@ -162,6 +162,8 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Podaj tekst filtrowania:" />
 		<text name="gui_ad_shovelHeight"						text="Shovel height" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

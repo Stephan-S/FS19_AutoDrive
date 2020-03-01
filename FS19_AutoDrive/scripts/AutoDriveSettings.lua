@@ -770,6 +770,17 @@ AutoDrive.settings.showMarkersOnMap = {
     isVehicleSpecific = false
 }
 
+AutoDrive.settings.switchToMarkersOnMap = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_switchToMarkersOnMap",
+    tooltip = "gui_ad_switchToMarkersOnMap_tooltip",
+    translate = true,
+    isVehicleSpecific = false
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

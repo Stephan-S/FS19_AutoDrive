@@ -162,6 +162,8 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Entrez le filtre de destination:" />
 		<text name="gui_ad_shovelHeight"						text="Hauteur de pelle" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la hauteur de pelle détectée automatiquement n’est pas correcte au sol, utilisez cette valeur pour ajuster." />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />

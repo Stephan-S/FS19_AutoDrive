@@ -164,6 +164,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Se l'altezza della pala rilevata automaticamente non è corretta. Utilizzare questo per regolare l'altezza dal suolo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Visualizza marcatori " />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Visualizza marcatori/destinazioni sulla mappa in gioco" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />
