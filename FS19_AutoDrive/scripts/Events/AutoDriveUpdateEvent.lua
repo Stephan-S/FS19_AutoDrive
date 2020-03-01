@@ -32,6 +32,7 @@ function AutoDriveUpdateEvent:new(vehicle)
 	o.mode = vehicle.ad.mode
 	o.targetSpeed = vehicle.ad.targetSpeed
 	o.createMapPoints = vehicle.ad.createMapPoints
+	o.extendedEditorMode = vehicle.ad.extendedEditorMode
 	o.showClosestPoint = vehicle.ad.showClosestPoint
 	o.selectedDebugPoint = vehicle.ad.selectedDebugPoint
 	o.showSelectedDebugPoint = vehicle.ad.showSelectedDebugPoint
@@ -112,6 +113,7 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt8(streamId, self.mode)
 	streamWriteUInt8(streamId, self.targetSpeed)
 	streamWriteBool(streamId, self.createMapPoints)
+	streamWriteBool(streamId, self.extendedEditorMode)	
 	streamWriteBool(streamId, self.showClosestPoint)
 	streamWriteInt32(streamId, self.selectedDebugPoint)
 	streamWriteBool(streamId, self.showSelectedDebugPoint)
@@ -206,6 +208,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local mode = streamReadInt8(streamId)
 	local targetSpeed = streamReadUInt8(streamId)
 	local createMapPoints = streamReadBool(streamId)
+	local extendedEditorMode = streamReadBool(streamId)
 	local showClosestPoint = streamReadBool(streamId)
 	local selectedDebugPoint = streamReadInt32(streamId)
 	local showSelectedDebugPoint = streamReadBool(streamId)
@@ -281,6 +284,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		vehicle.ad.mode = mode
 		vehicle.ad.targetSpeed = targetSpeed
 		vehicle.ad.createMapPoints = createMapPoints
+		vehicle.ad.extendedEditorMode = extendedEditorMode
 		vehicle.ad.showClosestPoint = showClosestPoint
 		if selectedDebugPoint ~= 1337 then
 			vehicle.ad.selectedDebugPoint = selectedDebugPoint
@@ -405,6 +409,10 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	remained = remained and self.createMapPoints == oldEvent.createMapPoints
 	if self.createMapPoints ~= oldEvent.createMapPoints then
 		reason = reason .. " createMapPoints"
+	end
+	remained = remained and self.extendedEditorMode == oldEvent.extendedEditorMode
+	if self.extendedEditorMode ~= oldEvent.extendedEditorMode then
+		reason = reason .. " extendedEditorMode"
 	end
 	remained = remained and self.showClosestPoint == oldEvent.showClosestPoint
 	if self.showClosestPoint ~= oldEvent.showClosestPoint then

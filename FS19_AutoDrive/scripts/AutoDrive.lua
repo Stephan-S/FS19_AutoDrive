@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.1-11"
+AutoDrive.version = "1.0.7.1-12"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"

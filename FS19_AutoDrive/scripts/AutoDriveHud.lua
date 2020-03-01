@@ -368,6 +368,10 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					end
 				end
 			end
+		else			
+			vehicle.ad.selectedNodeId = nil
+			vehicle.ad.nodeToMoveId = nil
+			vehicle.ad.hoveredNodeId = nil
 		end
 	end
 

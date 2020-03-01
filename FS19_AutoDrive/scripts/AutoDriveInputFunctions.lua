@@ -274,9 +274,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			else
 				vehicle.ad.extendedEditorMode = false
 				vehicle.ad.createMapPoints = false
-				vehicle.ad.selectedNodeId = nil
-				vehicle.ad.nodeToMoveId = nil
-				vehicle.ad.hoveredNodeId = nil
 			end
 		end
 	end
