@@ -53,6 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Chargement" />
 		<text name="AD_MODE_BGA"								text="Vider silo (bunker)" />
 		<text name="AD_synchronizing"							text="Chargement des routes du serveur .." />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
+		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"							text="Décalage du tuyau (pipe)" />
 		<text name="gui_ad_trailerOffset"						text="Décalage vertical (remorque)" />

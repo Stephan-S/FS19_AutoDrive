@@ -174,6 +174,7 @@ function AutoDrive:init()
         self.ad.targetSpeed = AutoDrive.getVehicleMaxSpeed(self) --math.min(AutoDrive.getVehicleMaxSpeed(self), AutoDrive.lastSetSpeed)
     end
     self.ad.createMapPoints = false
+    self.ad.extendedEditorMode = false
     self.ad.displayMapPoints = false
     self.ad.showClosestPoint = true
     self.ad.selectedDebugPoint = -1
@@ -572,6 +573,7 @@ end
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
     AutoDrive:drawJobs()
+    AutoDrive:drawCubeJobs()
 
     if AutoDrive.print.currentMessage ~= nil then
         local adFontSize = 0.016
@@ -647,7 +649,7 @@ function AutoDrive.getNewPointsInProximity(vehicle)
         end
         --go through all stored points to check if they are still in proximity
         for id, point in pairs(vehicle.ad.pointsInProximity) do
-            if AutoDrive.getDistance(point.x, point.z, x1, z1) < 50 and newPointsToDraw[id] == nil then
+            if AutoDrive.getDistance(point.x, point.z, x1, z1) < 50 and newPointsToDraw[id] == nil and AutoDrive.mapWayPoints[id] ~= nil then
                 table.insert(newPointsToDraw, id, point)
             end
         end
@@ -656,10 +658,51 @@ function AutoDrive.getNewPointsInProximity(vehicle)
     end
 end
 
+function AutoDrive.mouseIsAtPos(position, radius)
+    local x, y, _ = project(position.x, position.y + AutoDrive.drawHeight + AutoDrive.getSetting("lineHeight"), position.z)
+    
+    if g_lastMousePosX < (x + radius) and g_lastMousePosX > (x - radius) then
+        if g_lastMousePosY < (y + radius) and g_lastMousePosY > (y - radius) then
+            return true
+        end
+    end
+
+    return false
+end
+
 function AutoDrive.drawPointsInProximity(vehicle)
     AutoDrive.getNewPointsInProximity(vehicle)
 
     for _, point in pairs(vehicle.ad.pointsInProximity) do
+
+        if vehicle.ad.extendedEditorMode then
+            if AutoDrive.mouseIsAtPos(point, 0.01) then
+                AutoDrive.drawCube(point, 0, 0, 1, 1)
+            else
+                if point.id == vehicle.ad.selectedNodeId then
+                    AutoDrive.drawCube(point, 0, 1, 0, 1)
+                else
+                    AutoDrive.drawCube(point, 1, 0, 0, 1)
+                end
+            end
+
+            -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
+            if AutoDrive.getSettingState("lineHeight") > 1  then
+                local pointOnGround = {x=point.x, y=point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z=point.z}
+                AutoDrive.drawLine(point, pointOnGround, 1, 1, 1, 1)
+
+                if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
+                    AutoDrive.drawCube(pointOnGround, 0, 0, 1, 1)
+                else
+                    if point.id == vehicle.ad.selectedNodeId then
+                        AutoDrive.drawCube(pointOnGround, 0, 1, 0, 1)
+                    else
+                        AutoDrive.drawCube(pointOnGround, 1, 0, 0, 1)
+                    end
+                end
+            end
+        end
+
         if point.out ~= nil then
             for _, neighbor in pairs(point.out) do
                 local target = AutoDrive.mapWayPoints[neighbor]

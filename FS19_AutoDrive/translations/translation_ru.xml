@@ -53,6 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Загрузка" />
 		<text name="AD_MODE_BGA"								text="Перегрузка из силосной ямы" />
 		<text name="AD_synchronizing"							text="загрузка сети из сервера.." />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
+		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_trailerOffset"						text="Смещение прицепа" />

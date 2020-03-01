@@ -269,7 +269,15 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if vehicle.ad.createMapPoints == false then
 			vehicle.ad.createMapPoints = true
 		else
-			vehicle.ad.createMapPoints = false
+			if vehicle.ad.extendedEditorMode == false then
+				vehicle.ad.extendedEditorMode = true
+			else
+				vehicle.ad.extendedEditorMode = false
+				vehicle.ad.createMapPoints = false
+				vehicle.ad.selectedNodeId = nil
+				vehicle.ad.nodeToMoveId = nil
+				vehicle.ad.hoveredNodeId = nil
+			end
 		end
 	end
 

@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.1-10"
+AutoDrive.version = "1.0.7.1-11"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
@@ -75,6 +75,7 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveLineDraw.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/AutoDriveCubeDraw.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDriveFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrigger.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
@@ -161,6 +162,7 @@ function AutoDrive:loadMap(name)
 	end
 
 	AutoDrive:initLineDrawing()
+	AutoDrive:initCubeDrawing()
 
 	AutoDrive.Hud = AutoDriveHud:new()
 	AutoDrive.Hud:loadHud()
@@ -268,6 +270,9 @@ function AutoDrive:deleteMap()
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
+	--print("Key event called with modifier: " .. modifier .. " and key: " .. unicode .. " and isDown: " .. AutoDrive.boolToString(isDown))
+	AutoDrive.leftCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_LCTRL) > 0
+	AutoDrive.leftALTmodifierKeyPressed = bitAND(modifier, Input.MOD_LALT) > 0
 end
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)

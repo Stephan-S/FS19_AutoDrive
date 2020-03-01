@@ -289,9 +289,102 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				self:moveHud(posX, posY)
 			end
 		end
+
+		vehicle.ad.hoveredNodeId = nil
+		if vehicle.ad.extendedEditorMode then
+			for _, point in pairs(vehicle.ad.pointsInProximity) do
+				if AutoDrive.mouseIsAtPos(point, 0.01) then
+					vehicle.ad.hoveredNodeId = point.id
+					if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
+						if button == 1 and isUp then
+							if vehicle.ad.selectedNodeId ~= nil then
+								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+									AutoDrive.toggleConnectionBetween(AutoDrive.mapWayPoints[vehicle.ad.selectedNodeId], AutoDrive.mapWayPoints[vehicle.ad.hoveredNodeId])
+								end
+								vehicle.ad.selectedNodeId = nil
+							else
+								vehicle.ad.selectedNodeId = point.id
+							end
+						end
+
+						if (button == 2 or button == 3) and isDown and AutoDrive.getSettingState("lineHeight") == 1 then
+							if vehicle.ad.nodeToMoveId == nil then
+								vehicle.ad.nodeToMoveId = point.id
+							end
+						end	
+					end
+				end
+
+				if AutoDrive.getSettingState("lineHeight") > 1  then
+					local pointOnGround = {x=point.x, y=point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z=point.z}
+					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
+						vehicle.ad.hoveredNodeId = point.id
+						if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
+							if (button == 2 or button == 3) and isDown then
+								if vehicle.ad.nodeToMoveId == nil then
+									vehicle.ad.nodeToMoveId = point.id
+								end
+							end
+						end
+					end
+				end
+			end
+
+			if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
+				if (button == 2 or button == 3) and isUp then
+					vehicle.ad.nodeToMoveId = nil
+				end
+
+				if vehicle.ad.nodeToMoveId ~= nil then
+					AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
+				end
+			end
+
+			--If no node is hovered / moved - check for creation of new node
+			if vehicle.ad.nodeToMoveId == nil and vehicle.ad.hoveredNodeId == nil then
+				if AutoDrive.leftCTRLmodifierKeyPressed then
+					if button == 1 and isDown then
+						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
+						local closest = AutoDrive:findClosestWayPoint(vehicle)
+						if closest ~= nil then
+							closest = AutoDrive.mapWayPoints[closest]
+							local _, _, depth = project(closest.x, closest.y, closest.z)
+
+							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
+							-- And just to correct for slope changes, we now set the height to the terrain height
+							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+							local newNode = AutoDrive:createWayPoint(vehicle, x, y, z, false, false)
+							print("Created new node")
+						end
+					end
+				end
+			end
+
+			-- Left alt for deleting the currently hovered node
+			if vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.nodeToMoveId == nil then
+				if AutoDrive.leftALTmodifierKeyPressed then
+					if button == 1 and isUp then
+						AutoDrive.removeMapWayPoint(vehicle.ad.hoveredNodeId)
+					end
+				end
+			end
+		end
 	end
 
 	AutoDrive.mouseWheelActive = AutoDrive.mouseWheelActive or (AutoDrive.pullDownListExpanded ~= 0)
+end
+
+function AutoDrive.moveNodeToMousePos(nodeID)
+	local node = AutoDrive.mapWayPoints[nodeID]
+
+	-- First I use project to get a proper depth value for the unproject funtion
+	local _, _, depth = project(node.x, node.y, node.z)
+	
+	if node ~= nil and g_lastMousePosX ~= nil and g_lastMousePosY ~= nil then
+		node.x, node.y, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
+		-- And just to correct for slope changes, we now set the height to the terrain height
+		node.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z)
+	end
 end
 
 function AutoDriveHud:startMovingHud(mouseX, mouseY)

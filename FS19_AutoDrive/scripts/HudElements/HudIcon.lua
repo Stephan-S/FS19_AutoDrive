@@ -81,6 +81,11 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         end
     end
 
+    if vehicle.ad.extendedEditorMode then
+        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
+        textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
+    end
+
     local textWidth = getTextWidth(adFontSize, textToShow)
     if textWidth > self.size.width - 4 * AutoDrive.Hud.gapWidth then
         --expand header bar and split text
