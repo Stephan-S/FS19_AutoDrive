@@ -215,6 +215,8 @@ function AutoDrive:firstRun()
 	if g_server == nil then
 		-- Here we could ask to server the initial sync
 		AutoDriveUserConnectedEvent.sendEvent()
+	else
+		AutoDrive.checkYPositionIntegrity()
 	end
 
 	if AutoDrive.searchedTriggers ~= true then
@@ -223,7 +225,6 @@ function AutoDrive:firstRun()
 	end
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
-	AutoDrive.checkYPositionIntegrity()
 end
 
 function AutoDrive.checkYPositionIntegrity()
@@ -264,7 +265,9 @@ function AutoDrive:deleteMap()
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
 	AutoDriveRoutesManager.delete()
-	delete(AutoDrive.adXml)
+	if g_server ~= nil then
+		delete(AutoDrive.adXml)
+	end
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)

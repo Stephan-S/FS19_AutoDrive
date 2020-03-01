@@ -26,6 +26,7 @@ function AutoDriveSync:readStream(streamId)
     local paramsY = self.highPrecisionPositionSynchronization and g_currentMission.vehicleYPosHighPrecisionCompressionParams or g_currentMission.vehicleYPosCompressionParams
 
     local offset = streamGetReadOffset(streamId)
+    local time = netGetTime()
 
     -- reading the amount of bits we are going to use as "MWPC_SEND_NUM_BITS"
     AutoDriveSync.MWPC_SEND_NUM_BITS = streamReadUIntN(streamId, AutoDriveSync.MWPC_SNB_SEND_NUM_BITS)
@@ -89,7 +90,7 @@ function AutoDriveSync:readStream(streamId)
     AutoDrive.groups["All"] = 1
 
     offset = streamGetReadOffset(streamId) - offset
-    g_logManager:devInfo(string.format("[AutoDriveSync] Read %s bits (%s bytes)", offset, offset / 8))
+    g_logManager:devInfo(string.format("[AutoDriveSync] Read %s bits (%s bytes) in %s ms", offset, offset / 8, netGetTime() - time))
     AutoDriveSync:superClass().readStream(self, streamId)
 end
 
@@ -98,6 +99,7 @@ function AutoDriveSync:writeStream(streamId)
     local paramsY = self.highPrecisionPositionSynchronization and g_currentMission.vehicleYPosHighPrecisionCompressionParams or g_currentMission.vehicleYPosCompressionParams
 
     local offset = streamGetWriteOffset(streamId)
+    local time = netGetTime()
 
     -- writing the amount of bits we are going to use as "MWPC_SEND_NUM_BITS"
     AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(AutoDrive.mapWayPointsCounter + 1, 2))
@@ -153,7 +155,7 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     offset = streamGetWriteOffset(streamId) - offset
-    g_logManager:info(string.format("[AutoDriveSync] Written %s bits (%s bytes)", offset, offset / 8))
+    g_logManager:info(string.format("[AutoDriveSync] Written %s bits (%s bytes) in %s ms", offset, offset / 8, netGetTime() - time))
     AutoDriveSync:superClass().writeStream(self, streamId)
 end
 
