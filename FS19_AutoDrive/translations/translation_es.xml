@@ -53,6 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Cargar" />
 		<text name="AD_MODE_BGA"								text="Descargar bunker silo" />
 		<text name="AD_synchronizing"							text="cargando información del servidor ..." />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
+		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="Configuració - AutoDrive" />
 		<text name="gui_ad_pipe_offset"							text="Desplazamiento de tubería" />
 		<text name="gui_ad_trailerOffset"						text="desplazamiento del remolque" />

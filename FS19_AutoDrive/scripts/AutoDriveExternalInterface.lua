@@ -80,7 +80,9 @@ function AutoDrive:GetAvailableDestinations()
     local destinations = {}
     for markerID, marker in pairs(AutoDrive.mapMarker) do
         local point = AutoDrive.mapWayPoints[marker.id]
-        destinations[markerID] = {name = marker.name, x = point.x, y = point.y, z = point.z, id = markerID}
+        if point ~= nil then
+            destinations[markerID] = {name = marker.name, x = point.x, y = point.y, z = point.z, id = markerID}
+        end
     end
     return destinations
 end

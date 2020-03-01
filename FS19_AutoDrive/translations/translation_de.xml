@@ -53,6 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Abholen" />
 		<text name="AD_MODE_BGA"								text="Fahrsilo entladen" />
 		<text name="AD_synchronizing"							text="Kurse vom Server laden.." />
+		<text name="AD_lctrl_for_creation" 						text="LSTRG zum Erstellen" />
+		<text name="AD_lalt_for_deletion" 						text="LALT zum Löschen" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Einstellungen" />
 		<text name="gui_ad_pipe_offset"							text="Abstand Rohr" />
 		<text name="gui_ad_trailerOffset"						text="Abstand Hänger" />

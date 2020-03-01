@@ -1,5 +1,5 @@
 function AutoDrive.removeMapWayPoint(wayPointId, sendEvent)
-	if wayPointId ~= nil and wayPointId >= 0 then
+	if wayPointId ~= nil and wayPointId >= 0 and AutoDrive.mapWayPoints[wayPointId] ~= nil then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating way point deletion all over the network
 			AutoDriveDeleteWayPointEvent.sendEvent(wayPointId)

@@ -157,22 +157,18 @@ function AutoDrive.getAllTriggers()
             end
         end
     end
-
-    if g_company and g_company.loadedFactories then
-        for i = 1, #g_company.loadedFactories do
-            local factory = g_company.loadedFactories[i]
-            if factory.registeredUnloadingTriggers then
-                for _, unloadingTrigger in pairs(factory.registeredUnloadingTriggers) do
-                    if unloadingTrigger.trigger then
-                        AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
-                        AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = unloadingTrigger.trigger
-                    end
-                end
-                for _, loadingTrigger in pairs(factory.registeredLoadingTriggers) do
-                    if loadingTrigger.trigger then
-                        AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
-                        AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = loadingTrigger.trigger
-                    end
+    
+    if g_company ~= nil and g_company.triggerManagerList ~= nil then
+        for i=1,#g_company.triggerManagerList do
+            local triggerManager = g_company.triggerManagerList[i];			
+            for _, trigger in pairs (triggerManager.registeredTriggers) do
+                if trigger.exactFillRootNode then
+                    AutoDrive.Triggers.tipTriggerCount = AutoDrive.Triggers.tipTriggerCount + 1
+                    AutoDrive.Triggers.tipTriggers[AutoDrive.Triggers.tipTriggerCount] = trigger
+                end	
+                if trigger.triggerNode then
+                    AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
+                    AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = trigger
                 end
             end
         end

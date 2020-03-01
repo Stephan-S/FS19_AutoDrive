@@ -53,6 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Ophalen" />
 		<text name="AD_MODE_BGA"								text="Lossen in Bunker Silo" />
 		<text name="AD_synchronizing"							text="synchroniseren met server.." />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
+		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Instellingen" />
 		<text name="gui_ad_pipe_offset"							text="Afstand Pijp" />
 		<text name="gui_ad_trailerOffset"						text="Trailer afstand" />
