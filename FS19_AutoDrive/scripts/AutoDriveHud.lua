@@ -354,7 +354,6 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							-- And just to correct for slope changes, we now set the height to the terrain height
 							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
 							local newNode = AutoDrive:createWayPoint(vehicle, x, y, z, false, false)
-							print("Created new node")
 						end
 					end
 				end

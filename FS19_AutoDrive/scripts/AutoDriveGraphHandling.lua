@@ -190,7 +190,7 @@ function AutoDrive.removeMapMarker(markerId, sendEvent)
 				end
 
 				if g_server ~= nil then
-					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. markerId)
+					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (AutoDrive.mapMarkerCounter+1))
 				end
 			end
 

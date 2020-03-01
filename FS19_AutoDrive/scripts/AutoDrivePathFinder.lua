@@ -1085,14 +1085,14 @@ function AutoDrivePathFinder.checkForFruitTypeInArea(pf, cell, fruitType, corner
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false)
     end
 
-    if (pf.fruitToCheck == nil or pf.fruitToCheck < 1) and (fruitValue > 150) then
+    if (pf.fruitToCheck == nil or pf.fruitToCheck < 1) and (fruitValue > 50) then
         pf.fruitToCheck = fruitType
         pf.driver.ad.combineFruitToCheck = fruitType
     end
     local wasRestricted = cell.isRestricted
-    cell.isRestricted = cell.isRestricted or (fruitValue > 150)
+    cell.isRestricted = cell.isRestricted or (fruitValue > 50)
 
-    cell.hasFruit = (fruitValue > 150)
+    cell.hasFruit = (fruitValue > 50)
 
     --Allow fruit in the first few grid cells
     if ((((math.abs(cell.x) <= 3) and (math.abs(cell.z) <= 3)) and pf.driver.ad.combineUnloadInFruit) or AutoDrivePathFinder.cellDistance(pf, cell) <= 3) and (not pf.preDriveCombine) then
@@ -1158,7 +1158,7 @@ function AutoDrive:checkForVehiclesInBox(pf, boundingBox, excludedVehicles)
                 local lastWp = nil
                 -- check for other pathfinder steered vehicles and avoid any intersection with their routes
                 for index, wp in pairs(otherVehicle.ad.wayPoints) do
-                    if lastWp ~= nil and wp.id == nil and index >= otherVehicle.ad.currentWayPoint and index > 4 and index < (#otherVehicle.ad.wayPoints - 4) then
+                    if lastWp ~= nil and wp.id == nil and index >= otherVehicle.ad.currentWayPoint and index > 2 and index < (#otherVehicle.ad.wayPoints - 2) then
                         local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2))
                         local sideLength = widthOfColBox / 2
 
