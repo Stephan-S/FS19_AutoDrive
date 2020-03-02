@@ -86,6 +86,7 @@ function AutoDrive:callDriverToCombine(combine)
                     closestDriver.ad.isUnloading = false
                     closestDriver.ad.isLoading = false
                     closestDriver.ad.initialized = false
+                    closestDriver.ad.fieldParkLocations = nil
                     closestDriver.ad.designatedTrailerFillLevel = math.huge
                     closestDriver.ad.wayPoints = {}
 
@@ -274,26 +275,83 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     return true
                 end
 
-                if trailerFillLevel >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.sensors.centerSensorFruit:pollInfo() or (AutoDrive.getSetting("parkInField", vehicle) == false) or vehicle.ad.driveToUnloadNext then
+                --ToDo: Clean the following code up and remove duplicated code
+                if AutoDrive.getSetting("parkInField", vehicle) then
+                    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+                    local trailer = trailers[vehicle.ad.currentTrailer]
+                    local trailerClear = true
+                    if trailer ~= nil then
+                        if trailer.ad == nil then
+                            trailer.ad = {}
+                        end
+                        ADSensor:handleSensors(trailer, dt)
+                        trailer.ad.sensors.centerSensorFruit.frontFactor = -1
+                        trailerClear = not trailer.ad.sensors.centerSensorFruit:pollInfo()
+                    end
+
+                    if trailerClear and not vehicle.ad.sensors.centerSensorFruit:pollInfo() and not vehicle.ad.sensors.rearSensorFruit:pollInfo() then
+                        --wait in field
+                        AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
+                        vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
+                        --vehicle.ad.initialized = false;
+                        vehicle.ad.wayPoints = {}
+                        vehicle.ad.isPaused = true
+                        if vehicle.ad.currentCombine ~= nil then
+                            vehicle.ad.currentCombine.ad.currentDriver = nil
+                            vehicle.ad.currentCombine.ad.preCalledDriver = false
+                            vehicle.ad.currentCombine.ad.driverOnTheWay = false
+                            vehicle.ad.currentCombine = nil
+                        end
+                    else
+                        --Let's see if we can't turn into the harvested area and park there
+                        -- Check a point 20 meters ahead and 10m to the right          
+                        if vehicle.ad.fieldParkLocations == nil then
+                            vehicle.ad.fieldParkLocations = {}
+                            vehicle.ad.fieldParkLocations[1] = {}
+                            vehicle.ad.fieldParkLocations[1].x, vehicle.ad.fieldParkLocations[1].y, vehicle.ad.fieldParkLocations[1].z = localToWorld(vehicle.components[1].node, -10, 0, 10)
+                            vehicle.ad.fieldParkLocations[2] = {}
+                            vehicle.ad.fieldParkLocations[2].x, vehicle.ad.fieldParkLocations[2].y, vehicle.ad.fieldParkLocations[2].z = localToWorld(vehicle.components[1].node, -10, 0, 20)
+                            vehicle.ad.fieldParkLocations[3] = {}
+                            vehicle.ad.fieldParkLocations[3].x, vehicle.ad.fieldParkLocations[3].y, vehicle.ad.fieldParkLocations[3].z = localToWorld(vehicle.components[1].node, -10, 0, 30)
+                            vehicle.ad.fieldParkLocationStep = 1
+                        else
+                            if not vehicle.ad.sensors.frontSensor:pollInfo() then
+                                local x, _, z = getWorldTranslation(vehicle.components[1].node)
+                                local distanceToParkSpot = MathUtil.vector2Length(vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].x - x, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].z - z)
+                                
+                                if distanceToParkSpot < 2 then
+                                    vehicle.ad.fieldParkLocationStep = vehicle.ad.fieldParkLocationStep + 1
+                                    if vehicle.ad.fieldParkLocationStep > 3 then
+                                        --wait in field
+                                        AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
+                                        vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
+                                        --vehicle.ad.initialized = false;
+                                        vehicle.ad.wayPoints = {}
+                                        vehicle.ad.isPaused = true
+                                        if vehicle.ad.currentCombine ~= nil then
+                                            vehicle.ad.currentCombine.ad.currentDriver = nil
+                                            vehicle.ad.currentCombine.ad.preCalledDriver = false
+                                            vehicle.ad.currentCombine.ad.driverOnTheWay = false
+                                            vehicle.ad.currentCombine = nil
+                                        end
+                                    end
+                                else         
+                                    drivingEnabled = true                           
+                                    local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].x, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].y, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].z)
+                                    AIVehicleUtil.driveInDirection(vehicle, dt, 30, 1, 0.2, 20, true, true, lx, lz, 10, 1)
+                                end
+                            end
+                        end
+                    end
+                end
+
+                if trailerFillLevel >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) or (AutoDrive.getSetting("parkInField", vehicle) == false) or vehicle.ad.driveToUnloadNext then
                     if trailerFillLevel >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.driveToUnloadNext then
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
                     else
                         vehicle.ad.combineState = AutoDrive.DRIVE_TO_PARK_POS
                     end
                     AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine)
-                    if vehicle.ad.currentCombine ~= nil then
-                        vehicle.ad.currentCombine.ad.currentDriver = nil
-                        vehicle.ad.currentCombine.ad.preCalledDriver = false
-                        vehicle.ad.currentCombine.ad.driverOnTheWay = false
-                        vehicle.ad.currentCombine = nil
-                    end
-                else
-                    --wait in field
-                    AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
-                    vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
-                    --vehicle.ad.initialized = false;
-                    vehicle.ad.wayPoints = {}
-                    vehicle.ad.isPaused = true
                     if vehicle.ad.currentCombine ~= nil then
                         vehicle.ad.currentCombine.ad.currentDriver = nil
                         vehicle.ad.currentCombine.ad.preCalledDriver = false
