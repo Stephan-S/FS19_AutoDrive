@@ -13,6 +13,7 @@ AutoDrive Course Editor/.idea/vcs.xml
 AutoDrive Course Editor/.idea/workspace.xml
 AutoDrive Course Editor/out
 AutoDrive Course Editor/.idea
+AutoDrive Course Editor/adCourseEditor.iml
 AutoDrive Course Editor/out/production/AutoDrive Course Editor/ADUtils.class
 AutoDrive Course Editor/out/production/AutoDrive Course Editor/AutoDriveEditor$1.class
 AutoDrive Course Editor/out/production/AutoDrive Course Editor/AutoDriveEditor.class
@@ -37,3 +38,4 @@ modConfig.json
 .vscode
 tmp
 AutoDrive Course Editor/target
+AutoDrive Course Editor/*.log
