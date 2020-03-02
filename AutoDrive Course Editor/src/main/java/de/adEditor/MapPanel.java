@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -46,6 +48,14 @@ public class MapPanel extends JPanel{
         addMouseListener(mouseListener);
         addMouseMotionListener(mouseListener);
         addMouseWheelListener(mouseListener);
+
+        addComponentListener(new ComponentAdapter(){
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeMap();
+                repaint();
+            }
+        });
     }
 
     @Override
@@ -126,33 +136,35 @@ public class MapPanel extends JPanel{
     }
 
     private void resizeMap() {
-        int widthScaled = (int) (this.getWidth() / zoomLevel);
-        int heightScaled = (int) (this.getHeight() / zoomLevel);
+        if (image != null) {
+            int widthScaled = (int) (this.getWidth() / zoomLevel);
+            int heightScaled = (int) (this.getHeight() / zoomLevel);
 
-        double maxX = 1 - (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
-        double minX = (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
-        double maxY = 1 - (((this.getHeight() * 0.5) / zoomLevel) / image.getHeight());
-        double minY = (((this.getHeight() * 0.5) / zoomLevel) / image.getHeight());
+            double maxX = 1 - (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
+            double minX = (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
+            double maxY = 1 - (((this.getHeight() * 0.5) / zoomLevel) / image.getHeight());
+            double minY = (((this.getHeight() * 0.5) / zoomLevel) / image.getHeight());
 
-        x = Math.min(x, maxX);
-        x = Math.max(x, minX);
-        y = Math.min(y, maxY);
-        y = Math.max(y, minY);
+            x = Math.min(x, maxX);
+            x = Math.max(x, minX);
+            y = Math.min(y, maxY);
+            y = Math.max(y, minY);
 
-        int centerX = (int)(x * image.getWidth());
-        int centerY = (int)(y * image.getHeight());
+            int centerX = (int) (x * image.getWidth());
+            int centerY = (int) (y * image.getHeight());
 
-        int offsetX = (centerX-(widthScaled/2));
-        int offsetY = (centerY-(heightScaled/2));
+            int offsetX = (centerX - (widthScaled / 2));
+            int offsetY = (centerY - (heightScaled / 2));
 
-        BufferedImage croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
+            BufferedImage croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
 
-        resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), image.getType());
-        Graphics2D g2 = resizedImage.createGraphics();
-        g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
-        g2.dispose();
+            resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), image.getType());
+            Graphics2D g2 = resizedImage.createGraphics();
+            g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
+            g2.dispose();
 
-        lastZoomLevel = zoomLevel;
+            lastZoomLevel = zoomLevel;
+        }
     }
 
     public void moveMapBy(int diffX, int diffY) {
