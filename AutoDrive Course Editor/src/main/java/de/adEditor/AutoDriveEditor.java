@@ -241,7 +241,7 @@ public class AutoDriveEditor extends JFrame {
         }
 
         SwingUtilities.invokeLater(() -> {
-            Handler globalExceptionHandler = new Handler();
+            GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
             Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
             new AutoDriveEditor().setVisible(true);
         });
@@ -627,13 +627,4 @@ public class AutoDriveEditor extends JFrame {
         this.mapPanel = mapPanel;
     }
 
-}
-
-class Handler implements Thread.UncaughtExceptionHandler {
-
-    private static Logger LOGGER = LoggerFactory.getLogger(Handler.class);
-
-    public void uncaughtException(Thread t, Throwable e) {
-        LOGGER.info(e.getMessage(), e);
-    }
 }
