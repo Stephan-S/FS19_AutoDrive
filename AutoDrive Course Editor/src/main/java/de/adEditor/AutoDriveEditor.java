@@ -22,14 +22,15 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class AutoDriveEditor extends JFrame {
+    public static final int EDITORSTATE_NOOP = -1;
     public static final int EDITORSTATE_MOVING = 0;
     public static final int EDITORSTATE_DELETING = 1;
     public static final int EDITORSTATE_CONNECTING = 2;
@@ -43,31 +44,20 @@ public class AutoDriveEditor extends JFrame {
     public static final String CREATE_NODES = "Create Nodes";
     public static final String CREATE_DESTINATIONS = "Create Destinations";
 
+    private MapPanel mapPanel;
+    private JButton saveButton;
+    private JButton loadImageButton;
+    private JToggleButton removeNode;
+    private JToggleButton removeDestination;
+    private JToggleButton moveNode;
+    private JToggleButton connectNodes;
+    private JToggleButton createNode;
+    private JToggleButton createDestination;
+    private JRadioButton oneTimesMap;
+    private JRadioButton fourTimesMap;
+    private JRadioButton sixteenTimesMap;
 
-    public MapPanel mapPanel;
-    public JPanel buttonPanel;
-    public JButton saveButton;
-    public JButton loadRoadMapButton;
-    public JButton loadImageButton;
-    public JToggleButton removeNode;
-    public JToggleButton removeDestination;
-    public JToggleButton moveNode;
-    public JToggleButton connectNodes;
-    public JToggleButton createNode;
-    public JToggleButton createDestination;
-    public JRadioButton oneTimesMap;
-    public JRadioButton fourTimesMap;
-    public JRadioButton sixteenTimesMap;
-
-    public MapNode selected = null;
-
-    public boolean isFourTimesMap = false;
-    public boolean isSixteenTimesMap = false;
-
-    public int editorState = EDITORSTATE_MOVING;
-
-    public MouseListener mouseListener;
-
+    public int editorState = EDITORSTATE_NOOP;
     public File loadedFile, savedFile;
 
     private static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
@@ -92,13 +82,13 @@ public class AutoDriveEditor extends JFrame {
 
         EditorListener editorListener = new EditorListener(this);
 
-        buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout());
 
         JPanel configBox = new JPanel();
         configBox.setBorder(BorderFactory.createTitledBorder("Config"));
         buttonPanel.add(configBox);
 
-        loadRoadMapButton = new JButton("Load");
+        JButton loadRoadMapButton = new JButton("Load");
         loadRoadMapButton.addActionListener(editorListener);
         loadRoadMapButton.setActionCommand("Load");
         configBox.add(loadRoadMapButton);
@@ -179,12 +169,6 @@ public class AutoDriveEditor extends JFrame {
 
         this.add(buttonPanel, BorderLayout.NORTH);
 
-        this.mouseListener = new MouseListener(mapPanel);
-
-        mapPanel.addMouseListener(mouseListener);
-        mapPanel.addMouseMotionListener(mouseListener);
-        mapPanel.addMouseWheelListener(mouseListener);
-
         pack();
         setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -256,13 +240,10 @@ public class AutoDriveEditor extends JFrame {
             LOG.error(ex.getMessage(), ex);
         }
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Handler globalExceptionHandler = new Handler();
-                Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
-                new AutoDriveEditor().setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            Handler globalExceptionHandler = new Handler();
+            Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
+            new AutoDriveEditor().setVisible(true);
         });
     }
 
@@ -291,13 +272,13 @@ public class AutoDriveEditor extends JFrame {
                 NodeList groupNodeList = eElement.getElementsByTagName("group");
 
                 for (int markerIndex = 0; markerIndex<idNodeList.getLength(); markerIndex++ ) {
-                    Node node = (Node) idNodeList.item(markerIndex).getChildNodes().item(0);
+                    Node node = idNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerNodeId = node.getNodeValue();
 
-                    node = (Node) nameNodeList.item(markerIndex).getChildNodes().item(0);
+                    node = nameNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerName = node.getNodeValue();
 
-                    node = (Node) groupNodeList.item(markerIndex).getChildNodes().item(0);
+                    node = groupNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerGroup = node.getNodeValue();
 
                     MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0);
@@ -308,8 +289,6 @@ public class AutoDriveEditor extends JFrame {
         }
 
         NodeList nList = doc.getElementsByTagName("waypoints");
-
-        LOG.info("----------------------------");
 
         LinkedList<MapNode> nodes = new LinkedList<>();
         for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -322,32 +301,32 @@ public class AutoDriveEditor extends JFrame {
                 Element eElement = (Element) nNode;
 
                 NodeList nodeList = eElement.getElementsByTagName("id").item(0).getChildNodes();
-                Node node = (Node) nodeList.item(0);
+                Node node = nodeList.item(0);
                 String idString = node.getNodeValue();
                 String[] ids = idString.split(",");
 
                 nodeList = eElement.getElementsByTagName("x").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
+                node = nodeList.item(0);
                 String xString = node.getNodeValue();
                 String[] xValues = xString.split(",");
 
                 nodeList = eElement.getElementsByTagName("y").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
+                node = nodeList.item(0);
                 String yString = node.getNodeValue();
                 String[] yValues = yString.split(",");
 
                 nodeList = eElement.getElementsByTagName("z").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
+                node = nodeList.item(0);
                 String zString = node.getNodeValue();
                 String[] zValues = zString.split(",");
 
                 nodeList = eElement.getElementsByTagName("out").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
+                node = nodeList.item(0);
                 String outString = node.getNodeValue();
                 String[] outValueArrays = outString.split(";");
 
                 nodeList = eElement.getElementsByTagName("incoming").item(0).getChildNodes();
-                node = (Node) nodeList.item(0);
+                node = nodeList.item(0);
                 String incomingString = node.getNodeValue();
                 String[] incomingValueArrays = incomingString.split(";");
 
@@ -356,15 +335,6 @@ public class AutoDriveEditor extends JFrame {
                     double x = Double.parseDouble(xValues[i]);
                     double y = Double.parseDouble(yValues[i]);
                     double z = Double.parseDouble(zValues[i]);
-
-                    if (isFourTimesMap && !isSixteenTimesMap) {
-                        x = (x)/2.0;
-                        z = (z)/2.0;
-                    }
-                    if (isSixteenTimesMap && !isFourTimesMap) {
-                        x = (x)/4.0;
-                        z = (z)/4.0;
-                    }
 
                     MapNode mapNode = new MapNode(id, x, y, z);
                     nodes.add(mapNode);
@@ -403,7 +373,6 @@ public class AutoDriveEditor extends JFrame {
         roadMap.mapMarkers = mapMarkers;
 
         Node ADNode = doc.getElementsByTagName("AutoDrive").item(0);
-        NodeList adNodes = ADNode.getChildNodes();
         Node mapNameNode = nList.item(0).getParentNode();
         String mapName = mapNameNode.getNodeName();
         LOG.info("Loaded config for map: {}", mapNameNode.getNodeName());
@@ -435,10 +404,10 @@ public class AutoDriveEditor extends JFrame {
         }
 
         if (image != null) {
-            mapPanel.image = image;
+            mapPanel.setImage(image);
         }
 
-        if (mapPanel.image != null) {
+        if (mapPanel.getImage() != null) {
             mapPanel.setPreferredSize(new Dimension(1024, 768));
             mapPanel.setMinimumSize(new Dimension(1024, 768));
             pack();
@@ -448,6 +417,8 @@ public class AutoDriveEditor extends JFrame {
 
         saveButton.setEnabled(true);
         nodeBoxSetEnabled(true);
+        editorState = EDITORSTATE_MOVING;
+        updateButtons();
 
         LOG.info("loadFile end.");
         return roadMap;
@@ -456,15 +427,14 @@ public class AutoDriveEditor extends JFrame {
 
     public void saveMap(String oldPath, String newPath) {
         LOG.info("SaveMap called");
+
+        RoadMap roadMap = mapPanel.getRoadMap();
+
         try {
             String filepath = oldPath;
             File file = null;
-            try {
-                filepath = URLDecoder.decode(filepath, "UTF-8");
-                file = new File(filepath);
-            } catch(UnsupportedEncodingException e) {
-                LOG.error(e.getMessage(), e);
-            }
+            filepath = URLDecoder.decode(filepath, StandardCharsets.UTF_8);
+            file = new File(filepath);
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = null;
@@ -489,10 +459,10 @@ public class AutoDriveEditor extends JFrame {
 
                 if ("id".equals(node.getNodeName())) {
                     String ids = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
+                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
+                        MapNode mapNode = roadMap.mapNodes.get(j);
                         ids += mapNode.id;
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
+                        if (j < (roadMap.mapNodes.size()-1)) {
                             ids = ids + ",";
                         }
                     }
@@ -500,20 +470,10 @@ public class AutoDriveEditor extends JFrame {
                 }
                 if ("x".equals(node.getNodeName())) {
                     String xPositions = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        if (isFourTimesMap || isSixteenTimesMap) {
-                            if (isFourTimesMap) {
-                                xPositions += mapNode.x * 2.0;
-                            }
-                            else {
-                                xPositions += mapNode.x * 4.0;
-                            }
-                        }
-                        else {
-                            xPositions += mapNode.x;
-                        }
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
+                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
+                        MapNode mapNode = roadMap.mapNodes.get(j);
+                        xPositions += mapNode.x;
+                        if (j < (roadMap.mapNodes.size()-1)) {
                             xPositions = xPositions + ",";
                         }
                     }
@@ -521,10 +481,10 @@ public class AutoDriveEditor extends JFrame {
                 }
                 if ("y".equals(node.getNodeName())) {
                     String yPositions = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
+                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
+                        MapNode mapNode = roadMap.mapNodes.get(j);
                         yPositions += mapNode.y;
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
+                        if (j < (roadMap.mapNodes.size()-1)) {
                             yPositions = yPositions + ",";
                         }
                     }
@@ -532,15 +492,10 @@ public class AutoDriveEditor extends JFrame {
                 }
                 if ("z".equals(node.getNodeName())) {
                     String zPositions = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
-                        if (isFourTimesMap) {
-                            zPositions += mapNode.z * 2.0;
-                        }
-                        else {
-                            zPositions += mapNode.z;
-                        }
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
+                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
+                        MapNode mapNode = roadMap.mapNodes.get(j);
+                        zPositions += mapNode.z;
+                        if (j < (roadMap.mapNodes.size()-1)) {
                             zPositions = zPositions + ",";
                         }
                     }
@@ -548,8 +503,8 @@ public class AutoDriveEditor extends JFrame {
                 }
                 if ("incoming".equals(node.getNodeName())) {
                     String incomingString = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
+                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
+                        MapNode mapNode = roadMap.mapNodes.get(j);
                         String incomingsPerNode = "";
                         for (int incomingIndex = 0; incomingIndex < mapNode.incoming.size(); incomingIndex++) {
                             MapNode incomingNode = mapNode.incoming.get(incomingIndex);
@@ -562,7 +517,7 @@ public class AutoDriveEditor extends JFrame {
                             incomingsPerNode = "-1";
                         }
                         incomingString += incomingsPerNode;
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
+                        if (j < (roadMap.mapNodes.size()-1)) {
                             incomingString = incomingString + ";";
                         }
                     }
@@ -570,8 +525,8 @@ public class AutoDriveEditor extends JFrame {
                 }
                 if ("out".equals(node.getNodeName())) {
                     String outgoingString = "";
-                    for (int j=0; j<mapPanel.roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = mapPanel.roadMap.mapNodes.get(j);
+                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
+                        MapNode mapNode = roadMap.mapNodes.get(j);
                         String outgoingPerNode = "";
                         for (int outgoingIndex = 0; outgoingIndex < mapNode.outgoing.size(); outgoingIndex++) {
                             MapNode outgoingNode = mapNode.outgoing.get(outgoingIndex);
@@ -584,7 +539,7 @@ public class AutoDriveEditor extends JFrame {
                             outgoingPerNode = "-1";
                         }
                         outgoingString += outgoingPerNode;
-                        if (j < (mapPanel.roadMap.mapNodes.size()-1)) {
+                        if (j < (roadMap.mapNodes.size()-1)) {
                             outgoingString = outgoingString + ";";
                         }
                     }
@@ -592,7 +547,7 @@ public class AutoDriveEditor extends JFrame {
                 }
             }
 
-            for (int markerIndex = 1; markerIndex < mapPanel.roadMap.mapMarkers.size()+100; markerIndex++) {
+            for (int markerIndex = 1; markerIndex < roadMap.mapMarkers.size()+100; markerIndex++) {
                 Element element = (Element) doc.getElementsByTagName("mm" + (markerIndex)).item(0);
                // if (element != null) {
                   //  element.getParentNode().removeChild(element);
@@ -607,7 +562,7 @@ public class AutoDriveEditor extends JFrame {
             NodeList markerList = doc.getElementsByTagName("mapmarker");
             Node markerNode = markerList.item(0);
             int mapMarkerCount = 1;
-            for (MapMarker mapMarker : mapPanel.roadMap.mapMarkers) {
+            for (MapMarker mapMarker : roadMap.mapMarkers) {
                 Element newMapMarker = doc.createElement("mm" + mapMarkerCount);
 
                 Element markerID = doc.createElement("id");
@@ -657,6 +612,19 @@ public class AutoDriveEditor extends JFrame {
         }
 
         LOG.info("Done save");
+    }
+
+    public void updateMapZoomFactor(int zoomFactor) {
+        mapPanel.setMapZoomFactor(zoomFactor);
+        mapPanel.repaint();
+    }
+
+    public MapPanel getMapPanel() {
+        return mapPanel;
+    }
+
+    public void setMapPanel(MapPanel mapPanel) {
+        this.mapPanel = mapPanel;
     }
 
 }

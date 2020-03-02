@@ -59,10 +59,10 @@ public class EditorListener implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 editor.loadedFile = fc.getSelectedFile();
                 try {
-                    editor.mapPanel.roadMap = editor.loadFile(editor.loadedFile.getAbsolutePath());
+                    editor.getMapPanel().setRoadMap(editor.loadFile(editor.loadedFile.getAbsolutePath()));
                     editor.pack();
                     editor.repaint();
-                    editor.mapPanel.repaint();
+                    editor.getMapPanel().repaint();
                 } catch (ParserConfigurationException | SAXException | IOException e1) {
                     LOG.error(e1.getMessage(), e1);
                 }
@@ -73,21 +73,24 @@ public class EditorListener implements ActionListener {
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
-                    editor.mapPanel.image = ImageIO.read(fc.getSelectedFile());
-                    editor.mapPanel.setPreferredSize(new Dimension(1024, 768));
-                    editor.mapPanel.setMinimumSize(new Dimension(1024, 768));
-                    editor.mapPanel.revalidate();
+                    editor.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
+                    editor.getMapPanel().setPreferredSize(new Dimension(1024, 768));
+                    editor.getMapPanel().setMinimumSize(new Dimension(1024, 768));
+                    editor.getMapPanel().revalidate();
                     editor.pack();
                 } catch (IOException e1) {
                     LOG.error(e1.getMessage(), e1);
                 }
             }
         }
+        if (e.getActionCommand().equals("OneTimesMap")) {
+            editor.updateMapZoomFactor(1);
+        }
         if (e.getActionCommand().equals("FourTimesMap")) {
-            editor.isFourTimesMap = editor.fourTimesMap.isSelected();
+            editor.updateMapZoomFactor(2);
         }
         if (e.getActionCommand().equals("SixteenTimesMap")) {
-            editor.isSixteenTimesMap = editor.sixteenTimesMap.isSelected();
+            editor.updateMapZoomFactor(4);
         }
     }
 }

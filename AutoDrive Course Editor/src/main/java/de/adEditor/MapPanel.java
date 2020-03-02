@@ -1,5 +1,8 @@
 package de.adEditor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -9,21 +12,40 @@ import java.util.LinkedList;
 
 public class MapPanel extends JPanel{
 
-    public BufferedImage image;
+    private static Logger LOG = LoggerFactory.getLogger(MapPanel.class);
+
+    private BufferedImage image;
     private BufferedImage resizedImage;
 
-    public double x = 0.5;
-    public double y = 0.5;
-    public double zoomLevel = 1.0;
-    public double lastZoomLevel = 0;
-    public double nodeSize = 1;
-    public AutoDriveEditor editor;
+    private double x = 0.5;
+    private double y = 0.5;
+    private double zoomLevel = 1.0;
+    private double lastZoomLevel = 0;
+    private int mapZoomFactor = 1;
+    private double nodeSize = 1;
+    private AutoDriveEditor editor;
 
-    public RoadMap roadMap;
-    public MapNode hoveredNode = null;
+    private RoadMap roadMap;
+    private MapNode hoveredNode = null;
+    private MapNode movingNode = null;
+    private MapNode selected = null;
+
+    private int mousePosX = 0;
+    private int mousePosY = 0;
+
+    private boolean isDragging = false;
+    private boolean isDraggingNode = false;
+    private int lastX = 0;
+    private int lastY = 0;
+    private Point2D rectangleStart;
 
     public MapPanel(AutoDriveEditor editor) {
         this.editor = editor;
+
+        MouseListener mouseListener = new MouseListener(this);
+        addMouseListener(mouseListener);
+        addMouseMotionListener(mouseListener);
+        addMouseWheelListener(mouseListener);
     }
 
     @Override
@@ -43,7 +65,7 @@ public class MapPanel extends JPanel{
             if (this.roadMap != null) {
                 for (MapNode mapNode : this.roadMap.mapNodes) {
                     g.setColor(Color.BLUE);
-                    if (mapNode == editor.selected) {
+                    if (mapNode == selected) {
                         g.setColor(Color.PINK);
                     }
                     Point2D nodePos = worldPosToScreenPos(mapNode.x + 1024, mapNode.z + 1024);
@@ -65,10 +87,10 @@ public class MapPanel extends JPanel{
                     g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
                 }
 
-                if (editor.selected != null && editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
-                    Point2D nodePos = worldPosToScreenPos(editor.selected.x + 1024, editor.selected.z + 1024);
+                if (selected != null && editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
+                    Point2D nodePos = worldPosToScreenPos(selected.x + 1024, selected.z + 1024);
                     g.setColor(Color.WHITE);
-                    g.drawLine((int) (nodePos.getX()), (int) (nodePos.getY()), (int) (editor.mouseListener.mousePosX), (int) (editor.mouseListener.mousePosY));
+                    g.drawLine((int) (nodePos.getX()), (int) (nodePos.getY()), mousePosX, mousePosY);
                 }
 
                 if (hoveredNode != null) {
@@ -83,12 +105,12 @@ public class MapPanel extends JPanel{
                     }
                 }
 
-                if (editor.mouseListener.rectangleStart != null) {
+                if (rectangleStart != null) {
                     g.setColor(Color.WHITE);
-                    int width = (int) (editor.mouseListener.mousePosX - editor.mouseListener.rectangleStart.getX());
-                    int height = (int) (editor.mouseListener.mousePosY - editor.mouseListener.rectangleStart.getY());
-                    int x = (int)editor.mouseListener.rectangleStart.getX();
-                    int y = (int)editor.mouseListener.rectangleStart.getY();
+                    int width = (int) (mousePosX - rectangleStart.getX());
+                    int height = (int) (mousePosY - rectangleStart.getY());
+                    int x = Double.valueOf(rectangleStart.getX()).intValue();
+                    int y = Double.valueOf(rectangleStart.getY()).intValue();
                     if (width < 0) {
                         x += width;
                         width = -width;
@@ -99,8 +121,6 @@ public class MapPanel extends JPanel{
                     }
                     g.drawRect(x, y, width, height);
                 }
-
-
             }
         }
     }
@@ -135,7 +155,7 @@ public class MapPanel extends JPanel{
         lastZoomLevel = zoomLevel;
     }
 
-    public void moveMapBy(double diffX, double diffY) {
+    public void moveMapBy(int diffX, int diffY) {
         if (this.roadMap == null || this.image == null) {
             return;
         }
@@ -146,7 +166,8 @@ public class MapPanel extends JPanel{
         this.repaint();
     }
 
-    public void increaseZoomLevelBy(double step) {
+    public void increaseZoomLevelBy(int rotations) {
+        double step = rotations * (zoomLevel * 0.1);
         if (this.roadMap == null || this.image == null) {
             return;
         }
@@ -157,15 +178,15 @@ public class MapPanel extends JPanel{
         if ((this.zoomLevel - step) < 30) {
             this.zoomLevel -= step;
             resizeMap();
-            this.repaint();
+            repaint();
         }
     }
 
-    public void moveNodeBy(MapNode node, double diffX, double diffY) {
-        node.x += (diffX / zoomLevel) ;
-        node.z += (diffY / zoomLevel);
+    public void moveNodeBy(MapNode node, int diffX, int diffY) {
+        node.x +=  ((diffX * mapZoomFactor) / zoomLevel);
+        node.z += ((diffY * mapZoomFactor) / zoomLevel);
 
-        this.repaint();
+        repaint();
     }
 
     public MapNode getNodeAt(double posX, double posY) {
@@ -205,6 +226,7 @@ public class MapPanel extends JPanel{
         if (this.roadMap == null || this.image == null) {
             return;
         }
+        LOG.info("createNode: {}, {}", screenX, screenY);
         MapNode mapNode = new MapNode(this.roadMap.mapNodes.size()+1, screenX, -1, screenY);
 
         this.roadMap.mapNodes.add(mapNode);
@@ -212,8 +234,6 @@ public class MapPanel extends JPanel{
     }
 
     public Point2D screenPosToWorldPos(int screenX, int screenY) {
-        Point2D worldPos = new Point2D.Double(0,0);
-
         double centerX = (x * (image.getWidth()));
         double centerY = (y * (image.getHeight()));
 
@@ -226,42 +246,32 @@ public class MapPanel extends JPanel{
         double diffScaledX = screenX / zoomLevel;
         double diffScaledY = screenY / zoomLevel;
 
-        double worldPosX = topLeftX + diffScaledX - 1024;
-        double worldPosY = topLeftY + diffScaledY - 1024;
+        LOG.info("topLeftX: {}, diffScaledX: {}", topLeftX, diffScaledX);
+        LOG.info("topLeftY: {}, diffScaledY: {}", topLeftY, diffScaledY);
+        double worldPosX = ((topLeftX + diffScaledX) * mapZoomFactor) - 1024;
+        double worldPosY = ((topLeftY + diffScaledY) * mapZoomFactor) - 1024;
 
-        worldPos.setLocation(worldPosX, worldPosY);
-
-        return worldPos;
+        return new Point2D.Double(worldPosX, worldPosY);
     }
 
     public Point2D worldPosToScreenPos(double worldX, double worldY) {
-        Point2D screenPos = new Point2D.Double(0,0);
-
-        double scaledX = worldX * zoomLevel;
-        double scaledY = worldY * zoomLevel;
-
-        //scaledX = ((worldX + 2048)/2.0) * zoomLevel;
-        //scaledY = ((worldY + 2048)/2.0) * zoomLevel;
+        double scaledX = (worldX/mapZoomFactor) * zoomLevel;
+        double scaledY = (worldY/mapZoomFactor) * zoomLevel;
 
         double centerXScaled = (x * (image.getWidth()*zoomLevel));
         double centerYScaled = (y * (image.getHeight()*zoomLevel));
 
-        double widthScaled = (this.getWidth() / zoomLevel);
-        double heightScaled = (this.getHeight() / zoomLevel);
+        double topLeftX = centerXScaled - ((double) this.getWidth() /2);
+        double topLeftY = centerYScaled - ((double) this.getHeight()/2);
 
-        double topLeftX = centerXScaled - (this.getWidth()/2);
-        double topLeftY = centerYScaled - (this.getHeight()/2);
-
-        screenPos.setLocation(scaledX - topLeftX, scaledY - topLeftY);
-
-        return screenPos;
+        return new Point2D.Double(scaledX - topLeftX,scaledY - topLeftY);
     }
 
     public void createConnectionBetween(MapNode start, MapNode target) {
         if (start == target) {
             return;
         }
-        if (start.outgoing.contains(target) == false) {
+        if (!start.outgoing.contains(target)) {
             start.outgoing.add(target);
             target.incoming.add(start);
         }
@@ -361,4 +371,133 @@ public class MapPanel extends JPanel{
         return input;
     }
 
+    public void mouseButton1Clicked(int x, int y) {
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
+            movingNode = getNodeAt(x, y);
+            if (movingNode != null) {
+                if (selected == null) {
+                    selected = movingNode;
+                } else {
+                    createConnectionBetween(selected, movingNode);
+                    selected = null;
+                }
+                repaint();
+            }
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING) {
+            Point2D worldPos = screenPosToWorldPos(x, y);
+            createNode((int)worldPos.getX(), (int)worldPos.getY());
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
+            movingNode = getNodeAt(x, y);
+            if (movingNode != null) {
+                String destinationName = JOptionPane.showInputDialog("New destination name:", "" + movingNode.id );
+                if (destinationName != null) {
+                    createDestinationAt(movingNode, destinationName);
+                    repaint();
+                }
+            }
+        }
+    }
+
+    public void mouseMoved(int x, int y) {
+        mousePosX = x;
+        mousePosY = y;
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING && selected != null) {
+            repaint();
+        }
+        movingNode = getNodeAt(x, y);
+        if (movingNode != hoveredNode) {
+            hoveredNode = movingNode;
+            repaint();
+        }
+    }
+
+    public void mouseDragged(int x, int y) {
+        mousePosX = x;
+        mousePosY = y;
+        if (isDragging) {
+            int diffX = x - lastX;
+            int diffY = y - lastY;
+            lastX = x;
+            lastY = y;
+            moveMapBy(diffX, diffY);
+        }
+        else {
+            if (isDraggingNode) {
+                int diffX = x - lastX;
+                int diffY = y - lastY;
+                lastX = x;
+                lastY = y;
+                moveNodeBy(movingNode, diffX, diffY);
+            }
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING && rectangleStart != null) {
+            repaint();
+        }
+    }
+
+    public void mouseButton1Pressed(int x, int y) {
+        isDragging = true;
+        lastX = x;
+        lastY = y;
+        movingNode = getNodeAt(x, y);
+        if (movingNode != null) {
+            isDragging = false;
+            if (editor.editorState == AutoDriveEditor.EDITORSTATE_MOVING) {
+                isDraggingNode = true;
+            }
+            if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING) {
+                removeNode(movingNode);
+            }
+            if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING_DESTINATION) {
+                removeDestination(movingNode);
+            }
+        }
+    }
+
+    public void mouseButton3Pressed(int x, int y) {
+        LOG.info("Rectangle start set at {}/{}", x, y);
+        rectangleStart = new Point2D.Double(x, y);
+    }
+
+    public void mouseButton1Released() {
+        isDragging = false;
+        isDraggingNode = false;
+    }
+
+    public void mouseButton3Released(int x, int y) {
+        Point2D rectangleEnd = new Point2D.Double(x, y);
+        LOG.info("Rectangle end set at {}/{}", x, y);
+        if (rectangleStart != null) {
+            if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING) {
+
+                LOG.info("Removing all nodes in area");
+                removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
+                repaint();
+            }
+        }
+        rectangleStart = null;
+    }
+
+
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+
+    public RoadMap getRoadMap() {
+        return roadMap;
+    }
+
+    public void setRoadMap(RoadMap roadMap) {
+        this.roadMap = roadMap;
+    }
+
+    public void setMapZoomFactor(int mapZoomFactor) {
+        this.mapZoomFactor = mapZoomFactor;
+    }
 }
