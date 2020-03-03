@@ -331,13 +331,15 @@ function ADSensor:onDrawDebug(box)
             corners[3].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[3].x, 1, corners[3].z)
             corners[4].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[4].x, 1, corners[4].z)
 
-            AutoDrive.drawLine(corners[1], corners[2], 1, blue, 0, 1)
-            AutoDrive.drawLine(corners[2], corners[3], 1, blue, 0, 1)
-            AutoDrive.drawLine(corners[3], corners[1], 1, blue, 0, 1)
+            local AutoDriveDM = AutoDriveDrawingManager
 
-            AutoDrive.drawLine(corners[2], corners[3], 1, blue, 1, 1)
-            AutoDrive.drawLine(corners[3], corners[4], 1, blue, 1, 1)
-            AutoDrive.drawLine(corners[4], corners[2], 1, blue, 1, 1)
+            AutoDriveDM:addLineTask(corners[1].x, corners[1].y, corners[1].z, corners[2].x, corners[2].y, corners[2].z, 1, blue, 0)
+            AutoDriveDM:addLineTask(corners[2].x, corners[2].y, corners[2].z, corners[3].x, corners[3].y, corners[3].z, 1, blue, 0)
+            AutoDriveDM:addLineTask(corners[3].x, corners[3].y, corners[3].z, corners[1].x, corners[1].y, corners[1].z, 1, blue, 0)
+
+            AutoDriveDM:addLineTask(corners[2].x, corners[2].y, corners[2].z, corners[3].x, corners[3].y, corners[3].z, 1, blue, 1)
+            AutoDriveDM:addLineTask(corners[3].x, corners[3].y, corners[3].z, corners[4].x, corners[4].y, corners[4].z, 1, blue, 1)
+            AutoDriveDM:addLineTask(corners[4].x, corners[4].y, corners[4].z, corners[2].x, corners[2].y, corners[2].z, 1, blue, 1)
         else
             DebugUtil.drawOverlapBox(box.x, box.y, box.z, box.rx, box.ry, 0, box.size[1], box.size[2], box.size[3], red, blue, 0)
         end

@@ -84,6 +84,8 @@ function AutoDrive.readFromXML(xmlFile)
 	--	AutoDrive.lastSetSpeed = lastSetSpeed
 	--end
 
+	AutoDrive.currentDebugChannelMask = getXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask") or 0
+
 	for settingName, _ in pairs(AutoDrive.settings) do
 		local value = getXMLFloat(xmlFile, "AutoDrive." .. settingName)
 		if value ~= nil then
@@ -233,6 +235,8 @@ function AutoDrive.saveToXML(xmlFile)
 	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY)
 	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud)
 	--setXMLFloat(xmlFile, "AutoDrive.lastSetSpeed", AutoDrive.lastSetSpeed)
+
+	setXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask", AutoDrive.currentDebugChannelMask)
 
 	for settingName, _ in pairs(AutoDrive.settings) do
 		setXMLFloat(xmlFile, "AutoDrive." .. settingName, AutoDrive.settings[settingName].current)

@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.1-14"
+AutoDrive.version = "1.0.7.1-16"
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
@@ -45,6 +45,8 @@ AutoDrive.actions = {
 }
 
 AutoDrive.drawHeight = 0.3
+AutoDrive.drawDistance = getViewDistanceCoeff() * 50
+
 
 AutoDrive.MODE_DRIVETO = 1
 AutoDrive.MODE_PICKUPANDDELIVER = 2
@@ -65,6 +67,7 @@ AutoDrive.DC_PATHINFO = 16
 AutoDrive.DC_SENSORINFO = 32
 AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_EXTERNALINTERFACEINFO = 128
+AutoDrive.DC_RENDERINFO = 256
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
@@ -74,8 +77,6 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveLineDraw.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveCubeDraw.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDriveFuncs.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveTrigger.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
@@ -161,9 +162,6 @@ function AutoDrive:loadMap(name)
 		AutoDrive.highestIndex = 1
 	end
 
-	AutoDrive:initLineDrawing()
-	AutoDrive:initCubeDrawing()
-
 	AutoDrive.Hud = AutoDriveHud:new()
 	AutoDrive.Hud:loadHud()
 
@@ -210,6 +208,7 @@ function AutoDrive:loadMap(name)
 	--)
 	AutoDriveBenchmarks.Run()
 	AutoDriveRoutesManager.load()
+	AutoDriveDrawingManager:load()
 end
 
 function AutoDrive:firstRun()
@@ -346,6 +345,7 @@ function AutoDrive:update(dt)
 end
 
 function AutoDrive:draw()
+	AutoDriveDrawingManager:draw()
 end
 
 function AutoDrive.handlePerFrameOperations(dt)

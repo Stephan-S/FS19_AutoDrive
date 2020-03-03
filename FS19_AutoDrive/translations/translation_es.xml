@@ -196,6 +196,7 @@
 		<text name="gui_ad_debugChannelSensor" 					text="Sensores" />
 		<text name="gui_ad_debugChannelNetwork" 				text="Red" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfaz externa" />
+		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Todo" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
