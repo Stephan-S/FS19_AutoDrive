@@ -460,6 +460,7 @@ public class AutoDriveEditor extends JFrame {
         {
             saveXmlConfig(xmlConfigFile, roadMap);
             setStale(false);
+            JOptionPane.showMessageDialog(this, xmlConfigFile.getName() + " has been successfully saved.", "AutoDrive", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             JOptionPane.showMessageDialog(this, "The AutoDrive Config could not be saved.", "AutoDrive", JOptionPane.ERROR_MESSAGE);
