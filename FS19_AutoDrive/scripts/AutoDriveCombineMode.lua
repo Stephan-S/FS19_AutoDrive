@@ -357,6 +357,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                         vehicle.ad.currentCombine.ad.preCalledDriver = false
                         vehicle.ad.currentCombine.ad.driverOnTheWay = false
                         vehicle.ad.currentCombine = nil
+                        vehicle.ad.isPaused = false
                     end
                 end
             end
