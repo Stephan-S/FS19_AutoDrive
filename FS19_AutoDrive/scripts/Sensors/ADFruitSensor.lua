@@ -53,7 +53,7 @@ function ADFruitSensor:checkForFruitTypeInArea(fruitType, corners)
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
     end
 
-    return (fruitValue > 50)
+    return (fruitValue > 10)
 end
 
 function ADFruitSensor:setFruitType(newFruitType)
