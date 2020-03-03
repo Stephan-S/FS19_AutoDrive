@@ -1,0 +1,18 @@
+name: Zip Builder
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Zipping the mod folder
+      run: |
+       cd FS19_AutoDrive
+       ls
+       zip -r ../release.zip .
+    - name: Uploading the mod zip to server
+      run: |
+        curl -F 'u_file=@release.zip' 'http://services.tykonket.com/GitHub/files.php?m=u&k=${{ secrets.upload_key }}&t=adbuild'
