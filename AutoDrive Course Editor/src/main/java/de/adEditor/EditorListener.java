@@ -2,22 +2,20 @@ package de.adEditor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 public class EditorListener implements ActionListener {
 
     private static Logger LOG = LoggerFactory.getLogger(EditorListener.class);
     public AutoDriveEditor editor;
-
-    final JFileChooser fc = new JFileChooser();
 
     public EditorListener (AutoDriveEditor editor) {
         this.editor = editor;
@@ -27,12 +25,7 @@ public class EditorListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         LOG.info("ActionCommand: {}", e.getActionCommand());
         if (e.getActionCommand().equals("Save")) {
-            int returnVal = fc.showSaveDialog(editor);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                editor.savedFile = fc.getSelectedFile();
-                editor.saveMap(editor.loadedFile.getAbsolutePath(), editor.savedFile.getAbsolutePath());
-            }
+            editor.saveMap();
         }
         if (e.getActionCommand().equals(AutoDriveEditor.MOVE_NODES)) {
             this.editor.editorState = AutoDriveEditor.EDITORSTATE_MOVING;
@@ -54,21 +47,25 @@ public class EditorListener implements ActionListener {
         }
         editor.updateButtons();
         if (e.getActionCommand().equals("Load")) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Select AutoDrive Config");
+            fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fc.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("AutoDrive config", "xml");
+            fc.addChoosableFileFilter(filter);
             int returnVal = fc.showOpenDialog(editor);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                editor.loadedFile = fc.getSelectedFile();
-                try {
-                    editor.getMapPanel().setRoadMap(editor.loadFile(editor.loadedFile.getAbsolutePath()));
-                    editor.pack();
-                    editor.repaint();
-                    editor.getMapPanel().repaint();
-                } catch (ParserConfigurationException | SAXException | IOException e1) {
-                    LOG.error(e1.getMessage(), e1);
-                }
+                File fileName = fc.getSelectedFile();
+                editor.loadConfigFile(fileName);
+                editor.pack();
+                editor.repaint();
+                editor.getMapPanel().repaint();
+
             }
         }
         if (e.getActionCommand().equals("Load Image")) {
+            JFileChooser fc = new JFileChooser();
             int returnVal = fc.showOpenDialog(editor);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {

@@ -197,7 +197,7 @@ public class MapPanel extends JPanel{
     public void moveNodeBy(MapNode node, int diffX, int diffY) {
         node.x +=  ((diffX * mapZoomFactor) / zoomLevel);
         node.z += ((diffY * mapZoomFactor) / zoomLevel);
-
+        editor.setStale(true);
         repaint();
     }
 
@@ -218,6 +218,7 @@ public class MapPanel extends JPanel{
 
     public void removeNode(MapNode toDelete) {
         this.roadMap.removeMapNode(toDelete);
+        editor.setStale(true);
         this.repaint();
     }
 
@@ -230,6 +231,7 @@ public class MapPanel extends JPanel{
         }
         if (destinationToDelete != null) {
             this.roadMap.removeMapMarker(destinationToDelete);
+            editor.setStale(true);
             this.repaint();
         }
     }
@@ -242,6 +244,7 @@ public class MapPanel extends JPanel{
         MapNode mapNode = new MapNode(this.roadMap.mapNodes.size()+1, screenX, -1, screenY);
 
         this.roadMap.mapNodes.add(mapNode);
+        editor.setStale(true);
         this.repaint();
     }
 
@@ -291,12 +294,14 @@ public class MapPanel extends JPanel{
             start.outgoing.remove(target);
             target.incoming.remove(start);
         }
+        editor.setStale(true);
     }
 
     public void createDestinationAt(MapNode mapNode, String destinationName) {
         if (mapNode != null && destinationName != null && destinationName.length() > 0) {
             MapMarker mapMarker = new MapMarker(mapNode, destinationName, "All");
             this.roadMap.addMapMarker(mapMarker);
+            editor.setStale(true);
         }
     }
 
@@ -325,10 +330,13 @@ public class MapPanel extends JPanel{
                 toDelete.add(mapNode);
             }
         }
-        for (MapNode node : toDelete)  {
-            roadMap.removeMapNode(node);
-        }
+        if (!toDelete.isEmpty()) {
+            editor.setStale(true);
 
+            for (MapNode node : toDelete) {
+                roadMap.removeMapNode(node);
+            }
+        }
     }
 
     public void drawArrowBetween(Graphics g, Point2D start, Point2D target, boolean dual) {

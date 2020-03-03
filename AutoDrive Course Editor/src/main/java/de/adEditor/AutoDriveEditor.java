@@ -15,16 +15,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -43,6 +44,7 @@ public class AutoDriveEditor extends JFrame {
     public static final String REMOVE_DESTINATIONS = "Remove Destinations";
     public static final String CREATE_NODES = "Create Nodes";
     public static final String CREATE_DESTINATIONS = "Create Destinations";
+    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.1";
 
     private MapPanel mapPanel;
     private JButton saveButton;
@@ -58,16 +60,30 @@ public class AutoDriveEditor extends JFrame {
     private JRadioButton sixteenTimesMap;
 
     public int editorState = EDITORSTATE_NOOP;
-    public File loadedFile, savedFile;
+    private File xmlConfigFile;
+    private boolean stale = false;
 
     private static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
 
 
     public AutoDriveEditor() {
-        super("AutoDrive Course Editor 0.1");
+        super();
 
         LOG.info("AutoDrive start.............................................................................................");
+        setTitle(createTitle());
         setTractorIcon();
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (isStale()) {
+                    int response = JOptionPane.showConfirmDialog(null, "There are unsaved changes. Should they be saved now?", "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (response == JOptionPane.YES_OPTION) {
+                        saveMap();
+                    }
+                }
+                super.windowClosing(e);
+            }
+        });
         setLayout(new BorderLayout());
 
         // create a new panel with GridBagLayout manager
@@ -247,10 +263,21 @@ public class AutoDriveEditor extends JFrame {
         });
     }
 
-    public RoadMap loadFile(String path) throws ParserConfigurationException, IOException, SAXException {
-        LOG.info("loadFile: {}", path);
 
-        File fXmlFile = new File(path);
+    public void loadConfigFile(File fXmlFile) {
+        LOG.info("loadFile: {}", fXmlFile.getAbsolutePath());
+
+        try {
+            mapPanel.setRoadMap(loadXmlConfigFile(fXmlFile));
+            setTitle(AUTO_DRIVE_COURSE_EDITOR_TITLE + " - " + fXmlFile.getAbsolutePath());
+            xmlConfigFile = fXmlFile;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            JOptionPane.showMessageDialog(this, "The AutoDrive Config could not be loaded.", "AutoDrive", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private RoadMap loadXmlConfigFile(File fXmlFile) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(fXmlFile);
@@ -425,191 +452,184 @@ public class AutoDriveEditor extends JFrame {
 
     }
 
-    public void saveMap(String oldPath, String newPath) {
+    public void saveMap() {
         LOG.info("SaveMap called");
-
         RoadMap roadMap = mapPanel.getRoadMap();
 
-        try {
-            String filepath = oldPath;
-            File file = null;
-            filepath = URLDecoder.decode(filepath, StandardCharsets.UTF_8);
-            file = new File(filepath);
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = null;
-            if (file != null) {
-                doc = docBuilder.parse(file);
-            }
-            else {
-                doc = docBuilder.parse(filepath);
-            }
-
-            Node AutoDrive = doc.getFirstChild();
-            Element root = doc.getDocumentElement();
-
-            Node waypoints = doc.getElementsByTagName("waypoints").item(0);
-
-
-            // loop the staff child node
-            NodeList list = waypoints.getChildNodes();
-
-            for (int i = 0; i < list.getLength(); i++) {
-                Node node = list.item(i);
-
-                if ("id".equals(node.getNodeName())) {
-                    String ids = "";
-                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = roadMap.mapNodes.get(j);
-                        ids += mapNode.id;
-                        if (j < (roadMap.mapNodes.size()-1)) {
-                            ids = ids + ",";
-                        }
-                    }
-                    node.setTextContent(ids);
-                }
-                if ("x".equals(node.getNodeName())) {
-                    String xPositions = "";
-                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = roadMap.mapNodes.get(j);
-                        xPositions += mapNode.x;
-                        if (j < (roadMap.mapNodes.size()-1)) {
-                            xPositions = xPositions + ",";
-                        }
-                    }
-                    node.setTextContent(xPositions);
-                }
-                if ("y".equals(node.getNodeName())) {
-                    String yPositions = "";
-                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = roadMap.mapNodes.get(j);
-                        yPositions += mapNode.y;
-                        if (j < (roadMap.mapNodes.size()-1)) {
-                            yPositions = yPositions + ",";
-                        }
-                    }
-                    node.setTextContent(yPositions);
-                }
-                if ("z".equals(node.getNodeName())) {
-                    String zPositions = "";
-                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = roadMap.mapNodes.get(j);
-                        zPositions += mapNode.z;
-                        if (j < (roadMap.mapNodes.size()-1)) {
-                            zPositions = zPositions + ",";
-                        }
-                    }
-                    node.setTextContent(zPositions);
-                }
-                if ("incoming".equals(node.getNodeName())) {
-                    String incomingString = "";
-                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = roadMap.mapNodes.get(j);
-                        String incomingsPerNode = "";
-                        for (int incomingIndex = 0; incomingIndex < mapNode.incoming.size(); incomingIndex++) {
-                            MapNode incomingNode = mapNode.incoming.get(incomingIndex);
-                            incomingsPerNode += incomingNode.id;
-                            if (incomingIndex<(mapNode.incoming.size()-1)) {
-                                incomingsPerNode += ",";
-                            }
-                        }
-                        if (incomingsPerNode == "") {
-                            incomingsPerNode = "-1";
-                        }
-                        incomingString += incomingsPerNode;
-                        if (j < (roadMap.mapNodes.size()-1)) {
-                            incomingString = incomingString + ";";
-                        }
-                    }
-                    node.setTextContent(incomingString);
-                }
-                if ("out".equals(node.getNodeName())) {
-                    String outgoingString = "";
-                    for (int j=0; j<roadMap.mapNodes.size(); j++) {
-                        MapNode mapNode = roadMap.mapNodes.get(j);
-                        String outgoingPerNode = "";
-                        for (int outgoingIndex = 0; outgoingIndex < mapNode.outgoing.size(); outgoingIndex++) {
-                            MapNode outgoingNode = mapNode.outgoing.get(outgoingIndex);
-                            outgoingPerNode += outgoingNode.id;
-                            if (outgoingIndex<(mapNode.outgoing.size()-1)) {
-                                outgoingPerNode += ",";
-                            }
-                        }
-                        if (outgoingPerNode == "") {
-                            outgoingPerNode = "-1";
-                        }
-                        outgoingString += outgoingPerNode;
-                        if (j < (roadMap.mapNodes.size()-1)) {
-                            outgoingString = outgoingString + ";";
-                        }
-                    }
-                    node.setTextContent(outgoingString);
-                }
-            }
-
-            for (int markerIndex = 1; markerIndex < roadMap.mapMarkers.size()+100; markerIndex++) {
-                Element element = (Element) doc.getElementsByTagName("mm" + (markerIndex)).item(0);
-               // if (element != null) {
-                  //  element.getParentNode().removeChild(element);
-                //}
-                if (element != null) {
-                    Element parent = (Element) element.getParentNode();
-                    while (parent.hasChildNodes())
-                        parent.removeChild(parent.getFirstChild());
-                }
-            }
-
-            NodeList markerList = doc.getElementsByTagName("mapmarker");
-            Node markerNode = markerList.item(0);
-            int mapMarkerCount = 1;
-            for (MapMarker mapMarker : roadMap.mapMarkers) {
-                Element newMapMarker = doc.createElement("mm" + mapMarkerCount);
-
-                Element markerID = doc.createElement("id");
-                markerID.appendChild(doc.createTextNode("" + mapMarker.mapNode.id));
-                newMapMarker.appendChild(markerID);
-
-                Element markerName = doc.createElement("name");
-                markerName.appendChild(doc.createTextNode(mapMarker.name));
-                newMapMarker.appendChild(markerName);
-
-                Element markerGroup = doc.createElement("group");
-                markerGroup.appendChild(doc.createTextNode(mapMarker.group));
-                newMapMarker.appendChild(markerGroup);
-
-                markerNode.appendChild(newMapMarker);
-                mapMarkerCount += 1;
-            }
-
-
-            Node mapNameNode = waypoints.getParentNode();
-            String newMapName = mapNameNode.getNodeValue();
-            if (newPath.contains("AutoDrive_") && newPath.contains("_config")) {
-                int newPathStartIndex = newPath.lastIndexOf("AutoDrive_");
-                newPathStartIndex += "AutoDrive_".length();
-                int newPathEndIndex = newPath.lastIndexOf("_config");
-                if (newPath.endsWith("_init_config")) {
-                    newPathEndIndex = newPath.lastIndexOf("_init_config");
-                }
-                newMapName = newPath.substring(newPathStartIndex, newPathEndIndex);
-                LOG.info("Found new map name in: {} : {}", newPath , newMapName);
-            }
-            doc.renameNode(mapNameNode, null, newMapName);
-
-            // write the content into xml file
-            filepath = newPath;
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(filepath));
-            transformer.transform(source, result);
+        try
+        {
+            saveXmlConfig(xmlConfigFile, roadMap);
+            setStale(false);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            JOptionPane.showMessageDialog(this, "The AutoDrive Config could not be saved.", "AutoDrive", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public void saveXmlConfig(File file, RoadMap roadMap) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse(file);
+
+        Node AutoDrive = doc.getFirstChild();
+        Element root = doc.getDocumentElement();
+
+        Node waypoints = doc.getElementsByTagName("waypoints").item(0);
+
+        // loop the staff child node
+        NodeList list = waypoints.getChildNodes();
+
+        for (int i = 0; i < list.getLength(); i++) {
+            Node node = list.item(i);
+
+            if ("id".equals(node.getNodeName())) {
+                StringBuilder ids = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    ids.append(mapNode.id);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        ids.append(",");
+                    }
+                }
+                node.setTextContent(ids.toString());
+            }
+            if ("x".equals(node.getNodeName())) {
+                StringBuilder xPositions = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    xPositions.append(mapNode.x);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        xPositions.append(",");
+                    }
+                }
+                node.setTextContent(xPositions.toString());
+            }
+            if ("y".equals(node.getNodeName())) {
+                StringBuilder yPositions = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    yPositions.append(mapNode.y);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        yPositions.append(",");
+                    }
+                }
+                node.setTextContent(yPositions.toString());
+            }
+            if ("z".equals(node.getNodeName())) {
+                StringBuilder zPositions = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    zPositions.append(mapNode.z);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        zPositions.append(",");
+                    }
+                }
+                node.setTextContent(zPositions.toString());
+            }
+            if ("incoming".equals(node.getNodeName())) {
+                StringBuilder incomingString = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    StringBuilder incomingsPerNode = new StringBuilder();
+                    for (int incomingIndex = 0; incomingIndex < mapNode.incoming.size(); incomingIndex++) {
+                        MapNode incomingNode = mapNode.incoming.get(incomingIndex);
+                        incomingsPerNode.append(incomingNode.id);
+                        if (incomingIndex < (mapNode.incoming.size() - 1)) {
+                            incomingsPerNode.append(",");
+                        }
+                    }
+                    if (incomingsPerNode.toString().isEmpty()) {
+                        incomingsPerNode = new StringBuilder("-1");
+                    }
+                    incomingString.append(incomingsPerNode);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        incomingString.append(";");
+                    }
+                }
+                node.setTextContent(incomingString.toString());
+            }
+            if ("out".equals(node.getNodeName())) {
+                StringBuilder outgoingString = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    StringBuilder outgoingPerNode = new StringBuilder();
+                    for (int outgoingIndex = 0; outgoingIndex < mapNode.outgoing.size(); outgoingIndex++) {
+                        MapNode outgoingNode = mapNode.outgoing.get(outgoingIndex);
+                        outgoingPerNode.append(outgoingNode.id);
+                        if (outgoingIndex < (mapNode.outgoing.size() - 1)) {
+                            outgoingPerNode.append(",");
+                        }
+                    }
+                    if (outgoingPerNode.toString().isEmpty()) {
+                        outgoingPerNode = new StringBuilder("-1");
+                    }
+                    outgoingString.append(outgoingPerNode);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        outgoingString.append(";");
+                    }
+                }
+                node.setTextContent(outgoingString.toString());
+            }
+        }
+
+        for (int markerIndex = 1; markerIndex < roadMap.mapMarkers.size() + 100; markerIndex++) {
+            Element element = (Element) doc.getElementsByTagName("mm" + (markerIndex)).item(0);
+            if (element != null) {
+                Element parent = (Element) element.getParentNode();
+                while (parent.hasChildNodes())
+                    parent.removeChild(parent.getFirstChild());
+            }
+        }
+
+        NodeList markerList = doc.getElementsByTagName("mapmarker");
+        Node markerNode = markerList.item(0);
+        int mapMarkerCount = 1;
+        for (MapMarker mapMarker : roadMap.mapMarkers) {
+            Element newMapMarker = doc.createElement("mm" + mapMarkerCount);
+
+            Element markerID = doc.createElement("id");
+            markerID.appendChild(doc.createTextNode("" + mapMarker.mapNode.id));
+            newMapMarker.appendChild(markerID);
+
+            Element markerName = doc.createElement("name");
+            markerName.appendChild(doc.createTextNode(mapMarker.name));
+            newMapMarker.appendChild(markerName);
+
+            Element markerGroup = doc.createElement("group");
+            markerGroup.appendChild(doc.createTextNode(mapMarker.group));
+            newMapMarker.appendChild(markerGroup);
+
+            markerNode.appendChild(newMapMarker);
+            mapMarkerCount += 1;
+        }
+
+
+        Node mapNameNode = waypoints.getParentNode();
+        String newMapName = mapNameNode.getNodeValue();
+        String fileName = xmlConfigFile.getName();
+        if (fileName.contains("AutoDrive_") && fileName.contains("_config")) {
+            int newPathStartIndex = fileName.lastIndexOf("AutoDrive_");
+            newPathStartIndex += "AutoDrive_".length();
+            int newPathEndIndex = fileName.lastIndexOf("_config");
+            if (fileName.endsWith("_init_config")) {
+                newPathEndIndex = fileName.lastIndexOf("_init_config");
+            }
+            newMapName = fileName.substring(newPathStartIndex, newPathEndIndex);
+            LOG.info("Found new map name in: {} : {}", fileName, newMapName);
+        }
+        doc.renameNode(mapNameNode, null, newMapName);
+
+        // write the content into xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(xmlConfigFile);
+        transformer.transform(source, result);
 
         LOG.info("Done save");
     }
@@ -619,12 +639,32 @@ public class AutoDriveEditor extends JFrame {
         mapPanel.repaint();
     }
 
+    private String createTitle() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(AUTO_DRIVE_COURSE_EDITOR_TITLE);
+        if (xmlConfigFile != null) {
+            sb.append(" - ").append(xmlConfigFile.getAbsolutePath()).append(isStale() ? " *" : "");
+        }
+        return sb.toString();
+    }
+
     public MapPanel getMapPanel() {
         return mapPanel;
     }
 
     public void setMapPanel(MapPanel mapPanel) {
         this.mapPanel = mapPanel;
+    }
+
+    public boolean isStale() {
+        return stale;
+    }
+
+    public void setStale(boolean stale) {
+        if (isStale() != stale) {
+            this.stale = stale;
+            setTitle(createTitle());
+        }
     }
 
 }
