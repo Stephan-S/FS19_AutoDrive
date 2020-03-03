@@ -276,7 +276,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                 end
 
                 --ToDo: Clean the following code up and remove duplicated code
-                if AutoDrive.getSetting("parkInField", vehicle) then
+                if AutoDrive.getSetting("parkInField", vehicle) and (not (trailerFillLevel >= (AutoDrive.getSetting("unloadFillLevel", vehicle) - 0.001) or vehicle.ad.driveToUnloadNext)) then
                     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
                     local trailer = trailers[vehicle.ad.currentTrailer]
                     local trailerClear = true
@@ -476,7 +476,7 @@ function AutoDrive:checkForChaseModeStopCondition(vehicle, dt)
     end
 
     if vehicle.ad.currentCombine ~= nil then
-        if (vehicle.ccInfos.combineFillLevel >= 0.98 or vehicle.ad.currentCombine.ad.noMovementTimer.elapsedTime > 10000) and (not vehicle.ccInfos.isChopper) then
+        if (vehicle.ccInfos.combineFillLevel >= 0.97 or vehicle.ad.currentCombine.ad.noMovementTimer.elapsedTime > 10000) and (not vehicle.ccInfos.isChopper) then
             --g_logManager:devInfo("Chasing combine - stopped - park in Field now");
             AutoDrive:getVehicleToStop(vehicle, false, dt)
             AutoDrive:registerDriverAsAvailableUnloader(vehicle)

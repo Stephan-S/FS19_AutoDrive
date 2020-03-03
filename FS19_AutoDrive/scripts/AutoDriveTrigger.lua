@@ -1,4 +1,4 @@
-AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 25
+AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 15
 AutoDrive.REFUEL_LEVEL = 0.15
 
 function AutoDrive.getAllTriggers()
