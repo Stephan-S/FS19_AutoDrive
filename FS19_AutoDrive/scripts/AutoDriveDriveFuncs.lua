@@ -3,7 +3,6 @@ AutoDrive.DEADLOCKSPEED = 5
 function AutoDrive:handleDriving(vehicle, dt)
     AutoDrive:checkActiveAttributesSet(vehicle)
     AutoDrive:checkForDeadLock(vehicle, dt)
-    --AutoDrive:handlePrintMessage(vehicle, dt);
     AutoDrive.handleTrailers(vehicle, dt)
     AutoDrive:handleDeadlock(vehicle, dt)
     AutoDrive.handleRefueling(vehicle, dt)
@@ -180,7 +179,7 @@ end
 
 function AutoDrive:initializeAD(vehicle, dt)
     vehicle.ad.timeTillDeadLock = 15000
-   
+
     if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState ~= AutoDrive.COMBINE_UNINITIALIZED then
         if AutoDrive:initializeADCombine(vehicle, dt) == true then
             return
@@ -225,7 +224,7 @@ function AutoDrive:initializeAD(vehicle, dt)
 
         if vehicle.ad.wayPoints ~= nil then
             if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1] ~= nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then
-                AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_cannot_reach") .. " " .. vehicle.ad.nameOfSelectedTarget)
+                AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, vehicle.ad.driverName, vehicle.ad.nameOfSelectedTarget)
                 AutoDrive:stopAD(vehicle, true)
             end
 
@@ -246,7 +245,8 @@ function AutoDrive:initializeAD(vehicle, dt)
             vehicle.ad.isPaused = false
         end
     else
-        g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
+        g_logManager:devError("[AutoDrive] Encountered a problem during initialization - shutting down")
+        AutoDriveMessageEvent.sendMessage(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "Encountered a problem during initialization, shutting down!", 3000)
         AutoDrive:stopAD(vehicle, true)
     end
 end
@@ -259,7 +259,7 @@ function AutoDrive:defineMinDistanceByVehicleType(vehicle)
             vehicle.typeName == "pdlc_claasPack.combineDrivableCrawlers"
      then
         min_distance = 6
-    elseif vehicle.typeDesc == "telehandler" or vehicle.spec_crabSteering ~= nil then	--If vehicle has 4 steering wheels like xerion or hardi self Propelled sprayer then also min_distance = 3;
+    elseif vehicle.typeDesc == "telehandler" or vehicle.spec_crabSteering ~= nil then --If vehicle has 4 steering wheels like xerion or hardi self Propelled sprayer then also min_distance = 3;
         min_distance = 3
     elseif vehicle.typeDesc == "truck" then
         min_distance = 3
@@ -280,17 +280,14 @@ function AutoDrive:handleReachedWayPoint(vehicle)
         vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
         vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
     else
-        if
-            (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and
-                (vehicle.ad.mode ~= AutoDrive.MODE_LOAD)
-         then
+        if (vehicle.ad.mode ~= AutoDrive.MODE_PICKUPANDDELIVER or (vehicle.ad.loopCounterCurrent ~= 0 and vehicle.ad.loopCounterCurrent == vehicle.ad.loopCounterSelected)) and vehicle.ad.mode ~= AutoDrive.MODE_UNLOAD and (vehicle.ad.mode ~= AutoDrive.MODE_LOAD) then
             local target = vehicle.ad.nameOfSelectedTarget
             for _, mapMarker in pairs(AutoDrive.mapMarker) do
                 if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and mapMarker.id == vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id then
                     target = mapMarker.name
                 end
             end
-            AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_has_reached") .. " " .. target)
+            AutoDriveMessageEvent.sendNotification(vehicle, AutoDriveMessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, vehicle.ad.driverName, target)
             AutoDrive:stopAD(vehicle, false)
         else
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
@@ -609,11 +606,11 @@ end
 
 function AutoDrive:handleDeadlock(vehicle, dt)
     if vehicle.ad.inDeadLock == true and vehicle.ad.isActive == true and vehicle.isServer then
-        AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"))
+        --AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_got_stuck;", 10000, vehicle.ad.driverName)
 
         --deadlock handling
         if vehicle.ad.inDeadLockRepairCounter < 1 then
-            AutoDrive.printMessage(vehicle, g_i18n:getText("AD_Driver_of") .. " " .. vehicle.ad.driverName .. " " .. g_i18n:getText("AD_got_stuck"))
+            AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_got_stuck;", 5000, vehicle.ad.driverName)
             AutoDrive:stopAD(vehicle, true)
         else
             --g_logManager:devInfo("AD: Trying to recover from deadlock")

@@ -187,7 +187,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
     if vehicle.bga.shovel == nil then
         self:getVehicleShovel(vehicle)
         if vehicle.bga.shovel == nil then
-            AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Shovel"))
+            AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Shovel;", 5000, vehicle.ad.driverName)
             vehicle.bga.state = AutoDriveBGA.STATE_IDLE
             AutoDrive:stopAD(vehicle, true)
             return
@@ -195,7 +195,7 @@ function AutoDriveBGA:initializeBGA(vehicle)
     end
 
     if vehicle.bga.targetBunker == nil then
-        AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Bunker"))
+        AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, vehicle.ad.driverName)
         vehicle.bga.state = AutoDriveBGA.STATE_IDLE
         AutoDrive:stopAD(vehicle, true)
     end
@@ -1165,7 +1165,7 @@ end
 
 function AutoDriveBGA:driveToBGAUnload(vehicle, dt)
     if vehicle.bga.targetTrailer == nil then
-        AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Trailer"))
+        AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Trailer;", 5000, vehicle.ad.driverName)
         self:getVehicleToPause(vehicle)
         AutoDrive:getVehicleToStop(vehicle, false, dt)
         return
@@ -1352,7 +1352,7 @@ function AutoDriveBGA:setShovelOffsetToNonEmptyRow(vehicle)
     end
 
     if ((currentFillLevel == 0) and (iterations < 0)) then
-        AutoDrive.printMessage(vehicle, vehicle.ad.driverName .. " " .. g_i18n:getText("AD_No_Bunker"))
+        AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, vehicle.ad.driverName)
         vehicle.bga.state = AutoDriveBGA.STATE_IDLE
         AutoDrive:stopAD(vehicle, true)
     end

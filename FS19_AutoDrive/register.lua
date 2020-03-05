@@ -14,6 +14,7 @@ source(Utils.getFilename("scripts/AutoDriveSpecialization.lua", g_currentModDire
 source(Utils.getFilename("scripts/AutoDriveHud.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/AutoDriveRoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/AutoDriveDrawingManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modules/AutoDriveMessagesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))
@@ -21,6 +22,7 @@ source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDi
 source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveEventUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/AutoDriveMessageEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveUpdateDestinationsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveCourseEditEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/AutoDriveCourseDownloadEvent.lua", g_currentModDirectory))
@@ -44,6 +46,7 @@ source(Utils.getFilename("scripts/Utils/AutoDriveTrailerUtil.lua", g_currentModD
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveBenchmarkUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveBenchmarks.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version

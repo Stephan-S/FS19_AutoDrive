@@ -358,6 +358,7 @@ function AutoDrive:onWriteStream(streamId, connection)
         end
     end
     streamWriteUInt8(streamId, self.ad.targetSpeed)
+    streamWriteUIntN(streamId, self.ad.parkDestination or 0, 20)
 end
 
 function AutoDrive:onReadStream(streamId, connection)
@@ -367,6 +368,7 @@ function AutoDrive:onReadStream(streamId, connection)
         end
     end
     self.ad.targetSpeed = streamReadUInt8(streamId)
+    self.ad.parkDestination = streamReadUIntN(streamId, 20)
 end
 
 function AutoDrive:onUpdate(dt)
@@ -574,15 +576,6 @@ function AutoDrive:onDraw()
 end
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
-    if AutoDrive.print.currentMessage ~= nil then
-        local adFontSize = 0.016
-        local adPosX = 0.5
-        local adPosY = 0.14
-        setTextColor(1, 1, 0, 1)
-        setTextAlignment(RenderText.ALIGN_CENTER)
-        renderText(adPosX, adPosY, adFontSize, AutoDrive.print.currentMessage)
-    end
-
     if AutoDrive.Hud ~= nil then
         if AutoDrive.Hud.showHud == true then
             AutoDrive.Hud:drawHud(vehicle)

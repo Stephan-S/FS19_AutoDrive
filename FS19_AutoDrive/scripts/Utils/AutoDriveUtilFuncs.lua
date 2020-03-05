@@ -256,9 +256,12 @@ function string.random(length)
 	return string.random(length - 1) .. string.randomCharset[math.random(1, #string.randomCharset)]
 end
 
-function AutoDrive.printMessage(vehicle, newMessage)
-	AutoDrive.print.nextMessage = newMessage
-	AutoDrive.print.nextReferencedVehicle = vehicle
+function AutoDrive.localize(text)
+	for m in text:gmatch("$l10n_.-;") do
+		local l10n = m:gsub("$l10n_", ""):gsub(";", "")
+		text = text:gsub(m, g_i18n:getText(l10n))
+	end
+	return text
 end
 
 function AutoDrive.boolToString(value)
@@ -598,17 +601,17 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 	end
 end
 
-function AutoDrive.renderColoredTextAtWorldPosition(x,y,z, text, textSize, color)
-    local sx,sy,sz = project(x,y,z);
-    if sx > -1 and sx < 2 and sy > -1 and sy < 2 and sz <= 1 then
-        setTextAlignment(RenderText.ALIGN_CENTER);
-        setTextBold(false);
-        setTextColor(0.0, 0.0, 0.0, 0.75);
-        renderText(sx, sy-0.0015, textSize, text);
-        setTextColor(color.r, color.g, color.b, 1.0);
-        renderText(sx, sy, textSize, text);
-        setTextAlignment(RenderText.ALIGN_LEFT);
-    end
+function AutoDrive.renderColoredTextAtWorldPosition(x, y, z, text, textSize, color)
+	local sx, sy, sz = project(x, y, z)
+	if sx > -1 and sx < 2 and sy > -1 and sy < 2 and sz <= 1 then
+		setTextAlignment(RenderText.ALIGN_CENTER)
+		setTextBold(false)
+		setTextColor(0.0, 0.0, 0.0, 0.75)
+		renderText(sx, sy - 0.0015, textSize, text)
+		setTextColor(color.r, color.g, color.b, 1.0)
+		renderText(sx, sy, textSize, text)
+		setTextAlignment(RenderText.ALIGN_LEFT)
+	end
 end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server

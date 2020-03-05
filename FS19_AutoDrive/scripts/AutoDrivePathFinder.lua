@@ -362,8 +362,7 @@ function AutoDrivePathFinder:updatePathPlanning(driver)
             pf.smoothDone = true
             pf.wayPoints = {}
             if driver.ad.combineState ~= AutoDrive.PREDRIVE_COMBINE then
-                AutoDrive.printMessage(driver, g_i18n:getText("AD_Driver_of") .. " " .. driver.ad.driverName .. " " .. g_i18n:getText("AD_cannot_find_path"))
-            --g_logManager:devInfo("Stop searching - no path found in reasonable time");
+                AutoDriveMessageEvent.sendMessageOrNotification(driver, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, driver.ad.driverName)
             end
         end
     end

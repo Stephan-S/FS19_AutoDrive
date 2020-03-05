@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.1-16"
+AutoDrive.version = "1.0.7.1-19"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -11,8 +11,6 @@ AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
 
 AutoDrive.developmentControls = false
-
---AutoDrive.renderTime = 0
 
 AutoDrive.configChanged = false
 
@@ -47,7 +45,6 @@ AutoDrive.actions = {
 
 AutoDrive.drawHeight = 0.3
 AutoDrive.drawDistance = getViewDistanceCoeff() * 50
-
 
 AutoDrive.MODE_DRIVETO = 1
 AutoDrive.MODE_PICKUPANDDELIVER = 2
@@ -126,7 +123,6 @@ function AutoDrive:loadMap(name)
 	AutoDrive.mapWayPointsCounter = 0
 	AutoDrive.mapMarker = {}
 	AutoDrive.mapMarkerCounter = 0
-	AutoDrive.showMouse = false
 
 	AutoDrive.groups = {}
 	AutoDrive.groups["All"] = 1
@@ -137,20 +133,19 @@ function AutoDrive:loadMap(name)
 
 	--AutoDrive.lastSetSpeed = 50
 
-	AutoDrive.print = {}
-	AutoDrive.print.currentMessage = nil
-	AutoDrive.print.referencedVehicle = nil
-	AutoDrive.print.nextMessage = nil
-	AutoDrive.print.showMessageFor = 12000
-	AutoDrive.print.currentMessageActiveSince = 0
-
 	AutoDrive.requestedWaypoints = false
 	AutoDrive.requestedWaypointCount = 1
 	AutoDrive.playerSendsMapToServer = false
 
+	AutoDrive.showMouse = false
 	AutoDrive.mouseWheelActive = false
 
-	AutoDrive.requestWayPointTimer = 10000
+	AutoDrive.waitingUnloadDrivers = {}
+	AutoDrive.destinationListeners = {}
+
+	AutoDrive.delayedCallBacks = {}
+
+	AutoDrive.mapHotspotsBuffer = {}
 
 	AutoDrive.loadStoredXML()
 
@@ -166,28 +161,10 @@ function AutoDrive:loadMap(name)
 	AutoDrive.Hud = AutoDriveHud:new()
 	AutoDrive.Hud:loadHud()
 
-	-- Save Configuration when saving savegame
-	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
-
-	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
-	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
-	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
-
-	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly)
-
-	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad)
-	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
-
-	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
-	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
-	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
-
-	AutoDrive.waitingUnloadDrivers = {}
-	AutoDrive.destinationListeners = {}
-
-	AutoDrive.delayedCallBacks = {}
-
-	AutoDrive.mapHotspotsBuffer = {}
+	AutoDriveBenchmarks.Run()
+	AutoDriveRoutesManager.load()
+	AutoDriveDrawingManager:load()
+	AutoDriveMessagesManager:load()
 
 	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
 	--    DelayedCallBack:new(
@@ -207,9 +184,22 @@ function AutoDrive:loadMap(name)
 	--        g_gui:showGui("ADEnterGroupNameGui")
 	--    end
 	--)
-	AutoDriveBenchmarks.Run()
-	AutoDriveRoutesManager.load()
-	AutoDriveDrawingManager:load()
+
+	-- Save Configuration when saving savegame
+	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
+
+	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
+	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
+	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
+
+	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly)
+
+	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad)
+	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
+
+	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
+	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
+	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
 end
 
 function AutoDrive:firstRun()
@@ -337,16 +327,14 @@ function AutoDrive:update(dt)
 
 	AutoDrive.handlePerFrameOperations(dt)
 
-	AutoDrive.handlePrintMessage(dt)
-
 	AutoDrive.handleMultiplayer(dt)
 
-	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
-	--AutoDrive.renderTime = 0
+	AutoDriveMessagesManager:update(dt)
 end
 
 function AutoDrive:draw()
 	AutoDriveDrawingManager:draw()
+	AutoDriveMessagesManager:draw()
 end
 
 function AutoDrive.handlePerFrameOperations(dt)
@@ -371,42 +359,6 @@ function AutoDrive.handlePerFrameOperations(dt)
 				trigger.stoppedTimer = AutoDriveTON:new()
 			end
 			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
-		end
-	end
-end
-
-function AutoDrive.handlePrintMessage(dt)
-	if AutoDrive.print.currentMessage ~= nil then
-		AutoDrive.print.currentMessageActiveSince = AutoDrive.print.currentMessageActiveSince + dt
-		if AutoDrive.print.nextMessage ~= nil then
-			if AutoDrive.print.currentMessageActiveSince > 6000 then
-				AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
-				AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
-				AutoDrive.print.nextMessage = nil
-				AutoDrive.print.nextReferencedVehicle = nil
-				AutoDrive.print.currentMessageActiveSince = 0
-			end
-		end
-		if AutoDrive.print.currentMessageActiveSince > AutoDrive.print.showMessageFor then
-			AutoDrive.print.currentMessage = nil
-			AutoDrive.print.currentMessageActiveSince = 0
-			AutoDrive.print.referencedVehicle = nil
-			--AutoDrive.print.showMessageFor = 12000;
-			if AutoDrive.print.nextMessage ~= nil then
-				AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
-				AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
-				AutoDrive.print.nextMessage = nil
-				AutoDrive.print.nextReferencedVehicle = nil
-				AutoDrive.print.currentMessageActiveSince = 0
-			end
-		end
-	else
-		if AutoDrive.print.nextMessage ~= nil then
-			AutoDrive.print.currentMessage = AutoDrive.print.nextMessage
-			AutoDrive.print.referencedVehicle = AutoDrive.print.nextReferencedVehicle
-			AutoDrive.print.nextMessage = nil
-			AutoDrive.print.nextReferencedVehicle = nil
-			AutoDrive.print.currentMessageActiveSince = 0
 		end
 	end
 end

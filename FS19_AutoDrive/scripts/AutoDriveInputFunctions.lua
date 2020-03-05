@@ -105,7 +105,7 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 		AutoDrive:InputHandling(self, "input_callDriver")
 	end
 	if actionName == "ADGoToVehicle" then
-		AutoDrive:InputHandling(self, "input_goToVehicle")
+		AutoDrive.InputHandlingSenderOnly(self, "input_goToVehicle")
 	end
 	if actionName == "ADIncLoopCounter" then
 		AutoDrive:InputHandling(self, "input_incLoopCounter")
@@ -185,20 +185,31 @@ function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 		if input == "input_nameDriver" then
 			AutoDrive.onOpenEnterDriverName()
 		end
+
 		if input == "input_setDestinationFilter" then
 			AutoDrive.onOpenEnterDestinationFilter()
 		end
+
 		if input == "input_openGUI" and vehicle == g_currentMission.controlledVehicle then
 			AutoDrive.onOpenSettings()
 		end
+
 		if input == "input_toggleHud" and vehicle == g_currentMission.controlledVehicle then
 			AutoDrive.Hud:toggleHud(vehicle)
 		end
+
 		if input == "input_toggleMouse" and vehicle == g_currentMission.controlledVehicle then
 			g_inputBinding:setShowMouseCursor(not g_inputBinding:getShowMouseCursor())
 		end
+
 		if input == "input_routesManager" then
 			AutoDrive.onOpenRoutesManager()
+		end
+
+		if input == "input_goToVehicle" then
+			if AutoDriveMessagesManager.lastNotificationVehicle ~= nil then
+				g_currentMission:requestToEnterVehicle(AutoDriveMessagesManager.lastNotificationVehicle)
+			end
 		end
 	end
 end
@@ -217,10 +228,6 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		end
 	end
 
-	if input == "input_goToVehicle" then
-		AutoDrive:inputSwitchToArrivedVehicle()
-	end
-
 	if input == "input_incLoopCounter" then
 		vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected + 1) % 10
 	end
@@ -230,6 +237,15 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			vehicle.ad.loopCounterSelected = 9
 		else
 			vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected - 1) % 10
+		end
+	end
+
+	if input == "input_setParkDestination" then
+		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
+			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected
+			if g_server ~= nil then
+				AutoDriveMessageEvent.sendMessage(vehicle, AutoDriveMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name)
+			end
 		end
 	end
 end
@@ -419,15 +435,6 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		end
 	end
 
-	if input == "input_setParkDestination" then
-		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
-			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected
-
-			AutoDrive.printMessage(vehicle, "" .. g_i18n:getText("AD_parkVehicle_selected") .. AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name)
-			AutoDrive.print.showMessageFor = 10000
-		end
-	end
-
 	if input == "input_parkVehicle" then
 		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
 			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination
@@ -440,8 +447,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive:InputHandling(vehicle, "input_start_stop")
 			vehicle.ad.onRouteToPark = true
 		else
-			AutoDrive.printMessage(vehicle, g_i18n:getText("AD_parkVehicle_noPosSet"))
-			AutoDrive.print.showMessageFor = 10000
+			AutoDriveMessageEvent.sendMessage(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
 		end
 	end
 
@@ -641,12 +647,6 @@ end
 
 function AutoDrive:inputShowClosest(vehicle)
 	vehicle.ad.showClosestPoint = not vehicle.ad.showClosestPoint
-end
-
-function AutoDrive:inputSwitchToArrivedVehicle()
-	if AutoDrive.print.referencedVehicle ~= nil then
-		g_currentMission:requestToEnterVehicle(AutoDrive.print.referencedVehicle)
-	end
 end
 
 function AutoDrive:inputSwapTargets(vehicle)
