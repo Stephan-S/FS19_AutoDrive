@@ -21,6 +21,9 @@ And to all who do donate: Thank you very much :-)
 
 https://www.paypal.me/StephanSchlosser
 
+#### TyKonKet:
+https://www.paypal.me/tykonket
+
 # Download
 ![Zip Builder](https://github.com/Stephan-S/FS19_AutoDrive/workflows/Zip%20Builder/badge.svg?branch=master)
 ### Build
