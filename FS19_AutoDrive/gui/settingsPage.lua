@@ -111,7 +111,7 @@ function ADSettingsPage:updateMyGUISettings()
     for settingName, _ in pairs(self.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
             local setting = AutoDrive.settings[settingName]
-            if setting ~= nil and setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
+			if setting ~= nil and setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
                 setting = g_currentMission.controlledVehicle.ad.settings[settingName]
             end
             self:updateGUISettings(settingName, setting.current)
