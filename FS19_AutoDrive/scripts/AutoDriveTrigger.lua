@@ -1,4 +1,4 @@
-AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 25
+AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 15
 AutoDrive.REFUEL_LEVEL = 0.15
 
 function AutoDrive.getAllTriggers()
@@ -181,6 +181,23 @@ function AutoDrive.getRefuelTriggers()
     for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
         --loadTriggers
         if trigger.source ~= nil and trigger.source.providedFillTypes ~= nil and trigger.source.providedFillTypes[32] then
+            local fillLevels = {}
+            if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
+                fillLevels, _ = trigger.source:getAllFillLevels(g_currentMission:getFarmId())
+            end
+            local gcFillLevels = {}
+            if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
+                gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(g_currentMission:getFarmId(), trigger.managerId)
+            end
+            if #fillLevels == 0 and #gcFillLevels == 0 and trigger.source ~= nil and trigger.source.gcId ~= nil and trigger.source.fillLevels ~= nil then
+                for index, fillLevel in pairs(trigger.source.fillLevels) do
+                    if fillLevel ~= nil and fillLevel[1] ~= nil then
+                        fillLevels[index] = fillLevel[1]
+                    end
+                end
+            end
+            local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[32] ~= nil and fillLevels[32] > 0) or (gcFillLevels[32] ~= nil and gcFillLevels[32] > 0)
+            
             table.insert(refuelTriggers, trigger)
         end
     end

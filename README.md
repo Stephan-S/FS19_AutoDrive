@@ -14,7 +14,9 @@ https://www.paypal.me/StephanSchlosser
 # Download
 ![Zip Builder](https://github.com/Stephan-S/FS19_AutoDrive/workflows/Zip%20Builder/badge.svg?branch=master)
 ### Build
-[You can download the latest build here](http://services.tykonket.com/GitHub/files.php?m=d&t=adbuild&f=FS19_AutoDrive.zip)
+[You can download the latest build here](http://services.tykonket.com/GitHub/files.php?m=d&t=adbuild&f=FS19_AutoDrive.zip)  
+
+![Zip Builder](http://services.tykonket.com/GitHub/files.svg?m=b&t=adbuild)  
 ### Release
 [You can download the latest release here](https://github.com/Stephan-S/FS19_AutoDrive/releases)
 ### Course Editor
