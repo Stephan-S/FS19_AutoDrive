@@ -304,8 +304,10 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     vehicle.ad.wayPointsChanged = true
                     vehicle.ad.currentWayPoint = 1
 
-                    vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
-                    vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
+                    if vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
+                        vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
+                        vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
+                    end
 
                     if vehicle.ad.isUnloadingToBunkerSilo ~= true then
                         --vehicle.ad.isPaused = true
