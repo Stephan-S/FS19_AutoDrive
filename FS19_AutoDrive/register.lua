@@ -12,9 +12,6 @@ source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveSync.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveSpecialization.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/AutoDriveHud.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Modules/AutoDriveRoutesManager.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Modules/AutoDriveDrawingManager.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Modules/AutoDriveMessagesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))
@@ -47,6 +44,11 @@ source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDir
 source(Utils.getFilename("scripts/Utils/AutoDriveBenchmarkUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveBenchmarks.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modules/AutoDriveRoutesManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modules/AutoDriveDrawingManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modules/AutoDriveMessagesManager.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version

@@ -7,13 +7,15 @@ AutoDriveDrawingManager.debug = {}
 
 AutoDriveDrawingManager.lines = {}
 AutoDriveDrawingManager.lines.fileName = "line.i3d"
-AutoDriveDrawingManager.lines.buffer = {}
+AutoDriveDrawingManager.lines.buffer = Buffer:new()
+AutoDriveDrawingManager.lines.objects = FlaggedTable:new()
 AutoDriveDrawingManager.lines.tasks = {}
 AutoDriveDrawingManager.lines.lastDrawZero = true
 
 AutoDriveDrawingManager.arrows = {}
 AutoDriveDrawingManager.arrows.fileName = "arrow.i3d"
-AutoDriveDrawingManager.arrows.buffer = {}
+AutoDriveDrawingManager.arrows.buffer = Buffer:new()
+AutoDriveDrawingManager.arrows.objects = FlaggedTable:new()
 AutoDriveDrawingManager.arrows.tasks = {}
 AutoDriveDrawingManager.arrows.lastDrawZero = true
 AutoDriveDrawingManager.arrows.position = {}
@@ -22,19 +24,22 @@ AutoDriveDrawingManager.arrows.position.middle = 2
 
 AutoDriveDrawingManager.sSphere = {}
 AutoDriveDrawingManager.sSphere.fileName = "sphere_small.i3d"
-AutoDriveDrawingManager.sSphere.buffer = {}
+AutoDriveDrawingManager.sSphere.buffer = Buffer:new()
+AutoDriveDrawingManager.sSphere.objects = FlaggedTable:new()
 AutoDriveDrawingManager.sSphere.tasks = {}
 AutoDriveDrawingManager.sSphere.lastDrawZero = true
 
 AutoDriveDrawingManager.sphere = {}
 AutoDriveDrawingManager.sphere.fileName = "sphere.i3d"
-AutoDriveDrawingManager.sphere.buffer = {}
+AutoDriveDrawingManager.sphere.buffer = Buffer:new()
+AutoDriveDrawingManager.sphere.objects = FlaggedTable:new()
 AutoDriveDrawingManager.sphere.tasks = {}
 AutoDriveDrawingManager.sphere.lastDrawZero = true
 
 AutoDriveDrawingManager.markers = {}
 AutoDriveDrawingManager.markers.fileName = "marker.i3d"
-AutoDriveDrawingManager.markers.buffer = {}
+AutoDriveDrawingManager.markers.buffer = Buffer:new()
+AutoDriveDrawingManager.markers.objects = FlaggedTable:new()
 AutoDriveDrawingManager.markers.tasks = {}
 AutoDriveDrawingManager.markers.lastDrawZero = true
 
@@ -60,29 +65,34 @@ end
 
 function AutoDriveDrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
     -- storing task
-    table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b})
+    local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, r, g, b)
+    table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, hash = hash})
 end
 
 function AutoDriveDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
     -- storing task
-    table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position})
+    local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, position, r, g, b)
+    table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position, hash = hash})
 end
 
 function AutoDriveDrawingManager:addSmallSphereTask(x, y, z, r, g, b)
     -- storing task
-    table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b})
+    local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f", x, y, z, r, g, b)
+    table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, hash = hash})
 end
 
 function AutoDriveDrawingManager:addMarkerTask(x, y, z)
     -- storing task
-    table.insert(self.markers.tasks, {x = x, y = y, z = z})
+    local hash = string.format("m%.2f%.2f%.2f", x, y, z)
+    table.insert(self.markers.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
 function AutoDriveDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     scale = scale or 1
     a = a or 0
     -- storing task
-    table.insert(self.sphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, a = a, scale = scale})
+    local hash = string.format("s%.2f%.2f%.2f%.3f%.2f%.2f%.2f%.2f", x, y, z, scale, r, g, b, a)
+    table.insert(self.sphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, a = a, scale = scale, hash = hash})
 end
 
 function AutoDriveDrawingManager:draw()
@@ -106,8 +116,8 @@ function AutoDriveDrawingManager:draw()
     self.debug["Emittivity"] = self.emittivity
 
     local tTime = netGetTime()
-    self.debug["LinesTime"] = self:drawObjects(self.lines, self.drawLine, self.initObject)
-    self.debug["LinesTime"].Time = netGetTime() - tTime
+    self.debug["Lines"] = self:drawObjects(self.lines, self.drawLine, self.initObject)
+    self.debug["Lines"].Time = netGetTime() - tTime
 
     tTime = netGetTime()
     self.debug["Arrows"] = self:drawObjects(self.arrows, self.drawArrow, self.initObject)
@@ -132,33 +142,62 @@ function AutoDriveDrawingManager:draw()
 end
 
 function AutoDriveDrawingManager:drawObjects(obj, dFunc, iFunc)
+    local taskCount = #obj.tasks
+
     local stats = {}
-    local dCount = #obj.tasks
-    stats["Tasks"] = dCount
+    stats["Tasks"] = {Total = taskCount, Performed = 0}
+    stats["Objects"] = obj.objects:Count()
+    stats["Buffer"] = obj.buffer:Count()
+
     -- this will prevent to run when there is nothing to draw but it also ensure to run one last time to set objects visibility to false
-    if dCount > 0 or obj.lastDrawZero == false then
-        local bCount = #obj.buffer
-        stats["Buffer"] = bCount
-        if dCount > bCount then
-            -- increasing buffer size
+    if taskCount > 0 or obj.lastDrawZero == false then
+        -- skipping already drawn objects (the goal is to find out the objects that have already been drawn and don't redraw them again but at the same time hide the objects that have not to be draw again and also draw the new ones) :D
+
+        local taskSkippedCount = 0
+        obj.objects:ResetFlags()
+        for i, t in pairs(obj.tasks) do
+            if obj.objects:Contains(t.hash) then
+                -- removing the task if this object is aready drawn
+                obj.tasks[i] = nil
+                obj.objects:Flag(t.hash)
+                taskSkippedCount = taskSkippedCount + 1
+            end
+        end
+        local remainingTaskCount = taskCount - taskSkippedCount
+        stats.Tasks.Performed = remainingTaskCount
+
+        -- cleaning up not needed objects and send them back to the buffer
+        local unusedObjects = obj.objects:RemoveUnflagged()
+
+        for _, id in pairs(unusedObjects) do
+            -- make invisible unused items
+            setVisibility(id, false)
+            obj.buffer:Insert(id)
+        end
+
+        -- adding missing objects to buffer
+        local bufferCount = obj.buffer:Count()
+        if remainingTaskCount > bufferCount then
             local baseDir = self.i3DBaseDir
-            for i = 1, dCount - bCount do
+            for i = 1, remainingTaskCount - bufferCount do
+                -- loading new i3ds
                 local id = g_i3DManager:loadSharedI3DFile(obj.fileName, baseDir)
-                obj.buffer[bCount + i] = iFunc(id)
+                obj.buffer:Insert(iFunc(id))
             end
         end
-        for _, id in pairs(obj.buffer) do
-            local task = table.remove(obj.tasks)
-            if task then
-                -- call the drawing function for each task
-                dFunc(self, id, task)
-            else
-                -- make invisible the remaining items in the buffer
-                setVisibility(id, false)
+
+        -- drawing tasks
+        for _, task in pairs(obj.tasks) do
+            -- moving object from the buffer to the hashes table
+            if obj.objects:Contains(task.hash) == false then
+                local oId = obj.buffer:Get()
+                obj.objects:Add(task.hash, oId)
+                dFunc(self, oId, task)
             end
         end
+        obj.tasks = {}
     end
-    obj.lastDrawZero = dCount <= 0
+    obj.lastDrawZero = taskCount <= 0
     return stats
 end
 
