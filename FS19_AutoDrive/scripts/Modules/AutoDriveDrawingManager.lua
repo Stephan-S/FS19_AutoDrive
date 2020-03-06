@@ -16,6 +16,9 @@ AutoDriveDrawingManager.arrows.fileName = "arrow.i3d"
 AutoDriveDrawingManager.arrows.buffer = {}
 AutoDriveDrawingManager.arrows.tasks = {}
 AutoDriveDrawingManager.arrows.lastDrawZero = true
+AutoDriveDrawingManager.arrows.position = {}
+AutoDriveDrawingManager.arrows.position.start = 1
+AutoDriveDrawingManager.arrows.position.middle = 2
 
 AutoDriveDrawingManager.sSphere = {}
 AutoDriveDrawingManager.sSphere.fileName = "sphere_small.i3d"
@@ -29,6 +32,12 @@ AutoDriveDrawingManager.sphere.buffer = {}
 AutoDriveDrawingManager.sphere.tasks = {}
 AutoDriveDrawingManager.sphere.lastDrawZero = true
 
+AutoDriveDrawingManager.markers = {}
+AutoDriveDrawingManager.markers.fileName = "marker.i3d"
+AutoDriveDrawingManager.markers.buffer = {}
+AutoDriveDrawingManager.markers.tasks = {}
+AutoDriveDrawingManager.markers.lastDrawZero = true
+
 function AutoDriveDrawingManager:load()
     -- preloading and storing in chache I3D files
     self.i3DBaseDir = AutoDrive.directory .. self.i3DBaseDir
@@ -36,6 +45,7 @@ function AutoDriveDrawingManager:load()
     g_i3DManager:fillSharedI3DFileCache(self.arrows.fileName, self.i3DBaseDir)
     g_i3DManager:fillSharedI3DFileCache(self.sSphere.fileName, self.i3DBaseDir)
     g_i3DManager:fillSharedI3DFileCache(self.sphere.fileName, self.i3DBaseDir)
+    g_i3DManager:fillSharedI3DFileCache(self.markers.fileName, self.i3DBaseDir)
 end
 
 function AutoDriveDrawingManager.initObject(id)
@@ -53,14 +63,19 @@ function AutoDriveDrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
     table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b})
 end
 
-function AutoDriveDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, r, g, b)
+function AutoDriveDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
     -- storing task
-    table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b})
+    table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position})
 end
 
 function AutoDriveDrawingManager:addSmallSphereTask(x, y, z, r, g, b)
     -- storing task
     table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b})
+end
+
+function AutoDriveDrawingManager:addMarkerTask(x, y, z)
+    -- storing task
+    table.insert(self.markers.tasks, {x = x, y = y, z = z})
 end
 
 function AutoDriveDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
@@ -82,7 +97,7 @@ function AutoDriveDrawingManager:draw()
         self.emittivity = 1 - light
         if self.emittivity > 0.9 then
             -- enable glow
-            self.emittivity = self.emittivity * 5
+            self.emittivity = self.emittivity * 0.5
         end
         self.emittivityNextUpdate = 600
     else
@@ -103,8 +118,12 @@ function AutoDriveDrawingManager:draw()
     self.debug["sSphere"].Time = netGetTime() - tTime
 
     tTime = netGetTime()
-    self.debug["sphere"] = self:drawObjects(self.sphere, self.drawSphere, self.initObject)
-    self.debug["sphere"].Time = netGetTime() - tTime
+    self.debug["Sphere"] = self:drawObjects(self.sphere, self.drawSphere, self.initObject)
+    self.debug["Sphere"].Time = netGetTime() - tTime
+
+    tTime = netGetTime()
+    self.debug["Markers"] = self:drawObjects(self.markers, self.drawMarker, self.initObject)
+    self.debug["Markers"].Time = netGetTime() - tTime
 
     self.debug["TotalTime"] = netGetTime() - time
     if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_RENDERINFO) then
@@ -174,9 +193,15 @@ end
 function AutoDriveDrawingManager:drawArrow(id, task)
     local atan2 = math.atan2
 
-    local x = (task.sx + task.ex) / 2
-    local y = (task.sy + task.ey) / 2
-    local z = (task.sz + task.ez) / 2
+    local x = task.ex
+    local y = task.ey
+    local z = task.ez
+
+    if task.position == self.arrows.position.middle then
+        x = (x + task.sx) / 2
+        y = (y + task.sy) / 2
+        z = (z + task.sz) / 2
+    end
 
     -- Get the direction to the end point
     local dirX, _, dirZ, _ = AutoDrive.getWorldDirection(task.sx, task.sy, task.sz, task.ex, task.ey, task.ez)
@@ -204,6 +229,11 @@ end
 function AutoDriveDrawingManager:drawSmallSphere(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setShaderParameter(id, "color", task.r, task.g, task.b, self.emittivity, false)
+    setVisibility(id, true)
+end
+
+function AutoDriveDrawingManager:drawMarker(id, task)
+    setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setVisibility(id, true)
 end
 
