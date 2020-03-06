@@ -13,7 +13,7 @@
 
   <Materials>
     <Material name="marker_mat" materialId="4" alphaBlending="true" customShaderId="2" customShaderVariation="PULSATING">
-      <Texture fileId="1"/>
+      <Emissivemap fileId="1"/>
       <CustomParameter name="scaleParameters" value="0.65 1 2.5 1"/>
     </Material>
   </Materials>
