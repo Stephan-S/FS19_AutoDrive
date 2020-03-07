@@ -224,7 +224,9 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 			vehicle.ad.isStoppingWithError = true
 			AutoDrive:disableAutoDriveFunctions(vehicle)
 		else
-			AutoDrive:startAD(vehicle)
+			print("Starting mode: " .. vehicle.ad.mode)
+			vehicle.ad.modes[vehicle.ad.mode]:start()
+			--AutoDrive:startAD(vehicle)
 		end
 	end
 

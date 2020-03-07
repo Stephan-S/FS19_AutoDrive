@@ -125,6 +125,13 @@ function AutoDrive.boxesIntersect(a, b)
 	return true
 end
 
+function math:clamp(minValue, value, maxValue)
+	if minValue ~= nil and value ~= nil and maxValue ~= nil then
+		return math.max(minValue, math.min(maxValue, value))
+	end
+	return value
+end
+
 function table:contains(value)
 	for _, v in pairs(self) do
 		if v == value then
@@ -601,17 +608,29 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 	end
 end
 
-function AutoDrive.renderColoredTextAtWorldPosition(x, y, z, text, textSize, color)
-	local sx, sy, sz = project(x, y, z)
-	if sx > -1 and sx < 2 and sy > -1 and sy < 2 and sz <= 1 then
-		setTextAlignment(RenderText.ALIGN_CENTER)
-		setTextBold(false)
-		setTextColor(0.0, 0.0, 0.0, 0.75)
-		renderText(sx, sy - 0.0015, textSize, text)
-		setTextColor(color.r, color.g, color.b, 1.0)
-		renderText(sx, sy, textSize, text)
-		setTextAlignment(RenderText.ALIGN_LEFT)
-	end
+function AutoDrive.renderColoredTextAtWorldPosition(x,y,z, text, textSize, color)
+    local sx,sy,sz = project(x,y,z);
+    if sx > -1 and sx < 2 and sy > -1 and sy < 2 and sz <= 1 then
+        setTextAlignment(RenderText.ALIGN_CENTER);
+        setTextBold(false);
+        setTextColor(0.0, 0.0, 0.0, 0.75);
+        renderText(sx, sy-0.0015, textSize, text);
+        setTextColor(color.r, color.g, color.b, 1.0);
+        renderText(sx, sy, textSize, text);
+        setTextAlignment(RenderText.ALIGN_LEFT);
+    end
+end
+
+function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
+    local densityBits = 0
+
+    local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ)
+    densityBits = bitOR(densityBits, bits)
+    if densityBits ~= 0 then
+        return true
+    end
+
+    return false
 end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server

@@ -62,6 +62,17 @@ function AutoDrive:onLoad(savegame)
     self.ad.mapMarkerSelected_Unload = -1
     self.ad.nameOfSelectedTarget_Unload = ""
     self.ad.groups = {}
+    
+    self.ad.taskModule = ADTaskModule:new(self)
+    self.ad.trailerModule = ADTrailerModule:new(self)
+    self.ad.drivePathModule = ADDrivePathModule:new(self)
+    self.ad.specialDrivingModule = ADSpecialDrivingModule:new(self)
+    self.ad.collisionDetectionModule = ADCollisionDetectionModule:new(self)
+
+    self.ad.modes = {}
+    self.ad.modes[AutoDrive.MODE_DRIVETO] = DriveToMode:new(self)
+    self.ad.modes[AutoDrive.MODE_DELIVERTO] = UnloadAtMode:new(self)
+    self.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER] = PickupAndDeliverMode:new(self)
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -382,9 +393,16 @@ function AutoDrive:onUpdate(dt)
 
     self.ad.closest = nil
 
+    
+    self.ad.taskModule:update(dt)
+    --self.ad.trailerModule:update(dt)
+    --self.ad.drivePathModule:update(dt)
+    --self.ad.specialDrivingModule:update(dt)
+    --self.ad.collisionDetectionModule:update(dt)
+
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
-    AutoDrive:handleDriving(self, dt)
+    --AutoDrive:handleDriving(self, dt)
     AutoDrive:handleVehicleIntegrity(self)
     AutoDrive.handleVehicleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)
@@ -557,7 +575,7 @@ function AutoDrive:onDraw()
             local sWP = self.ad.wayPoints[self.ad.currentWayPoint]
             local eWP = self.ad.wayPoints[self.ad.currentWayPoint + 1]
             AutoDriveDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
-            AutoDriveDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, AutoDriveDrawingManager.arrows.position.start, 1, 1, 1)
+            AutoDriveDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
         end
     end
 
@@ -732,8 +750,6 @@ function AutoDrive.drawPointsInProximity(vehicle)
             --just a quick way to highlight single (forgotten) points with no connections
             if (#point.out == 0) and (#point.incoming == 0) then
                 AutoDriveDM:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
-            else
-                --AutoDriveDM:addSmallSphereTask(x, y, z, 1, 0, 0)
             end
         end
     end
@@ -795,7 +811,7 @@ function AutoDrive:updateAILights(superFunc)
 end
 
 function AutoDrive:getCanMotorRun(superFunc)
-    if self.ad ~= nil and self.ad.isActive and AutoDrive.shouldStopMotor(self) then
+    if self.ad ~= nil and self.ad.isActive and self.ad.specialDrivingModule:shouldStopMotor() then
         return false
     else
         return superFunc(self)

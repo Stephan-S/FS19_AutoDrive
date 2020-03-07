@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.2"
+AutoDrive.version = "1.0.7.2-1"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -11,6 +11,8 @@ AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
 
 AutoDrive.developmentControls = false
+
+--AutoDrive.renderTime = 0
 
 AutoDrive.configChanged = false
 
@@ -45,6 +47,7 @@ AutoDrive.actions = {
 
 AutoDrive.drawHeight = 0.3
 AutoDrive.drawDistance = getViewDistanceCoeff() * 50
+
 
 AutoDrive.MODE_DRIVETO = 1
 AutoDrive.MODE_PICKUPANDDELIVER = 2
@@ -88,6 +91,11 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDijkstraLive.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Tasks/AbstractTask.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Tasks/DriveToDestinationTask.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Modules/TrailerModule.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Modules/TaskModule.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Modules/PathingModule.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if g_server ~= nil then
@@ -123,7 +131,6 @@ function AutoDrive:loadMap(name)
 	AutoDrive.mapWayPointsCounter = 0
 	AutoDrive.mapMarker = {}
 	AutoDrive.mapMarkerCounter = 0
-
 	AutoDrive.groups = {}
 	AutoDrive.groups["All"] = 1
 	AutoDrive.groupCounter = 1
@@ -131,21 +138,21 @@ function AutoDrive:loadMap(name)
 	AutoDrive.pullDownListExpanded = 0
 	AutoDrive.pullDownListDirection = 0
 
-	--AutoDrive.lastSetSpeed = 50
-
 	AutoDrive.requestedWaypoints = false
 	AutoDrive.requestedWaypointCount = 1
 	AutoDrive.playerSendsMapToServer = false
 
 	AutoDrive.showMouse = false
 	AutoDrive.mouseWheelActive = false
-
+	
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}
 
 	AutoDrive.delayedCallBacks = {}
 
 	AutoDrive.mapHotspotsBuffer = {}
+
+	AutoDrive.requestWayPointTimer = 10000
 
 	AutoDrive.loadStoredXML()
 
@@ -161,10 +168,22 @@ function AutoDrive:loadMap(name)
 	AutoDrive.Hud = AutoDriveHud:new()
 	AutoDrive.Hud:loadHud()
 
-	AutoDriveBenchmarks.Run()
-	AutoDriveRoutesManager.load()
-	AutoDriveDrawingManager:load()
-	AutoDriveMessagesManager:load()
+	-- Save Configuration when saving savegame
+	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
+
+	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
+	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
+	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
+
+	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly)
+
+	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, ADTriggerManager.loadTriggerLoad)
+	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, ADTriggerManager.loadTriggerDelete)
+
+	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
+	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
+	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
+
 
 	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
 	--    DelayedCallBack:new(
@@ -184,22 +203,10 @@ function AutoDrive:loadMap(name)
 	--        g_gui:showGui("ADEnterGroupNameGui")
 	--    end
 	--)
-
-	-- Save Configuration when saving savegame
-	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
-
-	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
-	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
-	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
-
-	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly)
-
-	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad)
-	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
-
-	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
-	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
-	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
+	AutoDriveBenchmarks.Run()
+	AutoDriveRoutesManager.load()
+	AutoDriveDrawingManager:load()
+	AutoDriveMessagesManager:load()
 end
 
 function AutoDrive:firstRun()
@@ -329,7 +336,8 @@ function AutoDrive:update(dt)
 
 	AutoDrive.handleMultiplayer(dt)
 
-	AutoDriveMessagesManager:update(dt)
+	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
+	--AutoDrive.renderTime = 0
 end
 
 function AutoDrive:draw()
@@ -539,27 +547,7 @@ function AutoDrive:getIsActivatable(superFunc, objectToFill)
 	return superFunc(self, objectToFill)
 end
 
-function AutoDrive:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
-	local result = superFunc(self, rootNode, xmlFile, xmlNode)
 
-	if result and AutoDrive.Triggers ~= nil then
-		AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
-		AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = self
-	end
-
-	return result
-end
-
-function AutoDrive:loadTriggerDelete(superFunc)
-	if AutoDrive.Triggers ~= nil then
-		for i, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-			if trigger == self then
-				AutoDrive.Triggers.siloTriggers[i] = nil
-			end
-		end
-	end
-	superFunc(self)
-end
 
 AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}
 for _, statName in pairs(AutoDrive.STAT_NAMES) do

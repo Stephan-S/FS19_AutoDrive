@@ -148,10 +148,10 @@ function AutoDrivePathFinder:startPathPlanningToCombine(driver, combine, dischar
         end
     end
 
-    local startIsOnField = AutoDrivePathFinder:checkIsOnField(driverWorldX, driverWorldY, driverWorldZ)
-    local endIsOnField = AutoDrivePathFinder:checkIsOnField(wpBehind.x, worldY, wpBehind.z)
+    local startIsOnField = AutoDrive.checkIsOnField(driverWorldX, driverWorldY, driverWorldZ)
+    local endIsOnField = AutoDrive.checkIsOnField(wpBehind.x, worldY, wpBehind.z)
 
-    driver.ad.pf.restrictToField = startIsOnField and endIsOnField
+    driver.ad.pf.restrictToField = AutoDrive.getSetting("restrictToField") and startIsOnField and endIsOnField
 end
 
 function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, ignoreFruit, PreviousStartPosition)
@@ -250,10 +250,10 @@ function AutoDrivePathFinder:startPathPlanningToStartPosition(driver, combine, i
     driver.ad.pf.goingToCombine = false
     driver.ad.pf.ignoreFruit = ignoreFruit
 
-    local startIsOnField = AutoDrivePathFinder:checkIsOnField(driverWorldX, driverWorldY, driverWorldZ)
-    local endIsOnField = AutoDrivePathFinder:checkIsOnField(targetX, driverWorldY, targetZ)
+    local startIsOnField = AutoDrive.checkIsOnField(driverWorldX, driverWorldY, driverWorldZ)
+    local endIsOnField = AutoDrive.checkIsOnField(targetX, driverWorldY, targetZ)
 
-    driver.ad.pf.restrictToField = startIsOnField and endIsOnField
+    driver.ad.pf.restrictToField = startIsOnField and endIsOnField and AutoDrive.getSetting("restrictToField")
 end
 
 function AutoDrivePathFinder:getDriverRadius(driver)
@@ -611,7 +611,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
 
         cell.hasInfo = true
 
-        cell.isRestricted = cell.isRestricted or (pf.restrictToField and (not pf.fallBackMode) and (not AutoDrivePathFinder:checkIsOnField(worldPos.x, y, worldPos.z)))
+        cell.isRestricted = cell.isRestricted or (pf.restrictToField and (not pf.fallBackMode) and (not AutoDrive.checkIsOnField(worldPos.x, y, worldPos.z)))
 
         local boundingBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
         local vehicleCollides, vehiclePathCollides = AutoDrive:checkForVehiclesInBox(pf, boundingBox)
@@ -623,17 +623,7 @@ function AutoDrivePathFinder:checkGridCell(pf, cell)
     end
 end
 
-function AutoDrivePathFinder:checkIsOnField(worldX, worldY, worldZ)
-    local densityBits = 0
 
-    local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ)
-    densityBits = bitOR(densityBits, bits)
-    if densityBits ~= 0 or (AutoDrive.getSetting("restrictToField") == false) then
-        return true
-    end
-
-    return false
-end
 
 function AutoDrivePathFinder:checkSlopeAngle(x1, z1, x2, z2)
     local vectorFromPrevious = {x = x1 - x2, z = z1 - z2}
@@ -1125,151 +1115,6 @@ function AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
     return boundingBox
 end
 
-function AutoDrive:checkForVehicleCollision(vehicle, excludedVehicles, dynamicSize)
-    if excludedVehicles == nil then
-        excludedVehicles = {}
-    end
-    table.insert(excludedVehicles, vehicle)
-    return AutoDrive:checkForVehiclesInBox(nil, AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize), excludedVehicles)
-end
-
-function AutoDrive:checkForVehiclesInBox(pf, boundingBox, excludedVehicles)
-    for _, otherVehicle in pairs(g_currentMission.vehicles) do
-        local isExcluded = false
-        if excludedVehicles ~= nil and otherVehicle ~= nil then
-            for _, excludedVehicle in pairs(excludedVehicles) do
-                if excludedVehicle == otherVehicle or AutoDrive:checkIsConnected(excludedVehicle, otherVehicle) then
-                    isExcluded = true
-                end
-            end
-        end
-
-        if (not isExcluded) and otherVehicle ~= nil and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then
-            local x, _, z = getWorldTranslation(otherVehicle.components[1].node)
-            local distance = MathUtil.vector2Length(boundingBox[1].x - x, boundingBox[1].z - z)
-            if distance < 50 then
-                if AutoDrive.boxesIntersect(boundingBox, AutoDrive:getBoundingBoxForVehicle(otherVehicle, false)) == true then
-                    return true, false
-                end
-            end
-
-            if pf ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.wayPoints ~= nil then
-                local lastWp = nil
-                -- check for other pathfinder steered vehicles and avoid any intersection with their routes
-                for index, wp in pairs(otherVehicle.ad.wayPoints) do
-                    if lastWp ~= nil and wp.id == nil and index >= otherVehicle.ad.currentWayPoint and index > 2 and index < (#otherVehicle.ad.wayPoints - 2) then
-                        local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2))
-                        local sideLength = widthOfColBox / 2
-
-                        local vectorX = lastWp.x - wp.x
-                        local vectorZ = lastWp.z - wp.z
-                        local angleRad = math.atan2(-vectorZ, vectorX)
-                        angleRad = AutoDrive.normalizeAngle(angleRad)
-                        local length = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorZ, 2)) + widthOfColBox
-
-                        local leftAngle = AutoDrive.normalizeAngle(angleRad + math.rad(-90))
-                        local rightAngle = AutoDrive.normalizeAngle(angleRad + math.rad(90))
-
-                        local cornerX = wp.x - math.cos(leftAngle) * sideLength
-                        local cornerZ = wp.z + math.sin(leftAngle) * sideLength
-
-                        local corner2X = lastWp.x - math.cos(leftAngle) * sideLength
-                        local corner2Z = lastWp.z + math.sin(leftAngle) * sideLength
-
-                        local corner3X = lastWp.x - math.cos(rightAngle) * sideLength
-                        local corner3Z = lastWp.z + math.sin(rightAngle) * sideLength
-
-                        local corner4X = wp.x - math.cos(rightAngle) * sideLength
-                        local corner4Z = wp.z + math.sin(rightAngle) * sideLength
-                        local cellBox = AutoDrive:boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
-
-                        if AutoDrive.boxesIntersect(boundingBox, cellBox) == true then
-                            return true, true
-                        end
-
-                        if AutoDrive.boxesIntersect(boundingBox, AutoDrive:getBoundingBoxForVehicleAtPosition(otherVehicle, {x = wp.x, y = wp.y, z = wp.z}, false)) == true then
-                            return true, true
-                        end
-                    end
-                    lastWp = wp
-                end
-            end
-        end
-    end
-
-    return false, false
-end
-
-function AutoDrive:getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
-    local x, y, z = position.x, position.y, position.z
-    local rx, _, rz = 0, 0, 0
-    local lookAheadDistance = 0
-    local width = vehicle.sizeWidth
-    local length = vehicle.sizeLength
-    if dynamicSize then
-        --Box should be a lookahead box which adjusts to vehicle steering rotation
-        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
-        lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 10 + 2
-        if vehicle.ad ~= nil and vehicle.ad.wayPoints ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil and vehicle.ad.wayPoints[vehicle.ad.currentWayPoint + 2] == nil then
-            width = width * 2 / 3
-        end
-    else
-        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
-    end
-    local vehicleVector = {x = rx, z = rz}
-    local ortho = {x = -vehicleVector.z, z = vehicleVector.x}
-
-    local boundingBox = {}
-    boundingBox[1] = {
-        x = x + (width / 2) * ortho.x + (length / 2) * vehicleVector.x,
-        y = y + 2,
-        z = z + (width / 2) * ortho.z + (length / 2) * vehicleVector.z
-    }
-    boundingBox[2] = {
-        x = x - (width / 2) * ortho.x + (length / 2) * vehicleVector.x,
-        y = y + 2,
-        z = z - (width / 2) * ortho.z + (length / 2) * vehicleVector.z
-    }
-    boundingBox[3] = {
-        x = x - (width / 2) * ortho.x + (length / 2 + lookAheadDistance) * vehicleVector.x,
-        y = y + 2,
-        z = z - (width / 2) * ortho.z + (length / 2 + lookAheadDistance) * vehicleVector.z
-    }
-    boundingBox[4] = {
-        x = x + (width / 2) * ortho.x + (length / 2 + lookAheadDistance) * vehicleVector.x,
-        y = y + 2,
-        z = z + (width / 2) * ortho.z + (length / 2 + lookAheadDistance) * vehicleVector.z
-    }
-
-    --Box should just be vehicle dimensions;
-    if not dynamicSize then
-        boundingBox[1] = {
-            x = x + (width / 2) * ortho.x - (length / 2) * vehicleVector.x,
-            y = y + 2,
-            z = z + (width / 2) * ortho.z - (length / 2) * vehicleVector.z
-        }
-        boundingBox[2] = {
-            x = x - (width / 2) * ortho.x - (length / 2) * vehicleVector.x,
-            y = y + 2,
-            z = z - (width / 2) * ortho.z - (length / 2) * vehicleVector.z
-        }
-    end
-
-    --AutoDrive.drawLine(boundingBox[1], boundingBox[2], 1, 0, 0, 1);
-    --AutoDrive.drawLine(boundingBox[2], boundingBox[3], 1, 0, 0, 1);
-    --AutoDrive.drawLine(boundingBox[3], boundingBox[4], 1, 0, 0, 1);
-    --AutoDrive.drawLine(boundingBox[4], boundingBox[1], 1, 0, 0, 1);
-
-    return boundingBox
-end
-
-function AutoDrive:getBoundingBoxForVehicle(vehicle, dynamicSize)
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-
-    local position = {x = x, y = y, z = z}
-
-    return AutoDrive:getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
-end
 
 function AutoDrivePathFinder:drawDebugForPF(pf)
     local AutoDriveDM = AutoDriveDrawingManager

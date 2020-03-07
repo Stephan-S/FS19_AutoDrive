@@ -305,33 +305,3 @@ function AutoDrive:dijkstraLiveShortestPath(Graph, start_id, target_id)
 
 	return wp
 end
-
-function AutoDrive:FastShortestPath(Graph, start, markerName, markerID)
-	local wp = {}
-	local start_id = start
-	local target_id = 0
-
-	if start_id == nil or start_id == 0 then
-		return wp
-	end
-
-	for i in pairs(AutoDrive.mapMarker) do
-		if AutoDrive.mapMarker[i].name == markerName then
-			target_id = AutoDrive.mapMarker[i].id
-			break
-		end
-	end
-
-	if target_id == 0 then
-		return wp
-	end
-
-	if target_id == start_id then
-		table.insert(wp, 1, Graph[target_id])
-		return wp
-	end
-
-	wp = AutoDrive:dijkstraLiveShortestPath(Graph, start_id, target_id)
-
-	return wp
-end

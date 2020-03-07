@@ -75,6 +75,10 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
     return toViaID
 end
 
+function AutoDrive:GetDriverName(vehicle)
+    return vehicle.ad.driverName
+end
+
 function AutoDrive:GetAvailableDestinations()
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetAvailableDestinations()")
     local destinations = {}

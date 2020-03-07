@@ -280,17 +280,6 @@ AutoDrive.settings.lookAheadTurning = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.lookAheadBraking = {
-    values = {5, 7.5, 10, 12.5, 15, 17.5, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100},
-    texts = {"5m", "7.5m", "10m", "12.5m", "15m", "17.5m", "20m", "25m", "30m", "35m", "40m", "50m", "60m", "70m", "80m", "90m", "100m"},
-    default = 7,
-    current = 7,
-    text = "gui_ad_lookahead_braking",
-    tooltip = "gui_ad_lookahead_braking_tooltip",
-    translate = false,
-    isVehicleSpecific = false
-}
-
 AutoDrive.settings.useFastestRoute = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},
