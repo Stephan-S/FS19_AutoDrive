@@ -12,7 +12,7 @@
 		<text name="input_ADSelectPreviousTarget"				text="AD: Предыдущая локация" />
 		<text name="input_AD_Speed_up"							text="AD: Увеличить скорость" />
 		<text name="input_AD_Speed_down"						text="AD: Уменьшить скорость" />
-		<text name="input_AD_routes_manager" 					text="AD: Open routes manager" />
+		<text name="input_AD_routes_manager" 					text="AD: Открыть менеджер маршрутов" />
 		<text name="input_AD_continue"							text="AD: Продолжить" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Следующая точка разгрузки" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Предыдущая точка разгрузки" />
@@ -53,8 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Загрузка" />
 		<text name="AD_MODE_BGA"								text="Перегрузка из силосной ямы" />
 		<text name="AD_synchronizing"							text="загрузка сети из сервера.." />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
-		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
+		<text name="AD_lctrl_for_creation" 						text="L-CTRL создать" />
+		<text name="AD_lalt_for_deletion" 						text="L-ALT удалить" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_trailerOffset"						text="Смещение прицепа" />
@@ -164,8 +164,8 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
 		<text name="gui_ad_showMarkersOnMap"					text="Отображать маркеры" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Отображать маркеры/пункты назначения на карте." />
-		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
-		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Переключение через маркеры" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Устанавливать локацию/точку разгрузки при нажатии на горячие точки на карте." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />
@@ -176,14 +176,14 @@
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Все изменения будут утеряны" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Вы уверены, что хотите закрыть окно настроек без сохранения?" />
 		
-		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
-		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
-		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
+		<text name="gui_ad_routesManagerTitle" 					text="Менеджер маршрутов" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Назначить название маршрута:" />
+		<text name="gui_ad_button_export" 						text="Экспорт" />
+		<text name="gui_ad_button_import" 						text="Импорт" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Вы уверены, что хотите перезаписать существующий маршрут?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Перезапись маршрута" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Вы уверены, что хотите удалить маршрут '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Удаление маршрута" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Расстояние от водителей" />
 		<text name="statistic_driversHired" 					text="Водители в настоящее время наняты" />
@@ -235,7 +235,7 @@
 		<text name="ad_helpTitle_07"							text="Режим AD - Разгрузка комбайна - Основы - 1" />
 		<text name="ad_helpText_07_01"							text="При запуске водитель решит, отправиться ли ему в поле или сначала разгрузиться (см. «Загрузка и доставка»). Когда он достигает локации на поле, он регистрируется как доступный водитель. Если комбайн заполнен на 100% и имеет выставленную трубу, он автоматически пройдется по зарегистрированным разгрузчикам и выберет ближайший к нему. В зависимости от настройки «Поиск разгружающего водителя» могут быть приняты все водители на расстоянии до 300 метров («Да») или только те водители с теми же целями, что указаны в HUD AutoDrive для комбайна («Нет»)." />
 		<text name="ad_helpText_07_02"							text="" />
-		<text name="ad_helpText_07_03"							text="Важно: На комбайне вам не нужно активировать AutoDrive. Требуется только выбрать цель." />
+		<text name="ad_helpText_07_03"							text="Важно: На комбайне вам не нужно активировать AutoDrive. Требуется только выбрать локацию." />
 		<text name="ad_helpText_07_04"							text="" />
 		<text name="ad_helpText_07_05"							text="Кроме того, игрок также может вручную вызвать разгрузчик, назначив в опциях игры сочетание клавиш для «AD: Вызвать разгружающего водителя» и используя его, сидя в комбайне. Если комбайном управляет Courseplay, AutoDrive также вызовет разгрузчик, если обнаружит, что водитель Courseplay хочет разгрузиться." />
 
