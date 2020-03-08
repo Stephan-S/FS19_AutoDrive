@@ -633,4 +633,24 @@ function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
     return false
 end
 
+Sprayer.registerOverwrittenFunctions =
+    Utils.appendedFunction(
+    Sprayer.registerOverwrittenFunctions,
+    function(vehicleType)
+        -- Work-around/fix for issue #863 ( thanks to DeckerMMIV )
+        -- Having a slurry tank with a spreading unit attached, then avoid having the AI automatically turn these on when FollowMe is active.
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType,
+            "getIsAIActive",
+            function(self, superFunc)
+                local rootVehicle = self:getRootVehicle()
+                if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.isActive and self ~= rootVehicle then
+                    return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
+                end
+                return superFunc(self)
+            end
+        )
+    end
+)
+
 -- TODO: Maybe we should add a console command that allows to run console commands to server

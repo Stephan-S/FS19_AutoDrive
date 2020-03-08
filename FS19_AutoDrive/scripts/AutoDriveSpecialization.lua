@@ -54,7 +54,6 @@ function AutoDrive:onLoad(savegame)
     self.ad = {}
     self.ad.smootherDriving = {}
     self.ad.smootherDriving.lastMaxSpeed = 0
-    self.ad.stuckInTrafficTimer = 0
     self.ad.targetSelected = -1
     self.ad.mapMarkerSelected = -1
     self.ad.nameOfSelectedTarget = ""
@@ -68,12 +67,15 @@ function AutoDrive:onLoad(savegame)
     self.ad.drivePathModule = ADDrivePathModule:new(self)
     self.ad.specialDrivingModule = ADSpecialDrivingModule:new(self)
     self.ad.collisionDetectionModule = ADCollisionDetectionModule:new(self)
+    self.ad.pathFinderModule = PathFinderModule:new(self)
 
     self.ad.modes = {}
     self.ad.modes[AutoDrive.MODE_DRIVETO] = DriveToMode:new(self)
     self.ad.modes[AutoDrive.MODE_DELIVERTO] = UnloadAtMode:new(self)
     self.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER] = PickupAndDeliverMode:new(self)
     self.ad.modes[AutoDrive.MODE_LOAD] = LoadMode:new(self)
+    self.ad.modes[AutoDrive.MODE_BGA] = BGAMode:new(self)
+    self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -146,7 +148,7 @@ end
 
 function AutoDrive:init()
     self.ad.isActive = false
-    self.ad.initialized = false    
+    self.ad.initialized = false
     self.ad.creationMode = false
     self.ad.creationModeDual = false
 
@@ -201,19 +203,11 @@ function AutoDrive:init()
 
     self.ad.moduleInitialized = true
     self.ad.currentInput = ""
-    --self.ad.lastSpeed = self.ad.targetSpeed
-    self.ad.speedOverride = -1
 
-    self.ad.isUnloading = false
-    self.ad.isPaused = false
-    self.ad.onRouteToSecondTarget = false
-    self.ad.isLoading = false
-    self.ad.isUnloadingToBunkerSilo = false
     if self.ad.unloadFillTypeIndex == nil then
         self.ad.unloadFillTypeIndex = 2
     end
-    self.ad.isPausedCauseTraffic = false
-    self.ad.startedLoadingAtTrigger = false
+    
     self.ad.combineUnloadInFruit = false
     self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER
     self.ad.combineFruitToCheck = nil
@@ -224,8 +218,8 @@ function AutoDrive:init()
     self.ad.closeCoverTimer = AutoDriveTON:new()
     self.ad.currentTrailer = 1
     self.ad.usePathFinder = false
+
     self.ad.onRouteToPark = false
-    self.ad.waitingToBeLoaded = false
 
     if AutoDrive ~= nil then
         local set = false
@@ -279,19 +273,15 @@ function AutoDrive:init()
     self.ad.pullDownList.width = 0
     self.ad.pullDownList.height = 0
     self.ad.lastMouseState = false
+
     if self.ad.loopCounterSelected == nil then
         self.ad.loopCounterSelected = 0
     end
-    self.ad.loopCounterCurrent = 0
+
     if self.ad.parkDestination == nil then
         self.ad.parkDestination = -1
     end
-
-    if self.bga == nil then
-        self.bga = {}
-        self.bga.state = AutoDriveBGA.STATE_IDLE
-        self.bga.isActive = false
-    end
+    
     self.ad.noMovementTimer = AutoDriveTON:new()
     self.ad.noTurningTimer = AutoDriveTON:new()
 
@@ -376,45 +366,26 @@ function AutoDrive:onReadStream(streamId, connection)
 end
 
 function AutoDrive:onUpdate(dt)
-    --if self.ad == nil or self.ad.moduleInitialized ~= true then
-    --    init(self)
-    --end
-
     if self.ad.currentInput ~= "" and self.isServer then
         AutoDrive:InputHandling(self, self.ad.currentInput)
     end
 
     self.ad.closest = nil
-
     
     self.ad.taskModule:update(dt)
-    --self.ad.trailerModule:update(dt)
-    --self.ad.drivePathModule:update(dt)
-    --self.ad.specialDrivingModule:update(dt)
-    --self.ad.collisionDetectionModule:update(dt)
 
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
-    --AutoDrive:handleDriving(self, dt)
     AutoDrive:handleVehicleIntegrity(self)
     AutoDrive.handleVehicleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)
-    AutoDriveBGA:handleBGA(self, dt)
 
-    if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
-        AutoDrive:handleCombineHarvester(self, dt)
-    end
+    --if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
+        --AutoDrive:handleCombineHarvester(self, dt)
+    --end
 
     if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
         AutoDrive.renderTable(0.1, 0.9, 0.012, AutoDrive:createVehicleInfoTable(self), 5)
-    end
-
-    if self.ad.trafficDetected then
-        if self.ad.stuckInTrafficTimer < 60000 then -- After a minute we can even stop counting
-            self.ad.stuckInTrafficTimer = self.ad.stuckInTrafficTimer + dt
-        end
-    else
-        self.ad.stuckInTrafficTimer = 0
     end
 
     local vehicleSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 10)
@@ -438,27 +409,16 @@ end
 function AutoDrive:createVehicleInfoTable(vehicle)
     local infoTable = {}
 
-    infoTable["isPaused"] = vehicle.ad.isPaused
-    infoTable["isLoading"] = vehicle.ad.isLoading
-    infoTable["isUnloading"] = vehicle.ad.isUnloading
     infoTable["isActive"] = vehicle.ad.isActive
-    infoTable["isStopping"] = vehicle.ad.isStopping
     infoTable["mode"] = AutoDriveHud:getModeName(vehicle)
-    infoTable["inDeadLock"] = vehicle.ad.inDeadLock
-    infoTable["speedOverride"] = vehicle.ad.speedOverride
-    infoTable["onRouteToSecondTarget"] = vehicle.ad.onRouteToSecondTarget
     infoTable["onRouteToRefuel"] = vehicle.ad.onRouteToRefuel
     infoTable["unloadFillTypeIndex"] = vehicle.ad.unloadFillTypeIndex
-    infoTable["startedLoadingAtTrigger"] = vehicle.ad.startedLoadingAtTrigger
     infoTable["combineUnloadInFruit"] = vehicle.ad.combineUnloadInFruit
     infoTable["combineFruitToCheck"] = vehicle.ad.combineFruitToCheck
     infoTable["currentTrailer"] = vehicle.ad.currentTrailer
     infoTable["combineState"] = AutoDrive.combineStateToName(vehicle)
     infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle)
-    infoTable["trafficDetected"] = vehicle.ad.trafficDetected
-    infoTable["isStuckInTraffic"] = AutoDrive.getIsStuckInTraffic(vehicle)
     infoTable["initialized"] = vehicle.ad.initialized
-    infoTable["waitingToBeLoaded"] = vehicle.ad.waitingToBeLoaded
 
     local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
     local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)
@@ -575,7 +535,7 @@ function AutoDrive:onDraw()
         end
     end
 
-    if AutoDrive.getSetting("showNextPath") == true and (self.bga.isActive == false) then
+    if AutoDrive.getSetting("showNextPath") == true then
         local wps, currentWp = self.ad.drivePathModule:getWayPoints()
         if wps ~= nil and currentWp ~= nil and currentWp > 0 and wps[currentWp] ~= nil and wps[currentWp + 1] ~= nil then
             --draw line with direction markers (arrow)
@@ -773,26 +733,6 @@ function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
 end
 
-Sprayer.registerOverwrittenFunctions =
-    Utils.appendedFunction(
-    Sprayer.registerOverwrittenFunctions,
-    function(vehicleType)
-        -- Work-around/fix for issue #863 ( thanks to DeckerMMIV )
-        -- Having a slurry tank with a spreading unit attached, then avoid having the AI automatically turn these on when FollowMe is active.
-        SpecializationUtil.registerOverwrittenFunction(
-            vehicleType,
-            "getIsAIActive",
-            function(self, superFunc)
-                local rootVehicle = self:getRootVehicle()
-                if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.isActive and self ~= rootVehicle then
-                    return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
-                end
-                return superFunc(self)
-            end
-        )
-    end
-)
-
 function AutoDrive:updateAILights(superFunc)
     if self.ad ~= nil and self.ad.isActive then
         -- If AutoDrive is active, then we take care of lights our self
@@ -800,10 +740,10 @@ function AutoDrive:updateAILights(superFunc)
         local dayMinutes = g_currentMission.environment.dayTime / (1000 * 60)
         local needLights = (dayMinutes > g_currentMission.environment.nightStartMinutes or dayMinutes < g_currentMission.environment.nightEndMinutes)
         if needLights then
-            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive:isOnField(self) then
+            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive:checkIsOnField(self) then
                 self:setLightsTypesMask(spec.aiLightsTypesMask)
             end
-            if spec.lightsTypesMask ~= 1 and not AutoDrive:isOnField(self) then
+            if spec.lightsTypesMask ~= 1 and not AutoDrive:checkIsOnField(self) then
                 self:setLightsTypesMask(1)
             end
         else

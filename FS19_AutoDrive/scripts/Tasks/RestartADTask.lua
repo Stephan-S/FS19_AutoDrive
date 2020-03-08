@@ -7,11 +7,8 @@ function RestartADTask:new(vehicle)
 end
 
 function RestartADTask:setUp()
-    print("RestartADTask:setUp()") 
-    if self.vehicle.ad.isActive then
-        AutoDrive.disableAutoDriveFunctions(self.vehicle)
-    end
-    self.vehicle.ad.modes[self.vehicle.ad.mode]:start()
+    print("RestartADTask:setUp()")
+    self:doRestart()
 end
 
 function RestartADTask:update(dt)
@@ -23,4 +20,11 @@ end
 
 function RestartADTask:finished()
     self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
+end
+
+function RestartADTask:doRestart()
+    if self.vehicle.ad.isActive then
+        AutoDrive:disableAutoDriveFunctions(self.vehicle)
+    end
+    self.vehicle.ad.modes[self.vehicle.ad.mode]:start()
 end

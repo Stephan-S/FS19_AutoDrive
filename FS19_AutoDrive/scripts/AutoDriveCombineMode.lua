@@ -19,139 +19,6 @@ AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN = 2
 AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_PASS_BY = 3
 AutoDrive.CC_MODE_REVERSE_FROM_COLLISION = 4
 
-function AutoDrive:handleCombineHarvester(vehicle, dt)
-    if vehicle.ad.currentDriver ~= nil and (not vehicle.ad.preCalledDriver) then
-        vehicle.ad.driverOnTheWay = true
-        vehicle.ad.tryingToCallDriver = false
-        if (vehicle.ad.currentDriver.ad.combineUnloadInFruitWaitTimer >= AutoDrive.UNLOAD_WAIT_TIMER) then
-            if vehicle.cp and vehicle.cp.driver and vehicle.cp.driver.holdForUnloadOrRefill then
-                vehicle.cp.driver:holdForUnloadOrRefill()
-            end
-        end
-        return
-    end
-
-    vehicle.ad.driverOnTheWay = false
-    vehicle.ad.tryingToCallDriver = false
-
-    if vehicle.spec_dischargeable ~= nil and vehicle.ad.currentDriver == nil then
-        local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(vehicle)
-        local maxCapacity = fillLevel + leftCapacity
-
-        local cpIsCalling = false
-        if vehicle.cp and vehicle.cp.driver and vehicle.cp.driver.isWaitingForUnload then
-            cpIsCalling = vehicle.cp.driver:isWaitingForUnload()
-        end
-
-        if (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and vehicle.ad.stoppedTimer <= 0) then
-            vehicle.ad.tryingToCallDriver = true
-            AutoDrive:callDriverToCombine(vehicle)
-        elseif (((fillLevel / maxCapacity) >= AutoDrive.getSetting("preCallLevel", vehicle) and (fillLevel / maxCapacity) <= 0.96 and AutoDrive.getSetting("preCallDriver", vehicle)) or vehicle:getIsBufferCombine()) and (not vehicle.ad.preCalledDriver) then
-            if vehicle.ad.sensors.frontSensorFruit:pollInfo() or (vehicle:getIsAIActive() and vehicle.lastSpeedReal <= 0.0003 and vehicle:getIsBufferCombine()) then
-                vehicle.ad.tryingToCallDriver = true
-                AutoDrive:preCallDriverToCombine(vehicle)
-            end
-        end
-    end
-end
-
-function AutoDrive:callDriverToCombine(combine)
-    local spec = combine.spec_pipe
-    if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
-        local worldX, _, worldZ = getWorldTranslation(combine.components[1].node)
-
-        for _, dischargeNode in pairs(combine.spec_dischargeable.dischargeNodes) do
-            --local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
-            if table.count(AutoDrive.waitingUnloadDrivers) > 0 then
-                local closestDriver = nil
-                local closestDistance = math.huge
-                for _, driver in pairs(AutoDrive.waitingUnloadDrivers) do
-                    local driverX, _, driverZ = getWorldTranslation(driver.components[1].node)
-                    local distance = math.sqrt(math.pow((driverX - worldX), 2) + math.pow((driverZ - worldZ), 2))
-
-                    if distance < closestDistance and ((distance < 300 and AutoDrive.getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
-                        closestDistance = distance
-                        closestDriver = driver
-                    end
-                end
-
-                if closestDriver ~= nil then
-                    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, " callDriverToCombine")
-                    AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, dischargeNode.node)
-                    closestDriver.ad.currentCombine = combine
-                    AutoDrive.waitingUnloadDrivers[closestDriver] = nil
-                    closestDriver.ad.combineState = AutoDrive.DRIVE_TO_COMBINE
-                    combine.ad.currentDriver = closestDriver
-                    closestDriver.ad.isPaused = false
-                    closestDriver.ad.isUnloading = false
-                    closestDriver.ad.isLoading = false
-                    closestDriver.ad.initialized = false
-                    closestDriver.ad.fieldParkLocations = nil
-                    closestDriver.ad.designatedTrailerFillLevel = math.huge
-                    closestDriver.ad.wayPoints = {}
-
-                    combine.ad.tryingToCallDriver = false
-                    combine.ad.driverOnTheWay = true
-                    combine.ad.preCalledDriver = false
-
-                    closestDriver.ad.driveToUnloadNext = false
-                    if combine.cp and combine.cp.driver and combine.cp.driver.isWaitingForUnloadAfterCourseEnded then
-                        closestDriver.ad.driveToUnloadNext = combine.cp.driver:isWaitingForUnloadAfterCourseEnded()
-                    end
-                end
-            end
-        end
-    else
-        combine.ad.tryingToCallDriver = true
-    end
-end
-
-function AutoDrive:preCallDriverToCombine(combine)
-    local worldX, _, worldZ = getWorldTranslation(combine.components[1].node)
-
-    if table.count(AutoDrive.waitingUnloadDrivers) > 0 then
-        local closestDriver = nil
-        local closestDistance = math.huge
-        for _, driver in pairs(AutoDrive.waitingUnloadDrivers) do
-            local driverX, _, driverZ = getWorldTranslation(driver.components[1].node)
-            local distance = math.sqrt(math.pow((driverX - worldX), 2) + math.pow((driverZ - worldZ), 2))
-
-            if distance < closestDistance and ((distance < 300 and AutoDrive.getSetting("findDriver") == true) or (driver.ad.targetSelected == combine.ad.targetSelected)) then
-                closestDistance = distance
-                closestDriver = driver
-            end
-        end
-
-        if closestDriver ~= nil then
-            AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, " preCallDriverToCombine")
-            AutoDrivePathFinder:startPathPlanningToCombine(closestDriver, combine, nil)
-            closestDriver.ad.currentCombine = combine
-            AutoDrive.waitingUnloadDrivers[closestDriver] = nil
-            closestDriver.ad.combineState = AutoDrive.PREDRIVE_COMBINE
-            combine.ad.currentDriver = closestDriver
-            closestDriver.ad.isPaused = false
-            closestDriver.ad.isUnloading = false
-            closestDriver.ad.isLoading = false
-            closestDriver.ad.initialized = false
-            closestDriver.ad.designatedTrailerFillLevel = math.huge
-            closestDriver.ad.wayPoints = {}
-
-            combine.ad.tryingToCallDriver = false
-            combine.ad.driverOnTheWay = true
-            combine.ad.preCalledDriver = true
-
-            closestDriver.ad.driveToUnloadNext = false
-            if combine.cp and combine.cp.driver and combine.cp.driver.isWaitingForUnloadAfterCourseEnded then
-                closestDriver.ad.driveToUnloadNext = combine.cp.driver:isWaitingForUnloadAfterCourseEnded()
-            end
-        end
-    end
-end
-
-function AutoDrive:combineIsCallingDriver(combine)
-    return (combine.ad ~= nil) and ((combine.ad.tryingToCallDriver and table.count(AutoDrive.waitingUnloadDrivers) > 0) or combine.ad.driverOnTheWay)
-end
-
 function AutoDrive:handleReachedWayPointCombine(vehicle)
     if vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --register Driver as available unloader if target point is reached (Hopefully field position!)
         --g_logManager:devInfo("Registering " .. vehicle.ad.driverName .. " as driver");
@@ -305,43 +172,7 @@ function AutoDrive:initializeADCombine(vehicle, dt)
                     else
                         --Let's see if we can't turn into the harvested area and park there
                         -- Check a point 20 meters ahead and 10m to the right          
-                        if vehicle.ad.fieldParkLocations == nil then
-                            vehicle.ad.fieldParkLocations = {}
-                            vehicle.ad.fieldParkLocations[1] = {}
-                            vehicle.ad.fieldParkLocations[1].x, vehicle.ad.fieldParkLocations[1].y, vehicle.ad.fieldParkLocations[1].z = localToWorld(vehicle.components[1].node, -10, 0, 10)
-                            vehicle.ad.fieldParkLocations[2] = {}
-                            vehicle.ad.fieldParkLocations[2].x, vehicle.ad.fieldParkLocations[2].y, vehicle.ad.fieldParkLocations[2].z = localToWorld(vehicle.components[1].node, -10, 0, 20)
-                            vehicle.ad.fieldParkLocations[3] = {}
-                            vehicle.ad.fieldParkLocations[3].x, vehicle.ad.fieldParkLocations[3].y, vehicle.ad.fieldParkLocations[3].z = localToWorld(vehicle.components[1].node, -10, 0, 30)
-                            vehicle.ad.fieldParkLocationStep = 1
-                        else
-                            if not vehicle.ad.sensors.frontSensor:pollInfo() then
-                                local x, _, z = getWorldTranslation(vehicle.components[1].node)
-                                local distanceToParkSpot = MathUtil.vector2Length(vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].x - x, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].z - z)
-                                
-                                if distanceToParkSpot < 2 then
-                                    vehicle.ad.fieldParkLocationStep = vehicle.ad.fieldParkLocationStep + 1
-                                    if vehicle.ad.fieldParkLocationStep > 3 then
-                                        --wait in field
-                                        AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
-                                        vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
-                                        --vehicle.ad.initialized = false;
-                                        vehicle.ad.wayPoints = {}
-                                        vehicle.ad.isPaused = true
-                                        if vehicle.ad.currentCombine ~= nil then
-                                            vehicle.ad.currentCombine.ad.currentDriver = nil
-                                            vehicle.ad.currentCombine.ad.preCalledDriver = false
-                                            vehicle.ad.currentCombine.ad.driverOnTheWay = false
-                                            vehicle.ad.currentCombine = nil
-                                        end
-                                    end
-                                else         
-                                    drivingEnabled = true                           
-                                    local lx, lz = AIVehicleUtil.getDriveDirection(vehicle.components[1].node, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].x, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].y, vehicle.ad.fieldParkLocations[vehicle.ad.fieldParkLocationStep].z)
-                                    AIVehicleUtil.driveInDirection(vehicle, dt, 30, 1, 0.2, 20, true, true, lx, lz, 10, 1)
-                                end
-                            end
-                        end
+                        
                     end
                 end
 
@@ -489,10 +320,6 @@ function AutoDrive:checkForChaseModePauseCondition(vehicle, dt)
         return
     end
 
-    --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
-    --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
-    --end
-
     --pause if angle to chasepos is too high -> probably a switch between chase positions. Let's see if combine keeps driving on and the angle is fine again
     if AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) > 60 then
         --g_logManager:devInfo("Angle to chase pos too high: " .. AutoDrive:getAngleToChasePos(vehicle, chasePos));
@@ -517,13 +344,6 @@ function AutoDrive:chaseModeWaitForCombineToPassBy(vehicle, dt)
         AutoDrive:getVehicleToStop(vehicle, false, dt)
     end
 
-    --if not vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() then
-    --vehicle.ad.ccMode = AutoDrive.CC_MODE_WAITING_FOR_COMBINE_TO_TURN
-    --end
-
-    --if vehicle.ad.currentCombine.lastSpeedReal < 0.0008 then --if combine is stopping, we have to fallback to pathfinding
-    --vehicle.ad.ccMode = AutoDrive.CC_MODE_REVERSE_FROM_COLLISION
-    --end
     if vehicle.ad.currentCombine.ad.sensors.frontSensorFruit:pollInfo() and AutoDrive:getAngleToChasePos(vehicle, vehicle.ccInfos.chasePos) < 50 and (not vehicle.ad.sensors.frontSensor:pollInfo()) then
         vehicle.ad.ccMode = AutoDrive.CC_MODE_CHASING
         vehicle.ad.reverseTimer = 11000
@@ -862,16 +682,6 @@ function AutoDrive:combineStateToDescription(vehicle)
     end
 
     return
-end
-
-function AutoDrive:isOnField(vehicle)
-    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.combineState ~= nil then
-        if vehicle.ad.combineState == AutoDrive.CHASE_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_COMBINE or vehicle.ad.combineState == AutoDrive.PREDRIVE_COMBINE or vehicle.ad.combineState == AutoDrive.DRIVE_TO_PARK_POS or vehicle.ad.combineState == AutoDrive.DRIVE_TO_START_POS then
-            return true
-        end
-    end
-
-    return false
 end
 
 function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)

@@ -66,6 +66,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.dynamicLength = false
     sensorParameters.dynamicRotation = false
     sensorParameters.width = 7
+    sensorParameters.length = vehicle.sizeLength * 0.8
     local leftSensor = ADCollSensor:new(vehicle, sensorParameters)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     sensorParameters.width = 6
@@ -78,6 +79,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.dynamicLength = false
     sensorParameters.dynamicRotation = false
     sensorParameters.width = 7
+    sensorParameters.length = vehicle.sizeLength * 0.8
     local rightSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rightSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     sensorParameters.width = 6

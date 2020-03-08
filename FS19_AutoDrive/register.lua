@@ -50,6 +50,7 @@ source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/AutoDriveRoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/AutoDriveDrawingManager.lua", g_currentModDirectory))
@@ -63,18 +64,23 @@ source(Utils.getFilename("scripts/Tasks/StopAndDisableADTask.lua", g_currentModD
 source(Utils.getFilename("scripts/Tasks/UnloadAtDestinationTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/LoadAtDestinationTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/RestartADTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/UnloadBGATask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/DriveToVehicleTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/SpecialDrivingModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/TaskModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/TrailerModule.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modules/PathFinderModule.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modes/AbstractMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/DriveToMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/UnloadAtMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/PickupAndDeliverMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/LoadMode.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modes/BGAMode.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modes/CombineUnloaderMode.lua", g_currentModDirectory))
 
 
 AutoDriveRegister = {}

@@ -48,7 +48,6 @@ AutoDrive.actions = {
 AutoDrive.drawHeight = 0.3
 AutoDrive.drawDistance = getViewDistanceCoeff() * 50
 
-
 AutoDrive.MODE_DRIVETO = 1
 AutoDrive.MODE_PICKUPANDDELIVER = 2
 AutoDrive.MODE_DELIVERTO = 3
@@ -71,7 +70,7 @@ AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
 AutoDrive.DC_ALL = 65535
 
-AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
+AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
@@ -85,17 +84,11 @@ function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveBGAUnloader.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveDijkstraLive.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Tasks/AbstractTask.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Tasks/DriveToDestinationTask.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Modules/TrailerModule.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Modules/TaskModule.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Modules/PathingModule.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if g_server ~= nil then
@@ -217,11 +210,7 @@ function AutoDrive:firstRun()
 	else
 		AutoDrive.checkYPositionIntegrity()
 	end
-
-	if AutoDrive.searchedTriggers ~= true then
-		AutoDrive.getAllTriggers()
-		AutoDrive.searchedTriggers = true
-	end
+	
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
 end
@@ -445,13 +434,6 @@ function AutoDrive.renameDriver(vehicle, name, sendEvent)
 			vehicle.ad.driverName = name
 		end
 	end
-end
-
-function AutoDrive.getIsStuckInTraffic(vehicle)
-	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stuckInTrafficTimer ~= nil then
-		return vehicle.ad.stuckInTrafficTimer >= 1000 -- 1 second
-	end
-	return false
 end
 
 function AutoDrive.getVehicleMaxSpeed(vehicle)

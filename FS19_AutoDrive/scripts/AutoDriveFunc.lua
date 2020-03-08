@@ -48,23 +48,10 @@ function AutoDrive:startAD(vehicle)
 	vehicle.ad.tryingToCallDriver = false
 	vehicle.ad.currentTrailer = 1
 
-	if vehicle.ad.mode == AutoDrive.MODE_BGA then
-		vehicle.bga.state = AutoDriveBGA.STATE_INIT
-	end
-
 	AutoDriveHud:createMapHotspot(vehicle)
 	if vehicle.isServer then
 		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", 1)
 		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", 1)
-	end
-	
-	vehicle.ad.drivePathModule:reset()
-	vehicle.ad.specialDrivingModule:reset()
-	vehicle.ad.taskModule:reset()
-	vehicle.ad.trailerModule:reset()
-	
-	for _, mode in pairs(vehicle.ad.modes) do
-		mode:reset()
 	end
 end
 
@@ -73,13 +60,22 @@ function AutoDrive:stopAD(vehicle, withError)
 	vehicle.ad.isStoppingWithError = withError
 end
 
-function AutoDrive:disableAutoDriveFunctions(vehicle)	
+function AutoDrive:disableAutoDriveFunctions(vehicle)
 	--g_logManager:devInfo("Disabling vehicle .. " .. vehicle.name);
 	if vehicle.isServer and vehicle.ad.isActive then
 		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", -1)
 		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
 	end
 	
+	vehicle.ad.drivePathModule:reset()
+	vehicle.ad.specialDrivingModule:reset()
+	vehicle.ad.trailerModule:reset()
+	vehicle.ad.taskModule:reset()
+	
+	for _, mode in pairs(vehicle.ad.modes) do
+		mode:reset()
+	end
+
 	vehicle.ad.isActive = false	
 	vehicle.ad.initialized = false
 
@@ -157,15 +153,6 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 		if vehicle.raiseAIEvent ~= nil then
 			vehicle:raiseAIEvent("onAIEnd", "onAIImplementEnd")
 		end
-	end
-
-	if vehicle.bga ~= nil then
-		vehicle.bga.state = AutoDriveBGA.STATE_IDLE
-		vehicle.bga.targetTrailer = nil
-		vehicle.bga.targetDriver = nil
-		vehicle.bga.targetBunker = nil
-		vehicle.bga.loadingSideP1 = nil
-		vehicle.bga.loadingSideP2 = nil
 	end
 
 	if vehicle.ad.sensors ~= nil then

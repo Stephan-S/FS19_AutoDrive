@@ -167,7 +167,7 @@ function AutoDrive.handleRefueling(vehicle, dt)
     if AutoDrive.Triggers == nil or (((vehicle.ad.isActive == false) or (not AutoDrive.getSetting("autoRefuel", vehicle))) and not vehicle.ad.onRouteToRefuel) then
         return
     end
-    if AutoDrive.hasToRefuel(vehicle) and (not vehicle.ad.onRouteToRefuel) and (not AutoDrive:isOnField(vehicle)) then
+    if AutoDrive.hasToRefuel(vehicle) and (not vehicle.ad.onRouteToRefuel) and (not AutoDrive:checkIsOnField(vehicle)) then
         AutoDrive.goToRefuelStation(vehicle)
     end
 

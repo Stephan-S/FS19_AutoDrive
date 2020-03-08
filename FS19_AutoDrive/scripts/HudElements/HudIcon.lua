@@ -43,7 +43,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     textToShow = textToShow .. " - " .. AutoDrive.version
     textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle)
 
-    if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
+    if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:checkIsOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
         local wp, currentWayPoint = vehicle.ad.drivePathModule:getWayPoints()
         local remainingTime = AutoDrive:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
         local remainingMinutes = math.floor(remainingTime / 60)
@@ -67,7 +67,10 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
             textToShow = textToShow .. " - " .. combineText
         end
     elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
-        local bgaText = AutoDriveBGA:stateToText(vehicle)
+        local bgaText =  "" 
+        if vehicle.ad.taskModule.activeTask ~= nil and vehicle.ad.taskModule.activeTask.stateToText ~= nil then
+            bgaText = vehicle.ad.taskModule.activeTask:stateToText(vehicle)
+        end
         if bgaText ~= nil then
             textToShow = textToShow .. " - " .. bgaText
         end

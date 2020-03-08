@@ -27,7 +27,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
 
     if shouldLoad then
         for _, trigger in pairs(ADTriggerManager.siloTriggers) do
-            local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
+            local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
 
@@ -57,7 +57,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
 
     if shouldUnload then
         for _, trigger in pairs(ADTriggerManager.tipTriggers) do
-            local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
+            local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
                 if distance < distanceToSlowDownAt then
@@ -185,6 +185,108 @@ function ADTriggerManager.getLoadTriggers()
 	    ADTriggerManager.loadAllTriggers()
     end
     return ADTriggerManager.siloTriggers
+end
+
+function ADTriggerManager.getRefuelTriggers()
+    local refuelTriggers = {}
+
+    for _, trigger in pairs(ADTriggerManager.getLoadTriggers()) do
+        --loadTriggers
+        if trigger.source ~= nil and trigger.source.providedFillTypes ~= nil and trigger.source.providedFillTypes[32] then
+            local fillLevels = {}
+            if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
+                fillLevels, _ = trigger.source:getAllFillLevels(g_currentMission:getFarmId())
+            end
+            local gcFillLevels = {}
+            if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
+                gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(g_currentMission:getFarmId(), trigger.managerId)
+            end
+            if #fillLevels == 0 and #gcFillLevels == 0 and trigger.source ~= nil and trigger.source.gcId ~= nil and trigger.source.fillLevels ~= nil then
+                for index, fillLevel in pairs(trigger.source.fillLevels) do
+                    if fillLevel ~= nil and fillLevel[1] ~= nil then
+                        fillLevels[index] = fillLevel[1]
+                    end
+                end
+            end
+            local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[32] ~= nil and fillLevels[32] > 0) or (gcFillLevels[32] ~= nil and gcFillLevels[32] > 0)
+            
+            table.insert(refuelTriggers, trigger)
+        end
+    end
+
+    return refuelTriggers
+end
+
+function ADTriggerManager.getClosestRefuelTrigger(vehicle)
+    local refuelTriggers = ADTriggerManager.getRefuelTriggers()
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
+
+    local closestRefuelTrigger = nil
+    local closestDistance = math.huge
+
+    for _, refuelTrigger in pairs(refuelTriggers) do
+        local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(refuelTrigger)
+        local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
+
+        if distance < closestDistance then
+            closestDistance = distance
+            closestRefuelTrigger = refuelTrigger
+        end
+    end
+
+    return closestRefuelTrigger
+end
+
+function ADTriggerManager.getRefuelDestinations()
+    local refuelDestinations = {}
+
+    local refuelTriggers = ADTriggerManager.getRefuelTriggers()
+
+    for mapMarkerID, mapMarker in pairs(AutoDrive.mapMarker) do
+        local x, z = AutoDrive.mapWayPoints[mapMarker.id].x, AutoDrive.mapWayPoints[mapMarker.id].z
+        for _, refuelTrigger in pairs(refuelTriggers) do
+            local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(refuelTrigger)
+            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
+            if distance < AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
+                --g_logManager:devInfo("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
+                table.insert(refuelDestinations, mapMarkerID)
+            end
+        end
+    end
+
+    return refuelDestinations
+end
+
+function ADTriggerManager.getClosestRefuelDestination(vehicle)
+    local refuelDestinations = ADTriggerManager.getRefuelDestinations()
+
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local closestRefuelDestination = nil
+    local closestDistance = math.huge
+
+    for _, refuelDestination in pairs(refuelDestinations) do
+        local refuelX, refuelZ = AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].x, AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].z
+        local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z)
+        if distance < closestDistance then
+            closestDistance = distance
+            closestRefuelDestination = refuelDestination
+        end
+    end
+
+    return closestRefuelDestination
+end
+
+function ADTriggerManager.getTriggerPos(trigger)
+    local x, y, z = 0, 0, 0
+    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil then
+        x, y, z = getWorldTranslation(trigger.triggerNode)
+    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
+    end
+    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil then
+        x, y, z = getWorldTranslation(trigger.exactFillRootNode)
+    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
+    end
+    return x, y, z
 end
 
 function ADTriggerManager:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)

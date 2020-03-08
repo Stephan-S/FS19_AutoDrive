@@ -50,6 +50,17 @@ function ADDrivePathModule:setPathTo(waypointID)
     end
 end
 
+function ADDrivePathModule:setWayPoints(wayPoints)
+    self.wayPoints = wayPoints
+    self.minDistanceToNextWp = math.huge
+    self.atTarget = false
+    if self.wayPoints[2] ~= nil then
+        self.currentWayPoint = 2
+    else
+        self.currentWayPoint = 1
+    end
+end
+
 function ADDrivePathModule:setPaused()
     self.isPaused = true
 end
@@ -334,7 +345,7 @@ function ADDrivePathModule:checkActiveAttributesSet()
         self.vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
         if self.vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights") then
-            if not AutoDrive:isOnField(self.vehicle) and self.vehicle.spec_motorized.isMotorStarted then
+            if not AutoDrive:checkIsOnField(self.vehicle) and self.vehicle.spec_motorized.isMotorStarted then
                 self.vehicle:setBeaconLightsVisibility(true)
             else
                 self.vehicle:setBeaconLightsVisibility(false)

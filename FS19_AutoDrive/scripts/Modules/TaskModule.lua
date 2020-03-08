@@ -13,6 +13,14 @@ function ADTaskModule:new(vehicle)
 end
 
 function ADTaskModule:reset()
+    while self.tasks:Count() > 0 do
+        local task = self.tasks:Dequeue()
+        if task.doRestart ~= nil then
+            task:doRestart()
+            break
+        end
+    end
+
     self.tasks:Clear()
     self.activeTask = nil
 end

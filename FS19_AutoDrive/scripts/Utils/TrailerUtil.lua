@@ -571,18 +571,6 @@ function AutoDrive.trailerInTriggerRange(trailer, trigger)
 end
 
 
-function AutoDrive.getTriggerPos(trigger)
-    local x, y, z = 0, 0, 0
-    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil then
-        x, y, z = getWorldTranslation(trigger.triggerNode)
-    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
-    end
-    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil then
-        x, y, z = getWorldTranslation(trigger.exactFillRootNode)
-    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
-    end
-    return x, y, z
-end
 
 function AutoDrive.shouldLoadOnTrigger(vehicle)
     if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
@@ -639,7 +627,7 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
         local trailerX, _, trailerZ = getWorldTranslation(trailer.components[1].node)
 
         for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-            local triggerX, _, triggerZ = AutoDrive.getTriggerPos(trigger)
+            local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - trailerX, triggerZ - trailerZ)
                 if distance <= AutoDrive.getSetting("maxTriggerDistance") then
