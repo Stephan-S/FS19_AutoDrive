@@ -1,7 +1,8 @@
 PickupAndDeliverMode = ADInheritsFrom(AbstractMode)
 
-PickupAndDeliverMode.STATE_PICKUP_NEXT = 1
-PickupAndDeliverMode.STATE_DELIVER_NEXT = 2
+PickupAndDeliverMode.STATE_DELIVER = 1
+PickupAndDeliverMode.STATE_PICKUP = 2
+PickupAndDeliverMode.STATE_FINISHED = 3
 
 function PickupAndDeliverMode:new(vehicle)
     local o = PickupAndDeliverMode:create()
@@ -11,8 +12,9 @@ function PickupAndDeliverMode:new(vehicle)
 end
 
 function PickupAndDeliverMode:reset()
-    self.state = PickupAndDeliverMode.STATE_PICKUP_NEXT
+    self.state = PickupAndDeliverMode.STATE_DELIVER
     self.loopsDone = 0
+    self.activeTask = nil
 end
 
 function PickupAndDeliverMode:start()
@@ -26,47 +28,65 @@ function PickupAndDeliverMode:start()
     local maxCapacity = fillLevel + leftCapacity
 
     if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
-        self.state = PickupAndDeliverMode.STATE_DELIVER_NEXT
+        self.state = PickupAndDeliverMode.STATE_PICKUP
     end
 
     if AutoDrive.mapMarker[self.vehicle.ad.mapMarkerSelected] == nil or AutoDrive.mapMarker[self.vehicle.ad.mapMarkerSelected_Unload] == nil then
         return
     end
 
-    self.vehicle.ad.taskModule:addTask(self:getNextTask())
+    self.activeTask = self:getNextTask()
+    if self.activeTask ~= nil then
+        self.vehicle.ad.taskModule:addTask(self.activeTask)
+    end
 end
 
 function PickupAndDeliverMode:monitorTasks(dt)
 end
 
 function PickupAndDeliverMode:handleFinishedTask()
+    print("PickupAndDeliverMode:handleFinishedTask")
     self.vehicle.ad.trailerModule:reset()
-    self.vehicle.ad.taskModule:addTask(self:getNextTask())
+    self.activeTask = self:getNextTask()
+    if self.activeTask ~= nil then
+        self.vehicle.ad.taskModule:addTask(self.activeTask)
+    end
 end
 
 function PickupAndDeliverMode:stop()
-end 
+end
+
+function PickupAndDeliverMode:continue()
+    if self.state == PickupAndDeliverMode.STATE_PICKUP then
+        self.activeTask:continue()
+    end
+end
 
 function PickupAndDeliverMode:getNextTask()
     local nextTask
-    if self.state == PickupAndDeliverMode.STATE_PICKUP_NEXT then
+    if self.state == PickupAndDeliverMode.STATE_DELIVER then
+        print("PickupAndDeliverMode:getNextTask() - self.state == PickupAndDeliverMode.STATE_DELIVER")
         if self.vehicle.ad.loopCounterSelected == 0 or self.loopsDone < self.vehicle.ad.loopCounterSelected then
             nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected)
-            self.state = PickupAndDeliverMode.STATE_DELIVER_NEXT
+            self.state = PickupAndDeliverMode.STATE_PICKUP
         else
-            nextTask = StopAndDisableADTask:new(self.vehicle)
+            nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
+            self.state = PickupAndDeliverMode.STATE_FINISHED
         end
-    else
+    elseif self.state == PickupAndDeliverMode.STATE_PICKUP then
+        print("PickupAndDeliverMode:getNextTask() - nextTask: = UnloadAtDestinationTask")
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected_Unload)
-        self.state = PickupAndDeliverMode.STATE_PICKUP_NEXT
+        self.loopsDone = self.loopsDone + 1
+        self.state = PickupAndDeliverMode.STATE_DELIVER
     end
+
     return nextTask
 end
 
 function PickupAndDeliverMode:shouldUnloadAtTrigger()
-    return self.state == PickupAndDeliverMode.STATE_PICKUP_NEXT and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return self.state == PickupAndDeliverMode.STATE_DELIVER and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end
 
 function PickupAndDeliverMode:shouldLoadOnTrigger()
-    return self.state == PickupAndDeliverMode.STATE_DELIVER_NEXT and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return self.state == PickupAndDeliverMode.STATE_PICKUP and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end

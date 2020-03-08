@@ -62,6 +62,7 @@ source(Utils.getFilename("scripts/Tasks/DriveToDestinationTask.lua", g_currentMo
 source(Utils.getFilename("scripts/Tasks/StopAndDisableADTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/UnloadAtDestinationTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/LoadAtDestinationTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/RestartADTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))
@@ -73,6 +74,7 @@ source(Utils.getFilename("scripts/Modes/AbstractMode.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Modes/DriveToMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/UnloadAtMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/PickupAndDeliverMode.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modes/LoadMode.lua", g_currentModDirectory))
 
 
 AutoDriveRegister = {}

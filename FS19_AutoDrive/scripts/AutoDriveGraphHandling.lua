@@ -275,17 +275,12 @@ function AutoDrive:handleRecording(vehicle)
 		return
 	end
 
-	local i = 1
-	for _, _ in pairs(vehicle.ad.wayPoints) do
-		i = i + 1
-	end
-
 	--first entry
-	if i == 1 then
+	if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
 		local startPoint, _ = AutoDrive:findClosestWayPoint(vehicle)
 		local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
 		if vehicle.ad.createMapPoints == true then
-			vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x1, y1, z1, false, vehicle.ad.creationModeDual)
+			vehicle.ad.lastCreatedWp = AutoDrive:createWayPoint(vehicle, x1, y1, z1, false, vehicle.ad.creationModeDual)
 		end
 
 		if AutoDrive.getSetting("autoConnectStart") then
@@ -293,12 +288,12 @@ function AutoDrive:handleRecording(vehicle)
 				local startNode = AutoDrive.mapWayPoints[startPoint]
 				if startNode ~= nil then
 					if AutoDrive.getDistanceBetweenNodes(startPoint, AutoDrive.mapWayPointsCounter) < 20 then
-						table.insert(startNode.out, vehicle.ad.wayPoints[i].id)
-						table.insert(vehicle.ad.wayPoints[i].incoming, startNode.id)
+						table.insert(startNode.out, vehicle.ad.lastCreatedWp.id)
+						table.insert(vehicle.ad.lastCreatedWp.incoming, startNode.id)
 
 						if vehicle.ad.creationModeDual then
 							table.insert(AutoDrive.mapWayPoints[startPoint].incoming, AutoDrive.mapWayPointsCounter)
-							table.insert(vehicle.ad.wayPoints[i].out, startPoint)
+							table.insert(vehicle.ad.lastCreatedWp.out, startPoint)
 						end
 
 						AutoDriveCourseEditEvent:sendEvent(startNode)
@@ -307,18 +302,19 @@ function AutoDrive:handleRecording(vehicle)
 			end
 		end
 	else
-		if i == 2 then
+		if vehicle.ad.secondLastCreatedWp == nil then
 			local x, y, z = getWorldTranslation(vehicle.components[1].node)
-			local wp = vehicle.ad.wayPoints[i - 1]
+			local wp = vehicle.ad.lastCreatedWp
 			if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then
 				if vehicle.ad.createMapPoints == true then
-					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
+					vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
+					vehicle.ad.lastCreatedWp = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
 			end
 		else
 			local x, y, z = getWorldTranslation(vehicle.components[1].node)
-			local wp = vehicle.ad.wayPoints[i - 1]
-			local wp_ref = vehicle.ad.wayPoints[i - 2]
+			local wp = vehicle.ad.lastCreatedWp
+			local wp_ref = vehicle.ad.secondLastCreatedWp
 			local angle = math.abs(AutoDrive.angleBetween({x = x - wp_ref.x, z = z - wp_ref.z}, {x = wp.x - wp_ref.x, z = wp.z - wp_ref.z}))
 			local max_distance = 6
 			if angle < 1 then
@@ -337,7 +333,7 @@ function AutoDrive:handleRecording(vehicle)
 
 			if AutoDrive.getDistance(x, z, wp.x, wp.z) > max_distance then
 				if vehicle.ad.createMapPoints == true then
-					vehicle.ad.wayPoints[i] = AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
+					AutoDrive:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
 			end
 		end

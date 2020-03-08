@@ -30,6 +30,10 @@ function ADSpecialDrivingModule:update(dt)
     end
 end
 
+function ADSpecialDrivingModule:isStoppingVehicle()
+    return self.shouldStopOrHoldVehicle
+end
+
 function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
 	local finalSpeed = 0
 	local acc = -0.6

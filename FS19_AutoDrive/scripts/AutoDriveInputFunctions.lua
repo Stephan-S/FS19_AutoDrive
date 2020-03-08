@@ -388,46 +388,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_continue" then
-		if vehicle.ad.isPaused == true then
-			vehicle.ad.isPaused = false
-
-			vehicle.ad.waitingToBeLoaded = false
-			vehicle.ad.isLoading = false
-			vehicle.ad.isLoadingToFillUnitIndex = nil
-			vehicle.ad.isLoadingToTrailer = nil
-			vehicle.ad.trigger = nil
-
-			if vehicle.ad.combineState == AutoDrive.WAIT_FOR_COMBINE then
-				if AutoDrive.getDistanceToTargetPosition(vehicle) < 10 then
-					local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
-					vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
-					vehicle.ad.wayPointsChanged = true
-					vehicle.ad.currentWayPoint = 1
-
-					vehicle.ad.targetX = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].x
-					vehicle.ad.targetZ = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].z
-					if vehicle.ad.currentCombine ~= nil then
-						vehicle.ad.currentCombine.ad.currentDriver = nil
-						vehicle.ad.currentCombine.ad.preCalledDriver = false
-						vehicle.ad.currentCombine.ad.driverOnTheWay = false
-						vehicle.ad.currentCombine = nil
-					end
-					AutoDrive.waitingUnloadDrivers[vehicle] = nil
-					vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS
-					vehicle.ad.onRouteToSecondTarget = true
-				else
-					--Drive to startpos with path finder
-					vehicle.ad.combineState = AutoDrive.DRIVE_TO_START_POS
-					AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, vehicle.ad.currentCombine)
-					if vehicle.ad.currentCombine ~= nil then
-						vehicle.ad.currentCombine.ad.currentDriver = nil
-						vehicle.ad.currentCombine.ad.preCalledDriver = false
-						vehicle.ad.currentCombine.ad.driverOnTheWay = false
-						vehicle.ad.currentCombine = nil
-					end
-				end
-			end
-		end
+		vehicle.ad.modes[vehicle.ad.mode]:continue()
 	end
 
 	if input == "input_callDriver" then
@@ -489,8 +450,6 @@ function AutoDrive:inputRecord(vehicle, dual)
 		vehicle.ad.creationModeDual = dual
 		vehicle.ad.currentWayPoint = 0
 		vehicle.ad.isActive = false
-		vehicle.ad.wayPoints = {}
-		vehicle.ad.wayPointsChanged = true
 
 		AutoDrive:disableAutoDriveFunctions(vehicle)
 	else
@@ -498,16 +457,16 @@ function AutoDrive:inputRecord(vehicle, dual)
 		vehicle.ad.creationModeDual = false
 
 		if AutoDrive.getSetting("autoConnectEnd") then
-			if vehicle.ad.wayPoints ~= nil and #vehicle.ad.wayPoints > 0 then
+			if vehicle.ad.lastCreatedWp ~= nil then
 				local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle)
 				if targetID ~= nil then
 					local targetNode = AutoDrive.mapWayPoints[targetID]
 					if targetNode ~= nil then
-						targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.wayPoints[#vehicle.ad.wayPoints].id
-						vehicle.ad.wayPoints[#vehicle.ad.wayPoints].out[#vehicle.ad.wayPoints[#vehicle.ad.wayPoints].out + 1] = targetNode.id
+						targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.lastCreatedWp.id
+						vehicle.ad.lastCreatedWp.out[#vehicle.ad.lastCreatedWp.out + 1] = targetNode.id
 						if dual == true then
-							targetNode.out[#targetNode.out + 1] = vehicle.ad.wayPoints[#vehicle.ad.wayPoints].id
-							vehicle.ad.wayPoints[#vehicle.ad.wayPoints].incoming[#vehicle.ad.wayPoints[#vehicle.ad.wayPoints].incoming + 1] = targetNode.id
+							targetNode.out[#targetNode.out + 1] = vehicle.ad.lastCreatedWp.id
+							vehicle.ad.lastCreatedWp.incoming[#vehicle.ad.lastCreatedWp.incoming + 1] = targetNode.id
 						end
 
 						AutoDriveCourseEditEvent:sendEvent(targetNode)
@@ -515,6 +474,9 @@ function AutoDrive:inputRecord(vehicle, dual)
 				end
 			end
 		end
+
+		vehicle.ad.lastCreatedWp = nil
+		vehicle.ad.secondLastCreatedWp = nil
 	end
 end
 

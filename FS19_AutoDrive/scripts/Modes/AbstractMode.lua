@@ -16,6 +16,9 @@ end
 function AbstractMode:stop()
 end
 
+function AbstractMode:continue()
+end
+
 function AbstractMode:getExcludedVehiclesForCollisionCheck()
     return {}
 end

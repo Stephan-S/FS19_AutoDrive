@@ -76,7 +76,7 @@ function ADCollisionDetectionModule:detectObstacle()
 end
 
 function ADCollisionDetectionModule:detectAdTrafficOnRoute()
-    local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWaypoints()
+    local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
 	if self.vehicle.ad.isActive == true and wayPoints ~= nil and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
 		local idToCheck = 3
         local alreadyOnDualRoute = false
@@ -116,7 +116,7 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 						local sameDirection = false
 						local window = 4
                         local i = -window
-                        local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWaypoints()
+                        local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
 						while i <= window do
 							if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
 								for _, point in pairs(dualRoutePoints) do

@@ -9,6 +9,7 @@ function ADDrivePathModule:new(vehicle)
     self.__index = self
     o.vehicle = vehicle
     o.min_distance = AutoDrive.defineMinDistanceByVehicleType(vehicle)
+    o.minDistanceTimer = AutoDriveTON:new()
     ADDrivePathModule.reset(o)
     return o
 end
@@ -19,11 +20,14 @@ function ADDrivePathModule:reset()
     self.wayPoints = nil
     self.currentWayPoint = 0
     self.onRoadNetwork = true
+    self.minDistanceToNextWp = math.huge
+    self.minDistanceTimer:timer(false, 5000, 0)
 end
 
 function ADDrivePathModule:setPathTo(waypointID)
     self.wayPoints = ADGraphManager:getPathTo(self.vehicle, waypointID)
     self:setDirtyFlag()
+    self.minDistanceToNextWp = math.huge
     
     if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= self.targetSelected))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
@@ -63,7 +67,7 @@ function ADDrivePathModule:resetDirtyFlag()
 end
 
 function ADDrivePathModule:update(dt)
-    -- Todo: 
+    -- Todo:
     --AutoDrive:checkForDeadLock(vehicle, dt)
     --AutoDrive:handleDeadlock(vehicle, dt)
 
@@ -75,6 +79,7 @@ function ADDrivePathModule:update(dt)
 
         self:followWaypoints(dt)
         self:checkActiveAttributesSet()
+        self:checkIfStuck(dt)
     end
 end
 
@@ -162,7 +167,7 @@ function ADDrivePathModule:isOnRoadNetwork()
     return self.onRoadNetwork
 end
 
-function ADDrivePathModule:getWaypoints()
+function ADDrivePathModule:getWayPoints()
     return self.wayPoints, self.currentWayPoint
 end
 
@@ -254,6 +259,7 @@ end
 
 function ADDrivePathModule:switchToNextWayPoint()
     self.currentWayPoint = self.currentWayPoint + 1
+    self.minDistanceToNextWp = math.huge
 end
 
 function ADDrivePathModule:getLookAheadTarget()
@@ -341,5 +347,28 @@ function ADDrivePathModule:checkActiveAttributesSet()
                 self.vehicle:startMotor()
             end
         end
+    end
+end
+
+function ADDrivePathModule:checkIfStuck(dt)
+    if self.vehicle.isServer then
+        if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() then
+            --print("ADDrivePathModule:checkIfStuck(dt) - " .. self.minDistanceTimer.elapsedTime)
+            local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
+            local distanceToNextWayPoint = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z)
+            self.minDistanceTimer:timer(distanceToNextWayPoint >= self.minDistanceToNextWp, 5000, dt)
+            self.minDistanceToNextWp = math.min(self.minDistanceToNextWp, distanceToNextWayPoint)
+            if self.minDistanceTimer:done() then
+                self:handleBeingStuck()
+            end
+        end
+    end
+end
+
+function ADDrivePathModule:handleBeingStuck()
+    print("ADDrivePathModule:handleBeingStuck()")
+    if self.vehicle.isServer then
+        --deadlock handling
+        self.vehicle.ad.taskModule:stopAndRestartAD()
     end
 end

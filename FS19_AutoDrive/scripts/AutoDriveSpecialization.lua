@@ -73,6 +73,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_DRIVETO] = DriveToMode:new(self)
     self.ad.modes[AutoDrive.MODE_DELIVERTO] = UnloadAtMode:new(self)
     self.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER] = PickupAndDeliverMode:new(self)
+    self.ad.modes[AutoDrive.MODE_LOAD] = LoadMode:new(self)
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -145,17 +146,9 @@ end
 
 function AutoDrive:init()
     self.ad.isActive = false
-    self.ad.isStopping = false
-    self.ad.isStoppingWithError = false
-    self.ad.drivingForward = true
-    self.ad.targetX = 0
-    self.ad.targetZ = 0
-    self.ad.initialized = false
-    self.ad.wayPoints = {}
-    self.ad.wayPointsChanged = true
+    self.ad.initialized = false    
     self.ad.creationMode = false
     self.ad.creationModeDual = false
-    self.ad.currentWayPoint = 0
 
     if self.ad.settings == nil then
         AutoDrive.copySettingsToVehicle(self)
@@ -424,6 +417,19 @@ function AutoDrive:onUpdate(dt)
         self.ad.stuckInTrafficTimer = 0
     end
 
+    local vehicleSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 10)
+    if (not vehicleSteering) and ((self.lastSpeedReal * self.movingDirection) >= 0.0008) then
+        self.ad.driveForwardTimer:timer(true, 12000, dt)
+    else
+        self.ad.driveForwardTimer:timer(false)
+    end
+
+    if math.abs(self.lastSpeedReal) <= 0.0005 then
+        self.ad.stoppedTimer = math.max(0, self.ad.stoppedTimer - dt)
+    else
+        self.ad.stoppedTimer = 5000
+    end
+
     if self.isServer and self.ad.isActive and self.lastMovedDistance > 0 then
         g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
     end
@@ -570,12 +576,13 @@ function AutoDrive:onDraw()
     end
 
     if AutoDrive.getSetting("showNextPath") == true and (self.bga.isActive == false) then
-        if self.ad.currentWayPoint > 0 and self.ad.wayPoints ~= nil and self.ad.wayPoints[self.ad.currentWayPoint + 1] ~= nil then
+        local wps, currentWp = self.ad.drivePathModule:getWayPoints()
+        if wps ~= nil and currentWp ~= nil and currentWp > 0 and wps[currentWp] ~= nil and wps[currentWp + 1] ~= nil then
             --draw line with direction markers (arrow)
-            local sWP = self.ad.wayPoints[self.ad.currentWayPoint]
-            local eWP = self.ad.wayPoints[self.ad.currentWayPoint + 1]
+            local sWP = wps[currentWp]
+            local eWP = wps[currentWp + 1]
             AutoDriveDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
-            AutoDriveDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
+            AutoDriveDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, AutoDriveDrawingManager.arrows.position.start, 1, 1, 1)
         end
     end
 

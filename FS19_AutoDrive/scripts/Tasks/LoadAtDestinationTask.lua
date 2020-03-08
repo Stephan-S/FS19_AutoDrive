@@ -8,6 +8,7 @@ function LoadAtDestinationTask:new(vehicle, destinationID)
 end
 
 function LoadAtDestinationTask:setUp()
+    print("LoadAtDestinationTask:setUp()")
     self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
 end
 
@@ -39,6 +40,10 @@ function LoadAtDestinationTask:update(dt)
             self.vehicle.ad.drivePathModule:update(dt)
         end
     end
+end
+
+function LoadAtDestinationTask:continue()
+    self.vehicle.ad.trailerModule:stopLoading()
 end
 
 function LoadAtDestinationTask:abort()

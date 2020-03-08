@@ -8,7 +8,7 @@ function UnloadAtDestinationTask:new(vehicle, destinationID)
 end
 
 function UnloadAtDestinationTask:setUp()
-    --print("Setting up UnloadAtDestinationTask")
+    print("Setting up UnloadAtDestinationTask")
     self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
 end
 

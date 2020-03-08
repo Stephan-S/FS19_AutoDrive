@@ -1,8 +1,9 @@
 StopAndDisableADTask = ADInheritsFrom(AbstractTask)
 
-function StopAndDisableADTask:new(vehicle)
+function StopAndDisableADTask:new(vehicle, propagate)
     local o = StopAndDisableADTask:create()
     o.vehicle = vehicle
+    o.propagate = propagate
     return o
 end
 
@@ -25,5 +26,5 @@ function StopAndDisableADTask:abort()
 end
 
 function StopAndDisableADTask:finished()
-    self.vehicle.ad.taskModule:setCurrentTaskFinished()
+    self.vehicle.ad.taskModule:setCurrentTaskFinished(self.propagate)
 end

@@ -44,7 +44,8 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle)
 
     if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:isOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
-        local remainingTime = AutoDrive:getDriveTimeForWaypoints(vehicle.ad.wayPoints, vehicle.ad.currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
+        local wp, currentWayPoint = vehicle.ad.drivePathModule:getWayPoints()
+        local remainingTime = AutoDrive:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
         local remainingMinutes = math.floor(remainingTime / 60)
         local remainingSeconds = remainingTime % 60
         if remainingTime ~= 0 then

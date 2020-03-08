@@ -146,7 +146,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_incLoopCounter" then
-        newState = math.max(0, vehicle.ad.loopCounterSelected - vehicle.ad.loopCounterCurrent) + 1
+        newState = math.max(0, vehicle.ad.loopCounterSelected - vehicle.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER].loopsDone) + 1
         if vehicle.ad.isActive and vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
             if newState > 1 then
                 newState = newState + 9

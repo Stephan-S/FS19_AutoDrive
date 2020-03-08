@@ -25,12 +25,13 @@ function AutoDrive:checkForVehiclesInBox(pf, boundingBox, excludedVehicles)
                     return true, false
                 end
             end
-
-            if pf ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.wayPoints ~= nil then
+                        
+            if pf ~= nil and otherVehicle.ad ~= nil then
+                local otherWPs, otherCurrentWp = otherVehicle.ad.drivePathModule:getWayPoints()
                 local lastWp = nil
                 -- check for other pathfinder steered vehicles and avoid any intersection with their routes
-                for index, wp in pairs(otherVehicle.ad.wayPoints) do
-                    if lastWp ~= nil and wp.id == nil and index >= otherVehicle.ad.currentWayPoint and index > 2 and index < (#otherVehicle.ad.wayPoints - 2) then
+                for index, wp in pairs(otherWPs) do
+                    if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and index > 2 and index < (#otherWPs - 2) then
                         local widthOfColBox = math.sqrt(math.pow(pf.minTurnRadius, 2) + math.pow(pf.minTurnRadius, 2))
                         local sideLength = widthOfColBox / 2
 

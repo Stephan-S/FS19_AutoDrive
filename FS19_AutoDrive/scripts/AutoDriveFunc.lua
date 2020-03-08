@@ -57,6 +57,15 @@ function AutoDrive:startAD(vehicle)
 		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", 1)
 		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", 1)
 	end
+	
+	vehicle.ad.drivePathModule:reset()
+	vehicle.ad.specialDrivingModule:reset()
+	vehicle.ad.taskModule:reset()
+	vehicle.ad.trailerModule:reset()
+	
+	for _, mode in pairs(vehicle.ad.modes) do
+		mode:reset()
+	end
 end
 
 function AutoDrive:stopAD(vehicle, withError)
@@ -69,15 +78,6 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	if vehicle.isServer and vehicle.ad.isActive then
 		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", -1)
 		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
-	end
-
-	vehicle.ad.drivePathModule:reset()
-	vehicle.ad.specialDrivingModule:reset()
-	vehicle.ad.taskModule:reset()
-	vehicle.ad.trailerModule:reset()
-	
-	for _, mode in pairs(vehicle.ad.modes) do
-		mode:reset()
 	end
 	
 	vehicle.ad.isActive = false	

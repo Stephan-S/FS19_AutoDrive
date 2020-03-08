@@ -125,7 +125,7 @@ function AutoDrive.boxesIntersect(a, b)
 	return true
 end
 
-function math:clamp(minValue, value, maxValue)
+function math.clamp(minValue, value, maxValue)
 	if minValue ~= nil and value ~= nil and maxValue ~= nil then
 		return math.max(minValue, math.min(maxValue, value))
 	end

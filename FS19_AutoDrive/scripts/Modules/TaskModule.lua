@@ -1,27 +1,38 @@
 ADTaskModule = {}
 
+ADTaskModule.DONT_PROPAGATE = 1
+
 function ADTaskModule:new(vehicle)
     local o = {}
     setmetatable(o, self)
     self.__index = self
     o.vehicle = vehicle
+    o.tasks = Queue:new()
     ADTaskModule.reset(o)
     return o
 end
 
 function ADTaskModule:reset()
-    self.currentTask = nil
+    self.tasks:Clear()
+    self.activeTask = nil
 end
 
 function ADTaskModule:addTask(newTask)
-    self.currentTask = newTask
-    self.currentTask:setUp()
+    print("ADTaskModule:addTask")
+    self.tasks:Enqueue(newTask)
 end
 
-function ADTaskModule:setCurrentTaskFinished()
+function ADTaskModule:setCurrentTaskFinished(stoppedFlag)
     print("ADTaskModule:setCurrentTaskFinished - mode: " .. self.vehicle.ad.mode)
-    self.currentTask = nil
-    self.vehicle.ad.modes[self.vehicle.ad.mode]:handleFinishedTask()
+    if stoppedFlag == nil or stoppedFlag ~= ADTaskModule.DONT_PROPAGATE then
+        self.vehicle.ad.modes[self.vehicle.ad.mode]:handleFinishedTask()
+    end
+
+    self.activeTask = self.tasks:Dequeue()
+    if self.activeTask ~= nil then
+        print("ADTaskModule:update(dt) - starting new task")
+        self.activeTask:setUp()
+    end
 end
 
 function ADTaskModule:abortCurrentTask(abortMessage)
@@ -31,9 +42,26 @@ function ADTaskModule:abortCurrentTask(abortMessage)
     self.vehicle.ad.specialDrivingModule:stopVehicle()
 end
 
-function ADTaskModule:update(dt)
-    if self.currentTask ~= nil and self.currentTask.update ~= nil then
-        self.currentTask:update(dt)
+function ADTaskModule:abortAllTasks()
+    self.tasks:Clear()
+    self.activeTask = nil
+end
+
+function ADTaskModule:stopAndRestartAD()
+    self:abortAllTasks()
+    self:addTask(StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE))
+    self:addTask(RestartADTask:new(self.vehicle))
+end
+
+function ADTaskModule:update(dt)    
+    if self.activeTask ~= nil and self.activeTask.update ~= nil then
+        self.activeTask:update(dt)
+    else
+        self.activeTask = self.tasks:Dequeue()
+        if self.activeTask ~= nil then
+            print("ADTaskModule:update(dt) - starting new task")
+            self.activeTask:setUp()
+        end
     end
 end
 

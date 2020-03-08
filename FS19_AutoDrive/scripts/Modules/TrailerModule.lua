@@ -25,13 +25,6 @@ function ADTrailerModule:reset()
     self.foundSuitableTrigger = false
 end
 
-function ADTrailerModule:abortCurrentTask(abortMessage)
-    if abortMessage ~= nil then
-        AutoDrive.printMessage(self.vehicle, abortMessage)
-    end
-    AutoDrive:stopAD(self.vehicle, true)
-end
-
 function ADTrailerModule:isActiveAtTrigger()
     return self.isLoading or self.isUnloading
 end
@@ -118,6 +111,10 @@ function ADTrailerModule:updateLoad()
             end
         end
     end
+end
+
+function ADTrailerModule:stopLoading()
+    self.isLoading = false
 end
 
 function ADTrailerModule:updateUnload(dt)
