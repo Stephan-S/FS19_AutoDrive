@@ -577,7 +577,7 @@ function AutoDrive:getCombineChasePosition(vehicle, combine)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     --local combineVector = {x = rx, z = rz}
 
-    local distance = AutoDrive.PATHFINDER_FOLLOW_DISTANCE
+    local distance = PathFinderModule.PATHFINDER_FOLLOW_DISTANCE
     if combine:getIsBufferCombine() then
         distance = distance - 15
     end

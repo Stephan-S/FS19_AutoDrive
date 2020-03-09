@@ -1,25 +1,25 @@
 PathFinderModule = {}
 
-AutoDrive.PATHFINDER_MAX_RETRIES = 3
-AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME = 20
-AutoDrive.MAX_PATHFINDER_STEPS_TOTAL = 400
-AutoDrive.PATHFINDER_FOLLOW_DISTANCE = 24
-AutoDrive.PATHFINDER_TARGET_DISTANCE = 14
-AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE = 20
-AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 9
-AutoDrive.PATHFINDER_START_DISTANCE = 7 --15;
-AutoDrive.PP_UP = 0
-AutoDrive.PP_UP_RIGHT = 1
-AutoDrive.PP_RIGHT = 2
-AutoDrive.PP_DOWN_RIGHT = 3
-AutoDrive.PP_DOWN = 4
-AutoDrive.PP_DOWN_LEFT = 5
-AutoDrive.PP_LEFT = 6
-AutoDrive.PP_UP_LEFT = 7
+PathFinderModule.PATHFINDER_MAX_RETRIES = 3
+PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
+PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
+PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 24
+PathFinderModule.PATHFINDER_TARGET_DISTANCE = 14
+PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 20
+PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 9
+PathFinderModule.PATHFINDER_START_DISTANCE = 7 --15;
+PathFinderModule.PP_UP = 0
+PathFinderModule.PP_UP_RIGHT = 1
+PathFinderModule.PP_RIGHT = 2
+PathFinderModule.PP_DOWN_RIGHT = 3
+PathFinderModule.PP_DOWN = 4
+PathFinderModule.PP_DOWN_LEFT = 5
+PathFinderModule.PP_LEFT = 6
+PathFinderModule.PP_UP_LEFT = 7
 
-AutoDrive.PP_MIN_DISTANCE = 20
-AutoDrive.PP_CELL_X = 9
-AutoDrive.PP_CELL_Z = 9
+PathFinderModule.PP_MIN_DISTANCE = 20
+PathFinderModule.PP_CELL_X = 9
+PathFinderModule.PP_CELL_Z = 9
 
 function PathFinderModule:new(vehicle)
     local o = {}
@@ -51,8 +51,8 @@ function PathFinderModule:update()
         return
     end
 
-    if self.steps > (AutoDrive.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
-        if (not self.fallBackMode) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < AutoDrive.PATHFINDER_MAX_RETRIES) then
+    if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
+        if (not self.fallBackMode) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
             --g_logManager:devInfo("Going into fallback mode - no fruit free path found in reasonable time");
             if not self.possiblyBlockedByOtherVehicle then
                 self.fallBackMode = true
@@ -73,11 +73,11 @@ function PathFinderModule:update()
             self.isFinished = true
             self.smoothDone = true
             self.wayPoints = {}
-            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)            
+            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
         end
     end
 
-    for i = 1, AutoDrive.MAX_PATHFINDER_STEPS_PER_FRAME, 1 do
+    for i = 1, self.MAX_PATHFINDER_STEPS_PER_FRAME, 1 do
         if self.currentCell == nil then
             local minDistance = math.huge
             local bestCell = nil
@@ -161,6 +161,7 @@ function PathFinderModule:startPathPlanningToPipe(combine)
     end
 
     local nodeX, _, nodeZ = getWorldTranslation(dischargeNode)
+    -- TODO: "driver" does not exists here
     local pipeOffset = AutoDrive.getSetting("pipeOffset", driver)
     local trailerOffset = AutoDrive.getSetting("trailerOffset", driver)
     local lengthOffset = 5 + driver.sizeLength / 2
@@ -180,10 +181,10 @@ function PathFinderModule:startPathPlanningToPipe(combine)
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
         local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
         local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
-    
+
         local leftFrontBlocked = combine.ad.sensors.leftFrontSensorFruit:pollInfo()
         local rightFrontBlocked = combine.ad.sensors.rightFrontSensorFruit:pollInfo()
-    
+
         if (not leftBlocked) and (not rightBlocked) then
             if (not leftFrontBlocked) and rightFrontBlocked then
                 rightBlocked = true
@@ -191,11 +192,11 @@ function PathFinderModule:startPathPlanningToPipe(combine)
                 leftBlocked = true
             end
         end
-    
+
         local pipeChasePos, _ = AutoDrive:getPipeChasePosition(self.vehicle, combine, combine:getIsBufferCombine(), leftBlocked, rightBlocked)
         wpAhead = {x = pipeChasePos.x, y = pipeChasePos.y, z = pipeChasePos.z}
-        wpBehind = {x = pipeChasePos.x - AutoDrive.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - AutoDrive.PATHFINDER_TARGET_DISTANCE * rz}
-       
+        wpBehind = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
+
         self:startPathPlanningTo(wpBehind, combineVector)
 
         table.insert(self.appendWayPoints, wpAhead)
@@ -204,11 +205,11 @@ function PathFinderModule:startPathPlanningToPipe(combine)
             wpAhead = {x = (nodeX + (lengthOffset + trailerOffset) * rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (lengthOffset + trailerOffset) * rz - pipeOffset * combineNormalVector.z}
         end
         wpCurrent = {x = (nodeX - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z}
-        wpBehind_close = {x = (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz - pipeOffset * combineNormalVector.z}
-        wpBehind = {x = (nodeX - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - AutoDrive.PATHFINDER_TARGET_DISTANCE_PIPE * rz - pipeOffset * combineNormalVector.z} --make this target
-        
+        wpBehind_close = {x = (nodeX - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz - pipeOffset * combineNormalVector.z}
+        wpBehind = {x = (nodeX - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz - pipeOffset * combineNormalVector.z} --make this target
+
         self:startPathPlanningTo(wpBehind, combineVector)
-    
+
         table.insert(self.appendWayPoints, wpBehind_close)
         table.insert(self.appendWayPoints, wpCurrent)
         table.insert(self.appendWayPoints, wpAhead)
@@ -223,9 +224,9 @@ function PathFinderModule:startPathPlanningToVehicle(targetVehicle, targetDistan
     local rx, _, rz = localDirectionToWorld(targetVehicle.components[1].node, 0, 0, 1)
     local targetVector = {x = rx, z = rz}
 
-    local wpBehind = {x = worldX - targetDistance * rx, y = worldY, z = worldZ - targetDistance * rz}    
+    local wpBehind = {x = worldX - targetDistance * rx, y = worldY, z = worldZ - targetDistance * rz}
     self:startPathPlanningTo(wpBehind, targetVector)
-    
+
     self.goingToPipe = false
     self.chasingVehicle = true
 end
@@ -234,31 +235,31 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     local vehicleWorldX, vehicleWorldY, vehicleWorldZ = getWorldTranslation(self.vehicle.components[1].node)
     local vehicleRx, _, vehicleRz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
     local vehicleVector = {x = vehicleRx, z = vehicleRz}
-    self.startX = vehicleWorldX + AutoDrive.PATHFINDER_START_DISTANCE * vehicleRx
-    self.startZ = vehicleWorldZ + AutoDrive.PATHFINDER_START_DISTANCE * vehicleRz
-        
+    self.startX = vehicleWorldX + self.PATHFINDER_START_DISTANCE * vehicleRx
+    self.startZ = vehicleWorldZ + self.PATHFINDER_START_DISTANCE * vehicleRz
+
     local atan = AutoDrive.normalizeAngle(math.atan2(targetVector.z, targetVector.x))
     local sin = math.sin(atan)
     local cos = math.cos(atan)
 
     self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle)
 
-    self.vectorX = {x =  cos * self.minTurnRadius, z = sin * self.minTurnRadius}
+    self.vectorX = {x = cos * self.minTurnRadius, z = sin * self.minTurnRadius}
     self.vectorZ = {x = -sin * self.minTurnRadius, z = cos * self.minTurnRadius}
 
     local angleRad = math.atan2(targetVector.z, targetVector.x)
     angleRad = AutoDrive.normalizeAngle(angleRad)
 
     --Make the target a few meters ahead of the road to the start point
-    local targetX = targetPoint.x - math.cos(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE
-    local targetZ = targetPoint.z - math.sin(angleRad) * AutoDrive.PATHFINDER_TARGET_DISTANCE
+    local targetX = targetPoint.x - math.cos(angleRad) * self.PATHFINDER_TARGET_DISTANCE
+    local targetZ = targetPoint.z - math.sin(angleRad) * self.PATHFINDER_TARGET_DISTANCE
 
     self.grid = {}
     self.targetVector = targetVector
     self.steps = 0
     self.isFinished = false
     self.fallBackMode = false
-    self.combine = combine
+    self.combine = combine --TODO: "combine" does not exists here
     self.fruitToCheck = nil
 
     self.startCell = {x = 0, z = 0}
@@ -289,7 +290,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     local endIsOnField = AutoDrive.checkIsOnField(targetX, vehicleWorldY, targetZ)
 
     self.restrictToField = startIsOnField and endIsOnField and AutoDrive.getSetting("restrictToField")
-    
+
     self.goingToPipe = false
     self.chasingVehicle = false
 end
@@ -419,8 +420,8 @@ function PathFinderModule:worldDirectionToGridDirection(vector)
     local angleRad = math.atan2(self.vectorX.z, self.vectorX.x)
     angleRad = AutoDrive.normalizeAngle2(angleRad)
 
-    local direction = math.floor(angleRad/math.rad(45))
-    local remainder = angleRad%math.rad(45)
+    local direction = math.floor(angleRad / math.rad(45))
+    local remainder = angleRad % math.rad(45)
     if remainder >= math.rad(22.5) then
         direction = direction + 1
     end
@@ -454,62 +455,62 @@ end
 
 function PathFinderModule:determineNextGridCells(cell)
     cell.out = {}
-    if cell.direction == AutoDrive.PP_UP then
+    if cell.direction == self.PP_UP then
         cell.out[1] = {x = cell.x + 1, z = cell.z - 1}
-        cell.out[1].direction = AutoDrive.PP_UP_LEFT
+        cell.out[1].direction = self.PP_UP_LEFT
         cell.out[2] = {x = cell.x + 1, z = cell.z + 0}
-        cell.out[2].direction = AutoDrive.PP_UP
+        cell.out[2].direction = self.PP_UP
         cell.out[3] = {x = cell.x + 1, z = cell.z + 1}
-        cell.out[3].direction = AutoDrive.PP_UP_RIGHT
-    elseif cell.direction == AutoDrive.PP_UP_RIGHT then
+        cell.out[3].direction = self.PP_UP_RIGHT
+    elseif cell.direction == self.PP_UP_RIGHT then
         cell.out[1] = {x = cell.x + 1, z = cell.z + 0}
-        cell.out[1].direction = AutoDrive.PP_UP
+        cell.out[1].direction = self.PP_UP
         cell.out[2] = {x = cell.x + 1, z = cell.z + 1}
-        cell.out[2].direction = AutoDrive.PP_UP_RIGHT
+        cell.out[2].direction = self.PP_UP_RIGHT
         cell.out[3] = {x = cell.x + 0, z = cell.z + 1}
-        cell.out[3].direction = AutoDrive.PP_RIGHT
-    elseif cell.direction == AutoDrive.PP_RIGHT then
+        cell.out[3].direction = self.PP_RIGHT
+    elseif cell.direction == self.PP_RIGHT then
         cell.out[1] = {x = cell.x + 1, z = cell.z + 1}
-        cell.out[1].direction = AutoDrive.PP_UP_RIGHT
+        cell.out[1].direction = self.PP_UP_RIGHT
         cell.out[2] = {x = cell.x + 0, z = cell.z + 1}
-        cell.out[2].direction = AutoDrive.PP_RIGHT
+        cell.out[2].direction = self.PP_RIGHT
         cell.out[3] = {x = cell.x - 1, z = cell.z + 1}
-        cell.out[3].direction = AutoDrive.PP_DOWN_RIGHT
-    elseif cell.direction == AutoDrive.PP_DOWN_RIGHT then
+        cell.out[3].direction = self.PP_DOWN_RIGHT
+    elseif cell.direction == setFillPlaneMaxPhysicalSurfaceAngle.PP_DOWN_RIGHT then
         cell.out[1] = {x = cell.x + 0, z = cell.z + 1}
-        cell.out[1].direction = AutoDrive.PP_RIGHT
+        cell.out[1].direction = self.PP_RIGHT
         cell.out[2] = {x = cell.x - 1, z = cell.z + 1}
-        cell.out[2].direction = AutoDrive.PP_DOWN_RIGHT
+        cell.out[2].direction = self.PP_DOWN_RIGHT
         cell.out[3] = {x = cell.x - 1, z = cell.z + 0}
-        cell.out[3].direction = AutoDrive.PP_DOWN
-    elseif cell.direction == AutoDrive.PP_DOWN then
+        cell.out[3].direction = self.PP_DOWN
+    elseif cell.direction == self.PP_DOWN then
         cell.out[1] = {x = cell.x - 1, z = cell.z + 1}
-        cell.out[1].direction = AutoDrive.PP_DOWN_RIGHT
+        cell.out[1].direction = self.PP_DOWN_RIGHT
         cell.out[2] = {x = cell.x - 1, z = cell.z + 0}
-        cell.out[2].direction = AutoDrive.PP_DOWN
+        cell.out[2].direction = self.PP_DOWN
         cell.out[3] = {x = cell.x - 1, z = cell.z - 1}
-        cell.out[3].direction = AutoDrive.PP_DOWN_LEFT
-    elseif cell.direction == AutoDrive.PP_DOWN_LEFT then
+        cell.out[3].direction = self.PP_DOWN_LEFT
+    elseif cell.direction == self.PP_DOWN_LEFT then
         cell.out[1] = {x = cell.x - 1, z = cell.z - 0}
-        cell.out[1].direction = AutoDrive.PP_DOWN
+        cell.out[1].direction = self.PP_DOWN
         cell.out[2] = {x = cell.x - 1, z = cell.z - 1}
-        cell.out[2].direction = AutoDrive.PP_DOWN_LEFT
+        cell.out[2].direction = self.PP_DOWN_LEFT
         cell.out[3] = {x = cell.x - 0, z = cell.z - 1}
-        cell.out[3].direction = AutoDrive.PP_LEFT
-    elseif cell.direction == AutoDrive.PP_LEFT then
+        cell.out[3].direction = self.PP_LEFT
+    elseif cell.direction == self.PP_LEFT then
         cell.out[1] = {x = cell.x - 1, z = cell.z - 1}
-        cell.out[1].direction = AutoDrive.PP_DOWN_LEFT
+        cell.out[1].direction = self.PP_DOWN_LEFT
         cell.out[2] = {x = cell.x - 0, z = cell.z - 1}
-        cell.out[2].direction = AutoDrive.PP_LEFT
+        cell.out[2].direction = self.PP_LEFT
         cell.out[3] = {x = cell.x + 1, z = cell.z - 1}
-        cell.out[3].direction = AutoDrive.PP_UP_LEFT
-    elseif cell.direction == AutoDrive.PP_UP_LEFT then
+        cell.out[3].direction = self.PP_UP_LEFT
+    elseif cell.direction == self.PP_UP_LEFT then
         cell.out[1] = {x = cell.x - 0, z = cell.z - 1}
-        cell.out[1].direction = AutoDrive.PP_LEFT
+        cell.out[1].direction = self.PP_LEFT
         cell.out[2] = {x = cell.x + 1, z = cell.z - 1}
-        cell.out[2].direction = AutoDrive.PP_UP_LEFT
+        cell.out[2].direction = self.PP_UP_LEFT
         cell.out[3] = {x = cell.x + 1, z = cell.z + 0}
-        cell.out[3].direction = AutoDrive.PP_UP
+        cell.out[3].direction = self.PP_UP
     end
 
     for _, outGoing in pairs(cell.out) do
@@ -730,34 +731,34 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
     shapeDefinition.height = 2.85
 
-    if cell.direction == AutoDrive.PP_UP or cell.direction == AutoDrive.PP_DOWN or cell.direction == AutoDrive.PP_RIGHT or cell.direction == AutoDrive.PP_LEFT then
+    if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT then
         --default size:
         shapeDefinition.x = worldPos.x
         shapeDefinition.z = worldPos.z
         shapeDefinition.widthX = self.minTurnRadius / 2
         shapeDefinition.widthZ = self.minTurnRadius / 2
-    elseif cell.direction == AutoDrive.PP_UP_RIGHT then
+    elseif cell.direction == self.PP_UP_RIGHT then
         local offsetX = (-self.vectorX.x) / 2 + (-self.vectorZ.x) / 4
         local offsetZ = (-self.vectorX.z) / 2 + (-self.vectorZ.z) / 4
         shapeDefinition.x = worldPos.x + offsetX
         shapeDefinition.z = worldPos.z + offsetZ
         shapeDefinition.widthX = (self.minTurnRadius / 2) + math.abs(offsetX)
         shapeDefinition.widthZ = self.minTurnRadius / 2 + math.abs(offsetZ)
-    elseif cell.direction == AutoDrive.PP_UP_LEFT then
+    elseif cell.direction == self.PP_UP_LEFT then
         local offsetX = (-self.vectorX.x) / 2 + (self.vectorZ.x) / 4
         local offsetZ = (-self.vectorX.z) / 2 + (self.vectorZ.z) / 4
         shapeDefinition.x = worldPos.x + offsetX
         shapeDefinition.z = worldPos.z + offsetZ
         shapeDefinition.widthX = self.minTurnRadius / 2 + math.abs(offsetX)
         shapeDefinition.widthZ = self.minTurnRadius / 2 + math.abs(offsetZ)
-    elseif cell.direction == AutoDrive.PP_DOWN_RIGHT then
+    elseif cell.direction == self.PP_DOWN_RIGHT then
         local offsetX = (self.vectorX.x) / 2 + (-self.vectorZ.x) / 4
         local offsetZ = (self.vectorX.z) / 2 + (-self.vectorZ.z) / 4
         shapeDefinition.x = worldPos.x + offsetX
         shapeDefinition.z = worldPos.z + offsetZ
         shapeDefinition.widthX = self.minTurnRadius / 2 + math.abs(offsetX)
         shapeDefinition.widthZ = self.minTurnRadius / 2 + math.abs(offsetZ)
-    elseif cell.direction == AutoDrive.PP_DOWN_LEFT then
+    elseif cell.direction == self.PP_DOWN_LEFT then
         local offsetX = (self.vectorX.x) / 2 + (self.vectorZ.x) / 4
         local offsetZ = (self.vectorX.z) / 2 + (self.vectorZ.z) / 4
         shapeDefinition.x = worldPos.x + offsetX

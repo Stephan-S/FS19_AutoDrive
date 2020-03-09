@@ -1,7 +1,7 @@
 function AutoDrive.getDriverRadius(vehicle)
     local minTurnRadius = (AIVehicleUtil.getAttachedImplementsMaxTurnRadius(vehicle) + 5) / 2
     if AIVehicleUtil.getAttachedImplementsMaxTurnRadius(vehicle) <= 5 then
-        minTurnRadius = AutoDrive.PP_CELL_X
+        minTurnRadius = PathFinderModule.PP_CELL_X
     end
 
     local maxToolRadius = 0
