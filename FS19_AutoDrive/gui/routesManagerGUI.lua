@@ -1,5 +1,5 @@
 ADRoutesManagerGui = {}
-ADRoutesManagerGui.CONTROLS = {"textInputElement", "listItemTemplate", "RoutesManagerList"}
+ADRoutesManagerGui.CONTROLS = {"textInputElement", "listItemTemplate", "autoDriveRoutesManagerList"}
 
 local ADRoutesManagerGui_mt = Class(ADRoutesManagerGui, ScreenElement)
 
@@ -23,9 +23,9 @@ end
 
 function ADRoutesManagerGui:refreshItems()
     self.routes = RoutesManager.getRoutes(AutoDrive.loadedMap)
-    self.RoutesManagerList:deleteListItems()
+    self.autoDriveRoutesManagerList:deleteListItems()
     for _, r in pairs(self.routes) do
-        local new = self.listItemTemplate:clone(self.RoutesManagerList)
+        local new = self.listItemTemplate:clone(self.autoDriveRoutesManagerList)
         new:setVisible(true)
         new.elements[1]:setText(r.name)
         new.elements[2]:setText(r.date)
@@ -66,7 +66,7 @@ end
 
 function ADRoutesManagerGui:onClickCancel()
     if #self.routes > 0 then
-        RoutesManager.import(self.routes[self.RoutesManagerList:getSelectedElementIndex()].name)
+        RoutesManager.import(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
     end
     ADRoutesManagerGui:superClass().onClickCancel(self)
 end
@@ -77,14 +77,14 @@ end
 
 function ADRoutesManagerGui:onClickActivate()
     if #self.routes > 0 then
-        g_gui:showYesNoDialog({text = g_i18n:getText("gui_ad_routeDeleteWarn_text"):format(self.routes[self.RoutesManagerList:getSelectedElementIndex()].name), title = g_i18n:getText("gui_ad_routeDeleteWarn_title"), callback = self.onDeleteDialogCallback, target = self})
+        g_gui:showYesNoDialog({text = g_i18n:getText("gui_ad_routeDeleteWarn_text"):format(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name), title = g_i18n:getText("gui_ad_routeDeleteWarn_title"), callback = self.onDeleteDialogCallback, target = self})
     end
     ADRoutesManagerGui:superClass().onClickActivate(self)
 end
 
 function ADRoutesManagerGui:onDeleteDialogCallback(yes)
     if yes then
-        RoutesManager.remove(self.routes[self.RoutesManagerList:getSelectedElementIndex()].name)
+        RoutesManager.remove(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
         self:refreshItems()
     end
 end
