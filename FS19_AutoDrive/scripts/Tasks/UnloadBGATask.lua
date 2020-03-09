@@ -630,7 +630,7 @@ function UnloadBGATask:findCloseTrailer()
     local closestTrailer = nil
     for _, vehicle in pairs(g_currentMission.vehicles) do
         if vehicle ~= self.vehicle and self:vehicleHasTrailersAttached(self.vehicle) and vehicle.ad ~= nil then
-            if self:getDistanceBetween(vehicle, self.vehicle) < closestDistance and vehicle.ad.noMovementTimer:done() and (not vehicle.ad.trailerModule:isActiveAtTrigger()) then
+            if AutoDrive.getDistanceBetween(vehicle, self.vehicle) < closestDistance and vehicle.ad.noMovementTimer:done() and (not vehicle.ad.trailerModule:isActiveAtTrigger()) then
                 local _, trailers = self:vehicleHasTrailersAttached(vehicle)
                 for _, trailer in pairs(trailers) do
                     if trailer ~= nil then
@@ -638,7 +638,7 @@ function UnloadBGATask:findCloseTrailer()
                         local trailerLeftCapacity = 0
                         _, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
                         if trailerLeftCapacity >= 10 then
-                            closestDistance = self:getDistanceBetween(trailer, self.vehicle)
+                            closestDistance = AutoDrive.getDistanceBetween(trailer, self.vehicle)
                             closest = vehicle
                             closestTrailer = trailer
                         end
@@ -1175,9 +1175,9 @@ function UnloadBGATask:driveToBGAUnload(dt)
         self.vehicle.ad.specialDrivingModule:update(dt)
         return
     end
-    if self:getDistanceBetween(self.vehicle, self.targetTrailer) <= 10 then
+    if AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) <= 10 then
         self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
-    elseif self:getDistanceBetween(self.vehicle, self.targetTrailer) > 20 then
+    elseif AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) > 20 then
         self.shovelTarget = UnloadBGATask.SHOVELSTATE_TRANSPORT
     end
     if self.shovelState ~= self.shovelTarget then

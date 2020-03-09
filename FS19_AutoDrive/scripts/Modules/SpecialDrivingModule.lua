@@ -70,3 +70,23 @@ end
 function ADSpecialDrivingModule:shouldStopMotor()
     return self.motorShouldBeStopped
 end
+
+function ADSpecialDrivingModule:driveForward(dt)
+    local speed = 8
+    local acc = 0.6
+
+    local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, 20)
+    local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
+
+    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
+end
+
+function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
+    local speed = maxSpeed
+    local acc = maxAcceleration
+
+    local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, -20)
+    local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
+
+    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
+end

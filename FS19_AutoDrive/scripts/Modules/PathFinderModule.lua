@@ -143,7 +143,7 @@ function PathFinderModule:startPathPlanningToPipe(combine)
 
     local dischargeNode = nil
     if combine ~= nil and combine.getDischargeNodeByIndex ~= nil and combine.getPipeDischargeNodeIndex ~= nil then
-        dischargeNode = combine:getDischargeNodeByIndex(self:getPipeDischargeNodeIndex())
+        dischargeNode = combine:getDischargeNodeByIndex(combine:getPipeDischargeNodeIndex())
     else
         print("Could not find discharge node on combine")
         return
@@ -160,11 +160,10 @@ function PathFinderModule:startPathPlanningToPipe(combine)
         firstBinIsOnDriver = true
     end
 
-    local nodeX, _, nodeZ = getWorldTranslation(dischargeNode)
-    -- TODO: "driver" does not exists here
-    local pipeOffset = AutoDrive.getSetting("pipeOffset", driver)
-    local trailerOffset = AutoDrive.getSetting("trailerOffset", driver)
-    local lengthOffset = 5 + driver.sizeLength / 2
+    local nodeX, _, nodeZ = getWorldTranslation(dischargeNode.node)
+    local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
+    local trailerOffset = AutoDrive.getSetting("trailerOffset", self.vehicle)
+    local lengthOffset = 5 + self.vehicle.sizeLength / 2
     if firstBinIsOnDriver then
         lengthOffset = 0
     end
@@ -419,6 +418,7 @@ function PathFinderModule:worldDirectionToGridDirection(vector)
 
     local angleRad = math.atan2(self.vectorX.z, self.vectorX.x)
     angleRad = AutoDrive.normalizeAngle2(angleRad)
+    angleRad = AutoDrive.normalizeAngle2(angleRad - angleWorldDirection)
 
     local direction = math.floor(angleRad / math.rad(45))
     local remainder = angleRad % math.rad(45)
@@ -476,7 +476,7 @@ function PathFinderModule:determineNextGridCells(cell)
         cell.out[2].direction = self.PP_RIGHT
         cell.out[3] = {x = cell.x - 1, z = cell.z + 1}
         cell.out[3].direction = self.PP_DOWN_RIGHT
-    elseif cell.direction == setFillPlaneMaxPhysicalSurfaceAngle.PP_DOWN_RIGHT then
+    elseif cell.direction == self.PP_DOWN_RIGHT then
         cell.out[1] = {x = cell.x + 0, z = cell.z + 1}
         cell.out[1].direction = self.PP_RIGHT
         cell.out[2] = {x = cell.x - 1, z = cell.z + 1}

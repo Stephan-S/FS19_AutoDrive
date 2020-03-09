@@ -66,6 +66,7 @@ source(Utils.getFilename("scripts/Tasks/LoadAtDestinationTask.lua", g_currentMod
 source(Utils.getFilename("scripts/Tasks/RestartADTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/UnloadBGATask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/DriveToVehicleTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/EmptyHarvesterTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))

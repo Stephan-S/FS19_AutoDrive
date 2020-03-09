@@ -143,3 +143,10 @@ function AutoDrive.getBoundingBoxForVehicle(vehicle, dynamicSize)
 
     return AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
 end
+
+function AutoDrive.getDistanceBetween(vehicleOne, vehicleTwo)
+    local x1, _, z1 = getWorldTranslation(vehicleOne.components[1].node)
+    local x2, _, z2 = getWorldTranslation(vehicleTwo.components[1].node)
+
+    return math.sqrt(math.pow(x2 - x1, 2) + math.pow(z2 - z1, 2))
+end

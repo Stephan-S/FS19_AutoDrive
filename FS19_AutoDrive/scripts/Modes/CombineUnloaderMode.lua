@@ -64,14 +64,24 @@ function CombineUnloaderMode:getNextTask()
     print("CombineUnloaderMode:getNextTask()")
     --quick test
     local otherVehicle
+    --for _, vehicle in pairs(g_currentMission.vehicles) do
+        --if vehicle.ad ~= nil and vehicle.ad.mode == AutoDrive.MODE_DRIVETO and vehicle.ad.targetSelected == self.vehicle.ad.targetSelected then
+            --otherVehicle = vehicle
+        --end
+    --end
+    --if otherVehicle ~= nil then
+        --print("Found other vehicle")
+        --return DriveToVehicleTask:new(self.vehicle, otherVehicle)
+    --end
+
     for _, vehicle in pairs(g_currentMission.vehicles) do
-        if vehicle.ad ~= nil and vehicle.ad.mode == AutoDrive.MODE_DRIVETO and vehicle.ad.targetSelected == self.vehicle.ad.targetSelected then
+        if vehicle.ad ~= nil and vehicle.ad.mode == AutoDrive.MODE_DRIVETO and vehicle.ad.targetSelected == self.vehicle.ad.targetSelected and vehicle.spec_dischargeable ~= nil then
             otherVehicle = vehicle
         end
     end
     if otherVehicle ~= nil then
         print("Found other vehicle")
-        return DriveToVehicleTask:new(self.vehicle, otherVehicle)
+        return EmptyHarvesterTask:new(self.vehicle, otherVehicle)
     end
 
     local nextTask

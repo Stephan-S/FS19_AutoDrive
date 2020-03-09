@@ -21,8 +21,6 @@ if vehicle.spec_dischargeable ~= nil and vehicle.ad.currentDriver == nil then
     end
 end
 
-
-
 function AutoDrive:callDriverToCombine(combine)
     local spec = combine.spec_pipe
     if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
