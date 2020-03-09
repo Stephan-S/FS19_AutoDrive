@@ -20,7 +20,7 @@ function EmptyHarvesterTask:new(vehicle, combine)
 end
 
 function EmptyHarvesterTask:setUp()
-    AutoDrive.debugPrint(vehicle, "Setting up EmptyHarvesterTask")
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Setting up EmptyHarvesterTask")
     self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine)
 end
 
@@ -29,10 +29,10 @@ function EmptyHarvesterTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
-            if self.wayPoints == nil or #self.wayPoints == 0 then
+            if self.wayPoints == nil or #self.wayPoints == 0 then                
                 self:finished()
             else
-                AutoDrive.debugPrint(vehicle, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_DRIVING")
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_DRIVING")
                 self.state = EmptyHarvesterTask.STATE_DRIVING
             end
         else
@@ -40,11 +40,11 @@ function EmptyHarvesterTask:update(dt)
         end
     elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
         if self.vehicle.ad.drivePathModule:isTargetReached() then
-            AutoDrive.debugPrint(vehicle, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 1")
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 1")
             self.state = EmptyHarvesterTask.STATE_UNLOADING
         else
             if self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF then
-                AutoDrive.debugPrint(vehicle, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 2")
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 2")
                 self.state = EmptyHarvesterTask.STATE_UNLOADING
             else
                 self.vehicle.ad.drivePathModule:update(dt)
@@ -69,7 +69,7 @@ function EmptyHarvesterTask:update(dt)
             if combineFillLevel <= 0.1 or leftCapacity <= 0.1 then
                 local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
                 self.reverseStartLocation = {x=x, y=y, z=z}
-                AutoDrive.debugPrint(vehicle, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_REVERSING")
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_REVERSING")
                 self.state = EmptyHarvesterTask.STATE_REVERSING
             else
                 -- Drive forward with collision checks active and only for a limited distance
@@ -84,7 +84,7 @@ function EmptyHarvesterTask:update(dt)
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
         if distanceToReversStart > 10 then
-            AutoDrive.debugPrint(vehicle, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
             self.state = EmptyHarvesterTask.STATE_WAITING
         else
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
@@ -104,6 +104,6 @@ function EmptyHarvesterTask:abort()
 end
 
 function EmptyHarvesterTask:finished()
-    AutoDrive.debugPrint(vehicle, "EmptyHarvesterTask:finished()")
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:finished()")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end

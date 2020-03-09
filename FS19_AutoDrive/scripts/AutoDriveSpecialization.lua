@@ -300,6 +300,10 @@ function AutoDrive:init()
     self.ad.destinationFilterText = ""
     self.ad.pointsInProximity = {}
     self.ad.lastPointCheckedForProximity = 1
+
+    if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
+        ADHarvestManager:registerHarvester(self)
+    end
 end
 
 function AutoDrive:onPreLeaveVehicle()
@@ -378,11 +382,7 @@ function AutoDrive:onUpdate(dt)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleVehicleIntegrity(self)
     AutoDrive.handleVehicleMultiplayer(self, dt)
-    AutoDrive:handleDriverWages(self, dt)
-
-    --if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
-        --AutoDrive:handleCombineHarvester(self, dt)
-    --end
+    AutoDrive:handleDriverWages(self, dt)   
 
     if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
         AutoDrive.renderTable(0.1, 0.9, 0.012, AutoDrive:createVehicleInfoTable(self), 5)

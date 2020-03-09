@@ -73,3 +73,14 @@ function ADGraphManager:FastShortestPath(Graph, start, markerName, markerID)
 
 	return wp
 end
+
+function ADGraphManager:getDistanceFromNetwork(vehicle)
+    local distance = math.huge
+    local x, y, z = getWorldTranslation(vehicle.components[1].node)
+    local closest = AutoDrive:findClosestWayPoint(vehicle)
+    if closest ~= nil and AutoDrive.mapWayPoints[closest] ~= nil then
+        distance = MathUtil.vector2Length(x - AutoDrive.mapWayPoints[closest].x, z - AutoDrive.mapWayPoints[closest].z)
+    end
+    print("ADGraphManager:getDistanceFromNetwork(vehicle): " .. distance .. " closest: " .. closest)
+    return distance
+end

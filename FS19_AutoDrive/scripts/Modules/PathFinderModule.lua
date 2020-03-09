@@ -135,7 +135,19 @@ function PathFinderModule:getPath()
     return self.wayPoints
 end
 
-function PathFinderModule:startPathPlanningToPipe(combine)
+function PathFinderModule:startPathPlanningToNetwork(destinationID)
+    local closest = AutoDrive:findClosestWayPoint(self.vehicle)
+    local targetNode = AutoDrive.mapWayPoints[closest]
+    local wayPoints = self:pathFromTo(targetNode, destinationID)
+    if wayPoints ~= nil and #wayPoints > 1 then
+        local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
+        self:startPathPlanningTo(targetNode, vecToNextPoint)
+    end
+    return
+end
+
+function PathFinderModule:startPathPlanningToPipe(combine)    
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe")
     local _, worldY, _ = getWorldTranslation(combine.components[1].node)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
@@ -207,6 +219,8 @@ function PathFinderModule:startPathPlanningToPipe(combine)
         wpBehind_close = {x = (nodeX - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz - pipeOffset * combineNormalVector.z}
         wpBehind = {x = (nodeX - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz - pipeOffset * combineNormalVector.z} --make this target
 
+        
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
         self:startPathPlanningTo(wpBehind, combineVector)
 
         table.insert(self.appendWayPoints, wpBehind_close)
@@ -413,15 +427,11 @@ function PathFinderModule:gridLocationToWorldLocation(cell)
 end
 
 function PathFinderModule:worldDirectionToGridDirection(vector)
-    local angleWorldDirection = math.atan2(vector.z, vector.x)
-    angleWorldDirection = AutoDrive.normalizeAngle2(angleWorldDirection)
+    local angle = math.atan2(vector.z, vector.x) - math.atan2(self.vectorX.z, self.vectorX.x)
+	angle = AutoDrive.normalizeAngle2(angle)
 
-    local angleRad = math.atan2(self.vectorX.z, self.vectorX.x)
-    angleRad = AutoDrive.normalizeAngle2(angleRad)
-    angleRad = AutoDrive.normalizeAngle2(angleRad - angleWorldDirection)
-
-    local direction = math.floor(angleRad / math.rad(45))
-    local remainder = angleRad % math.rad(45)
+    local direction = math.floor(angle / math.rad(45))
+    local remainder = angle % math.rad(45)
     if remainder >= math.rad(22.5) then
         direction = direction + 1
     end

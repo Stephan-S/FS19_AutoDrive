@@ -199,6 +199,7 @@ function AutoDrive:loadMap(name)
 	RoutesManager.load()
 	DrawingManager:load()
 	MessagesManager:load()
+	ADHarvestManager:load()
 end
 
 function AutoDrive:firstRun()
@@ -326,6 +327,7 @@ function AutoDrive:update(dt)
 
 	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
 	--AutoDrive.renderTime = 0
+	ADHarvestManager:update()
 end
 
 function AutoDrive:draw()

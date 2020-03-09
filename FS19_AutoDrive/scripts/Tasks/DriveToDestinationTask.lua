@@ -1,5 +1,8 @@
 DriveToDestinationTask = ADInheritsFrom(AbstractTask)
 
+DriveToDestinationTask.STATE_PATHPLANNING = 1
+DriveToDestinationTask.STATE_DRIVING = 2
+
 function DriveToDestinationTask:new(vehicle, destinationID)
     local o = DriveToDestinationTask:create()
     o.vehicle = vehicle
@@ -9,14 +12,29 @@ end
 
 function DriveToDestinationTask:setUp()
     print("Setting up DriveToDestinationTask")
-    self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
+    if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 20 then
+        self.state = DriveToDestinationTask.STATE_PATHPLANNING
+        self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
+    else
+        self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
+    end
 end
 
 function DriveToDestinationTask:update(dt)
-    if self.vehicle.ad.drivePathModule:isTargetReached() then
-        self:finished()
+    if self.state == DriveToDestinationTask.STATE_PATHPLANNING then
+        if self.vehicle.ad.pathFinderModule:hasFinished() then
+            self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
+            self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+            self.state = DriveToDestinationTask.STATE_DRIVING
+        else
+            self.vehicle.ad.pathFinderModule:update()
+        end
     else
-        self.vehicle.ad.drivePathModule:update(dt)
+        if self.vehicle.ad.drivePathModule:isTargetReached() then
+            self:finished()
+        else
+            self.vehicle.ad.drivePathModule:update(dt)
+        end
     end
 end
 

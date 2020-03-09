@@ -26,7 +26,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
                 end
             end
                         
-            if minTurnRadius ~= nil and otherVehicle.ad ~= nil then
+            if minTurnRadius ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil then
                 local otherWPs, otherCurrentWp = otherVehicle.ad.drivePathModule:getWayPoints()
                 local lastWp = nil
                 -- check for other pathfinder steered vehicles and avoid any intersection with their routes

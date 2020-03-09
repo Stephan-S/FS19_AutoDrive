@@ -32,7 +32,7 @@ function ADDrivePathModule:setPathTo(waypointID)
     if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= self.targetSelected))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.nameOfSelectedTarget)
-        self.vehicle.ad.taskModule:abortCurrentTask()
+        self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         print("Got path to destination of length: " .. #self.wayPoints)
         --skip first wp for a smoother start
