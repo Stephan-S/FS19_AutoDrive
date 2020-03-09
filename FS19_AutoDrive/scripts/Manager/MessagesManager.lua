@@ -1,56 +1,56 @@
-AutoDriveMessagesManager = {}
-AutoDriveMessagesManager.messageTypes = {}
-AutoDriveMessagesManager.messageTypes.INFO = 1
-AutoDriveMessagesManager.messageTypes.WARN = 2
-AutoDriveMessagesManager.messageTypes.ERROR = 3
-AutoDriveMessagesManager.messageTypeColors = {{1, 1, 1}, {1, 1, 0}, {1, 0, 0}}
+MessagesManager = {}
+MessagesManager.messageTypes = {}
+MessagesManager.messageTypes.INFO = 1
+MessagesManager.messageTypes.WARN = 2
+MessagesManager.messageTypes.ERROR = 3
+MessagesManager.messageTypeColors = {{1, 1, 1}, {1, 1, 0}, {1, 0, 0}}
 
-AutoDriveMessagesManager.messages = {}
-AutoDriveMessagesManager.currentMessage = nil
-AutoDriveMessagesManager.currentMessageTimer = 0
+MessagesManager.messages = {}
+MessagesManager.currentMessage = nil
+MessagesManager.currentMessageTimer = 0
 
-AutoDriveMessagesManager.notifications = {}
-AutoDriveMessagesManager.currentNotification = nil
-AutoDriveMessagesManager.currentNotificationTimer = 0
+MessagesManager.notifications = {}
+MessagesManager.currentNotification = nil
+MessagesManager.currentNotificationTimer = 0
 
-AutoDriveMessagesManager.lastNotificationVehicle = nil
+MessagesManager.lastNotificationVehicle = nil
 
-function AutoDriveMessagesManager:load()
+function MessagesManager:load()
     self.messages = Queue:new()
     self.notifications = Queue:new()
 end
 
-function AutoDriveMessagesManager:addInfoMessage(text, duration)
+function MessagesManager:addInfoMessage(text, duration)
     self:addMessage(self.messageTypes.INFO, text, duration)
 end
 
-function AutoDriveMessagesManager:addWarnMessage(text, duration)
+function MessagesManager:addWarnMessage(text, duration)
     self:addMessage(self.messageTypes.WARN, text, duration)
 end
 
-function AutoDriveMessagesManager:addErrorMessage(text, duration)
+function MessagesManager:addErrorMessage(text, duration)
     self:addMessage(self.messageTypes.ERROR, text, duration)
 end
 
-function AutoDriveMessagesManager:addMessage(messageType, text, duration)
+function MessagesManager:addMessage(messageType, text, duration)
     self.messages:Enqueue({messageType = messageType, text = text, duration = duration})
 end
 
-function AutoDriveMessagesManager:addNotification(vehicle, messageType, text, duration)
+function MessagesManager:addNotification(vehicle, messageType, text, duration)
     self.notifications:Enqueue({vehicle = vehicle, messageType = messageType, text = text, duration = duration})
 end
 
-function AutoDriveMessagesManager:removeCurrentMessage()
+function MessagesManager:removeCurrentMessage()
     self.currentMessage = nil
     self.currentMessageTimer = 0
 end
 
-function AutoDriveMessagesManager:removeCurrentNotification()
+function MessagesManager:removeCurrentNotification()
     self.currentNotification = nil
     self.currentNotificationTimer = 0
 end
 
-function AutoDriveMessagesManager:update(dt)
+function MessagesManager:update(dt)
     -- messages handling
     if self.currentMessage == nil then
         self.currentMessage = self.messages:Dequeue()
@@ -80,7 +80,7 @@ function AutoDriveMessagesManager:update(dt)
     end
 end
 
-function AutoDriveMessagesManager:draw()
+function MessagesManager:draw()
     -- TODO: we should implement some kind of hud instead of a simple text, maybe with also a dismiss button
     if self.currentMessage ~= nil then
         local color = self.messageTypeColors[self.currentMessage.messageType]

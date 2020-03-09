@@ -207,8 +207,8 @@ function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 		end
 
 		if input == "input_goToVehicle" then
-			if AutoDriveMessagesManager.lastNotificationVehicle ~= nil then
-				g_currentMission:requestToEnterVehicle(AutoDriveMessagesManager.lastNotificationVehicle)
+			if MessagesManager.lastNotificationVehicle ~= nil then
+				g_currentMission:requestToEnterVehicle(MessagesManager.lastNotificationVehicle)
 			end
 		end
 	end
@@ -246,7 +246,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
 			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected
 			if g_server ~= nil then
-				AutoDriveMessageEvent.sendMessage(vehicle, AutoDriveMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name)
+				AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name)
 			end
 		end
 	end
@@ -410,7 +410,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			AutoDrive:InputHandling(vehicle, "input_start_stop")
 			vehicle.ad.onRouteToPark = true
 		else
-			AutoDriveMessageEvent.sendMessage(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
+			AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
 		end
 	end
 

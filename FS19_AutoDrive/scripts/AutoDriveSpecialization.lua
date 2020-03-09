@@ -541,8 +541,8 @@ function AutoDrive:onDraw()
             --draw line with direction markers (arrow)
             local sWP = wps[currentWp]
             local eWP = wps[currentWp + 1]
-            AutoDriveDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
-            AutoDriveDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, AutoDriveDrawingManager.arrows.position.start, 1, 1, 1)
+            DrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
+            DrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, DrawingManager.arrows.position.start, 1, 1, 1)
         end
     end
 
@@ -569,7 +569,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 end
 
 function AutoDrive:onDrawCreationMode(vehicle)
-    local AutoDriveDM = AutoDriveDrawingManager
+    local AutoDriveDM = DrawingManager
 
     local startNode = vehicle.ad.frontNode
     if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
@@ -658,7 +658,7 @@ function AutoDrive.mouseIsAtPos(position, radius)
 end
 
 function AutoDrive.drawPointsInProximity(vehicle)
-    local AutoDriveDM = AutoDriveDrawingManager
+    local AutoDriveDM = DrawingManager
     local arrowPosition = AutoDriveDM.arrows.position.start
     AutoDrive.getNewPointsInProximity(vehicle)
 

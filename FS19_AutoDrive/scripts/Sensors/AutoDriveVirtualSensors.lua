@@ -333,7 +333,7 @@ function ADSensor:onDrawDebug(box)
             corners[3].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[3].x, 1, corners[3].z)
             corners[4].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[4].x, 1, corners[4].z)
 
-            local AutoDriveDM = AutoDriveDrawingManager
+            local AutoDriveDM = DrawingManager
 
             AutoDriveDM:addLineTask(corners[1].x, corners[1].y, corners[1].z, corners[2].x, corners[2].y, corners[2].z, 1, blue, 0)
             AutoDriveDM:addLineTask(corners[2].x, corners[2].y, corners[2].z, corners[3].x, corners[3].y, corners[3].z, 1, blue, 0)

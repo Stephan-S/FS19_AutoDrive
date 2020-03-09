@@ -47,7 +47,7 @@ function AutoDrive:initializeAD(vehicle, dt)
 
         if vehicle.ad.wayPoints ~= nil then
             if vehicle.ad.wayPoints[2] == nil and vehicle.ad.wayPoints[1] ~= nil and vehicle.ad.wayPoints[1].id ~= vehicle.ad.targetSelected then
-                AutoDriveMessageEvent.sendMessageOrNotification(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, vehicle.ad.driverName, vehicle.ad.nameOfSelectedTarget)
+                AutoDriveMessageEvent.sendMessageOrNotification(vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, vehicle.ad.driverName, vehicle.ad.nameOfSelectedTarget)
                 AutoDrive:stopAD(vehicle, true)
             end
 
@@ -69,7 +69,7 @@ function AutoDrive:initializeAD(vehicle, dt)
         end
     else
         g_logManager:devError("[AutoDrive] Encountered a problem during initialization - shutting down")
-        AutoDriveMessageEvent.sendMessage(vehicle, AutoDriveMessagesManager.messageTypes.ERROR, "Encountered a problem during initialization, shutting down!", 3000)
+        AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.ERROR, "Encountered a problem during initialization, shutting down!", 3000)
         AutoDrive:stopAD(vehicle, true)
     end
 end
@@ -90,7 +90,7 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                     target = mapMarker.name
                 end
             end
-            AutoDriveMessageEvent.sendNotification(vehicle, AutoDriveMessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, vehicle.ad.driverName, target)
+            AutoDriveMessageEvent.sendNotification(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, vehicle.ad.driverName, target)
             AutoDrive:stopAD(vehicle, false)
         else
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then

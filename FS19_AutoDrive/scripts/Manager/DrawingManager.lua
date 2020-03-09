@@ -1,49 +1,49 @@
-AutoDriveDrawingManager = {}
-AutoDriveDrawingManager.i3DBaseDir = "drawing/"
-AutoDriveDrawingManager.yOffset = 0
-AutoDriveDrawingManager.emittivity = 0
-AutoDriveDrawingManager.emittivityNextUpdate = 0
-AutoDriveDrawingManager.debug = {}
+DrawingManager = {}
+DrawingManager.i3DBaseDir = "drawing/"
+DrawingManager.yOffset = 0
+DrawingManager.emittivity = 0
+DrawingManager.emittivityNextUpdate = 0
+DrawingManager.debug = {}
 
-AutoDriveDrawingManager.lines = {}
-AutoDriveDrawingManager.lines.fileName = "line.i3d"
-AutoDriveDrawingManager.lines.buffer = Buffer:new()
-AutoDriveDrawingManager.lines.objects = FlaggedTable:new()
-AutoDriveDrawingManager.lines.tasks = {}
-AutoDriveDrawingManager.lines.lastDrawZero = true
+DrawingManager.lines = {}
+DrawingManager.lines.fileName = "line.i3d"
+DrawingManager.lines.buffer = Buffer:new()
+DrawingManager.lines.objects = FlaggedTable:new()
+DrawingManager.lines.tasks = {}
+DrawingManager.lines.lastDrawZero = true
 
-AutoDriveDrawingManager.arrows = {}
-AutoDriveDrawingManager.arrows.fileName = "arrow.i3d"
-AutoDriveDrawingManager.arrows.buffer = Buffer:new()
-AutoDriveDrawingManager.arrows.objects = FlaggedTable:new()
-AutoDriveDrawingManager.arrows.tasks = {}
-AutoDriveDrawingManager.arrows.lastDrawZero = true
-AutoDriveDrawingManager.arrows.position = {}
-AutoDriveDrawingManager.arrows.position.start = 1
-AutoDriveDrawingManager.arrows.position.middle = 2
+DrawingManager.arrows = {}
+DrawingManager.arrows.fileName = "arrow.i3d"
+DrawingManager.arrows.buffer = Buffer:new()
+DrawingManager.arrows.objects = FlaggedTable:new()
+DrawingManager.arrows.tasks = {}
+DrawingManager.arrows.lastDrawZero = true
+DrawingManager.arrows.position = {}
+DrawingManager.arrows.position.start = 1
+DrawingManager.arrows.position.middle = 2
 
-AutoDriveDrawingManager.sSphere = {}
-AutoDriveDrawingManager.sSphere.fileName = "sphere_small.i3d"
-AutoDriveDrawingManager.sSphere.buffer = Buffer:new()
-AutoDriveDrawingManager.sSphere.objects = FlaggedTable:new()
-AutoDriveDrawingManager.sSphere.tasks = {}
-AutoDriveDrawingManager.sSphere.lastDrawZero = true
+DrawingManager.sSphere = {}
+DrawingManager.sSphere.fileName = "sphere_small.i3d"
+DrawingManager.sSphere.buffer = Buffer:new()
+DrawingManager.sSphere.objects = FlaggedTable:new()
+DrawingManager.sSphere.tasks = {}
+DrawingManager.sSphere.lastDrawZero = true
 
-AutoDriveDrawingManager.sphere = {}
-AutoDriveDrawingManager.sphere.fileName = "sphere.i3d"
-AutoDriveDrawingManager.sphere.buffer = Buffer:new()
-AutoDriveDrawingManager.sphere.objects = FlaggedTable:new()
-AutoDriveDrawingManager.sphere.tasks = {}
-AutoDriveDrawingManager.sphere.lastDrawZero = true
+DrawingManager.sphere = {}
+DrawingManager.sphere.fileName = "sphere.i3d"
+DrawingManager.sphere.buffer = Buffer:new()
+DrawingManager.sphere.objects = FlaggedTable:new()
+DrawingManager.sphere.tasks = {}
+DrawingManager.sphere.lastDrawZero = true
 
-AutoDriveDrawingManager.markers = {}
-AutoDriveDrawingManager.markers.fileName = "marker.i3d"
-AutoDriveDrawingManager.markers.buffer = Buffer:new()
-AutoDriveDrawingManager.markers.objects = FlaggedTable:new()
-AutoDriveDrawingManager.markers.tasks = {}
-AutoDriveDrawingManager.markers.lastDrawZero = true
+DrawingManager.markers = {}
+DrawingManager.markers.fileName = "marker.i3d"
+DrawingManager.markers.buffer = Buffer:new()
+DrawingManager.markers.objects = FlaggedTable:new()
+DrawingManager.markers.tasks = {}
+DrawingManager.markers.lastDrawZero = true
 
-function AutoDriveDrawingManager:load()
+function DrawingManager:load()
     -- preloading and storing in chache I3D files
     self.i3DBaseDir = AutoDrive.directory .. self.i3DBaseDir
     g_i3DManager:fillSharedI3DFileCache(self.lines.fileName, self.i3DBaseDir)
@@ -53,7 +53,7 @@ function AutoDriveDrawingManager:load()
     g_i3DManager:fillSharedI3DFileCache(self.markers.fileName, self.i3DBaseDir)
 end
 
-function AutoDriveDrawingManager.initObject(id)
+function DrawingManager.initObject(id)
     local itemId = getChildAt(id, 0)
     link(getRootNode(), itemId)
     setRigidBodyType(itemId, "NoRigidBody")
@@ -63,31 +63,31 @@ function AutoDriveDrawingManager.initObject(id)
     return itemId
 end
 
-function AutoDriveDrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
+function DrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
     -- storing task
     local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, r, g, b)
     table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, hash = hash})
 end
 
-function AutoDriveDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
+function DrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
     -- storing task
     local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, position, r, g, b)
     table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position, hash = hash})
 end
 
-function AutoDriveDrawingManager:addSmallSphereTask(x, y, z, r, g, b)
+function DrawingManager:addSmallSphereTask(x, y, z, r, g, b)
     -- storing task
     local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f", x, y, z, r, g, b)
     table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, hash = hash})
 end
 
-function AutoDriveDrawingManager:addMarkerTask(x, y, z)
+function DrawingManager:addMarkerTask(x, y, z)
     -- storing task
     local hash = string.format("m%.2f%.2f%.2f", x, y, z)
     table.insert(self.markers.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
-function AutoDriveDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
+function DrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     scale = scale or 1
     a = a or 0
     -- storing task
@@ -95,7 +95,7 @@ function AutoDriveDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     table.insert(self.sphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, a = a, scale = scale, hash = hash})
 end
 
-function AutoDriveDrawingManager:draw()
+function DrawingManager:draw()
     local time = netGetTime()
     local ad = AutoDrive
     self.yOffset = ad.drawHeight + ad.getSetting("lineHeight")
@@ -141,7 +141,7 @@ function AutoDriveDrawingManager:draw()
     end
 end
 
-function AutoDriveDrawingManager:drawObjects(obj, dFunc, iFunc)
+function DrawingManager:drawObjects(obj, dFunc, iFunc)
     local taskCount = #obj.tasks
 
     local stats = {}
@@ -201,7 +201,7 @@ function AutoDriveDrawingManager:drawObjects(obj, dFunc, iFunc)
     return stats
 end
 
-function AutoDriveDrawingManager:drawLine(id, task)
+function DrawingManager:drawLine(id, task)
     local atan2 = math.atan2
 
     -- Get the direction to the end point
@@ -229,7 +229,7 @@ function AutoDriveDrawingManager:drawLine(id, task)
     setVisibility(id, true)
 end
 
-function AutoDriveDrawingManager:drawArrow(id, task)
+function DrawingManager:drawArrow(id, task)
     local atan2 = math.atan2
 
     local x = task.ex
@@ -265,18 +265,18 @@ function AutoDriveDrawingManager:drawArrow(id, task)
     setVisibility(id, true)
 end
 
-function AutoDriveDrawingManager:drawSmallSphere(id, task)
+function DrawingManager:drawSmallSphere(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setShaderParameter(id, "color", task.r, task.g, task.b, self.emittivity, false)
     setVisibility(id, true)
 end
 
-function AutoDriveDrawingManager:drawMarker(id, task)
+function DrawingManager:drawMarker(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setVisibility(id, true)
 end
 
-function AutoDriveDrawingManager:drawSphere(id, task)
+function DrawingManager:drawSphere(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setScale(id, task.scale, task.scale, task.scale)
     setShaderParameter(id, "color", task.r, task.g, task.b, self.emittivity + task.a, false)

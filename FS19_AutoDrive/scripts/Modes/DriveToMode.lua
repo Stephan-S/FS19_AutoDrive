@@ -44,7 +44,7 @@ function DriveToMode:handleFinishedTask()
         end
 
         --print("DriveToMode:handleFinishedTask - done")
-        AutoDriveMessageEvent.sendNotification(self.vehicle, AutoDriveMessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.driverName, target)
+        AutoDriveMessageEvent.sendNotification(self.vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.driverName, target)
     end
 end
 

@@ -197,9 +197,9 @@ function AutoDrive:loadMap(name)
 	--    end
 	--)
 	AutoDriveBenchmarks.Run()
-	AutoDriveRoutesManager.load()
-	AutoDriveDrawingManager:load()
-	AutoDriveMessagesManager:load()
+	RoutesManager.load()
+	DrawingManager:load()
+	MessagesManager:load()
 end
 
 function AutoDrive:firstRun()
@@ -252,7 +252,7 @@ function AutoDrive:deleteMap()
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
-	AutoDriveRoutesManager.delete()
+	RoutesManager.delete()
 	if g_server ~= nil then
 		delete(AutoDrive.adXml)
 	end
@@ -330,8 +330,8 @@ function AutoDrive:update(dt)
 end
 
 function AutoDrive:draw()
-	AutoDriveDrawingManager:draw()
-	AutoDriveMessagesManager:draw()
+	DrawingManager:draw()
+	MessagesManager:draw()
 end
 
 function AutoDrive.handlePerFrameOperations(dt)

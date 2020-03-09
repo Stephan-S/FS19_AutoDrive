@@ -1,5 +1,5 @@
 ADRoutesManagerGui = {}
-ADRoutesManagerGui.CONTROLS = {"textInputElement", "listItemTemplate", "autoDriveRoutesManagerList"}
+ADRoutesManagerGui.CONTROLS = {"textInputElement", "listItemTemplate", "RoutesManagerList"}
 
 local ADRoutesManagerGui_mt = Class(ADRoutesManagerGui, ScreenElement)
 
@@ -22,10 +22,10 @@ function ADRoutesManagerGui:onOpen()
 end
 
 function ADRoutesManagerGui:refreshItems()
-    self.routes = AutoDriveRoutesManager.getRoutes(AutoDrive.loadedMap)
-    self.autoDriveRoutesManagerList:deleteListItems()
+    self.routes = RoutesManager.getRoutes(AutoDrive.loadedMap)
+    self.RoutesManagerList:deleteListItems()
     for _, r in pairs(self.routes) do
-        local new = self.listItemTemplate:clone(self.autoDriveRoutesManagerList)
+        local new = self.listItemTemplate:clone(self.RoutesManagerList)
         new:setVisible(true)
         new.elements[1]:setText(r.name)
         new.elements[2]:setText(r.date)
@@ -59,14 +59,14 @@ end
 
 function ADRoutesManagerGui:onExportDialogCallback(yes)
     if yes then
-        AutoDriveRoutesManager.export(self.textInputElement.text)
+        RoutesManager.export(self.textInputElement.text)
         self:refreshItems()
     end
 end
 
 function ADRoutesManagerGui:onClickCancel()
     if #self.routes > 0 then
-        AutoDriveRoutesManager.import(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
+        RoutesManager.import(self.routes[self.RoutesManagerList:getSelectedElementIndex()].name)
     end
     ADRoutesManagerGui:superClass().onClickCancel(self)
 end
@@ -77,14 +77,14 @@ end
 
 function ADRoutesManagerGui:onClickActivate()
     if #self.routes > 0 then
-        g_gui:showYesNoDialog({text = g_i18n:getText("gui_ad_routeDeleteWarn_text"):format(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name), title = g_i18n:getText("gui_ad_routeDeleteWarn_title"), callback = self.onDeleteDialogCallback, target = self})
+        g_gui:showYesNoDialog({text = g_i18n:getText("gui_ad_routeDeleteWarn_text"):format(self.routes[self.RoutesManagerList:getSelectedElementIndex()].name), title = g_i18n:getText("gui_ad_routeDeleteWarn_title"), callback = self.onDeleteDialogCallback, target = self})
     end
     ADRoutesManagerGui:superClass().onClickActivate(self)
 end
 
 function ADRoutesManagerGui:onDeleteDialogCallback(yes)
     if yes then
-        AutoDriveRoutesManager.remove(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
+        RoutesManager.remove(self.routes[self.RoutesManagerList:getSelectedElementIndex()].name)
         self:refreshItems()
     end
 end

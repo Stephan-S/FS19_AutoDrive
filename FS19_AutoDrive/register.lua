@@ -52,9 +52,9 @@ source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 
-source(Utils.getFilename("scripts/Manager/AutoDriveRoutesManager.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Manager/AutoDriveDrawingManager.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Manager/AutoDriveMessagesManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/MessagesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/GraphManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/TriggerManager.lua", g_currentModDirectory))
 
