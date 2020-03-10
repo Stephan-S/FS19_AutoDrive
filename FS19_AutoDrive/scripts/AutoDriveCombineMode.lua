@@ -207,29 +207,6 @@ function AutoDrive:initializeADCombine(vehicle, dt)
     return false
 end
 
-function AutoDrive:registerDriverAsAvailableUnloader(vehicle)
-    AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
-    vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
-    vehicle.ad.wayPoints = {}
-    vehicle.ad.isPaused = true
-    if vehicle.ad.currentCombine ~= nil then
-        vehicle.ad.currentCombine.ad.currentDriver = nil
-        vehicle.ad.currentCombine.ad.preCalledDriver = false
-        vehicle.ad.currentCombine.ad.driverOnTheWay = false
-        vehicle.ad.currentCombine = nil
-    end
-end
-
-function AutoDrive:unregisterDriverAsUnloader(vehicle)
-    if vehicle.ad.currentCombine ~= nil then
-        vehicle.ad.currentCombine.ad.currentDriver = nil
-        vehicle.ad.currentCombine.ad.preCalledDriver = false
-        vehicle.ad.currentCombine.ad.driverOnTheWay = false
-        vehicle.ad.currentCombine = nil
-        return
-    end
-end
-
 function AutoDrive:updateChaseModeInfos(vehicle, dt)
     local combine = vehicle.ad.currentCombine
 
@@ -496,107 +473,6 @@ function AutoDrive:combineIsTurning(vehicle, combine, isChopper)
         return false
     end
     return true
-end
-
-function AutoDrive:getPipeChasePosition(vehicle, combine, isChopper, leftBlocked, rightBlocked)
-    local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
-    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(vehicle.components[1].node)
-    local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
-    local combineVector = {x = rx, z = rz}
-    local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
-    local nodeX, nodeY, nodeZ = worldX, worldY, worldZ
-    local sideIndex = AutoDrive.ccSIDE_REAR
-    if isChopper then
-        if (not leftBlocked) then
-            --g_logManager:devInfo("Taking left side");
-            nodeX, nodeY, nodeZ = worldX - combineNormalVector.x * 7 + combineVector.x * 3, worldY, worldZ - combineNormalVector.z * 7 + combineVector.z * 3
-            sideIndex = AutoDrive.ccSIDE_LEFT
-        elseif (not rightBlocked) then
-            --g_logManager:devInfo("Taking right side");
-            nodeX, nodeY, nodeZ = worldX + combineNormalVector.x * 7 + combineVector.x * 3, worldY, worldZ + combineNormalVector.z * 7 + combineVector.z * 3
-            sideIndex = AutoDrive.ccSIDE_RIGHT
-        else
-            --g_logManager:devInfo("Taking rear side");
-            local distanceToRear = AutoDrive.getSetting("followDistance", vehicle);
-            nodeX, nodeY, nodeZ = worldX - combineVector.x * distanceToRear, worldY, worldZ - combineVector.z * distanceToRear
-            sideIndex = AutoDrive.ccSIDE_REAR
-        end
-    else
-        local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
-        local combineMaxCapacity = combineFillLevel + combineLeftCapacity
-        local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
-
-        if (not leftBlocked) and combineFillPercent < 90 then
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking left side")
-            nodeX, nodeY, nodeZ = worldX - combineNormalVector.x * 9.5 + combineVector.x * 6, worldY, worldZ - combineNormalVector.z * 9.5 + combineVector.z * 6
-
-            local spec = combine.spec_pipe
-            if (spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer")) and (not isChopper) then
-                local dischargeNode = nil
-                for _, dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
-                    dischargeNode = dischargeNodeIter
-                end
-
-                local pipeOffset = AutoDrive.getSetting("pipeOffset", vehicle)
-                local trailerOffset = AutoDrive.getSetting("trailerOffset", vehicle)
-
-                local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, true)
-                local trailer = trailers[vehicle.ad.currentTrailer];
-                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
-                if (trailerFillLevel > 0.99 or trailerLeftCapacity < 0.01) and vehicle.ad.currentTrailer < trailerCount then
-                    vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
-                    trailer = AutoDrive.getTrailersOf(vehicle, true)[vehicle.ad.currentTrailer];
-                end
-
-                local trailerX, trailerY, trailerZ = getWorldTranslation(trailer.components[1].node)
-                local _, _, diffZ = worldToLocal(vehicle.components[1].node, trailerX, trailerY, trailerZ)
-
-                local totalDiff = -diffZ + trailerOffset + 2;
-                AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " getPipeChasePosition - trailerOffset: " .. trailerOffset .. " distanceToTrailer: " .. (-diffZ) .. " and static +2m -> " .. totalDiff )
-
-                nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
-                nodeX, nodeY, nodeZ = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z
-
-                sideIndex = AutoDrive.ccSIDE_LEFT
-            end
-        else
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side")
-            sideIndex = AutoDrive.ccSIDE_REAR
-            local chaseCombinePos = AutoDrive:getCombineChasePosition(vehicle, combine)
-            nodeX = chaseCombinePos.x
-            nodeY = chaseCombinePos.y
-            nodeZ = chaseCombinePos.z
-        end
-    end
-
-    return {x = nodeX, y = nodeY, z = nodeZ}, sideIndex
-end
-
-function AutoDrive:getCombineChasePosition(vehicle, combine)
-    local worldX, worldY, worldZ = getWorldTranslation(combine.components[1].node)
-    local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
-    --local combineVector = {x = rx, z = rz}
-
-    local distance = PathFinderModule.PATHFINDER_FOLLOW_DISTANCE
-    if combine:getIsBufferCombine() then
-        distance = distance - 15
-    end
-
-    return {x = worldX - distance * rx, y = worldY, z = worldZ - distance * rz}
-end
-
-function AutoDrive:getAngleToCombineHeading(vehicle, combine)
-    if vehicle == nil or combine == nil then
-        return math.huge
-    end
-
-    --local combineWorldX, combineWorldY, combineWorldZ = getWorldTranslation(combine.components[1].node)
-    local combineRx, _, combineRz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
-
-    --local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
-    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
-
-    return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineRx, z = combineRz}))
 end
 
 function AutoDrive:getAngleToChasePos(vehicle, chasePos)

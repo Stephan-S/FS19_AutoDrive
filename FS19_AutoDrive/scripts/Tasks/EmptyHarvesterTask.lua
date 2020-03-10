@@ -21,7 +21,7 @@ end
 
 function EmptyHarvesterTask:setUp()
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Setting up EmptyHarvesterTask")
-    self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine)
+    self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
 end
 
 function EmptyHarvesterTask:update(dt)
@@ -37,6 +37,8 @@ function EmptyHarvesterTask:update(dt)
             end
         else
             self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.specialDrivingModule:stopVehicle()
+            self.vehicle.ad.specialDrivingModule:update(dt)
         end
     elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
         if self.vehicle.ad.drivePathModule:isTargetReached() then
@@ -54,6 +56,11 @@ function EmptyHarvesterTask:update(dt)
         -- Stopping CP drivers for now
         if self.combine.cp and self.combine.cp.driver and self.combine.cp.driver.holdForUnloadOrRefill then
             self.combine.cp.driver:holdForUnloadOrRefill()
+        end
+
+        --Check if the combine is moving / has already moved away and we are supposed to actively unload
+        if not self.combine.ad.stoppedTimer then
+            self:finished()
         end
 
         if self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF then

@@ -27,6 +27,8 @@ function DriveToVehicleTask:update(dt)
             self.state = DriveToVehicleTask.STATE_DRIVING
         else
             self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.specialDrivingModule:stopVehicle()
+            self.vehicle.ad.specialDrivingModule:update(dt)
         end
     elseif self.state == DriveToVehicleTask.STATE_DRIVING then
         if self.vehicle.ad.drivePathModule:isTargetReached() then

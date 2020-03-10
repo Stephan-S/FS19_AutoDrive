@@ -8,7 +8,12 @@ CombineUnloaderMode.STATE_LEAVE_CROP = 5
 CombineUnloaderMode.STATE_DRIVE_TO_START = 6
 CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD = 7
 CombineUnloaderMode.STATE_FOLLOW_COMBINE = 8
-CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 9
+CombineUnloaderMode.STATE_APPROACH_ACTIVE_UNLOADING = 9
+CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 10
+
+CombineUnloaderMode.CHASEPOS_LEFT = 1
+CombineUnloaderMode.CHASEPOS_RIGHT = 2
+CombineUnloaderMode.CHASEPOS_REAR = 3
 
 function CombineUnloaderMode:new(vehicle)
     local o = CombineUnloaderMode:create()
@@ -24,7 +29,7 @@ function CombineUnloaderMode:reset()
 end
 
 function CombineUnloaderMode:start()
-    print("CombineUnloaderMode:start")
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:start")
     if not self.vehicle.ad.isActive then
         AutoDrive:startAD(self.vehicle)
     end
@@ -43,7 +48,7 @@ function CombineUnloaderMode:monitorTasks(dt)
 end
 
 function CombineUnloaderMode:handleFinishedTask()
-    print("CombineUnloaderMode:handleFinishedTask")
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:handleFinishedTask")
     self.vehicle.ad.trailerModule:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
@@ -94,8 +99,7 @@ function CombineUnloaderMode:getNextTask()
         end
     elseif self.state == CombineUnloaderMode.STATE_DRIVE_TO_PIPE then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_PIPE")
-        -- this task is finished when the combine is emptied / trailer is filled 
-        -- we should create the reversing maneuver anyhow, just to avoid collisions with a CP driven combine
+        --Drive to pipe can be finished when combine is emptied or when vehicle has reached 'old' pipe position and should switch to active mode
         nextTask = self:getTaskAfterUnload(filledToUnload)
     elseif self.state == CombineUnloaderMode.STATE_LEAVE_CROP then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_LEAVE_CROP")
@@ -129,8 +133,15 @@ function CombineUnloaderMode:assignToHarvester(harvester)
         -- if combine has extended pipe, aim for that. Otherwise DriveToVehicle and choose from there
         local spec = self.combine.spec_pipe
         if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
-            self.state = CombineUnloaderMode.STATE_DRIVE_TO_PIPE
-            self.vehicle.ad.taskModule:addTask(EmptyHarvesterTask:new(self.vehicle, self.combine))
+            if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and self.combine.ad.stoppedTimer:done() then
+                -- default unloading - no movement
+                self.state = CombineUnloaderMode.STATE_DRIVE_TO_PIPE
+                self.vehicle.ad.taskModule:addTask(EmptyHarvesterTask:new(self.vehicle, self.combine))
+            else
+                -- Probably active unloading for choppers and moving combines
+                self.state = CombineUnloaderMode.STATE_APPROACH_ACTIVE_UNLOADING
+                self.vehicle.ad.taskModule:addTask(CatchCombinePipeTask:new(self.vehicle, self.combine))                
+            end
         else
             self.state = CombineUnloaderMode.STATE_DRIVE_TO_COMBINE
             self.vehicle.ad.taskModule:addTask(DriveToVehicleTask:new(self.vehicle, self.combine))
@@ -147,7 +158,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         -- Should we park in the field?
         if AutoDrive.getSetting("parkInField", self.vehicle) then
             -- If we are in fruit, we should clear it
-            if self:isParkedInFruit() then
+            if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
                 nextTask = ClearCropTask:new(self.vehicle)
                 self.state = CombineUnloaderMode.STATE_LEAVE_CROP
             else
@@ -186,26 +197,101 @@ function CombineUnloaderMode:ignoreCombineCollision()
     return false
 end
 
-function CombineUnloaderMode:isParkedInFruit()
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle)
-    local trailer = trailers[self.vehicle.ad.currentTrailer]
-    local trailerClear = true
-    if trailer ~= nil then
-        if trailer.ad == nil then
-            trailer.ad = {}
-        end
-        ADSensor:handleSensors(trailer, dt)
-        trailer.ad.sensors.centerSensorFruit.frontFactor = -1
-        trailerClear = not trailer.ad.sensors.centerSensorFruit:pollInfo()
-    end
-
-    if trailerClear and not self.vehicle.ad.sensors.centerSensorFruit:pollInfo() and not self.vehicle.ad.sensors.rearSensorFruit:pollInfo() then
-        return false
-    end
-    
-    return true
-end
-
 function CombineUnloaderMode:shouldUnloadAtTrigger()
     return self.state == CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+end
+
+function CombineUnloaderMode:getPipeChasePosition()
+    local worldX, worldY, worldZ = getWorldTranslation(self.combine.components[1].node)
+    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
+    local combineVector = {x = rx, z = rz}
+    local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
+
+    local chaseNode = { x=worldX, y=worldY, z=worldZ }
+    local sideIndex = CombineUnloaderMode.CHASEPOS_REAR
+
+    local leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (not self.combine.ad.sensors.leftSensorField:pollInfo())
+    local rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (not self.combine.ad.sensors.rightSensorField:pollInfo())
+
+    local leftFrontBlocked = self.combine.ad.sensors.leftFrontSensorFruit:pollInfo()
+    local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo()
+    
+    -- prefer side where front is also free
+    if (not leftBlocked) and (not rightBlocked) then
+        if (not leftFrontBlocked) and rightFrontBlocked then
+            rightBlocked = true
+        elseif leftFrontBlocked and (not rightFrontBlocked) then
+            leftBlocked = true
+        end
+    end
+
+    if self.combine.getIsBufferCombine ~= nil and self.combine.getIsBufferCombine() then
+        if (not leftBlocked) then
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 3)
+            sideIndex = CombineUnloaderMode.CHASEPOS_LEFT
+        elseif (not rightBlocked) then
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 3)
+            sideIndex = CombineUnloaderMode.CHASEPOS_RIGHT
+        else
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, AutoDrive.getSetting("followDistance", vehicle))
+            sideIndex = CombineUnloaderMode.CHASEPOS_REAR
+        end
+    else
+        local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(combine)
+        local combineMaxCapacity = combineFillLevel + combineLeftCapacity
+        local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
+
+        if (not leftBlocked) and combineFillPercent < 90 then
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 9.5, 6)
+            sideIndex = CombineUnloaderMode.CHASEPOS_LEFT
+
+            local spec = combine.spec_pipe
+            if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
+                local dischargeNode = nil
+                for _, dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
+                    dischargeNode = dischargeNodeIter
+                end
+
+                local pipeOffset = AutoDrive.getSetting("pipeOffset", vehicle)
+                local trailerOffset = AutoDrive.getSetting("trailerOffset", vehicle)
+
+                local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, true)
+                local trailer = trailers[vehicle.ad.currentTrailer];
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
+                if (trailerFillLevel > 0.99 or trailerLeftCapacity < 0.01) and vehicle.ad.currentTrailer < trailerCount then
+                    vehicle.ad.currentTrailer = vehicle.ad.currentTrailer + 1;
+                    trailer = AutoDrive.getTrailersOf(vehicle, true)[vehicle.ad.currentTrailer];
+                end
+
+                local trailerX, trailerY, trailerZ = getWorldTranslation(trailer.components[1].node)
+                local _, _, diffZ = worldToLocal(vehicle.components[1].node, trailerX, trailerY, trailerZ)
+
+                local totalDiff = -diffZ + trailerOffset + 2;
+
+                local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
+                chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z
+            end
+        else
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, " getPipeChasePosition - combineFillPercent: " .. combineFillPercent .. " -> taking rear side")
+            sideIndex = AutoDrive.ccSIDE_REAR            
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
+        end
+    end
+
+    return chaseNode, sideIndex
+end
+
+function CombineUnloaderMode:getAngleToCombineHeading()
+    if self.vehicle == nil or self.combine == nil then
+        return math.huge
+    end
+
+    --local combineWorldX, combineWorldY, combineWorldZ = getWorldTranslation(combine.components[1].node)
+    local combineRx, _, combineRz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
+
+    --local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+
+    return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineRx, z = combineRz}))
 end

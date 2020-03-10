@@ -570,55 +570,6 @@ function AutoDrive.trailerInTriggerRange(trailer, trigger)
     return false
 end
 
-
-
-function AutoDrive.shouldLoadOnTrigger(vehicle)
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-        if (AutoDrive.getDistanceToTargetPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance")) then --(not vehicle.ad.onRouteToSecondTarget) and
-            return true
-        end
-    end
-
-    if vehicle.ad.mode == AutoDrive.MODE_LOAD then
-        if (AutoDrive.getDistanceToUnloadPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance")) then --vehicle.ad.onRouteToSecondTarget and
-            return true
-        end
-    end
-
-    return false
-end
-
-function AutoDrive.shouldUnloadAtTrigger(vehicle)
-    if (vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.DRIVE_TO_UNLOAD_POS) then
-        return true
-    end
-
-    if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-        if (AutoDrive.getDistanceToUnloadPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance")) then -- (vehicle.ad.onRouteToSecondTarget) and
-            return true
-        end
-    end
-
-    if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
-        if (AutoDrive.getDistanceToTargetPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance")) then -- (vehicle.ad.onRouteToSecondTarget) and
-            return true
-        end
-    end
-
-    return false
-end
-
-
-
-function AutoDrive.inModeToHandleTrailers(vehicle)
-    if vehicle.ad.isActive == true then
-        if (vehicle.ad.mode == AutoDrive.MODE_DELIVERTO or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) then --and vehicle.isServer == true
-            return true
-        end
-    end
-    return false
-end
-
 function AutoDrive.getTriggerAndTrailerPairs(vehicle)
     local trailerTriggerPairs = {}
     local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
@@ -702,7 +653,6 @@ function AutoDrive.trailerIsInTriggerList(trailer, trigger, fillUnitIndex)
     return false
 end
 
-
 function AutoDrive.getFillUnitEmptyForSomeTime(trailer, fillUnitEmpty, dt)
     if trailer ~= nil then
         if trailer.emptyTimer == nil then
@@ -712,3 +662,4 @@ function AutoDrive.getFillUnitEmptyForSomeTime(trailer, fillUnitEmpty, dt)
     end
     return false
 end
+

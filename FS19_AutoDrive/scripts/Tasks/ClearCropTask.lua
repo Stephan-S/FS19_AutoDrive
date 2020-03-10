@@ -35,3 +35,41 @@ else
         end
     end
 end
+
+
+ClearCropTask = ADInheritsFrom(AbstractTask)
+
+ClearCropTask.TARGET_DISTANCE_SIDE = 12
+ClearCropTask.TARGET_DISTANCE_FRONT_STEP = 10
+
+function ClearCropTask:new(vehicle)
+    local o = ClearCropTask:create()
+    o.vehicle = vehicle
+    return o
+end
+
+function ClearCropTask:setUp()
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Setting up ClearCropTask")
+    self.wayPoints = {}
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 1))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 2))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 3))
+    self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+end
+
+function ClearCropTask:update(dt)    
+    -- Check if the driver and trailers have left the crop yet
+    if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+        self:finished()
+    else
+        self.vehicle.ad.drivePathModule:update(dt)
+    end
+end
+
+function ClearCropTask:abort()
+end
+
+function ClearCropTask:finished()
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "ClearCropTask:finished()")
+    self.vehicle.ad.taskModule:setCurrentTaskFinished()
+end

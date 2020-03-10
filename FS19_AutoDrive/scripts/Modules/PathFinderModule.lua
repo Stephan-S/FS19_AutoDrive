@@ -146,40 +146,31 @@ function PathFinderModule:startPathPlanningToNetwork(destinationID)
     return
 end
 
-function PathFinderModule:startPathPlanningToPipe(combine)    
+function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe")
     local _, worldY, _ = getWorldTranslation(combine.components[1].node)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
-    local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
+    
+    local pipeChasePos, _ = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()    
 
-    local dischargeNode = nil
-    if combine ~= nil and combine.getDischargeNodeByIndex ~= nil and combine.getPipeDischargeNodeIndex ~= nil then
-        dischargeNode = combine:getDischargeNodeByIndex(combine:getPipeDischargeNodeIndex())
-    else
-        print("Could not find discharge node on combine")
-        return
+    if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
+        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
+
+        self:startPathPlanningTo(pathFinderTarget, combineVector)
+
+        table.insert(self.appendWayPoints, pipeChasePos)
+    else        
+        local appendedNode =        {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE    * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
+        local pathFinderTarget =    {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE          * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
+        
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
+        self:startPathPlanningTo(pathFinderTarget, combineVector)
+
+        table.insert(self.appendWayPoints, appendedNode)
+        table.insert(self.appendWayPoints, pipeChasePos)
     end
-
-    local wpAhead
-    local wpCurrent
-    local wpBehind_close
-    local wpBehind
-
-    local firstBinIsOnDriver = false
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle)
-    if trailers[1] ~= nil and self.vehicle == trailers[1] then
-        firstBinIsOnDriver = true
-    end
-
-    local nodeX, _, nodeZ = getWorldTranslation(dischargeNode.node)
-    local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
-    local trailerOffset = AutoDrive.getSetting("trailerOffset", self.vehicle)
-    local lengthOffset = 5 + self.vehicle.sizeLength / 2
-    if firstBinIsOnDriver then
-        lengthOffset = 0
-    end
-
+    
     if combine.spec_combine ~= nil then
         if combine.spec_combine.fillUnitIndex ~= nil and combine.spec_combine.fillUnitIndex ~= 0 then
             local fillType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex))
@@ -189,47 +180,8 @@ function PathFinderModule:startPathPlanningToPipe(combine)
         end
     end
 
-    if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local leftBlocked = combine.ad.sensors.leftSensorFruit:pollInfo() or combine.ad.sensors.leftSensor:pollInfo() or (not combine.ad.sensors.leftSensorField:pollInfo())
-        local rightBlocked = combine.ad.sensors.rightSensorFruit:pollInfo() or combine.ad.sensors.rightSensor:pollInfo() or (not combine.ad.sensors.rightSensorField:pollInfo())
-
-        local leftFrontBlocked = combine.ad.sensors.leftFrontSensorFruit:pollInfo()
-        local rightFrontBlocked = combine.ad.sensors.rightFrontSensorFruit:pollInfo()
-
-        if (not leftBlocked) and (not rightBlocked) then
-            if (not leftFrontBlocked) and rightFrontBlocked then
-                rightBlocked = true
-            elseif leftFrontBlocked and (not rightFrontBlocked) then
-                leftBlocked = true
-            end
-        end
-
-        local pipeChasePos, _ = AutoDrive:getPipeChasePosition(self.vehicle, combine, combine:getIsBufferCombine(), leftBlocked, rightBlocked)
-        wpAhead = {x = pipeChasePos.x, y = pipeChasePos.y, z = pipeChasePos.z}
-        wpBehind = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
-
-        self:startPathPlanningTo(wpBehind, combineVector)
-
-        table.insert(self.appendWayPoints, wpAhead)
-    else
-        if lengthOffset ~= 0 or trailerOffset ~= 0 then
-            wpAhead = {x = (nodeX + (lengthOffset + trailerOffset) * rx) - pipeOffset * combineNormalVector.x, y = worldY, z = nodeZ + (lengthOffset + trailerOffset) * rz - pipeOffset * combineNormalVector.z}
-        end
-        wpCurrent = {x = (nodeX - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - pipeOffset * combineNormalVector.z}
-        wpBehind_close = {x = (nodeX - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz - pipeOffset * combineNormalVector.z}
-        wpBehind = {x = (nodeX - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx - pipeOffset * combineNormalVector.x), y = worldY, z = nodeZ - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz - pipeOffset * combineNormalVector.z} --make this target
-
-        
-        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
-        self:startPathPlanningTo(wpBehind, combineVector)
-
-        table.insert(self.appendWayPoints, wpBehind_close)
-        table.insert(self.appendWayPoints, wpCurrent)
-        table.insert(self.appendWayPoints, wpAhead)
-    end
-
     self.goingToPipe = true
-    self.chasingVehicle = false
+    self.chasingVehicle = chasing
 end
 
 function PathFinderModule:startPathPlanningToVehicle(targetVehicle, targetDistance)
@@ -255,7 +207,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     local sin = math.sin(atan)
     local cos = math.cos(atan)
 
-    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle)
+    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle) * 2/3
 
     self.vectorX = {x = cos * self.minTurnRadius, z = sin * self.minTurnRadius}
     self.vectorZ = {x = -sin * self.minTurnRadius, z = cos * self.minTurnRadius}

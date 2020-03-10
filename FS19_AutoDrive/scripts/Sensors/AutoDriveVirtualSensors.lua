@@ -233,40 +233,34 @@ function ADSensor:getBoxShape()
     local boxYPos = 1.5
 
     local box = {}
-    box.center = {}
     box.offset = {}
     box.size = {}
     box.size[1] = self.width * 0.5
-    -- * self.sideFactor;
     box.size[2] = 0.75 -- fixed height for now
     box.size[3] = lookAheadDistance * 0.5
-    -- * self.frontFactor;
     box.offset[1] = self.location.x
     box.offset[2] = boxYPos -- fixed y pos for now
     box.offset[3] = self.location.z
-    box.center[1] = box.offset[1] + vecZ.x * box.size[3] --+ (vecX.x * box.size[1])
-    box.center[2] = boxYPos -- fixed y pos for now
-    box.center[3] = box.offset[3] + vecZ.z * box.size[3] -- + vecX.z * box.size[1]
 
     box.topLeft = {}
-    box.topLeft[1] = box.center[1] - vecX.x * box.size[1] + vecZ.x * box.size[3]
+    box.topLeft[1] = box.offset[1] - vecX.x * box.size[1] + vecZ.x * box.size[3]
     box.topLeft[2] = boxYPos
-    box.topLeft[3] = box.center[3] - vecX.z * box.size[1] + vecZ.z * box.size[3]
+    box.topLeft[3] = box.offset[3] - vecX.z * box.size[1] + vecZ.z * box.size[3]
 
     box.topRight = {}
-    box.topRight[1] = box.center[1] + vecX.x * box.size[1] + vecZ.x * box.size[3]
+    box.topRight[1] = box.offset[1] + vecX.x * box.size[1] + vecZ.x * box.size[3]
     box.topRight[2] = boxYPos
-    box.topRight[3] = box.center[3] + vecX.z * box.size[1] + vecZ.z * box.size[3]
+    box.topRight[3] = box.offset[3] + vecX.z * box.size[1] + vecZ.z * box.size[3]
 
     box.downRight = {}
-    box.downRight[1] = box.center[1] + vecX.x * box.size[1] - vecZ.x * box.size[3]
+    box.downRight[1] = box.offset[1] + vecX.x * box.size[1] - vecZ.x * box.size[3]
     box.downRight[2] = boxYPos
-    box.downRight[3] = box.center[3] + vecX.z * box.size[1] - vecZ.z * box.size[3]
+    box.downRight[3] = box.offset[3] + vecX.z * box.size[1] - vecZ.z * box.size[3]
 
     box.downLeft = {}
-    box.downLeft[1] = box.center[1] - vecX.x * box.size[1] - vecZ.x * box.size[3]
+    box.downLeft[1] = box.offset[1] - vecX.x * box.size[1] - vecZ.x * box.size[3]
     box.downLeft[2] = boxYPos
-    box.downLeft[3] = box.center[3] - vecX.z * box.size[1] - vecZ.z * box.size[3]
+    box.downLeft[3] = box.offset[3] - vecX.z * box.size[1] - vecZ.z * box.size[3]
 
     if self.sideFactor == -1 then
         vecX = {x = -vecX.x, z = -vecX.z}
@@ -276,7 +270,7 @@ function ADSensor:getBoxShape()
     box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, vecZ.x, 0, vecZ.z)
     box.ry = math.atan2(box.zx, box.zz)
     box.rx = -MathUtil.getYRotationFromDirection(box.dirY, 1) * self.frontFactor
-    box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
+    box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.offset[1], box.offset[2], box.offset[3])
 
     box.topLeft.x, box.topLeft.y, box.topLeft.z = localToWorld(vehicle.components[1].node, box.topLeft[1], box.topLeft[2], box.topLeft[3])
     box.topRight.x, box.topRight.y, box.topRight.z = localToWorld(vehicle.components[1].node, box.topRight[1], box.topRight[2], box.topRight[3])

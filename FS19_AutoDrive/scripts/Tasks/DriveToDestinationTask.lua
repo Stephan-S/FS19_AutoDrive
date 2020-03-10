@@ -28,6 +28,8 @@ function DriveToDestinationTask:update(dt)
             self.state = DriveToDestinationTask.STATE_DRIVING
         else
             self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.specialDrivingModule:stopVehicle()
+            self.vehicle.ad.specialDrivingModule:update(dt)
         end
     else
         if self.vehicle.ad.drivePathModule:isTargetReached() then
