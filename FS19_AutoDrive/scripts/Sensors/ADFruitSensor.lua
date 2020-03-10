@@ -5,6 +5,8 @@ function ADFruitSensor:new(vehicle, sensorParameters)
     o:init(vehicle, ADSensor.TYPE_FRUIT, sensorParameters)
     o.fruitType = 0
     o.foundFruitType = 0
+    o.enabled = true
+    o.drawDebug = true
 
     if sensorParameters.fruitType ~= nil then
         o.fruitType = sensorParameters.fruitType

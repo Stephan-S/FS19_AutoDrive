@@ -51,6 +51,7 @@ source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuns.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
@@ -70,6 +71,8 @@ source(Utils.getFilename("scripts/Tasks/DriveToVehicleTask.lua", g_currentModDir
 source(Utils.getFilename("scripts/Tasks/EmptyHarvesterTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/WaitForCallTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/ClearCropTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/CatchCombinePipeTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/FollowCombineTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))

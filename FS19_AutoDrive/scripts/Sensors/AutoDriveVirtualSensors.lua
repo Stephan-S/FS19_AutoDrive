@@ -170,7 +170,7 @@ function ADSensor:loadDynamicParameters(sensorParameters)
         self.collisionMask = sensorParameters.collisionMask
     end
     if sensorParameters.position ~= nil then
-        if sensorParameters.position >= ADSensor.POS_FRONT and sensorParameters.position <= ADSensor.POS_FIXED then
+        if sensorParameters.position >= ADSensor.POS_FRONT and sensorParameters.position <= ADSensor.POS_CENTER then
             self.position = sensorParameters.position
         end
     end
@@ -193,11 +193,11 @@ function ADSensor:getLocationByPosition()
         self.frontFactor = -1
     elseif self.position == ADSensor.POS_RIGHT then
         location.x = -vehicle.sizeWidth / 2 - 1 - self.width / 2
-        location.z = -vehicle.sizeLength / 2
+        location.z = -vehicle.sizeLength / 2 - 2
         self.sideFactor = -1
     elseif self.position == ADSensor.POS_LEFT then
         location.x = vehicle.sizeWidth / 2 + 1 + self.width / 2
-        location.z = -vehicle.sizeLength / 2
+        location.z = -vehicle.sizeLength / 2 - 2
     elseif self.position == ADSensor.POS_FRONT_LEFT then
         location.x = vehicle.sizeWidth + 2.5 + self.width / 2
         location.z = vehicle.sizeLength / 2
@@ -235,32 +235,36 @@ function ADSensor:getBoxShape()
     local box = {}
     box.offset = {}
     box.size = {}
+    box.center = {}
     box.size[1] = self.width * 0.5
     box.size[2] = 0.75 -- fixed height for now
     box.size[3] = lookAheadDistance * 0.5
     box.offset[1] = self.location.x
     box.offset[2] = boxYPos -- fixed y pos for now
     box.offset[3] = self.location.z
+    box.center[1] = box.offset[1] + vecZ.x * box.size[3] --+ (vecX.x * box.size[1])
+    box.center[2] = boxYPos -- fixed y pos for now
+    box.center[3] = box.offset[3] + vecZ.z * box.size[3] -- + vecX.z * box.size[1]
 
     box.topLeft = {}
-    box.topLeft[1] = box.offset[1] - vecX.x * box.size[1] + vecZ.x * box.size[3]
+    box.topLeft[1] = box.center[1] - vecX.x * box.size[1] + vecZ.x * box.size[3]
     box.topLeft[2] = boxYPos
-    box.topLeft[3] = box.offset[3] - vecX.z * box.size[1] + vecZ.z * box.size[3]
+    box.topLeft[3] = box.center[3] - vecX.z * box.size[1] + vecZ.z * box.size[3]
 
     box.topRight = {}
-    box.topRight[1] = box.offset[1] + vecX.x * box.size[1] + vecZ.x * box.size[3]
+    box.topRight[1] = box.center[1] + vecX.x * box.size[1] + vecZ.x * box.size[3]
     box.topRight[2] = boxYPos
-    box.topRight[3] = box.offset[3] + vecX.z * box.size[1] + vecZ.z * box.size[3]
+    box.topRight[3] = box.center[3] + vecX.z * box.size[1] + vecZ.z * box.size[3]
 
     box.downRight = {}
-    box.downRight[1] = box.offset[1] + vecX.x * box.size[1] - vecZ.x * box.size[3]
+    box.downRight[1] = box.center[1] + vecX.x * box.size[1] - vecZ.x * box.size[3]
     box.downRight[2] = boxYPos
-    box.downRight[3] = box.offset[3] + vecX.z * box.size[1] - vecZ.z * box.size[3]
+    box.downRight[3] = box.center[3] + vecX.z * box.size[1] - vecZ.z * box.size[3]
 
     box.downLeft = {}
-    box.downLeft[1] = box.offset[1] - vecX.x * box.size[1] - vecZ.x * box.size[3]
+    box.downLeft[1] = box.center[1] - vecX.x * box.size[1] - vecZ.x * box.size[3]
     box.downLeft[2] = boxYPos
-    box.downLeft[3] = box.offset[3] - vecX.z * box.size[1] - vecZ.z * box.size[3]
+    box.downLeft[3] = box.center[3] - vecX.z * box.size[1] - vecZ.z * box.size[3]
 
     if self.sideFactor == -1 then
         vecX = {x = -vecX.x, z = -vecX.z}

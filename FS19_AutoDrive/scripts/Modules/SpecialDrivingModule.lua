@@ -90,3 +90,23 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
 
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
 end
+
+function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed)
+    local speed = AutoDrive.SPEED_ON_FIELD
+    local acc = 1
+
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    self.distanceToChasePos = MathUtil.vector2Length(x - point.x, z - point.z)
+
+
+    if self.distanceToChasePos < 1 then
+        speed = math.max(maxFollowSpeed, 5)
+    elseif self.distanceToChasePos < 5 then
+        speed = math.max(maxFollowSpeed, 10 + self.distanceToChasePos)
+    elseif self.distanceToChasePos < 10 then
+        speed = math.max(maxFollowSpeed, 18)
+    end
+
+    local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
+    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
+end

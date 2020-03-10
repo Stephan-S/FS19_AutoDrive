@@ -59,7 +59,7 @@ function EmptyHarvesterTask:update(dt)
         end
 
         --Check if the combine is moving / has already moved away and we are supposed to actively unload
-        if not self.combine.ad.stoppedTimer then
+        if self.combine.ad.stoppedTimer > 0 then
             self:finished()
         end
 

@@ -41,7 +41,7 @@ function CatchCombinePipeTask:update(dt)
             AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - combine travelled - recalculate path")
             self:startNewPathFinding()
             self.state = CatchCombinePipeTask.STATE_PATHPLANNING
-        else        
+        else
             if self.vehicle.ad.drivePathModule:isTargetReached() then
                 -- check if we have atually reached the target or not
                 -- accept current location if we are in a good position to start chasing: distance and angle are important here

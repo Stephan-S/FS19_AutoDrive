@@ -21,11 +21,10 @@ function ADGraphManager:pathFromTo(startWaypointID, targetWaypointID)
     local wp = {}
     if startWaypointID ~= nil and AutoDrive.mapWayPoints[startWaypointID] ~= nil and targetWaypointID ~= nil and AutoDrive.mapWayPoints[targetWaypointID] ~= nil then
         if startWaypointID == targetWaypointID then
-            table.insert(wp, 1, AutoDrive.mapWayPoints[targetWaypointID])
-            return wp
+            table.insert(wp, AutoDrive.mapWayPoints[targetWaypointID])
         else
             wp = AutoDrive:dijkstraLiveShortestPath(AutoDrive.mapWayPoints, startWaypointID, targetWaypointID)
-        end        
+        end
     end
     return wp
 end
