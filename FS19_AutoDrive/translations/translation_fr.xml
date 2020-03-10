@@ -12,7 +12,7 @@
 		<text name="input_ADSelectPreviousTarget"				text="AD: Sélect. destination précédente" />
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
 		<text name="input_AD_Speed_down"						text="AD: Réduire la vitesse" />
-		<text name="input_AD_routes_manager"					text="AD: Open routes manager" />
+		<text name="input_AD_routes_manager"					text="AD: Ouvrir le gestionnaire d'itinéraires" />
 		<text name="input_AD_continue"							text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
@@ -53,8 +53,8 @@
 		<text name="AD_MODE_LOAD"								text="Chargement" />
 		<text name="AD_MODE_BGA"								text="Vider silo (bunker)" />
 		<text name="AD_synchronizing"							text="Chargement des routes du serveur .." />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
-		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL pour créer" />
+		<text name="AD_lalt_for_deletion" 						text="LALT pour effacer" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"							text="Décalage du tuyau (pipe)" />
 		<text name="gui_ad_trailerOffset"						text="Décalage vertical (remorque)" />
@@ -162,8 +162,8 @@
 		<text name="gui_ad_enterDestinationFilterText"			text="Entrez le filtre de destination:" />
 		<text name="gui_ad_shovelHeight"						text="Hauteur de pelle" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la hauteur de pelle détectée automatiquement n’est pas correcte au sol, utilisez cette valeur pour ajuster." />
-		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
-		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Commutation de marqueurs" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Définissez la cible/décharger la cible en cliquant sur les points disponible de la carte." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
@@ -176,14 +176,14 @@
 		<text name="gui_ad_showMarkersOnMap"					text="Afficher les marqueurs" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Affiche les marqueurs/destinations en jeu sur la carte." />
 		
-		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
-		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
-		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
+		<text name="gui_ad_routesManagerTitle" 					text="Gestionnaire d'itinéraires" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Entrez le nom de l'itinéraire:" />
+		<text name="gui_ad_button_export" 						text="Exporter" />
+		<text name="gui_ad_button_import" 						text="Importer" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Voulez-vous vraiment remplacer les itinéraires existant ?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Ecrasement des itinéraires" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Voulez-vous vraiment supprimer l'itinéraire '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Suppression de l'itinéraire" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distance de conduite des chauffeurs" />
 		<text name="statistic_driversHired" 					text="Chauffeurs actuellement embauchés" />
