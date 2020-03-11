@@ -65,7 +65,7 @@ function AutoDriveCourseEditEvent:readStream(streamId, connection)
 			incoming_counter = incoming_counter + 1
 		end
 
-		AutoDrive.mapWayPoints[point.id] = point
+		ADGraphManager:setWayPoint(point)
 	end
 end
 

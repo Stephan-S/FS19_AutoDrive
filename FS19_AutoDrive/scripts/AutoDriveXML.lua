@@ -79,10 +79,6 @@ function AutoDrive.readFromXML(xmlFile)
 	AutoDrive.HudX = getXMLFloat(xmlFile, "AutoDrive.HudX")
 	AutoDrive.HudY = getXMLFloat(xmlFile, "AutoDrive.HudY")
 	AutoDrive.showingHud = getXMLBool(xmlFile, "AutoDrive.HudShow")
-	--local lastSetSpeed = getXMLFloat(xmlFile, "AutoDrive.lastSetSpeed")
-	--if lastSetSpeed ~= nil then
-	--	AutoDrive.lastSetSpeed = lastSetSpeed
-	--end
 
 	AutoDrive.currentDebugChannelMask = getXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask") or 0
 
@@ -101,6 +97,7 @@ function AutoDrive.readFromXML(xmlFile)
 	local mapMarkerCounter = 1
 	mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
 	mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
+	mapMarker.markerIndex = mapMarkerCounter
 	if mapMarker.group == nil then
 		mapMarker.group = "All"
 	end
@@ -109,18 +106,17 @@ function AutoDrive.readFromXML(xmlFile)
 		AutoDrive.groups[mapMarker.group] = AutoDrive.groupCounter
 	end
 
-	AutoDrive.mapMarker = {}
+	ADGraphManager:resetMapMarker()
 
 	while mapMarker.name ~= nil do
-		--g_logManager:devInfo("[AutoDrive] Loading map marker: " .. mapMarker.name);
 		mapMarker.id = getXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".id")
+		mapMarker.markerIndex = mapMarkerCounter
 
-		AutoDrive.mapMarker[mapMarkerCounter] = mapMarker
+		ADGraphManager:setMapMarker(mapMarker)
 
 		mapMarker = nil
 		mapMarker = {}
 		mapMarkerCounter = mapMarkerCounter + 1
-		AutoDrive.mapMarkerCounter = AutoDrive.mapMarkerCounter + 1
 		mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
 		mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
 		if mapMarker.group == nil then
@@ -139,7 +135,7 @@ function AutoDrive.readFromXML(xmlFile)
 		return
 	end
 
-	AutoDrive.mapWayPoints = {}
+	ADGraphManager:resetWayPoints()
 
 	local idTable = idString:split(",")
 	local xString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.x")
@@ -205,19 +201,16 @@ function AutoDrive.readFromXML(xmlFile)
 			wp.y = tonumber(yTable[i])
 			wp.z = tonumber(zTable[i])
 
-			AutoDrive.mapWayPoints[wp_counter] = wp
+			ADGraphManager:setWayPoint(wp)
 		end
 	end
 
-	if AutoDrive.mapWayPoints[wp_counter] ~= nil then
+	if ADGraphManager:getWayPointByID(wp_counter) ~= nil then
 		g_logManager:devInfo("[AutoDrive] Loaded %s waypoints", wp_counter)
-		AutoDrive.mapWayPointsCounter = wp_counter
-	else
-		AutoDrive.mapWayPointsCounter = 0
 	end
 
-	for markerIndex, marker in pairs(AutoDrive.mapMarker) do
-		if AutoDrive.mapWayPoints[marker.id] == nil then
+	for markerIndex, marker in pairs(ADGraphManager:getMapMarker()) do
+		if ADGraphManager:getWayPointByID(marker.id) == nil then
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
@@ -260,7 +253,7 @@ function AutoDrive.saveToXML(xmlFile)
 
 	local incomingTable = {}
 
-	for i, p in pairs(AutoDrive.mapWayPoints) do
+	for i, p in pairs(ADGraphManager:getWayPoints()) do
 		idFullTable[i] = p.id
 		xTable[i] = string.format("%.3f", p.x)
 		yTable[i] = string.format("%.3f", p.y)
@@ -286,10 +279,10 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming", table.concat(incomingTable, ";"))
 	end
 
-	for i in pairs(AutoDrive.mapMarker) do
-		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", AutoDrive.mapMarker[i].id)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", AutoDrive.mapMarker[i].name)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", AutoDrive.mapMarker[i].group)
+	for i in pairs(ADGraphManager:getMapMarker()) do
+		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", ADGraphManager:getMapMarkerByID(i).id)
+		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", ADGraphManager:getMapMarkerByID(i).name)
+		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", ADGraphManager:getMapMarkerByID(i).group)
 	end
 
 	saveXMLFile(xmlFile)

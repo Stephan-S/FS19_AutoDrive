@@ -30,7 +30,7 @@ function AutoDriveDeleteWayPointEvent:run(connection)
 		AutoDriveDeleteWayPointEvent.sendEvent(self.wayPointId)
 	else
 		-- If the event is coming from the server, both clients and server have to delete the way point
-		AutoDrive.removeMapWayPoint(self.wayPointId, false)
+		ADGraphManager:removeWayPoint(self.wayPointId, false)
 	end
 end
 

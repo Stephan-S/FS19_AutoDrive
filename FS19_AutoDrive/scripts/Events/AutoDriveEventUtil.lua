@@ -13,7 +13,7 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
     local incomingTable = {}
 
     for i = startId, endId, 1 do
-        local p = AutoDrive.mapWayPoints[i]
+        local p = ADGraphManager:getWayPointByID(i)
 
         idCounter = idCounter + 1
         idFullTable[idCounter] = p.id
@@ -47,13 +47,13 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
 end
 
 function AutoDrive:writeMapMarkersToStream(streamId)
-    local markerCounter = #AutoDrive.mapMarker
+    local markerCounter = #ADGraphManager:getMapMarker()
     streamWriteInt32(streamId, markerCounter)
     local i = 1
     while i <= markerCounter do
-        streamWriteInt32(streamId, AutoDrive.mapMarker[i].id)
-        AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].name)
-        AutoDrive.streamWriteStringOrEmpty(streamId, AutoDrive.mapMarker[i].group)
+        streamWriteInt32(streamId, ADGraphManager:getMapMarkerByID(i).id)
+        AutoDrive.streamWriteStringOrEmpty(streamId, ADGraphManager:getMapMarkerByID(i).name)
+        AutoDrive.streamWriteStringOrEmpty(streamId, ADGraphManager:getMapMarkerByID(i).group)
         i = i + 1
     end
 
@@ -100,7 +100,7 @@ function AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
             incoming_counter = incoming_counter + 1
         end
 
-        AutoDrive.mapWayPoints[wp.id] = wp
+        ADGraphManager:setWayPoint(wp)
 
         highestId = math.max(highestId, wp.id)
         lowestId = math.min(lowestId, wp.id)
@@ -117,18 +117,17 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
         local markerGroup = AutoDrive.streamReadStringOrEmpty(streamId)
         local marker = {}
 
-        if AutoDrive.mapWayPoints[markerId] ~= nil then
+        if ADGraphManager:getWayPointByID(markerId) ~= nil then
             marker.id = markerId
             marker.name = markerName
             marker.group = markerGroup
 
-            AutoDrive.mapMarker[mapMarkerCount] = marker
+            ADGraphManager:getMapMarkerByID(mapMarkerCount) = marker
             mapMarkerCount = mapMarkerCount + 1
         else
             g_logManager:error("[AutoDrive] Error receiving marker " .. markerName)
         end
     end
-    AutoDrive.mapMarkerCounter = numberOfMapMarkers
     AutoDrive:notifyDestinationListeners()
 end
 

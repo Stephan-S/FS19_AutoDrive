@@ -64,8 +64,6 @@ function AutoDriveUpdateEvent:new(vehicle)
 	o.enableAI = vehicle.ad.enableAI
 	o.disableAI = vehicle.ad.disableAI
 
-	o.mapWayPointsCounter = AutoDrive.mapWayPointsCounter
-
 	return o
 end
 
@@ -155,7 +153,6 @@ function AutoDriveUpdateEvent:writeStream(streamId, connection)
 	streamWriteInt8(streamId, self.enableAI)
 	streamWriteInt8(streamId, self.disableAI)
 
-	streamWriteInt32(streamId, self.mapWayPointsCounter)
 	--g_logManager:devInfo("event writeStream")
 end
 
@@ -190,7 +187,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		local wayPointID = StringUtil.splitString(",", wayPointsString)
 		for i, wpId in pairs(wayPointID) do
 			if wpId ~= "" then
-				wayPoints[i] = AutoDrive.mapWayPoints[tonumber(id)]
+				wayPoints[i] = ADGraphManager:getWayPointByID(tonumber(id))
 			end
 		end
 	end
@@ -216,7 +213,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local iteratedDebugPoints = {}
 	for i, pId in pairs(DebugPointsID) do
 		if pId ~= "" then
-			iteratedDebugPoints[i] = AutoDrive.mapWayPoints[tonumber(pId)]
+			iteratedDebugPoints[i] = ADGraphManager:getWayPointByID(tonumber(pId))
 		end
 	end
 
@@ -245,8 +242,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 	local enableAI = streamReadInt8(streamId)
 	local disableAI = streamReadInt8(streamId)
-
-	local mapWayPointsCounter = streamReadInt32(streamId)
 
 	local AD_currentMessage = AutoDrive.streamReadStringOrEmpty(streamId)
 
@@ -318,8 +313,6 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 
 		vehicle.ad.enableAI = enableAI
 		vehicle.ad.disableAI = disableAI
-
-		AutoDrive.mapWayPointsCounter = mapWayPointsCounter
 	end
 
 	if g_server ~= nil then
@@ -493,10 +486,6 @@ function AutoDriveUpdateEvent:compareTo(oldEvent)
 	remained = remained and self.onRouteToPark == oldEvent.onRouteToPark
 	if self.onRouteToPark ~= oldEvent.onRouteToPark then
 		reason = reason .. " onRouteToPark"
-	end
-	remained = remained and self.mapWayPointsCounter == oldEvent.mapWayPointsCounter
-	if self.mapWayPointsCounter ~= oldEvent.mapWayPointsCounter then
-		reason = reason .. " mapWayPointsCounter"
 	end
 
 	if reason ~= "" then

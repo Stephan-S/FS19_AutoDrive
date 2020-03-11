@@ -13,20 +13,20 @@ function AutoDrive:initializeAD(vehicle, dt)
         end
         vehicle.ad.usePathFinder = false
     else
-        local closest = AutoDrive:findMatchingWayPointForVehicle(vehicle)
+        local closest = ADGraphManager:findMatchingWayPointForVehicle(vehicle)
         if vehicle.ad.skipStart == true then
             vehicle.ad.skipStart = false
             if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload] == nil then
                 return
             end
-            vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
+            vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
             vehicle.ad.wayPointsChanged = true
             vehicle.ad.onRouteToSecondTarget = true
             vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS
         else
             if vehicle.ad.mode == AutoDrive.MODE_UNLOAD and vehicle.ad.combineState == AutoDrive.COMBINE_UNINITIALIZED then --decide if we are already on field and are allowed to park on field then
                 local x, _, z = getWorldTranslation(vehicle.components[1].node)
-                local node = AutoDrive.mapWayPoints[closest]
+                local node = ADGraphManager:getWayPointById(closest)
                 if AutoDrive.getSetting("parkInField", vehicle) and AutoDrive.getDistance(x, z, node.x, node.z) > 20 then
                     AutoDrive.waitingUnloadDrivers[vehicle] = vehicle
                     vehicle.ad.combineState = AutoDrive.WAIT_FOR_COMBINE
@@ -40,7 +40,7 @@ function AutoDrive:initializeAD(vehicle, dt)
             if AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected] == nil then
                 return
             end
-            vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected)
+            vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected)
             vehicle.ad.wayPointsChanged = true
             vehicle.ad.onRouteToSecondTarget = false
         end
@@ -99,11 +99,11 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                 if vehicle.ad.onRouteToSecondTarget == true then
                     vehicle.ad.timeTillDeadLock = 15000
 
-                    local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
+                    local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
                     if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
                         closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
                     end
-                    vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected)
+                    vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name, vehicle.ad.targetSelected)
                     vehicle.ad.wayPointsChanged = true
                     vehicle.ad.currentWayPoint = 1
 
@@ -135,11 +135,11 @@ function AutoDrive:handleReachedWayPoint(vehicle)
                             AutoDrive:setNextTargetInFolder(vehicle)
                         end
 
-                        local closest, _ = AutoDrive:findClosestWayPoint(vehicle)
+                        local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
                         if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then
                             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
                         end
-                        vehicle.ad.wayPoints = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
+                        vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id)
                         if vehicle.ad.wayPoints[1] ~= nil then
                             vehicle.ad.wayPointsChanged = true
                             vehicle.ad.currentWayPoint = 1

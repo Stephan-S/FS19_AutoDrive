@@ -142,26 +142,26 @@ end
 function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 	if vehicle ~= nil and vehicle.ad ~= nil then
 		if vehicle.ad.createMapPoints == true then
-			local closestWayPoint, _ = AutoDrive:findClosestWayPoint(vehicle)
+			local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
 
 			-- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
 			if input == "input_editMapMarker" then
-				if AutoDrive.mapWayPoints[1] == nil or vehicle.ad.mapMarkerSelected == nil or vehicle.ad.mapMarkerSelected == -1 then
+				if ADGraphManager:getWayPointByID(1) == nil or vehicle.ad.mapMarkerSelected == nil or vehicle.ad.mapMarkerSelected == -1 then
 					return
 				end
 				AutoDrive.editSelectedMapMarker = true
 				AutoDrive.onOpenEnterTargetName()
 			end
 
-			if AutoDrive.mapWayPoints[closestWayPoint] ~= nil then
+			if ADGraphManager:getWayPointByID(closestWayPoint) ~= nil then
 				-- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
 				if input == "input_removeWaypoint" then
-					AutoDrive.removeMapWayPoint(closestWayPoint)
+					ADGraphManager:removeWayPoint(closestWayPoint)
 				end
 
 				-- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
 				if input == "input_removeMapMarker" then
-					AutoDrive.removeMapMarkerByWayPoint(closestWayPoint)
+					ADGraphManager:removeMapMarkerByWayPoint(closestWayPoint)
 				end
 
 				-- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
@@ -172,11 +172,11 @@ function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 
 				if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
 					if input == "input_toggleConnection" then
-						AutoDrive.toggleConnectionBetween(AutoDrive.mapWayPoints[closestWayPoint], vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
+						ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointByID(closestWayPoint), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
 					end
 
 					if input == "input_toggleConnectionInverted" then
-						AutoDrive.toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], AutoDrive.mapWayPoints[closestWayPoint])
+						ADGraphManager:toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], ADGraphManager:getWayPointByID(closestWayPoint))
 					end
 				end
 			end
@@ -216,7 +216,7 @@ end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_start_stop" then
-		if AutoDrive.mapWayPoints == nil or AutoDrive.mapWayPoints[1] == nil or vehicle.ad.targetSelected == -1 then
+		if ADGraphManager:getWayPointByID(1) == nil or vehicle.ad.targetSelected == -1 then
 			return
 		end
 		if AutoDrive:isActive(vehicle) then
@@ -246,7 +246,7 @@ function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
 			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected
 			if g_server ~= nil then
-				AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name)
+				AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name)
 			end
 		end
 	end
@@ -337,7 +337,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_nextTarget_Unload" then
-		if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+		if ADGraphManager:getMapMarkerByID(1) ~= nil and ADGraphManager:getWayPointByID(1) ~= nil then
 			local destinations = AutoDrive:getSortedDestinations()
 			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected_Unload)
 
@@ -347,13 +347,13 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			end
 
 			vehicle.ad.mapMarkerSelected_Unload = destinations[nextDestination].id
-			vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
-			vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+			vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).id
+			vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).name
 		end
 	end
 
 	if input == "input_previousTarget_Unload" then
-		if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+		if ADGraphManager:getMapMarkerByID(1) ~= nil and ADGraphManager:getWayPointByID(1) ~= nil then
 			local destinations = AutoDrive:getSortedDestinations()
 			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected_Unload)
 
@@ -365,8 +365,8 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			end
 
 			vehicle.ad.mapMarkerSelected_Unload = destinations[previousIndex].id
-			vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
-			vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+			vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).id
+			vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).name
 		end
 	end
 
@@ -399,10 +399,10 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_parkVehicle" then
-		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
+		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerByID(vehicle.ad.parkDestination) ~= nil then
 			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination
-			vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-			vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+			vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+			vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
 			if AutoDrive:isActive(vehicle) then
 				AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
 			end
@@ -458,9 +458,9 @@ function AutoDrive:inputRecord(vehicle, dual)
 
 		if AutoDrive.getSetting("autoConnectEnd") then
 			if vehicle.ad.lastCreatedWp ~= nil then
-				local targetID = AutoDrive:findMatchingWayPointForVehicle(vehicle)
+				local targetID = ADGraphManager:findMatchingWayPointForVehicle(vehicle)
 				if targetID ~= nil then
-					local targetNode = AutoDrive.mapWayPoints[targetID]
+					local targetNode = ADGraphManager:getWayPointByID(targetID)
 					if targetNode ~= nil then
 						targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.lastCreatedWp.id
 						vehicle.ad.lastCreatedWp.out[#vehicle.ad.lastCreatedWp.out + 1] = targetNode.id
@@ -481,7 +481,7 @@ function AutoDrive:inputRecord(vehicle, dual)
 end
 
 function AutoDrive:inputNextTarget(vehicle)
-	if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+	if ADGraphManager:getMapMarkerByID(1) ~= nil and ADGraphManager:getWayPointByID(1) ~= nil then
 		local destinations = AutoDrive:getSortedDestinations()
 		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected)
 
@@ -491,8 +491,8 @@ function AutoDrive:inputNextTarget(vehicle)
 		end
 
 		vehicle.ad.mapMarkerSelected = destinations[nextDestination].id
-		vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-		vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+		vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+		vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
 	end
 end
 
@@ -529,7 +529,7 @@ end
 function AutoDrive:createCopyOfDestinations()
 	local destinations = {}
 
-	for destinationIndex, destination in pairs(AutoDrive.mapMarker) do
+	for destinationIndex, destination in pairs(ADGraphManager:getMapMarker()) do
 		table.insert(destinations, {id = destinationIndex, name = destination.name})
 	end
 
@@ -537,7 +537,7 @@ function AutoDrive:createCopyOfDestinations()
 end
 
 function AutoDrive:inputPreviousTarget(vehicle)
-	if AutoDrive.mapMarker[1] ~= nil and AutoDrive.mapWayPoints[1] ~= nil then
+	if ADGraphManager:getMapMarkerByID(1) ~= nil and ADGraphManager:getWayPointByID(1) ~= nil then
 		local destinations = AutoDrive:getSortedDestinations()
 		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected)
 
@@ -549,8 +549,8 @@ function AutoDrive:inputPreviousTarget(vehicle)
 		end
 
 		vehicle.ad.mapMarkerSelected = destinations[previousIndex].id
-		vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-		vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+		vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+		vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
 	end
 end
 
@@ -569,7 +569,7 @@ function AutoDrive:inputShowNeighbors(vehicle)
 		-- Find all candidate points, no further away than 15 units from vehicle
 		local x1, _, z1 = getWorldTranslation(vehicle.components[1].node)
 		local candidateDebugPoints = {}
-		for _, point in pairs(AutoDrive.mapWayPoints) do
+		for _, point in pairs(ADGraphManager:getWayPoints()) do
 			local distance = AutoDrive.getDistance(point.x, point.z, x1, z1)
 			if distance < 15 then
 				-- Add new element consisting of 'distance' (for sorting) and 'point'

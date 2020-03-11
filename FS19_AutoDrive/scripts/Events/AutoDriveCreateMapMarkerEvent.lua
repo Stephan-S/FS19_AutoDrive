@@ -32,7 +32,7 @@ function AutoDriveCreateMapMarkerEvent:run(connection)
 		-- If the event is coming from a client, server have only to broadcast
 		AutoDriveCreateMapMarkerEvent.sendEvent(self.wayPointId, self.markerName)
 	else
-		AutoDrive.createMapMarker(self.wayPointId, self.markerName, false)
+		ADGraphManager:createMapMarker(self.wayPointId, self.markerName, false)
 	end
 end
 

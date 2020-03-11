@@ -52,14 +52,14 @@ function RoutesManager.import(name)
     if route ~= nil then
         if fileExists(RoutesManager.routesFolder .. route.fileName) then
             local loadXml = loadXMLFile("routeImport_xml", RoutesManager.routesFolder .. route.fileName)
-            local mapWayPoints = {}
+            local wayPoints = {}
             local mapMarkers = {}
             local groups = {}
-            AutoDrive.readGraphFromXml(loadXml, "routeExport", mapWayPoints, mapMarkers, groups)
+            AutoDrive.readGraphFromXml(loadXml, "routeExport", wayPoints, mapMarkers, groups)
             delete(loadXml)
             -- here we will handle MP upload
-            AutoDrive.mapWayPoints = mapWayPoints
-            AutoDrive.mapMarker = mapMarkers
+            ADGraphManger:setWayPoints(wayPoints)
+            ADGraphManager:setMapMarkers(mapMarkers)
             AutoDrive.groups = groups
         end
     end
@@ -95,7 +95,7 @@ function RoutesManager.export(name)
         saveXml = createXMLFile("routeExport_xml", RoutesManager.routesFolder .. fileName, "routeExport")
     end
 
-    AutoDrive.writeGraphToXml(saveXml, "routeExport", AutoDrive.mapWayPoints, AutoDrive.mapMarker, AutoDrive.groups)
+    AutoDrive.writeGraphToXml(saveXml, "routeExport", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarker(), AutoDrive.groups)
 
     saveXMLFile(saveXml)
     delete(saveXml)

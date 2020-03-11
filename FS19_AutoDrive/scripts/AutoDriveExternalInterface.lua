@@ -4,11 +4,11 @@
 --options (optional): options.minDistance, options.maxDistance (default 1m, 20m) define boundaries between the first AutoDrive waypoint and the starting location.
 function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetPath(%s, %s, %s, %s, %s)", startX, startZ, startYRot, destinationID, options)
-    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil then
+    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or ADGraphManager:getMapMarkerByID(destinationID) == nil then
         return
     end
     startYRot = AutoDrive.normalizeAngleToPlusMinusPI(startYRot)
-    local markerName = AutoDrive.mapMarker[destinationID].name
+    local markerName = ADGraphManager:getMapMarkerByID(destinationID).name
     local startPoint = {x = startX, z = startZ}
     local minDistance = 1
     local maxDistance = 20
@@ -19,7 +19,7 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
         maxDistance = options.maxDistance
     end
     local directionVec = {x = math.sin(startYRot), z = math.cos(startYRot)}
-    local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance)
+    local bestPoint = ADGraphManager:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance)
 
     if bestPoint == -1 then
         bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance, maxDistance)
@@ -28,17 +28,17 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
         end
     end
 
-    return AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, bestPoint, markerName, AutoDrive.mapMarker[destinationID].id)
+    return ADGraphManager:FastShortestPath(bestPoint, markerName, ADGraphManager:getMapMarkerByID(destinationID).id)
 end
 
 function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, options)
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetPathVia(%s, %s, %s, %s, %s, %s)", startX, startZ, startYRot, viaID, destinationID, options)
-    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or AutoDrive.mapMarker[destinationID] == nil or viaID == nil or AutoDrive.mapMarker[viaID] == nil then
+    if startX == nil or startZ == nil or startYRot == nil or destinationID == nil or ADGraphManager:getMapMarkerByID(destinationID) == nil or viaID == nil or ADGraphManager:getMapMarkerByID(viaID) == nil then
         return
     end
     startYRot = AutoDrive.normalizeAngleToPlusMinusPI(startYRot)
 
-    local markerName = AutoDrive.mapMarker[viaID].name
+    local markerName = ADGraphManager:getMapMarkerByID(viaID).name
     local startPoint = {x = startX, z = startZ}
     local minDistance = 1
     local maxDistance = 20
@@ -49,7 +49,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
         maxDistance = options.maxDistance
     end
     local directionVec = {x = math.sin(startYRot), z = math.cos(startYRot)}
-    local bestPoint = AutoDrive:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance)
+    local bestPoint = ADGraphManager:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance)
 
     if bestPoint == -1 then
         bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance)
@@ -58,13 +58,13 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
         end
     end
 
-    local toViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, bestPoint, markerName, AutoDrive.mapMarker[viaID].id)
+    local toViaID = ADGraphManager:FastShortestPath(bestPoint, markerName, ADGraphManager:getMapMarkerByID(viaID).id)
 
     if toViaID == nil or #toViaID < 1 then
         return
     end
 
-    local fromViaID = AutoDrive:FastShortestPath(AutoDrive.mapWayPoints, toViaID[#toViaID].id, AutoDrive.mapMarker[destinationID].name, AutoDrive.mapMarker[destinationID].id)
+    local fromViaID = ADGraphManager:FastShortestPath(toViaID[#toViaID].id, ADGraphManager:getMapMarkerByID(destinationID).name, ADGraphManager:getMapMarkerByID(destinationID).id)
 
     for i, wayPoint in pairs(fromViaID) do
         if i > 1 then
@@ -82,8 +82,8 @@ end
 function AutoDrive:GetAvailableDestinations()
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetAvailableDestinations()")
     local destinations = {}
-    for markerID, marker in pairs(AutoDrive.mapMarker) do
-        local point = AutoDrive.mapWayPoints[marker.id]
+    for markerID, marker in pairs(ADGraphManager:getMapMarker()) do
+        local point = ADGraphManager:getWayPointByID(marker.id)
         if point ~= nil then
             destinations[markerID] = {name = marker.name, x = point.x, y = point.y, z = point.z, id = markerID}
         end
@@ -94,11 +94,11 @@ end
 function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetClosestPointToLocation(%s, %s, %s)", x, z, minDistance)
     local closest = -1
-    if AutoDrive.mapWayPoints[1] ~= nil then
+    if ADGraphManager:getWayPointCount() < 1 then
         local distance = math.huge
 
-        for i in pairs(AutoDrive.mapWayPoints) do
-            local dis = AutoDrive.getDistance(AutoDrive.mapWayPoints[i].x, AutoDrive.mapWayPoints[i].z, x, z)
+        for i in pairs(ADGraphManager:getWayPoints()) do
+            local dis = AutoDrive.getDistance(ADGraphManager:getWayPointByID(i).x, ADGraphManager:getWayPointByID(i).z, x, z)
             if dis < distance and dis >= minDistance then
                 closest = i
                 distance = dis
@@ -116,15 +116,15 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
         vehicle.ad.callBackFunction = callBackFunction
         vehicle.ad.callBackArg = callBackArg
 
-        if destinationID >= 0 and AutoDrive.mapMarker[destinationID] ~= nil then
+        if destinationID >= 0 and ADGraphManager:getMapMarkerByID(destinationID) ~= nil then
             vehicle.ad.mapMarkerSelected = destinationID
-            vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-            vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+            vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+            vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
 
-            if unloadDestinationID >= 0 and AutoDrive.mapMarker[unloadDestinationID] ~= nil then
+            if unloadDestinationID >= 0 and ADGraphManager:getMapMarkerByID(unloadDestinationID) ~= nil then
                 vehicle.ad.mapMarkerSelected_Unload = unloadDestinationID
-                vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
-                vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+                vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).id
+                vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).name
                 AutoDrive:startAD(vehicle)
             elseif unloadDestinationID == -3 then --park
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
@@ -156,8 +156,8 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
 
                 if refuelDestination ~= nil then
                     vehicle.ad.mapMarkerSelected = refuelDestination
-                    vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-                    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+                    vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+                    vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
                     vehicle.ad.mode = 1
                     vehicle.ad.onRouteToRefuel = true
                     AutoDrive:StartDriving(vehicle, vehicle.ad.mapMarkerSelected, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
@@ -177,7 +177,7 @@ end
 
 function AutoDrive:GetParkDestination(vehicle)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetParkDestination()")
-    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and AutoDrive.mapMarker[vehicle.ad.parkDestination] ~= nil then
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerByID(vehicle.ad.parkDestination) ~= nil then
         return vehicle.ad.parkDestination
     end
     return nil

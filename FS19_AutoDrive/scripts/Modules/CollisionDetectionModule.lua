@@ -81,11 +81,11 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 		local idToCheck = 3
         local alreadyOnDualRoute = false
 		if wayPoints[currentWayPoint - 1] ~= nil and wayPoints[currentWayPoint] ~= nil then
-			alreadyOnDualRoute = AutoDrive:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
+			alreadyOnDualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
 		end
 
 		if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil and not alreadyOnDualRoute then
-			local dualRoute = AutoDrive:isDualRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
+			local dualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
 
 			local dualRoutePoints = {}
 			local counter = 0
@@ -94,7 +94,7 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 				local startNode = wayPoints[currentWayPoint + idToCheck]
 				local targetNode = wayPoints[currentWayPoint + idToCheck + 1]
 				if (startNode ~= nil) and (targetNode ~= nil) then
-					local testDual = AutoDrive:isDualRoad(startNode, targetNode)
+					local testDual = ADGraphManager:isDualRoad(startNode, targetNode)
 					if testDual == true then
 						counter = counter + 1
 						dualRoutePoints[counter] = startNode.id

@@ -128,7 +128,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             if wps ~= nil then
                 local vehicleDestination = wps[#wps]
                 if vehicleDestination ~= nil then
-                    for _, mapMarker in pairs(AutoDrive.mapMarker) do
+                    for _, mapMarker in pairs(ADGraphManager:getMapMarker()) do
                         if mapMarker.id == vehicleDestination.id then
                             actualTarget = mapMarker.name
                             break
@@ -380,7 +380,7 @@ function ADPullDownList:createSelection_Target()
         self.options[1] = {}
     end
 
-    for markerID, marker in pairs(AutoDrive.mapMarker) do
+    for markerID, marker in pairs(ADGraphManager:getMapMarker()) do
         if useFolders then
             table.insert(self.options[self.groups[marker.group]], {displayName = marker.name, returnValue = markerID})
         else
@@ -466,8 +466,8 @@ function ADPullDownList:getNewState_Target(vehicle)
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
         local markerSelected = vehicle.ad.mapMarkerSelected
-        if markerSelected ~= nil and markerSelected >= 1 and AutoDrive.mapMarker[markerSelected] ~= nil then
-            self.text = AutoDrive.mapMarker[markerSelected].name
+        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerByID(markerSelected) ~= nil then
+            self.text = ADGraphManager:getMapMarkerByID(markerSelected).name
         else
             self.text = ""
         end
@@ -480,8 +480,8 @@ function ADPullDownList:getNewState_Unload(vehicle)
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
         local markerSelected = vehicle.ad.mapMarkerSelected_Unload
-        if markerSelected ~= nil and markerSelected >= 1 and AutoDrive.mapMarker[markerSelected] ~= nil then
-            self.text = AutoDrive.mapMarker[markerSelected].name
+        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerByID(markerSelected) ~= nil then
+            self.text = ADGraphManager:getMapMarkerByID(markerSelected).name
         else
             self.text = ""
         end
@@ -635,16 +635,16 @@ function ADPullDownList:collapse(vehicle, setItem)
         local selectedEntry = self:getListElementByIndex(vehicle, self.hovered)
         if selectedEntry ~= nil and selectedEntry.returnValue ~= nil and selectedEntry.isFolder == false then
             if self.type == ADPullDownList.TYPE_TARGET then
-                if AutoDrive.mapMarker[selectedEntry.returnValue] ~= nil then
+                if ADGraphManager:getMapMarkerByID(selectedEntry.returnValue) ~= nil then
                     vehicle.ad.mapMarkerSelected = selectedEntry.returnValue
-                    vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-                    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+                    vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+                    vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
                 end
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
-                if AutoDrive.mapMarker[selectedEntry.returnValue] ~= nil then
+                if ADGraphManager:getMapMarkerByID(selectedEntry.returnValue) ~= nil then
                     vehicle.ad.mapMarkerSelected_Unload = selectedEntry.returnValue
-                    vehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
-                    vehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+                    vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).id
+                    vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).name
                 end
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
                 vehicle.ad.unloadFillTypeIndex = selectedEntry.returnValue
@@ -799,7 +799,7 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
 
     table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarkerName, returnValue = mapMarkerID})
 
-    AutoDrive.changeMapMarkerGroup(targetGroupName, mapMarkerID)
+    ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarkerID)
 
     self:sortCurrentItems()
 end

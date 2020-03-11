@@ -58,8 +58,8 @@ function AutoDrive.goToRefuelStation(vehicle)
 
     if refuelDestination ~= nil then
         vehicle.ad.mapMarkerSelected = refuelDestination
-        vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-        vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+        vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+        vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
         if AutoDrive:isActive(vehicle) then
             AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
         end
@@ -71,8 +71,8 @@ end
 
 function AutoDrive.continueAfterRefueling(vehicle)
     vehicle.ad.mapMarkerSelected = vehicle.ad.storedMapMarkerSelected
-    vehicle.ad.targetSelected = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].id
-    vehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[vehicle.ad.mapMarkerSelected].name
+    vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
+    vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
     if AutoDrive:isActive(vehicle) then
         AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
     end

@@ -45,7 +45,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
 
     if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:checkIsOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
         local wp, currentWayPoint = vehicle.ad.drivePathModule:getWayPoints()
-        local remainingTime = AutoDrive:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
+        local remainingTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
         local remainingMinutes = math.floor(remainingTime / 60)
         local remainingSeconds = remainingTime % 60
         if remainingTime ~= 0 then
@@ -77,10 +77,10 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     end
 
     if AutoDrive.totalNumberOfWayPointsToReceive ~= nil then
-        if AutoDrive.mapWayPointsCounter ~= AutoDrive.totalNumberOfWayPointsToReceive then
+        if ADGraphManager:getWayPointCount() ~= AutoDrive.totalNumberOfWayPointsToReceive then
             if AutoDrive.requestedWaypoints then
                 textToShow = textToShow .. " - " .. g_i18n:getText("AD_synchronizing")
-                textToShow = textToShow .. " " .. AutoDrive.mapWayPointsCounter .. "/" .. AutoDrive.totalNumberOfWayPointsToReceive
+                textToShow = textToShow .. " " .. ADGraphManager:getWayPointCount() .. "/" .. AutoDrive.totalNumberOfWayPointsToReceive
             end
         end
     end

@@ -22,8 +22,8 @@ function AutoDriveToggleConnectionEvent:writeStream(streamId, connection)
 end
 
 function AutoDriveToggleConnectionEvent:readStream(streamId, connection)
-    self.startNode = AutoDrive.mapWayPoints[streamReadUIntN(streamId, 20)]
-    self.endNode = AutoDrive.mapWayPoints[streamReadUIntN(streamId, 20)]
+    self.startNode = ADGraphManager:getWayPointByID(streamReadUIntN(streamId, 20))
+    self.endNode = ADGraphManager:getWayPointByID([streamReadUIntN(streamId, 20))
     self:run(connection)
 end
 
@@ -32,7 +32,7 @@ function AutoDriveToggleConnectionEvent:run(connection)
         -- If the event is coming from a client, server have only to broadcast
         AutoDriveToggleConnectionEvent.sendEvent(self.startNode, self.endNode)
     else
-        AutoDrive.toggleConnectionBetween(self.startNode, self.endNode, false)
+        ADGraphManager:toggleConnectionBetween(self.startNode, self.endNode, false)
     end
 end
 

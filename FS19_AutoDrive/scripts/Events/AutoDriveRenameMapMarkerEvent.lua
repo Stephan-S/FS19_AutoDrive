@@ -33,7 +33,7 @@ function AutoDriveRenameMapMarkerEvent:run(connection)
 		AutoDriveRenameMapMarkerEvent.sendEvent(self.newName, self.markerId)
 	else
 		-- If the event is coming from the server, both clients and server have to rename the marker
-		AutoDrive.renameMapMarker(self.newName, self.markerId, false)
+		ADGraphManager:renameMapMarker(self.newName, self.markerId, false)
 	end
 end
 

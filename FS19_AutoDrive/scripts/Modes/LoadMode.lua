@@ -28,7 +28,7 @@ function LoadMode:start()
         self.state = LoadMode.STATE_TO_TARGET
     end
 
-    if AutoDrive.mapMarker[self.vehicle.ad.mapMarkerSelected] == nil or AutoDrive.mapMarker[self.vehicle.ad.mapMarkerSelected_Unload] == nil then
+    if ADGraphManager:getMapMarkerByID(self.vehicle.ad.mapMarkerSelected) == nil or ADGraphManager:getMapMarkerByID(self.vehicle.ad.mapMarkerSelected_Unload) == nil then
         return
     end
 

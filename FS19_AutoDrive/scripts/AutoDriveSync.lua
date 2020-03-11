@@ -32,11 +32,11 @@ function AutoDriveSync:readStream(streamId)
     AutoDriveSync.MWPC_SEND_NUM_BITS = streamReadUIntN(streamId, AutoDriveSync.MWPC_SNB_SEND_NUM_BITS)
 
     -- reading amount of waypoints we are going to read
-    AutoDrive.mapWayPointsCounter = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
-    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s way points", AutoDrive.mapWayPointsCounter))
+    local wpsToRead = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
+    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s way points", wpsToRead))
 
     -- reading waypoints
-    for i = 1, AutoDrive.mapWayPointsCounter do
+    for i = 1, wpsToRead do
         local x = NetworkUtil.readCompressedWorldPosition(streamId, paramsXZ)
         local y = NetworkUtil.readCompressedWorldPosition(streamId, paramsY)
         local z = NetworkUtil.readCompressedWorldPosition(streamId, paramsXZ)
@@ -57,18 +57,18 @@ function AutoDriveSync:readStream(streamId)
             wp.incoming[ii] = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
         end
 
-        AutoDrive.mapWayPoints[wp.id] = wp
+        ADGraphManager:getWayPointByID(wp.id) = wp
     end
 
     -- reading amount of markers we are going to read
-    AutoDrive.mapMarkerCounter = streamReadUIntN(streamId, AutoDriveSync.MC_SEND_NUM_BITS)
-    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s markers", AutoDrive.mapMarkerCounter))
+    local mapMarkerCounter = streamReadUIntN(streamId, AutoDriveSync.MC_SEND_NUM_BITS)
+    g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s markers", mapMarkerCounter))
     -- reading markers
-    for i = 1, AutoDrive.mapMarkerCounter do
+    for i = 1, mapMarkerCounter do
         local markerId = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
-        if AutoDrive.mapWayPoints[markerId] ~= nil then
-            local marker = {id = markerId, name = AutoDrive.streamReadStringOrEmpty(streamId), group = AutoDrive.streamReadStringOrEmpty(streamId)}
-            AutoDrive.mapMarker[i] = marker
+        if ADGraphManager:getWayPointByID(markerId) ~= nil then
+            local marker = {id = markerId, markerIndex=i name = AutoDrive.streamReadStringOrEmpty(streamId), group = AutoDrive.streamReadStringOrEmpty(streamId)}
+            ADGraphManager:setMapMarker(marker)
         else
             g_logManager:error(string.format("[AutoDriveSync] Error receiving marker %s (%s)", AutoDrive.streamReadStringOrEmpty(streamId), markerId))
             -- we have to read everything to keep the right reading order
@@ -102,15 +102,15 @@ function AutoDriveSync:writeStream(streamId)
     local time = netGetTime()
 
     -- writing the amount of bits we are going to use as "MWPC_SEND_NUM_BITS"
-    AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(AutoDrive.mapWayPointsCounter + 1, 2))
+    AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(ADGraphManager:getWayPointCount() + 1, 2))
     streamWriteUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS, AutoDriveSync.MWPC_SNB_SEND_NUM_BITS)
 
     -- writing the amount of waypoints we are going to send
-    streamWriteUIntN(streamId, #AutoDrive.mapWayPoints, AutoDriveSync.MWPC_SEND_NUM_BITS)
-    g_logManager:info(string.format("[AutoDriveSync] Writing %s waypoints", AutoDrive.mapWayPointsCounter))
+    streamWriteUIntN(streamId, ADGraphManager:getWayPointCount(), AutoDriveSync.MWPC_SEND_NUM_BITS)
+    g_logManager:info(string.format("[AutoDriveSync] Writing %s waypoints", ADGraphManager:getWayPointCount()))
 
     -- writing waypoints
-    for i, wp in pairs(AutoDrive.mapWayPoints) do
+    for i, wp in pairs(ADGraphManager:getWayPoints()) do
         if wp.id ~= i then
             g_logManager:error(string.format("[AutoDriveSync] Waypoint number %s have a wrong id %s", i, wp.id))
         end
@@ -134,11 +134,11 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     -- writing the amount of markers we are going to send
-    local markersCount = #AutoDrive.mapMarker
+    local markersCount = #ADGraphManager:getMapMarker()
     g_logManager:info(string.format("[AutoDriveSync] Writing %s markers", markersCount))
     streamWriteUIntN(streamId, markersCount, AutoDriveSync.MC_SEND_NUM_BITS)
     -- writing markers
-    for _, marker in pairs(AutoDrive.mapMarker) do
+    for _, marker in pairs(ADGraphManager:getMapMarker()) do
         streamWriteUIntN(streamId, marker.id, AutoDriveSync.MWPC_SEND_NUM_BITS)
         AutoDrive.streamWriteStringOrEmpty(streamId, marker.name)
         AutoDrive.streamWriteStringOrEmpty(streamId, marker.group)

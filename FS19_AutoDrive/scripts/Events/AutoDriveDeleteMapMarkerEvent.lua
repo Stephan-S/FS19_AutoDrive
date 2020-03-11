@@ -30,7 +30,7 @@ function AutoDriveDeleteMapMarkerEvent:run(connection)
 		AutoDriveDeleteMapMarkerEvent.sendEvent(self.markerId)
 	else
 		-- If the event is coming from the server, both clients and server have to delete the map marker
-		AutoDrive.removeMapMarker(self.markerId, false)
+		ADGraphManager:removeMapMarker(self.markerId, false)
 	end
 end
 

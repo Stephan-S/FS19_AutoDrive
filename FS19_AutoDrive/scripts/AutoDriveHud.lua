@@ -115,8 +115,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Speed = "50"
 	self.Target = "Not Ready"
 	self.showHud = false
-	if AutoDrive.mapMarker[1] ~= nil then
-		self.Target = AutoDrive.mapMarker[1].name
+	if ADGraphManager:getMapMarkerByID(1) ~= nil then
+		self.Target = ADGraphManager:getMapMarkerByID(1).name
 	end
 
 	self.Background = {}
@@ -299,7 +299,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 						if button == 1 and isUp then
 							if vehicle.ad.selectedNodeId ~= nil then
 								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-									AutoDrive.toggleConnectionBetween(AutoDrive.mapWayPoints[vehicle.ad.selectedNodeId], AutoDrive.mapWayPoints[vehicle.ad.hoveredNodeId])
+									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointByID(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointByID(vehicle.ad.hoveredNodeId))
 								end
 								vehicle.ad.selectedNodeId = nil
 							else
@@ -345,15 +345,15 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				if AutoDrive.leftCTRLmodifierKeyPressed then
 					if button == 1 and isDown then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
-						local closest = AutoDrive:findClosestWayPoint(vehicle)
+						local closest = ADGraphManager:findClosestWayPoint(vehicle)
 						if closest ~= nil then
-							closest = AutoDrive.mapWayPoints[closest]
+							closest = ADGraphManager:getWayPointByID(closest)
 							local _, _, depth = project(closest.x, closest.y, closest.z)
 
 							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 							-- And just to correct for slope changes, we now set the height to the terrain height
 							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-							local newNode = AutoDrive:createWayPoint(vehicle, x, y, z, false, false)
+							local newNode = ADGraphManager:createWayPoint(vehicle, x, y, z, false, false)
 						end
 					end
 				end
@@ -363,7 +363,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			if vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.nodeToMoveId == nil then
 				if AutoDrive.leftALTmodifierKeyPressed then
 					if button == 1 and isUp then
-						AutoDrive.removeMapWayPoint(vehicle.ad.hoveredNodeId)
+						ADGraphManager:removeWayPoint(vehicle.ad.hoveredNodeId)
 					end
 				end
 			end
@@ -378,7 +378,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 end
 
 function AutoDrive.moveNodeToMousePos(nodeID)
-	local node = AutoDrive.mapWayPoints[nodeID]
+	local node = ADGraphManager:getWayPointByID(nodeID)
 
 	-- First I use project to get a proper depth value for the unproject funtion
 	local _, _, depth = project(node.x, node.y, node.z)
@@ -489,8 +489,8 @@ function AutoDrive:mapHotSpotClicked(superFunc)
 	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") then
 		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
 			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
-			g_currentMission.controlledVehicle.ad.targetSelected = AutoDrive.mapMarker[self.markerID].id
-			g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = AutoDrive.mapMarker[self.markerID].name
+			g_currentMission.controlledVehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(self.markerID).id
+			g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(self.markerID).name
 		end
 	end
 
@@ -506,8 +506,8 @@ function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isU
 					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
 						if AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") and hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
 							g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload = hotspot.markerID
-							g_currentMission.controlledVehicle.ad.targetSelected_Unload = AutoDrive.mapMarker[hotspot.markerID].id
-							g_currentMission.controlledVehicle.ad.nameOfSelectedTarget_Unload = AutoDrive.mapMarker[hotspot.markerID].name
+							g_currentMission.controlledVehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(hotspot.markerID).id
+							g_currentMission.controlledVehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(hotspot.markerID).name
 						end
 						break
 					end
@@ -537,7 +537,7 @@ function AutoDrive.updateDestinationsMapHotspots()
 		end
 
 		-- Filling the buffer
-		local missingAmount = #AutoDrive.mapMarker - #AutoDrive.mapHotspotsBuffer
+		local missingAmount = #ADGraphManager:getMapMarker() - #AutoDrive.mapHotspotsBuffer
 		if missingAmount > 0 then
 			local width, height = getNormalizedScreenValues(9, 9)
 			for i = 1, missingAmount do
@@ -551,10 +551,10 @@ function AutoDrive.updateDestinationsMapHotspots()
 		end
 
 		-- Updating and adding hotspots
-		for index, marker in ipairs(AutoDrive.mapMarker) do
+		for index, marker in ipairs(ADGraphManager:getMapMarker()) do
 			local mh = AutoDrive.mapHotspotsBuffer[index]
 			mh:setText(marker.name)
-			local wp = AutoDrive.mapWayPoints[marker.id]
+			local wp = ADGraphManager:getWayPointByID(marker.id)
 			mh:setWorldPosition(wp.x, wp.z)
 			mh.enabled = true
 			mh.markerID = index

@@ -33,7 +33,7 @@ function AutoDriveChangeMapMarkerGroupEvent:run(connection)
 		AutoDriveChangeMapMarkerGroupEvent.sendEvent(self.groupName, self.markerId)
 	else
 		-- If the event is coming from the server, both clients and server have to change the marker group
-		AutoDrive.changeMapMarkerGroup(self.groupName, self.markerId, false)
+		ADGraphManager:changeMapMarkerGroup(self.groupName, self.markerId, false)
 	end
 end
 

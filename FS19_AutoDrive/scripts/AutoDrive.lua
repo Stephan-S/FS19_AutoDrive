@@ -119,8 +119,6 @@ function AutoDrive:loadMap(name)
 		end
 	end
 
-	AutoDrive.mapWayPoints = {}
-	AutoDrive.mapWayPointsCounter = 0
 	AutoDrive.mapMarker = {}
 	AutoDrive.mapMarkerCounter = 0
 	AutoDrive.groups = {}
@@ -208,20 +206,14 @@ function AutoDrive:firstRun()
 		-- Here we could ask to server the initial sync
 		AutoDriveUserConnectedEvent.sendEvent()
 	else
-		AutoDrive.checkYPositionIntegrity()
+		ADGraphManager:checkYPositionIntegrity()
 	end
 	
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
 end
 
-function AutoDrive.checkYPositionIntegrity()
-	for _, wp in pairs(AutoDrive.mapWayPoints) do
-		if wp.y == -1 then
-			wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
-		end
-	end
-end
+
 
 function AutoDrive:saveSavegame()
 	if AutoDrive.GetChanged() == true or AutoDrive.HudChanged then
@@ -292,7 +284,7 @@ function AutoDrive:update(dt)
 		self:firstRun()
 	end
 	--if (g_currentMission.controlledVehicle ~= nil) then
-	--AutoDrive.renderTable(0.05, 0.95, 0.013, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
+	--AutoDrive.renderTable(0.05, 0.95, 0.013, ADGraphManager:getWayPointById(ADGraphManager:findClosestWayPoint(g_currentMission.controlledVehicle)))
 	--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
 	--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
 	--end
@@ -322,8 +314,6 @@ function AutoDrive:update(dt)
 	end
 
 	AutoDrive.handlePerFrameOperations(dt)
-
-	AutoDrive.handleMultiplayer(dt)
 
 	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
 	--AutoDrive.renderTime = 0

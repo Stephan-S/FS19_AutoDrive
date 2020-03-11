@@ -242,11 +242,10 @@ function ADTriggerManager.getRefuelDestinations()
 
     local refuelTriggers = ADTriggerManager.getRefuelTriggers()
 
-    for mapMarkerID, mapMarker in pairs(AutoDrive.mapMarker) do
-        local x, z = AutoDrive.mapWayPoints[mapMarker.id].x, AutoDrive.mapWayPoints[mapMarker.id].z
+    for mapMarkerID, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         for _, refuelTrigger in pairs(refuelTriggers) do
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(refuelTrigger)
-            local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
+            local distance = MathUtil.vector2Length(triggerX - ADGraphManager:getWayPointByID(mapMarker.id).x, triggerZ - ADGraphManager:getWayPointByID(mapMarker.id).z)
             if distance < AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
                 --g_logManager:devInfo("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
                 table.insert(refuelDestinations, mapMarkerID)
@@ -265,7 +264,7 @@ function ADTriggerManager.getClosestRefuelDestination(vehicle)
     local closestDistance = math.huge
 
     for _, refuelDestination in pairs(refuelDestinations) do
-        local refuelX, refuelZ = AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].x, AutoDrive.mapWayPoints[AutoDrive.mapMarker[refuelDestination].id].z
+        local refuelX, refuelZ = ADGraphManager:getWayPointByID(ADGraphManager:getMapMarkerByID(refuelDestination).id).x, ADGraphManager:getWayPointByID(ADGraphManager:getMapMarkerByID(refuelDestination).id).z
         local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z)
         if distance < closestDistance then
             closestDistance = distance
