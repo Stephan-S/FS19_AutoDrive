@@ -26,6 +26,7 @@ function DriveToDestinationTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+            self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
             self.state = DriveToDestinationTask.STATE_DRIVING
         else
             self.vehicle.ad.pathFinderModule:update()

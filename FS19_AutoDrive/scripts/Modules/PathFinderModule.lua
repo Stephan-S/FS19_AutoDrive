@@ -139,7 +139,7 @@ end
 function PathFinderModule:startPathPlanningToNetwork(destinationID)
     local closest = ADGraphManager:findClosestWayPoint(self.vehicle)
     local targetNode = ADGraphManager:getWayPointById(closest)
-    local wayPoints = ADGraphManager:pathFromTo(targetNode, destinationID)
+    local wayPoints = ADGraphManager:pathFromTo(closest, destinationID)
     if wayPoints ~= nil and #wayPoints > 1 then
         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
         self:startPathPlanningTo(targetNode, vecToNextPoint)
