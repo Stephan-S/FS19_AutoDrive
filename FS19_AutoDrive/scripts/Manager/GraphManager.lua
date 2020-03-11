@@ -16,8 +16,8 @@ function ADGraphManager:getWayPoints()
     return self.wayPoints
 end
 
-function ADGraphManager:getWayPointById(wayPointID)
-    return self.wayPoints[waypointID]
+function ADGraphManager:getWayPointById(wayPointId)
+    return self.wayPoints[wayPointId]
 end
 
 function ADGraphManager:resetWayPoints()
@@ -40,7 +40,7 @@ function ADGraphManager:getMapMarker()
     return self.mapMarker
 end
 
-function ADGraphManager:getMarkerByID(mapMarkerID)
+function ADGraphManager:getMapMarkerById(mapMarkerID)
     return self.mapMarker[mapMarkerID]
 end
 
@@ -187,8 +187,7 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 			end
 
 			-- Removing waypoint from waypoints array
-			table.remove(self.wayPoints, wayPoint)
-			self.wayPointsCounter = self.wayPointsCounter - 1
+			table.remove(self.wayPoints, wayPoint.id)
 
 			-- Adjusting ids for all succesive nodes :(
 			for _, wp in pairs(self.wayPoints) do
@@ -274,7 +273,7 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 			local wayPoint = self.wayPoints[markerId]
 
 			-- Creating the new map marker
-			self.mapMarker[#self.mapMarker + 1] = {id = markerId, markerIndex = #self.mapMarker, name = markerName, group = "All"})
+			self.mapMarker[#self.mapMarker + 1] = {id = markerId, markerIndex = #self.mapMarker, name = markerName, group = "All"}
 
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
@@ -356,7 +355,7 @@ function ADGraphManager:removeMapMarkerByWayPoint(wayPointId, sendEvent)
 		for markerId, marker in pairs(self.mapMarker) do
 			-- Checking if the waypoint id matches the marker id
 			if marker.id == wayPoint.id then
-				AutoDrive.removeMapMarker(markerId, sendEvent)
+				self:removeMapMarker(markerId, sendEvent)
 				break
 			end
 		end
@@ -404,7 +403,7 @@ function ADGraphManager:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
 	end
 
 	AutoDriveCourseEditEvent:sendEvent(self.wayPoints[#self.wayPoints])
-	if (self.wayPoints[A#self.wayPoints - 1] ~= nil) then
+	if (self.wayPoints[#self.wayPoints - 1] ~= nil) then
 		AutoDriveCourseEditEvent:sendEvent(self.wayPoints[#self.wayPoints - 1])
 	end
 

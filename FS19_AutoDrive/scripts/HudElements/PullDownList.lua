@@ -466,8 +466,8 @@ function ADPullDownList:getNewState_Target(vehicle)
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
         local markerSelected = vehicle.ad.mapMarkerSelected
-        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerByID(markerSelected) ~= nil then
-            self.text = ADGraphManager:getMapMarkerByID(markerSelected).name
+        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerById(markerSelected) ~= nil then
+            self.text = ADGraphManager:getMapMarkerById(markerSelected).name
         else
             self.text = ""
         end
@@ -480,8 +480,8 @@ function ADPullDownList:getNewState_Unload(vehicle)
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
         local markerSelected = vehicle.ad.mapMarkerSelected_Unload
-        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerByID(markerSelected) ~= nil then
-            self.text = ADGraphManager:getMapMarkerByID(markerSelected).name
+        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerById(markerSelected) ~= nil then
+            self.text = ADGraphManager:getMapMarkerById(markerSelected).name
         else
             self.text = ""
         end
@@ -635,16 +635,16 @@ function ADPullDownList:collapse(vehicle, setItem)
         local selectedEntry = self:getListElementByIndex(vehicle, self.hovered)
         if selectedEntry ~= nil and selectedEntry.returnValue ~= nil and selectedEntry.isFolder == false then
             if self.type == ADPullDownList.TYPE_TARGET then
-                if ADGraphManager:getMapMarkerByID(selectedEntry.returnValue) ~= nil then
+                if ADGraphManager:getMapMarkerById(selectedEntry.returnValue) ~= nil then
                     vehicle.ad.mapMarkerSelected = selectedEntry.returnValue
-                    vehicle.ad.targetSelected = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).id
-                    vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected).name
+                    vehicle.ad.targetSelected = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).id
+                    vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name
                 end
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
-                if ADGraphManager:getMapMarkerByID(selectedEntry.returnValue) ~= nil then
+                if ADGraphManager:getMapMarkerById(selectedEntry.returnValue) ~= nil then
                     vehicle.ad.mapMarkerSelected_Unload = selectedEntry.returnValue
-                    vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).id
-                    vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).name
+                    vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).id
+                    vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).name
                 end
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
                 vehicle.ad.unloadFillTypeIndex = selectedEntry.returnValue

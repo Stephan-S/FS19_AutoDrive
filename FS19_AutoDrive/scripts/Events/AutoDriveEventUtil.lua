@@ -13,7 +13,7 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
     local incomingTable = {}
 
     for i = startId, endId, 1 do
-        local p = ADGraphManager:getWayPointByID(i)
+        local p = ADGraphManager:getWayPointById(i)
 
         idCounter = idCounter + 1
         idFullTable[idCounter] = p.id
@@ -51,9 +51,9 @@ function AutoDrive:writeMapMarkersToStream(streamId)
     streamWriteInt32(streamId, markerCounter)
     local i = 1
     while i <= markerCounter do
-        streamWriteInt32(streamId, ADGraphManager:getMapMarkerByID(i).id)
-        AutoDrive.streamWriteStringOrEmpty(streamId, ADGraphManager:getMapMarkerByID(i).name)
-        AutoDrive.streamWriteStringOrEmpty(streamId, ADGraphManager:getMapMarkerByID(i).group)
+        streamWriteInt32(streamId, ADGraphManager:getMapMarkerById(i).id)
+        AutoDrive.streamWriteStringOrEmpty(streamId, ADGraphManager:getMapMarkerById(i).name)
+        AutoDrive.streamWriteStringOrEmpty(streamId, ADGraphManager:getMapMarkerById(i).group)
         i = i + 1
     end
 
@@ -117,12 +117,12 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
         local markerGroup = AutoDrive.streamReadStringOrEmpty(streamId)
         local marker = {}
 
-        if ADGraphManager:getWayPointByID(markerId) ~= nil then
+        if ADGraphManager:getWayPointById(markerId) ~= nil then
             marker.id = markerId
             marker.name = markerName
             marker.group = markerGroup
 
-            ADGraphManager:getMapMarkerByID(mapMarkerCount) = marker
+            ADGraphManager:setMapMarker(marker)
             mapMarkerCount = mapMarkerCount + 1
         else
             g_logManager:error("[AutoDrive] Error receiving marker " .. markerName)

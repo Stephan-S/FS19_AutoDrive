@@ -18,13 +18,14 @@ end
 
 function FollowCombineTask:update(dt)
     self:updateStates()
-    if self.filledToUnload then
+    if self.filled or self.combine.ad.noMovementTimer.elapsedTime > 5000 then
         self:finished()
         return
     end
     
     if self.state == FollowCombineTask.STATE_CHASING then
         if self:combineIsTurning() then
+            print("combineIsTurning - reversing now")
             self.state = FollowCombineTask.STATE_REVERSING
         else
             self:followChasePoint(dt)
@@ -32,9 +33,16 @@ function FollowCombineTask:update(dt)
     elseif self.state == FollowCombineTask.STATE_REVERSING then
         if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength)/2 + 4) then
             self:reverse(dt)
+        else
+            self.vehicle.ad.specialDrivingModule:stopVehicle()
+            self.vehicle.ad.specialDrivingModule:update(dt)
         end
         if not self:combineIsTurning() then
             self:finished()
+        end
+        if self.filledToUnload then
+            self:finished()
+            return
         end
     end
 end
@@ -59,7 +67,7 @@ function FollowCombineTask:updateStates()
     end
 
     self.chasePos, self.chaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
-    self.distanceToCombine = MathUtil.vector2Length(x - cx, z - zx)
+    self.distanceToCombine = MathUtil.vector2Length(x - cx, z - cz)
     self.distanceToChasePos = MathUtil.vector2Length(x - self.chasePos.x, z - self.chasePos.z)
 
     self.cfillLevel, self.cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
@@ -70,15 +78,16 @@ function FollowCombineTask:updateStates()
     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local maxCapacity = fillLevel + leftCapacity
     self.filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
+    self.filled = leftCapacity <= 1
 end
 
 function FollowCombineTask:combineIsTurning()
     local cpIsTurning = self.combine.cp ~= nil and (self.combine.cp.isTurning or (self.combine.cp.turnStage ~= nil and self.combine.cp.turnStage > 0))
-    local cpIsTurningTwo = self.combine.cp ~= nil and self.combine.cp.driver and (self.combine.cp.driver.turnIsDriving or self.combine.cp.driver.fieldworkState == self.combine.cp.driver.states.TURNING)
+    local cpIsTurningTwo = self.combine.cp ~= nil and self.combine.cp.driver and (self.combine.cp.driver.turnIsDriving or (self.combine.cp.driver.fieldworkState ~= nil and self.combine.cp.driver.fieldworkState == self.combine.cp.driver.states.TURNING))
     local aiIsTurning = (self.combine.getAIIsTurning ~= nil and self.combine:getAIIsTurning() == true)
     local combineSteering = self.combine.rotatedTime ~= nil and (math.deg(self.combine.rotatedTime) > 20);
     local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-    --g_logManager:devInfo("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " isChopper: " .. AutoDrive.boolToString(isChopper) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. vehicle.ad.noMovementTimer.elapsedTime);
+    --print("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " cpIsTurning2: " .. AutoDrive.boolToString(cpIsTurningTwo) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(self.combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(self.combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. self.vehicle.ad.noMovementTimer.elapsedTime);
     if ((self.combine:getIsBufferCombine() and self.combine.ad.noTurningTimer:done()) or (self.combine.ad.driveForwardTimer:done() and (not self.combine:getIsBufferCombine()))) and (not combineIsTurning) then
         return false
     end
@@ -91,6 +100,7 @@ end
 
 function FollowCombineTask:followChasePoint(dt)
     if self:shouldWaitForChasePos() then
+        print("Should wait for chase pos")
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
@@ -100,7 +110,7 @@ function FollowCombineTask:followChasePoint(dt)
 end
 
 function FollowCombineTask:shouldWaitForChasePos()
-    return self.combine.ad.sensors.frontSensorFruit:pollInfo() and self:getAngleToChasePos() < 50 and (not self.vehicle.ad.sensors.frontSensor:pollInfo())
+    return self:getAngleToChasePos() > 50 or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
 end
 
 function FollowCombineTask:getAngleToChasePos()

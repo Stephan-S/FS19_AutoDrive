@@ -57,7 +57,7 @@ function AutoDriveSync:readStream(streamId)
             wp.incoming[ii] = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
         end
 
-        ADGraphManager:getWayPointByID(wp.id) = wp
+        ADGraphManager:setWayPoint(wp)
     end
 
     -- reading amount of markers we are going to read
@@ -66,8 +66,8 @@ function AutoDriveSync:readStream(streamId)
     -- reading markers
     for i = 1, mapMarkerCounter do
         local markerId = streamReadUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS)
-        if ADGraphManager:getWayPointByID(markerId) ~= nil then
-            local marker = {id = markerId, markerIndex=i name = AutoDrive.streamReadStringOrEmpty(streamId), group = AutoDrive.streamReadStringOrEmpty(streamId)}
+        if ADGraphManager:getWayPointById(markerId) ~= nil then
+            local marker = {id = markerId, markerIndex=i, name = AutoDrive.streamReadStringOrEmpty(streamId), group = AutoDrive.streamReadStringOrEmpty(streamId)}
             ADGraphManager:setMapMarker(marker)
         else
             g_logManager:error(string.format("[AutoDriveSync] Error receiving marker %s (%s)", AutoDrive.streamReadStringOrEmpty(streamId), markerId))

@@ -159,17 +159,17 @@ function AutoDrive:init()
     if AutoDrive ~= nil then
         local set = false
         if self.ad.mapMarkerSelected ~= nil then
-            if ADGraphManager:getMapMarkerByID(self.ad.mapMarkerSelected) ~= nil then
-                self.ad.targetSelected = ADGraphManager:getMapMarkerByID(self.ad.mapMarkerSelected).id
-                self.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(self.ad.mapMarkerSelected).name
+            if ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected) ~= nil then
+                self.ad.targetSelected = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected).id
+                self.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected).name
                 set = true
             end
         end
         if not set then
             self.ad.mapMarkerSelected = 1
-            if ADGraphManager:getMapMarkerByID(1) ~= nil then
-                self.ad.targetSelected = ADGraphManager:getMapMarkerByID(1).id
-                self.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerByID(1).name
+            if ADGraphManager:getMapMarkerById(1) ~= nil then
+                self.ad.targetSelected = ADGraphManager:getMapMarkerById(1).id
+                self.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(1).name
             end
         end
     end
@@ -224,17 +224,17 @@ function AutoDrive:init()
     if AutoDrive ~= nil then
         local set = false
         if self.ad.mapMarkerSelected_Unload ~= nil then
-            if ADGraphManager:getMapMarkerByID(self.ad.mapMarkerSelected_Unload) ~= nil then
-                self.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(self.ad.mapMarkerSelected_Unload).id
-                self.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(self.ad.mapMarkerSelected_Unload).name
+            if ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected_Unload) ~= nil then
+                self.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected_Unload).id
+                self.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected_Unload).name
                 set = true
             end
         end
         if not set then
             self.ad.mapMarkerSelected_Unload = 1
-            if ADGraphManager:getMapMarkerByID(1) ~= nil then
-                self.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(1).id
-                self.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(1).name
+            if ADGraphManager:getMapMarkerById(1) ~= nil then
+                self.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(1).id
+                self.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(1).name
             end
         end
     end
@@ -390,7 +390,7 @@ function AutoDrive:onUpdate(dt)
 
     local vehicleSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 10)
     if (not vehicleSteering) and ((self.lastSpeedReal * self.movingDirection) >= 0.0008) then
-        self.ad.driveForwardTimer:timer(true, 12000, dt)
+        self.ad.driveForwardTimer:timer(true, 20000, dt)
     else
         self.ad.driveForwardTimer:timer(false)
     end
@@ -584,7 +584,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
     --Draw close destination (names)
     local maxDistance = AutoDrive.drawDistance
     for _, marker in pairs(ADGraphManager:getMapMarker()) do
-        local wp = ADGraphManager:getWayPointByID(marker.id)
+        local wp = ADGraphManager:getWayPointById(marker.id)
         if AutoDrive.getDistance(wp.x, wp.z, x1, z1) < maxDistance then
             Utils.renderTextAtWorldPosition(wp.x, wp.y + 4, wp.z, marker.name, getCorrectTextSize(0.013), 0)
             if not vehicle.ad.extendedEditorMode then
@@ -593,7 +593,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
         end
     end
 
-    if vehicle.ad.createMapPoints and ADGraphManager:getWayPointByID(1) ~= nil then
+    if vehicle.ad.createMapPoints and ADGraphManager:getWayPointById(1) ~= nil then
         local g = 0
 
         --Draw line to selected neighbor point
@@ -606,7 +606,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
         --Draw line to closest point
         if vehicle.ad.showClosestPoint then
             local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
-            local wp = ADGraphManager:getWayPointByID(closest)
+            local wp = ADGraphManager:getWayPointById(closest)
             AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
             AutoDriveDM:addSmallSphereTask(x1, dy, z1, 1, g, 0)
         end
@@ -617,7 +617,7 @@ function AutoDrive.getNewPointsInProximity(vehicle)
     local x1, _, z1 = getWorldTranslation(vehicle.components[1].node)
     local maxDistance = AutoDrive.drawDistance
 
-    if ADGraphManager:getWayPointByID(1) ~= nil then
+    if ADGraphManager:getWayPointById(1) ~= nil then
         local newPointsToDraw = {}
         local pointsCheckedThisFrame = 0
         --only handly a limited amount of points per frame
@@ -627,7 +627,7 @@ function AutoDrive.getNewPointsInProximity(vehicle)
             if vehicle.ad.lastPointCheckedForProximity > ADGraphManager:getWayPointCount() then
                 vehicle.ad.lastPointCheckedForProximity = 1
             end
-            local pointToCheck = ADGraphManager:getWayPointByID(vehicle.ad.lastPointCheckedForProximity)
+            local pointToCheck = ADGraphManager:getWayPointById(vehicle.ad.lastPointCheckedForProximity)
             if pointToCheck ~= nil then
                 if AutoDrive.getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < maxDistance then
                     table.insert(newPointsToDraw, pointToCheck.id, pointToCheck)
@@ -636,7 +636,7 @@ function AutoDrive.getNewPointsInProximity(vehicle)
         end
         --go through all stored points to check if they are still in proximity
         for id, point in pairs(vehicle.ad.pointsInProximity) do
-            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointByID(id) ~= nil then
+            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointById(id) ~= nil then
                 table.insert(newPointsToDraw, id, point)
             end
         end
@@ -697,10 +697,10 @@ function AutoDrive.drawPointsInProximity(vehicle)
 
         if point.out ~= nil then
             for _, neighbor in pairs(point.out) do
-                local target = ADGraphManager:getWayPointByID(neighbor)
+                local target = ADGraphManager:getWayPointById(neighbor)
                 if target ~= nil then
                     --check if outgoing connection is a dual way connection
-                    local nWp = ADGraphManager:getWayPointByID(neighbor)
+                    local nWp = ADGraphManager:getWayPointById(neighbor)
                     if table.contains(point.incoming, neighbor) then
                         --draw simple line
                         AutoDriveDM:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)

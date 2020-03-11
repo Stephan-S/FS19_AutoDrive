@@ -254,7 +254,7 @@ function AutoDrive.getDistanceToUnloadPosition(vehicle)
         return math.huge
     end
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
-    local destination = ADGraphManager:getWayPointByID(vehicle.ad.targetSelected_Unload)
+    local destination = ADGraphManager:getWayPointById(vehicle.ad.targetSelected_Unload)
     if destination == nil then
         return math.huge
     end
@@ -266,7 +266,7 @@ function AutoDrive.getDistanceToTargetPosition(vehicle)
         return math.huge
     end
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
-    local destination = ADGraphManager:getWayPointByID(vehicle.ad.targetSelected)
+    local destination = ADGraphManager:getWayPointById(vehicle.ad.targetSelected)
     if destination == nil then
         return math.huge
     end

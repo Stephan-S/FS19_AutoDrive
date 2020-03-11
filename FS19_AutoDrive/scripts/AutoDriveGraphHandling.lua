@@ -1,5 +1,3 @@
-
-
 function AutoDrive:handleRecording(vehicle)
 	if vehicle == nil or vehicle.ad.creationMode == false then
 		return
@@ -17,14 +15,14 @@ function AutoDrive:handleRecording(vehicle)
 
 		if AutoDrive.getSetting("autoConnectStart") then
 			if startPoint ~= nil then
-				local startNode = ADGraphManager:getWayPointByID(startPoint)
+				local startNode = ADGraphManager:getWayPointById(startPoint)
 				if startNode ~= nil then
 					if ADGraphManager:getDistanceBetweenNodes(startPoint, vehicle.ad.lastCreatedWp.id) < 20 then
 						table.insert(startNode.out, vehicle.ad.lastCreatedWp.id)
 						table.insert(vehicle.ad.lastCreatedWp.incoming, startNode.id)
 
 						if vehicle.ad.creationModeDual then
-							table.insert(ADGraphManager:getWayPointByID(startPoint).incoming, vehicle.ad.lastCreatedWp.id)
+							table.insert(ADGraphManager:getWayPointById(startPoint).incoming, vehicle.ad.lastCreatedWp.id)
 							table.insert(vehicle.ad.lastCreatedWp.out, startPoint)
 						end
 
@@ -45,9 +43,8 @@ function AutoDrive:handleRecording(vehicle)
 			end
 		else
 			local x, y, z = getWorldTranslation(vehicle.components[1].node)
-			local wp = vehicle.ad.lastCreatedWp
-			local wp_ref = vehicle.ad.secondLastCreatedWp
-			local angle = math.abs(AutoDrive.angleBetween({x = x - wp_ref.x, z = z - wp_ref.z}, {x = wp.x - wp_ref.x, z = wp.z - wp_ref.z}))
+			local angle = math.abs(AutoDrive.angleBetween({x = x - vehicle.ad.secondLastCreatedWp.x, z = z - vehicle.ad.secondLastCreatedWp.z},
+			 {x = vehicle.ad.lastCreatedWp.x - vehicle.ad.secondLastCreatedWp.x, z = vehicle.ad.lastCreatedWp.z - vehicle.ad.secondLastCreatedWp.z}))
 			local max_distance = 6
 			if angle < 1 then
 				max_distance = 6
@@ -63,9 +60,10 @@ function AutoDrive:handleRecording(vehicle)
 				max_distance = 0.5
 			end
 
-			if AutoDrive.getDistance(x, z, wp.x, wp.z) > max_distance then
+			if AutoDrive.getDistance(x, z, vehicle.ad.lastCreatedWp.x, vehicle.ad.lastCreatedWp.z) > max_distance then
 				if vehicle.ad.createMapPoints == true then
-					ADGraphManager:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
+					vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
+					vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true, vehicle.ad.creationModeDual)
 				end
 			end
 		end

@@ -106,7 +106,7 @@ function AutoDrive.readFromXML(xmlFile)
 		AutoDrive.groups[mapMarker.group] = AutoDrive.groupCounter
 	end
 
-	ADGraphManager:resetMapMarker()
+	ADGraphManager:resetMapMarkers()
 
 	while mapMarker.name ~= nil do
 		mapMarker.id = getXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".id")
@@ -205,12 +205,12 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	if ADGraphManager:getWayPointByID(wp_counter) ~= nil then
+	if ADGraphManager:getWayPointById(wp_counter) ~= nil then
 		g_logManager:devInfo("[AutoDrive] Loaded %s waypoints", wp_counter)
 	end
 
 	for markerIndex, marker in pairs(ADGraphManager:getMapMarker()) do
-		if ADGraphManager:getWayPointByID(marker.id) == nil then
+		if ADGraphManager:getWayPointById(marker.id) == nil then
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
@@ -280,9 +280,9 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	for i in pairs(ADGraphManager:getMapMarker()) do
-		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", ADGraphManager:getMapMarkerByID(i).id)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", ADGraphManager:getMapMarkerByID(i).name)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", ADGraphManager:getMapMarkerByID(i).group)
+		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", ADGraphManager:getMapMarkerById(i).id)
+		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", ADGraphManager:getMapMarkerById(i).name)
+		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", ADGraphManager:getMapMarkerById(i).group)
 	end
 
 	saveXMLFile(xmlFile)

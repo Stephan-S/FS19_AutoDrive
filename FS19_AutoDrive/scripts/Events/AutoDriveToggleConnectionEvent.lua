@@ -22,8 +22,8 @@ function AutoDriveToggleConnectionEvent:writeStream(streamId, connection)
 end
 
 function AutoDriveToggleConnectionEvent:readStream(streamId, connection)
-    self.startNode = ADGraphManager:getWayPointByID(streamReadUIntN(streamId, 20))
-    self.endNode = ADGraphManager:getWayPointByID([streamReadUIntN(streamId, 20))
+    self.startNode = ADGraphManager:getWayPointById(streamReadUIntN(streamId, 20))
+    self.endNode = ADGraphManager:getWayPointById(streamReadUIntN(streamId, 20))
     self:run(connection)
 end
 

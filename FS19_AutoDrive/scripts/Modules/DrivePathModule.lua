@@ -242,7 +242,7 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
         maxSpeed = 13
     end
 
-    return maxSpeed
+    return maxSpeed * 1.8
 end
 
 function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)

@@ -70,7 +70,6 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	vehicle.ad.drivePathModule:reset()
 	vehicle.ad.specialDrivingModule:reset()
 	vehicle.ad.trailerModule:reset()
-	vehicle.ad.taskModule:reset()
 	
 	for _, mode in pairs(vehicle.ad.modes) do
 		mode:reset()
@@ -167,6 +166,8 @@ function AutoDrive:disableAutoDriveFunctions(vehicle)
 	if vehicle.setBeaconLightsVisibility ~= nil then
 		vehicle:setBeaconLightsVisibility(false)
 	end
+	
+	vehicle.ad.taskModule:reset()
 end
 
 function AutoDrive:isActive(vehicle)

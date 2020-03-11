@@ -187,7 +187,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 		local wayPointID = StringUtil.splitString(",", wayPointsString)
 		for i, wpId in pairs(wayPointID) do
 			if wpId ~= "" then
-				wayPoints[i] = ADGraphManager:getWayPointByID(tonumber(id))
+				wayPoints[i] = ADGraphManager:getWayPointById(tonumber(id))
 			end
 		end
 	end
@@ -213,7 +213,7 @@ function AutoDriveUpdateEvent:readStream(streamId, connection)
 	local iteratedDebugPoints = {}
 	for i, pId in pairs(DebugPointsID) do
 		if pId ~= "" then
-			iteratedDebugPoints[i] = ADGraphManager:getWayPointByID(tonumber(pId))
+			iteratedDebugPoints[i] = ADGraphManager:getWayPointById(tonumber(pId))
 		end
 	end
 

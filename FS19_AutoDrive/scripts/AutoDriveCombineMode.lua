@@ -569,7 +569,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
     vehicle.ad.wayPointsChanged = true
 
     if toStart == false then --going to unload position
-        vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).name, ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload).id)
+        vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).name, ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).id)
         AutoDrive.waitingUnloadDrivers[vehicle] = nil
         vehicle.ad.combineState = AutoDrive.DRIVE_TO_UNLOAD_POS
         vehicle.ad.onRouteToSecondTarget = true
@@ -578,7 +578,7 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
         if vehicle.ad.wayPoints[vehicle.ad.currentWayPoint] ~= nil then --Don't search starting waypoint if we were already driving to the unload pos. Just use this point.
             closest = vehicle.ad.wayPoints[vehicle.ad.currentWayPoint].id
         end
-        vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected]).name, vehicle.ad.targetSelected)
+        vehicle.ad.wayPoints = ADGraphManager:FastShortestPath(closest, ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name, vehicle.ad.targetSelected)
         --vehicle.ad.isPaused = true why was that in there?
         vehicle.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED
         vehicle.ad.onRouteToSecondTarget = false
@@ -601,13 +601,13 @@ function AutoDrive:sendCombineUnloaderToStartOrToUnload(vehicle, toStart)
 end
 
 function AutoDrive:setNextTargetInFolder(vehicle)
-    local mapMarkerCurrent = ADGraphManager:getMapMarkerByID(vehicle.ad.mapMarkerSelected_Unload)
+    local mapMarkerCurrent = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload)
     local group = mapMarkerCurrent.group
     if group ~= "All" then
         local firstMarkerInGroup = nil
         local nextMarkerInGroup = nil
         local markerSeen = false
-        for markerID, marker in pairs(ADGraphManager:getMapMarker() do
+        for markerID, marker in pairs(ADGraphManager:getMapMarker()) do
             if marker.group == group then
                 if firstMarkerInGroup == nil then
                     firstMarkerInGroup = markerID
@@ -631,9 +631,9 @@ function AutoDrive:setNextTargetInFolder(vehicle)
         end
 
         vehicle.ad.mapMarkerSelected_Unload = markerToSet
-        if AADGraphManager:getMapMarkerByID(markerToSet) ~= nil then
-            vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerByID(markerToSet).id
-            vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerByID(markerToSet).name
+        if AADGraphManager:getMapMarkerById(markerToSet) ~= nil then
+            vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(markerToSet).id
+            vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(markerToSet).name
         end
     end
 end

@@ -92,12 +92,12 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed)
+    print("Drive to point: " .. point.x .. " / " .. point.z)
     local speed = AutoDrive.SPEED_ON_FIELD
     local acc = 1
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     self.distanceToChasePos = MathUtil.vector2Length(x - point.x, z - point.z)
-
 
     if self.distanceToChasePos < 1 then
         speed = math.max(maxFollowSpeed, 5)
@@ -108,5 +108,6 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed)
     end
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
+    print("Drive in dir: " .. lx .. " / " .. lz .. " with speed: " .. speed)
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
 end

@@ -13,9 +13,12 @@ function ADTaskModule:new(vehicle)
 end
 
 function ADTaskModule:reset()
-    while self.tasks:Count() > 0 do
+    print("ADTaskModule:reset")
+    while self.tasks:Count() > 0 do        
+        print("ADTaskModule:reset - self.tasks:Count(): " .. self.tasks:Count())
         local task = self.tasks:Dequeue()
         if task.doRestart ~= nil then
+            print("ADTaskModule:reset - task:doRestart()")
             task:doRestart()
             break
         end
@@ -57,8 +60,8 @@ end
 
 function ADTaskModule:stopAndRestartAD()
     self:abortAllTasks()
-    self:addTask(StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE))
-    self:addTask(RestartADTask:new(self.vehicle))
+    self:addTask(StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE, true))
+    --self:addTask(RestartADTask:new(self.vehicle))
 end
 
 function ADTaskModule:update(dt)    

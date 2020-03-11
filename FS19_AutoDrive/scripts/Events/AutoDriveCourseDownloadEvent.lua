@@ -48,13 +48,13 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 	if AutoDrive.receivedWaypoints ~= true then
 		AutoDrive.receivedWaypoints = true
 		if numberOfWayPoints > 0 then
-			ADGraphManager:wayPoints = {}
+			ADGraphManager:resetWayPoints()
 		end
 	end
 
 	if lowestID == 1 then
 		ADGraphManager:resetWayPoints()
-		ADGraphManager:resetMapMarker()
+		ADGraphManager:resetMapMarkers()
 	end
 
 	AutoDrive:readWayPointsFromStream(streamId, numberOfWayPoints)
@@ -64,7 +64,7 @@ function AutoDriveCourseDownloadEvent:readStream(streamId, connection)
 	local numberOfMapMarkers = streamReadInt32(streamId)
 
 	if (numberOfMapMarkers ~= nil) and (numberOfMapMarkers > 0) then
-		ADGraphManager:resetMapMarker()
+		ADGraphManager:resetMapMarkers()
 
 		AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
 		AutoDrive:readGroupsFromStream(streamId)

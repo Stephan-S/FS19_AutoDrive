@@ -3,7 +3,7 @@ PathFinderModule = {}
 PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
-PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 34
+PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 20
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 14
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 20
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 9
@@ -138,7 +138,7 @@ end
 
 function PathFinderModule:startPathPlanningToNetwork(destinationID)
     local closest = ADGraphManager:findClosestWayPoint(self.vehicle)
-    local targetNode = ADGraphManager:getWayPointByID(closest)
+    local targetNode = ADGraphManager:getWayPointById(closest)
     local wayPoints = ADGraphManager:pathFromTo(targetNode, destinationID)
     if wayPoints ~= nil and #wayPoints > 1 then
         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}

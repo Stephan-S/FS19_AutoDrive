@@ -31,12 +31,12 @@ function ADEnterTargetNameGui:onOpen()
     -- If editSelectedMapMarker is true, we have to edit the map marker selected on the pull down list otherwise we can go for closest waypoint
     if AutoDrive.editSelectedMapMarker ~= nil and AutoDrive.editSelectedMapMarker == true then
         self.editId = g_currentMission.controlledVehicle.ad.mapMarkerSelected
-        self.editName = ADGraphManager:getMarkerByID(self.editId).name
+        self.editName = ADGraphManager:getMapMarkerById(self.editId).name
     else
         local closest, _ = ADGraphManager:findClosestWayPoint(g_currentMission.controlledVehicle)
         if closest ~= nil and closest ~= -1 and ADGraphManager:getWayPointById(closest) ~= nil then
             local cId = closest
-            for i, mapMarker in pairs(ADGraphManager:getMapMarker() do
+            for i, mapMarker in pairs(ADGraphManager:getMapMarker()) do
                 -- If we have already a map marker on this waypoint, we edit it otherwise we create a new one
                 if mapMarker.id == cId then
                     self.editId = i

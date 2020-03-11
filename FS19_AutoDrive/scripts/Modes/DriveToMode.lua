@@ -17,7 +17,7 @@ function DriveToMode:start()
         AutoDrive:startAD(self.vehicle)
     end
 
-    if ADGraphManager:getMapMarkerByID(self.vehicle.ad.mapMarkerSelected) == nil then
+    if ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected) == nil then
         return
     end
     self.destinationID =  self.vehicle.ad.targetSelected

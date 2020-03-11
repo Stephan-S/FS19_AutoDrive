@@ -31,7 +31,7 @@ function PickupAndDeliverMode:start()
         self.state = PickupAndDeliverMode.STATE_PICKUP
     end
 
-    if ADGraphManager:getMapMarkerByID(self.vehicle.ad.mapMarkerSelected) == nil or ADGraphManager:getMapMarkerByID(self.vehicle.ad.mapMarkerSelected_Unload) == nil then
+    if ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected) == nil or ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected_Unload) == nil then
         return
     end
 

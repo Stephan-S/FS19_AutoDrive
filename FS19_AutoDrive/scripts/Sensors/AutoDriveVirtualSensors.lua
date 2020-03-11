@@ -207,7 +207,7 @@ function ADSensor:getLocationByPosition()
     elseif self.position == ADSensor.POS_FIXED and self.location ~= nil then
         return self.location
     elseif self.position == ADSensor.POS_CENTER then
-        return location
+        location.z = -self.length / 2
     end
 
     return location

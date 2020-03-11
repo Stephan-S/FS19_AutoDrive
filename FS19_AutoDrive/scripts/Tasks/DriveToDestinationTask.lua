@@ -12,10 +12,11 @@ end
 
 function DriveToDestinationTask:setUp()
     print("Setting up DriveToDestinationTask")
-    if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 20 then
+    if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.state = DriveToDestinationTask.STATE_PATHPLANNING
         self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
     else
+        self.state = DriveToDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
 end

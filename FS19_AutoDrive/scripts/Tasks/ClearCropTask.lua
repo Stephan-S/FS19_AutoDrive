@@ -12,9 +12,11 @@ end
 function ClearCropTask:setUp()
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Setting up ClearCropTask")
     self.wayPoints = {}
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE / 2, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 0.5))
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 1))
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 2))
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 3))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 4))
     
     self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
 end
