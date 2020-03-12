@@ -84,7 +84,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
 end
 
 function ADPullDownList:onDraw(vehicle, uiScale)
-    if not (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.mode == AutoDrive.MODE_LOAD or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER) then
+    if not (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) then
         return
     end
     self:updateState(vehicle)
@@ -115,12 +115,12 @@ function ADPullDownList:onDraw(vehicle, uiScale)
         setTextColor(1, 1, 1, 1)
 
         -- TODO: Move this out of onDraw, as it SHOULD NOT be checked at-every-frame-update whether text needs to be rendered in green or not.
-        if vehicle.ad.isActive then
+        if vehicle.ad.stateModule:isActive() then
             local targetToCheck = "nil"
             if self.type == ADPullDownList.TYPE_TARGET then
-                targetToCheck = vehicle.ad.nameOfSelectedTarget
+                targetToCheck = vehicle.ad.stateModule:getFirstMarker().name
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
-                targetToCheck = vehicle.ad.nameOfSelectedTarget_Unload
+                targetToCheck = vehicle.ad.stateModule:getSecondMarker().name
             end
             local actualTarget = ""
 
@@ -183,7 +183,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                         renderOverlay(ADPullDownList.ovExpand.overlayId, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                     end
 
-                    if vehicle.ad.createMapPoints == true then
+                    if vehicle.ad.stateModule:isEditorModeEnabled() then
                         renderOverlay(ADPullDownList.ovAddHere.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
 
                         if (listEntry.displayName ~= "All") then
@@ -335,14 +335,14 @@ end
 function ADPullDownList:updateVisibility(vehicle)
     local newVisibility = self.isVisible
     if self.type == ADPullDownList.TYPE_UNLOAD then
-        if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) then
+        if (vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD) then
             newVisibility = true
         else
             newVisibility = false
         end
     end
     if self.type == ADPullDownList.TYPE_TARGET then
-        if vehicle.ad.mode == AutoDrive.MODE_BGA then
+        if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_BGA then
             newVisibility = false
         else
             newVisibility = true
@@ -465,7 +465,7 @@ function ADPullDownList:getNewState_Target(vehicle)
     local newState = self.state
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
-        local markerSelected = vehicle.ad.mapMarkerSelected
+        local markerSelected = vehicle.ad.stateModule:getFirstMarkerId()
         if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerById(markerSelected) ~= nil then
             self.text = ADGraphManager:getMapMarkerById(markerSelected).name
         else
@@ -479,12 +479,12 @@ function ADPullDownList:getNewState_Unload(vehicle)
     local newState = self.state
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
-        local markerSelected = vehicle.ad.mapMarkerSelected_Unload
-        if markerSelected ~= nil and markerSelected >= 1 and ADGraphManager:getMapMarkerById(markerSelected) ~= nil then
-            self.text = ADGraphManager:getMapMarkerById(markerSelected).name
+        local markerSelected = vehicle.ad.stateModule:getSecondMarker()
+        if markerSelected ~= nil then
+            self.text = markerSelected.name
         else
             self.text = ""
-        end
+        end 
     end
     return newState, newSelection
 end
@@ -493,7 +493,7 @@ function ADPullDownList:getNewState_FillType(vehicle)
     local newState = self.state
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
-        self.text = g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex).title
+        self.text = g_fillTypeManager:getFillTypeByIndex(vehicle.ad.stateModule:getFillType()).title
     end
     return newState, newSelection
 end
@@ -510,7 +510,7 @@ function ADPullDownList:hit(posX, posY, layer)
 end
 
 function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
-    if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.mode == AutoDrive.MODE_LOAD or vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+    if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
         local hitElement, hitIndex, hitIcon = self:getElementAt(vehicle, posX, posY)
         if button == 1 and isUp then
             if self.state == ADPullDownList.STATE_COLLAPSED and AutoDrive.pullDownListExpanded <= 0 then
@@ -524,20 +524,20 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     --else
                     --self:moveSelectedElementDown(vehicle, hitElement);
                     end
-                elseif hitIcon ~= nil and hitIcon == 2 and (not vehicle.ad.createMapPoints == true) then
+                elseif hitIcon ~= nil and hitIcon == 2 and (not vehicle.ad.stateModule:isEditorModeEnabled()) then
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
                             AutoDrive.InputHandlingSenderOnly(vehicle, "input_setDestinationFilter")
                         end
                     end
-                elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.createMapPoints == true then
+                elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.stateModule:isEditorModeEnabled() then
                     if hitElement.isFolder then
                         self:moveCurrentElementToFolder(vehicle, hitElement)
                     --else
                     --self:moveSelectedElementUp(vehicle, hitElement);
                     end
-                elseif hitIcon ~= nil and hitIcon == 3 and vehicle.ad.createMapPoints == true then
+                elseif hitIcon ~= nil and hitIcon == 3 and vehicle.ad.stateModule:isEditorModeEnabled() then
                     if hitElement.isFolder then
                         if (hitElement.displayName ~= "All") then
                             if self:getItemCountForGroup(hitElement.displayName) <= 0 then
@@ -549,7 +549,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                             AutoDrive.onOpenEnterGroupName()
                         end
                     end
-                elseif hitIcon ~= nil and hitIcon == 4 and vehicle.ad.createMapPoints == true then
+                elseif hitIcon ~= nil and hitIcon == 4 and vehicle.ad.stateModule:isEditorModeEnabled() then
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
@@ -583,7 +583,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_COLLAPSED then
             AutoDrive.InputHandlingSenderOnly(vehicle, "input_setDestinationFilter")
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_EXPANDED then
-            if hitIcon ~= nil and ((hitIcon == 2 and (not vehicle.ad.createMapPoints == true)) or (hitIcon == 4 and vehicle.ad.createMapPoints == true)) then
+            if hitIcon ~= nil and ((hitIcon == 2 and (not vehicle.ad.stateModule:isEditorModeEnabled())) or (hitIcon == 4 and vehicle.ad.stateModule:isEditorModeEnabled())) then
                 if hitElement.isFolder then
                     if (hitElement.displayName == "All") then
                         vehicle.ad.destinationFilterText = ""
@@ -636,18 +636,14 @@ function ADPullDownList:collapse(vehicle, setItem)
         if selectedEntry ~= nil and selectedEntry.returnValue ~= nil and selectedEntry.isFolder == false then
             if self.type == ADPullDownList.TYPE_TARGET then
                 if ADGraphManager:getMapMarkerById(selectedEntry.returnValue) ~= nil then
-                    vehicle.ad.mapMarkerSelected = selectedEntry.returnValue
-                    vehicle.ad.targetSelected = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).id
-                    vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name
+                    vehicle.ad.stateModule:setFirstMarker(selectedEntry.returnValue)
                 end
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
                 if ADGraphManager:getMapMarkerById(selectedEntry.returnValue) ~= nil then
-                    vehicle.ad.mapMarkerSelected_Unload = selectedEntry.returnValue
-                    vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).id
-                    vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).name
+                    vehicle.ad.stateModule:setSecondMarker(selectedEntry.returnValue)
                 end
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
-                vehicle.ad.unloadFillTypeIndex = selectedEntry.returnValue
+                vehicle.ad.stateModule:setFillType(selectedEntry.returnValue)
             end
 
             AutoDriveUpdateDestinationsEvent:sendEvent(vehicle)
@@ -667,7 +663,7 @@ function ADPullDownList:setSelected(vehicle)
                 index = index + 1
             end
             for _, entry in pairs(entries) do
-                if entry.returnValue == vehicle.ad.mapMarkerSelected then
+                if entry.returnValue == vehicle.ad.stateModule:getFirstMarkerId() then
                     self.selected = index
                     self.hovered = self.selected
                     if not vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] then
@@ -689,7 +685,7 @@ function ADPullDownList:setSelected(vehicle)
                 index = index + 1
             end
             for _, entry in pairs(entries) do
-                if entry.returnValue == vehicle.ad.mapMarkerSelected_Unload then
+                if entry.returnValue == vehicle.ad.stateModule:getSecondMarkerId() then
                     self.selected = index
                     self.hovered = self.selected
                     if not vehicle.ad.groups[self:groupIDToGroupName(self.fakeGroupIDs[groupID])] then
@@ -709,7 +705,7 @@ function ADPullDownList:setSelected(vehicle)
         for _, entries in pairs(self.options) do
             --index = index + 1;
             for _, entry in pairs(entries) do
-                if entry.returnValue == vehicle.ad.unloadFillTypeIndex then
+                if entry.returnValue == vehicle.ad.stateModule:getFillType() then
                     self.selected = index
                     self.hovered = self.selected
                     break
@@ -780,26 +776,24 @@ function ADPullDownList:getItemCountForGroup(groupName)
 end
 
 function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
-    local mapMarkerID = vehicle.ad.mapMarkerSelected
-    local mapMarkerName = vehicle.ad.nameOfSelectedTarget
+    local mapMarker = vehicle.ad.stateModule:getFirstMarker()
     local targetGroupName = hitElement.returnValue
 
     if self.type == ADPullDownList.TYPE_UNLOAD then
-        mapMarkerID = vehicle.ad.mapMarkerSelected_Unload
-        mapMarkerName = vehicle.ad.nameOfSelectedTarget_Unload
+        mapMarker = vehicle.ad.stateModule:getSecondMarker()
     end
 
     for _, entries in pairs(self.options) do
         for i, entry in pairs(entries) do
-            if entry.returnValue == mapMarkerID then
+            if entry.returnValue == mapMarker.markerIndex then
                 table.remove(entries, i)
             end
         end
     end
 
-    table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarkerName, returnValue = mapMarkerID})
+    table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarker.name, returnValue = mapMarker.markerIndex})
 
-    ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarkerID)
+    ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarker.id)
 
     self:sortCurrentItems()
 end

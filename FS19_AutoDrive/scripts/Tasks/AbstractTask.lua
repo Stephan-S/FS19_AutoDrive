@@ -12,4 +12,3 @@ end
 
 function AbstractTask:finished()
 end
-

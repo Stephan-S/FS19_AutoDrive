@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Select Next Unload" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Select Previous Unload" />
 		<text name="input_ADActivateDebug"						text="AD: Edit Mode" />
-		<text name="input_ADDebugShowClosest"					text="AD: Show closest Point" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Select Neighbour Point" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Select next Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Toggle connection between" />

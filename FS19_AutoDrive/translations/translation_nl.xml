@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Selecteer Volgende Losplaats" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Selecteer Vorige Losplaats" />
 		<text name="input_ADActivateDebug"						text="AD: Editor Modus" />
-		<text name="input_ADDebugShowClosest"					text="AD: Dichtstbijzijnde RoutePunt Tonen" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Selecteer Aangrenzend RoutePunt" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Selecteer Volgend Aangrenzend RoutePunt" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Verbinding Aan/Uit" />

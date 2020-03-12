@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Seleccionar Siguiente Descarga" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Seleccione Descarga previa" />
 		<text name="input_ADActivateDebug"						text="AD: Modo de edición" />
-		<text name="input_ADDebugShowClosest"					text="AD: Mostrar el punto más cercano" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Seleccionar punto vecino" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Seleccionar siguiente punto vecino" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Cambiar el punto de conexión" />

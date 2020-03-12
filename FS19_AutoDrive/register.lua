@@ -73,6 +73,7 @@ source(Utils.getFilename("scripts/Tasks/WaitForCallTask.lua", g_currentModDirect
 source(Utils.getFilename("scripts/Tasks/ClearCropTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/CatchCombinePipeTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/FollowCombineTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/RefuelTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))
@@ -80,6 +81,7 @@ source(Utils.getFilename("scripts/Modules/SpecialDrivingModule.lua", g_currentMo
 source(Utils.getFilename("scripts/Modules/TaskModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/TrailerModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/PathFinderModule.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Modules/StateModule.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modes/AbstractMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/DriveToMode.lua", g_currentModDirectory))

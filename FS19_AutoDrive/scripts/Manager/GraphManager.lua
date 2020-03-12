@@ -235,11 +235,6 @@ function ADGraphManager:renameMapMarker(newName, markerId, sendEvent)
 			-- Renaming map marker
 			self.mapMarker[markerId].name = newName
 
-			if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.nameOfSelectedTarget == oldName then
-				-- nameOfSelectedTarget must be updated only if we are renaming the marker selected on the pullDownList
-				g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = newName
-			end
-
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
 
@@ -316,15 +311,11 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 						if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= markerId then
 							vehicle.ad.parkDestination = -1
 						end
-						if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected >= markerId then
-							vehicle.ad.mapMarkerSelected = math.max(vehicle.ad.mapMarkerSelected - 1, 1)
-							vehicle.ad.targetSelected = self.mapMarker[vehicle.ad.mapMarkerSelected].id
-							vehicle.ad.nameOfSelectedTarget = self.mapMarker[vehicle.ad.mapMarkerSelected].name
+						if vehicle.ad.stateModule:getFirstMarkerId() ~= nil and vehicle.ad.stateModule:getFirstMarkerId() >= markerId then
+							vehicle.ad.stateModule:setFirstMarker(math.max(vehicle.ad.stateModule:getFirstMarkerId() - 1, 1))
 						end
-						if vehicle.ad.mapMarkerSelected_Unload ~= nil and vehicle.ad.mapMarkerSelected_Unload >= markerId then
-							vehicle.ad.mapMarkerSelected_Unload = math.max(vehicle.ad.mapMarkerSelected_Unload - 1, 1)
-							vehicle.ad.targetSelected_Unload = self.mapMarker[vehicle.ad.mapMarkerSelected_Unload].id
-							vehicle.ad.nameOfSelectedTarget_Unload = self.mapMarker[vehicle.ad.mapMarkerSelected_Unload].name
+						if vehicle.ad.stateModule:getSecondMarkerId() ~= nil and vehicle.ad.stateModule:getSecondMarkerId() >= markerId then
+							vehicle.ad.stateModule:setSecondMarker(math.max(vehicle.ad.stateModule:getSecondMarkerId() - 1, 1))
 						end
 					end
 				end
@@ -382,20 +373,19 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, sendEvent)
 	end
 end
 
-function ADGraphManager:createWayPoint(vehicle, x, y, z, connectPrevious, dual)
+function ADGraphManager:createWayPoint(vehicle, x, y, z, connectPrevious)
 	AutoDrive.MarkChanged()
-	if vehicle.ad.createMapPoints == true then
-		if #self.wayPoints > 1 and connectPrevious then
-			--edit previous point
-			local out_index = #self.wayPoints[#self.wayPoints].out
-			self.wayPoints[#self.wayPoints].out[out_index+1] = #self.wayPoints + 1
-		end
-
-        --edit current point
-        table.insert(self.wayPoints, self:createNode(#self.wayPoints+1, x, y, z, {}, {}, {}))
-		self.wayPoints[#self.wayPoints].incoming[1] = #self.wayPoints - 1
+	if #self.wayPoints > 1 and connectPrevious then
+		--edit previous point
+		local out_index = #self.wayPoints[#self.wayPoints].out
+		self.wayPoints[#self.wayPoints].out[out_index+1] = #self.wayPoints + 1
 	end
-	if vehicle.ad.creationModeDual == true and connectPrevious then
+
+	--edit current point
+	table.insert(self.wayPoints, self:createNode(#self.wayPoints+1, x, y, z, {}, {}, {}))
+	self.wayPoints[#self.wayPoints].incoming[1] = #self.wayPoints - 1
+	
+	if vehicle.ad.stateModule:isInDualCreationMode() and connectPrevious then
 		local incomingNodes = #self.wayPoints[#self.wayPoints-1].incoming
 		self.wayPoints[#self.wayPoints-1].incoming[incomingNodes] = #self.wayPoints
 		--edit current point

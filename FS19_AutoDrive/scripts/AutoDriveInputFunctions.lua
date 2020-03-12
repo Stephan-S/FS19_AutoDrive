@@ -44,13 +44,8 @@ function AutoDrive:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
 	if actionName == "ADActivateDebug" then
 		AutoDrive:InputHandling(self, "input_debug")
 	end
-
-	if actionName == "ADDebugShowClosest" then
-		AutoDrive:InputHandling(self, "input_showNeighbor")
-	end
-
 	if actionName == "ADDebugSelectNeighbor" then
-		AutoDrive:InputHandling(self, "input_showClosest")
+		AutoDrive:InputHandling(self, "input_showNeighbor")
 	end
 	if actionName == "ADDebugCreateConnection" then
 		AutoDrive.InputHandlingSenderOnly(self, "input_toggleConnection")
@@ -141,12 +136,12 @@ end
 -- Now the MP sync is delegated to dedicated events
 function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 	if vehicle ~= nil and vehicle.ad ~= nil then
-		if vehicle.ad.createMapPoints == true then
+		if vehicle.ad.stateModule:isEditorModeEnabled() then
 			local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
 
 			-- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
 			if input == "input_editMapMarker" then
-				if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.mapMarkerSelected == nil or vehicle.ad.mapMarkerSelected == -1 then
+				if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.stateModule:getFirstMarker() == nil then
 					return
 				end
 				AutoDrive.editSelectedMapMarker = true
@@ -216,37 +211,30 @@ end
 
 function AutoDrive:InputHandlingClientAndServer(vehicle, input)
 	if input == "input_start_stop" then
-		if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.targetSelected == -1 then
+		if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.stateModule:getFirstMarker() == nil then
 			return
 		end
-		if AutoDrive:isActive(vehicle) then
-			--AutoDrive:stopAD(vehicle, true);
+		if vehicle.ad.stateModule:isActive() then
 			vehicle.ad.isStoppingWithError = true
-			AutoDrive:disableAutoDriveFunctions(vehicle)
+			AutoDrive.disableAutoDriveFunctions(vehicle)
 		else
-			print("Starting mode: " .. vehicle.ad.mode)
-			vehicle.ad.modes[vehicle.ad.mode]:start()
-			--AutoDrive:startAD(vehicle)
+			vehicle.ad.stateModule:getCurrentMode():start()
 		end
 	end
 
 	if input == "input_incLoopCounter" then
-		vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected + 1) % 10
+		vehicle.ad.stateModule:increaseLoopCounter()
 	end
 
 	if input == "input_decLoopCounter" then
-		if vehicle.ad.loopCounterSelected == 0 then
-			vehicle.ad.loopCounterSelected = 9
-		else
-			vehicle.ad.loopCounterSelected = (vehicle.ad.loopCounterSelected - 1) % 10
-		end
+		vehicle.ad.stateModule:decreaseLoopCounter()
 	end
 
 	if input == "input_setParkDestination" then
-		if vehicle.ad.mapMarkerSelected ~= nil and vehicle.ad.mapMarkerSelected ~= -1 and vehicle.ad.mapMarkerSelected ~= 0 then
-			vehicle.ad.parkDestination = vehicle.ad.mapMarkerSelected
+		if vehicle.ad.stateModule:getFirstMarker() ~= nil then
+			vehicle.ad.parkDestination = vehicle.ad.stateModule:getFirstMarkerId()
 			if g_server ~= nil then
-				AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name)
+				AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
 			end
 		end
 	end
@@ -254,22 +242,22 @@ end
 
 function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	if input == "input_silomode" then
-		AutoDrive:inputSiloMode(vehicle, 1)
+		vehicle.ad.stateModule:nextMode()
 	end
 
 	if input == "input_previousMode" then
-		AutoDrive:inputSiloMode(vehicle, -1)
+		vehicle.ad.stateModule:previousMode()
 	end
 
 	if input == "input_record" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+		if not vehicle.ad.stateModule:isEditorModeEnabled() or AutoDrive.requestedWaypoints == true then
 			return
 		end
 		AutoDrive:inputRecord(vehicle, false)
 	end
 
 	if input == "input_record_dual" then
-		if vehicle.ad.createMapPoints == false or AutoDrive.requestedWaypoints == true then
+		if not vehicle.ad.stateModule:isEditorModeEnabled() or AutoDrive.requestedWaypoints == true then
 			return
 		end
 		AutoDrive:inputRecord(vehicle, true)
@@ -284,24 +272,11 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_debug" then
-		if vehicle.ad.createMapPoints == false then
-			vehicle.ad.createMapPoints = true
-		else
-			if vehicle.ad.extendedEditorMode == false then
-				vehicle.ad.extendedEditorMode = true
-			else
-				vehicle.ad.extendedEditorMode = false
-				vehicle.ad.createMapPoints = false
-			end
-		end
+		vehicle.ad.stateModule:cycleEditMode()
 	end
 
 	if input == "input_displayMapPoints" then
 		vehicle.ad.displayMapPoints = not vehicle.ad.displayMapPoints
-	end
-
-	if input == "input_showClosest" then
-		AutoDrive:inputShowClosest(vehicle)
 	end
 
 	if input == "input_showNeighbor" then
@@ -339,23 +314,21 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	if input == "input_nextTarget_Unload" then
 		if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
 			local destinations = AutoDrive:getSortedDestinations()
-			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected_Unload)
+			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getSecondMarkerId())
 
 			local nextDestination = next(destinations, currentIndex)
 			if nextDestination == nil then
 				nextDestination = next(destinations, nil)
 			end
 
-			vehicle.ad.mapMarkerSelected_Unload = destinations[nextDestination].id
-			vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).id
-			vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).name
+			vehicle.ad.stateModule:setSecondMarker(destinations[nextDestination].id)
 		end
 	end
 
 	if input == "input_previousTarget_Unload" then
 		if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
 			local destinations = AutoDrive:getSortedDestinations()
-			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected_Unload)
+			local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getSecondMarkerId())
 
 			local previousIndex = 1
 			if currentIndex > 1 then
@@ -364,31 +337,20 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 				previousIndex = #destinations
 			end
 
-			vehicle.ad.mapMarkerSelected_Unload = destinations[previousIndex].id
-			vehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).id
-			vehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected_Unload).name
+			vehicle.ad.stateModule:setSecondMarker(destinations[previousIndex].id)
 		end
 	end
 
 	if input == "input_nextFillType" then
-		vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex + 1
-		if g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex) == nil then
-			vehicle.ad.unloadFillTypeIndex = 2
-		end
+		vehicle.ad.stateModule:nextFillType()
 	end
 
 	if input == "input_previousFillType" then
-		vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex - 1
-		if vehicle.ad.unloadFillTypeIndex <= 1 then
-			while g_fillTypeManager:getFillTypeByIndex(vehicle.ad.unloadFillTypeIndex) ~= nil do
-				vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex + 1
-			end
-			vehicle.ad.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex - 1
-		end
+		vehicle.ad.stateModule:previousFillType()
 	end
 
 	if input == "input_continue" then
-		vehicle.ad.modes[vehicle.ad.mode]:continue()
+		vehicle.ad.stateModule:getCurrentMode():continue()
 	end
 
 	if input == "input_callDriver" then
@@ -400,13 +362,11 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 
 	if input == "input_parkVehicle" then
 		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination) ~= nil then
-			vehicle.ad.mapMarkerSelected = vehicle.ad.parkDestination
-			vehicle.ad.targetSelected = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).id
-			vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name
-			if AutoDrive:isActive(vehicle) then
+			vehicle.ad.stateModule:setfirstMarker(vehicle.ad.parkDestination)
+			if vehicle.ad.stateModule:isActive() then
 				AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
 			end
-			vehicle.ad.mode = 1
+			vehicle.ad.stateModule:setMode(AutoDrive.DRIVE_TO)
 			AutoDrive:InputHandling(vehicle, "input_start_stop")
 			vehicle.ad.onRouteToPark = true
 		else
@@ -419,42 +379,12 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 end
 
-function AutoDrive:inputSiloMode(vehicle, increase)
-	vehicle.ad.mode = vehicle.ad.mode + increase
-	if (vehicle.ad.mode > AutoDrive.MODE_BGA) then
-		vehicle.ad.mode = AutoDrive.MODE_DRIVETO
-	end
-	if (vehicle.ad.mode < AutoDrive.MODE_DRIVETO) then
-		vehicle.ad.mode = AutoDrive.MODE_BGA
-	end
-	AutoDrive:enableCurrentMode(vehicle)
-end
-
-function AutoDrive:enableCurrentMode(vehicle)
-	if vehicle.ad.mode == AutoDrive.MODE_DRIVETO then
-		vehicle.ad.drivingForward = true
-	elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
-		vehicle.ad.drivingForward = true
-	elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
-		vehicle.ad.drivingForward = true
-	elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
-		vehicle.ad.drivingForward = true
-	elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
-		vehicle.ad.drivingForward = true
-	end
-end
-
 function AutoDrive:inputRecord(vehicle, dual)
-	if vehicle.ad.creationMode == false then
-		vehicle.ad.creationMode = true
-		vehicle.ad.creationModeDual = dual
-		vehicle.ad.currentWayPoint = 0
-		vehicle.ad.isActive = false
-
-		AutoDrive:disableAutoDriveFunctions(vehicle)
+	if not vehicle.ad.stateModule:isInCreationMode() then
+		vehicle.ad.stateModule:startNormalCreationMode()
+		AutoDrive.disableAutoDriveFunctions(vehicle)
 	else
-		vehicle.ad.creationMode = false
-		vehicle.ad.creationModeDual = false
+		vehicle.ad.stateModule:disableCreationMode()
 
 		if AutoDrive.getSetting("autoConnectEnd") then
 			if vehicle.ad.lastCreatedWp ~= nil then
@@ -483,16 +413,14 @@ end
 function AutoDrive:inputNextTarget(vehicle)
 	if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
 		local destinations = AutoDrive:getSortedDestinations()
-		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected)
+		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getFirstMarkerId())
 
 		local nextDestination = next(destinations, currentIndex)
 		if nextDestination == nil then
 			nextDestination = next(destinations, nil)
 		end
 
-		vehicle.ad.mapMarkerSelected = destinations[nextDestination].id
-		vehicle.ad.targetSelected = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).id
-		vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name
+		vehicle.ad.stateModule:setfirstMarker(destinations[nextDestination].id)
 	end
 end
 
@@ -539,7 +467,7 @@ end
 function AutoDrive:inputPreviousTarget(vehicle)
 	if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
 		local destinations = AutoDrive:getSortedDestinations()
-		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.mapMarkerSelected)
+		local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getFirstMarkerId())
 
 		local previousIndex = 1
 		if currentIndex > 1 then
@@ -548,9 +476,7 @@ function AutoDrive:inputPreviousTarget(vehicle)
 			previousIndex = #destinations
 		end
 
-		vehicle.ad.mapMarkerSelected = destinations[previousIndex].id
-		vehicle.ad.targetSelected = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).id
-		vehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(vehicle.ad.mapMarkerSelected).name
+		vehicle.ad.stateModule:setfirstMarker(destinations[previousIndex].id)
 	end
 end
 
@@ -609,12 +535,8 @@ function AutoDrive:inputShowNeighbors(vehicle)
 	end
 end
 
-function AutoDrive:inputShowClosest(vehicle)
-	vehicle.ad.showClosestPoint = not vehicle.ad.showClosestPoint
-end
-
 function AutoDrive:inputSwapTargets(vehicle)
-	vehicle.ad.mapMarkerSelected, vehicle.ad.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload, vehicle.ad.mapMarkerSelected
-	vehicle.ad.targetSelected, vehicle.ad.targetSelected_Unload = vehicle.ad.targetSelected_Unload, vehicle.ad.targetSelected
-	vehicle.ad.nameOfSelectedTarget, vehicle.ad.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload, vehicle.ad.nameOfSelectedTarget
+	local currentFirstMarkerId = vehicle.ad.stateModule:getFirstMarkerId()
+	vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())	
+	vehicle.ad.stateModule:setSecondMarker(currentFirstMarkerId)
 end

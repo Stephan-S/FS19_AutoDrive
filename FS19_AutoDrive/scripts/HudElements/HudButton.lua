@@ -44,15 +44,15 @@ end
 function ADHudButton:getNewState(vehicle)
     local newState = self.state
     if self.primaryAction == "input_silomode" then
-        if vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+        if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
             newState = 2
-        elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
             newState = 3
-        elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD then
             newState = 5
-        elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
             newState = 4
-        elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_BGA then
             newState = 6
         else
             newState = 1
@@ -60,15 +60,15 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_record" then
-        if vehicle.ad.creationMode == true then
+        if vehicle.ad.stateModule:isInNormalCreationMode() then
             newState = 2
-            if vehicle.ad.creationModeDual == true then
+            if vehicle.ad.stateModule:isInDualCreationMode() then
                 newState = 3
             end
         else
             newState = 1
         end
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -76,7 +76,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_start_stop" then
-        if vehicle.ad.isActive == true then
+        if vehicle.ad.stateModule:isActive() then
             newState = 2
         else
             newState = 1
@@ -84,7 +84,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_debug" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             newState = 2
         else
             newState = 1
@@ -92,7 +92,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_showNeighbor" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -106,7 +106,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_toggleConnection" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -114,7 +114,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_nextNeighbor" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -122,7 +122,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_createMapMarker" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -130,7 +130,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_routesManager" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -138,7 +138,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_removeWaypoint" then
-        if vehicle.ad.createMapPoints == true then
+        if vehicle.ad.stateModule:isEditorModeEnabled() then
             self.isVisible = true
         else
             self.isVisible = false
@@ -146,8 +146,8 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_incLoopCounter" then
-        newState = math.max(0, vehicle.ad.loopCounterSelected - vehicle.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER].loopsDone) + 1
-        if vehicle.ad.isActive and vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        newState = math.max(0, vehicle.ad.stateModule:getLoopCounter() - vehicle.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER].loopsDone) + 1
+        if vehicle.ad.stateModule:isActive() and vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
             if newState > 1 then
                 newState = newState + 9
             end

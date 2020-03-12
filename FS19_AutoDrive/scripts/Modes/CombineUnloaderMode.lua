@@ -8,8 +8,7 @@ CombineUnloaderMode.STATE_LEAVE_CROP = 5
 CombineUnloaderMode.STATE_DRIVE_TO_START = 6
 CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD = 7
 CombineUnloaderMode.STATE_FOLLOW_COMBINE = 8
-CombineUnloaderMode.STATE_APPROACH_ACTIVE_UNLOADING = 9
-CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 10
+CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 9
 
 CombineUnloaderMode.CHASEPOS_LEFT = 1
 CombineUnloaderMode.CHASEPOS_RIGHT = 2
@@ -31,11 +30,11 @@ end
 
 function CombineUnloaderMode:start()
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:start")
-    if not self.vehicle.ad.isActive then
-        AutoDrive:startAD(self.vehicle)
+    if not self.vehicle.ad.stateModule:isActive() then
+        AutoDrive.startAD(self.vehicle)
     end
 
-    if ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected) == nil or ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected_Unload) == nil then
+    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 
@@ -78,12 +77,12 @@ function CombineUnloaderMode:getNextTask()
     if self.state == CombineUnloaderMode.STATE_INIT then        
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_INIT")
         if filledToUnload then
-            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected_Unload)
+            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker(),id)
             self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
         else
             if ADGraphManager:getDistanceFromNetwork(self.vehicle) < 15 then
                 self.state = CombineUnloaderMode.STATE_DRIVE_TO_START
-                nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected)
+                nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             else
                 self:setToWaitForCall()
             end
@@ -107,7 +106,7 @@ function CombineUnloaderMode:getNextTask()
         self:setToWaitForCall()
     elseif self.state == CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_UNLOAD")
-        nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected)
+        nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
         self.state = CombineUnloaderMode.STATE_DRIVE_TO_START
     elseif self.state == CombineUnloaderMode.STATE_DRIVE_TO_START then
         self:setToWaitForCall()
@@ -139,15 +138,14 @@ function CombineUnloaderMode:assignToHarvester(harvester)
         local spec = self.combine.spec_pipe
         if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
             local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
-    
-            
-            if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.stoppedTimer <= 0 or cleftCapacity < 1.0) then
+                
+            if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 2000 or cleftCapacity < 1.0) then
                 -- default unloading - no movement
                 self.state = CombineUnloaderMode.STATE_DRIVE_TO_PIPE
                 self.vehicle.ad.taskModule:addTask(EmptyHarvesterTask:new(self.vehicle, self.combine))
             else
                 -- Probably active unloading for choppers and moving combines
-                self.state = CombineUnloaderMode.STATE_APPROACH_ACTIVE_UNLOADING
+                self.state = CombineUnloaderMode.STATE_DRIVE_TO_COMBINE
                 self.vehicle.ad.taskModule:addTask(CatchCombinePipeTask:new(self.vehicle, self.combine))                
             end
         else
@@ -160,7 +158,7 @@ end
 function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local nextTask
     if filledToUnload then
-        nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected_Unload)
+        nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
     else
         -- Should we park in the field?
@@ -173,7 +171,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
                 self:setToWaitForCall()
             end
         else
-            nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected)
+            nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             self.state = CombineUnloaderMode.STATE_DRIVE_TO_START
         end
     end
@@ -265,14 +263,19 @@ function CombineUnloaderMode:getPipeChasePosition()
                 local trailerOffset = AutoDrive.getSetting("trailerOffset", self.vehicle)
 
                 local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
-                local trailer = trailers[self.vehicle.ad.currentTrailer];
-                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
-                if (trailerLeftCapacity < 0.01) and self.vehicle.ad.currentTrailer < trailerCount then
-                    self.vehicle.ad.currentTrailer = self.vehicle.ad.currentTrailer + 1;
-                    trailer = AutoDrive.getTrailersOf(self.vehicle, true)[self.vehicle.ad.currentTrailer];
+                local currentTrailer = 1
+                local targetTrailer = trailers[1]
+
+                -- Get the next trailer that hasn't reached fill level yet
+                for trailerIndex, trailer in ipairs(trailers) do
+                    local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
+                    if (trailerLeftCapacity < 0.01) and currentTrailer < trailerCount then
+                        currentTrailer = trailerIndex;
+                        targetTrailer = AutoDrive.getTrailersOf(self.vehicle, true)[self.vehicle.ad.currentTrailer];
+                    end
                 end
 
-                local trailerX, trailerY, trailerZ = getWorldTranslation(trailer.components[1].node)
+                local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
                 local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
 
                 local totalDiff = -diffZ + trailerOffset + 2;

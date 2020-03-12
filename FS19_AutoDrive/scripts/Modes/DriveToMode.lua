@@ -13,14 +13,14 @@ function DriveToMode:reset()
 end
 
 function DriveToMode:start()
-    if not self.vehicle.ad.isActive then
-        AutoDrive:startAD(self.vehicle)
+    if not self.vehicle.ad.stateModule:isActive() then
+        AutoDrive.startAD(self.vehicle)
     end
 
-    if ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected) == nil then
+    if vehicle.ad.stateModule:getFirstMarker() == nil then
         return
     end
-    self.destinationID =  self.vehicle.ad.targetSelected
+    self.destinationID =  self.vehicle.ad.stateModule:getFirstMarker().id
 
     self.driveToDestinationTask = DriveToDestinationTask:new(self.vehicle, self.destinationID)
     self.vehicle.ad.taskModule:addTask(self.driveToDestinationTask)
@@ -36,7 +36,7 @@ function DriveToMode:handleFinishedTask()
         --print("DriveToMode:handleFinishedTask - starting stopAndDisableTask now")
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
-        local target = self.vehicle.ad.nameOfSelectedTarget
+        local target = self.vehicle.ad.stateModule:getFirstMarker().name
         for _, mapMarker in pairs(ADGraphManager:getMapMarker()) do
             if self.destinationID == mapMarker.id then
                 target = mapMarker.name

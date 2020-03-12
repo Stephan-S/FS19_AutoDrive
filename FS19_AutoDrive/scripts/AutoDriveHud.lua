@@ -353,7 +353,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 							-- And just to correct for slope changes, we now set the height to the terrain height
 							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-							local newNode = ADGraphManager:createWayPoint(vehicle, x, y, z, false, false)
+							local newNode = ADGraphManager:createWayPoint(vehicle, x, y, z, false)
 						end
 					end
 				end
@@ -412,17 +412,17 @@ function AutoDriveHud:stopMovingHud()
 end
 
 function AutoDriveHud:getModeName(vehicle)
-	if vehicle.ad.mode == AutoDrive.MODE_DRIVETO then
+	if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DRIVETO then
 		return g_i18n:getText("AD_MODE_DRIVETO")
-	elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+	elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
 		return g_i18n:getText("AD_MODE_DELIVERTO")
-	elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+	elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
 		return g_i18n:getText("AD_MODE_PICKUPANDDELIVER")
-	elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+	elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD then
 		return g_i18n:getText("AD_MODE_UNLOAD")
-	elseif vehicle.ad.mode == AutoDrive.MODE_LOAD then
+	elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
 		return g_i18n:getText("AD_MODE_LOAD")
-	elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+	elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_BGA then
 		return g_i18n:getText("AD_MODE_BGA")
 	end
 
@@ -453,7 +453,7 @@ end
 function AutoDriveHud:createMapHotspot(vehicle)
 	-- Since this function and 'deleteMapHotspot' are called 4 times on clients (maybe we should fix that) we need to ensure tha only one map hotspot is created
 	-- The previous solution wasn't working, to be honest I have no idea why...
-	if vehicle.ad.isActive and vehicle.ad.mapHotSpotActive == nil then
+	if vehicle.ad.stateModule:isActive() and vehicle.ad.mapHotSpotActive == nil then
 		--local hotspotX, _, hotspotZ = getWorldTranslation(vehicle.rootNode)
 		local _, textSize = getNormalizedScreenValues(0, 6) --Textsize local _, textSize = getNormalizedScreenValues(0, 9)
 		local _, textOffsetY = getNormalizedScreenValues(0, 15) --Distance to icon -- local _, textOffsetY = getNormalizedScreenValues(0, 24)
@@ -488,9 +488,7 @@ end
 function AutoDrive:mapHotSpotClicked(superFunc)
 	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") then
 		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			g_currentMission.controlledVehicle.ad.mapMarkerSelected = self.markerID
-			g_currentMission.controlledVehicle.ad.targetSelected = ADGraphManager:getMapMarkerById(self.markerID).id
-			g_currentMission.controlledVehicle.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(self.markerID).name
+			g_currentMission.controlledVehicle.ad.stateModule:setFirstMarker(self.markerID)
 		end
 	end
 
@@ -505,9 +503,7 @@ function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isU
 				if self.ingameMap.filter[hotspot.category] and hotspot.visible and hotspot.category ~= MapHotspot.CATEGORY_FIELD_DEFINITION and hotspot.category ~= MapHotspot.CATEGORY_COLLECTABLE and hotspot:getIsActive() then
 					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
 						if AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") and hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-							g_currentMission.controlledVehicle.ad.mapMarkerSelected_Unload = hotspot.markerID
-							g_currentMission.controlledVehicle.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(hotspot.markerID).id
-							g_currentMission.controlledVehicle.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(hotspot.markerID).name
+							g_currentMission.controlledVehicle.ad.stateModule:setSecondMarker(hotspot.markerID)
 						end
 						break
 					end

@@ -4,9 +4,9 @@ PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
 PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 20
-PathFinderModule.PATHFINDER_TARGET_DISTANCE = 14
-PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 20
-PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 9
+PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
+PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 12
+PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 6
 PathFinderModule.PATHFINDER_START_DISTANCE = 7
 
 PathFinderModule.PP_UP = 0
@@ -38,7 +38,7 @@ function PathFinderModule:reset()
 end
 
 function PathFinderModule:update()
-    if self.vehicle.ad.createMapPoints and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+    if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
         self:drawDebugForPF()
     end
     self.steps = self.steps + 1
@@ -126,6 +126,9 @@ function PathFinderModule:update()
 end
 
 function PathFinderModule:hasFinished()
+    if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+        return false
+    end
     if self.isFinished and self.smoothDone == true then
         return true
     end
@@ -153,24 +156,29 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
     
-    local pipeChasePos, _ = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
-    print("Pipechasepos: " .. pipeChasePos.x .. "/" .. pipeChasePos.y .. "/" .. pipeChasePos.z)
+    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
 
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
+        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
         table.insert(self.appendWayPoints, pipeChasePos)
-    else        
-        local appendedNode =        {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE    * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
-        local pathFinderTarget =    {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE          * rx, y = pipeChasePos.y, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
-        
+    else  
+        local pathFinderTarget =    {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
+        -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
+        local appendedNode =        {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE    * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
+        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then      
+            pathFinderTarget =      {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE          * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
+        end
+
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        table.insert(self.appendWayPoints, appendedNode)
-        table.insert(self.appendWayPoints, pipeChasePos)
+        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then            
+            table.insert(self.appendWayPoints, appendedNode)
+            table.insert(self.appendWayPoints, pipeChasePos)
+        end        
     end
     
     if combine.spec_combine ~= nil then

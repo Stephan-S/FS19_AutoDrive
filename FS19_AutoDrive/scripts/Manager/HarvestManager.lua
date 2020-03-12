@@ -40,7 +40,7 @@ function ADHarvestManager:update()
                 if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ADHarvestManager.isHarvesterActive(harvester) then
                     for _, unloader in pairs(self.idleUnloaders) do
                         -- sort by distance to combine first
-                        if unloader.ad.targetSelected == harvester.ad.targetSelected then
+                        if unloader.ad.stateModule:getFirstMarker() == harvester.ad.stateModule:getFirstMarker() then
                             unloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
                             table.insert(self.activeUnloaders, unloader)
                             table.removeValue(self.idleUnloaders, unloader)
@@ -61,8 +61,7 @@ function ADHarvestManager.doesHarvesterNeedUnloading(harvester)
     if harvester.cp and harvester.cp.driver and harvester.cp.driver.isWaitingForUnload then
         cpIsCalling = harvester.cp.driver:isWaitingForUnload()
     end
-    return (((maxCapacity > 0 and leftCapacity < maxCapacity) or cpIsCalling) and harvester.ad.stoppedTimer <= 0)
-    --return (((maxCapacity > 0 and leftCapacity <= 1.0) or cpIsCalling) and harvester.ad.stoppedTimer <= 0)
+    return (((maxCapacity > 0 and leftCapacity < maxCapacity) or cpIsCalling) and harvester.ad.noMovementTimer.elapsedTime > 5000)
 end
 
 function ADHarvestManager.isHarvesterActive(harvester)

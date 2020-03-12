@@ -31,7 +31,7 @@ function ADDrivePathModule:setPathTo(waypointID)
     
     if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= waypointID))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.nameOfSelectedTarget)
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         print("Got path to destination of length: " .. #self.wayPoints)
@@ -55,7 +55,7 @@ function ADDrivePathModule:appendPathTo(wayPointId)
 
     if appendWayPoints == nil or (appendWayPoints[2] == nil and (appendWayPoints[1] == nil or (appendWayPoints[1] ~= nil and appendWayPoints[1].id ~= waypointID))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.nameOfSelectedTarget)
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         print("Got path to destination of length: " .. #appendWayPoints)
@@ -138,10 +138,6 @@ function ADDrivePathModule:followWaypoints(dt)
 
     if ADTriggerManager.checkForTriggerProximity(self.vehicle) then
         self.targetSpeed = math.min(5, self.targetSpeed)
-    end
-
-    if self.vehicle.ad.inDeadLock then
-        self.targetSpeed = math.min(AutoDrive.DEADLOCKSPEED, self.targetSpeed)
     end
 
     if AutoDrive.checkIsOnField(x, y, z) then

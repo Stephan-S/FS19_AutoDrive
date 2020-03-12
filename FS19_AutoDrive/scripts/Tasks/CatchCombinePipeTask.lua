@@ -20,6 +20,12 @@ function CatchCombinePipeTask:setUp()
 end
 
 function CatchCombinePipeTask:update(dt)
+    --abort if the combine is nearing it's fill level and we should take care of 'real' approaches when it's in stand still
+    local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
+    if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 2000 or cleftCapacity < 1.0) then
+        self:finished()
+    end
+
     if self.state == CatchCombinePipeTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING finished")
@@ -43,7 +49,7 @@ function CatchCombinePipeTask:update(dt)
             self.state = CatchCombinePipeTask.STATE_PATHPLANNING
         else
             if self.vehicle.ad.drivePathModule:isTargetReached() then
-                -- check if we have atually reached the target or not
+                -- check if we have actually reached the target or not
                 -- accept current location if we are in a good position to start chasing: distance and angle are important here
                 local angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
 

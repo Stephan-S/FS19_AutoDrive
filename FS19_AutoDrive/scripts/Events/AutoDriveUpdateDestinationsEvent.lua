@@ -14,15 +14,10 @@ function AutoDriveUpdateDestinationsEvent:new(vehicle)
 
 	o.vehicle = vehicle
 
-	o.targetSelected = vehicle.ad.targetSelected
-	o.mapMarkerSelected = vehicle.ad.mapMarkerSelected
-	o.nameOfSelectedTarget = vehicle.ad.nameOfSelectedTarget
+	o.firstMarker = vehicle.ad.stateModule:getFirstMarkerId()
+	o.secondMarker = vehicle.ad.stateModule:getSecondMarkerId()
 
-	o.targetSelected_Unload = vehicle.ad.targetSelected_Unload
-	o.mapMarkerSelected_Unload = vehicle.ad.mapMarkerSelected_Unload
-	o.nameOfSelectedTarget_Unload = vehicle.ad.nameOfSelectedTarget_Unload
-
-	o.unloadFillTypeIndex = vehicle.ad.unloadFillTypeIndex
+	o.unloadFillTypeIndex = vehicle.ad.stateModule:getFillType()
 
 	return o
 end
@@ -33,13 +28,8 @@ function AutoDriveUpdateDestinationsEvent:writeStream(streamId, connection)
 	end
 	streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
 
-	streamWriteInt16(streamId, self.targetSelected)
-	streamWriteInt16(streamId, self.mapMarkerSelected)
-	AutoDrive.streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget)
-
-	streamWriteInt16(streamId, self.targetSelected_Unload)
-	streamWriteInt16(streamId, self.mapMarkerSelected_Unload)
-	AutoDrive.streamWriteStringOrEmpty(streamId, self.nameOfSelectedTarget_Unload)
+	streamWriteInt16(streamId, self.firstMarker)
+	streamWriteInt16(streamId, self.secondMarker)
 
 	streamWriteUInt16(streamId, self.unloadFillTypeIndex)
 end
@@ -52,25 +42,15 @@ function AutoDriveUpdateDestinationsEvent:readStream(streamId, connection)
 	local id = streamReadInt32(streamId)
 	local vehicle = NetworkUtil.getObject(id)
 
-	local targetSelected = streamReadInt16(streamId)
-	local mapMarkerSelected = streamReadInt16(streamId)
-	local nameOfSelectedTarget = AutoDrive.streamReadStringOrEmpty(streamId)
-
-	local targetSelected_Unload = streamReadInt16(streamId)
-	local mapMarkerSelected_Unload = streamReadInt16(streamId)
-	local nameOfSelectedTarget_Unload = AutoDrive.streamReadStringOrEmpty(streamId)
+	local firstMarker = streamReadInt16(streamId)
+	local secondMarker = streamReadInt16(streamId)
 
 	local unloadFillTypeIndex = streamReadUInt16(streamId)
 
-	vehicle.ad.targetSelected = targetSelected
-	vehicle.ad.mapMarkerSelected = mapMarkerSelected
-	vehicle.ad.nameOfSelectedTarget = nameOfSelectedTarget
+	vehicle.ad.stateModule:setFirstMarker(firstMarker)
+	vehicle.ad.stateModule:setSecondMarker(secondMarker)
 
-	vehicle.ad.targetSelected_Unload = targetSelected_Unload
-	vehicle.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload
-	vehicle.ad.nameOfSelectedTarget_Unload = nameOfSelectedTarget_Unload
-
-	vehicle.ad.unloadFillTypeIndex = unloadFillTypeIndex
+	vehicle.ad.stateModule:setFillType(unloadFillTypeIndex)
 
 	if g_server ~= nil then
 		g_server:broadcastEvent(AutoDriveUpdateDestinationsEvent:new(vehicle), nil, nil, vehicle)

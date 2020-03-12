@@ -3,13 +3,16 @@ ADTriggerManager = {}
 ADTriggerManager.tipTriggers = {}
 ADTriggerManager.siloTriggers = {}
 
+AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 15
+AutoDrive.REFUEL_LEVEL = 0.15
+
 function ADTriggerManager.load()
     ADTriggerManager.loadAllTriggers()
 end
 
 function ADTriggerManager.checkForTriggerProximity(vehicle)
-    local shouldLoad = vehicle.ad.modes[vehicle.ad.mode]:shouldLoadOnTrigger(vehicle)
-    local shouldUnload = vehicle.ad.modes[vehicle.ad.mode]:shouldUnloadAtTrigger(vehicle)
+    local shouldLoad = vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger(vehicle)
+    local shouldUnload = vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger(vehicle)
     if (not shouldUnload) and (not shouldLoad) then
         return false
     end
@@ -33,8 +36,8 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
 
                 if distance < distanceToSlowDownAt then
                     local hasRequiredFillType = false
-                    local allowedFillTypes = {vehicle.ad.unloadFillTypeIndex}
-                    if vehicle.ad.unloadFillTypeIndex == 13 or vehicle.ad.unloadFillTypeIndex == 43 or vehicle.ad.unloadFillTypeIndex == 44 then
+                    local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
+                    if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
                         allowedFillTypes = {}
                         table.insert(allowedFillTypes, 13)
                         table.insert(allowedFillTypes, 43)

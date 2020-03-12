@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Punto di scarico successivo" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Punto di scarico precedente" />
 		<text name="input_ADActivateDebug"						text="AD: Modalità di modifica" />
-		<text name="input_ADDebugShowClosest"					text="AD: Visualizza punto più vicino" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Seleziona un punto vicino" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Prossimo punto vicino" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Connetti/Disconnetti" />

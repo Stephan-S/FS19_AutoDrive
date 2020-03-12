@@ -25,7 +25,6 @@ AutoDrive.actions = {
 	{"ADSelectTargetUnload", false, 0},
 	{"ADSelectPreviousTargetUnload", false, 0},
 	{"ADActivateDebug", false, 0},
-	{"ADDebugShowClosest", false, 0},
 	{"ADDebugSelectNeighbor", false, 0},
 	{"ADDebugChangeNeighbor", false, 0},
 	{"ADDebugCreateConnection", false, 0},
@@ -73,14 +72,9 @@ AutoDrive.DC_ALL = 65535
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
-	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveDriveFuncs.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveTrigger.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
@@ -174,25 +168,6 @@ function AutoDrive:loadMap(name)
 	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
 
-
-	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
-	--    DelayedCallBack:new(
-	--    function()
-	--        g_gui:showGui("ADEnterDriverNameGui")
-	--    end
-	--)
-	--AutoDrive.delayedCallBacks.openEnterTargetNameGUI =
-	--    DelayedCallBack:new(
-	--    function()
-	--        g_gui:showGui("ADEnterTargetNameGui")
-	--    end
-	--)
-	--AutoDrive.delayedCallBacks.openEnterGroupNameGUI =
-	--    DelayedCallBack:new(
-	--    function()
-	--        g_gui:showGui("ADEnterGroupNameGui")
-	--    end
-	--)
 	AutoDriveBenchmarks.Run()
 	RoutesManager.load()
 	DrawingManager:load()
@@ -212,8 +187,6 @@ function AutoDrive:firstRun()
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
 end
-
-
 
 function AutoDrive:saveSavegame()
 	if AutoDrive.GetChanged() == true or AutoDrive.HudChanged then
@@ -283,30 +256,12 @@ function AutoDrive:update(dt)
 		AutoDrive.isFirstRun = false
 		self:firstRun()
 	end
-	--if (g_currentMission.controlledVehicle ~= nil) then
-	--AutoDrive.renderTable(0.05, 0.95, 0.013, ADGraphManager:getWayPointById(ADGraphManager:findClosestWayPoint(g_currentMission.controlledVehicle)))
-	--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
-	--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
-	--end
-	--AutoDrive.renderTable(0.3, 0.98, 0.008, AutoDrive.mapMarker)
-	--	--	local printTable = {}
-	--	--	printTable.g_logManager = g_logManager
-	--	--	printTable.LogManager = LogManager
-	--	AutoDrive.renderTable(0.1, 0.9, 0.008, AutoDrive.Triggers)
-	--	AutoDrive.renderTable(0.8, 0.9, 0.009, UserManager)
-	--end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
 		if AutoDrive.debug.lastSentEvent ~= nil then
 			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
 		end
 	end
-
-	--local t = {}
-	--for k, v in pairs(AutoDrive.settings) do
-	--	t[k] = tostring(v.current) .. " -> " .. tostring(v.values[v.current])
-	--end
-	--AutoDrive.renderTable(0.2, 0.9, 0.009, t)
 
 	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
 	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do
@@ -329,7 +284,14 @@ function AutoDrive.handlePerFrameOperations(dt)
 	for _, vehicle in pairs(g_currentMission.vehicles) do
 		if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
 			vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt)
-		end
+
+			local vehicleSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 10)
+			if (not vehicleSteering) and ((vehicle.lastSpeedReal * vehicle.movingDirection) >= 0.0008) then
+				vehicle.ad.driveForwardTimer:timer(true, 20000, dt)
+			else
+				vehicle.ad.driveForwardTimer:timer(false)
+			end
+		end		
 
 		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
 			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
@@ -349,6 +311,148 @@ function AutoDrive.handlePerFrameOperations(dt)
 			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
 		end
 	end
+end
+
+function AutoDrive.startAD(vehicle)
+	vehicle.ad.stateModule:setActive(true)
+
+	vehicle.ad.onRouteToPark = false
+	vehicle.ad.isStoppingWithError = false
+
+	vehicle.forceIsActive = true
+	vehicle.spec_motorized.stopMotorOnLeave = false
+	vehicle.spec_enterable.disableCharacterOnLeave = false
+	if vehicle.currentHelper == nil then
+		vehicle.currentHelper = g_helperManager:getRandomHelper()
+		if vehicle.setRandomVehicleCharacter ~= nil then
+			vehicle:setRandomVehicleCharacter()
+			vehicle.ad.vehicleCharacter = vehicle.spec_enterable.vehicleCharacter
+		end
+		if vehicle.spec_enterable.controllerFarmId ~= 0 then
+			vehicle.spec_aiVehicle.startedFarmId = vehicle.spec_enterable.controllerFarmId
+		end
+	end
+	vehicle.spec_aiVehicle.isActive = true
+
+	if vehicle.steeringEnabled == true then
+		vehicle.steeringEnabled = false
+	end
+
+	--vehicle.spec_aiVehicle.aiTrafficCollision = nil;
+	--Code snippet from function AIVehicle:startAIVehicle(helperIndex, noEventSend, startedFarmId):
+	if vehicle.getAINeedsTrafficCollisionBox ~= nil then
+		if vehicle:getAINeedsTrafficCollisionBox() then
+			local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, vehicle.baseDirectory, false, true, false)
+			if collisionRoot ~= nil and collisionRoot ~= 0 then
+				local collision = getChildAt(collisionRoot, 0)
+				link(getRootNode(), collision)
+
+				vehicle.spec_aiVehicle.aiTrafficCollision = collision
+
+				delete(collisionRoot)
+			end
+		end
+	end
+
+	if g_server ~= nil then
+		vehicle.ad.enableAI = 5
+	end
+
+	AutoDriveHud:createMapHotspot(vehicle)
+	if vehicle.isServer then
+		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", 1)
+		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", 1)
+	end
+end
+
+function AutoDrive.disableAutoDriveFunctions(vehicle)
+	if vehicle.isServer and vehicle.ad.stateModule:isActive() then
+		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
+	end
+	
+	vehicle.ad.drivePathModule:reset()
+	vehicle.ad.specialDrivingModule:reset()
+	vehicle.ad.trailerModule:reset()
+	
+	for _, mode in pairs(vehicle.ad.modes) do
+		mode:reset()
+	end
+	
+	vehicle.ad.stateModule:setActive(false)	
+
+	if vehicle.ad.callBackFunction ~= nil and (vehicle.ad.isStoppingWithError == nil or vehicle.ad.isStoppingWithError == false) then
+		--work with copys, so we can remove the callBackObjects before calling the function
+		local callBackFunction = vehicle.ad.callBackFunction
+		local callBackObject = vehicle.ad.callBackObject
+		local callBackArg = vehicle.ad.callBackArg
+		vehicle.ad.callBackFunction = nil
+		vehicle.ad.callBackObject = nil
+		vehicle.ad.callBackArg = nil
+
+		if callBackObject ~= nil then
+			if callBackArg ~= nil then
+				callBackFunction(callBackObject, callBackArg)
+			else
+				callBackFunction(callBackObject)
+			end
+		else
+			if callBackArg ~= nil then
+				callBackFunction(callBackArg)
+			else
+				callBackFunction()
+			end
+		end
+	else
+		vehicle.spec_aiVehicle.isActive = false
+		vehicle.forceIsActive = false
+		vehicle.spec_motorized.stopMotorOnLeave = true
+		vehicle.spec_enterable.disableCharacterOnLeave = true
+		vehicle.currentHelper = nil
+
+		if vehicle.restoreVehicleCharacter ~= nil then
+			vehicle:restoreVehicleCharacter()
+		end
+
+		if vehicle.steeringEnabled == false then
+			vehicle.steeringEnabled = true
+		end
+
+		vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
+		AIVehicleUtil.driveInDirection(vehicle, 16, 30, 0, 0.2, 20, false, vehicle.ad.drivingForward, 0, 0, 0, 1)
+
+		--tell clients to dismiss ai worker etc.
+		if g_server ~= nil then
+			vehicle.ad.disableAI = 5
+		end
+
+		if vehicle.ad.onRouteToPark == true then
+			vehicle.ad.onRouteToPark = false
+			-- We don't need that, since the motor is turned off automatically when the helper is kicked out
+			--vehicle:stopMotor()
+			if vehicle.spec_lights ~= nil then
+				vehicle:deactivateLights()
+			end
+		end
+
+		vehicle:requestActionEventUpdate()
+		if vehicle.raiseAIEvent ~= nil then
+			vehicle:raiseAIEvent("onAIEnd", "onAIImplementEnd")
+		end
+	end
+
+	if vehicle.ad.sensors ~= nil then
+		for _, sensor in pairs(vehicle.ad.sensors) do
+			sensor:setEnabled(false)
+		end
+	end
+
+	AutoDriveHud:deleteMapHotspot(vehicle)
+
+	if vehicle.setBeaconLightsVisibility ~= nil then
+		vehicle:setBeaconLightsVisibility(false)
+	end
+	
+	vehicle.ad.taskModule:reset()
 end
 
 function AutoDrive.MarkChanged()
@@ -415,112 +519,6 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 		end
 	end
 end
-
-function AutoDrive.renameDriver(vehicle, name, sendEvent)
-	if name:len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
-		if sendEvent == nil or sendEvent == true then
-			-- Propagating driver rename all over the network
-			AutoDriveRenameDriverEvent.sendEvent(vehicle, name)
-		else
-			vehicle.ad.driverName = name
-		end
-	end
-end
-
-function AutoDrive.getVehicleMaxSpeed(vehicle)
-	-- 255 is the max value to prevent errors with MP sync
-	if vehicle ~= nil and vehicle.spec_motorized ~= nil and vehicle.spec_motorized.motor ~= nil then
-		local motor = vehicle.spec_motorized.motor
-		return math.min(motor:getMaximumForwardSpeed() * 3.6, 255)
-	end
-	return 255
-end
-
-function AutoDrive:zoomSmoothly(superFunc, offset)
-	if not AutoDrive.mouseWheelActive then -- don't zoom camera when mouse wheel is used to scroll targets (thanks to sperrgebiet)
-		superFunc(self, offset)
-	end
-end
-
-function AutoDrive:onActivateObject(superFunc, vehicle)
-	if vehicle ~= nil then
-		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
-		if g_currentMission.controlledVehicle ~= vehicle or g_currentMission.controlledVehicles[vehicle] == nil then
-			local oldControlledVehicle = nil
-			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
-				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
-			else
-				oldControlledVehicle = g_currentMission.controlledVehicle
-			end
-			g_currentMission.controlledVehicle = vehicle
-
-			superFunc(self, vehicle)
-
-			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
-				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
-				vehicle.ad.oldControlledVehicle = nil
-			else
-				if oldControlledVehicle ~= nil then
-					g_currentMission.controlledVehicle = oldControlledVehicle
-				end
-			end
-			return
-		end
-	end
-
-	superFunc(self, vehicle)
-end
-
-function AutoDrive:onFillTypeSelection(superFunc, fillType)
-	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
-		for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
-			if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
-				self.validFillableObject = fillableObject.object
-				self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
-			end
-		end
-		local validFillableObject = self.validFillableObject
-		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
-			local fillUnitIndex = self.validFillableFillUnitIndex
-			self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
-		end
-	end
-end
-
--- LoadTrigger doesn't allow filling non controlled tools
-function AutoDrive:getIsActivatable(superFunc, objectToFill)
-	--when the trigger is filling, it uses this function without objectToFill
-	if objectToFill ~= nil then
-		local vehicle = objectToFill:getRootVehicle()
-		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive then
-			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
-			if g_currentMission.controlledVehicle ~= vehicle then
-				local oldControlledVehicle = nil
-				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
-					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
-				else
-					oldControlledVehicle = g_currentMission.controlledVehicle
-				end
-				g_currentMission.controlledVehicle = vehicle or objectToFill
-
-				local result = superFunc(self, objectToFill)
-
-				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
-					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
-					vehicle.ad.oldControlledVehicle = nil
-				else
-					if oldControlledVehicle ~= nil then
-						g_currentMission.controlledVehicle = oldControlledVehicle
-					end
-				end
-				return result
-			end
-		end
-	end
-	return superFunc(self, objectToFill)
-end
-
-
 
 AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}
 for _, statName in pairs(AutoDrive.STAT_NAMES) do

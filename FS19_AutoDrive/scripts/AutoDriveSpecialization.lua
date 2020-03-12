@@ -23,7 +23,7 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 
     local registerEvents = isOnActiveVehicle
     if self.ad ~= nil then
-        registerEvents = registerEvents or self == g_currentMission.controlledVehicle -- or self.ad.isActive;
+        registerEvents = registerEvents or self == g_currentMission.controlledVehicle
     end
 
     -- only in active vehicle
@@ -53,15 +53,10 @@ function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
     self.ad = {}
     self.ad.smootherDriving = {}
-    self.ad.smootherDriving.lastMaxSpeed = 0
-    self.ad.targetSelected = -1
-    self.ad.mapMarkerSelected = -1
-    self.ad.nameOfSelectedTarget = ""
-    self.ad.targetSelected_Unload = -1
-    self.ad.mapMarkerSelected_Unload = -1
-    self.ad.nameOfSelectedTarget_Unload = ""
+    self.ad.smootherDriving.lastMaxSpeed = 0    
     self.ad.groups = {}
     
+    self.ad.stateModuke = ADStateModule:new(self)
     self.ad.taskModule = ADTaskModule:new(self)
     self.ad.trailerModule = ADTrailerModule:new(self)
     self.ad.drivePathModule = ADDrivePathModule:new(self)
@@ -85,40 +80,8 @@ function AutoDrive:onPostLoad(savegame)
             local xmlFile = savegame.xmlFile
             local key = savegame.key .. ".FS19_AutoDrive.AutoDrive"
 
-            local mode = getXMLInt(xmlFile, key .. "#mode")
-            if mode ~= nil then
-                self.ad.mode = mode
-            end
-            local targetSpeed = getXMLInt(xmlFile, key .. "#targetSpeed")
-            if targetSpeed ~= nil then
-                self.ad.targetSpeed = math.min(targetSpeed, AutoDrive.getVehicleMaxSpeed(self))
-            end
-
-            local mapMarkerSelected = getXMLInt(xmlFile, key .. "#mapMarkerSelected")
-            if mapMarkerSelected ~= nil then
-                self.ad.mapMarkerSelected = mapMarkerSelected
-            end
-
-            local mapMarkerSelected_Unload = getXMLInt(xmlFile, key .. "#mapMarkerSelected_Unload")
-            if mapMarkerSelected_Unload ~= nil then
-                self.ad.mapMarkerSelected_Unload = mapMarkerSelected_Unload
-            end
-            local unloadFillTypeIndex = getXMLInt(xmlFile, key .. "#unloadFillTypeIndex")
-            if unloadFillTypeIndex ~= nil then
-                self.ad.unloadFillTypeIndex = unloadFillTypeIndex
-            end
-            local driverName = getXMLString(xmlFile, key .. "#driverName")
-            if driverName ~= nil then
-                self.ad.driverName = driverName
-            end
-            local selectedLoopCounter = getXMLInt(xmlFile, key .. "#loopCounterSelected")
-            if selectedLoopCounter ~= nil then
-                self.ad.loopCounterSelected = selectedLoopCounter
-            end
-            local parkDestination = getXMLInt(xmlFile, key .. "#parkDestination")
-            if parkDestination ~= nil then
-                self.ad.parkDestination = parkDestination
-            end
+            self.ad.stateModule:readFromXMLFile(xmlFile, key)
+            AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
 
             local groupString = getXMLString(xmlFile, key .. "#groups")
             if groupString ~= nil then
@@ -132,8 +95,6 @@ function AutoDrive:onPostLoad(savegame)
                     end
                 end
             end
-
-            AutoDrive.readVehicleSettingsFromXML(self, xmlFile, key)
         end
     end
 
@@ -147,100 +108,17 @@ function AutoDrive:onPostLoad(savegame)
 end
 
 function AutoDrive:init()
-    self.ad.isActive = false
-    self.ad.initialized = false
-    self.ad.creationMode = false
-    self.ad.creationModeDual = false
-
     if self.ad.settings == nil then
         AutoDrive.copySettingsToVehicle(self)
     end
 
-    if AutoDrive ~= nil then
-        local set = false
-        if self.ad.mapMarkerSelected ~= nil then
-            if ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected) ~= nil then
-                self.ad.targetSelected = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected).id
-                self.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected).name
-                set = true
-            end
-        end
-        if not set then
-            self.ad.mapMarkerSelected = 1
-            if ADGraphManager:getMapMarkerById(1) ~= nil then
-                self.ad.targetSelected = ADGraphManager:getMapMarkerById(1).id
-                self.ad.nameOfSelectedTarget = ADGraphManager:getMapMarkerById(1).name
-            end
-        end
-    end
-    if self.ad.mode == nil then
-        self.ad.mode = AutoDrive.MODE_DRIVETO
-    end
-    if self.ad.targetSpeed == nil then
-        self.ad.targetSpeed = AutoDrive.getVehicleMaxSpeed(self) --math.min(AutoDrive.getVehicleMaxSpeed(self), AutoDrive.lastSetSpeed)
-    end
-    self.ad.createMapPoints = false
-    self.ad.extendedEditorMode = false
-    self.ad.displayMapPoints = false
-    self.ad.showClosestPoint = true
-    self.ad.selectedDebugPoint = -1
-    self.ad.showSelectedDebugPoint = false
-    self.ad.changeSelectedDebugPoint = false
-    self.ad.iteratedDebugPoints = {}
-    self.ad.inDeadLock = false
-    self.ad.timeTillDeadLock = 15000
-    self.ad.inDeadLockRepairCounter = 4
-
-    self.ad.creatingMapMarker = false
-
-    self.name = g_i18n:getText("UNKNOWN")
-    if self.getName ~= nil then
-        self.name = self:getName()
-    end
-    if self.ad.driverName == nil then
-        self.ad.driverName = self.name
-    end
-
     self.ad.moduleInitialized = true
     self.ad.currentInput = ""
-
-    if self.ad.unloadFillTypeIndex == nil then
-        self.ad.unloadFillTypeIndex = 2
-    end
-    
-    self.ad.combineUnloadInFruit = false
-    self.ad.combineUnloadInFruitWaitTimer = AutoDrive.UNLOAD_WAIT_TIMER
-    self.ad.combineFruitToCheck = nil
-    self.ad.driverOnTheWay = false
-    self.ad.tryingToCallDriver = false
-    self.ad.stoppedTimer = 5000
-    self.ad.driveForwardTimer = AutoDriveTON:new()
-    self.ad.closeCoverTimer = AutoDriveTON:new()
-    self.ad.currentTrailer = 1
-    self.ad.usePathFinder = false
-
-    self.ad.onRouteToPark = false
-
-    if AutoDrive ~= nil then
-        local set = false
-        if self.ad.mapMarkerSelected_Unload ~= nil then
-            if ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected_Unload) ~= nil then
-                self.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected_Unload).id
-                self.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(self.ad.mapMarkerSelected_Unload).name
-                set = true
-            end
-        end
-        if not set then
-            self.ad.mapMarkerSelected_Unload = 1
-            if ADGraphManager:getMapMarkerById(1) ~= nil then
-                self.ad.targetSelected_Unload = ADGraphManager:getMapMarkerById(1).id
-                self.ad.nameOfSelectedTarget_Unload = ADGraphManager:getMapMarkerById(1).name
-            end
-        end
-    end
-
+     
+    -- Pure client side state
     self.ad.nToolTipWait = 300
     self.ad.sToolTip = ""
+    self.ad.destinationFilterText = ""
 
     if AutoDrive.showingHud ~= nil then
         self.ad.showingHud = AutoDrive.showingHud
@@ -252,10 +130,10 @@ function AutoDrive:init()
     -- Variables the server sets so that the clients can act upon it:
     self.ad.disableAI = 0
     self.ad.enableAI = 0
-
-    self.ad.combineState = AutoDrive.COMBINE_UNINITIALIZED
-    self.ad.currentCombine = nil
-    self.ad.currentDriver = nil
+    
+    -- Points used for drawing nearby points without iterating over complete network each time
+    self.ad.pointsInProximity = {}
+    self.ad.lastPointCheckedForProximity = 1
 
     if self.spec_autodrive == nil then
         self.spec_autodrive = AutoDrive
@@ -273,14 +151,6 @@ function AutoDrive:init()
     self.ad.pullDownList.width = 0
     self.ad.pullDownList.height = 0
     self.ad.lastMouseState = false
-
-    if self.ad.loopCounterSelected == nil then
-        self.ad.loopCounterSelected = 0
-    end
-
-    if self.ad.parkDestination == nil then
-        self.ad.parkDestination = -1
-    end
     
     self.ad.noMovementTimer = AutoDriveTON:new()
     self.ad.noTurningTimer = AutoDriveTON:new()
@@ -293,13 +163,6 @@ function AutoDrive:init()
             self.ad.groups[groupName] = false
         end
     end
-    self.ad.reverseTimer = 3000
-    self.ad.ccMode = AutoDrive.CC_MODE_IDLE
-    self.ccInfos = {}
-    self.ad.distanceToCombine = math.huge
-    self.ad.destinationFilterText = ""
-    self.ad.pointsInProximity = {}
-    self.ad.lastPointCheckedForProximity = 1
 
     if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
         ADHarvestManager:registerHarvester(self)
@@ -355,8 +218,6 @@ function AutoDrive:onWriteStream(streamId, connection)
             streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self))
         end
     end
-    streamWriteUInt8(streamId, self.ad.targetSpeed)
-    streamWriteUIntN(streamId, self.ad.parkDestination or 0, 20)
 end
 
 function AutoDrive:onReadStream(streamId, connection)
@@ -365,8 +226,6 @@ function AutoDrive:onReadStream(streamId, connection)
             self.ad.settings[settingName].current = streamReadInt16(streamId)
         end
     end
-    self.ad.targetSpeed = streamReadUInt8(streamId)
-    self.ad.parkDestination = streamReadUIntN(streamId, 20)
 end
 
 function AutoDrive:onUpdate(dt)
@@ -374,112 +233,26 @@ function AutoDrive:onUpdate(dt)
         AutoDrive:InputHandling(self, self.ad.currentInput)
     end
 
+    -- Cloest point is stored per frame
     self.ad.closest = nil
     
     self.ad.taskModule:update(dt)
 
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
-    AutoDrive:handleVehicleIntegrity(self)
+    AutoDrive.handleVehicleIntegrity(self)
     AutoDrive.handleVehicleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)   
 
-    if g_currentMission.controlledVehicle == self and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
-        AutoDrive.renderTable(0.1, 0.9, 0.012, AutoDrive:createVehicleInfoTable(self), 5)
-    end
-
-    local vehicleSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 10)
-    if (not vehicleSteering) and ((self.lastSpeedReal * self.movingDirection) >= 0.0008) then
-        self.ad.driveForwardTimer:timer(true, 20000, dt)
-    else
-        self.ad.driveForwardTimer:timer(false)
-    end
-
-    if math.abs(self.lastSpeedReal) <= 0.0005 then
-        self.ad.stoppedTimer = math.max(0, self.ad.stoppedTimer - dt)
-    else
-        self.ad.stoppedTimer = 5000
-    end
-
-    if self.isServer and self.ad.isActive and self.lastMovedDistance > 0 then
+    if self.isServer and self.ad.stateModule:isActive() and self.lastMovedDistance > 0 then
         g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
     end
-end
-
-function AutoDrive:createVehicleInfoTable(vehicle)
-    local infoTable = {}
-
-    infoTable["isActive"] = vehicle.ad.isActive
-    infoTable["mode"] = AutoDriveHud:getModeName(vehicle)
-    infoTable["onRouteToRefuel"] = vehicle.ad.onRouteToRefuel
-    infoTable["unloadFillTypeIndex"] = vehicle.ad.unloadFillTypeIndex
-    infoTable["combineUnloadInFruit"] = vehicle.ad.combineUnloadInFruit
-    infoTable["combineFruitToCheck"] = vehicle.ad.combineFruitToCheck
-    infoTable["currentTrailer"] = vehicle.ad.currentTrailer
-    infoTable["combineState"] = AutoDrive.combineStateToName(vehicle)
-    infoTable["ccMode"] = AutoDrive.combineCCStateToName(vehicle)
-    infoTable["initialized"] = vehicle.ad.initialized
-
-    local vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, vehicle.ad.isLoadingToTrailer, vehicle.ad.isLoadingToFillUnitIndex)
-    local vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, vehicle.ad.isUnloadingWithTrailer, vehicle.ad.isUnloadingWithFillUnit)
-    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, false)
-    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-    local maxCapacity = fillLevel + leftCapacity
-
-    infoTable["Filllevels"] = {}
-    infoTable["Filllevels"]["vehicle"] = {}
-    infoTable["Filllevels"]["vehicle"]["fillLevel"] = fillLevel
-    infoTable["Filllevels"]["vehicle"]["leftCapacity"] = leftCapacity
-    infoTable["Filllevels"]["vehicle"]["maxCapacity"] = maxCapacity
-    infoTable["Filllevels"]["vehicle"]["trailerCount"] = trailerCount
-    infoTable["Filllevels"]["vehicle"]["filled"] = vehicleFull
-    infoTable["Filllevels"]["vehicle"]["empty"] = vehicleEmpty
-    infoTable["Filllevels"]["vehicle"]["trailerFull"] = trailerFull
-    infoTable["Filllevels"]["vehicle"]["fillUnitFull"] = fillUnitFull
-    infoTable["Filllevels"]["vehicle"]["trailerEmpty"] = trailerEmpty
-    infoTable["Filllevels"]["vehicle"]["fillUnitEmpty"] = fillUnitEmpty
-
-    local trailerIndex = 1
-    if trailers ~= nil then
-        for _, trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer, nil)
-            local trailerMaxCapacity = trailerFillLevel + trailerLeftCapacity
-            vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, vehicle.ad.isLoadingToFillUnitIndex)
-            vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, trailer, vehicle.ad.isUnloadingWithFillUnit)
-
-            infoTable["Filllevels"]["trailer_" .. trailerIndex] = {}
-            infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillLevel"] = trailerFillLevel
-            infoTable["Filllevels"]["trailer_" .. trailerIndex]["leftCapacity"] = trailerLeftCapacity
-            infoTable["Filllevels"]["trailer_" .. trailerIndex]["maxCapacity"] = trailerMaxCapacity
-            infoTable["Filllevels"]["trailer_" .. trailerIndex]["filled"] = trailerFull
-            infoTable["Filllevels"]["trailer_" .. trailerIndex]["empty"] = trailerEmpty
-            infoTable["Filllevels"]["trailer_" .. trailerIndex]["length"] = trailer.sizeLength
-
-            for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
-                local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, nil)
-                local unitMaxCapacity = unitFillLevel + unitLeftCapacity
-                vehicleFull, trailerFull, fillUnitFull = AutoDrive.getIsFilled(vehicle, trailer, fillUnitIndex)
-                vehicleEmpty, trailerEmpty, fillUnitEmpty = AutoDrive.getIsEmpty(vehicle, trailer, fillUnitIndex)
-
-                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex] = {}
-                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["fillLevel"] = unitFillLevel
-                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["leftCapacity"] = unitLeftCapacity
-                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["maxCapacity"] = unitMaxCapacity
-                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["filled"] = fillUnitFull
-                infoTable["Filllevels"]["trailer_" .. trailerIndex]["fillUnit_" .. fillUnitIndex]["empty"] = fillUnitEmpty
-            end
-
-            trailerIndex = trailerIndex + 1
-        end
-    end
-
-    return infoTable
 end
 
 function AutoDrive:handleDriverWages(vehicle, dt)
     local spec = vehicle.spec_aiVehicle
     if vehicle.isServer and spec ~= nil then
-        if vehicle:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and vehicle.ad.isActive then
+        if vehicle:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and vehicle.ad.stateModule:isActive() then
             local driverWages = AutoDrive.getSetting("driverWages")
             local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier
             local price = -dt * difficultyMultiplier * (driverWages - 1) * spec.pricePerMS
@@ -489,14 +262,7 @@ function AutoDrive:handleDriverWages(vehicle, dt)
 end
 
 function AutoDrive:saveToXMLFile(xmlFile, key)
-    setXMLInt(xmlFile, key .. "#mode", self.ad.mode)
-    setXMLInt(xmlFile, key .. "#targetSpeed", self.ad.targetSpeed)
-    setXMLInt(xmlFile, key .. "#mapMarkerSelected", self.ad.mapMarkerSelected)
-    setXMLInt(xmlFile, key .. "#mapMarkerSelected_Unload", self.ad.mapMarkerSelected_Unload)
-    setXMLInt(xmlFile, key .. "#unloadFillTypeIndex", self.ad.unloadFillTypeIndex)
-    setXMLString(xmlFile, key .. "#driverName", self.ad.driverName)
-    setXMLInt(xmlFile, key .. "#loopCounterSelected", self.ad.loopCounterSelected)
-    setXMLInt(xmlFile, key .. "#parkDestination", self.ad.parkDestination)
+    self.ad.stateModule:saveToXMLFile(xmlFile, key)
 
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting.isVehicleSpecific and self.ad.settings ~= nil and self.ad.settings[settingName] ~= nil then
@@ -550,7 +316,7 @@ function AutoDrive:onDraw()
         AutoDrive:onDrawControlledVehicle(self)
     end
 
-    if (self.ad.createMapPoints or self.ad.displayMapPoints) and self == g_currentMission.controlledVehicle then
+    if (self.ad.stateModule:isEditorModeEnabled() or ADStateModule:isEditorShowEnabled()) and self == g_currentMission.controlledVehicle then
         AutoDrive:onDrawCreationMode(self)
     end
 
@@ -587,29 +353,27 @@ function AutoDrive:onDrawCreationMode(vehicle)
         local wp = ADGraphManager:getWayPointById(marker.id)
         if AutoDrive.getDistance(wp.x, wp.z, x1, z1) < maxDistance then
             Utils.renderTextAtWorldPosition(wp.x, wp.y + 4, wp.z, marker.name, getCorrectTextSize(0.013), 0)
-            if not vehicle.ad.extendedEditorMode then
+            if not (vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_EXTENDED) then
                 AutoDriveDM:addMarkerTask(wp.x, wp.y + 0.45, wp.z)
             end
         end
     end
 
-    if vehicle.ad.createMapPoints and ADGraphManager:getWayPointById(1) ~= nil then
+    if ADGraphManager:getWayPointById(1) ~= nil and not vehicle.ad.stateModule:isEditorShowEnabled() then
         local g = 0
 
         --Draw line to selected neighbor point
-        if vehicle.ad.showSelectedDebugPoint == true and vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
-            local wp = vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint]
-            AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 1, 0)
+        local neighbour = vehicle.ad.stateModule:getSelectedNeighbourPoint()
+        if neighbour ~= nil then
+            AutoDriveDM:addLineTask(x1, dy, z1, neighbour.x, neighbour.y, neighbour.z, 1, 1, 0)
             g = 0.4
         end
 
         --Draw line to closest point
-        if vehicle.ad.showClosestPoint then
-            local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
-            local wp = ADGraphManager:getWayPointById(closest)
-            AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
-            AutoDriveDM:addSmallSphereTask(x1, dy, z1, 1, g, 0)
-        end
+        local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local wp = ADGraphManager:getWayPointById(closest)
+        AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
+        AutoDriveDM:addSmallSphereTask(x1, dy, z1, 1, g, 0)
     end
 end
 
@@ -666,7 +430,7 @@ function AutoDrive.drawPointsInProximity(vehicle)
         local x = point.x
         local y = point.y
         local z = point.z
-        if vehicle.ad.extendedEditorMode then
+        if vehicle.ad.stateModule:isInExtendedEditorMode() then
             arrowPosition = AutoDriveDM.arrows.position.middle
             if AutoDrive.mouseIsAtPos(point, 0.01) then
                 AutoDriveDM:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
@@ -713,7 +477,7 @@ function AutoDrive.drawPointsInProximity(vehicle)
             end
         end
 
-        if not vehicle.ad.extendedEditorMode then
+        if not vehicle.ad.stateModule:isInExtendedEditorMode() then
             --just a quick way to highlight single (forgotten) points with no connections
             if (#point.out == 0) and (#point.incoming == 0) then
                 AutoDriveDM:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
@@ -722,9 +486,77 @@ function AutoDrive.drawPointsInProximity(vehicle)
     end
 end
 
+function AutoDrive:handleRecording(vehicle)
+	if vehicle == nil or vehicle.ad.stateModule:isInCreationMode() == false then
+		return
+	end
+
+	if g_server == nil then
+		return
+	end
+
+	--first entry
+	if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
+		local startPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+		local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+		vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x1, y1, z1, false)
+
+		if AutoDrive.getSetting("autoConnectStart") then
+			if startPoint ~= nil then
+				local startNode = ADGraphManager:getWayPointById(startPoint)
+				if startNode ~= nil then
+					if ADGraphManager:getDistanceBetweenNodes(startPoint, vehicle.ad.lastCreatedWp.id) < 20 then
+						table.insert(startNode.out, vehicle.ad.lastCreatedWp.id)
+						table.insert(vehicle.ad.lastCreatedWp.incoming, startNode.id)
+
+						if vehicle.ad.stateModule:isInDualCreationMode() then
+							table.insert(ADGraphManager:getWayPointById(startPoint).incoming, vehicle.ad.lastCreatedWp.id)
+							table.insert(vehicle.ad.lastCreatedWp.out, startPoint)
+						end
+
+						AutoDriveCourseEditEvent:sendEvent(startNode)
+					end
+				end
+			end
+		end
+	else
+		if vehicle.ad.secondLastCreatedWp == nil then
+			local x, y, z = getWorldTranslation(vehicle.components[1].node)
+			local wp = vehicle.ad.lastCreatedWp
+			if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then				
+                vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
+                vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true)
+			end
+		else
+			local x, y, z = getWorldTranslation(vehicle.components[1].node)
+			local angle = math.abs(AutoDrive.angleBetween({x = x - vehicle.ad.secondLastCreatedWp.x, z = z - vehicle.ad.secondLastCreatedWp.z},
+			 {x = vehicle.ad.lastCreatedWp.x - vehicle.ad.secondLastCreatedWp.x, z = vehicle.ad.lastCreatedWp.z - vehicle.ad.secondLastCreatedWp.z}))
+			local max_distance = 6
+			if angle < 1 then
+				max_distance = 6
+			elseif angle < 3 then
+				max_distance = 4
+			elseif angle < 5 then
+				max_distance = 3
+			elseif angle < 8 then
+				max_distance = 2
+			elseif angle < 15 then
+				max_distance = 1
+			elseif angle < 50 then
+				max_distance = 0.5
+			end
+
+			if AutoDrive.getDistance(x, z, vehicle.ad.lastCreatedWp.x, vehicle.ad.lastCreatedWp.z) > max_distance then
+			    vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
+                vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true)
+			end
+		end
+	end
+end
+
 function AutoDrive:preRemoveVehicle(vehicle)
-    if vehicle.ad ~= nil and vehicle.ad.isActive then
-        AutoDrive:disableAutoDriveFunctions(vehicle)
+    if vehicle.ad ~= nil and vehicle.ad.stateModule:isActive() isActive then
+        AutoDrive.disableAutoDriveFunctions(vehicle)
     end
 end
 FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle)
@@ -733,8 +565,22 @@ function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
 end
 
+function AutoDrive.handleVehicleIntegrity(vehicle)
+	if g_server ~= nil then
+		vehicle.ad.enableAI = math.max(vehicle.ad.enableAI - 1, 0)
+		vehicle.ad.disableAI = math.max(vehicle.ad.disableAI - 1, 0)
+	else
+		if vehicle.ad.enableAI > 0 then
+			AutoDrive.startAD(vehicle)
+		end
+		if vehicle.ad.disableAI > 0 then
+			AutoDrive.disableAutoDriveFunctions(vehicle)
+		end
+	end
+end
+
 function AutoDrive:updateAILights(superFunc)
-    if self.ad ~= nil and self.ad.isActive then
+    if self.ad ~= nil and self.ad.stateModule:isActive() then
         -- If AutoDrive is active, then we take care of lights our self
         local spec = self.spec_lights
         local dayMinutes = g_currentMission.environment.dayTime / (1000 * 60)
@@ -758,12 +604,13 @@ function AutoDrive:updateAILights(superFunc)
 end
 
 function AutoDrive:getCanMotorRun(superFunc)
-    if self.ad ~= nil and self.ad.isActive and self.ad.specialDrivingModule:shouldStopMotor() then
+    if self.ad ~= nil and self.ad.stateModule:isActive() and self.ad.specialDrivingModule:shouldStopMotor() then
         return false
     else
         return superFunc(self)
     end
 end
+
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
     if self.getMotorStartTime ~= nil then
@@ -771,7 +618,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
     end
 
     if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
-        if self.ad.isActive and allowedToDrive then
+        if self.ad.stateModule:isActive() and allowedToDrive then
             --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 
             local accFactor = 2 / 1000 -- km h / s converted to km h / ms
@@ -855,7 +702,7 @@ function AIVehicle:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
             if self:getIsActiveForInput(true, true) then
                 -- If ai is active we always display the dismiss helper action
                 -- But only if the AutoDrive is not active :)
-                showAction = self:getCanStartAIVehicle() or (self:getIsAIActive() and (self.ad == nil or not self.ad.isActive))
+                showAction = self:getCanStartAIVehicle() or (self:getIsAIActive() and (self.ad == nil or not self.ad.stateModule:isActive()))
 
                 if showAction then
                     if self:getIsAIActive() then

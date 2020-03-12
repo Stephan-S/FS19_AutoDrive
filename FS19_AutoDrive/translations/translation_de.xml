@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Nächster Abladepunkt" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Voriger Abladepunkt" />
 		<text name="input_ADActivateDebug"						text="AD: Editor Modus" />
-		<text name="input_ADDebugShowClosest"					text="AD: Naheliegendsten Punkt anzeigen" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Nachbarpunkt wählen" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Nächsten Nachbarpunkt wählen" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Verbindung an/aus" />

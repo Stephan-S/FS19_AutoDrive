@@ -2,7 +2,8 @@ PickupAndDeliverMode = ADInheritsFrom(AbstractMode)
 
 PickupAndDeliverMode.STATE_DELIVER = 1
 PickupAndDeliverMode.STATE_PICKUP = 2
-PickupAndDeliverMode.STATE_FINISHED = 3
+PickupAndDeliverMode.STATE_RETURN_TO_START = 3
+PickupAndDeliverMode.STATE_FINISHED = 4
 
 function PickupAndDeliverMode:new(vehicle)
     local o = PickupAndDeliverMode:create()
@@ -19,8 +20,8 @@ end
 
 function PickupAndDeliverMode:start()
     print("PickupAndDeliverMode:start")
-    if not self.vehicle.ad.isActive then
-        AutoDrive:startAD(self.vehicle)
+    if not self.vehicle.ad.stateModule:isActive() then
+        AutoDrive.startAD(self.vehicle)
     end
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
@@ -31,7 +32,7 @@ function PickupAndDeliverMode:start()
         self.state = PickupAndDeliverMode.STATE_PICKUP
     end
 
-    if ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected) == nil or ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected_Unload) == nil then
+    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 
@@ -66,18 +67,21 @@ function PickupAndDeliverMode:getNextTask()
     local nextTask
     if self.state == PickupAndDeliverMode.STATE_DELIVER then
         print("PickupAndDeliverMode:getNextTask() - self.state == PickupAndDeliverMode.STATE_DELIVER")
-        if self.vehicle.ad.loopCounterSelected == 0 or self.loopsDone < self.vehicle.ad.loopCounterSelected then
-            nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected)
+        if self.vehicle.ad.stateModule:getLoopCounter() == 0 or self.loopsDone < self.vehicle.ad.stateModule:getLoopCounter() then
+            nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             self.state = PickupAndDeliverMode.STATE_PICKUP
         else
-            nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
-            self.state = PickupAndDeliverMode.STATE_FINISHED
+            nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
+            self.state = PickupAndDeliverMode.STATE_RETURN_TO_START
         end
     elseif self.state == PickupAndDeliverMode.STATE_PICKUP then
         print("PickupAndDeliverMode:getNextTask() - nextTask: = UnloadAtDestinationTask")
-        nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected_Unload)
+        nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         self.loopsDone = self.loopsDone + 1
         self.state = PickupAndDeliverMode.STATE_DELIVER
+    elseif self.state == PickupAndDeliverMode.STATE_RETURN_TO_START then
+        nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
+        self.state = PickupAndDeliverMode.STATE_FINISHED
     end
 
     return nextTask

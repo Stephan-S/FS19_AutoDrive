@@ -67,9 +67,9 @@ function ADTrailerModule:update(dt)
         return
     end
 
-    if self.vehicle.ad.modes[self.vehicle.ad.mode]:shouldUnloadAtTrigger() then
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() then
         self:updateUnload(dt)
-    elseif self.vehicle.ad.modes[self.vehicle.ad.mode]:shouldLoadOnTrigger() then
+    elseif self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() then
         self:updateLoad()
     end
 end
@@ -82,7 +82,7 @@ end
 
 function ADTrailerModule:updateStates()
     self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
-    self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers, self.vehicle.ad.unloadFillTypeIndex)
+    self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers, self.vehicle.ad.stateModule:getFillType())
 
     --Check for already unloading trailers (e.g. when AD is started while unloading)
     for _, trailer in pairs(self.trailers) do
@@ -154,21 +154,21 @@ end
 
 function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, fillUnitIndex)
     if not AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer) then
-        local storedFillType = self.vehicle.ad.unloadFillTypeIndex
+        local storedFillType = self.vehicle.ad.stateModule:getFillType()
         local toCheck = {13, 43, 44}
 
         for _, fillType in pairs(toCheck) do
-            self.vehicle.ad.unloadFillTypeIndex = fillType
+            self.vehicle.ad.stateModule:setFillType(fillType)
             if AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer, nil, fillUnitIndex) then
                 self:startLoadingAtTrigger(trigger, fillType, fillUnitIndex, trailer)
-                self.vehicle.ad.unloadFillTypeIndex = storedFillType
+                self.vehicle.ad.stateModule:setFillType(storedFillType)
                 return
             end
         end
 
-        self.vehicle.ad.unloadFillTypeIndex = storedFillType
+        self.vehicle.ad.stateModule:setFillType(storedFillType)
     else
-        self:startLoadingAtTrigger(trigger, self.vehicle.ad.unloadFillTypeIndex, fillUnitIndex, trailer)
+        self:startLoadingAtTrigger(trigger, self.vehicle.ad.stateModule:getFillType(), fillUnitIndex, trailer)
     end
 end
 

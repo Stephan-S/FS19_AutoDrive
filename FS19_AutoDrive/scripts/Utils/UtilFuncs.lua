@@ -644,7 +644,7 @@ Sprayer.registerOverwrittenFunctions =
             "getIsAIActive",
             function(self, superFunc)
                 local rootVehicle = self:getRootVehicle()
-                if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.isActive and self ~= rootVehicle then
+                if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
                     return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
                 end
                 return superFunc(self)
@@ -652,5 +652,89 @@ Sprayer.registerOverwrittenFunctions =
         )
     end
 )
+
+-- LoadTrigger doesn't allow filling non controlled tools
+function AutoDrive:getIsActivatable(superFunc, objectToFill)
+	--when the trigger is filling, it uses this function without objectToFill
+	if objectToFill ~= nil then
+		local vehicle = objectToFill:getRootVehicle()
+		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule:isActive() then
+			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+			if g_currentMission.controlledVehicle ~= vehicle then
+				local oldControlledVehicle = nil
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
+				else
+					oldControlledVehicle = g_currentMission.controlledVehicle
+				end
+				g_currentMission.controlledVehicle = vehicle or objectToFill
+
+				local result = superFunc(self, objectToFill)
+
+				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
+					vehicle.ad.oldControlledVehicle = nil
+				else
+					if oldControlledVehicle ~= nil then
+						g_currentMission.controlledVehicle = oldControlledVehicle
+					end
+				end
+				return result
+			end
+		end
+	end
+	return superFunc(self, objectToFill)
+end
+
+function AutoDrive:zoomSmoothly(superFunc, offset)
+	if not AutoDrive.mouseWheelActive then -- don't zoom camera when mouse wheel is used to scroll targets (thanks to sperrgebiet)
+		superFunc(self, offset)
+	end
+end
+
+function AutoDrive:onActivateObject(superFunc, vehicle)
+	if vehicle ~= nil then
+		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
+		if g_currentMission.controlledVehicle ~= vehicle or g_currentMission.controlledVehicles[vehicle] == nil then
+			local oldControlledVehicle = nil
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
+				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
+			else
+				oldControlledVehicle = g_currentMission.controlledVehicle
+			end
+			g_currentMission.controlledVehicle = vehicle
+
+			superFunc(self, vehicle)
+
+			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
+				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
+				vehicle.ad.oldControlledVehicle = nil
+			else
+				if oldControlledVehicle ~= nil then
+					g_currentMission.controlledVehicle = oldControlledVehicle
+				end
+			end
+			return
+		end
+	end
+
+	superFunc(self, vehicle)
+end
+
+function AutoDrive:onFillTypeSelection(superFunc, fillType)
+	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
+		for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
+			if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
+				self.validFillableObject = fillableObject.object
+				self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
+			end
+		end
+		local validFillableObject = self.validFillableObject
+		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
+			local fillUnitIndex = self.validFillableFillUnitIndex
+			self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
+		end
+	end
+end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server

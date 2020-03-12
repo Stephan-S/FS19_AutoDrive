@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Следующая точка разгрузки" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Предыдущая точка разгрузки" />
 		<text name="input_ADActivateDebug"						text="AD: Режим редактирования" />
-		<text name="input_ADDebugShowClosest"					text="AD: Показать ближайшую точку" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Выбрать соседнюю точку" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Выбрать следующую соседнюю точку" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Установить/Убрать связь между выбранными" />

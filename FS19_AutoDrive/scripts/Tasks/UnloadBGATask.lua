@@ -204,7 +204,7 @@ function UnloadBGATask:initializeBGA()
         if self.shovel == nil then
             AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Shovel;", 5000, self.vehicle.ad.driverName)
             self.state = UnloadBGATask.STATE_IDLE
-            AutoDrive:stopAD(self.vehicle, true)
+            AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
             return
         end
     end
@@ -212,7 +212,7 @@ function UnloadBGATask:initializeBGA()
     if self.targetBunker == nil then
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.driverName)
         self.state = UnloadBGATask.STATE_IDLE
-        AutoDrive:stopAD(self.vehicle, true)
+        AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
     end
 
     if self:checkForUnloadCondition() then
@@ -1357,7 +1357,7 @@ function UnloadBGATask:setShovelOffsetToNonEmptyRow()
     if ((currentFillLevel == 0) and (iterations < 0)) then
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.driverName)
         self.state = UnloadBGATask.STATE_IDLE
-        AutoDrive:stopAD(self.vehicle, true)
+        AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
     end
 end
 

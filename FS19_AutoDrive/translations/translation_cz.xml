@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Následující vykládka" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Předchozí vykládka" />
 		<text name="input_ADActivateDebug"						text="AD: Editovat trasu" />
-		<text name="input_ADDebugShowClosest"					text="AD: Ukázat nejbližší bod" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Vybrat sousední bod" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Změnit sousední bod" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Vytvořit spojení" />

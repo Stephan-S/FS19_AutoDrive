@@ -16,8 +16,8 @@ end
 
 function LoadMode:start()
     print("LoadMode:start")
-    if not self.vehicle.ad.isActive then
-        AutoDrive:startAD(self.vehicle)
+    if not self.vehicle.ad.stateModule:isActive() then
+        AutoDrive.startAD(self.vehicle)
     end
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
@@ -28,11 +28,11 @@ function LoadMode:start()
         self.state = LoadMode.STATE_TO_TARGET
     end
 
-    if ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected) == nil or ADGraphManager:getMapMarkerById(self.vehicle.ad.mapMarkerSelected_Unload) == nil then
+    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 
-    self.vehicle.ad.taskModule:addTask(LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected_Unload))
+    self.vehicle.ad.taskModule:addTask(LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id))
 end
 
 function LoadMode:monitorTasks(dt)
@@ -51,7 +51,7 @@ function LoadMode:getNextTask()
     if self.state == LoadMode.STATE_TO_TARGET then
         nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
     else
-        nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.targetSelected)
+        nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
         self.state = LoadMode.STATE_TO_TARGET
     end
     return nextTask

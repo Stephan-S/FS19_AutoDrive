@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
 		<text name="input_ADActivateDebug"						text="AD: Activer mode édition" />
-		<text name="input_ADDebugShowClosest"					text="AD: Afficher point proche" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Sélecteur de connection" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Sélect. point suivant" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Connecter entre" />

@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Następny punkt rozładunku" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Poprzedni punkt rozładunku" />
 		<text name="input_ADActivateDebug"						text="AD: Tryb edycji" />
-		<text name="input_ADDebugShowClosest"					text="AD: Wskaż najbliższy punkt" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Wybierz sąsiadujący punkt" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Wybierz następny sąsiadujący punkt" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Połączenie punktów wł./wył." />

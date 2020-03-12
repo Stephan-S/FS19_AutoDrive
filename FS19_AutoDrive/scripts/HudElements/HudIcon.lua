@@ -43,7 +43,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     textToShow = textToShow .. " - " .. AutoDrive.version
     textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle)
 
-    if vehicle.ad.isActive == true and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:checkIsOnField(vehicle) and vehicle.ad.mode ~= AutoDrive.MODE_BGA then
+    if vehicle.ad.stateModule:isActive() and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:checkIsOnField(vehicle) and vehicle.ad.stateModule:getMode() ~= AutoDrive.MODE_BGA then
         local wp, currentWayPoint = vehicle.ad.drivePathModule:getWayPoints()
         local remainingTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
         local remainingMinutes = math.floor(remainingTime / 60)
@@ -61,12 +61,12 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
     end
 
-    if vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD then
         local combineText = AutoDrive:combineStateToDescription(vehicle)
         if combineText ~= nil then
             textToShow = textToShow .. " - " .. combineText
         end
-    elseif vehicle.ad.mode == AutoDrive.MODE_BGA then
+    elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_BGA then
         local bgaText =  "" 
         if vehicle.ad.taskModule.activeTask ~= nil and vehicle.ad.taskModule.activeTask.stateToText ~= nil then
             bgaText = vehicle.ad.taskModule.activeTask:stateToText(vehicle)
@@ -149,7 +149,7 @@ end
 function ADHudIcon:updateVisibility(vehicle)
     local newVisibility = self.isVisible
     if self.name == "unloadOverlay" then
-        if (vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.mode == AutoDrive.MODE_UNLOAD or vehicle.ad.mode == AutoDrive.MODE_LOAD) then
+        if (vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD) then
             newVisibility = true
         else
             newVisibility = false
@@ -172,19 +172,19 @@ end
 function ADHudIcon:updateIcon(vehicle)
     local newIcon = self.image
     if self.name == "unloadOverlay" then
-        if vehicle.ad.mode == AutoDrive.MODE_LOAD then
+        if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
             newIcon = AutoDrive.directory .. "textures/tipper_load.dds"
-        elseif vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
-        elseif vehicle.ad.mode == AutoDrive.MODE_UNLOAD then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD then
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
         end
     elseif self.name == "destinationOverlay" then
-        if vehicle.ad.mode == AutoDrive.MODE_PICKUPANDDELIVER then
+        if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
             newIcon = AutoDrive.directory .. "textures/tipper_load.dds"
-        elseif vehicle.ad.mode == AutoDrive.MODE_DELIVERTO then
+        elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
             newIcon = AutoDrive.directory .. "textures/tipper_overlay.dds"
-        elseif vehicle.ad.mode ~= AutoDrive.MODE_BGA then
+        elseif vehicle.ad.stateModule:getMode() ~= AutoDrive.MODE_BGA then
             newIcon = AutoDrive.directory .. "textures/destination.dds"
         end
     end

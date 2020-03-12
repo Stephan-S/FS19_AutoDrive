@@ -31,6 +31,10 @@ function AbstractMode:shouldUnloadAtTrigger()
     return false
 end
 
+function AbstractMode:allowedToRefuel()
+    return true
+end
+
 
 
 
