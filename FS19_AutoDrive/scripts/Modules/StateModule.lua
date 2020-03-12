@@ -28,10 +28,10 @@ function ADStateModule:reset()
     self.creationMode = ADStateModule.CREATE_OFF
     self.editorMode = ADStateModule.EDITOR_OFF
 
-    self.fillType = -1
+    self.fillType = 2
     self.loopCounter = 0
 
-    self.speedLimit = AutoDrive.getVehicleMaxSpeed(self)
+    self.speedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
 
     self.pointToNeighbour = false
     self.currentNeighbourToPointAt = -1
@@ -59,11 +59,15 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
     local firstMarker = getXMLInt(xmlFile, key .. "#firstMarker")
     if firstMarker ~= nil then
         self.firstMarker = ADGraphManager:getMapMarkerById(firstMarker)
+    else
+        self.firstMarker = ADGraphManager:getMapMarkerById(1)
     end
 
     local secondMarker = getXMLInt(xmlFile, key .. "#secondMarker")
     if secondMarker ~= nil then
         self.secondMarker = ADGraphManager:getMapMarkerById(secondMarker)
+    else
+        self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
 
     local fillType = getXMLInt(xmlFile, key .. "#fillType")
@@ -98,7 +102,7 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
 end
 
-function ADStateModule:currentMode()
+function ADStateModule:getMode()
     return self.mode
 end
 
@@ -161,7 +165,11 @@ function ADStateModule:cycleEditMode()
 end
 
 function ADStateModule:cycleEditorShowMode()
-    self.editorMode = ADStateModule.EDITOR_SHOW
+    if self.editorMode == ADStateModule.EDITOR_OFF then
+        self.editorMode = ADStateModule.EDITOR_SHOW
+    else
+        self.editorMode = ADStateModule.EDITOR_OFF
+    end
 end
 
 function ADStateModule:isInCreationMode()
@@ -181,12 +189,12 @@ function ADStateModule:disableCreationMode()
 end
 
 function ADStateModule:startNormalCreationMode()
-    self.creationMode == ADStateModule.CREATE_NORMAL
+    self.creationMode = ADStateModule.CREATE_NORMAL
 	self:setActive(false)
 end
 
 function ADStateModule:startDualCreationMode()
-    self.creationMode == ADStateModule.CREATE_DUAL
+    self.creationMode = ADStateModule.CREATE_DUAL
 	self:setActive(false)
 end
 
@@ -233,21 +241,21 @@ function ADStateModule:getFirstMarkerName()
     return self.secondMarker.name
 end
 
-function ADStateModule:setfirstMarker(markerId)
+function ADStateModule:setFirstMarker(markerId)
     self.firstMarker = ADGraphManager:getMapMarkerById(markerId)
 end
 
-function ADStateModule:setfirstMarkerByWayPointId(wayPointId)
-    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker())
+function ADStateModule:setFirstMarkerByWayPointId(wayPointId)
+    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.id == wayPointId then
-            self:setfirstMarker(markerId)
+            self:setFirstMarker(markerId)
             break
         end
     end
 end
 
-function ADStateModule:setfirstMarkerByName(markerName)
-    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker())
+function ADStateModule:setFirstMarkerByName(markerName)
+    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.name == markerName then
             self:setFirstMarker(markerId)
             break
@@ -256,7 +264,11 @@ function ADStateModule:setfirstMarkerByName(markerName)
 end
 
 function ADStateModule:getSecondMarker()
-    return ADGraphManager:getMapMarkerById(self.secondMarker)
+    return self.secondMarker
+end
+
+function ADStateModule:getSecondMarkerId()
+    return self.secondMarker.markerIndex
 end
 
 function ADStateModule:getSecondWayPoint()
@@ -272,7 +284,7 @@ function ADStateModule:setSecondMarker(markerId)
 end
 
 function ADStateModule:setSecondMarkerByWayPointId(wayPointId)
-    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker())
+    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.id == wayPointId then
             self:setSecondMarker(markerId)
             break
@@ -281,7 +293,7 @@ function ADStateModule:setSecondMarkerByWayPointId(wayPointId)
 end
 
 function ADStateModule:setSecondMarkerByName(markerName)
-    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker())
+    for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.name == markerName then
             self:setSecondMarker(markerId)
             break
@@ -311,5 +323,81 @@ function ADStateModule:previousFillType()
             self.fillType = self.fillType + 1
         end
         self.fillType = self.fillType - 1
+    end
+end
+
+function ADStateModule:getSpeedLimit()
+    return self.speedLimit
+end
+
+function ADStateModule:increaseSpeedLimit()
+    if self.speedLimit < AutoDrive.getVehicleMaxSpeed(self.vehicle) then
+        self.speedLimit = self.speedLimit + 1
+    end
+end
+
+function ADStateModule:decreaseSpeedLimit()
+    if self.speedLimit > 2 then
+        self.speedLimit = self.speedLimit - 1
+    end
+end
+
+function ADStateModule:getPointToNeighbor()
+    return self.pointToNeighbour
+end
+
+function ADStateModule:togglePointToNeighbor()
+    self.pointToNeighbour = not self.pointToNeighbour
+    if self.pointToNeighbour then
+        self:updateNeighborPoint()
+    end
+end
+
+function ADStateModule:changeNeighborPoint(increase)
+    self.currentNeighbourToPointAt = self.currentNeighbourToPointAt + increase
+	if self.currentNeighbourToPointAt < 1 then
+		self.currentNeighbourToPointAt = #self.neighbourPoints
+	end
+	if self.neighbourPoints[self.currentNeighbourToPointAt] == nil then
+		self.currentNeighbourToPointAt = 1
+	end
+end
+
+function ADStateModule:updateNeighborPoint()
+    -- Find all candidate points, no further away than 15 units from vehicle
+    local x1, _, z1 = getWorldTranslation(self.vehicle.components[1].node)
+    local candidateNeighborPoints = {}
+    for _, point in pairs(ADGraphManager:getWayPoints()) do
+        local distance = AutoDrive.getDistance(point.x, point.z, x1, z1)
+        if distance < 15 then
+            -- Add new element consisting of 'distance' (for sorting) and 'point'
+            table.insert(candidateNeighborPoints, {distance = distance, point = point})
+        end
+    end
+    -- If more than one point found, then arrange them from inner closest to further out
+    if #candidateNeighborPoints > 1 then
+        -- Sort by distance
+        table.sort(
+            candidateNeighborPoints,
+            function(left, right)
+                return left.distance < right.distance
+            end
+        )
+        -- Clear the array for any previous 'points'
+        self.neighbourPoints = {}
+        -- Only need 'point' in the neighbourPoints-array
+        for _, elem in pairs(candidateNeighborPoints) do
+            table.insert(self.neighbourPoints, elem.point)
+        end
+        -- Begin at the 2nd closest one (assuming 1st is 'ourself / the closest')
+        self.currentNeighbourToPointAt = 2
+
+        -- But try to find a node with no IncomingRoads, and use that as starting from
+        for idx, point in pairs(self.neighbourPoints) do
+            if #point.incoming < 1 then
+                self.currentNeighbourToPointAt = idx
+                break -- Since array was already sorted by distance, we dont need to search for another one
+            end
+        end
     end
 end

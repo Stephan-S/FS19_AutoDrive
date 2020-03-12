@@ -17,7 +17,7 @@ function UnloadAtMode:start()
         AutoDrive.startAD(self.vehicle)
     end
 
-    if vehicle.ad.stateModule:getFirstMarker() == nil then
+    if self.vehicle.ad.stateModule:getFirstMarker() == nil then
         return
     end
     self.destinationID =  self.vehicle.ad.stateModule:getFirstMarker().id

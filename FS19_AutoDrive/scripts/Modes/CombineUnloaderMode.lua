@@ -34,7 +34,7 @@ function CombineUnloaderMode:start()
         AutoDrive.startAD(self.vehicle)
     end
 
-    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
+    if self.vehicle.ad.stateModule:getFirstMarker() == nil or self.vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 
@@ -77,7 +77,7 @@ function CombineUnloaderMode:getNextTask()
     if self.state == CombineUnloaderMode.STATE_INIT then        
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_INIT")
         if filledToUnload then
-            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker(),id)
+            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
             self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
         else
             if ADGraphManager:getDistanceFromNetwork(self.vehicle) < 15 then
@@ -196,7 +196,7 @@ function CombineUnloaderMode:getExcludedVehiclesForCollisionCheck()
 end
 
 function CombineUnloaderMode:ignoreCombineCollision()
-    if (self.combineState == AutoDrive.DRIVE_TO_COMBINE or self.combineState == AutoDrive.PREDRIVE_COMBINE or self.combineState == AutoDrive.CHASE_COMBINE) then
+    if self.state == CombineUnloaderMode.STATE_DRIVE_TO_PIPE or self.state == CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE then
 		return true
 	end
     
@@ -268,10 +268,10 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 -- Get the next trailer that hasn't reached fill level yet
                 for trailerIndex, trailer in ipairs(trailers) do
-                    local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
-                    if (trailerLeftCapacity < 0.01) and currentTrailer < trailerCount then
+                    local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(targetTrailer)
+                    if (trailerLeftCapacity < 1) and currentTrailer < trailerCount then
                         currentTrailer = trailerIndex;
-                        targetTrailer = AutoDrive.getTrailersOf(self.vehicle, true)[self.vehicle.ad.currentTrailer];
+                        targetTrailer = AutoDrive.getTrailersOf(self.vehicle, true)[currentTrailer];
                     end
                 end
 

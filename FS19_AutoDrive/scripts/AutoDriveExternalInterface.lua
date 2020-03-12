@@ -152,7 +152,7 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
 
                 if refuelDestination ~= nil then
                     vehicle.ad.stateModule:setFirstMarker(refuelDestination)
-                    vehicle.ad.stateModule:setMode(AutoDrive:DRIVE_TO)
+                    vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
                     vehicle.ad.onRouteToRefuel = true
                     AutoDrive:StartDriving(vehicle, vehicle.ad.stateModule:getFirstMarkerId(), unloadDestinationID, callBackObject, callBackFunction, callBackArg)
                     vehicle.ad.usePathFinder = true

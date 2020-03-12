@@ -124,28 +124,28 @@ end
 function ADDrivePathModule:followWaypoints(dt)
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
 
-    self.targetSpeed = self.vehicle.ad.targetSpeed
+    self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
     self.acceleration = 1
     if self.wayPoints[self.currentWayPoint - 1] ~= nil and self.wayPoints[self.currentWayPoint + 1] ~= nil then
         local highestAngle = self:getHighestApproachingAngle()
-        self.targetSpeed = self:getMaxSpeedForAngle(highestAngle)
+        self.speedLimit = self:getMaxSpeedForAngle(highestAngle)
     end
 
     local distanceToTarget = self:getDistanceToLastWaypoint(10)
     if distanceToTarget < 20 then
-        self.targetSpeed =  math.clamp(8, self.targetSpeed, distanceToTarget)
+        self.speedLimit =  math.clamp(8, self.speedLimit, distanceToTarget)
     end
 
     if ADTriggerManager.checkForTriggerProximity(self.vehicle) then
-        self.targetSpeed = math.min(5, self.targetSpeed)
+        self.speedLimit = math.min(5, self.speedLimit)
     end
 
     if AutoDrive.checkIsOnField(x, y, z) then
-        self.targetSpeed = math.min(AutoDrive.SPEED_ON_FIELD, self.targetSpeed)
+        self.speedLimit = math.min(AutoDrive.SPEED_ON_FIELD, self.speedLimit)
     end
 
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
-        self.targetSpeed = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.targetSpeed)
+        self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
     end
 
     local maxAngle = 60
@@ -165,7 +165,7 @@ function ADDrivePathModule:followWaypoints(dt)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle / 1.5, true, true, lx, lz, self.targetSpeed, 0.65)
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle / 1.5, true, true, lx, lz, self.speedLimit, 0.65)
     end
 end
 
@@ -236,10 +236,10 @@ function ADDrivePathModule:getHighestApproachingAngle()
 end
 
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
-    local maxSpeed = self.vehicle.ad.targetSpeed;
+    local maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit();
     
     if angle < 3 then
-        maxSpeed = self.vehicle.ad.targetSpeed
+        maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit()
     elseif angle < 5 then
         maxSpeed = 38
     elseif angle < 8 then
@@ -254,7 +254,7 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
         maxSpeed = 13
     end
 
-    return maxSpeed * 1.8
+    return maxSpeed * 1.4
 end
 
 function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)

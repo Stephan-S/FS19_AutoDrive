@@ -334,6 +334,10 @@ function AutoDrive.setTrailerCoverOpen(vehicle, trailers, open)
         targetState = 1
     end
 
+    if vehicle.ad.closeCoverTimer == nil then
+        vehicle.ad.closeCoverTimer = AutoDriveTON:new()
+    end
+
     vehicle.ad.closeCoverTimer:timer(not open, 2000, 16)
 
     if (not open) and (not vehicle.ad.closeCoverTimer:done()) then
@@ -420,7 +424,7 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
     for _, trailer in pairs(trailers) do
         local trailerX, _, trailerZ = getWorldTranslation(trailer.components[1].node)
 
-        for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
+        for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - trailerX, triggerZ - trailerZ)

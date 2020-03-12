@@ -291,7 +291,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end
 
 		vehicle.ad.hoveredNodeId = nil
-		if vehicle.ad.extendedEditorMode then
+		if vehicle.ad.stateModule:isInExtendedEditorMode() then
 			for _, point in pairs(vehicle.ad.pointsInProximity) do
 				if AutoDrive.mouseIsAtPos(point, 0.01) then
 					vehicle.ad.hoveredNodeId = point.id

@@ -32,7 +32,7 @@ function PickupAndDeliverMode:start()
         self.state = PickupAndDeliverMode.STATE_PICKUP
     end
 
-    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
+    if self.vehicle.ad.stateModule:getFirstMarker() == nil or self.vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 

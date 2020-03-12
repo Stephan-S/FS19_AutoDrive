@@ -45,7 +45,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
 
     if vehicle.ad.stateModule:isActive() and vehicle.ad.isPaused == false and vehicle.spec_motorized ~= nil and not AutoDrive:checkIsOnField(vehicle) and vehicle.ad.stateModule:getMode() ~= AutoDrive.MODE_BGA then
         local wp, currentWayPoint = vehicle.ad.drivePathModule:getWayPoints()
-        local remainingTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.targetSpeed))
+        local remainingTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.stateModule:getSpeedLimit()))
         local remainingMinutes = math.floor(remainingTime / 60)
         local remainingSeconds = remainingTime % 60
         if remainingTime ~= 0 then
@@ -61,19 +61,9 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
     end
 
-    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD then
-        local combineText = AutoDrive:combineStateToDescription(vehicle)
-        if combineText ~= nil then
-            textToShow = textToShow .. " - " .. combineText
-        end
-    elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_BGA then
-        local bgaText =  "" 
-        if vehicle.ad.taskModule.activeTask ~= nil and vehicle.ad.taskModule.activeTask.stateToText ~= nil then
-            bgaText = vehicle.ad.taskModule.activeTask:stateToText(vehicle)
-        end
-        if bgaText ~= nil then
-            textToShow = textToShow .. " - " .. bgaText
-        end
+    local activeTask = vehicle.ad.taskModule:getActiveTask()
+    if activeTask ~= nil and activeTask.getInfoText() ~= nil then
+        textToShow = textToShow .. " - " .. activeTask.getInfoText()
     end
 
     if AutoDrive.totalNumberOfWayPointsToReceive ~= nil then
@@ -85,7 +75,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         end
     end
 
-    if vehicle.ad.extendedEditorMode then
+    if vehicle.ad.stateModule:isInExtendedEditorMode() then
         textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
         textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
     end

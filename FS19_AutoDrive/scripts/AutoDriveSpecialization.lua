@@ -56,7 +56,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.smootherDriving.lastMaxSpeed = 0    
     self.ad.groups = {}
     
-    self.ad.stateModuke = ADStateModule:new(self)
+    self.ad.stateModule = ADStateModule:new(self)
     self.ad.taskModule = ADTaskModule:new(self)
     self.ad.trailerModule = ADTrailerModule:new(self)
     self.ad.drivePathModule = ADDrivePathModule:new(self)
@@ -154,6 +154,7 @@ function AutoDrive:init()
     
     self.ad.noMovementTimer = AutoDriveTON:new()
     self.ad.noTurningTimer = AutoDriveTON:new()
+    self.ad.driveForwardTimer = AutoDriveTON:new()
 
     if self.ad.groups == nil then
         self.ad.groups = {}
@@ -316,7 +317,7 @@ function AutoDrive:onDraw()
         AutoDrive:onDrawControlledVehicle(self)
     end
 
-    if (self.ad.stateModule:isEditorModeEnabled() or ADStateModule:isEditorShowEnabled()) and self == g_currentMission.controlledVehicle then
+    if (self.ad.stateModule:isEditorModeEnabled() or self.ad.stateModule:isEditorShowEnabled()) and self == g_currentMission.controlledVehicle then
         AutoDrive:onDrawCreationMode(self)
     end
 
@@ -555,7 +556,7 @@ function AutoDrive:handleRecording(vehicle)
 end
 
 function AutoDrive:preRemoveVehicle(vehicle)
-    if vehicle.ad ~= nil and vehicle.ad.stateModule:isActive() isActive then
+    if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:isActive() then
         AutoDrive.disableAutoDriveFunctions(vehicle)
     end
 end

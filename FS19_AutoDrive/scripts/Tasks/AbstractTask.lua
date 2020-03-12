@@ -12,3 +12,7 @@ end
 
 function AbstractTask:finished()
 end
+
+function AbstractTask:getInfoText()
+    return nil
+end

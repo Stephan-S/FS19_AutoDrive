@@ -33,25 +33,33 @@ function ADTaskModule:addTask(newTask)
     self.tasks:Enqueue(newTask)
 end
 
+function ADTaskModule:getActiveTask()
+    return self.activeTask
+end
+
 function ADTaskModule:setCurrentTaskFinished(stoppedFlag)
     if stoppedFlag == nil or stoppedFlag ~= ADTaskModule.DONT_PROPAGATE then
         self.vehicle.ad.stateModule:getCurrentMode():handleFinishedTask()
     end
+    
+    self.activeTask = nil
 
     if self:hasToRefuel() then
         local refuelDestination = ADTriggerManager.getClosestRefuelDestination(vehicle)
         if refuelDestination ~= nil then
+            print("ADTaskModule:setCurrentTaskFinished(dt) - starting RefuelTask")
             self.activeTask = RefuelTask:new(self.vehicle, refuelDestination)
-        end       
+        end
     end
 
     -- No refuel needed or no refuel trigger available
     if self.activeTask == nil then
+        print("ADTaskModule:setCurrentTaskFinished(dt) - starting next task")
         self.activeTask = self.tasks:Dequeue()
     end
 
     if self.activeTask ~= nil then
-        print("ADTaskModule:update(dt) - starting new task")
+        print("ADTaskModule:setCurrentTaskFinished(dt) - starting new task")
         self.activeTask:setUp()
     end
 end
@@ -69,12 +77,12 @@ function ADTaskModule:abortAllTasks()
 end
 
 function ADTaskModule:stopAndRestartAD()
+    print("ADTaskModule:stopAndRestartAD()")
     self:abortAllTasks()
     self:addTask(StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE, true))
-    --self:addTask(RestartADTask:new(self.vehicle))
 end
 
-function ADTaskModule:update(dt)    
+function ADTaskModule:update(dt)
     if self.activeTask ~= nil and self.activeTask.update ~= nil then
         self.activeTask:update(dt)
     else

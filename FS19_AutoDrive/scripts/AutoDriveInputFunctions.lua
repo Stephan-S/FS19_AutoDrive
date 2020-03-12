@@ -165,13 +165,13 @@ function AutoDrive.InputHandlingSenderOnly(vehicle, input)
 					AutoDrive.onOpenEnterTargetName()
 				end
 
-				if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] ~= nil then
+				if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
 					if input == "input_toggleConnection" then
-						ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint])
+						ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.stateModule:getSelectedNeighbourPoint())
 					end
 
 					if input == "input_toggleConnectionInverted" then
-						ADGraphManager:toggleConnectionBetween(vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint], ADGraphManager:getWayPointById(closestWayPoint))
+						ADGraphManager:toggleConnectionBetween(vehicle.ad.stateModule:getSelectedNeighbourPoint(), ADGraphManager:getWayPointById(closestWayPoint))
 					end
 				end
 			end
@@ -276,7 +276,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_displayMapPoints" then
-		vehicle.ad.displayMapPoints = not vehicle.ad.displayMapPoints
+		vehicle.ad.stateModule:cycleEditorShowMode()
 	end
 
 	if input == "input_showNeighbor" then
@@ -298,17 +298,11 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 	end
 
 	if input == "input_increaseSpeed" then
-		if vehicle.ad.targetSpeed < AutoDrive.getVehicleMaxSpeed(vehicle) then
-			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed + 1
-		end
-	--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
+		vehicle.ad.stateModule:increaseSpeedLimit()
 	end
 
 	if input == "input_decreaseSpeed" then
-		if vehicle.ad.targetSpeed > 2 then
-			vehicle.ad.targetSpeed = vehicle.ad.targetSpeed - 1
-		end
-	--AutoDrive.lastSetSpeed = vehicle.ad.targetSpeed
+		vehicle.ad.stateModule:decreaseSpeedLimit()
 	end
 
 	if input == "input_nextTarget_Unload" then
@@ -362,7 +356,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 
 	if input == "input_parkVehicle" then
 		if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination) ~= nil then
-			vehicle.ad.stateModule:setfirstMarker(vehicle.ad.parkDestination)
+			vehicle.ad.stateModule:setFirstMarker(vehicle.ad.parkDestination)
 			if vehicle.ad.stateModule:isActive() then
 				AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
 			end
@@ -420,7 +414,7 @@ function AutoDrive:inputNextTarget(vehicle)
 			nextDestination = next(destinations, nil)
 		end
 
-		vehicle.ad.stateModule:setfirstMarker(destinations[nextDestination].id)
+		vehicle.ad.stateModule:setFirstMarker(destinations[nextDestination].id)
 	end
 end
 
@@ -476,63 +470,16 @@ function AutoDrive:inputPreviousTarget(vehicle)
 			previousIndex = #destinations
 		end
 
-		vehicle.ad.stateModule:setfirstMarker(destinations[previousIndex].id)
+		vehicle.ad.stateModule:setFirstMarker(destinations[previousIndex].id)
 	end
 end
 
 function AutoDrive:nextSelectedDebugPoint(vehicle, increase)
-	vehicle.ad.selectedDebugPoint = vehicle.ad.selectedDebugPoint + increase
-	if vehicle.ad.selectedDebugPoint < 1 then
-		vehicle.ad.selectedDebugPoint = #vehicle.ad.iteratedDebugPoints
-	end
-	if vehicle.ad.iteratedDebugPoints[vehicle.ad.selectedDebugPoint] == nil then
-		vehicle.ad.selectedDebugPoint = 1
-	end
+	vehicle.ad.stateModule:changeNeighborPoint(increase)
 end
 
 function AutoDrive:inputShowNeighbors(vehicle)
-	if vehicle.ad.showSelectedDebugPoint == false then
-		-- Find all candidate points, no further away than 15 units from vehicle
-		local x1, _, z1 = getWorldTranslation(vehicle.components[1].node)
-		local candidateDebugPoints = {}
-		for _, point in pairs(ADGraphManager:getWayPoints()) do
-			local distance = AutoDrive.getDistance(point.x, point.z, x1, z1)
-			if distance < 15 then
-				-- Add new element consisting of 'distance' (for sorting) and 'point'
-				table.insert(candidateDebugPoints, {distance = distance, point = point})
-			end
-		end
-		-- If more than one point found, then arrange them from inner closest to further out
-		if #candidateDebugPoints > 1 then
-			-- Sort by distance
-			table.sort(
-				candidateDebugPoints,
-				function(left, right)
-					return left.distance < right.distance
-				end
-			)
-			-- Clear the array for any previous 'points'
-			vehicle.ad.iteratedDebugPoints = {}
-			-- Only need 'point' in the iteratedDebugPoints-array
-			for _, elem in pairs(candidateDebugPoints) do
-				table.insert(vehicle.ad.iteratedDebugPoints, elem.point)
-			end
-			-- Begin at the 2nd closest one (assuming 1st is 'ourself / the closest')
-			vehicle.ad.selectedDebugPoint = 2
-
-			-- But try to find a node with no IncomingRoads, and use that as starting from
-			for idx, point in pairs(vehicle.ad.iteratedDebugPoints) do
-				if #point.incoming < 1 then
-					vehicle.ad.selectedDebugPoint = idx
-					break -- Since array was already sorted by distance, we dont need to search for another one
-				end
-			end
-
-			vehicle.ad.showSelectedDebugPoint = true
-		end
-	else
-		vehicle.ad.showSelectedDebugPoint = false
-	end
+	vehicle.ad.stateModule:togglePointToNeighbor()
 end
 
 function AutoDrive:inputSwapTargets(vehicle)

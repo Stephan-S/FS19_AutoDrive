@@ -163,10 +163,9 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 if listEntry.isFolder == false and self.type ~= ADPullDownList.TYPE_FILLTYPE and useFolders then
                     text = "   " .. text
                 end
-                local textTargetWidth  --= math.abs(self.rightIconPos2.x - self.position.x) - AutoDrive.Hud.gapWidth
-                --if self.type == ADPullDownList.TYPE_FILLTYPE then
-                --    textTargetWidth = math.abs(self.rightIconPos.x - self.position.x) + AutoDrive.Hud.gapWidth
-                --end
+
+                local textTargetWidth
+                
                 if listEntry.isFolder then
                     textTargetWidth = math.abs(self.rightIconPos3.x - self.position.x) - AutoDrive.Hud.gapWidth
                 else

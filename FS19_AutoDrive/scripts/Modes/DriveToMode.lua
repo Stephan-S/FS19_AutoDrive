@@ -13,11 +13,12 @@ function DriveToMode:reset()
 end
 
 function DriveToMode:start()
+    print("DriveToMode:start()")
     if not self.vehicle.ad.stateModule:isActive() then
         AutoDrive.startAD(self.vehicle)
     end
 
-    if vehicle.ad.stateModule:getFirstMarker() == nil then
+    if self.vehicle.ad.stateModule:getFirstMarker() == nil then
         return
     end
     self.destinationID =  self.vehicle.ad.stateModule:getFirstMarker().id
@@ -30,10 +31,10 @@ function DriveToMode:monitorTasks(dt)
 end
 
 function DriveToMode:handleFinishedTask()
-    --print("DriveToMode:handleFinishedTask")
+    print("DriveToMode:handleFinishedTask")
     if self.driveToDestinationTask ~= nil then
-        self.driveToDestinationTask = nil
-        --print("DriveToMode:handleFinishedTask - starting stopAndDisableTask now")
+        self.driveToDestinationTask = nil        
+        print("DriveToMode:handleFinishedTask - starting stopAndDisableTask now")
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         local target = self.vehicle.ad.stateModule:getFirstMarker().name
@@ -43,7 +44,7 @@ function DriveToMode:handleFinishedTask()
             end
         end
 
-        --print("DriveToMode:handleFinishedTask - done")
+        print("DriveToMode:handleFinishedTask - done")
         AutoDriveMessageEvent.sendNotification(self.vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.driverName, target)
     end
 end

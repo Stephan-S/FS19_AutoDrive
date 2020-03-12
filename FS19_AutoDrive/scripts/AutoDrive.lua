@@ -303,13 +303,11 @@ function AutoDrive.handlePerFrameOperations(dt)
 		end
 	end
 
-	if AutoDrive.Triggers ~= nil then
-		for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-			if trigger.stoppedTimer == nil then
-				trigger.stoppedTimer = AutoDriveTON:new()
-			end
-			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
+	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
+		if trigger.stoppedTimer == nil then
+			trigger.stoppedTimer = AutoDriveTON:new()
 		end
+		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
 	end
 end
 

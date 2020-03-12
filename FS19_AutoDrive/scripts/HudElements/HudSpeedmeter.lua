@@ -22,7 +22,7 @@ function ADHudSpeedmeter:onDraw(vehicle, uiScale)
         local adFontSize = AutoDrive.FONT_SCALE * uiScale
         setTextColor(1, 1, 1, 1)
         setTextAlignment(RenderText.ALIGN_CENTER)
-        local text = string.format("%1d", g_i18n:getSpeed(vehicle.ad.targetSpeed))
+        local text = string.format("%1d", g_i18n:getSpeed(vehicle.ad.stateModule:getSpeedLimit()))
         local posX = self.position.x + (self.size.width / 2)
         local posY = self.position.y + AutoDrive.Hud.gapHeight
         renderText(posX, posY, adFontSize, text)

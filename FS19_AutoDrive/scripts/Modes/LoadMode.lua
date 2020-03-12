@@ -28,7 +28,7 @@ function LoadMode:start()
         self.state = LoadMode.STATE_TO_TARGET
     end
 
-    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
+    if self.vehicle.ad.stateModule:getFirstMarker() == nil or self.vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 
