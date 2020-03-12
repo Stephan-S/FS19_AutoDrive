@@ -587,10 +587,11 @@ function AutoDrive:updateAILights(superFunc)
         local dayMinutes = g_currentMission.environment.dayTime / (1000 * 60)
         local needLights = (dayMinutes > g_currentMission.environment.nightStartMinutes or dayMinutes < g_currentMission.environment.nightEndMinutes)
         if needLights then
-            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive:checkIsOnField(self) then
+            local x, y, z = getWorldTranslation(self.components[1].node)
+            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive.checkIsOnField(x, y, z) then
                 self:setLightsTypesMask(spec.aiLightsTypesMask)
             end
-            if spec.lightsTypesMask ~= 1 and not AutoDrive:checkIsOnField(self) then
+            if spec.lightsTypesMask ~= 1 and not AutoDrive.checkIsOnField(x, y, z) then
                 self:setLightsTypesMask(1)
             end
         else
