@@ -114,3 +114,19 @@ function EmptyHarvesterTask:finished()
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:finished()")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
+
+function EmptyHarvesterTask:getInfoText()
+    if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
+        return g_i18n:getText("AD_task_pathfinding")
+    elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
+        return g_i18n:getText("AD_task_drive_to_combine_pipe")
+    elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
+        return g_i18n:getText("AD_task_unloading_combine")
+    elseif self.state == EmptyHarvesterTask.STATE_REVERSING then
+        return g_i18n:getText("AD_task_reversing_from_combine")
+    elseif self.state == EmptyHarvesterTask.STATE_WAITING then
+        return g_i18n:getText("AD_task_waiting_for_room")
+    else
+        return g_i18n:getText("AD_task_unloading_combine")
+    end
+end

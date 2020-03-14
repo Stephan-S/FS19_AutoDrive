@@ -113,9 +113,12 @@ end
 
 function ADDrivePathModule:isCloseToWaypoint()
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-    if self.wayPoints[self.currentWayPoint] ~= nil then
-        if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z) < self.min_distance then
-            return true
+    local maxSkipWayPoints = 2
+    for i = 0, maxSkipWayPoints do
+        if self.wayPoints[self.currentWayPoint+i] ~= nil then
+            if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint+i].x, self.wayPoints[self.currentWayPoint+i].z) < self.min_distance then
+                return true
+            end
         end
     end
     return false
@@ -378,10 +381,9 @@ end
 function ADDrivePathModule:checkIfStuck(dt)
     if self.vehicle.isServer then
         if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() then
-            --print("ADDrivePathModule:checkIfStuck(dt) - " .. self.minDistanceTimer.elapsedTime)
             local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
             local distanceToNextWayPoint = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z)
-            self.minDistanceTimer:timer(distanceToNextWayPoint >= self.minDistanceToNextWp, 5000, dt)
+            self.minDistanceTimer:timer(distanceToNextWayPoint >= self.minDistanceToNextWp, 8000, dt)
             self.minDistanceToNextWp = math.min(self.minDistanceToNextWp, distanceToNextWayPoint)
             if self.minDistanceTimer:done() then
                 self:handleBeingStuck()
@@ -390,10 +392,9 @@ function ADDrivePathModule:checkIfStuck(dt)
     end
 end
 
-function ADDrivePathModule:handleBeingStuck()
-    print("ADDrivePathModule:handleBeingStuck()")
+function ADDrivePathModule:handleBeingStuck()    
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "handleBeingStuck")
     if self.vehicle.isServer then
-        --deadlock handling
         self.vehicle.ad.taskModule:stopAndRestartAD()
     end
 end

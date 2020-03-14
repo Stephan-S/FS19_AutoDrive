@@ -266,5 +266,23 @@
 		<text name="ad_helpText_13_03"							text="Caution: There is currently no collision detection included in this mode!" />
 		<text name="ad_helpText_13_04"							text="" />
 		<text name="ad_helpText_13_05"							text="Since the vehicle tries to find the ideal loading position for the shovel automatically, it can happen that he lifts it’s front wheels up. There is a detection included for this scenario, which checks if all wheels are on the ground and starts lifting the shovel if this check returns false for a few hundred milliseconds." />
+	
+
+		<text name="AD_task_pathfinding"						text="Plan Pfad" />
+		<text name="AD_task_catch_up_with_combine"				text="Drescher anfahren" />
+		<text name="AD_task_clearcrop"							text="Frucht verlassen" />
+		<text name="AD_task_drive_to_destination"				text="Fahre zu Zielpunkt" />
+		<text name="AD_task_drive_to_vehicle"					text="Fahre zu Zielfahrzeug" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Fahre Drescher abladen" />
+		<text name="AD_task_unloading_combine"					text="Drescher abtanken" />
+		<text name="AD_task_reversing_from_combine"				text="Zurücksetzen von Drescher" />
+		<text name="AD_task_waiting_for_space"					text="Warten auf Freiraum" />
+		<text name="AD_task_wait_for_combine_turn"				text="Drescher wenden lassen" />
+		<text name="AD_task_drive_to_load_point"				text="Fahre zu Aufladepunkt" />
+		<text name="AD_task_drive_to_refuel_point"				text="Fahre tanken" />
+		<text name="AD_task_stop_and_disable"					text="Stoppen" />
+		<text name="AD_task_drive_to_unload_point"				text="Fahre zu Abladepunkt" />
+		<text name="AD_task_wait_for_call"						text="Auf Ruf warten" />	
+		<text name="AD_task_chasing_combine"					text="Drescher folgen" />	
 	</texts>
 </l10n>

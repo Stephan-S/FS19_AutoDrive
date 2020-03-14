@@ -19,10 +19,6 @@ end
 function AbstractMode:continue()
 end
 
-function AbstractMode:getExcludedVehiclesForCollisionCheck()
-    return {}
-end
-
 function AbstractMode:shouldLoadOnTrigger()
     return false
 end

@@ -22,3 +22,7 @@ end
 function WaitForCallTask:finished()
     self.vehicle.ad.taskModule:setCurrentTaskFinished(self.propagate)
 end
+
+function WaitForCallTask:getInfoText()
+    return g_i18n:getText("AD_task_wait_for_call")
+end

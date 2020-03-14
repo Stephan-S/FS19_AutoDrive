@@ -80,3 +80,11 @@ function CatchCombinePipeTask:startNewPathFinding()
     self.combinesStartLocation = {}
     self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)
 end
+
+function CatchCombinePipeTask:getInfoText()
+    if self.state == CatchCombinePipeTask.STATE_PATHPLANNING then
+        return g_i18n:getText("AD_task_pathfinding")
+    else
+        return g_i18n:getText("AD_task_catch_up_with_combine")
+    end
+end

@@ -461,7 +461,10 @@ function AutoDriveHud:createMapHotspot(vehicle)
 		vehicle.ad.mapHotspot = MapHotspot:new("adDriver", MapHotspot.CATEGORY_AI)
 		vehicle.ad.mapHotspot:setSize(width, height)
 		vehicle.ad.mapHotspot:setLinkedNode(vehicle.components[1].node)
-		vehicle.ad.mapHotspot:setText("AD: " .. vehicle.name)
+		vehicle.ad.mapHotspot:setText("AD:")
+		if vehicle.name ~= nil then
+			vehicle.ad.mapHotspot:setText("AD: " .. vehicle.name)
+		end
 		if vehicle.ad.driverName ~= nil then
 			vehicle.ad.mapHotspot:setText("AD: " .. vehicle.ad.driverName)
 		end

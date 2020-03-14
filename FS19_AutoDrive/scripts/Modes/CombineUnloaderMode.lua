@@ -186,23 +186,6 @@ function CombineUnloaderMode:shouldLoadOnTrigger()
     return self.state == CombineUnloaderMode.STATE_PICKUP and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end
 
-function CombineUnloaderMode:getExcludedVehiclesForCollisionCheck()
-    local excludedVehicles = {}
-    if self.assignedCombine ~= nil and self:ignoreCombineCollision() then
-        table.insert(excludedVehicles, self.assignedCombine)
-    end
-    
-    return excludedVehicles
-end
-
-function CombineUnloaderMode:ignoreCombineCollision()
-    if self.state == CombineUnloaderMode.STATE_DRIVE_TO_PIPE or self.state == CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE then
-		return true
-	end
-    
-    return false
-end
-
 function CombineUnloaderMode:shouldUnloadAtTrigger()
     return self.state == CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end

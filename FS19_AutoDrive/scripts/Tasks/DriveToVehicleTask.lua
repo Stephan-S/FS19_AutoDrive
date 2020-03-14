@@ -45,3 +45,11 @@ end
 function DriveToVehicleTask:finished()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
+
+function DriveToVehicleTask:getInfoText()
+    if self.state == DriveToVehicleTask.STATE_PATHPLANNING then
+        return g_i18n:getText("AD_task_pathfinding")
+    else
+        return g_i18n:getText("AD_task_drive_to_vehicle")
+    end
+end

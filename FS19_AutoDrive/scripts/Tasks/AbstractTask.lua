@@ -16,3 +16,7 @@ end
 function AbstractTask:getInfoText()
     return nil
 end
+
+function AbstractTask:getExcludedVehiclesForCollisionCheck()
+    return {}
+end

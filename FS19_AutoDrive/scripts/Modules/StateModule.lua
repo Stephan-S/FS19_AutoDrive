@@ -75,7 +75,7 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
         self.fillType = fillType
     end
 
-    local driverName = getXMLInt(xmlFile, key .. "#driverName")
+    local driverName = getXMLString(xmlFile, key .. "#driverName")
     if driverName ~= nil then
         self.driverName = driverName
     end
@@ -185,7 +185,7 @@ function ADStateModule:isInDualCreationMode()
 end
 
 function ADStateModule:disableCreationMode()
-    return self.creationMode == ADStateModule.CREATE_OFF
+    self.creationMode = ADStateModule.CREATE_OFF
 end
 
 function ADStateModule:startNormalCreationMode()

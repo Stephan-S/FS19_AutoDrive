@@ -41,3 +41,7 @@ function ClearCropTask:finished()
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "ClearCropTask:finished()")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
+
+function ClearCropTask:getInfoText()
+    return g_i18n:getText("AD_task_clearcrop")
+end

@@ -274,7 +274,7 @@ function ADSensor:getBoxShape()
     box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, vecZ.x, 0, vecZ.z)
     box.ry = math.atan2(box.zx, box.zz)
     box.rx = -MathUtil.getYRotationFromDirection(box.dirY, 1) * self.frontFactor
-    box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.offset[1], box.offset[2], box.offset[3])
+    box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 
     box.topLeft.x, box.topLeft.y, box.topLeft.z = localToWorld(vehicle.components[1].node, box.topLeft[1], box.topLeft[2], box.topLeft[3])
     box.topRight.x, box.topRight.y, box.topRight.z = localToWorld(vehicle.components[1].node, box.topRight[1], box.topRight[2], box.topRight[3])

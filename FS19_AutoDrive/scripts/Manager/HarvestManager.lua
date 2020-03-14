@@ -38,14 +38,21 @@ function ADHarvestManager:update()
         if harvester ~= nil then
             if not self:alreadyAssignedUnloader(harvester) then
                 if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ADHarvestManager.isHarvesterActive(harvester) then
+                    local closestUnloader = nil
+                    local closestDistance = math.huge
                     for _, unloader in pairs(self.idleUnloaders) do
                         -- sort by distance to combine first
                         if unloader.ad.stateModule:getFirstMarker() == harvester.ad.stateModule:getFirstMarker() then
-                            unloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
-                            table.insert(self.activeUnloaders, unloader)
-                            table.removeValue(self.idleUnloaders, unloader)
-                            break
+                            if closestUnloader == nil or AutoDrive.getDistanceBetween(unloader, harvester) < closestDistance then
+                                closestUnloader = unloader
+                                closestDistance = AutoDrive.getDistanceBetween(unloader, harvester)
+                            end
                         end
+                    end
+                    if closestUnloader ~= nil then
+                        closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
+                        table.insert(self.activeUnloaders, closestUnloader)
+                        table.removeValue(self.idleUnloaders, closestUnloader)
                     end
                 end
             end

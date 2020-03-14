@@ -26,6 +26,7 @@ function LoadAtDestinationTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+            self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
             self.state = LoadAtDestinationTask.STATE_DRIVING
         else
             self.vehicle.ad.pathFinderModule:update()
@@ -73,4 +74,12 @@ end
 function LoadAtDestinationTask:finished()
     self.vehicle.ad.specialDrivingModule:releaseVehicle()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
+end
+
+function LoadAtDestinationTask:getInfoText()
+    if self.state == LoadAtDestinationTask.STATE_PATHPLANNING then
+        return g_i18n:getText("AD_task_pathfinding")
+    else
+        return g_i18n:getText("AD_task_drive_to_load_point")
+    end
 end

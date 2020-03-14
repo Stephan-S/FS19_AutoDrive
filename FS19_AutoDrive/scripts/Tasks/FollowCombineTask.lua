@@ -1,7 +1,9 @@
 FollowCombineTask = ADInheritsFrom(AbstractTask)
 
 FollowCombineTask.STATE_CHASING = 1
-FollowCombineTask.STATE_REVERSING = 2
+FollowCombineTask.STATE_WAIT_FOR_TURN = 2
+FollowCombineTask.STATE_REVERSING = 3
+FollowCombineTask.STATE_WAIT_FOR_PASS_BY = 4
 
 function FollowCombineTask:new(vehicle, combine)
     local o = FollowCombineTask:create()
@@ -9,6 +11,10 @@ function FollowCombineTask:new(vehicle, combine)
     o.combine = combine
     o.state = FollowCombineTask.STATE_CHASING
     o.reverseStartLocation = nil
+    o.angleWrongTimer = AutoDriveTON:new()
+    o.caughtCurrentChaseSide = false
+    o.lastChaseSide = -1
+    o.waitForPassByTimer = AutoDriveTON:new()
     return o
 end
 
@@ -18,19 +24,21 @@ end
 
 function FollowCombineTask:update(dt)
     self:updateStates()
-    if self.filled or self.combine.ad.noMovementTimer.elapsedTime > 5000 then
-        self:finished()
-        return
+    if self.filled or (self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()) then
+        if self.state ~= FollowCombineTask.STATE_REVERSING then
+            local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+            self.reverseStartLocation = {x=x, y=y, z=z}
+            self.state = FollowCombineTask.STATE_REVERSING
+        end
     end
     
     if self.state == FollowCombineTask.STATE_CHASING then
         if self:combineIsTurning() then
-            print("combineIsTurning - reversing now")
-            self.state = FollowCombineTask.STATE_REVERSING
+            self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
         end
-    elseif self.state == FollowCombineTask.STATE_REVERSING then
+    elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
         if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength)/2 + 4) then
             self:reverse(dt)
         else
@@ -44,7 +52,24 @@ function FollowCombineTask:update(dt)
             self:finished()
             return
         end
+    elseif self.state == FollowCombineTask.STATE_WAIT_FOR_PASS_BY then
+        self.waitForPassByTimer:timer(true, 5000, dt)
+        self.vehicle.ad.specialDrivingModule:stopVehicle()
+        self.vehicle.ad.specialDrivingModule:update(dt)
+        if self.waitForPassByTimer:done() then
+            self.state = FollowCombineTask.STATE_CHASING
+            self.waitForPassByTimer:timer(false)
+        end
+    elseif self.state == FollowCombineTask.STATE_REVERSING then
+        local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+        local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
+        if distanceToReversStart > 25 then
+            self:finished()
+        else
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
+        end
     end
+    
 end
 
 function FollowCombineTask:updateStates()
@@ -67,6 +92,15 @@ function FollowCombineTask:updateStates()
     end
 
     self.chasePos, self.chaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
+    if self.chaseSide ~= self.lastChaseSide then
+        self.state = FollowCombineTask.STATE_WAIT_FOR_PASS_BY
+        self.caughtCurrentChaseSide = false
+        self.lastChaseSide = self.chaseSide
+    end
+    -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get muche closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
+    if self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and not self.caughtCurrentChaseSide then
+        self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 3)
+    end
     self.distanceToCombine = MathUtil.vector2Length(x - cx, z - cz)
     self.distanceToChasePos = MathUtil.vector2Length(x - self.chasePos.x, z - self.chasePos.z)
 
@@ -99,8 +133,7 @@ function FollowCombineTask:reverse(dt)
 end
 
 function FollowCombineTask:followChasePoint(dt)
-    if self:shouldWaitForChasePos() then
-        print("Should wait for chase pos")
+    if self:shouldWaitForChasePos(dt) then
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
@@ -109,15 +142,22 @@ function FollowCombineTask:followChasePoint(dt)
     end
 end
 
-function FollowCombineTask:shouldWaitForChasePos()
-    return self:getAngleToChasePos() > 50 or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
+function FollowCombineTask:shouldWaitForChasePos(dt)
+    self:getAngleToChasePos(dt)
+    return self.angleWrongTimer:done() or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
 end
 
 function FollowCombineTask:getAngleToChasePos()
     local worldX, _, worldZ = getWorldTranslation(self.vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+    local angle = math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = self.chasePos.x - worldX, z = self.chasePos.z - worldZ}))
+    self.angleWrongTimer:timer(angle > 50, 3000, dt)
 
-    return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = self.chasePos.x - worldX, z = self.chasePos.z - worldZ}))
+    if angle < 15 then
+        self.caughtCurrentChaseSide = true
+    end
+
+    return angle
 end
 
 function FollowCombineTask:abort()
@@ -126,4 +166,24 @@ end
 function FollowCombineTask:finished()
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "FollowCombineTask:finished()")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
+end
+
+function FollowCombineTask:getExcludedVehiclesForCollisionCheck()
+    local excludedVehicles = {}
+    --if self.state == FollowCombineTask.STATE_CHASING and self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and self:getAngleToChasePos(0) < 15 then
+        table.insert(excludedVehicles, self.combine)
+    --end
+    return excludedVehicles
+end
+
+function FollowCombineTask:getInfoText()
+    if self.state == FollowCombineTask.STATE_CHASING then
+        return g_i18n:getText("AD_task_chasing_combine")
+    elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
+        return g_i18n:getText("AD_task_wait_for_combine_turn")
+    elseif self.state == FollowCombineTask.STATE_REVERSING then
+        return g_i18n:getText("AD_task_reversing_from_combine")
+    else
+        return g_i18n:getText("AD_task_unloading_combine")
+    end
 end

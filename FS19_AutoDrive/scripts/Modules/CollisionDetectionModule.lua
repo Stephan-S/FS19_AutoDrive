@@ -66,7 +66,7 @@ function ADCollisionDetectionModule:detectObstacle()
 		end
 	end
 
-	local excludedList = self.vehicle.ad.stateModule:getCurrentMode():getExcludedVehiclesForCollisionCheck()
+	local excludedList = self.vehicle.ad.taskModule:getActiveTask():getExcludedVehiclesForCollisionCheck()
 
 	if AutoDrive:checkForVehicleCollision(self.vehicle, excludedList, true) then
 		return true
@@ -111,7 +111,7 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 			self.trafficVehicle = nil
 			if counter > 0 then
 				for _, other in pairs(g_currentMission.vehicles) do
-					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule:isActive() and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
+					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
 						local onSameRoute = false
 						local sameDirection = false
 						local window = 4

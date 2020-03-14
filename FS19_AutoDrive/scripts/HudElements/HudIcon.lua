@@ -63,8 +63,8 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     end
 
     local activeTask = vehicle.ad.taskModule:getActiveTask()
-    if activeTask ~= nil and activeTask.getInfoText() ~= nil then
-        textToShow = textToShow .. " - " .. activeTask.getInfoText()
+    if activeTask ~= nil and activeTask:getInfoText() ~= nil then
+        textToShow = textToShow .. " - " .. activeTask:getInfoText()
     end
 
     if AutoDrive.totalNumberOfWayPointsToReceive ~= nil then

@@ -92,7 +92,6 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed)
-    print("Drive to point: " .. point.x .. " / " .. point.z)
     local speed = AutoDrive.SPEED_ON_FIELD
     local acc = 1
 
@@ -108,6 +107,10 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed)
     end
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
-    print("Drive in dir: " .. lx .. " / " .. lz .. " with speed: " .. speed)
-    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
+    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() or self.vehicle.ad.sensors.frontSensor:pollInfo() then
+        self:stopVehicle(lx, lz)
+        self:update(dt)
+    else
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
+    end
 end

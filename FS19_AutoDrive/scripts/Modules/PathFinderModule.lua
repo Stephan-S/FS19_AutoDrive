@@ -159,11 +159,12 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
 
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
+        local pathFinderTarget =    {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * 2   * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * 2  * rz}
+        local appendTarget =        {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE       * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE      * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        table.insert(self.appendWayPoints, pipeChasePos)
+        table.insert(self.appendWayPoints, appendTarget)
     else  
         local pathFinderTarget =    {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end

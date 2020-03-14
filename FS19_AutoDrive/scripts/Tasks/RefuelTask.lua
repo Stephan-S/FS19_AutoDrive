@@ -84,3 +84,11 @@ function RefuelTask:startRefueling()
         g_effectManager:setFillType(self.refuelTrigger.effects, self.refuelTrigger.selectedFillType)
     end
 end
+
+function RefuelTask:getInfoText()
+    if self.state == RefuelTask.STATE_PATHPLANNING then
+        return g_i18n:getText("AD_task_pathfinding")
+    else
+        return g_i18n:getText("AD_task_drive_to_refuel_point")
+    end
+end

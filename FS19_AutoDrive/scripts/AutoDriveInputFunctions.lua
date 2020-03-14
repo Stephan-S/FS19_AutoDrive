@@ -253,6 +253,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 		if not vehicle.ad.stateModule:isEditorModeEnabled() or AutoDrive.requestedWaypoints == true then
 			return
 		end
+		print("input record detected")
 		AutoDrive:inputRecord(vehicle, false)
 	end
 
@@ -375,9 +376,16 @@ end
 
 function AutoDrive:inputRecord(vehicle, dual)
 	if not vehicle.ad.stateModule:isInCreationMode() then
-		vehicle.ad.stateModule:startNormalCreationMode()
+		if dual then
+			print("AutoDrive:inputRecord - start recording dual")
+			vehicle.ad.stateModule:startDualCreationMode()
+		else
+			print("AutoDrive:inputRecord - start recording normal")
+			vehicle.ad.stateModule:startNormalCreationMode()
+		end
 		AutoDrive.disableAutoDriveFunctions(vehicle)
-	else
+	else		
+		print("AutoDrive:inputRecord - disable recording")
 		vehicle.ad.stateModule:disableCreationMode()
 
 		if AutoDrive.getSetting("autoConnectEnd") then

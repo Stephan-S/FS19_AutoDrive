@@ -26,6 +26,7 @@ function UnloadAtDestinationTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+            self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
             self.state = UnloadAtDestinationTask.STATE_DRIVING
         else
             self.vehicle.ad.pathFinderModule:update()
@@ -59,4 +60,12 @@ end
 
 function UnloadAtDestinationTask:finished()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
+end
+
+function UnloadAtDestinationTask:getInfoText()
+    if self.state == UnloadAtDestinationTask.STATE_PATHPLANNING then
+        return g_i18n:getText("AD_task_pathfinding")
+    else
+        return g_i18n:getText("AD_task_drive_to_unload_point")
+    end
 end
