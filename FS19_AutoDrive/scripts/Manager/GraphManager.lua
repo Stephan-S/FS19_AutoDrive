@@ -206,7 +206,7 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 			end
 
 			-- Adjusting way point id in markers
-			for _, marker in pairs(AutoDrive.mapMarker) do
+			for _, marker in pairs(self.mapMarker) do
 				if marker.id > wayPointId then
 					marker.id = marker.id - 1
 				end
@@ -306,12 +306,18 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 
 				-- Removing references to it on all vehicles
 				for _, vehicle in pairs(g_currentMission.vehicles) do
-					if vehicle.ad ~= nil then
+					if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
 						if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= markerId then
 							vehicle.ad.parkDestination = -1
 						end
+						if vehicle.ad.stateModule:getFirstMarker() == nil then
+							vehicle.ad.stateModule:setFirstMarker(ADGraphManager:getMapMarkerById(1))
+						end
 						if vehicle.ad.stateModule:getFirstMarkerId() ~= nil and vehicle.ad.stateModule:getFirstMarkerId() >= markerId then
 							vehicle.ad.stateModule:setFirstMarker(math.max(vehicle.ad.stateModule:getFirstMarkerId() - 1, 1))
+						end
+						if vehicle.ad.stateModule:getSecondMarker() == nil then
+							vehicle.ad.stateModule:setSecondMarker(ADGraphManager:getMapMarkerById(1))
 						end
 						if vehicle.ad.stateModule:getSecondMarkerId() ~= nil and vehicle.ad.stateModule:getSecondMarkerId() >= markerId then
 							vehicle.ad.stateModule:setSecondMarker(math.max(vehicle.ad.stateModule:getSecondMarkerId() - 1, 1))

@@ -134,7 +134,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     local distanceToTarget = self:getDistanceToLastWaypoint(10)
     if distanceToTarget < 20 then
-        self.speedLimit =  math.clamp(8, self.speedLimit, distanceToTarget)
+        self.speedLimit =  math.clamp(8, self.speedLimit, 10 + distanceToTarget)
     end
 
     if ADTriggerManager.checkForTriggerProximity(self.vehicle) then
@@ -222,7 +222,9 @@ function ADDrivePathModule:getHighestApproachingAngle()
             angle = math.abs(angle)
             
             if AutoDrive.getDistance(self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= distanceToLookAhead then
-                highestAngle = math.max(highestAngle, angle)
+                if angle < 100 then
+                    highestAngle = math.max(highestAngle, angle)
+                end
             else
                 doneCheckingRoute = true
             end

@@ -361,7 +361,7 @@ function AutoDrive:InputHandlingServerOnly(vehicle, input)
 			if vehicle.ad.stateModule:isActive() then
 				AutoDrive:InputHandling(vehicle, "input_start_stop") --disable if already active
 			end
-			vehicle.ad.stateModule:setMode(AutoDrive.DRIVE_TO)
+			vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
 			AutoDrive:InputHandling(vehicle, "input_start_stop")
 			vehicle.ad.onRouteToPark = true
 		else

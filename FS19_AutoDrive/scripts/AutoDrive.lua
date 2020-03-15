@@ -55,7 +55,7 @@ AutoDrive.MODE_UNLOAD = 5
 AutoDrive.MODE_BGA = 6
 
 AutoDrive.WAYPOINTS_PER_PACKET = 100
-AutoDrive.SPEED_ON_FIELD = 38
+AutoDrive.SPEED_ON_FIELD = 100
 
 AutoDrive.DC_NONE = 0
 AutoDrive.DC_VEHICLEINFO = 1
@@ -113,8 +113,6 @@ function AutoDrive:loadMap(name)
 		end
 	end
 
-	AutoDrive.mapMarker = {}
-	AutoDrive.mapMarkerCounter = 0
 	AutoDrive.groups = {}
 	AutoDrive.groups["All"] = 1
 	AutoDrive.groupCounter = 1
@@ -500,9 +498,9 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 				end
 			end
 			-- Moving all markers in the deleted group to default group
-			for markerID, _ in pairs(AutoDrive.mapMarker) do
-				if AutoDrive.mapMarker[markerID].group == groupName then
-					AutoDrive.mapMarker[markerID].group = "All"
+			for markerID, mapMarker in pairs(ADGraphManager:getMapMarker()) do
+				if mapMarker.group == groupName then
+					mapMarker.group = "All"
 				end
 			end
 			-- Resetting other goups id
