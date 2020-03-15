@@ -8,7 +8,6 @@ function WaitForCallTask:new(vehicle)
 end
 
 function WaitForCallTask:setUp()
-    print("WaitForCallTask:setUp()")
     self.vehicle.ad.specialDrivingModule:stopVehicle()
 end
 

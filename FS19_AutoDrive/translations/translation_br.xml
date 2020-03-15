@@ -291,6 +291,7 @@
 		<text name="AD_task_chase_side"							text="Side" />	
 		<text name="AD_task_chase_side_left"					text="left" />	
 		<text name="AD_task_chase_side_rear"					text="rear" />	
-		<text name="AD_task_chase_side_right"					text="right" />		
+		<text name="AD_task_chase_side_right"					text="right" />	
+		<text name="AD_task_waiting_for_room"					text="Waiting for room" />	
 	</texts>
 </l10n>

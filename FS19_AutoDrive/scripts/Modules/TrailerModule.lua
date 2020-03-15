@@ -100,7 +100,6 @@ function ADTrailerModule:updateLoad()
     if not self.isLoading then
         local loadPairs = AutoDrive.getTriggerAndTrailerPairs(self.vehicle)
         for _, pair in pairs(loadPairs) do
-            print("ADTrailerModule:updateLoad() - load pair: " .. _)
             self:tryLoadingAtTrigger(pair.trailer, pair.trigger)
             self.foundSuitableTrigger = true
         end
@@ -143,7 +142,6 @@ function ADTrailerModule:updateUnload(dt)
 end
 
 function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger)
-    print("ADTrailerModule:tryLoadingAtTrigger")
     local fillUnits = trailer:getFillUnits()
     for i = 1, #fillUnits do
         if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
@@ -156,7 +154,6 @@ function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger)
 end
 
 function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, fillUnitIndex)
-    print("ADTrailerModule:startLoadingCorrectFillTypeAtTrigger")
     if not AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer) then
         local storedFillType = self.vehicle.ad.stateModule:getFillType()
         local toCheck = {13, 43, 44}
@@ -177,7 +174,6 @@ function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, 
 end
 
 function ADTrailerModule:startLoadingAtTrigger(trigger, fillType, fillUnitIndex, trailer)
-    print(" ADTrailerModule:startLoadingAtTrigger")
     trigger.autoStart = true
     trigger.selectedFillType = fillType
     trigger:onFillTypeSelection(fillType)

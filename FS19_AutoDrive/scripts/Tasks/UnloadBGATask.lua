@@ -53,7 +53,6 @@ function UnloadBGATask:new(vehicle)
 end
 
 function UnloadBGATask:setUp()
-    print("UnloadBGATask:setUp()")
     self.state = UnloadBGATask.STATE_INIT
 end
 
@@ -182,7 +181,6 @@ function UnloadBGATask:getShovelFillLevel()
 end
 
 function UnloadBGATask:initializeBGA()
-    print("UnloadBGATask:initializeBGA()")
     self.state = UnloadBGATask.STATE_INIT_AXIS
     self.action = UnloadBGATask.ACTION_DRIVETOSILO_COMMON_POINT
     self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
@@ -580,21 +578,18 @@ function UnloadBGATask:getAngleBetweenTwoRadValues(valueOne, valueTwo)
 end
 
 function UnloadBGATask:getVehicleShovel()
-    print("Getting shovel")
     for _, implement in pairs(self.vehicle:getAttachedImplements()) do
         if implement.object.spec_shovel ~= nil then
             self.shovelAxisOne = self.vehicle.spec_cylindered.movingTools
             self.shovelAxisTwo = implement.object.spec_cylindered.movingTools
-            self.shovel = implement.object            
-            print("Getting shovel - got shovel")
+            self.shovel = implement.object
         else
             if implement.object.getAttachedImplements ~= nil then
                 for _, implementInner in pairs(implement.object:getAttachedImplements()) do
                     if implementInner.object.spec_shovel ~= nil then
                         self.shovelAxisOne = self.vehicle.spec_cylindered.movingTools
                         self.shovelAxisTwo = implement.object.spec_cylindered.movingTools
-                        self.shovel = implementInner.object  
-                        print("Getting shovel - got shovel")
+                        self.shovel = implementInner.object
                     end
                 end
             end
@@ -897,8 +892,7 @@ function UnloadBGATask:alignLoadFromBGA(dt)
 end
 
 function UnloadBGATask:handleDriveStrategy(dt)
-    if self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_LEFT or self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_RIGHT then        
-        print("handleDriveStrategy 1")
+    if self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_LEFT or self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_RIGHT then
         local finalSpeed = 8
         local acc = 0.4
         local allowedToDrive = true
@@ -916,7 +910,6 @@ function UnloadBGATask:handleDriveStrategy(dt)
         local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
         self:driveInDirection(dt, 30, acc, 0.2, 20, allowedToDrive, false, lx, lz, finalSpeed, 1)
     elseif self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_FORWARD_LEFT or self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_FORWARD_RIGHT then
-        print("handleDriveStrategy 2")
         local finalSpeed = 8
         local acc = 0.4
         local allowedToDrive = true
@@ -934,7 +927,6 @@ function UnloadBGATask:handleDriveStrategy(dt)
         local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
         self:driveInDirection(dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1)
     else
-        print("handleDriveStrategy 3")
         local finalSpeed = 10
         local acc = 0.6
         local allowedToDrive = true
@@ -1141,8 +1133,7 @@ function UnloadBGATask:reverseFromBGALoad(dt)
 end
 
 function UnloadBGATask:driveToBGAUnloadInit(dt)
-    if self.targetTrailer == nil then        
-        print("ACTION_DRIVETOUNLOAD_INIT - self.targetTrailer == nil")
+    if self.targetTrailer == nil then
         self:getVehicleToPause()
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)

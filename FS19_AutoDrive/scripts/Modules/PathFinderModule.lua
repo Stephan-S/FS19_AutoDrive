@@ -3,7 +3,7 @@ PathFinderModule = {}
 PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
-PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 20
+PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 35
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 12
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 6
@@ -408,8 +408,6 @@ function PathFinderModule:worldDirectionToGridDirection(vector)
     if direction < 0 then
         direction = 8 + direction
     end
-    
-    print("Angle to target: " .. angle .. " -> direction: " .. direction)
 
     return direction
 end
@@ -755,6 +753,10 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
         shapeDefinition.widthX = self.minTurnRadius / 2 + math.abs(offsetX)
         shapeDefinition.widthZ = self.minTurnRadius / 2 + math.abs(offsetZ)
     end
+
+    local increaseCellFactor = 1.3
+    shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
+    shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
 
     return shapeDefinition
 end

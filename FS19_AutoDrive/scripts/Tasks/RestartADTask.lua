@@ -7,7 +7,6 @@ function RestartADTask:new(vehicle)
 end
 
 function RestartADTask:setUp()
-    print("RestartADTask:setUp()")
     self:doRestart()
 end
 

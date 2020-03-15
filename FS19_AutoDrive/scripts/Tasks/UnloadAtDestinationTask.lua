@@ -11,7 +11,6 @@ function UnloadAtDestinationTask:new(vehicle, destinationID)
 end
 
 function UnloadAtDestinationTask:setUp()
-    print("Setting up UnloadAtDestinationTask")
     if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.state = UnloadAtDestinationTask.STATE_PATHPLANNING
         self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)

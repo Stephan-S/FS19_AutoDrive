@@ -39,7 +39,7 @@ function FollowCombineTask:update(dt)
             self:followChasePoint(dt)
         end
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
-        if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength)/2 + 4) then
+        if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength)/2 + 2) then
             self:reverse(dt)
         else
             self.vehicle.ad.specialDrivingModule:stopVehicle()

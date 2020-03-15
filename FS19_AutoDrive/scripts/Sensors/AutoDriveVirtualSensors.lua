@@ -185,12 +185,17 @@ function ADSensor:getLocationByPosition()
     local location = {x = 0, z = 0}
 
     if self.position == ADSensor.POS_FRONT then
-        local lengthOffset = 1
-        if self.dynamicLength then
-            local frontToolLength = 0 --AutoDrive.getFrontToolLength(self.vehicle)
-            lengthOffset = frontToolLength / 2
+        --local lengthOffset = 1
+        --if self.dynamicLength then
+            --local frontToolLength = 0 --AutoDrive.getFrontToolLength(self.vehicle)
+            --lengthOffset = frontToolLength / 2
+        --end
+        location = self:getRotatedFront()
+        if location == nil then
+            location = {x=0, z=vehicle.sizeLength / 2}
         end
-        location.z = vehicle.sizeLength / 2 + 0.1 + lengthOffset
+
+        --location.z = vehicle.sizeLength / 2 + lengthOffset
     elseif self.position == ADSensor.POS_REAR then
         location.z = -vehicle.sizeLength / 2 - 1
         self.frontFactor = -1
@@ -224,7 +229,7 @@ function ADSensor:getBoxShape()
         if self.dynamicCollisionWindow ~= nil and self.dynamicCollisionWindow == true then
             lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 7 --full distance at 40 kp/h -> 7 meters
         else
-            lookAheadDistance = 0.2
+            lookAheadDistance = 0.1
         end
     end
 
@@ -391,4 +396,46 @@ end
 
 function ADSensor:isTriggered()
     return self.triggered
+end
+
+function ADSensor:getRotatedFront()
+    if self.frontAxle == nil then
+        local frontWheel = nil
+        local pairWheel = nil
+        local frontDistance = math.huge
+        local spec = self.vehicle.spec_wheels
+        for _, wheel in pairs(spec.wheels) do
+            local wheelNode = wheel.driveNode;
+            local sx, sy, sz = getWorldTranslation(wheelNode)            
+            local _,_,diffZ = worldToLocal(self.vehicle.components[1].node, sx, sy, sz)
+            if diffZ > 0 and diffZ < frontDistance and math.abs(frontDistance - diffZ) > 0.5 then
+                frontWheel = wheel
+                frontDistance = diffZ
+            end
+            if diffZ > 0 and (math.abs(frontDistance - diffZ) < 0.2) and wheel ~= frontWheel then
+                pairWheel = wheel
+            end
+        end
+
+        if frontWheel ~= nil and pairWheel ~= nil then
+            local frontWheelX, frontWheelY, frontWheelZ = getWorldTranslation(frontWheel.driveNode)
+            local pairWheelX, pairWheelY, pairWheelZ = getWorldTranslation(pairWheel.driveNode)
+            local axleCenterX = frontWheelX + 0.5*(pairWheelX - frontWheelX)
+            local axleCenterY = frontWheelY + 0.5*(pairWheelY - frontWheelY)
+            local axleCenterZ = frontWheelZ + 0.5*(pairWheelZ - frontWheelZ)
+            local _,_,diffZ = worldToLocal(self.vehicle.components[1].node, axleCenterX, axleCenterY, axleCenterZ)
+            local wheelBaseToFront = self.vehicle.sizeLength/2 - diffZ
+
+            self.frontAxleLength = wheelBaseToFront
+            self.frontAxle = {}
+            self.frontAxle.x, self.frontAxle.y, self.frontAxle.z = worldToLocal(self.vehicle.components[1].node, axleCenterX, axleCenterY, axleCenterZ)
+        end
+    else
+        local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, math.sin(self.vehicle.rotatedTime), 0, math.cos(self.vehicle.rotatedTime))
+        local frontPoint = {x= self.frontAxle.x + self.frontAxleLength * math.sin(self.vehicle.rotatedTime) , y=self.frontAxle.y, z=self.frontAxle.z + self.frontAxleLength * math.cos(self.vehicle.rotatedTime)}
+
+        return frontPoint
+    end
+
+    return nil
 end

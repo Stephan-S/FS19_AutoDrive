@@ -131,7 +131,7 @@ function ADGraphManager:FastShortestPath(start, markerName, markerID)
 	end
 
 	if target_id == start_id then
-		table.insert(wp, 1, Graph[target_id])
+		table.insert(wp, 1, self.wayPoints[target_id])
 		return wp
 	end
 
@@ -147,7 +147,6 @@ function ADGraphManager:getDistanceFromNetwork(vehicle)
     if closest ~= nil and self.wayPoints[closest] ~= nil then
         distance = MathUtil.vector2Length(x - self.wayPoints[closest].x, z - self.wayPoints[closest].z)
     end
-    print("ADGraphManager:getDistanceFromNetwork(vehicle): " .. distance .. " closest: " .. closest)
     return distance
 end
 

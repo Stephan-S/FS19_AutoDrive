@@ -100,10 +100,8 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
 
     if self.distanceToChasePos < 1 then
         speed = maxFollowSpeed * 0.5
-    elseif self.distanceToChasePos < 5 then
-        speed = math.max(maxFollowSpeed, 10 + self.distanceToChasePos)
-    elseif self.distanceToChasePos < 10 then
-        speed = math.max(maxFollowSpeed, 18)
+    elseif self.distanceToChasePos < 15 then
+        speed = maxFollowSpeed + self.distanceToChasePos
     end
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)

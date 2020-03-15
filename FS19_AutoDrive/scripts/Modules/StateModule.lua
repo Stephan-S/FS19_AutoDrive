@@ -19,12 +19,10 @@ function ADStateModule:new(vehicle)
 end
 
 function ADStateModule:reset()
-    print("ADStateModule:reset")
-
     self.active = false
     self.mode = AutoDrive.MODE_DRIVETO
-    self.firstMarker = nil
-    self.secondMarker = nil
+    self.firstMarker = ADGraphManager:getMapMarkerById(1)
+    self.secondMarker = ADGraphManager:getMapMarkerById(1)
     self.creationMode = ADStateModule.CREATE_OFF
     self.editorMode = ADStateModule.EDITOR_OFF
 

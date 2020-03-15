@@ -15,7 +15,6 @@ function LoadMode:reset()
 end
 
 function LoadMode:start()
-    print("LoadMode:start")
     if not self.vehicle.ad.stateModule:isActive() then
         AutoDrive.startAD(self.vehicle)
     end

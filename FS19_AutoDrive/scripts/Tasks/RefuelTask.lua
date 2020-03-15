@@ -11,7 +11,6 @@ function RefuelTask:new(vehicle)
 end
 
 function RefuelTask:setUp()
-    print("Setting up RefuelTask")
     if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.state = RefuelTask.STATE_PATHPLANNING
         self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)

@@ -34,7 +34,6 @@ function ADDrivePathModule:setPathTo(waypointID)
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
-        print("Got path to destination of length: " .. #self.wayPoints)
         --skip first wp for a smoother start
         if self.wayPoints[2] ~= nil then
             self.currentWayPoint = 2
@@ -58,7 +57,6 @@ function ADDrivePathModule:appendPathTo(wayPointId)
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
-        print("Got path to destination of length: " .. #appendWayPoints)
         --skip first wp for a smoother start
         for _, wp in ipairs(appendWayPoints) do
             table.insert(self.wayPoints, wp)
@@ -176,7 +174,6 @@ function ADDrivePathModule:handleReachedWayPoint()
     if self:getNextWaypoint() ~= nil then
         self:switchToNextWayPoint()
     else
-        print("Reached target wp")
         self:reachedTarget()
     end
 end
@@ -380,7 +377,7 @@ end
 
 function ADDrivePathModule:checkIfStuck(dt)
     if self.vehicle.isServer then
-        if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() then
+        if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() and self.wayPoints[self.currentWayPoint] ~= nil then
             local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
             local distanceToNextWayPoint = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z)
             self.minDistanceTimer:timer(distanceToNextWayPoint >= self.minDistanceToNextWp, 8000, dt)

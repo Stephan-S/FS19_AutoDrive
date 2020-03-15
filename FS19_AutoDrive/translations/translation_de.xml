@@ -270,7 +270,7 @@
 		<text name="ad_helpText_13_05"							text="Since the vehicle tries to find the ideal loading position for the shovel automatically, it can happen that he lifts it’s front wheels up. There is a detection included for this scenario, which checks if all wheels are on the ground and starts lifting the shovel if this check returns false for a few hundred milliseconds." />
 	
 
-		<text name="AD_task_pathfinding"						text="Plan Pfad" />
+		<text name="AD_task_pathfinding"						text="Berechne Pfad" />
 		<text name="AD_task_catch_up_with_combine"				text="Drescher anfahren" />
 		<text name="AD_task_clearcrop"							text="Frucht verlassen" />
 		<text name="AD_task_drive_to_destination"				text="Fahre zu Zielpunkt" />
@@ -291,6 +291,7 @@
 		<text name="AD_task_chase_side"							text="Seite" />	
 		<text name="AD_task_chase_side_left"					text="links" />	
 		<text name="AD_task_chase_side_rear"					text="hinten" />	
-		<text name="AD_task_chase_side_right"					text="rechts" />		
+		<text name="AD_task_chase_side_right"					text="rechts" />
+		<text name="AD_task_waiting_for_room"					text="Warte auf Platz" />		
 	</texts>
 </l10n>

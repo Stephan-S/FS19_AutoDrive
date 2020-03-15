@@ -60,6 +60,9 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
 
     if vehicle.ad.sToolTip ~= "" and AutoDrive.getSetting("showTooltips") then
         textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
+        if vehicle.ad.sToolTipInfo ~= nil then
+            textToShow = textToShow .. " - " .. vehicle.ad.sToolTipInfo
+        end
     end
 
     local activeTask = vehicle.ad.taskModule:getActiveTask()

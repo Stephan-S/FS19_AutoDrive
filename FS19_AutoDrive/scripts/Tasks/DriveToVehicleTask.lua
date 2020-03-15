@@ -15,7 +15,6 @@ function DriveToVehicleTask:new(vehicle, targetVehicle)
 end
 
 function DriveToVehicleTask:setUp()
-    print("Setting up DriveToVehicleTask")
     self.vehicle.ad.pathFinderModule:startPathPlanningToVehicle(self.targetVehicle, DriveToVehicleTask.TARGET_DISTANCE)
 end
 

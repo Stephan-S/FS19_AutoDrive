@@ -169,6 +169,14 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
     if self.isVisible then
         vehicle.ad.sToolTip = self.toolTip
         vehicle.ad.nToolTipWait = 5
+        vehicle.ad.sToolTipInfo = nil
+
+        if self.primaryAction == "input_parkVehicle" then
+            if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 then
+                vehicle.ad.sToolTip = vehicle.ad.sToolTip
+                vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination).name
+            end
+        end
 
         if button == 1 and isUp then
             AutoDrive:InputHandling(vehicle, self.primaryAction)

@@ -25,9 +25,9 @@ end
 function CombineUnloaderMode:reset()
     self.state = CombineUnloaderMode.STATE_INIT
     self.activeTask = nil
+	ADHarvestManager:unregisterAsUnloader(self.vehicle)
     self.combine = nil
     self.followingUnloader = nil
-	ADHarvestManager:unregisterAsUnloader(self.vehicle)
 end
 
 function CombineUnloaderMode:start()
@@ -80,10 +80,10 @@ function CombineUnloaderMode:getNextTask()
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_INIT")
         if filledToUnload then
             nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-            self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD     
+            self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
+            ADHarvestManager:unregisterAsUnloader(self.vehicle)
             self.followingUnloader = nil
             self.combine = nil
-            ADHarvestManager:unregisterAsUnloader(self.vehicle)
         else
             if ADGraphManager:getDistanceFromNetwork(self.vehicle) < 15 then
                 self.state = CombineUnloaderMode.STATE_DRIVE_TO_START
@@ -177,10 +177,10 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local nextTask
     if filledToUnload then
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-        self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD      
+        self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
+        ADHarvestManager:unregisterAsUnloader(self.vehicle)
         self.followingUnloader = nil
         self.combine = nil
-        ADHarvestManager:unregisterAsUnloader(self.vehicle)
     else
         -- Should we park in the field?
         if AutoDrive.getSetting("parkInField", self.vehicle) then
