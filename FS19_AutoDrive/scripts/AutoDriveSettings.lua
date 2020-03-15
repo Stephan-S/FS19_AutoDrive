@@ -261,8 +261,8 @@ AutoDrive.settings.followDistance = {
         "7.75 m",
         "8.0 m"
     },
-    default = 21,
-    current = 21,
+    default = 8,
+    current = 8,
     text = "gui_ad_followDistance",
     tooltip = "gui_ad_followDistance_tooltip",
     translate = false,
@@ -768,6 +768,17 @@ AutoDrive.settings.switchToMarkersOnMap = {
     tooltip = "gui_ad_switchToMarkersOnMap_tooltip",
     translate = true,
     isVehicleSpecific = false
+}
+
+AutoDrive.settings.cornerSpeed = {
+    values = {0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 2.0},
+    texts = {"50%", "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%", "105%", "110%", "115%", "120%", "125%", "130%", "135%", "140%", "145%", "150%", "155%", "160%", "165%", "170%", "175%", "180%", "185%", "190%", "195%", "200%"},
+    default = 11,
+    current = 11,
+    text = "gui_ad_cornerSpeed",
+    tooltip = "gui_ad_cornerSpeed_tooltip",
+    translate = false,
+    isVehicleSpecific = true
 }
 
 function AutoDrive.getSetting(settingName, vehicle)

@@ -1,6 +1,6 @@
 DriveToVehicleTask = ADInheritsFrom(AbstractTask)
 
-DriveToVehicleTask.TARGET_DISTANCE = 15
+DriveToVehicleTask.TARGET_DISTANCE = 35
 
 DriveToVehicleTask.STATE_PATHPLANNING = 1
 DriveToVehicleTask.STATE_DRIVING = 2
@@ -40,9 +40,11 @@ function DriveToVehicleTask:update(dt)
 end
 
 function DriveToVehicleTask:abort()
+    self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
 end
 
 function DriveToVehicleTask:finished()
+    self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
 

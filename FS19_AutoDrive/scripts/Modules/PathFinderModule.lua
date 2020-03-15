@@ -41,7 +41,6 @@ function PathFinderModule:update()
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
         self:drawDebugForPF()
     end
-    self.steps = self.steps + 1
 
     if self.isFinished and self.smoothDone == true then
         return
@@ -51,6 +50,8 @@ function PathFinderModule:update()
         self:createWayPoints()
         return
     end
+
+    self.steps = self.steps + 1
 
     if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
         if (not self.fallBackMode) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
@@ -74,6 +75,10 @@ function PathFinderModule:update()
             self.isFinished = true
             self.smoothDone = true
             self.wayPoints = {}
+            
+            g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
+            self.vehicle.ad.taskModule:abortAllTasks()
+            AutoDrive.disableAutoDriveFunctions(self.vehicle)
             AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
         end
     end
@@ -855,7 +860,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
     local unfilteredEndPointCount = 5
     if self.smoothStep == 1 then
         local stepsThisFrame = 0
-        while self.smoothIndex < #self.wayPoints - unfilteredEndPointCount and stepsThisFrame < 1 do
+        while self.smoothIndex < #self.wayPoints - unfilteredEndPointCount and stepsThisFrame < 10 * AutoDrive.getSetting("pathFinderTime") do
             stepsThisFrame = stepsThisFrame + 1
 
             local node = self.wayPoints[self.smoothIndex]
@@ -874,7 +879,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 self.totalEagerSteps = 0
             end
 
-            local widthOfColBox = math.sqrt(math.pow(self.minTurnRadius, 2) + math.pow(self.minTurnRadius, 2))
+            local widthOfColBox = self.minTurnRadius
             local sideLength = widthOfColBox / 2
             local y = worldPos.y
             local foundCollision = false

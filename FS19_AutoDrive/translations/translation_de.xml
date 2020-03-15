@@ -165,6 +165,8 @@
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Zeigt die Ziele auf der Karte an" />
 		<text name="gui_ad_switchToMarkersOnMap"				text="Ziele anwählbar" />
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Ziele als Ziel/Abladepunkt übernehmen, wenn auf Karte geclicked" />
+		<text name="gui_ad_cornerSpeed"							text="Kurvengeschwindigkeit" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Passe die Kurvengeschwindikeit pro Fahrzeug an. Masse und Geschwindikeit beeinflussen weiterhin den Bremspunkt" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
@@ -284,5 +286,11 @@
 		<text name="AD_task_drive_to_unload_point"				text="Fahre zu Abladepunkt" />
 		<text name="AD_task_wait_for_call"						text="Auf Ruf warten" />	
 		<text name="AD_task_chasing_combine"					text="Drescher folgen" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Drescher vorbeilassen" />	
+		<text name="AD_task_catching_chase_side"				text="Fange Seite" />	
+		<text name="AD_task_chase_side"							text="Seite" />	
+		<text name="AD_task_chase_side_left"					text="links" />	
+		<text name="AD_task_chase_side_rear"					text="hinten" />	
+		<text name="AD_task_chase_side_right"					text="rechts" />		
 	</texts>
 </l10n>

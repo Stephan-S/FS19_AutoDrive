@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.2-1"
+AutoDrive.version = "1.1.0.0"
 
 AutoDrive.directory = g_currentModDirectory
 

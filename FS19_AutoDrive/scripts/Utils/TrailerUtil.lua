@@ -456,6 +456,10 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                     end
                     local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[vehicle.ad.stateModule:getFillType()] ~= nil and fillLevels[vehicle.ad.stateModule:getFillType()] > 0) or (gcFillLevels[vehicle.ad.stateModule:getFillType()] ~= nil and gcFillLevels[vehicle.ad.stateModule:getFillType()] > 0)
 
+                    if AutoDrive.getSetting("continueOnEmptySilo", vehicle) then
+                        hasCapacity = hasCapacity or fillLevels[vehicle.ad.stateModule:getFillType()] ~= nil or gcFillLevels[vehicle.ad.stateModule:getFillType()] ~= nil
+                    end
+
                     local hasRequiredFillType = false
                     local fillUnits = trailer:getFillUnits()
                     for i = 1, #fillUnits do

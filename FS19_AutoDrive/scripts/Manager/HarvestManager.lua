@@ -38,21 +38,24 @@ function ADHarvestManager:update()
         if harvester ~= nil then
             if not self:alreadyAssignedUnloader(harvester) then
                 if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ADHarvestManager.isHarvesterActive(harvester) then
-                    local closestUnloader = nil
-                    local closestDistance = math.huge
-                    for _, unloader in pairs(self.idleUnloaders) do
-                        -- sort by distance to combine first
-                        if unloader.ad.stateModule:getFirstMarker() == harvester.ad.stateModule:getFirstMarker() then
-                            if closestUnloader == nil or AutoDrive.getDistanceBetween(unloader, harvester) < closestDistance then
-                                closestUnloader = unloader
-                                closestDistance = AutoDrive.getDistanceBetween(unloader, harvester)
-                            end
-                        end
-                    end
+                    local closestUnloader = self:getClosestIdleUnloader(harvester)
                     if closestUnloader ~= nil then
                         closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
                         table.insert(self.activeUnloaders, closestUnloader)
                         table.removeValue(self.idleUnloaders, closestUnloader)
+                    end
+                end
+            else
+                local unloader = self:getAssignedUnloader(harvester)
+                if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then                
+                    local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
+                    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                    local maxCapacity = fillLevel + leftCapacity
+                    if leftCapacity < (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
+                        local closestUnloader = self:getClosestIdleUnloader(harvester)
+                        if closestUnloader ~= nil then
+                            closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:driveToUnloader(unloader)
+                        end
                     end
                 end
             end
@@ -96,4 +99,28 @@ function ADHarvestManager:alreadyAssignedUnloader(harvester)
        end
     end
     return false
+end
+
+function ADHarvestManager:getAssignedUnloader(harvester)
+    for _, unloader in pairs(self.activeUnloaders) do
+    if unloader.ad.modes[AutoDrive.MODE_UNLOAD].combine == harvester then
+            return unloader
+    end
+    end
+    return nil
+end
+
+function ADHarvestManager:getClosestIdleUnloader(harvester)
+    local closestUnloader = nil
+    local closestDistance = math.huge
+    for _, unloader in pairs(self.idleUnloaders) do
+        -- sort by distance to combine first
+        if unloader.ad.stateModule:getFirstMarker() == harvester.ad.stateModule:getFirstMarker() then
+            if closestUnloader == nil or AutoDrive.getDistanceBetween(unloader, harvester) < closestDistance then
+                closestUnloader = unloader
+                closestDistance = AutoDrive.getDistanceBetween(unloader, harvester)
+            end
+        end
+    end
+    return closestUnloader
 end

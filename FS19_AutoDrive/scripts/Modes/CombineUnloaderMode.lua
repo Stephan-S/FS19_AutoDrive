@@ -9,6 +9,7 @@ CombineUnloaderMode.STATE_DRIVE_TO_START = 6
 CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD = 7
 CombineUnloaderMode.STATE_FOLLOW_COMBINE = 8
 CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 9
+CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER = 10
 
 CombineUnloaderMode.CHASEPOS_LEFT = 1
 CombineUnloaderMode.CHASEPOS_RIGHT = 2
@@ -25,6 +26,7 @@ function CombineUnloaderMode:reset()
     self.state = CombineUnloaderMode.STATE_INIT
     self.activeTask = nil
     self.combine = nil
+    self.followingUnloader = nil
 	ADHarvestManager:unregisterAsUnloader(self.vehicle)
 end
 
@@ -78,7 +80,10 @@ function CombineUnloaderMode:getNextTask()
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_INIT")
         if filledToUnload then
             nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-            self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
+            self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD     
+            self.followingUnloader = nil
+            self.combine = nil
+            ADHarvestManager:unregisterAsUnloader(self.vehicle)
         else
             if ADGraphManager:getDistanceFromNetwork(self.vehicle) < 15 then
                 self.state = CombineUnloaderMode.STATE_DRIVE_TO_START
@@ -113,7 +118,11 @@ function CombineUnloaderMode:getNextTask()
     elseif self.state == CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_ACTIVE_UNLOAD_COMBINE")
         nextTask = self:getTaskAfterUnload(filledToUnload)
+    elseif self.state == CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER then
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_FOLLOW_CURRENT_UNLOADER")
+        self:setToWaitForCall()
     end
+    
 
     return nextTask
 end
@@ -155,11 +164,23 @@ function CombineUnloaderMode:assignToHarvester(harvester)
     end
 end
 
+function CombineUnloaderMode:driveToUnloader(unloader)
+    if self.state == CombineUnloaderMode.STATE_WAIT_TO_BE_CALLED then
+        self.vehicle.ad.taskModule:abortCurrentTask()
+        self.vehicle.ad.taskModule:addTask(DriveToVehicleTask:new(self.vehicle, unloader))
+        unloader.ad.modes[AutoDrive.MODE_UNLOAD]:registerFollowingUnloader(self.vehicle)
+        self.state = CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER
+    end
+end
+
 function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local nextTask
     if filledToUnload then
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-        self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD
+        self.state = CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD      
+        self.followingUnloader = nil
+        self.combine = nil
+        ADHarvestManager:unregisterAsUnloader(self.vehicle)
     else
         -- Should we park in the field?
         if AutoDrive.getSetting("parkInField", self.vehicle) then
@@ -203,8 +224,11 @@ function CombineUnloaderMode:getPipeChasePosition()
     local leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (not self.combine.ad.sensors.leftSensorField:pollInfo())
     local rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (not self.combine.ad.sensors.rightSensorField:pollInfo())
 
-    local leftFrontBlocked = self.combine.ad.sensors.leftFrontSensorFruit:pollInfo()
-    local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo()
+    local leftFrontBlocked = self.combine.ad.sensors.leftFrontSensorFruit:pollInfo() or self.combine.ad.sensors.leftFrontSensor:pollInfo()
+    local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo() or self.combine.ad.sensors.rightFrontSensor:pollInfo()
+
+    leftBlocked = leftBlocked or leftFrontBlocked
+    rightBlocked = rightBlocked or rightFrontBlocked
     
     -- prefer side where front is also free
     if (not leftBlocked) and (not rightBlocked) then
@@ -217,13 +241,13 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         if (not leftBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 3)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 2)
             sideIndex = CombineUnloaderMode.CHASEPOS_LEFT
         elseif (not rightBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 3)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 2)
             sideIndex = CombineUnloaderMode.CHASEPOS_RIGHT
         else
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -AutoDrive.getSetting("followDistance", self.vehicle))
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength/2 - AutoDrive.getSetting("followDistance", self.vehicle))
             sideIndex = CombineUnloaderMode.CHASEPOS_REAR
         end
     else
@@ -287,4 +311,16 @@ function CombineUnloaderMode:getAngleToCombineHeading()
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineRx, z = combineRz}))
+end
+
+function CombineUnloaderMode:getFollowingUnloader()
+    return self.followingUnloader
+end
+
+function CombineUnloaderMode:registerFollowingUnloader(followingUnloader)
+    self.followingUnloader = followingUnloader
+end
+
+function CombineUnloaderMode:unregisterFollowingUnloader()
+    self.followingUnloader = nil
 end

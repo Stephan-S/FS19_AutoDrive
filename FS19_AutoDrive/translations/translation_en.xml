@@ -165,6 +165,8 @@
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
 		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
+		<text name="gui_ad_cornerSpeed"							text="Corner speed" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Adjust corner speed for individual vehicle. Mass and current speed will still impact brake point" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
@@ -284,5 +286,13 @@
 		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
 		<text name="AD_task_wait_for_call"						text="Waiting for call" />
 		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
+		<text name="AD_task_catching_chase_side"				text="Catching side" />	
+		<text name="AD_task_chase_side"							text="Side" />	
+		<text name="AD_task_chase_side_left"					text="left" />	
+		<text name="AD_task_chase_side_rear"					text="rear" />	
+		<text name="AD_task_chase_side_right"					text="right" />		
+
+		
 	</texts>
 </l10n>

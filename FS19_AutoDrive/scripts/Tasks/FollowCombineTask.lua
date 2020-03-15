@@ -93,7 +93,9 @@ function FollowCombineTask:updateStates()
 
     self.chasePos, self.chaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
     if self.chaseSide ~= self.lastChaseSide then
-        self.state = FollowCombineTask.STATE_WAIT_FOR_PASS_BY
+        if self.lastChaseSide ~= -1 then
+            self.state = FollowCombineTask.STATE_WAIT_FOR_PASS_BY
+        end
         self.caughtCurrentChaseSide = false
         self.lastChaseSide = self.chaseSide
     end
@@ -119,7 +121,7 @@ function FollowCombineTask:combineIsTurning()
     local cpIsTurning = self.combine.cp ~= nil and (self.combine.cp.isTurning or (self.combine.cp.turnStage ~= nil and self.combine.cp.turnStage > 0))
     local cpIsTurningTwo = self.combine.cp ~= nil and self.combine.cp.driver and (self.combine.cp.driver.turnIsDriving or (self.combine.cp.driver.fieldworkState ~= nil and self.combine.cp.driver.fieldworkState == self.combine.cp.driver.states.TURNING))
     local aiIsTurning = (self.combine.getAIIsTurning ~= nil and self.combine:getAIIsTurning() == true)
-    local combineSteering = self.combine.rotatedTime ~= nil and (math.deg(self.combine.rotatedTime) > 20);
+    local combineSteering = self.combine.rotatedTime ~= nil and (math.deg(self.combine.rotatedTime) > 30);
     local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
     --print("cpIsTurning: " .. AutoDrive.boolToString(cpIsTurning) .. " cpIsTurning2: " .. AutoDrive.boolToString(cpIsTurningTwo) .. " aiIsTurning: " .. AutoDrive.boolToString(aiIsTurning) .. " combineSteering: " .. AutoDrive.boolToString(combineSteering) .. " combine.ad.driveForwardTimer:done(): " .. AutoDrive.boolToString(self.combine.ad.driveForwardTimer:done()) .. " noTurningTimer: " .. AutoDrive.boolToString(self.combine.ad.noTurningTimer:done()) .. " vehicle no movement: " .. self.vehicle.ad.noMovementTimer.elapsedTime);
     if ((self.combine:getIsBufferCombine() and self.combine.ad.noTurningTimer:done()) or (self.combine.ad.driveForwardTimer:done() and (not self.combine:getIsBufferCombine()))) and (not combineIsTurning) then
@@ -138,7 +140,8 @@ function FollowCombineTask:followChasePoint(dt)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         local combineSpeed = self.combine.lastSpeedReal * 3600
-        self.vehicle.ad.specialDrivingModule:driveToPoint(dt, self.chasePos, combineSpeed)
+        local dynamicCollisionWindow = not self.caughtCurrentChaseSide
+        self.vehicle.ad.specialDrivingModule:driveToPoint(dt, self.chasePos, combineSpeed, dynamicCollisionWindow)
     end
 end
 
@@ -170,20 +173,35 @@ end
 
 function FollowCombineTask:getExcludedVehiclesForCollisionCheck()
     local excludedVehicles = {}
-    --if self.state == FollowCombineTask.STATE_CHASING and self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and self:getAngleToChasePos(0) < 15 then
+    if self.state == FollowCombineTask.STATE_CHASING then --and self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and self:getAngleToChasePos(0) < 15 then
         table.insert(excludedVehicles, self.combine)
-    --end
+    end
     return excludedVehicles
 end
 
 function FollowCombineTask:getInfoText()
+    local text = ""
     if self.state == FollowCombineTask.STATE_CHASING then
-        return g_i18n:getText("AD_task_chasing_combine")
+        text = g_i18n:getText("AD_task_chasing_combine") .. "-"
+        if not self.caughtCurrentChaseSide then
+            text = text .. g_i18n:getText("AD_task_catching_chase_side") .. ": "
+        else
+            text = text .. g_i18n:getText("AD_task_chase_side") .. ": "
+        end
+        if self.chaseSide == CombineUnloaderMode.CHASEPOS_LEFT then
+            text = text .. g_i18n:getText("AD_task_chase_side_left")
+        elseif self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR then
+            text = text .. g_i18n:getText("AD_task_chase_side_rear")
+        elseif self.chaseSide == CombineUnloaderMode.CHASEPOS_RIGHT then
+            text = text .. g_i18n:getText("AD_task_chase_side_right")
+        end
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
-        return g_i18n:getText("AD_task_wait_for_combine_turn")
+        text = g_i18n:getText("AD_task_wait_for_combine_turn")
     elseif self.state == FollowCombineTask.STATE_REVERSING then
-        return g_i18n:getText("AD_task_reversing_from_combine")
-    else
-        return g_i18n:getText("AD_task_unloading_combine")
+        text = g_i18n:getText("AD_task_reversing_from_combine")
+    elseif self.state == FollowCombineTask.STATE_WAIT_FOR_PASS_BY then
+        text = g_i18n:getText("AD_task_wait_for_combine_pass_by")
     end
+
+    return text
 end

@@ -257,7 +257,7 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
         maxSpeed = 13
     end
 
-    return maxSpeed * 1.4
+    return maxSpeed * 1.25 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
 end
 
 function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)

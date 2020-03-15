@@ -40,12 +40,10 @@ function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors = {}
     local sensorParameters = {}
     sensorParameters.position = ADSensor.POS_FRONT
-    --sensorParameters.length = vehicle.sizeLength;  --test collbox and coll bits mode
-    --sensorParameters.width = vehicle.sizeWidth; --test
-    --sensorParameters.dynamicLength = false; --test
+    sensorParameters.width = vehicle.sizeWidth * 0.6
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
-    --frontSensor.drawDebug = true; --test
-    --frontSensor.enabled = true; --test
+    frontSensor.drawDebug = true; --test
+    frontSensor.enabled = true; --test
     vehicle.ad.sensors["frontSensor"] = frontSensor
 
     sensorParameters.dynamicLength = false
@@ -187,7 +185,12 @@ function ADSensor:getLocationByPosition()
     local location = {x = 0, z = 0}
 
     if self.position == ADSensor.POS_FRONT then
-        location.z = vehicle.sizeLength / 2 + 1
+        local lengthOffset = 1
+        if self.dynamicLength then
+            local frontToolLength = 0 --AutoDrive.getFrontToolLength(self.vehicle)
+            lengthOffset = frontToolLength / 2
+        end
+        location.z = vehicle.sizeLength / 2 + 0.1 + lengthOffset
     elseif self.position == ADSensor.POS_REAR then
         location.z = -vehicle.sizeLength / 2 - 1
         self.frontFactor = -1
@@ -215,9 +218,14 @@ end
 
 function ADSensor:getBoxShape()
     local vehicle = self.vehicle
+    self.location = self:getLocationByPosition()
     local lookAheadDistance = self.length
     if self.dynamicLength then
-        lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 7 --full distance at 40 kp/h -> 7 meters
+        if self.dynamicCollisionWindow ~= nil and self.dynamicCollisionWindow == true then
+            lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 7 --full distance at 40 kp/h -> 7 meters
+        else
+            lookAheadDistance = 0.2
+        end
     end
 
     local vecZ = {x = 0, z = 1}
@@ -231,6 +239,9 @@ function ADSensor:getBoxShape()
     end
 
     local boxYPos = 1.5
+    if self.position == ADSensor.POS_FRONT_LEFT or self.position == ADSensor.POS_FRONT_RIGHT then
+        boxYPos = 3.5
+    end
 
     local box = {}
     box.offset = {}
@@ -242,7 +253,7 @@ function ADSensor:getBoxShape()
     box.offset[1] = self.location.x
     box.offset[2] = boxYPos -- fixed y pos for now
     box.offset[3] = self.location.z
-    box.center[1] = box.offset[1] + vecZ.x * box.size[3] --+ (vecX.x * box.size[1])
+    box.center[1] = box.offset[1] + vecZ.x * box.size[3] -- + vecX.x * box.size[1]
     box.center[2] = boxYPos -- fixed y pos for now
     box.center[3] = box.offset[3] + vecZ.z * box.size[3] -- + vecX.z * box.size[1]
 

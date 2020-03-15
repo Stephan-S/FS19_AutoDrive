@@ -126,6 +126,12 @@ function ADStateModule:previousMode()
     end
 end
 
+function ADStateModule:setMode(newMode)
+    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_BGA then
+        self.mode = newMode
+    end
+end
+
 function ADStateModule:isActive()
     return self.active
 end
