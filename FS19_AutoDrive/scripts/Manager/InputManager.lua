@@ -204,201 +204,155 @@ end
 -- Sender and server events
 
 function ADInputManager:input_start_stop(vehicle)
-    if g_server ~= nil then
-        if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.stateModule:getFirstMarker() == nil then
-            return
-        end
-        if vehicle.ad.stateModule:isActive() then
-            vehicle.ad.isStoppingWithError = true
-            AutoDrive.disableAutoDriveFunctions(vehicle)
-        else
-            vehicle.ad.stateModule:getCurrentMode():start()
-        end
+    if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.stateModule:getFirstMarker() == nil then
+        return
+    end
+    if vehicle.ad.stateModule:isActive() then
+        vehicle.ad.isStoppingWithError = true
+        AutoDrive.disableAutoDriveFunctions(vehicle)
+    else
+        vehicle.ad.stateModule:getCurrentMode():start()
     end
 end
 
 function ADInputManager:input_incLoopCounter(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:increaseLoopCounter()
-    end
+    vehicle.ad.stateModule:increaseLoopCounter()
 end
 
 function ADInputManager:input_decLoopCounter(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:decreaseLoopCounter()
-    end
+    vehicle.ad.stateModule:decreaseLoopCounter()
 end
 
 function ADInputManager:input_setParkDestination(vehicle)
-    if g_server ~= nil then
-        if vehicle.ad.stateModule:getFirstMarker() ~= nil then
-            vehicle.ad.parkDestination = vehicle.ad.stateModule:getFirstMarkerId()
-            AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-        end
+    if vehicle.ad.stateModule:getFirstMarker() ~= nil then
+        vehicle.ad.parkDestination = vehicle.ad.stateModule:getFirstMarkerId()
+        AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
     end
 end
 
 function ADInputManager:input_silomode(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:nextMode()
-    end
+    vehicle.ad.stateModule:nextMode()
 end
 
 function ADInputManager:input_previousMode(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:previousMode()
-    end
+    vehicle.ad.stateModule:previousMode()
 end
 
 function ADInputManager:input_record(vehicle)
-    if g_server ~= nil then
-        if not vehicle.ad.stateModule:isEditorModeEnabled() then
-            return
-        end
-        AutoDrive:toggleRecording(vehicle, false)
+    if not vehicle.ad.stateModule:isEditorModeEnabled() then
+        return
     end
+    AutoDrive:toggleRecording(vehicle, false)
 end
 
 function ADInputManager:input_record_dual(vehicle)
-    if g_server ~= nil then
-        if not vehicle.ad.stateModule:isEditorModeEnabled() then
-            return
-        end
-        AutoDrive:toggleRecording(vehicle, true)
+    if not vehicle.ad.stateModule:isEditorModeEnabled() then
+        return
     end
+    AutoDrive:toggleRecording(vehicle, true)
 end
 
 function ADInputManager:input_debug(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:cycleEditMode()
-    end
+    vehicle.ad.stateModule:cycleEditMode()
 end
 
 function ADInputManager:input_displayMapPoints(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:cycleEditorShowMode()
-    end
+    vehicle.ad.stateModule:cycleEditorShowMode()
 end
 
 function ADInputManager:input_increaseSpeed(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:increaseSpeedLimit()
-    end
+    vehicle.ad.stateModule:increaseSpeedLimit()
 end
 
 function ADInputManager:input_decreaseSpeed(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:decreaseSpeedLimit()
-    end
+    vehicle.ad.stateModule:decreaseSpeedLimit()
 end
 
 function ADInputManager:input_decreaseSpeed(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:decreaseSpeedLimit()
-    end
+    vehicle.ad.stateModule:decreaseSpeedLimit()
 end
 
 function ADInputManager:input_nextTarget(vehicle)
-    if g_server ~= nil then
-        if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
-            if currentTarget < #ADGraphManager:getMapMarker() then
-                currentTarget = currentTarget + 1
-            else
-                currentTarget = 1
-            end
-            vehicle.ad.stateModule:setFirstMarker(currentTarget)
+    if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
+        local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
+        if currentTarget < #ADGraphManager:getMapMarker() then
+            currentTarget = currentTarget + 1
+        else
+            currentTarget = 1
         end
+        vehicle.ad.stateModule:setFirstMarker(currentTarget)
     end
 end
 
 function ADInputManager:input_previousTarget(vehicle)
-    if g_server ~= nil then
-        if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
-            if currentTarget > 1 then
-                currentTarget = currentTarget - 1
-            else
-                currentTarget = #ADGraphManager:getMapMarker()
-            end
-            vehicle.ad.stateModule:setFirstMarker(currentTarget)
+    if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
+        local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
+        if currentTarget > 1 then
+            currentTarget = currentTarget - 1
+        else
+            currentTarget = #ADGraphManager:getMapMarker()
         end
+        vehicle.ad.stateModule:setFirstMarker(currentTarget)
     end
 end
 
 function ADInputManager:input_nextTarget_Unload(vehicle)
-    if g_server ~= nil then
-        if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
-            if currentTarget < #ADGraphManager:getMapMarker() then
-                currentTarget = currentTarget + 1
-            else
-                currentTarget = 1
-            end
-            vehicle.ad.stateModule:setSecondMarker(currentTarget)
+    if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
+        local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
+        if currentTarget < #ADGraphManager:getMapMarker() then
+            currentTarget = currentTarget + 1
+        else
+            currentTarget = 1
         end
+        vehicle.ad.stateModule:setSecondMarker(currentTarget)
     end
 end
 
 function ADInputManager:input_previousTarget_Unload(vehicle)
-    if g_server ~= nil then
-        if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
-            if currentTarget > 1 then
-                currentTarget = currentTarget - 1
-            else
-                currentTarget = #ADGraphManager:getMapMarker()
-            end
-            vehicle.ad.stateModule:setSecondMarker(currentTarget)
+    if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
+        local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
+        if currentTarget > 1 then
+            currentTarget = currentTarget - 1
+        else
+            currentTarget = #ADGraphManager:getMapMarker()
         end
+        vehicle.ad.stateModule:setSecondMarker(currentTarget)
     end
 end
 
 function ADInputManager:input_nextFillType(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:nextFillType()
-    end
+    vehicle.ad.stateModule:nextFillType()
 end
 
 function ADInputManager:input_previousFillType(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:previousFillType()
-    end
+    vehicle.ad.stateModule:previousFillType()
 end
 
 function ADInputManager:input_continue(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:getCurrentMode():continue()
-    end
+    vehicle.ad.stateModule:getCurrentMode():continue()
 end
 
 function ADInputManager:input_callDriver(vehicle)
-    if g_server ~= nil then
-        if vehicle.spec_pipe ~= nil and vehicle.spec_enterable ~= nil then
-            ADHarvestManager:assignUnloaderToHarvester(vehicle)
-        end
+    if vehicle.spec_pipe ~= nil and vehicle.spec_enterable ~= nil then
+        ADHarvestManager:assignUnloaderToHarvester(vehicle)
     end
 end
 
 function ADInputManager:input_parkVehicle(vehicle)
-    if g_server ~= nil then
-        if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination) ~= nil then
-            vehicle.ad.stateModule:setFirstMarker(vehicle.ad.parkDestination)
-            if vehicle.ad.stateModule:isActive() then
-                self:input_start_stop(vehicle) --disable if already active
-            end
-            vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
-            self:input_start_stop(vehicle)
-            vehicle.ad.onRouteToPark = true
-        else
-            AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
+    if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination) ~= nil then
+        vehicle.ad.stateModule:setFirstMarker(vehicle.ad.parkDestination)
+        if vehicle.ad.stateModule:isActive() then
+            self:input_start_stop(vehicle) --disable if already active
         end
+        vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+        self:input_start_stop(vehicle)
+        vehicle.ad.onRouteToPark = true
+    else
+        AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
     end
 end
 
 function ADInputManager:input_swapTargets(vehicle)
-    if g_server ~= nil then
-        vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
-        vehicle.ad.stateModule:setSecondMarker(vehicle.ad.stateModule:getFirstMarkerId())
-    end
+    vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
+    vehicle.ad.stateModule:setSecondMarker(vehicle.ad.stateModule:getFirstMarkerId())
 end
