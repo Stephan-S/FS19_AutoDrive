@@ -54,7 +54,7 @@ function PathFinderModule:update()
     self.steps = self.steps + 1
 
     if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
-        if (not self.fallBackMode) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
+        if (not self.fallBackMode and not self.chasingVehicle) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
             --g_logManager:devInfo("Going into fallback mode - no fruit free path found in reasonable time");
             if not self.possiblyBlockedByOtherVehicle then
                 self.fallBackMode = true
@@ -793,12 +793,7 @@ function PathFinderModule:createWayPoints()
         self:smoothResultingPPPath()
     end
 
-    if AutoDrive.getSetting("smoothField") == true then
-        self:smoothResultingPPPath_Refined()
-    else
-        self.smoothStep = 2
-        self.smoothDone = true
-    end
+    self:smoothResultingPPPath_Refined()
 
     if self.smoothStep == 2 then
         if self.appendWayPoints ~= nil then

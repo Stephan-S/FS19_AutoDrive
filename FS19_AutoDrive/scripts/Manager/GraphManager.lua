@@ -422,7 +422,7 @@ function ADGraphManager:getDistanceBetweenNodes(start, target)
 
 	local distance = euclidianDistance
 
-	if AutoDrive.getSetting("avoidMarkers") then
+	if AutoDrive.getSetting("mapMarkerDetour") > 0 then
 		for _, mapMarker in pairs(self.mapMarker) do
 			if mapMarker.id == start then
 				distance = distance + AutoDrive.getSetting("mapMarkerDetour")
@@ -484,7 +484,7 @@ function ADGraphManager:getDriveTimeBetweenNodes(start, target, past, maxDriving
 	--avoid map marker
 
 	if not arrivalTime == true then --only for djikstra, for live travel timer we ignore it
-		if AutoDrive.getSetting("avoidMarkers") then
+		if AutoDrive.getSetting("mapMarkerDetour") > 0 then
 			for _, mapMarker in pairs(self.mapMarker) do
 				if mapMarker.id == start then
 					driveTime = driveTime + (AutoDrive.getSetting("mapMarkerDetour") / (20 / 3.6))

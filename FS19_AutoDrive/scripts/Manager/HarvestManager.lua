@@ -1,6 +1,7 @@
 ADHarvestManager = {}
 
 ADHarvestManager.MAX_PREDRIVE_LEVEL = 0.96
+ADHarvestManager.MAX_SEARCH_RANGE = 300
 
 function ADHarvestManager:load()
     self.harvesters = {}
@@ -44,7 +45,7 @@ function ADHarvestManager:update()
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil then
             if not self:alreadyAssignedUnloader(harvester) then
-                if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ADHarvestManager.isHarvesterActive(harvester) then
+                if not AutoDrive.combineIsTurning(harvester) and (ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ADHarvestManager.isHarvesterActive(harvester)) then
                     local closestUnloader = self:getClosestIdleUnloader(harvester)
                     if closestUnloader ~= nil then
                         closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
@@ -80,22 +81,20 @@ function ADHarvestManager.doesHarvesterNeedUnloading(harvester)
     if harvester.cp and harvester.cp.driver and harvester.cp.driver.isWaitingForUnload then
         cpIsCalling = harvester.cp.driver:isWaitingForUnload()
     end
-    return (((maxCapacity > 0 and leftCapacity < maxCapacity) or cpIsCalling) and harvester.ad.noMovementTimer.elapsedTime > 5000)
+    return (((maxCapacity > 0 and leftCapacity < 1.0) or cpIsCalling) and harvester.ad.noMovementTimer.elapsedTime > 5000)
 end
 
 function ADHarvestManager.isHarvesterActive(harvester)
     if harvester:getIsBufferCombine() then
         return true
     else
-        if AutoDrive.getSetting("preCallDriver", harvester) then
-            local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(harvester)
-            local maxCapacity = fillLevel + leftCapacity
-            local fillPercent = (fillLevel / maxCapacity)
-            local reachedPreCallLevel = fillPercent >= AutoDrive.getSetting("preCallLevel", harvester)
-            local isAlmostFull = fillPercent >= ADHarvestManager.MAX_PREDRIVE_LEVEL
+        local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(harvester)
+        local maxCapacity = fillLevel + leftCapacity
+        local fillPercent = (fillLevel / maxCapacity)
+        local reachedPreCallLevel = fillPercent >= AutoDrive.getSetting("preCallLevel", harvester)
+        local isAlmostFull = fillPercent >= ADHarvestManager.MAX_PREDRIVE_LEVEL
 
-            return reachedPreCallLevel and (not isAlmostFull)
-        end
+        return reachedPreCallLevel and (not isAlmostFull)
     end
 
     return false
@@ -124,10 +123,13 @@ function ADHarvestManager:getClosestIdleUnloader(harvester)
     local closestDistance = math.huge
     for _, unloader in pairs(self.idleUnloaders) do
         -- sort by distance to combine first
-        if unloader.ad.stateModule:getFirstMarker() == harvester.ad.stateModule:getFirstMarker() then
-            if closestUnloader == nil or AutoDrive.getDistanceBetween(unloader, harvester) < closestDistance then
+        local distance = AutoDrive.getDistanceBetween(unloader, harvester)
+        local distanceMatch = distance <= ADHarvestManager.MAX_SEARCH_RANGE and AutoDrive.getSetting("findDriver")
+        local targetsMatch = unloader.ad.stateModule:getFirstMarker() == harvester.ad.stateModule:getFirstMarker()
+        if distanceMatch or targetsMatch then
+            if closestUnloader == nil or distance < closestDistance then
                 closestUnloader = unloader
-                closestDistance = AutoDrive.getDistanceBetween(unloader, harvester)
+                closestDistance = distance
             end
         end
     end

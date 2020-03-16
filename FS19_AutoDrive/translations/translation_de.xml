@@ -41,7 +41,6 @@
 		<text name="AD_cannot_reach"							text="hat keinen Weg gefunden zu" />
 		<text name="AD_cannot_find_path"						text="hat keinen Pfad zum Ziel berechnen können" />
 		<text name="AD_new_marker"								text="Neues Ziel:" />
-		<text name="AD_new_marker_helptext"						text="Namen eingeben - Beenden mit Enter-Taste" />
 		<text name="AD_No_Trailer"								text="konnte keinen Anhänger finden" />
 		<text name="AD_No_Bunker"								text="konnte kein Fahrsilo finden" />
 		<text name="AD_No_Shovel"								text="konnte keine Schaufel finden" />
@@ -62,12 +61,8 @@
 		<text name="gui_ad_followDistance_tooltip"				text="Abstand vom Häcksler, wenn von hinten abgefahren/gefolgt wird" />
 		<text name="gui_ad_lookahead_turning"					text="Distanz Vorausschauen (Lenkung)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distanz die das Fahrzeug vorausschaut um frühzeitig in das nächste Segment einzulenken" />
-		<text name="gui_ad_lookahead_braking"					text="Distanz Vorausschauen (Bremse)" />
-		<text name="gui_ad_lookahead_braking_tooltip"			text="Distanz die das Fahrzeug vorausschaut um frühzeitig vor Kurven abzubremsen" />
 		<text name="gui_ad_useFastestRoute"						text="Schnellste Strecke bevorzugen" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="Beim Berechnen wird die erwartete Fahrgeschwindigkeit berücksichtigt und nicht nur die Entfernung" />
-		<text name="gui_ad_avoidMarkers"						text="Zielpunkte vermeiden" />
-		<text name="gui_ad_avoidMarkers_tooltip"				text="Die Zielsuche probiert das Durchfahren von anderen Zielpunkten zu vermeiden" />
 		<text name="gui_ad_mapMarkerDetour"						text="Maximaler Umweg" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Maximaler Umweg wenn Zielpunkte vermieden werden sollen" />
 		<text name="gui_ad_siloEmpty"							text="Wenn Silo leer" />
@@ -78,12 +73,6 @@
 		<text name="gui_ad_drive"								text="Weiterfahren" />
 		<text name="gui_ad_yes"									text="Ja" />
 		<text name="gui_ad_no"									text="Nein" />
-		<text name="ad_wait_for_combine"						text="Warten auf Drescher" />
-		<text name="ad_drive_to_combine"						text="Fahre zu Drescher" />
-		<text name="ad_unloading_combine"						text="Entlade Drescher" />
-		<text name="ad_drive_to_parkpos"						text="Parken" />
-		<text name="ad_drive_to_startpos"						text="Fahre zum Start" />
-		<text name="ad_drive_to_unloadpos"						text="Fahre abladen" />
 		<text name="ad_bga_init"								text="Initialisieren" />
 		<text name="ad_bga_waiting"								text="Warten auf Abfahrer/Silo" />
 		<text name="ad_bga_active"								text="Aktiv" />
@@ -108,8 +97,6 @@
 		<text name="gui_ad_showHelp_tooltip"					text="Tastenbelegung im F1 Hilfsfenster anzeigen" />
 		<text name="gui_ad_driverWages"							text="Fahrer Lohn" />
 		<text name="gui_ad_driverWages_tooltip"					text="Mit diesem Faktor werden die Lohnkosten der Fahrer multipliziert" />
-		<text name="gui_ad_smoothField"							text="Feldstrecken glätten" />
-		<text name="gui_ad_smoothField_tooltip"					text="Strecken zu/vom Drescher werden geglättet - Experimental" />
 		<text name="gui_ad_showNextPath"						text="Zeige nächsten Pfad" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Anzeige der nächsten 2 Wegpunkte an/ausschalten" />
 		<text name="gui_ad_avoidFruit"							text="Fruchtumfahrung" />
@@ -120,20 +107,12 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Linienhöhe im Editormodus wahlweise überm oder unterm Traktor" />
 		<text name="gui_ad_ground"								text="Bodenhöhe" />
 		<text name="gui_ad_aboveDriver"							text="Über dem Traktor" />
-		<text name="gui_ad_allowConsoleStyle"					text="Zieleingabe erlauben" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Erweiterte Zieleingabe per Tastatur erlauben - Standard: Linke Maustaste auf Zielnamen" />
 		<text name="gui_ad_enableTrafficDetection"				text="Kollisionserkennung" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Erweiterte Kollisionserkennung, die auch auf KI-Verkehr, Schilder, Zäune etc. reagiert." />
-		<text name="gui_ad_refillSeedAndFertilizer"				text="Saatgut und Dünger" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Erlaubt es sowohl Saatgut als auch Dünger zu laden, wenn eins von beidem ausgewählt ist." />
 		<text name="gui_ad_shovelWidth"							text="Schaufelbreite (Zusatz)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />
-		<text name="gui_ad_preCallDriver"						text="Abfahrer früher rufen" />
-		<text name="gui_ad_preCallDriver_tooltip"				text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />
 		<text name="gui_ad_preCallLevel"						text="Früher rufen ab" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />
-		<text name="gui_ad_chaseCombine"						text="Drescher folgen" />
-		<text name="gui_ad_chaseCombine_tooltip"				text="Drescher verfolgen - nachdem der Abfahrer früher gerufen wurde" />
 		<text name="gui_ad_distributeToFolder"					text="Mehrere Ziele" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Alle Ziele im selben Ordner werden als Abladeziel durchrotiert." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximaler Siloabstand" />
@@ -154,8 +133,6 @@
 		<text name="gui_ad_enterGroupNameText"					text="Ordnernamen eingeben:" />
 		<text name="gui_ad_autoRefuel"							text="Automatisch Auftanken" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Bei einem niedrigen Tanklevel wird automatisch ein Ziel in Tankstellennähe angefahren." />
-		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Turns off the vehicle when the destination is reached (and the player is not driving)" />
 		<text name="gui_ad_filter"								text="Filter" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Zielfilter ändern" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Zielfilter eingeben:" />

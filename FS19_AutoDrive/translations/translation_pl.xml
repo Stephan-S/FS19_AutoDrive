@@ -41,7 +41,6 @@
 		<text name="AD_cannot_reach"							text="nie może dotrzeć do" />
 		<text name="AD_cannot_find_path"						text="nie może określić trasy" />
 		<text name="AD_new_marker"								text="Nowy cel:" />
-		<text name="AD_new_marker_helptext"						text="Wprowadź nazwę - Zakończ za pomocą klawisza Enter" />
 		<text name="AD_No_Trailer"								text="nie mogłem znaleźć przyczepy" />
 		<text name="AD_No_Bunker"								text="nie mogłem znaleźć silosu" />
 		<text name="AD_No_Shovel"								text="nie mogłem znaleźć łychy" />
@@ -62,12 +61,8 @@
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Odległość patrzenia w przód (skręcanie)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Odległość jaką pojazd sprawdza przed sobą, aby dostosować sterowanie do następnego segmentu trasy" />
-		<text name="gui_ad_lookahead_braking"					text="Odległość patrzenia w przód (hamowanie)" />
-		<text name="gui_ad_lookahead_braking_tooltip"			text="Odległość jaką pojazd sprawdza przed sobą, aby dostosować prędkość do oczekiwanego promienia skrętu" />
 		<text name="gui_ad_useFastestRoute"						text="Użyj najszybszej trasy" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="Obliczając najlepsze trasy, weź pod uwagę prędkość jazdy zamiast  samej odległości" />
-		<text name="gui_ad_avoidMarkers"						text="Unikaj innych celów" />
-		<text name="gui_ad_avoidMarkers_tooltip"				text="Wyszukiwanie tras próbuje znaleźć objazdy celów. Przydatne, aby uniknąć zatorów" />
 		<text name="gui_ad_mapMarkerDetour"						text="Maksymalny objazd" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Maksymalny objazd podczas omijania celów" />
 		<text name="gui_ad_siloEmpty"							text="Jeśli silos jest pusty" />
@@ -78,12 +73,6 @@
 		<text name="gui_ad_drive"								text="Jedź dalej" />
 		<text name="gui_ad_yes"									text="Tak" />
 		<text name="gui_ad_no"									text="Nie" />
-		<text name="ad_wait_for_combine"						text="Czekaj na kombajn" />
-		<text name="ad_drive_to_combine"						text="Podjedź do kombajnu" />
-		<text name="ad_unloading_combine"						text="Rozładowanie kombajnu" />
-		<text name="ad_drive_to_parkpos"						text="Parking" />
-		<text name="ad_drive_to_startpos"						text="Jedź na początek" />
-		<text name="ad_drive_to_unloadpos"						text="Jedź do rozładunku" />
 		<text name="ad_bga_init"								text="Inicjowanie" />
 		<text name="ad_bga_waiting"								text="Oczekiwanie na przyczepę/silos" />
 		<text name="ad_bga_active"								text="Aktywny" />
@@ -108,8 +97,6 @@
 		<text name="gui_ad_showHelp_tooltip"					text="Wyświetl skróty klawiszowe w oknie F1" />
 		<text name="gui_ad_driverWages"							text="Wynagrodzenie kierowcy" />
 		<text name="gui_ad_driverWages_tooltip"					text="Wynagrodzenie kierowcy będzie mnożone przez tą wartość" />
-		<text name="gui_ad_smoothField"							text="Płynniejsza jazda po polu" />
-		<text name="gui_ad_smoothField_tooltip"					text="Kursy wygenerowane do i od kombajnu zostaną wygładzone (eksperymentalne)" />
 		<text name="gui_ad_showNextPath"						text="Pokaż następną trasę" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Wł./wył. wyświetlanie dwóch kolejnych punktów trasy" />
 		<text name="gui_ad_avoidFruit"							text="Unikaj upraw" />
@@ -120,20 +107,12 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Wysokość linii w trybie edycji. Na poziomie gruntu lub nad ciągnikiem" />
 		<text name="gui_ad_ground"								text="Poziom gruntu" />
 		<text name="gui_ad_aboveDriver"							text="Powyżej ciągnika" />
-		<text name="gui_ad_allowConsoleStyle"					text="Zezwól na wprowadzanie nazwy celu (tekst)" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Zezwól na zaawansowane wprowadzanie nazwy celu za pomocą klawiatury - domyślnie prawy klik na polu z tekstem nazwy celu" />
 		<text name="gui_ad_enableTrafficDetection"				text="Wykrywanie kolizji" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Zaawansowane wykrywanie kolizji, które wykrywa również ruch AI, znaki, ogrodzenia itp" />
-		<text name="gui_ad_refillSeedAndFertilizer"				text="Nasiona i nawóz" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Umożliwia AutoDrive napełnianie zarówno nasion, jak i nawozu, jeżeli jeden z nich jest wybrany jako rodzaj napełnienia." />
 		<text name="gui_ad_shovelWidth"							text="Szerokość łychy (dodatek)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Jeżeli automatycznie wykryta szerokość łychy jest zbyt mała, można ją zwiększyć o tą wartość" />
-		<text name="gui_ad_preCallDriver"						text="Wcześniejsze przywołanie kierowcy" />
-		<text name="gui_ad_preCallDriver_tooltip"				text="Przywołanie kierowcy przy wybranym poziomie napełnienia." />
 		<text name="gui_ad_preCallLevel"						text="Poziom wcześniejszego przywołania kierowcy" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Poziom napełnienia, przy którym przywoływany jest kierowca." />
-		<text name="gui_ad_chaseCombine"						text="Podążanie za kombajnem" />
-		<text name="gui_ad_chaseCombine_tooltip"				text="Wezwany wcześniej kierowca podąża za kombajnem" />
 		<text name="gui_ad_distributeToFolder"					text="Wiele celów" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Wszystkie cele w jednym folderze będą używane jedne pod drugim jak miejsca wyładunku." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maksymalna odległość do triggerów" />
@@ -154,8 +133,6 @@
 		<text name="gui_ad_enterGroupNameText"					text="Podaj nazwę folderu:" />
 		<text name="gui_ad_autoRefuel"							text="Automatyczne tankowanie" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Jedź do miejsca tankowania (blisko triggera z paliwem), kiedy poziom paliwa jest niski (15%)." />
-		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Turns off the vehicle when the destination is reached (and the player is not driving)" />
 		<text name="gui_ad_filter"								text="Filtr" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Zmień tekst filtrowania celów" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Podaj tekst filtrowania:" />

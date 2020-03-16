@@ -96,12 +96,8 @@ function CombineUnloaderMode:getNextTask()
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_COMBINE")
         -- we finished the precall to combine route
         -- check if we should wait / pull up to combines pipe
-        if AutoDrive.getSetting("chaseCombine", self.vehicle) or (self.combine ~= nil and self.combine:getIsBufferCombine()) then
-            nextTask = FollowCombineTask:new(self.vehicle, self.combine)
-            self.state = CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE
-        else
-            self:setToWaitForCall()
-        end
+        nextTask = FollowCombineTask:new(self.vehicle, self.combine)
+        self.state = CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE
     elseif self.state == CombineUnloaderMode.STATE_DRIVE_TO_PIPE then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_PIPE")
         --Drive to pipe can be finished when combine is emptied or when vehicle has reached 'old' pipe position and should switch to active mode

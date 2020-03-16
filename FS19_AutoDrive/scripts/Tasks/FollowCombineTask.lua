@@ -33,7 +33,7 @@ function FollowCombineTask:update(dt)
     end
 
     if self.state == FollowCombineTask.STATE_CHASING then
-        if self:combineIsTurning() then
+        if AutoDrive.combineIsTurning(self.combine) then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
@@ -45,7 +45,7 @@ function FollowCombineTask:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
-        if not self:combineIsTurning() then
+        if not AutoDrive.combineIsTurning(self.combine) then
             self:finished()
         end
         if self.filledToUnload then
