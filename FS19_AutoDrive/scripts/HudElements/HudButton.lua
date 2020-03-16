@@ -179,10 +179,10 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
         end
 
         if button == 1 and isUp then
-            InputManager:onInputCall(vehicle, self.primaryAction)
+            ADInputManager:onInputCall(vehicle, self.primaryAction)
             return true
         elseif (button == 3 or button == 2) and isUp then
-            InputManager:onInputCall(vehicle, self.secondaryAction)
+            ADInputManager:onInputCall(vehicle, self.secondaryAction)
             return true
         end
     end

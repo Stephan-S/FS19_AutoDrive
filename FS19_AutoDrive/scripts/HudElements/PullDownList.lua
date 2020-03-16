@@ -527,7 +527,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
-                            InputManager:onInputCall(vehicle, "input_setDestinationFilter")
+                            ADInputManager:onInputCall(vehicle, "input_setDestinationFilter")
                         end
                     end
                 elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.stateModule:isEditorModeEnabled() then
@@ -552,7 +552,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
-                            InputManager:onInputCall(vehicle, "input_setDestinationFilter")
+                            ADInputManager:onInputCall(vehicle, "input_setDestinationFilter")
                         end
                     end
                 end
@@ -580,7 +580,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive.mouseWheelActive = true
             return true
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_COLLAPSED then
-            InputManager:onInputCall(vehicle, "input_setDestinationFilter")
+            ADInputManager:onInputCall(vehicle, "input_setDestinationFilter")
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_EXPANDED then
             if hitIcon ~= nil and ((hitIcon == 2 and (not vehicle.ad.stateModule:isEditorModeEnabled())) or (hitIcon == 4 and vehicle.ad.stateModule:isEditorModeEnabled())) then
                 if hitElement.isFolder then

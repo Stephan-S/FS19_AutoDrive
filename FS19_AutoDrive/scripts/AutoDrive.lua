@@ -171,6 +171,7 @@ function AutoDrive:loadMap(name)
 	DrawingManager:load()
 	MessagesManager:load()
 	ADHarvestManager:load()
+	ADInputManager:load()
 end
 
 function AutoDrive:firstRun()

@@ -31,17 +31,17 @@ end
 
 function ADHudSpeedmeter:act(vehicle, posX, posY, isDown, isUp, button)
     if button == 1 and isUp then
-        InputManager:onInputCall(vehicle, self.primaryAction)
+        ADInputManager:onInputCall(vehicle, self.primaryAction)
         return true
     elseif (button == 3 or button == 2) and isUp then
-        InputManager:onInputCall(vehicle, self.secondaryAction)
+        ADInputManager:onInputCall(vehicle, self.secondaryAction)
         return true
     elseif button == 4 and isUp then
-        InputManager:onInputCall(vehicle, self.primaryAction)
+        ADInputManager:onInputCall(vehicle, self.primaryAction)
         AutoDrive.mouseWheelActive = true
         return true
     elseif button == 5 and isUp then
-        InputManager:onInputCall(vehicle, self.secondaryAction)
+        ADInputManager:onInputCall(vehicle, self.secondaryAction)
         AutoDrive.mouseWheelActive = true
         return true
     elseif button == 4 and isUp then
