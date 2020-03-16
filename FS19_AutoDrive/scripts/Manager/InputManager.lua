@@ -75,11 +75,19 @@ function ADInputManager.onActionCall(vehicle, actionName)
     ADInputManager:onInputCall(vehicle, input)
 end
 
-function ADInputManager:onInputCall(vehicle, input)
+function ADInputManager:onInputCall(vehicle, input, sendEvent)
     local func = self[input]
     if type(func) ~= "function" then
         g_logManager:devError("[AutoDrive] Input '%s' = '%s'", input, func)
         return
+    end
+
+    if sendEvent == nil or sendEvent == true then
+        local inputId = self.inputsToIds[input]
+        if inputId ~= nil then
+            AutoDriveInputEventEvent.sendEvent(vehicle, inputId)
+            return
+        end
     end
 
     func(ADInputManager, vehicle)
@@ -247,7 +255,7 @@ function ADInputManager:input_record(vehicle)
         if not vehicle.ad.stateModule:isEditorModeEnabled() then
             return
         end
-        AutoDrive:inputRecord(vehicle, false)
+        AutoDrive:toggleRecording(vehicle, false)
     end
 end
 
@@ -256,7 +264,7 @@ function ADInputManager:input_record_dual(vehicle)
         if not vehicle.ad.stateModule:isEditorModeEnabled() then
             return
         end
-        AutoDrive:inputRecord(vehicle, true)
+        AutoDrive:toggleRecording(vehicle, true)
     end
 end
 
@@ -393,8 +401,4 @@ function ADInputManager:input_swapTargets(vehicle)
         vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
         vehicle.ad.stateModule:setSecondMarker(vehicle.ad.stateModule:getFirstMarkerId())
     end
-end
-
-function AutoDrive:inputRecord(vehicle, dual)
-    AutoDrive:toggleRecording(vehicle, dual)
 end

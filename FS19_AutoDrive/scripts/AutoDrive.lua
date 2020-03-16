@@ -73,7 +73,6 @@ AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
@@ -269,13 +268,6 @@ function AutoDrive:update(dt)
 
 	AutoDrive.handlePerFrameOperations(dt)
 
-	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
-		if trigger.stoppedTimer == nil then
-			trigger.stoppedTimer = AutoDriveTON:new()
-		end
-		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
-	end
-
 	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
 	--AutoDrive.renderTime = 0
 	ADHarvestManager:update()
@@ -292,13 +284,13 @@ function AutoDrive.handlePerFrameOperations(dt)
 			else
 				vehicle.ad.driveForwardTimer:timer(false)
 			end
-		end		
+		end
 
 		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
 			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
 			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or (vehicle.cp.driver.fieldworkState ~= nil and vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING))
 			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
-			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20);
+			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20)
 			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
 			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
 		end

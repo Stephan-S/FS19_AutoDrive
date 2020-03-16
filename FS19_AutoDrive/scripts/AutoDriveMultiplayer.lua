@@ -1,18 +1,18 @@
 function AutoDrive.handleVehicleMultiplayer(vehicle, dt)
-    if g_server ~= nil then
-        if vehicle.lastUpdateEvent == nil then
-            vehicle.lastUpdateEvent = AutoDriveUpdateEvent:new(vehicle)
-            AutoDriveUpdateEvent:sendEvent(vehicle)
-        else
-            local newUpdate = AutoDriveUpdateEvent:new(vehicle)
-            if newUpdate:compareTo(vehicle.lastUpdateEvent) == false then
-                AutoDriveUpdateEvent:sendEvent(vehicle)
-                vehicle.lastUpdateEvent = newUpdate
-            else
-                --g_logManager:devInfo("No update required for " .. vehicle.name)
-            end
-        end
-    end
+    --if g_server ~= nil then
+    --    if vehicle.lastUpdateEvent == nil then
+    --        vehicle.lastUpdateEvent = AutoDriveUpdateEvent:new(vehicle)
+    --        AutoDriveUpdateEvent:sendEvent(vehicle)
+    --    else
+    --        local newUpdate = AutoDriveUpdateEvent:new(vehicle)
+    --        if newUpdate:compareTo(vehicle.lastUpdateEvent) == false then
+    --            AutoDriveUpdateEvent:sendEvent(vehicle)
+    --            vehicle.lastUpdateEvent = newUpdate
+    --        else
+    --            --g_logManager:devInfo("No update required for " .. vehicle.name)
+    --        end
+    --    end
+    --end
 end
 
 function AutoDrive:checkUsers()
