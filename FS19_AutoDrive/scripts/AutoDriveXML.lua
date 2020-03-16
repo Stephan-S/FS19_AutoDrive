@@ -5,16 +5,29 @@ function AutoDrive.loadStoredXML()
 
 	local xmlFile = AutoDrive.getXMLFile()
 
+	AutoDrive.currentVersion = AutoDrive.semanticVersionToValue(AutoDrive.version)
+	AutoDrive.versionUpdate = false
+	AutoDrive.versionUpdateCancelsSettingsLoad = false
+
 	if fileExists(xmlFile) then
 		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. xmlFile)
 		AutoDrive.adXml = loadXMLFile("AutoDrive_XML", xmlFile)
 
-		local VersionCheck = getXMLString(AutoDrive.adXml, "AutoDrive.version")
-		if VersionCheck ~= AutoDrive.version then
-			AutoDrive.versionUpdate = true
+		local versionString = getXMLString(AutoDrive.adXml, "AutoDrive.version")
+		if versionString ~= nil then
+			AutoDrive.savedVersion = AutoDrive.semanticVersionToValue(versionString)			
+
+			if AutoDrive.savedVersion < AutoDrive.currentVersion then
+				AutoDrive.versionUpdate = true
+			end
+
+			if AutoDrive.versionUpdate and AutoDrive.currentVersion ~= nil and AutoDrive.currentVersion == 1100 then
+				--Dont read settings from config file - we will create a small pop up menu instead to inform users that the default values have changed and were thus reloaded
+				AutoDrive.versionUpdateCancelsSettingsLoad = true
+			end
 		end
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
-		if VersionCheck == nil or MapCheck == false then
+		if versionString == nil or MapCheck == false then
 			g_logManager:devWarning("[AutoDrive] Version Check (%s) or Map Check (%s) failed", VersionCheck == nil, MapCheck == false)
 			AutoDrive.loadInitConfig(xmlFile, false)
 		else
@@ -81,16 +94,18 @@ function AutoDrive.readFromXML(xmlFile)
 	AutoDrive.showingHud = getXMLBool(xmlFile, "AutoDrive.HudShow")
 
 	AutoDrive.currentDebugChannelMask = getXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask") or 0
-
-	for settingName, _ in pairs(AutoDrive.settings) do
-		local value = getXMLFloat(xmlFile, "AutoDrive." .. settingName)
-		if value ~= nil then
-			AutoDrive.settings[settingName].current = value
+	
+	if not AutoDrive.versionUpdateCancelsSettingsLoad then
+		for settingName, _ in pairs(AutoDrive.settings) do
+			local value = getXMLFloat(xmlFile, "AutoDrive." .. settingName)
+			if value ~= nil then
+				AutoDrive.settings[settingName].current = value
+			end
 		end
-	end
 
-	for feature, _ in pairs(AutoDrive.experimentalFeatures) do
-		AutoDrive.experimentalFeatures[feature] = Utils.getNoNil(getXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled"), AutoDrive.experimentalFeatures[feature])
+		for feature, _ in pairs(AutoDrive.experimentalFeatures) do
+			AutoDrive.experimentalFeatures[feature] = Utils.getNoNil(getXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled"), AutoDrive.experimentalFeatures[feature])
+		end
 	end
 
 	local mapMarker = {}

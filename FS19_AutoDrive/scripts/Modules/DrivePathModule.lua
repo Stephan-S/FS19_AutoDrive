@@ -112,6 +112,12 @@ function ADDrivePathModule:isCloseToWaypoint()
             if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z) < self.min_distance then
                 return true
             end
+            -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
+            if i > 0 then
+                if AutoDrive.pointIsBetweenTwoPoints(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z) then
+                    return true
+                end
+            end
         end
     end
     return false

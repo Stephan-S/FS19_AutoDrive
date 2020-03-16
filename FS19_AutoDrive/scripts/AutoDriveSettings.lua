@@ -19,45 +19,45 @@ AutoDrive.settings.pipeOffset = {
         -1.5,
         -1.25,
         -1.0,
-        -0.95
-        -0.9
-        -0.85
-        -0.8
+        -0.95,
+        -0.9,
+        -0.85,
+        -0.8,
         -0.75,
-        -0.7
-        -0.65
-        -0.6
-        -0.55
+        -0.7,
+        -0.65,
+        -0.6,
+        -0.55,
         -0.5,
-        -0.45
-        -0.4
-        -0.35
-        -0.3
+        -0.45,
+        -0.4,
+        -0.35,
+        -0.3,
         -0.25,
-        -0.2
-        -0.15
-        -0.1
-        -0.05
+        -0.2,
+        -0.15,
+        -0.1,
+        -0.05,
         0,
-        0.05
-        0.1
-        0.15
-        0.2
+        0.05,
+        0.1,
+        0.15,
+        0.2,
         0.25,
-        0.3
-        0.35
-        0.4
-        0.45
+        0.3,
+        0.35,
+        0.4,
+        0.45,
         0.5,
-        0.55
-        0.6
-        0.65
-        0.7
+        0.55,
+        0.6,
+        0.65,
+        0.7,
         0.75,
-        0.8
-        0.85
-        0.9
-        0.95
+        0.8,
+        0.85,
+        0.9,
+        0.95,
         1.0,
         1.25,
         1.5,
@@ -850,9 +850,11 @@ function AutoDrive.readVehicleSettingsFromXML(vehicle, xmlFile, key)
             settingVehicle.current = setting.current
             vehicle.ad.settings[settingName] = settingVehicle
 
-            local storedSetting = getXMLInt(xmlFile, key .. "#" .. settingName)
-            if storedSetting ~= nil then
-                vehicle.ad.settings[settingName].current = storedSetting
+            if not AutoDrive.versionUpdateCancelsSettingsLoad then
+                local storedSetting = getXMLInt(xmlFile, key .. "#" .. settingName)
+                if storedSetting ~= nil then
+                    vehicle.ad.settings[settingName].current = storedSetting
+                end
             end
         end
     end
