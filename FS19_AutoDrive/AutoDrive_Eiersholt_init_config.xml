@@ -24,10 +24,8 @@
     <avoidFruit>2.000000</avoidFruit>
     <autoConnectStart>1.000000</autoConnectStart>
     <recalculationSpeed>2.000000</recalculationSpeed>
-    <smoothField>2.000000</smoothField>
     <findDriver>2.000000</findDriver>
     <lineHeight>1.000000</lineHeight>
-    <avoidMarkers>2.000000</avoidMarkers>
     <mapMarkerDetour>2.000000</mapMarkerDetour>
     <showHelp>2.000000</showHelp>
     <lookAheadTurning>7.000000</lookAheadTurning>
@@ -686,8 +684,6 @@
         </mapmarker>
     </Eiersholt>
     <preCallLevel>7.000000</preCallLevel>
-    <chaseCombine>1.000000</chaseCombine>
-    <preCallDriver>1.000000</preCallDriver>
     <distributeToFolder>1.000000</distributeToFolder>
     <maxTriggerDistance>2.000000</maxTriggerDistance>
     <restrictToField>2.000000</restrictToField>

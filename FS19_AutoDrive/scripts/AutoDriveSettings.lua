@@ -19,13 +19,45 @@ AutoDrive.settings.pipeOffset = {
         -1.5,
         -1.25,
         -1.0,
+        -0.95
+        -0.9
+        -0.85
+        -0.8
         -0.75,
+        -0.7
+        -0.65
+        -0.6
+        -0.55
         -0.5,
+        -0.45
+        -0.4
+        -0.35
+        -0.3
         -0.25,
+        -0.2
+        -0.15
+        -0.1
+        -0.05
         0,
+        0.05
+        0.1
+        0.15
+        0.2
         0.25,
+        0.3
+        0.35
+        0.4
+        0.45
         0.5,
+        0.55
+        0.6
+        0.65
+        0.7
         0.75,
+        0.8
+        0.85
+        0.9
+        0.95
         1.0,
         1.25,
         1.5,
@@ -62,13 +94,45 @@ AutoDrive.settings.pipeOffset = {
         "-1.5m",
         "-1.25m",
         "-1.0m",
+        "-0.95m",
+        "-0.9m",
+        "-0.85m",
+        "-0.8m",
         "-0.75m",
+        "-0.7m",
+        "-0.65m",
+        "-0.6m",
+        "-0.55m",
         "-0.5m",
+        "-0.45m",
+        "-0.4m",
+        "-0.35m",
+        "-0.3m",
         "-0.25m",
+        "-0.2m",
+        "-0.15m",
+        "-0.1m",
+        "-0.05m",
         "0 m",
+        "0.05 m",
+        "0.1 m",
+        "0.15 m",
+        "0.2 m",
         "0.25 m",
+        "0.3 m",
+        "0.35 m",
+        "0.4 m",
+        "0.45 m",
         "0.5 m",
+        "0.55 m",
+        "0.6 m",
+        "0.65 m",
+        "0.7 m",
         "0.75 m",
+        "0.8 m",
+        "0.85 m",
+        "0.9 m",
+        "0.95 m",
         "1.0 m",
         "1.25 m",
         "1.5 m",
@@ -87,8 +151,8 @@ AutoDrive.settings.pipeOffset = {
         "4.75 m",
         "5.0 m"
     },
-    default = 24,
-    current = 24,
+    default = 52,
+    current = 52,
     text = "gui_ad_pipe_offset",
     tooltip = "gui_ad_pipe_offset",
     translate = false,
@@ -291,17 +355,6 @@ AutoDrive.settings.useFastestRoute = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.avoidMarkers = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 1,
-    current = 1,
-    text = "gui_ad_avoidMarkers",
-    tooltip = "gui_ad_avoidMarkers_tooltip",
-    translate = true,
-    isVehicleSpecific = false
-}
-
 AutoDrive.settings.mapMarkerDetour = {
     values = {0, 10, 50, 100, 200, 300, 500, 1000, 10000},
     texts = {"0m", "10m", "50m", "100m", "200m", "500m", "1000m", "10000m"},
@@ -371,8 +424,8 @@ AutoDrive.settings.unloadFillLevel = {
 AutoDrive.settings.findDriver = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
+    default = 1,
+    current = 1,
     text = "gui_ad_findDriver",
     tooltip = "gui_ad_findDriver_tooltip",
     translate = true,
@@ -421,17 +474,6 @@ AutoDrive.settings.driverWages = {
     text = "gui_ad_driverWages",
     tooltip = "gui_ad_driverWages_tooltip",
     translate = false,
-    isVehicleSpecific = false
-}
-
-AutoDrive.settings.smoothField = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_smoothField",
-    tooltip = "gui_ad_smoothField_tooltip",
-    translate = true,
     isVehicleSpecific = false
 }
 
@@ -486,17 +528,6 @@ AutoDrive.settings.enableTrafficDetection = {
     current = 1,
     text = "gui_ad_enableTrafficDetection",
     tooltip = "gui_ad_enableTrafficDetection_tooltip",
-    translate = true,
-    isVehicleSpecific = false
-}
-
-AutoDrive.settings.refillSeedAndFertilizer = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_refillSeedAndFertilizer",
-    tooltip = "gui_ad_refillSeedAndFertilizer_tooltip",
     translate = true,
     isVehicleSpecific = false
 }
@@ -638,36 +669,14 @@ AutoDrive.settings.useFolders = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.preCallDriver = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 1,
-    current = 1,
-    text = "gui_ad_preCallDriver",
-    tooltip = "gui_ad_preCallDriver_tooltip",
-    translate = true,
-    isVehicleSpecific = true
-}
-
 AutoDrive.settings.preCallLevel = {
-    values = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95},
-    texts = {"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "85%", "90%", "95%"},
+    values = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 1},
+    texts = {"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "85%", "90%", "100%"},
     default = 7,
     current = 7,
     text = "gui_ad_preCallLevel",
     tooltip = "gui_ad_preCallLevel_tooltip",
     translate = false,
-    isVehicleSpecific = true
-}
-
-AutoDrive.settings.chaseCombine = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 1,
-    current = 1,
-    text = "gui_ad_chaseCombine",
-    tooltip = "gui_ad_chaseCombine_tooltip",
-    translate = true,
     isVehicleSpecific = true
 }
 
@@ -735,17 +744,6 @@ AutoDrive.settings.autoRefuel = {
     tooltip = "gui_ad_autoRefuel_tooltip",
     translate = true,
     isVehicleSpecific = true
-}
-
-AutoDrive.settings.fuelSaving = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_fuelSaving",
-    tooltip = "gui_ad_fuelSaving_tooltip",
-    translate = true,
-    isVehicleSpecific = false -- Maybe it should be 'vehicle specific' but it would be a hell to manually set it on every vehicle
 }
 
 AutoDrive.settings.showMarkersOnMap = {

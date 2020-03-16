@@ -41,7 +41,6 @@
 		<text name="AD_cannot_reach"							text="non può raggiungere" />
 		<text name="AD_cannot_find_path"						text="impossibile calcolare un percorso" />
 		<text name="AD_new_marker"								text="Nuovo obbiettivo:" />
-		<text name="AD_new_marker_helptext"						text="Inserisci il nome (Termina con invio)" />
 		<text name="AD_No_Trailer"								text="impossibile trovare il rimorchio" />
 		<text name="AD_No_Bunker"								text="impossibile trovare il bunker" />
 		<text name="AD_No_Shovel"								text="impossibile trovare una pala collegata" />
@@ -62,12 +61,8 @@
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Distanza d'avanti (sterzata)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="La distanza alla quale il veicolo aggiusta la sterzata per seguire il prossimo segmento del percorso" />
-		<text name="gui_ad_lookahead_braking"					text="Distanza d'avanti (frenata)" />
-		<text name="gui_ad_lookahead_braking_tooltip"			text="La distanza alla quale il veicolo aggiusta la velocità per effettuare una curva" />
 		<text name="gui_ad_useFastestRoute"						text="Usa la strada più veloce" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="Prendi in considerazione la velocità di guida invece delle semplici distanze, quando calcoli i percorsi migliori" />
-		<text name="gui_ad_avoidMarkers"						text="Evita di attraversare i punti di destinazione" />
-		<text name="gui_ad_avoidMarkers_tooltip"				text="La ricerca tenta di trovare un percorso che non passi per un punto di destinazione" />
 		<text name="gui_ad_mapMarkerDetour"						text="Deviazione massima" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Deviazione massima quando si sceglie di evitare le destinazioni" />
 		<text name="gui_ad_siloEmpty"							text="Se il silo è vuoto" />
@@ -78,12 +73,6 @@
 		<text name="gui_ad_drive"								text="Continua" />
 		<text name="gui_ad_yes"									text="Si" />
 		<text name="gui_ad_no"									text="No" />
-		<text name="ad_wait_for_combine"						text="Aspetto la trebbia" />
-		<text name="ad_drive_to_combine"						text="Vado alla trebbia" />
-		<text name="ad_unloading_combine"						text="Scarico la trebbia" />
-		<text name="ad_drive_to_parkpos"						text="Parcheggio" />
-		<text name="ad_drive_to_startpos"						text="Vado all'inizio" />
-		<text name="ad_drive_to_unloadpos"						text="Vado al punto di scarico" />
 		<text name="ad_bga_init"								text="Inizializzazione" />
 		<text name="ad_bga_waiting"								text="In attesa del rimorchio/Silos" />
 		<text name="ad_bga_active"								text="Attivo" />
@@ -108,8 +97,6 @@
 		<text name="gui_ad_showHelp_tooltip"					text="Mostra la combinazione dei tasti in F1" />
 		<text name="gui_ad_driverWages"							text="Salario Autisti" />
 		<text name="gui_ad_driverWages_tooltip"					text="Il salario del autista sarà moltiplicato per questo valore" />
-		<text name="gui_ad_smoothField"							text="Guida più fluida sul campo" />
-		<text name="gui_ad_smoothField_tooltip"					text="I percorsi generati da e verso la mietitrebbia saranno più rotondi (sperimentale)" />
 		<text name="gui_ad_showNextPath"						text="Mostra il percorso successivo" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Attiva/disattiva visualizzazione dei prossimi due waypoint" />
 		<text name="gui_ad_avoidFruit"							text="Evita raccolto" />
@@ -120,20 +107,12 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Altezza della linea in modalità editor. A livello del suolo o sopra il veicolo" />
 		<text name="gui_ad_ground"								text="Livello del suolo" />
 		<text name="gui_ad_aboveDriver"							text="Sopra il veicolo" />
-		<text name="gui_ad_allowConsoleStyle"					text="Consenti inserimento obbiettivo(testo)" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Consenti Inserimento obbiettivo avanzato tramite tastiera: fai clic con il pulsante destro del mouse sul campo di testo obbiettivo" />
 		<text name="gui_ad_enableTrafficDetection"				text="Rileva collisioni" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Rilevamento di collisioni avanzato, che rileva anche traffico AI, segnali stradali, recinzioni ecc" />
-		<text name="gui_ad_refillSeedAndFertilizer"				text="Semi e Fertilizzante" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Consente a AutoDrive di riempire sia i compartimenti di sementi che di fertilizzante, se uno di questi è selezionato come tipo di riempimento." />
 		<text name="gui_ad_shovelWidth"							text="Larghezza della pala (aggiunta)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Se la larghezza della pala rilevata automaticamente è troppo piccola, può essere aumentata con questo valore" />
-		<text name="gui_ad_preCallDriver"						text="Anticipa chiamata autista" />
-		<text name="gui_ad_preCallDriver_tooltip"				text="Anticipa chiamata autista al livello impostato." />
 		<text name="gui_ad_preCallLevel"						text="Anticipa chiamata per scarico" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Anticipa chiamata per scarico al livello impostato" />
-		<text name="gui_ad_chaseCombine"						text="Segui la mietitrebbia in scarico" />
-		<text name="gui_ad_chaseCombine_tooltip"				text="Il mezzo per lo scarico segue la mietitrebbia se è stata anticipata chiamata" />
 		<text name="gui_ad_distributeToFolder"					text="Obiettivi multipli" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Tutte le destinazioni nella stessa cartella verranno ruotate come destinazioni di scarico." />
 		<text name="gui_ad_maxTriggerDistance"					text="Distanza massima dal trigger" />
@@ -154,8 +133,6 @@
 		<text name="gui_ad_enterGroupNameText"					text="Inserisci nome cartella:" />
 		<text name="gui_ad_autoRefuel"							text="Rifornimento Automatico" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Si dirige verso la destinazione di rifornimento (vicino al punto di rifornimento) quando il livello del carburante è basso." />
-		<text name="gui_ad_fuelSaving"							text="Risparmio carburante" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Spegne il veicolo quando viene raggiunta la destinazione (e il giocatore non è sul veicolo)" />
 		<text name="gui_ad_filter"								text="Filtro" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Carica un testo filtro per le destinazioni." />
 		<text name="gui_ad_enterDestinationFilterText"			text="Inserisci testo filtro:" />
