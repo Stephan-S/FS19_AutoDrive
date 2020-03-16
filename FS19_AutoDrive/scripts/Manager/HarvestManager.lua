@@ -45,13 +45,8 @@ function ADHarvestManager:update()
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil then
             if not self:alreadyAssignedUnloader(harvester) then
-                if not AutoDrive.combineIsTurning(harvester) and (ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ADHarvestManager.isHarvesterActive(harvester)) then
-                    local closestUnloader = self:getClosestIdleUnloader(harvester)
-                    if closestUnloader ~= nil then
-                        closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
-                        table.insert(self.activeUnloaders, closestUnloader)
-                        table.removeValue(self.idleUnloaders, closestUnloader)
-                    end
+                if  ADHarvestManager.doesHarvesterNeedUnloading(harvester) or (not AutoDrive.combineIsTurning(harvester) and ADHarvestManager.isHarvesterActive(harvester)) then
+                    self:assignUnloaderToHarvester(harvester)
                 end
             --[[
             else
@@ -98,6 +93,15 @@ function ADHarvestManager.isHarvesterActive(harvester)
     end
 
     return false
+end
+
+function ADHarvestManager:assignUnloaderToHarvester(harvester)
+    local closestUnloader = self:getClosestIdleUnloader(harvester)
+    if closestUnloader ~= nil then
+        closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:assignToHarvester(harvester)
+        table.insert(self.activeUnloaders, closestUnloader)
+        table.removeValue(self.idleUnloaders, closestUnloader)
+    end
 end
 
 function ADHarvestManager:alreadyAssignedUnloader(harvester)

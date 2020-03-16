@@ -98,9 +98,11 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     self.distanceToChasePos = MathUtil.vector2Length(x - point.x, z - point.z)
 
-    if self.distanceToChasePos < 1 then
+    if self.distanceToChasePos < 2 then
         speed = maxFollowSpeed * 0.5
-    elseif self.distanceToChasePos < 15 then
+    elseif self.distanceToChasePos < 7 then
+        speed = maxFollowSpeed + (self.distanceToChasePos*0.5)
+    elseif self.distanceToChasePos < 20 then
         speed = maxFollowSpeed + self.distanceToChasePos
     end
 

@@ -267,6 +267,8 @@ function AutoDrive:update(dt)
 		delayedCallBack:update(dt)
 	end
 
+	AutoDrive.handlePerFrameOperations(dt)
+
 	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
 		if trigger.stoppedTimer == nil then
 			trigger.stoppedTimer = AutoDriveTON:new()
@@ -277,6 +279,37 @@ function AutoDrive:update(dt)
 	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
 	--AutoDrive.renderTime = 0
 	ADHarvestManager:update()
+end
+
+function AutoDrive.handlePerFrameOperations(dt)
+	for _, vehicle in pairs(g_currentMission.vehicles) do
+		if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
+			vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt)
+
+			local vehicleSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 10)
+			if (not vehicleSteering) and ((vehicle.lastSpeedReal * vehicle.movingDirection) >= 0.0008) then
+				vehicle.ad.driveForwardTimer:timer(true, 20000, dt)
+			else
+				vehicle.ad.driveForwardTimer:timer(false)
+			end
+		end		
+
+		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
+			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
+			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or (vehicle.cp.driver.fieldworkState ~= nil and vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING))
+			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
+			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20);
+			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
+			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
+		end
+	end
+
+	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
+		if trigger.stoppedTimer == nil then
+			trigger.stoppedTimer = AutoDriveTON:new()
+		end
+		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
+	end
 end
 
 function AutoDrive:draw()

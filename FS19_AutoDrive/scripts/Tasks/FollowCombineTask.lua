@@ -37,7 +37,9 @@ function FollowCombineTask:update(dt)
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
-        end
+        end        
+        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
         if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength) / 2 + 2) then
             self:reverse(dt)

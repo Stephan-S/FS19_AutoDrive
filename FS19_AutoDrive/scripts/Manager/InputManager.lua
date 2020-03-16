@@ -293,15 +293,13 @@ end
 function ADInputManager:input_nextTarget(vehicle)
     if g_server ~= nil then
         if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local destinations = AutoDrive:getSortedDestinations()
-            local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getFirstMarkerId())
-
-            local nextDestination = next(destinations, currentIndex)
-            if nextDestination == nil then
-                nextDestination = next(destinations, nil)
+            local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
+            if currentTarget < #ADGraphManager:getMapMarker() then
+                currentTarget = currentTarget + 1
+            else
+                currentTarget = 1
             end
-
-            vehicle.ad.stateModule:setFirstMarker(destinations[nextDestination].id)
+            vehicle.ad.stateModule:setFirstMarker(currentTarget)
         end
     end
 end
@@ -309,17 +307,13 @@ end
 function ADInputManager:input_previousTarget(vehicle)
     if g_server ~= nil then
         if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local destinations = AutoDrive:getSortedDestinations()
-            local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getFirstMarkerId())
-
-            local previousIndex = 1
-            if currentIndex > 1 then
-                previousIndex = currentIndex - 1
+            local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
+            if currentTarget > 1 then
+                currentTarget = currentTarget - 1
             else
-                previousIndex = #destinations
+                currentTarget = #ADGraphManager:getMapMarker()
             end
-
-            vehicle.ad.stateModule:setFirstMarker(destinations[previousIndex].id)
+            vehicle.ad.stateModule:setFirstMarker(currentTarget)
         end
     end
 end
@@ -327,15 +321,13 @@ end
 function ADInputManager:input_nextTarget_Unload(vehicle)
     if g_server ~= nil then
         if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local destinations = AutoDrive:getSortedDestinations()
-            local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getSecondMarkerId())
-
-            local nextDestination = next(destinations, currentIndex)
-            if nextDestination == nil then
-                nextDestination = next(destinations, nil)
+            local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
+            if currentTarget < #ADGraphManager:getMapMarker() then
+                currentTarget = currentTarget + 1
+            else
+                currentTarget = 1
             end
-
-            vehicle.ad.stateModule:setSecondMarker(destinations[nextDestination].id)
+            vehicle.ad.stateModule:setSecondMarker(currentTarget)
         end
     end
 end
@@ -343,17 +335,13 @@ end
 function ADInputManager:input_previousTarget_Unload(vehicle)
     if g_server ~= nil then
         if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
-            local destinations = AutoDrive:getSortedDestinations()
-            local currentIndex = AutoDrive:getElementWithIdInList(destinations, vehicle.ad.stateModule:getSecondMarkerId())
-
-            local previousIndex = 1
-            if currentIndex > 1 then
-                previousIndex = currentIndex - 1
+            local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
+            if currentTarget > 1 then
+                currentTarget = currentTarget - 1
             else
-                previousIndex = #destinations
+                currentTarget = #ADGraphManager:getMapMarker()
             end
-
-            vehicle.ad.stateModule:setSecondMarker(destinations[previousIndex].id)
+            vehicle.ad.stateModule:setSecondMarker(currentTarget)
         end
     end
 end
@@ -378,9 +366,8 @@ end
 
 function ADInputManager:input_callDriver(vehicle)
     if g_server ~= nil then
-        -- TODO: should we also/only check if the current "vehicle" is registered in the HarvestManager ?
         if vehicle.spec_pipe ~= nil and vehicle.spec_enterable ~= nil then
-            AutoDrive:callDriverToCombine(vehicle)
+            ADHarvestManager:assignUnloaderToHarvester(vehicle)
         end
     end
 end
@@ -408,82 +395,6 @@ function ADInputManager:input_swapTargets(vehicle)
     end
 end
 
--- TODO: move functions below to a proper file
-
 function AutoDrive:inputRecord(vehicle, dual)
-    if not vehicle.ad.stateModule:isInCreationMode() then
-        if dual then
-            --print("AutoDrive:inputRecord - start recording dual")
-            vehicle.ad.stateModule:startDualCreationMode()
-        else
-            --print("AutoDrive:inputRecord - start recording normal")
-            vehicle.ad.stateModule:startNormalCreationMode()
-        end
-        AutoDrive.disableAutoDriveFunctions(vehicle)
-    else
-        --print("AutoDrive:inputRecord - disable recording")
-        vehicle.ad.stateModule:disableCreationMode()
-
-        if AutoDrive.getSetting("autoConnectEnd") then
-            if vehicle.ad.lastCreatedWp ~= nil then
-                local targetID = ADGraphManager:findMatchingWayPointForVehicle(vehicle)
-                if targetID ~= nil then
-                    local targetNode = ADGraphManager:getWayPointById(targetID)
-                    if targetNode ~= nil then
-                        targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.lastCreatedWp.id
-                        vehicle.ad.lastCreatedWp.out[#vehicle.ad.lastCreatedWp.out + 1] = targetNode.id
-                        if dual == true then
-                            targetNode.out[#targetNode.out + 1] = vehicle.ad.lastCreatedWp.id
-                            vehicle.ad.lastCreatedWp.incoming[#vehicle.ad.lastCreatedWp.incoming + 1] = targetNode.id
-                        end
-
-                        AutoDriveCourseEditEvent:sendEvent(targetNode)
-                    end
-                end
-            end
-        end
-
-        vehicle.ad.lastCreatedWp = nil
-        vehicle.ad.secondLastCreatedWp = nil
-    end
-end
-
-function AutoDrive:getElementWithIdInList(destinations, id)
-    local currentIndex = 1
-    for index, destination in ipairs(destinations) do
-        if destination.id == id then
-            currentIndex = index
-        end
-    end
-    return currentIndex
-end
-
-function AutoDrive:getSortedDestinations()
-    local destinations = AutoDrive:createCopyOfDestinations()
-
-    local sort_func = function(a, b)
-        a = tostring(a.name):lower()
-        b = tostring(b.name):lower()
-        local patt = "^(.-)%s*(%d+)$"
-        local _, _, col1, num1 = a:find(patt)
-        local _, _, col2, num2 = b:find(patt)
-        if (col1 and col2) and col1 == col2 then
-            return tonumber(num1) < tonumber(num2)
-        end
-        return a < b
-    end
-
-    table.sort(destinations, sort_func)
-
-    return destinations
-end
-
-function AutoDrive:createCopyOfDestinations()
-    local destinations = {}
-
-    for destinationIndex, destination in pairs(ADGraphManager:getMapMarker()) do
-        table.insert(destinations, {id = destinationIndex, name = destination.name})
-    end
-
-    return destinations
+    AutoDrive:toggleRecording(vehicle, dual)
 end

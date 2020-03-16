@@ -52,6 +52,8 @@ function EmptyHarvesterTask:update(dt)
                 self.vehicle.ad.drivePathModule:update(dt)
             end
         end
+        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
         -- Stopping CP drivers for now
         if self.combine.cp and self.combine.cp.driver and self.combine.cp.driver.holdForUnloadOrRefill then

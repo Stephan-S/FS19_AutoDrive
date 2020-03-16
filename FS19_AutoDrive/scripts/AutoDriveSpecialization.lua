@@ -200,30 +200,6 @@ function AutoDrive:onUpdate(dt)
     ADSensor:handleSensors(self, dt)
     AutoDrive.handleVehicleMultiplayer(self, dt)
     AutoDrive:handleDriverWages(self, dt)
-
-    if self.isServer then
-        if self.ad.stateModule:isActive() and self.lastMovedDistance > 0 then
-            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
-        end
-
-        if self.lastSpeedReal ~= nil then
-            self.ad.noMovementTimer:timer((self.lastSpeedReal <= 0.0010), 3000, dt)
-
-            local vehicleSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 10)
-            if (not vehicleSteering) and ((self.lastSpeedReal * self.movingDirection) >= 0.0008) then
-                self.ad.driveForwardTimer:timer(true, 20000, dt)
-            else
-                self.ad.driveForwardTimer:timer(false)
-            end
-        end
-
-        local cpIsTurning = self.cp ~= nil and (self.cp.isTurning or (self.cp.turnStage ~= nil and self.cp.turnStage > 0))
-        local cpIsTurningTwo = self.cp ~= nil and self.cp.driver and (self.cp.driver.turnIsDriving or (self.cp.driver.fieldworkState ~= nil and self.cp.driver.fieldworkState == self.cp.driver.states.TURNING))
-        local aiIsTurning = (self.getAIIsTurning ~= nil and self:getAIIsTurning() == true)
-        local combineSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 20)
-        local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-        self.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
-    end
 end
 
 function AutoDrive:handleDriverWages(vehicle, dt)
@@ -456,6 +432,41 @@ function AutoDrive.drawPointsInProximity(vehicle)
                 AutoDriveDM:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
             end
         end
+    end
+end
+
+function AutoDrive:toggleRecording(vehicle, dual)
+    if not vehicle.ad.stateModule:isInCreationMode() then
+        if dual then
+            vehicle.ad.stateModule:startDualCreationMode()
+        else
+            vehicle.ad.stateModule:startNormalCreationMode()
+        end
+        AutoDrive.disableAutoDriveFunctions(vehicle)
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+
+        if AutoDrive.getSetting("autoConnectEnd") then
+            if vehicle.ad.lastCreatedWp ~= nil then
+                local targetID = ADGraphManager:findMatchingWayPointForVehicle(vehicle)
+                if targetID ~= nil then
+                    local targetNode = ADGraphManager:getWayPointById(targetID)
+                    if targetNode ~= nil then
+                        targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.lastCreatedWp.id
+                        vehicle.ad.lastCreatedWp.out[#vehicle.ad.lastCreatedWp.out + 1] = targetNode.id
+                        if dual == true then
+                            targetNode.out[#targetNode.out + 1] = vehicle.ad.lastCreatedWp.id
+                            vehicle.ad.lastCreatedWp.incoming[#vehicle.ad.lastCreatedWp.incoming + 1] = targetNode.id
+                        end
+
+                        AutoDriveCourseEditEvent:sendEvent(targetNode)
+                    end
+                end
+            end
+        end
+
+        vehicle.ad.lastCreatedWp = nil
+        vehicle.ad.secondLastCreatedWp = nil
     end
 end
 
