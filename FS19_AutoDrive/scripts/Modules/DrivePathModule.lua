@@ -92,10 +92,6 @@ function ADDrivePathModule:resetDirtyFlag()
 end
 
 function ADDrivePathModule:update(dt)
-    -- Todo:
-    --AutoDrive:checkForDeadLock(vehicle, dt)
-    --AutoDrive:handleDeadlock(vehicle, dt)
-
     if self.wayPoints ~= nil and self.currentWayPoint <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
         if self:isCloseToWaypoint() then

@@ -21,8 +21,9 @@ function RefuelTask:setUp()
 end
 
 function RefuelTask:update(dt)
+    local spec = self.vehicle.spec_motorized
     self.refuelTrigger = ADTriggerManager.getClosestRefuelTrigger(self.vehicle)
-    self.isRefueled = self.vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) >= 0.99 --TODO: Missing "spec"
+    self.isRefueled = self.vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) >= 0.99
 
     if self.state == RefuelTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
@@ -73,7 +74,7 @@ function RefuelTask:isInRefuelRange()
 end
 
 function RefuelTask:startRefueling()
-    if isInRange and (not self.refuelTrigger.isLoading) and (not self.isRefueled) then -- TODO: Missing "isInRange"
+    if (not self.refuelTrigger.isLoading) and (not self.isRefueled) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling")
         self.refuelTrigger.autoStart = true
         self.refuelTrigger.selectedFillType = 32
