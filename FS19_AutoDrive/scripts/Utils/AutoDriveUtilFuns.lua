@@ -110,3 +110,9 @@ function AutoDrive.combineIsTurning(combine)
     end
     return true
 end
+
+function AutoDrive.pointIsBetweenTwoPoints(x, z, startX, startZ, endX, endZ)
+    local xInside = (startX >= x and endX <= x) or (startX <= x and endX >= x)
+    local zInside = (startZ >= z and endZ <= z) or (startZ <= z and endZ >= z)
+    return xInside and zInside
+end
