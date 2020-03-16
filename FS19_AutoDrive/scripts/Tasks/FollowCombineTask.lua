@@ -149,11 +149,11 @@ function FollowCombineTask:shouldWaitForChasePos(dt)
     return self.angleWrongTimer:done() or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
 end
 
-function FollowCombineTask:getAngleToChasePos()
+function FollowCombineTask:getAngleToChasePos(dt)
     local worldX, _, worldZ = getWorldTranslation(self.vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
     local angle = math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = self.chasePos.x - worldX, z = self.chasePos.z - worldZ}))
-    self.angleWrongTimer:timer(angle > 50, 3000, dt) --TODO: Missing "dt"
+    self.angleWrongTimer:timer(angle > 50, 3000, dt)
 
     if angle < 15 then
         self.caughtCurrentChaseSide = true

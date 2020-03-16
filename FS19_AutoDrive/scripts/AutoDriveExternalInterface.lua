@@ -141,9 +141,6 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
             if unloadDestinationID == -3 then --park
                 local PreviousStartPosition = vehicle.ad.stateModule:getFirstMarkerId()
                 AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-                vehicle.ad.usePathFinder = true
-                local ignoreFruit = false
-                AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, PreviousStartPosition) --TODO: Missing "AutoDrivePathFinder"
             elseif unloadDestinationID == -2 then --refuel
                 vehicle.ad.storedFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
                 vehicle.ad.storedMode = vehicle.ad.stateModule:getMode()
@@ -155,16 +152,10 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
                     vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
                     vehicle.ad.onRouteToRefuel = true
                     AutoDrive:StartDriving(vehicle, vehicle.ad.stateModule:getFirstMarkerId(), unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-                    vehicle.ad.usePathFinder = true
-                    local ignoreFruit = false
-                    AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, vehicle.ad.storedFirstMarker) --TODO: Missing "AutoDrivePathFinder"
                 end
             end
         else
             AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-            vehicle.ad.usePathFinder = true
-            local ignoreFruit = false
-            AutoDrivePathFinder:startPathPlanningToStartPosition(vehicle, nil, ignoreFruit, nil) --TODO: Missing "AutoDrivePathFinder"
         end
     end
 end
