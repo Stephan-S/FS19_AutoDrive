@@ -28,7 +28,7 @@ function ADDrivePathModule:setPathTo(waypointID)
     self.wayPoints = ADGraphManager:getPathTo(self.vehicle, waypointID)
     self:setDirtyFlag()
     self.minDistanceToNextWp = math.huge
-    
+
     if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= waypointID))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.stateModule:getFirstMarker().name)
@@ -52,7 +52,7 @@ end
 function ADDrivePathModule:appendPathTo(wayPointId)
     local appendWayPoints = ADGraphManager:getPathTo(self.vehicle, wayPointId)
 
-    if appendWayPoints == nil or (appendWayPoints[2] == nil and (appendWayPoints[1] == nil or (appendWayPoints[1] ~= nil and appendWayPoints[1].id ~= waypointID))) then
+    if appendWayPoints == nil or (appendWayPoints[2] == nil and (appendWayPoints[1] == nil or (appendWayPoints[1] ~= nil and appendWayPoints[1].id ~= wayPointId))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.driverName, self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
@@ -62,7 +62,6 @@ function ADDrivePathModule:appendPathTo(wayPointId)
             table.insert(self.wayPoints, wp)
         end
     end
-
 end
 
 function ADDrivePathModule:setWayPoints(wayPoints)
@@ -113,8 +112,8 @@ function ADDrivePathModule:isCloseToWaypoint()
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
     local maxSkipWayPoints = 2
     for i = 0, maxSkipWayPoints do
-        if self.wayPoints[self.currentWayPoint+i] ~= nil then
-            if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint+i].x, self.wayPoints[self.currentWayPoint+i].z) < self.min_distance then
+        if self.wayPoints[self.currentWayPoint + i] ~= nil then
+            if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z) < self.min_distance then
                 return true
             end
         end
@@ -134,7 +133,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     local distanceToTarget = self:getDistanceToLastWaypoint(10)
     if distanceToTarget < 20 then
-        self.speedLimit =  math.clamp(8, self.speedLimit, 10 + distanceToTarget)
+        self.speedLimit = math.clamp(8, self.speedLimit, 10 + distanceToTarget)
     end
 
     if ADTriggerManager.checkForTriggerProximity(self.vehicle) then
@@ -160,7 +159,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     self.targetX, self.targetZ = self:getLookAheadTarget()
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, self.targetX, y, self.targetZ)
-       
+
     if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() then
         self.vehicle.ad.specialDrivingModule:stopVehicle(lx, lz)
         self.vehicle.ad.specialDrivingModule:update(dt)
@@ -179,7 +178,7 @@ function ADDrivePathModule:handleReachedWayPoint()
 end
 
 function ADDrivePathModule:reachedTarget()
-    self.atTarget = true;
+    self.atTarget = true
 end
 
 function ADDrivePathModule:isTargetReached()
@@ -208,7 +207,7 @@ end
 function ADDrivePathModule:getHighestApproachingAngle()
     local distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
-    
+
     local highestAngle = 0
     local doneCheckingRoute = false
     local currentLookAheadPoint = 1
@@ -220,7 +219,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
 
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             angle = math.abs(angle)
-            
+
             if AutoDrive.getDistance(self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= distanceToLookAhead then
                 if angle < 100 then
                     highestAngle = math.max(highestAngle, angle)
@@ -238,8 +237,8 @@ function ADDrivePathModule:getHighestApproachingAngle()
 end
 
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
-    local maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit();
-    
+    local maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit()
+
     if angle < 3 then
         maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit()
     elseif angle < 5 then
@@ -306,10 +305,10 @@ function ADDrivePathModule:getLookAheadTarget()
         local lookAheadID = 1
         local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
         local distanceToCurrentTarget = AutoDrive.getDistance(x, z, wp_current.x, wp_current.z)
-                
+
         local wp_ahead = self.wayPoints[self.currentWayPoint + lookAheadID]
         local distanceToNextTarget = AutoDrive.getDistance(x, z, wp_ahead.x, wp_ahead.z)
-        
+
         if distanceToCurrentTarget < distanceToNextTarget then
             lookAheadDistance = lookAheadDistance - distanceToCurrentTarget
         end
@@ -327,7 +326,7 @@ function ADDrivePathModule:getLookAheadTarget()
 
         local distX = wp_ahead.x - wp_current.x
         local distZ = wp_ahead.z - wp_current.z
-        if lookAheadDistance > 0 then            
+        if lookAheadDistance > 0 then
             local addX = lookAheadDistance * (math.abs(distX) / (math.abs(distX) + math.abs(distZ)))
             local addZ = lookAheadDistance * (math.abs(distZ) / (math.abs(distX) + math.abs(distZ)))
             if distX < 0 then
@@ -391,8 +390,8 @@ function ADDrivePathModule:checkIfStuck(dt)
     end
 end
 
-function ADDrivePathModule:handleBeingStuck()    
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_VEHICLEINFO, "handleBeingStuck")
+function ADDrivePathModule:handleBeingStuck()
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "handleBeingStuck")
     if self.vehicle.isServer then
         self.vehicle.ad.taskModule:stopAndRestartAD()
     end

@@ -41,7 +41,7 @@ function LoadAtDestinationTask:update(dt)
                 -- Wait to be loaded manally - check filllevel
                 self.vehicle.ad.specialDrivingModule:stopVehicle()
                 self.vehicle.ad.specialDrivingModule:update(dt)
-                
+
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
                 local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                 local maxCapacity = fillLevel + leftCapacity

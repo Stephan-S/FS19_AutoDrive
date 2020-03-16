@@ -53,11 +53,11 @@ function UnloadBGATask:new(vehicle)
 end
 
 function UnloadBGATask:setUp()
-    self.state = UnloadBGATask.STATE_INIT
+    self.state = self.STATE_INIT
 end
 
 function UnloadBGATask:update(dt)
-    if self.state == UnloadBGATask.STATE_IDLE then
+    if self.state == self.STATE_IDLE then
         self.isActive = false
         self.shovel = nil
         return
@@ -67,39 +67,39 @@ function UnloadBGATask:update(dt)
 
     self:getCurrentStates()
 
-    if self.state == UnloadBGATask.STATE_INIT then
+    if self.state == self.STATE_INIT then
         self:initializeBGA()
-    elseif self.state == UnloadBGATask.STATE_INIT_AXIS then
+    elseif self.state == self.STATE_INIT_AXIS then
         if self:handleInitAxis(dt) then
-            self.state = UnloadBGATask.STATE_ACTIVE
+            self.state = self.STATE_ACTIVE
         end
-    elseif self.state == UnloadBGATask.STATE_ACTIVE then
-        if self.action == UnloadBGATask.ACTION_DRIVETOSILO_COMMON_POINT then
+    elseif self.state == self.STATE_ACTIVE then
+        if self.action == self.ACTION_DRIVETOSILO_COMMON_POINT then
             self:driveToSiloCommonPoint(dt)
-        elseif self.action == UnloadBGATask.ACTION_DRIVETOSILO_CLOSE_POINT then
+        elseif self.action == self.ACTION_DRIVETOSILO_CLOSE_POINT then
             self:driveToSiloClosePoint(dt)
-        elseif self.action == UnloadBGATask.ACTION_DRIVETOSILO_REVERSE_POINT then
+        elseif self.action == self.ACTION_DRIVETOSILO_REVERSE_POINT then
             self:driveToSiloReversePoint(dt)
-        elseif self.action == UnloadBGATask.ACTION_DRIVETOSILO_REVERSE_STRAIGHT then
+        elseif self.action == self.ACTION_DRIVETOSILO_REVERSE_STRAIGHT then
             self:driveToSiloReverseStraight(dt)
-        elseif self.action == UnloadBGATask.ACTION_LOAD_ALIGN then
+        elseif self.action == self.ACTION_LOAD_ALIGN then
             self:alignLoadFromBGA(dt)
-        elseif self.action == UnloadBGATask.ACTION_LOAD then
+        elseif self.action == self.ACTION_LOAD then
             self:loadFromBGA(dt)
-        elseif self.action == UnloadBGATask.ACTION_REVERSEFROMLOAD then
+        elseif self.action == self.ACTION_REVERSEFROMLOAD then
             self:reverseFromBGALoad(dt)
-        elseif self.action == UnloadBGATask.ACTION_DRIVETOUNLOAD_INIT then
+        elseif self.action == self.ACTION_DRIVETOUNLOAD_INIT then
             self:driveToBGAUnloadInit(dt)
-        elseif self.action == UnloadBGATask.ACTION_DRIVETOUNLOAD then
+        elseif self.action == self.ACTION_DRIVETOUNLOAD then
             self:driveToBGAUnload(dt)
-        elseif self.action == UnloadBGATask.ACTION_UNLOAD then
+        elseif self.action == self.ACTION_UNLOAD then
             self:handleBGAUnload(dt)
-        elseif self.action == UnloadBGATask.ACTION_REVERSEFROMUNLOAD then
+        elseif self.action == self.ACTION_REVERSEFROMUNLOAD then
             self:reverseFromBGAUnload(dt)
         end
-    elseif self.state == UnloadBGATask.STATE_WAITING_FOR_RESTART then
+    elseif self.state == self.STATE_WAITING_FOR_RESTART then
         if self:checkIfPossibleToRestart(dt) then
-            self.state = UnloadBGATask.STATE_ACTIVE
+            self.state = self.STATE_ACTIVE
         else
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
@@ -152,7 +152,7 @@ function UnloadBGATask:checkIfPossibleToRestart()
 end
 
 function UnloadBGATask:getShovelFillLevel()
-    if self.shovel ~= nil then        
+    if self.shovel ~= nil then
         local fillLevel = 0
         local capacity = 0
         local fillUnitCount = 0
@@ -169,7 +169,7 @@ function UnloadBGATask:getShovelFillLevel()
         else
             self.shovelWidth = 3.0 + AutoDrive.getSetting("shovelWidth", self.vehicle)
         end
-        
+
         if self.targetBunker ~= nil then
             self:determineHighestShovelOffset()
         end
@@ -181,9 +181,9 @@ function UnloadBGATask:getShovelFillLevel()
 end
 
 function UnloadBGATask:initializeBGA()
-    self.state = UnloadBGATask.STATE_INIT_AXIS
-    self.action = UnloadBGATask.ACTION_DRIVETOSILO_COMMON_POINT
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+    self.state = self.STATE_INIT_AXIS
+    self.action = self.ACTION_DRIVETOSILO_COMMON_POINT
+    self.shovelTarget = self.SHOVELSTATE_LOW
     self.targetTrailer, self.targetDriver = self:findCloseTrailer()
     self.targetBunker = self:getTargetBunker()
 
@@ -194,14 +194,14 @@ function UnloadBGATask:initializeBGA()
     self.wheelsOffGround = AutoDriveTON:new()
     self.strategyActiveTimer.elapsedTime = math.huge
     self.shovelOffsetCounter = 0
-    self.highestShovelOffsetCounter = 0    
+    self.highestShovelOffsetCounter = 0
     self.reachedPreTargetLoadPoint = false
 
     if self.shovel == nil then
         self:getVehicleShovel()
         if self.shovel == nil then
             AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Shovel;", 5000, self.vehicle.ad.driverName)
-            self.state = UnloadBGATask.STATE_IDLE
+            self.state = self.STATE_IDLE
             AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
             return
         end
@@ -209,12 +209,12 @@ function UnloadBGATask:initializeBGA()
 
     if self.targetBunker == nil then
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.driverName)
-        self.state = UnloadBGATask.STATE_IDLE
+        self.state = self.STATE_IDLE
         AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
     end
 
     if self:checkForUnloadCondition() then
-        self.action = UnloadBGATask.ACTION_DRIVETOUNLOAD
+        self.action = self.ACTION_DRIVETOUNLOAD
     end
 end
 
@@ -226,8 +226,8 @@ function UnloadBGATask:handleInitAxis(dt)
         local translationObject
         local translationTarget = 0
         if self.initAxisState == nil then
-            self.initAxisState = UnloadBGATask.INITAXIS_STATE_ARM_INIT
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ARM_INIT then
+            self.initAxisState = self.INITAXIS_STATE_ARM_INIT
+        elseif self.initAxisState == self.INITAXIS_STATE_ARM_INIT then
             if self.armMain ~= nil then
                 rotationObject = self.armMain
                 self.initAxisStartHeight = self:getShovelHeight()
@@ -237,14 +237,14 @@ function UnloadBGATask:handleInitAxis(dt)
                     rotationTarget = rotationObject.rotMin
                 end
                 self.armMain.rotationTarget = rotationTarget
-                self.initAxisState = UnloadBGATask.INITAXIS_STATE_ARM_STEER
+                self.initAxisState = self.INITAXIS_STATE_ARM_STEER
             else
-                self.initAxisState = UnloadBGATask.INITAXIS_STATE_EXTENDER_INIT
+                self.initAxisState = self.INITAXIS_STATE_EXTENDER_INIT
             end
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ARM_STEER then
+        elseif self.initAxisState == self.INITAXIS_STATE_ARM_STEER then
             rotationObject = self.armMain
             rotationTarget = self.armMain.rotationTarget
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ARM_CHECK then
+        elseif self.initAxisState == self.INITAXIS_STATE_ARM_CHECK then
             rotationObject = self.armMain
             rotationTarget = self.armMain.rotationTarget
             local newHeight = self:getShovelHeight()
@@ -255,8 +255,8 @@ function UnloadBGATask:handleInitAxis(dt)
                 self.armMain.moveUpSign = -1
                 self.armMain.moveDownSign = 1
             end
-            self.initAxisState = UnloadBGATask.INITAXIS_STATE_EXTENDER_INIT
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_EXTENDER_INIT then
+            self.initAxisState = self.INITAXIS_STATE_EXTENDER_INIT
+        elseif self.initAxisState == self.INITAXIS_STATE_EXTENDER_INIT then
             if self.armExtender ~= nil then
                 translationObject = self.armExtender
                 self.initAxisStartHeight = self:getShovelHeight()
@@ -266,14 +266,14 @@ function UnloadBGATask:handleInitAxis(dt)
                     translationTarget = translationTarget.transMin
                 end
                 self.armExtender.translationTarget = translationTarget
-                self.initAxisState = UnloadBGATask.INITAXIS_STATE_EXTENDER_STEER
+                self.initAxisState = self.INITAXIS_STATE_EXTENDER_STEER
             else
-                self.initAxisState = UnloadBGATask.INITAXIS_STATE_ROTATOR_INIT
+                self.initAxisState = self.INITAXIS_STATE_ROTATOR_INIT
             end
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_EXTENDER_STEER then
+        elseif self.initAxisState == self.INITAXIS_STATE_EXTENDER_STEER then
             translationObject = self.armExtender
             translationTarget = self.armExtender.translationTarget
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_EXTENDER_CHECK then
+        elseif self.initAxisState == self.INITAXIS_STATE_EXTENDER_CHECK then
             translationObject = self.armExtender
             translationTarget = self.armExtender.translationTarget
             local newHeight = self:getShovelHeight()
@@ -284,8 +284,8 @@ function UnloadBGATask:handleInitAxis(dt)
                 self.armExtender.moveUpSign = -1
                 self.armExtender.moveDownSign = 1
             end
-            self.initAxisState = UnloadBGATask.INITAXIS_STATE_ROTATOR_INIT
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ROTATOR_INIT then
+            self.initAxisState = self.INITAXIS_STATE_ROTATOR_INIT
+        elseif self.initAxisState == self.INITAXIS_STATE_ROTATOR_INIT then
             if self.shovelRotator ~= nil then
                 rotationObject = self.shovelRotator
                 self.initAxisStartHeight = self:getShovelHeight()
@@ -302,14 +302,14 @@ function UnloadBGATask:handleInitAxis(dt)
 
                 self.shovelRotator.horizontalPosition = math.pi / 2.0
 
-                self.initAxisState = UnloadBGATask.INITAXIS_STATE_ROTATOR_STEER
+                self.initAxisState = self.INITAXIS_STATE_ROTATOR_STEER
             else
-                self.initAxisState = UnloadBGATask.INITAXIS_STATE_DONE
+                self.initAxisState = self.INITAXIS_STATE_DONE
             end
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ROTATOR_STEER then
+        elseif self.initAxisState == self.INITAXIS_STATE_ROTATOR_STEER then
             rotationObject = self.shovelRotator
             rotationTarget = self.shovelRotator.rotationTarget
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ROTATOR_CHECK then
+        elseif self.initAxisState == self.INITAXIS_STATE_ROTATOR_CHECK then
             rotationObject = self.shovelRotator
             rotationTarget = self.shovelRotator.rotationTarget
             local _, dy, _ = localDirectionToWorld(self.shovel.spec_shovel.shovelDischargeInfo.node, 0, 0, 1)
@@ -321,29 +321,29 @@ function UnloadBGATask:handleInitAxis(dt)
                 self.shovelRotator.moveUpSign = -1
                 self.shovelRotator.moveDownSign = 1
             end
-            self.initAxisState = UnloadBGATask.INITAXIS_STATE_DONE
-        elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_DONE then
+            self.initAxisState = self.INITAXIS_STATE_DONE
+        elseif self.initAxisState == self.INITAXIS_STATE_DONE then
             return true
         end
 
         if rotationObject ~= nil then
             if self:steerAxisTo(rotationObject, rotationTarget, 100, dt) then
-                if self.initAxisState == UnloadBGATask.INITAXIS_STATE_ARM_STEER then
-                    self.initAxisState = UnloadBGATask.INITAXIS_STATE_ARM_CHECK
-                elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_EXTENDER_STEER then
-                    self.initAxisState = UnloadBGATask.INITAXIS_STATE_EXTENDER_CHECK
-                elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ROTATOR_STEER then
-                    self.initAxisState = UnloadBGATask.INITAXIS_STATE_ROTATOR_CHECK
+                if self.initAxisState == self.INITAXIS_STATE_ARM_STEER then
+                    self.initAxisState = self.INITAXIS_STATE_ARM_CHECK
+                elseif self.initAxisState == self.INITAXIS_STATE_EXTENDER_STEER then
+                    self.initAxisState = self.INITAXIS_STATE_EXTENDER_CHECK
+                elseif self.initAxisState == self.INITAXIS_STATE_ROTATOR_STEER then
+                    self.initAxisState = self.INITAXIS_STATE_ROTATOR_CHECK
                 end
             end
         end
         if translationObject ~= nil then
             if self:steerAxisToTrans(translationObject, translationTarget, 100, dt) then
-                if self.initAxisState == UnloadBGATask.INITAXIS_STATE_ARM_STEER then
-                    self.initAxisState = UnloadBGATask.INITAXIS_STATE_ARM_CHECK
-                elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_EXTENDER_STEER then
-                    self.initAxisState = UnloadBGATask.INITAXIS_STATE_EXTENDER_CHECK
-                elseif self.initAxisState == UnloadBGATask.INITAXIS_STATE_ROTATOR_STEER then
+                if self.initAxisState == self.INITAXIS_STATE_ARM_STEER then
+                    self.initAxisState = self.INITAXIS_STATE_ARM_CHECK
+                elseif self.initAxisState == self.INITAXIS_STATE_EXTENDER_STEER then
+                    self.initAxisState = self.INITAXIS_STATE_EXTENDER_CHECK
+                elseif self.initAxisState == self.INITAXIS_STATE_ROTATOR_STEER then
                     self.initAxisState = UnloadBGATask.INITAXIS_STATE_ROTATOR_CHECK
                 end
             end
@@ -412,9 +412,9 @@ function UnloadBGATask:steerAxisToTrans(translationObject, translationTarget, ta
 end
 
 function UnloadBGATask:checkForUnloadCondition() --can unload if shovel is filled and trailer available
-    if self.action == UnloadBGATask.ACTION_DRIVETOSILO_COMMON_POINT then
+    if self.action == self.ACTION_DRIVETOSILO_COMMON_POINT then
         return self.shovelFillLevel > 0 and self.targetTrailer ~= nil and self.trailerLeftCapacity > 1
-    elseif self.action == UnloadBGATask.ACTION_LOAD then
+    elseif self.action == self.ACTION_LOAD then
         return self.shovelFillLevel >= 0.98 and self.targetTrailer ~= nil and self.trailerLeftCapacity > 1
     end
     return false
@@ -433,15 +433,15 @@ end
 
 function UnloadBGATask:handleShovel(dt)
     if self.shovelState == nil then
-        self.shovelState = UnloadBGATask.SHOVELSTATE_UNKNOWN
+        self.shovelState = self.SHOVELSTATE_UNKNOWN
     end
 
-    self.shovelActiveTimer:timer(((self.shovelState ~= self.shovelTarget) and (self.state > UnloadBGATask.STATE_INIT_AXIS)), 7000, dt)
+    self.shovelActiveTimer:timer(((self.shovelState ~= self.shovelTarget) and (self.state > self.STATE_INIT_AXIS)), 7000, dt)
 
-    if self.state > UnloadBGATask.STATE_INIT_AXIS then
-        if self.shovelState == UnloadBGATask.SHOVELSTATE_UNKNOWN then
+    if self.state > self.STATE_INIT_AXIS then
+        if self.shovelState == self.SHOVELSTATE_UNKNOWN then
             if not self.shovelActiveTimer:done() then
-                self:moveShovelToTarget(UnloadBGATask.SHOVELSTATE_LOW, dt)
+                self:moveShovelToTarget(self.SHOVELSTATE_LOW, dt)
             else
                 --After timeout, assume we reached desired position as good as possible
                 self.shovelState = self.shovelTarget
@@ -468,31 +468,31 @@ function UnloadBGATask:handleShovel(dt)
 end
 
 function UnloadBGATask:moveShovelToTarget(_, dt)
-    if self.shovelTarget == UnloadBGATask.SHOVELSTATE_LOADING then
+    if self.shovelTarget == self.SHOVELSTATE_LOADING then
         self.shovelTargetHeight = -0.20 + AutoDrive.getSetting("shovelHeight", self.vehicle)
         self.shovelTargetAngle = self.shovelRotator.horizontalPosition + self.shovelRotator.moveUpSign * 0.07
         if self.armExtender ~= nil then
             self.shovelTargetExtension = self.armExtender.transMin
         end
-    elseif self.shovelTarget == UnloadBGATask.SHOVELSTATE_LOW then
+    elseif self.shovelTarget == self.SHOVELSTATE_LOW then
         self.shovelTargetHeight = 1.1
         self.shovelTargetAngle = self.shovelRotator.horizontalPosition - self.shovelRotator.moveUpSign * 0.3
         if self.armExtender ~= nil then
             self.shovelTargetExtension = self.armExtender.transMin
         end
-    elseif self.shovelTarget == UnloadBGATask.SHOVELSTATE_TRANSPORT then
+    elseif self.shovelTarget == self.SHOVELSTATE_TRANSPORT then
         self.shovelTargetHeight = 2.1
         self.shovelTargetAngle = self.shovelRotator.horizontalPosition - self.shovelRotator.moveUpSign * 0.3
         if self.armExtender ~= nil then
             self.shovelTargetExtension = self.armExtender.transMin
         end
-    elseif self.shovelTarget == UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD then
+    elseif self.shovelTarget == self.SHOVELSTATE_BEFORE_UNLOAD then
         self.shovelTargetHeight = 4.7
         self.shovelTargetAngle = self.shovelRotator.horizontalPosition - self.shovelRotator.moveUpSign * 0.1
         if self.armExtender ~= nil then
             self.shovelTargetExtension = self.armExtender.transMax
         end
-    elseif self.shovelTarget == UnloadBGATask.SHOVELSTATE_UNLOAD then
+    elseif self.shovelTarget == self.SHOVELSTATE_UNLOAD then
         self.shovelTargetHeight = 4.7
         self.shovelTargetAngle = self.shovelRotator.horizontalPosition + self.shovelRotator.moveUpSign * 0.5
         if self.armExtender ~= nil then
@@ -516,7 +516,7 @@ function UnloadBGATask:moveShovelToTarget(_, dt)
     if math.abs(angle - self.shovelTargetAngle) <= 0.05 then
         shovelTargetAngleReached = true
     end
-    if self.shovelTarget == UnloadBGATask.SHOVELSTATE_UNLOAD then
+    if self.shovelTarget == self.SHOVELSTATE_UNLOAD then
         if (math.abs(self.shovelRotator.curRot[1] - self.shovelRotator.rotMax) <= 0.01 or math.abs(self.shovelRotator.curRot[1] - self.shovelRotator.rotMin) <= 0.01) then
             shovelTargetAngleReached = true
         end
@@ -532,7 +532,7 @@ function UnloadBGATask:moveShovelToTarget(_, dt)
         self:steerAxisTo(self.shovelRotator, targetRotation, targetFactorHorizontal, dt)
     end
 
-    if shovelTargetAngleReached and (self.action ~= UnloadBGATask.ACTION_UNLOAD) then
+    if shovelTargetAngleReached and (self.action ~= self.ACTION_UNLOAD) then
         if self:getShovelHeight() >= self.shovelTargetHeight then
             self:steerAxisTo(self.armMain, self.armMain.moveDownSign * math.pi, targetFactorHeight, dt)
             if self.armExtender ~= nil then
@@ -554,7 +554,7 @@ function UnloadBGATask:moveShovelToTarget(_, dt)
         allAxisFullyExtended = true
     end
 
-    if ((math.abs(self:getShovelHeight() - self.shovelTargetHeight) <= 0.01) or (allAxisFullyExtended and (self.shovelTargetHeight > 4 or self.shovelTargetHeight < 0.5)) or (self.action == UnloadBGATask.ACTION_UNLOAD)) and shovelTargetAngleReached then
+    if ((math.abs(self:getShovelHeight() - self.shovelTargetHeight) <= 0.01) or (allAxisFullyExtended and (self.shovelTargetHeight > 4 or self.shovelTargetHeight < 0.5)) or (self.action == self.ACTION_UNLOAD)) and shovelTargetAngleReached then
         self.shovelState = self.shovelTarget
     end
 end
@@ -821,10 +821,10 @@ function UnloadBGATask:driveToSiloCommonPoint(dt)
     end
     self.driveStrategy = self:getDriveStrategyByAngle(angleToSilo, self.storedDirection, dt)
 
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+    self.shovelTarget = self.SHOVELSTATE_LOW
 
     if self:getDistanceToTarget() <= 4 then
-        self.action = UnloadBGATask.ACTION_DRIVETOSILO_CLOSE_POINT
+        self.action = self.ACTION_DRIVETOSILO_CLOSE_POINT
     end
 
     self:handleDriveStrategy(dt)
@@ -834,10 +834,10 @@ function UnloadBGATask:driveToSiloClosePoint(dt)
     self.targetPoint = self:getTargetForShovelOffset(6)
     self.driveStrategy = self:getDriveStrategyToTarget(true, dt)
 
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+    self.shovelTarget = self.SHOVELSTATE_LOW
 
     if self:getDistanceToTarget() <= 4 then
-        self.action = UnloadBGATask.ACTION_DRIVETOSILO_REVERSE_POINT
+        self.action = self.ACTION_DRIVETOSILO_REVERSE_POINT
     end
 
     self:handleDriveStrategy(dt)
@@ -847,12 +847,12 @@ function UnloadBGATask:driveToSiloReversePoint(dt)
     self.targetPoint = self:getTargetForShovelOffset(18)
     self.driveStrategy = self:getDriveStrategyToTarget(false, dt)
 
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+    self.shovelTarget = self.SHOVELSTATE_LOW
 
     local angleToSilo = self:getAngleToTarget()
 
     if self:getDistanceToTarget() <= 9 or (math.abs(angleToSilo) >= 177) then
-        self.action = UnloadBGATask.ACTION_DRIVETOSILO_REVERSE_STRAIGHT
+        self.action = self.ACTION_DRIVETOSILO_REVERSE_STRAIGHT
     end
 
     self:handleDriveStrategy(dt)
@@ -862,11 +862,11 @@ function UnloadBGATask:driveToSiloReverseStraight(dt)
     self.targetPoint = self:getTargetForShovelOffset(68)
     self.driveStrategy = self:getDriveStrategyToTarget(false, dt)
 
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+    self.shovelTarget = self.SHOVELSTATE_LOW
 
     local angleToSilo = self:getAngleToTarget()
     if self:getDistanceToTarget() <= 53 or (math.abs(angleToSilo) >= 177) then
-        self.action = UnloadBGATask.ACTION_LOAD_ALIGN
+        self.action = self.ACTION_LOAD_ALIGN
     end
 
     self:handleDriveStrategy(dt)
@@ -876,7 +876,7 @@ function UnloadBGATask:alignLoadFromBGA(dt)
     self.targetPoint = self:getTargetForShovelOffset(5)
     self.driveStrategy = self:getDriveStrategyToTarget(true, dt)
 
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOADING
+    self.shovelTarget = self.SHOVELSTATE_LOADING
 
     if self.shovelState ~= self.shovelTarget then
         self.vehicle.ad.specialDrivingModule:stopVehicle()
@@ -885,14 +885,14 @@ function UnloadBGATask:alignLoadFromBGA(dt)
     end
 
     if self:getDistanceToTarget() <= 4 then
-        self.action = UnloadBGATask.ACTION_LOAD
+        self.action = self.ACTION_LOAD
     end
 
     self:handleDriveStrategy(dt)
 end
 
 function UnloadBGATask:handleDriveStrategy(dt)
-    if self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_LEFT or self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_RIGHT then
+    if self.driveStrategy == self.DRIVESTRATEGY_REVERSE_LEFT or self.driveStrategy == self.DRIVESTRATEGY_REVERSE_RIGHT then
         local finalSpeed = 8
         local acc = 0.4
         local allowedToDrive = true
@@ -900,7 +900,7 @@ function UnloadBGATask:handleDriveStrategy(dt)
         local node = self.vehicle.components[1].node
         local offsetZ = -5
         local offsetX = 5
-        if self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE_LEFT then
+        if self.driveStrategy == self.DRIVESTRATEGY_REVERSE_LEFT then
             offsetX = -5
         end
         local x, y, z = getWorldTranslation(node)
@@ -909,7 +909,7 @@ function UnloadBGATask:handleDriveStrategy(dt)
         z = z + rz
         local lx, lz = AIVehicleUtil.getDriveDirection(node, x, y, z)
         self:driveInDirection(dt, 30, acc, 0.2, 20, allowedToDrive, false, lx, lz, finalSpeed, 1)
-    elseif self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_FORWARD_LEFT or self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_FORWARD_RIGHT then
+    elseif self.driveStrategy == self.DRIVESTRATEGY_FORWARD_LEFT or self.driveStrategy == self.DRIVESTRATEGY_FORWARD_RIGHT then
         local finalSpeed = 8
         local acc = 0.4
         local allowedToDrive = true
@@ -917,7 +917,7 @@ function UnloadBGATask:handleDriveStrategy(dt)
         local node = self.vehicle.components[1].node
         local offsetZ = 5
         local offsetX = 5
-        if self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_FORWARD_LEFT then
+        if self.driveStrategy == self.DRIVESTRATEGY_FORWARD_LEFT then
             offsetX = -5
         end
         local x, y, z = getWorldTranslation(node)
@@ -935,7 +935,7 @@ function UnloadBGATask:handleDriveStrategy(dt)
         local _, y, _ = getWorldTranslation(node)
         local lx, lz = AIVehicleUtil.getDriveDirection(node, self.targetPoint.x, y, self.targetPoint.z)
         local driveForwards = true
-        if self.driveStrategy == UnloadBGATask.DRIVESTRATEGY_REVERSE then
+        if self.driveStrategy == self.DRIVESTRATEGY_REVERSE then
             lx = -lx
             lz = -lz
             driveForwards = false
@@ -1005,20 +1005,20 @@ function UnloadBGATask:getDriveStrategyByAngle(angleToTarget, drivingForward, dt
     if timeToChange or (angleDiffToLast > minimumAngleDiff) or (math.abs(angleToTarget) < 10) or (math.abs(angleToTarget) > 170) then
         if drivingForward then
             if angleToTarget < -angleToCheckFor then
-                newStrategy = UnloadBGATask.DRIVESTRATEGY_REVERSE_RIGHT
+                newStrategy = self.DRIVESTRATEGY_REVERSE_RIGHT
             elseif angleToTarget > angleToCheckFor then
-                newStrategy = UnloadBGATask.DRIVESTRATEGY_REVERSE_LEFT
+                newStrategy = self.DRIVESTRATEGY_REVERSE_LEFT
             elseif (math.abs(angleToTarget) <= angleToCheckFor) then
-                newStrategy = UnloadBGATask.DRIVESTRATEGY_FORWARDS
+                newStrategy = self.DRIVESTRATEGY_FORWARDS
             end
         else
             angleToCheckFor = 180 - angleToCheckFor
             if ((angleToTarget < angleToCheckFor) and (angleToTarget >= 0)) then
-                newStrategy = UnloadBGATask.DRIVESTRATEGY_FORWARD_RIGHT
+                newStrategy = self.DRIVESTRATEGY_FORWARD_RIGHT
             elseif ((angleToTarget > -angleToCheckFor) and (angleToTarget < 0)) then
-                newStrategy = UnloadBGATask.DRIVESTRATEGY_FORWARD_LEFT
+                newStrategy = self.DRIVESTRATEGY_FORWARD_LEFT
             elseif (math.abs(angleToTarget) >= angleToCheckFor) then
-                newStrategy = UnloadBGATask.DRIVESTRATEGY_REVERSE
+                newStrategy = self.DRIVESTRATEGY_REVERSE
             end
         end
     end
@@ -1047,17 +1047,17 @@ function UnloadBGATask:getAngleToTarget()
 end
 
 function UnloadBGATask:loadFromBGA(dt)
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOADING
+    self.shovelTarget = self.SHOVELSTATE_LOADING
 
     if self:checkForStopLoading() then
-        self.action = UnloadBGATask.ACTION_REVERSEFROMLOAD
+        self.action = self.ACTION_REVERSEFROMLOAD
     end
 
     self.targetPoint = self:getTargetForShovelOffset(-MathUtil.vector2Length(self.vecH.x, self.vecH.z))
-    self.driveStrategy = UnloadBGATask.DRIVESTRATEGY_FORWARDS
+    self.driveStrategy = self.DRIVESTRATEGY_FORWARDS
 
     if self:getDistanceToTarget() <= 4 then
-        self.action = UnloadBGATask.ACTION_REVERSEFROMLOAD
+        self.action = self.ACTION_REVERSEFROMLOAD
     end
 
     self:handleDriveStrategy(dt)
@@ -1070,7 +1070,7 @@ function UnloadBGATask:getTargetForShovelOffset(inFront)
         offsetToUse = 0
         fromOtherSide = true
     end
-    local offset = (self.shovelWidth * (0.5 + offsetToUse)) + UnloadBGATask.SHOVEL_WIDTH_OFFSET
+    local offset = (self.shovelWidth * (0.5 + offsetToUse)) + self.SHOVEL_WIDTH_OFFSET
     return self:getPointXInFrontAndYOffsetFromBunker(inFront, offset, fromOtherSide)
 end
 
@@ -1105,7 +1105,7 @@ function UnloadBGATask:getPointXInFrontAndYOffsetFromBunker(inFront, offset, fro
 end
 
 function UnloadBGATask:reverseFromBGALoad(dt)
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+    self.shovelTarget = self.SHOVELSTATE_LOW
 
     self.targetPoint = self:getTargetForShovelOffset(200)
     self.targetPointClose = self:getTargetForShovelOffset(16)
@@ -1120,9 +1120,9 @@ function UnloadBGATask:reverseFromBGALoad(dt)
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, false, -lx, -lz, finalSpeed, 1)
 
     if math.sqrt(math.pow(x - self.targetPointClose.x, 2) + math.pow(z - self.targetPointClose.z, 2)) < 5 then
-        self.action = UnloadBGATask.ACTION_DRIVETOUNLOAD_INIT
+        self.action = self.ACTION_DRIVETOUNLOAD_INIT
         if self.shovelFillLevel <= 0.01 then
-            self.action = UnloadBGATask.ACTION_DRIVETOSILO_COMMON_POINT
+            self.action = self.ACTION_DRIVETOSILO_COMMON_POINT
         end
         if self.shovelOffsetCounter > self.highestShovelOffsetCounter then
             self.shovelOffsetCounter = 0
@@ -1140,7 +1140,7 @@ function UnloadBGATask:driveToBGAUnloadInit(dt)
         return
     end
 
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+    self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
 
     self.driveStrategy = self:getDriveStrategyToTrailerInit(dt)
 
@@ -1149,11 +1149,11 @@ function UnloadBGATask:driveToBGAUnloadInit(dt)
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
     if math.sqrt(math.pow(self.targetPoint.x - x, 2) + math.pow(self.targetPoint.z - z, 2)) <= 4 then
-        self.action = UnloadBGATask.ACTION_DRIVETOUNLOAD
+        self.action = self.ACTION_DRIVETOUNLOAD
     end
     if self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.001) then
-        self.action = UnloadBGATask.ACTION_REVERSEFROMUNLOAD
-        self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+        self.action = self.ACTION_REVERSEFROMUNLOAD
+        self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end
 end
@@ -1167,9 +1167,9 @@ function UnloadBGATask:driveToBGAUnload(dt)
         return
     end
     if AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) <= 10 then
-        self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+        self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
     elseif AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) > 20 then
-        self.shovelTarget = UnloadBGATask.SHOVELSTATE_TRANSPORT
+        self.shovelTarget = self.SHOVELSTATE_TRANSPORT
     end
     if self.shovelState ~= self.shovelTarget then
         self.vehicle.ad.specialDrivingModule:stopVehicle()
@@ -1182,11 +1182,11 @@ function UnloadBGATask:driveToBGAUnload(dt)
     self:handleDriveStrategy(dt)
 
     if self.inShovelRangeTimer:timer(self:getShovelInTrailerRange(), 350, dt) then
-        self.action = UnloadBGATask.ACTION_UNLOAD
+        self.action = self.ACTION_UNLOAD
     end
     if self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.1) then
-        self.action = UnloadBGATask.ACTION_REVERSEFROMUNLOAD
-        self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+        self.action = self.ACTION_REVERSEFROMUNLOAD
+        self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end
 end
@@ -1194,26 +1194,26 @@ end
 function UnloadBGATask:handleBGAUnload(dt)
     self.vehicle.ad.specialDrivingModule:stopVehicle()
     self.vehicle.ad.specialDrivingModule:update(dt)
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_UNLOAD
+    self.shovelTarget = self.SHOVELSTATE_UNLOAD
     local xV, _, zV = getWorldTranslation(self.vehicle.components[1].node)
     self.shovelUnloadPosition = {x = xV, z = zV}
 
     if self.shovelFillLevel <= 0.01 then
         self.strategyActiveTimer.elapsedTime = math.huge
-        self.shovelState = UnloadBGATask.SHOVELSTATE_UNLOAD
-        self.action = UnloadBGATask.ACTION_REVERSEFROMUNLOAD
+        self.shovelState = self.SHOVELSTATE_UNLOAD
+        self.action = self.ACTION_REVERSEFROMUNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end
     if self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.1) then
-        self.action = UnloadBGATask.ACTION_REVERSEFROMUNLOAD
-        self.shovelState = UnloadBGATask.SHOVELSTATE_UNLOAD
-        self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+        self.action = self.ACTION_REVERSEFROMUNLOAD
+        self.shovelState = self.SHOVELSTATE_UNLOAD
+        self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end
 end
 
 function UnloadBGATask:reverseFromBGAUnload(dt)
-    self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+    self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
     self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
 
     for _, shovelNode in pairs(self.shovel.spec_shovel.shovelNodes) do
@@ -1240,20 +1240,20 @@ function UnloadBGATask:reverseFromBGAUnload(dt)
 
     if self.shovelUnloadPosition ~= nil then
         if MathUtil.vector2Length(x - self.shovelUnloadPosition.x, z - self.shovelUnloadPosition.z) >= 6 then
-            self.shovelTarget = UnloadBGATask.SHOVELSTATE_LOW
+            self.shovelTarget = self.SHOVELSTATE_LOW
         else
-            self.shovelTarget = UnloadBGATask.SHOVELSTATE_BEFORE_UNLOAD
+            self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         end
     end
 
     if MathUtil.vector2Length(x - self.shovelUnloadPosition.x, z - self.shovelUnloadPosition.z) >= 8 then
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
-        self.action = UnloadBGATask.ACTION_DRIVETOSILO_COMMON_POINT
+        self.action = self.ACTION_DRIVETOSILO_COMMON_POINT
     end
 end
 
 function UnloadBGATask:getVehicleToPause()
-    self.state = UnloadBGATask.STATE_WAITING_FOR_RESTART
+    self.state = self.STATE_WAITING_FOR_RESTART
 end
 
 function UnloadBGATask:getShovelInTrailerRange()
@@ -1272,7 +1272,7 @@ function UnloadBGATask:determineHighestShovelOffset()
     local width = self.shovelWidth
     local p1, p2 = self:getTargetBunkerLoadingSide()
     local sideLength = MathUtil.vector2Length(p1.x - p2.x, p1.z - p2.z)
-    self.highestShovelOffsetCounter = math.floor((sideLength - 2 * UnloadBGATask.SHOVEL_WIDTH_OFFSET) / width) - 1
+    self.highestShovelOffsetCounter = math.floor((sideLength - 2 * self.SHOVEL_WIDTH_OFFSET) / width) - 1
 end
 
 function UnloadBGATask:getDistanceToTarget()
@@ -1282,11 +1282,11 @@ end
 
 function UnloadBGATask:stateToText()
     local text = nil
-    if self.state == UnloadBGATask.STATE_INIT or self.state == UnloadBGATask.STATE_INIT_AXIS then
+    if self.state == self.STATE_INIT or self.state == self.STATE_INIT_AXIS then
         text = g_i18n:getText("ad_bga_init")
-    elseif self.state == UnloadBGATask.STATE_WAITING_FOR_RESTART then
+    elseif self.state == self.STATE_WAITING_FOR_RESTART then
         text = g_i18n:getText("ad_bga_waiting")
-    elseif self.state == UnloadBGATask.STATE_ACTIVE then
+    elseif self.state == self.STATE_ACTIVE then
         text = g_i18n:getText("ad_bga_active")
     end
 
@@ -1347,7 +1347,7 @@ function UnloadBGATask:setShovelOffsetToNonEmptyRow()
 
     if ((currentFillLevel == 0) and (iterations < 0)) then
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.driverName)
-        self.state = UnloadBGATask.STATE_IDLE
+        self.state = self.STATE_IDLE
         AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
     end
 end

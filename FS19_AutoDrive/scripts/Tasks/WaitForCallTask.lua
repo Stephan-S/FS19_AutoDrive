@@ -3,7 +3,7 @@ WaitForCallTask = ADInheritsFrom(AbstractTask)
 function WaitForCallTask:new(vehicle)
     local o = WaitForCallTask:create()
     o.vehicle = vehicle
-    o.propagate = propagate
+    o.propagate = propagate -- TODO: Missing "propagate"
     return o
 end
 

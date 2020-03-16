@@ -75,7 +75,7 @@ function PathFinderModule:update()
             self.isFinished = true
             self.smoothDone = true
             self.wayPoints = {}
-            
+
             g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
             self.vehicle.ad.taskModule:abortAllTasks()
             AutoDrive.disableAutoDriveFunctions(self.vehicle)
@@ -144,10 +144,10 @@ function PathFinderModule:getPath()
     return self.wayPoints
 end
 
-function PathFinderModule:startPathPlanningToNetwork(destinationID)
+function PathFinderModule:startPathPlanningToNetwork(destinationId)
     local closest = ADGraphManager:findClosestWayPoint(self.vehicle)
     local targetNode = ADGraphManager:getWayPointById(closest)
-    local wayPoints = ADGraphManager:pathFromTo(closest, destinationID)
+    local wayPoints = ADGraphManager:pathFromTo(closest, destinationId)
     if wayPoints ~= nil and #wayPoints > 1 then
         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
         self:startPathPlanningTo(targetNode, vecToNextPoint)
@@ -156,37 +156,37 @@ function PathFinderModule:startPathPlanningToNetwork(destinationID)
 end
 
 function PathFinderModule:startPathPlanningToPipe(combine, chasing)
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe")
     local _, worldY, _ = getWorldTranslation(combine.components[1].node)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
-    
+
     local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
 
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget =    {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * 2   * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * 2  * rz}
-        local appendTarget =        {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE       * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE      * rz}
+        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * 2 * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * 2 * rz}
+        local appendTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
         table.insert(self.appendWayPoints, appendTarget)
-    else  
-        local pathFinderTarget =    {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
+    else
+        local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
-        local appendedNode =        {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE    * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then      
-            pathFinderTarget =      {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE          * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
+        local appendedNode = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
+        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+            pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
         end
 
-        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then            
+        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
             table.insert(self.appendWayPoints, appendedNode)
             table.insert(self.appendWayPoints, pipeChasePos)
-        end        
+        end
     end
-    
+
     if combine.spec_combine ~= nil then
         if combine.spec_combine.fillUnitIndex ~= nil and combine.spec_combine.fillUnitIndex ~= 0 then
             local fillType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex))
@@ -224,7 +224,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     local sin = math.sin(atan)
     local cos = math.cos(atan)
 
-    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle) * 2/3
+    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle) * 2 / 3
 
     self.vectorX = {x = cos * self.minTurnRadius, z = sin * self.minTurnRadius}
     self.vectorZ = {x = -sin * self.minTurnRadius, z = cos * self.minTurnRadius}
@@ -235,7 +235,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     --Make the target a few meters ahead of the road to the start point
     local targetX = targetPoint.x - math.cos(angleRad) * self.PATHFINDER_TARGET_DISTANCE
     local targetZ = targetPoint.z - math.sin(angleRad) * self.PATHFINDER_TARGET_DISTANCE
-    
+
     self.grid = {}
     self.steps = 0
     self.retryCounter = 0
@@ -259,7 +259,6 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.smoothStep = 0
     self.smoothDone = false
     self.target = {x = targetX, z = targetZ}
-
 
     self.appendWayPoints = {}
     self.appendWayPoints[1] = targetPoint

@@ -13,7 +13,7 @@ function ADTaskModule:new(vehicle)
 end
 
 function ADTaskModule:reset()
-    while self.tasks:Count() > 0 do        
+    while self.tasks:Count() > 0 do
         local task = self.tasks:Dequeue()
         if task.doRestart ~= nil then
             task:doRestart()
@@ -37,11 +37,11 @@ function ADTaskModule:setCurrentTaskFinished(stoppedFlag)
     if stoppedFlag == nil or stoppedFlag ~= ADTaskModule.DONT_PROPAGATE then
         self.vehicle.ad.stateModule:getCurrentMode():handleFinishedTask()
     end
-    
+
     self.activeTask = nil
 
     if self:hasToRefuel() then
-        local refuelDestination = ADTriggerManager.getClosestRefuelDestination(vehicle)
+        local refuelDestination = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
         if refuelDestination ~= nil then
             self.activeTask = RefuelTask:new(self.vehicle, refuelDestination)
         end

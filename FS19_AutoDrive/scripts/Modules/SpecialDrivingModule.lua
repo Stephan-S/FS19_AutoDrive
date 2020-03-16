@@ -35,30 +35,30 @@ function ADSpecialDrivingModule:isStoppingVehicle()
 end
 
 function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
-	local finalSpeed = 0
-	local acc = -0.6
-	local allowedToDrive = false
+    local finalSpeed = 0
+    local acc = -0.6
+    local allowedToDrive = false
 
-	if math.abs(self.vehicle.lastSpeedReal) > 0.002 then
-		finalSpeed = 0.01
-		allowedToDrive = true
-	end
+    if math.abs(self.vehicle.lastSpeedReal) > 0.002 then
+        finalSpeed = 0.01
+        allowedToDrive = true
+    end
 
-	local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-    
-    local lx, lz = self.targetLX, self.targetLZ 
-    
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+
+    local lx, lz = self.targetLX, self.targetLZ
+
     if lx == nil or lz == nil then
         --If no target was provided, aim in front of te vehicle to prevent steering maneuvers
         local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
         x = x + rx
         z = z + rz
-    
+
         lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, x, y, z)
     end
 
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1)
-    
+
     if self.vehicle.lastSpeedReal < 0.0013 then
         self.motorShouldBeStopped = true
         if self.vehicle.spec_motorized.isMotorStarted and (not g_currentMission.missionInfo.automaticMotorStartEnabled) then
@@ -105,7 +105,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
     end
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
-    
+
     self.vehicle.ad.sensors.frontSensor.dynamicCollisionWindow = dynamicCollisionWindow
     if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() or self.vehicle.ad.sensors.frontSensor:pollInfo() then
         self:stopVehicle(lx, lz)

@@ -20,7 +20,7 @@ function DriveToMode:start()
     if self.vehicle.ad.stateModule:getFirstMarker() == nil then
         return
     end
-    self.destinationID =  self.vehicle.ad.stateModule:getFirstMarker().id
+    self.destinationID = self.vehicle.ad.stateModule:getFirstMarker().id
 
     self.driveToDestinationTask = DriveToDestinationTask:new(self.vehicle, self.destinationID)
     self.vehicle.ad.taskModule:addTask(self.driveToDestinationTask)

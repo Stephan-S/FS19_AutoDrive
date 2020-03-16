@@ -54,7 +54,7 @@ function ADTrailerModule:getBunkerSiloSpeed()
             local unloadTimeInMS = fillLevel / dischargeSpeed
 
             local speed = ((vecHLength / unloadTimeInMS) * 1000) * 3.6 * 0.95
-            
+
             return speed
         end
     end
@@ -77,7 +77,7 @@ end
 
 function ADTrailerModule:handleTrailerCovers()
     local inTriggerProximity = ADTriggerManager.checkForTriggerProximity(self.vehicle)
-    
+
     AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, inTriggerProximity)
 end
 
@@ -105,7 +105,7 @@ function ADTrailerModule:updateLoad()
         end
     else
         --Monitor load process
-        local _, _, fillUnitFull = AutoDrive.getIsFilled(self.vehicle, self.isLoadingToTrailer,  self.isLoadingToFillUnitIndex)
+        local _, _, fillUnitFull = AutoDrive.getIsFilled(self.vehicle, self.isLoadingToTrailer, self.isLoadingToFillUnitIndex)
         if self.trigger == nil or (not self.trigger.isLoading) then
             if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") then
                 self.isLoading = false
@@ -131,14 +131,14 @@ function ADTrailerModule:updateUnload(dt)
     else
         -- Monitor unloading
         local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
-        
+
         if fillUnitEmpty then
             if self:areAllTrailersClosed(dt) then
                 self.isUnloading = false
                 self.unloadingToBunkerSilo = false
             end
         end
-    end    
+    end
 end
 
 function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger)
@@ -215,7 +215,7 @@ function ADTrailerModule:startUnloadingIntoTrigger(trailer, trigger)
     if trailer.bunkerSiloArea == nil then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
-        self.isUnloading = true;
+        self.isUnloading = true
         self.isUnloadingWithTrailer = trailer
         self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
     else

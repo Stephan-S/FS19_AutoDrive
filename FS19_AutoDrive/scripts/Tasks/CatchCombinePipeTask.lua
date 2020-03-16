@@ -15,7 +15,7 @@ function CatchCombinePipeTask:new(vehicle, combine)
 end
 
 function CatchCombinePipeTask:setUp()
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:setUp()")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:setUp()")
     self:startNewPathFinding()
 end
 
@@ -28,7 +28,7 @@ function CatchCombinePipeTask:update(dt)
 
     if self.state == CatchCombinePipeTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING finished")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING finished")
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
             self.state = CatchCombinePipeTask.STATE_DRIVING
@@ -42,9 +42,9 @@ function CatchCombinePipeTask:update(dt)
         -- do this by distance of the combine to the last location pathfinder started at
         local x, y, z = getWorldTranslation(self.combine.components[1].node)
         local combineTravelDistance = MathUtil.vector2Length(x - self.combinesStartLocation.x, z - self.combinesStartLocation.z)
-        
+
         if combineTravelDistance > 65 then
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - combine travelled - recalculate path")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - combine travelled - recalculate path")
             self:startNewPathFinding()
             self.state = CatchCombinePipeTask.STATE_PATHPLANNING
         else
@@ -53,10 +53,10 @@ function CatchCombinePipeTask:update(dt)
                 -- accept current location if we are in a good position to start chasing: distance and angle are important here
                 local angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
 
-                if angleToCombine < 20 and AutoDrive.getDistanceBetween (self.vehicle, self.combine) < 60 then
+                if angleToCombine < 20 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60 then
                     self:finished()
                 else
-                    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - angle or distance to combine too high - recalculate path now")
+                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - angle or distance to combine too high - recalculate path now")
                     self:startNewPathFinding()
                     self.state = CatchCombinePipeTask.STATE_PATHPLANNING
                 end
@@ -71,7 +71,7 @@ function CatchCombinePipeTask:abort()
 end
 
 function CatchCombinePipeTask:finished()
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - finished")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - finished")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
 

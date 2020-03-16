@@ -1,113 +1,113 @@
 ADGraphManager = {}
 
 function ADGraphManager:new()
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.wayPoints = {}
-    o.numberOfWayPoints = 0 -- maybe this value can be stored to prevent #self.wayPoints calls, we'll see
-    o.mapMarker = {}
-    o.groups = {}
-    return o
+	local o = {}
+	setmetatable(o, self)
+	self.__index = self
+	o.wayPoints = {}
+	o.numberOfWayPoints = 0 -- maybe this value can be stored to prevent #self.wayPoints calls, we'll see
+	o.mapMarker = {}
+	o.groups = {}
+	return o
 end
 
 -- Calling functions expect a linear, continuous array
 function ADGraphManager:getWayPoints()
-    return self.wayPoints
+	return self.wayPoints
 end
 
 function ADGraphManager:getWayPointById(wayPointId)
-    return self.wayPoints[wayPointId]
+	return self.wayPoints[wayPointId]
 end
 
 function ADGraphManager:resetWayPoints()
-    self.wayPoints = {}
+	self.wayPoints = {}
 end
 
 function ADGraphManager:setWayPoints(wayPoints)
-    self.wayPoints = wayPoints
+	self.wayPoints = wayPoints
 end
 
 function ADGraphManager:getWayPointCount()
-    return #self.wayPoints
+	return #self.wayPoints
 end
 
 function ADGraphManager:setWayPoint(newPoint)
-    self.wayPoints[newPoint.id] = newPoint
+	self.wayPoints[newPoint.id] = newPoint
 end
 
 function ADGraphManager:getMapMarker()
-    return self.mapMarker
+	return self.mapMarker
 end
 
 function ADGraphManager:getMapMarkerById(mapMarkerID)
-    return self.mapMarker[mapMarkerID]
+	return self.mapMarker[mapMarkerID]
 end
 
 function ADGraphManager:getMapMarkerByWayPointID(wayPointID)
-    for _, mapMarker in pairs(self.mapMarker) do
-        if mapMarker.id == wayPointID then
-            return mapMarker
-        end
-    end
-    return nil
+	for _, mapMarker in pairs(self.mapMarker) do
+		if mapMarker.id == wayPointID then
+			return mapMarker
+		end
+	end
+	return nil
 end
 
 function ADGraphManager:getMapMarkerByName(mapMarkerName)
-    for _, mapMarker in pairs(self.mapMarker) do
-        if mapMarker.name == mapMarkerName then
-            return mapMarker
-        end
-    end
-    return nil
+	for _, mapMarker in pairs(self.mapMarker) do
+		if mapMarker.name == mapMarkerName then
+			return mapMarker
+		end
+	end
+	return nil
 end
 
 function ADGraphManager:resetMapMarkers()
-    self.mapMarker = {}
+	self.mapMarker = {}
 end
 
 function ADGraphManager:setMapMarkers(mapMarkers)
-    self.mapMarker = mapMarkers
+	self.mapMarker = mapMarkers
 end
 
 function ADGraphManager:setMapMarker(mapMarker)
-    self.mapMarker[mapMarker.markerIndex] = mapMarker
+	self.mapMarker[mapMarker.markerIndex] = mapMarker
 end
 
 function ADGraphManager:getPathTo(vehicle, waypointID)
-    local wp = {}
-    local closestWaypoint = self:findMatchingWayPointForVehicle(vehicle)
-    if closestWaypoint ~= nil then
-        wp = self:pathFromTo(closestWaypoint, waypointID)
-    end
-        
-    return wp
+	local wp = {}
+	local closestWaypoint = self:findMatchingWayPointForVehicle(vehicle)
+	if closestWaypoint ~= nil then
+		wp = self:pathFromTo(closestWaypoint, waypointID)
+	end
+
+	return wp
 end
 
 function ADGraphManager:pathFromTo(startWaypointID, targetWaypointID)
-    local wp = {}
-    if startWaypointID ~= nil and self.wayPoints[startWaypointID] ~= nil and targetWaypointID ~= nil and self.wayPoints[targetWaypointID] ~= nil then
-        if startWaypointID == targetWaypointID then
-            table.insert(wp, self.wayPoints[targetWaypointID])
-        else
-            wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointID, targetWaypointID)
-        end
-    end
-    return wp
+	local wp = {}
+	if startWaypointID ~= nil and self.wayPoints[startWaypointID] ~= nil and targetWaypointID ~= nil and self.wayPoints[targetWaypointID] ~= nil then
+		if startWaypointID == targetWaypointID then
+			table.insert(wp, self.wayPoints[targetWaypointID])
+		else
+			wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointID, targetWaypointID)
+		end
+	end
+	return wp
 end
 
 function ADGraphManager:pathFromToMarker(startWaypointID, markerID)
-    local wp = {}
-    if startWaypointID ~= nil and self.wayPoints[startWaypointID] ~= nil and self.mapMarker[markerID] ~= nil and self.mapMarker[markerID].id ~= nil then
-        local targetID = self.mapMarker[markerID].id
-        if targetID == startWaypointID then
-            table.insert(wp, 1, self.wayPoints[targetID])
-            return wp
-        else
-            wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointID, targetID)
-        end        
-    end
-    return wp
+	local wp = {}
+	if startWaypointID ~= nil and self.wayPoints[startWaypointID] ~= nil and self.mapMarker[markerID] ~= nil and self.mapMarker[markerID].id ~= nil then
+		local targetID = self.mapMarker[markerID].id
+		if targetID == startWaypointID then
+			table.insert(wp, 1, self.wayPoints[targetID])
+			return wp
+		else
+			wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointID, targetID)
+		end
+	end
+	return wp
 end
 
 function ADGraphManager:FastShortestPath(start, markerName, markerID)
@@ -141,13 +141,13 @@ function ADGraphManager:FastShortestPath(start, markerName, markerID)
 end
 
 function ADGraphManager:getDistanceFromNetwork(vehicle)
-    local distance = math.huge
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    local closest = self:findClosestWayPoint(vehicle)
-    if closest ~= nil and self.wayPoints[closest] ~= nil then
-        distance = MathUtil.vector2Length(x - self.wayPoints[closest].x, z - self.wayPoints[closest].z)
-    end
-    return distance
+	local distance = math.huge
+	local x, y, z = getWorldTranslation(vehicle.components[1].node)
+	local closest = self:findClosestWayPoint(vehicle)
+	if closest ~= nil and self.wayPoints[closest] ~= nil then
+		distance = MathUtil.vector2Length(x - self.wayPoints[closest].x, z - self.wayPoints[closest].z)
+	end
+	return distance
 end
 
 function ADGraphManager:checkYPositionIntegrity()
@@ -326,7 +326,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 				end
 
 				if g_server ~= nil then
-					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarker +1))
+					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarker + 1))
 				end
 			end
 
@@ -383,18 +383,18 @@ function ADGraphManager:createWayPoint(vehicle, x, y, z, connectPrevious)
 	if #self.wayPoints > 1 and connectPrevious then
 		--edit previous point
 		local out_index = #self.wayPoints[#self.wayPoints].out
-		self.wayPoints[#self.wayPoints].out[out_index+1] = #self.wayPoints + 1
+		self.wayPoints[#self.wayPoints].out[out_index + 1] = #self.wayPoints + 1
 	end
 
 	--edit current point
-	table.insert(self.wayPoints, self:createNode(#self.wayPoints+1, x, y, z, {}, {}, {}))
+	table.insert(self.wayPoints, self:createNode(#self.wayPoints + 1, x, y, z, {}, {}, {}))
 	self.wayPoints[#self.wayPoints].incoming[1] = #self.wayPoints - 1
-	
+
 	if vehicle.ad.stateModule:isInDualCreationMode() and connectPrevious then
-		local incomingNodes = #self.wayPoints[#self.wayPoints-1].incoming
-		self.wayPoints[#self.wayPoints-1].incoming[incomingNodes] = #self.wayPoints
+		local incomingNodes = #self.wayPoints[#self.wayPoints - 1].incoming
+		self.wayPoints[#self.wayPoints - 1].incoming[incomingNodes] = #self.wayPoints
 		--edit current point
-		self.wayPoints[#self.wayPoints].out[1] =  #self.wayPoints - 1
+		self.wayPoints[#self.wayPoints].out[1] = #self.wayPoints - 1
 	end
 
 	AutoDriveCourseEditEvent:sendEvent(self.wayPoints[#self.wayPoints])
@@ -471,8 +471,8 @@ function ADGraphManager:getDriveTimeBetweenNodes(start, target, past, maxDriving
 		drivingSpeed = 7
 	else
 		drivingSpeed = 4
-    end
-    
+	end
+
 	if maxDrivingSpeed ~= nil then
 		drivingSpeed = math.min(drivingSpeed, maxDrivingSpeed)
 	end

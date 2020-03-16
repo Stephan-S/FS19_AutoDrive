@@ -1,17 +1,17 @@
 ADCollisionDetectionModule = {}
 
 function ADCollisionDetectionModule:new(vehicle)
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.vehicle = vehicle
-    o.detectedObstable = false
-    return o
+	local o = {}
+	setmetatable(o, self)
+	self.__index = self
+	o.vehicle = vehicle
+	o.detectedObstable = false
+	return o
 end
 
 function ADCollisionDetectionModule:hasDetectedObstable()
-    self.detectedObstable = self:detectObstacle() or self:detectAdTrafficOnRoute()
-    return self.detectedObstable
+	self.detectedObstable = self:detectObstacle() or self:detectAdTrafficOnRoute()
+	return self.detectedObstable
 end
 
 function ADCollisionDetectionModule:update(dt)
@@ -25,8 +25,8 @@ function ADCollisionDetectionModule:detectObstacle()
 	local length = self.vehicle.sizeLength
 	local lookAheadDistance = math.min(self.vehicle.lastSpeedReal * 3600 / 40, 1) * 10 + 1.5
 
-    if AutoDrive.getSetting("enableTrafficDetection") == true then
-        local box = {}
+	if AutoDrive.getSetting("enableTrafficDetection") == true then
+		local box = {}
 		box.center = {}
 		box.size = {}
 		box.center[1] = 0
@@ -76,10 +76,10 @@ function ADCollisionDetectionModule:detectObstacle()
 end
 
 function ADCollisionDetectionModule:detectAdTrafficOnRoute()
-    local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
+	local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
 	if self.vehicle.ad.stateModule:isActive() and wayPoints ~= nil and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
 		local idToCheck = 3
-        local alreadyOnDualRoute = false
+		local alreadyOnDualRoute = false
 		if wayPoints[currentWayPoint - 1] ~= nil and wayPoints[currentWayPoint] ~= nil then
 			alreadyOnDualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
 		end
@@ -115,20 +115,20 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 						local onSameRoute = false
 						local sameDirection = false
 						local window = 4
-                        local i = -window
-                        local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
+						local i = -window
+						local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
 						while i <= window do
 							if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
 								for _, point in pairs(dualRoutePoints) do
 									if point == otherWayPoints[otherCurrentWayPoint + i].id then
-                                        onSameRoute = true
-                                        --check if going in same direction
-										if dualRoutePoints[_ + 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i + 1] ~= nil then 
+										onSameRoute = true
+										--check if going in same direction
+										if dualRoutePoints[_ + 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i + 1] ~= nil then
 											if dualRoutePoints[_ + 1] == otherWayPoints[otherCurrentWayPoint + i + 1].id then
 												sameDirection = true
 											end
-                                        end
-                                         --check if going in same direction
+										end
+										--check if going in same direction
 										if dualRoutePoints[_ - 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i - 1] ~= nil then
 											if dualRoutePoints[_ - 1] == otherWayPoints[otherCurrentWayPoint + i - 1].id then
 												sameDirection = true
@@ -142,7 +142,7 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 
 						if onSameRoute == true and other.ad.collisionDetectionModule:getDetectedVehicle() == nil and (sameDirection == false) then
 							self.trafficVehicle = other
-                            return true
+							return true
 						end
 					end
 				end
@@ -153,5 +153,5 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 end
 
 function ADCollisionDetectionModule:getDetectedVehicle()
-    return self.trafficVehicle
+	return self.trafficVehicle
 end

@@ -10,7 +10,7 @@ function ClearCropTask:new(vehicle)
 end
 
 function ClearCropTask:setUp()
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "Setting up ClearCropTask")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Setting up ClearCropTask")
     self.wayPoints = {}
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE / 2, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 0.5))
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 1))
@@ -38,7 +38,7 @@ function ClearCropTask:abort()
 end
 
 function ClearCropTask:finished()
-    AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "ClearCropTask:finished()")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "ClearCropTask:finished()")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
 

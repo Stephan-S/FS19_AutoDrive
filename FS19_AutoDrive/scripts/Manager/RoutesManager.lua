@@ -58,7 +58,7 @@ function RoutesManager.import(name)
             AutoDrive.readGraphFromXml(loadXml, "routeExport", wayPoints, mapMarkers, groups)
             delete(loadXml)
             -- here we will handle MP upload
-            ADGraphManger:setWayPoints(wayPoints)
+            ADGraphManager:setWayPoints(wayPoints)
             ADGraphManager:setMapMarkers(mapMarkers)
             AutoDrive.groups = groups
         end

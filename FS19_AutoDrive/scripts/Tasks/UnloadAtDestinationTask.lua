@@ -51,7 +51,7 @@ function UnloadAtDestinationTask:update(dt)
                 self.vehicle.ad.drivePathModule:update(dt)
             end
         end
-    end    
+    end
 end
 
 function UnloadAtDestinationTask:abort()

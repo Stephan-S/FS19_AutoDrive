@@ -30,7 +30,3 @@ end
 function AbstractMode:allowedToRefuel()
     return true
 end
-
-
-
-

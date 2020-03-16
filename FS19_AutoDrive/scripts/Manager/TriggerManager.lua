@@ -26,7 +26,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
         massFactor = 1
     end
     local speedFactor = math.max(0.5, math.min(4, (((vehicle.lastSpeedReal * 3600) + 10) / 20.0)))
-    local distanceToSlowDownAt = 15 * speedFactor * massFactor;
+    local distanceToSlowDownAt = 15 * speedFactor * massFactor
 
     if shouldLoad then
         for _, trigger in pairs(ADTriggerManager.siloTriggers) do
@@ -52,8 +52,6 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
                         return true
                     end
                 end
-
-
             end
         end
     end
@@ -160,14 +158,14 @@ function ADTriggerManager.loadAllTriggers()
             end
         end
     end
-    
+
     if g_company ~= nil and g_company.triggerManagerList ~= nil then
-        for i=1,#g_company.triggerManagerList do
-            local triggerManager = g_company.triggerManagerList[i];			
-            for _, trigger in pairs (triggerManager.registeredTriggers) do
+        for i = 1, #g_company.triggerManagerList do
+            local triggerManager = g_company.triggerManagerList[i]
+            for _, trigger in pairs(triggerManager.registeredTriggers) do
                 if trigger.exactFillRootNode then
                     table.insert(ADTriggerManager.tipTriggers, trigger)
-                end	
+                end
                 if trigger.triggerNode then
                     table.insert(ADTriggerManager.siloTriggers, trigger)
                 end
@@ -177,15 +175,15 @@ function ADTriggerManager.loadAllTriggers()
 end
 
 function ADTriggerManager.getUnloadTriggers()
-    if #ADTriggerManager.tipTriggers == 0 then        
-	    ADTriggerManager.loadAllTriggers()
+    if #ADTriggerManager.tipTriggers == 0 then
+        ADTriggerManager.loadAllTriggers()
     end
     return ADTriggerManager.tipTriggers
 end
 
 function ADTriggerManager.getLoadTriggers()
-    if #ADTriggerManager.siloTriggers == 0 then        
-	    ADTriggerManager.loadAllTriggers()
+    if #ADTriggerManager.siloTriggers == 0 then
+        ADTriggerManager.loadAllTriggers()
     end
     return ADTriggerManager.siloTriggers
 end
@@ -212,7 +210,7 @@ function ADTriggerManager.getRefuelTriggers()
                 end
             end
             local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[32] ~= nil and fillLevels[32] > 0) or (gcFillLevels[32] ~= nil and gcFillLevels[32] > 0)
-            
+
             table.insert(refuelTriggers, trigger)
         end
     end
@@ -292,7 +290,7 @@ function ADTriggerManager.getTriggerPos(trigger)
 end
 
 function ADTriggerManager:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
-	local result = superFunc(self, rootNode, xmlFile, xmlNode)
+    local result = superFunc(self, rootNode, xmlFile, xmlNode)
 
     if result and ADTriggerManager ~= nil and ADTriggerManager.siloTriggers ~= nil then
         if not table.contains(ADTriggerManager.siloTriggers, self) then
@@ -300,12 +298,12 @@ function ADTriggerManager:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
         end
     end
 
-	return result
+    return result
 end
 
 function ADTriggerManager:loadTriggerDelete(superFunc)
     if ADTriggerManager ~= nil and ADTriggerManager.siloTriggers ~= nil then
         table.removeValue(ADTriggerManager.siloTriggers, self)
-	end
-	superFunc(self)
+    end
+    superFunc(self)
 end

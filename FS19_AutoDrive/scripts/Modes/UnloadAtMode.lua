@@ -20,7 +20,7 @@ function UnloadAtMode:start()
     if self.vehicle.ad.stateModule:getFirstMarker() == nil then
         return
     end
-    self.destinationID =  self.vehicle.ad.stateModule:getFirstMarker().id
+    self.destinationID = self.vehicle.ad.stateModule:getFirstMarker().id
 
     self.unloadAtDestinationTask = UnloadAtDestinationTask:new(self.vehicle, self.destinationID)
     self.vehicle.ad.taskModule:addTask(self.unloadAtDestinationTask)
@@ -54,8 +54,3 @@ end
 function UnloadAtMode:shouldUnloadAtTrigger()
     return (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end
-
-
-
-
-

@@ -97,24 +97,24 @@ function ADHarvestManager.isHarvesterActive(harvester)
             return reachedPreCallLevel and (not isAlmostFull)
         end
     end
-    
+
     return false
 end
 
 function ADHarvestManager:alreadyAssignedUnloader(harvester)
     for _, unloader in pairs(self.activeUnloaders) do
-       if unloader.ad.modes[AutoDrive.MODE_UNLOAD].combine == harvester then
+        if unloader.ad.modes[AutoDrive.MODE_UNLOAD].combine == harvester then
             return true
-       end
+        end
     end
     return false
 end
 
 function ADHarvestManager:getAssignedUnloader(harvester)
     for _, unloader in pairs(self.activeUnloaders) do
-    if unloader.ad.modes[AutoDrive.MODE_UNLOAD].combine == harvester then
+        if unloader.ad.modes[AutoDrive.MODE_UNLOAD].combine == harvester then
             return unloader
-    end
+        end
     end
     return nil
 end

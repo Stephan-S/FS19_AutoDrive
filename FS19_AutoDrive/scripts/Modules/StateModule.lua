@@ -136,7 +136,7 @@ end
 
 function ADStateModule:setActive(active)
     self.active = active
-    
+
     if self.active then
         self.creationMode = ADStateModule.CREATE_OFF
     end
@@ -194,12 +194,12 @@ end
 
 function ADStateModule:startNormalCreationMode()
     self.creationMode = ADStateModule.CREATE_NORMAL
-	self:setActive(false)
+    self:setActive(false)
 end
 
 function ADStateModule:startDualCreationMode()
     self.creationMode = ADStateModule.CREATE_DUAL
-	self:setActive(false)
+    self:setActive(false)
 end
 
 function ADStateModule:getSelectedNeighbourPoint()
@@ -214,7 +214,7 @@ function ADStateModule:getLoopCounter()
 end
 
 function ADStateModule:increaseLoopCounter()
-    self.loopCounter = (self.loopCounter + 1)%10 
+    self.loopCounter = (self.loopCounter + 1) % 10
 end
 
 function ADStateModule:decreaseLoopCounter()
@@ -359,12 +359,12 @@ end
 
 function ADStateModule:changeNeighborPoint(increase)
     self.currentNeighbourToPointAt = self.currentNeighbourToPointAt + increase
-	if self.currentNeighbourToPointAt < 1 then
-		self.currentNeighbourToPointAt = #self.neighbourPoints
-	end
-	if self.neighbourPoints[self.currentNeighbourToPointAt] == nil then
-		self.currentNeighbourToPointAt = 1
-	end
+    if self.currentNeighbourToPointAt < 1 then
+        self.currentNeighbourToPointAt = #self.neighbourPoints
+    end
+    if self.neighbourPoints[self.currentNeighbourToPointAt] == nil then
+        self.currentNeighbourToPointAt = 1
+    end
 end
 
 function ADStateModule:updateNeighborPoint()

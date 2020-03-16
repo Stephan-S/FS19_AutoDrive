@@ -42,8 +42,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_FRONT
     sensorParameters.width = vehicle.sizeWidth * 0.6
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
-    frontSensor.drawDebug = true; --test
-    frontSensor.enabled = true; --test
+    frontSensor.drawDebug = true --test
+    frontSensor.enabled = true --test
     vehicle.ad.sensors["frontSensor"] = frontSensor
 
     sensorParameters.dynamicLength = false
@@ -185,17 +185,16 @@ function ADSensor:getLocationByPosition()
     local location = {x = 0, z = 0}
 
     if self.position == ADSensor.POS_FRONT then
+        --location.z = vehicle.sizeLength / 2 + lengthOffset
         --local lengthOffset = 1
         --if self.dynamicLength then
-            --local frontToolLength = 0 --AutoDrive.getFrontToolLength(self.vehicle)
-            --lengthOffset = frontToolLength / 2
+        --local frontToolLength = 0 --AutoDrive.getFrontToolLength(self.vehicle)
+        --lengthOffset = frontToolLength / 2
         --end
         location = self:getRotatedFront()
         if location == nil then
-            location = {x=0, z=vehicle.sizeLength / 2}
+            location = {x = 0, z = vehicle.sizeLength / 2}
         end
-
-        --location.z = vehicle.sizeLength / 2 + lengthOffset
     elseif self.position == ADSensor.POS_REAR then
         location.z = -vehicle.sizeLength / 2 - 1
         self.frontFactor = -1
@@ -405,9 +404,9 @@ function ADSensor:getRotatedFront()
         local frontDistance = math.huge
         local spec = self.vehicle.spec_wheels
         for _, wheel in pairs(spec.wheels) do
-            local wheelNode = wheel.driveNode;
-            local sx, sy, sz = getWorldTranslation(wheelNode)            
-            local _,_,diffZ = worldToLocal(self.vehicle.components[1].node, sx, sy, sz)
+            local wheelNode = wheel.driveNode
+            local sx, sy, sz = getWorldTranslation(wheelNode)
+            local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, sx, sy, sz)
             if diffZ > 0 and diffZ < frontDistance and math.abs(frontDistance - diffZ) > 0.5 then
                 frontWheel = wheel
                 frontDistance = diffZ
@@ -420,11 +419,11 @@ function ADSensor:getRotatedFront()
         if frontWheel ~= nil and pairWheel ~= nil then
             local frontWheelX, frontWheelY, frontWheelZ = getWorldTranslation(frontWheel.driveNode)
             local pairWheelX, pairWheelY, pairWheelZ = getWorldTranslation(pairWheel.driveNode)
-            local axleCenterX = frontWheelX + 0.5*(pairWheelX - frontWheelX)
-            local axleCenterY = frontWheelY + 0.5*(pairWheelY - frontWheelY)
-            local axleCenterZ = frontWheelZ + 0.5*(pairWheelZ - frontWheelZ)
-            local _,_,diffZ = worldToLocal(self.vehicle.components[1].node, axleCenterX, axleCenterY, axleCenterZ)
-            local wheelBaseToFront = self.vehicle.sizeLength/2 - diffZ
+            local axleCenterX = frontWheelX + 0.5 * (pairWheelX - frontWheelX)
+            local axleCenterY = frontWheelY + 0.5 * (pairWheelY - frontWheelY)
+            local axleCenterZ = frontWheelZ + 0.5 * (pairWheelZ - frontWheelZ)
+            local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, axleCenterX, axleCenterY, axleCenterZ)
+            local wheelBaseToFront = self.vehicle.sizeLength / 2 - diffZ
 
             self.frontAxleLength = wheelBaseToFront
             self.frontAxle = {}
@@ -432,7 +431,7 @@ function ADSensor:getRotatedFront()
         end
     else
         local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, math.sin(self.vehicle.rotatedTime), 0, math.cos(self.vehicle.rotatedTime))
-        local frontPoint = {x= self.frontAxle.x + self.frontAxleLength * math.sin(self.vehicle.rotatedTime) , y=self.frontAxle.y, z=self.frontAxle.z + self.frontAxleLength * math.cos(self.vehicle.rotatedTime)}
+        local frontPoint = {x = self.frontAxle.x + self.frontAxleLength * math.sin(self.vehicle.rotatedTime), y = self.frontAxle.y, z = self.frontAxle.z + self.frontAxleLength * math.cos(self.vehicle.rotatedTime)}
 
         return frontPoint
     end
