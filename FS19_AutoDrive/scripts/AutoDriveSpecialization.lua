@@ -14,13 +14,7 @@ function AutoDrive.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "getCanMotorRun", AutoDrive.getCanMotorRun)
 end
 
-function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
-    -- continue on client side only
-    -- TODO: I think we should remove that since everyone 'isClient' even the dedicated server (if I'm not wrong)
-    if not self.isClient then
-        return
-    end
-
+function AutoDrive:onRegisterActionEvents(_, isOnActiveVehicle)
     local registerEvents = isOnActiveVehicle
     if self.ad ~= nil then
         registerEvents = registerEvents or self == g_currentMission.controlledVehicle
@@ -28,19 +22,12 @@ function AutoDrive:onRegisterActionEvents(isSelected, isOnActiveVehicle)
 
     -- only in active vehicle
     if registerEvents then
-        -- we could have more than one event, so prepare a table to store them
-        if self.ActionEvents == nil then
-            self.ActionEvents = {}
-        else
-            --self:clearActionEventsTable( self.ActionEvents )
-        end
-
         -- attach our actions
         local _, eventName
         local toggleButton = false
         local showF1Help = AutoDrive.getSetting("showHelp")
         for _, action in pairs(AutoDrive.actions) do
-            _, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, AutoDrive.onActionCall, toggleButton, true, false, true)
+            _, eventName = InputBinding.registerActionEvent(g_inputBinding, action[1], self, InputManager.onActionCall, toggleButton, true, false, true)
             g_inputBinding:setActionEventTextVisibility(eventName, action[2] and showF1Help)
             if showF1Help then
                 g_inputBinding:setActionEventTextPriority(eventName, action[3])
@@ -53,9 +40,9 @@ function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
     self.ad = {}
     self.ad.smootherDriving = {}
-    self.ad.smootherDriving.lastMaxSpeed = 0    
+    self.ad.smootherDriving.lastMaxSpeed = 0
     self.ad.groups = {}
-    
+
     self.ad.stateModule = ADStateModule:new(self)
     self.ad.taskModule = ADTaskModule:new(self)
     self.ad.trailerModule = ADTrailerModule:new(self)
@@ -75,6 +62,11 @@ end
 
 function AutoDrive:onPostLoad(savegame)
     -- This will run before initial MP sync
+
+    for groupName, _ in pairs(AutoDrive.groups) do
+        self.ad.groups[groupName] = false
+    end
+
     if self.isServer then
         if savegame ~= nil then
             local xmlFile = savegame.xmlFile
@@ -96,25 +88,20 @@ function AutoDrive:onPostLoad(savegame)
                 end
             end
         end
+
+        if self.ad.settings == nil then
+            AutoDrive.copySettingsToVehicle(self)
+        end
+
+        self.ad.noMovementTimer = AutoDriveTON:new()
+        self.ad.noTurningTimer = AutoDriveTON:new()
+        self.ad.driveForwardTimer = AutoDriveTON:new()
+
+        if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
+            ADHarvestManager:registerHarvester(self)
+        end
     end
 
-    AutoDrive.init(self)
-
-    -- Creating a new transform on front of the vehicle
-    self.ad.frontNode = createTransformGroup(self:getName() .. "_frontNode")
-    link(self.components[1].node, self.ad.frontNode)
-    setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
-    self.ad.frontNodeGizmo = DebugGizmo:new()
-end
-
-function AutoDrive:init()
-    if self.ad.settings == nil then
-        AutoDrive.copySettingsToVehicle(self)
-    end
-
-    self.ad.moduleInitialized = true
-    self.ad.currentInput = ""
-     
     -- Pure client side state
     self.ad.nToolTipWait = 300
     self.ad.sToolTip = ""
@@ -127,46 +114,20 @@ function AutoDrive:init()
     end
     self.ad.showingMouse = false
 
-    -- Variables the server sets so that the clients can act upon it:
-    self.ad.disableAI = 0
-    self.ad.enableAI = 0
-    
     -- Points used for drawing nearby points without iterating over complete network each time
     self.ad.pointsInProximity = {}
     self.ad.lastPointCheckedForProximity = 1
 
+    self.ad.lastMouseState = false
+
+    -- Creating a new transform on front of the vehicle
+    self.ad.frontNode = createTransformGroup(self:getName() .. "_frontNode")
+    link(self.components[1].node, self.ad.frontNode)
+    setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
+    self.ad.frontNodeGizmo = DebugGizmo:new()
+
     if self.spec_autodrive == nil then
         self.spec_autodrive = AutoDrive
-    end
-
-    self.ad.pullDownList = {}
-    self.ad.pullDownList.active = false
-    self.ad.pullDownList.start = false
-    self.ad.pullDownList.destination = false
-    self.ad.pullDownList.fillType = false
-    self.ad.pullDownList.itemList = {}
-    self.ad.pullDownList.selectedItem = nil
-    self.ad.pullDownList.posX = 0
-    self.ad.pullDownList.posY = 0
-    self.ad.pullDownList.width = 0
-    self.ad.pullDownList.height = 0
-    self.ad.lastMouseState = false
-    
-    self.ad.noMovementTimer = AutoDriveTON:new()
-    self.ad.noTurningTimer = AutoDriveTON:new()
-    self.ad.driveForwardTimer = AutoDriveTON:new()
-
-    if self.ad.groups == nil then
-        self.ad.groups = {}
-    end
-    for groupName, _ in pairs(AutoDrive.groups) do
-        if self.ad.groups[groupName] == nil then
-            self.ad.groups[groupName] = false
-        end
-    end
-
-    if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
-        ADHarvestManager:registerHarvester(self)
     end
 end
 
@@ -230,23 +191,38 @@ function AutoDrive:onReadStream(streamId, connection)
 end
 
 function AutoDrive:onUpdate(dt)
-    if self.ad.currentInput ~= "" and self.isServer then
-        AutoDrive:InputHandling(self, self.ad.currentInput)
-    end
-
     -- Cloest point is stored per frame
     self.ad.closest = nil
-    
+
     self.ad.taskModule:update(dt)
 
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
-    AutoDrive.handleVehicleIntegrity(self)
     AutoDrive.handleVehicleMultiplayer(self, dt)
-    AutoDrive:handleDriverWages(self, dt)   
+    AutoDrive:handleDriverWages(self, dt)
 
-    if self.isServer and self.ad.stateModule:isActive() and self.lastMovedDistance > 0 then
-        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
+    if self.isServer then
+        if self.ad.stateModule:isActive() and self.lastMovedDistance > 0 then
+            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
+        end
+
+        if self.lastSpeedReal ~= nil then
+            self.ad.noMovementTimer:timer((self.lastSpeedReal <= 0.0010), 3000, dt)
+
+            local vehicleSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 10)
+            if (not vehicleSteering) and ((self.lastSpeedReal * self.movingDirection) >= 0.0008) then
+                self.ad.driveForwardTimer:timer(true, 20000, dt)
+            else
+                self.ad.driveForwardTimer:timer(false)
+            end
+        end
+
+        local cpIsTurning = self.cp ~= nil and (self.cp.isTurning or (self.cp.turnStage ~= nil and self.cp.turnStage > 0))
+        local cpIsTurningTwo = self.cp ~= nil and self.cp.driver and (self.cp.driver.turnIsDriving or (self.cp.driver.fieldworkState ~= nil and self.cp.driver.fieldworkState == self.cp.driver.states.TURNING))
+        local aiIsTurning = (self.getAIIsTurning ~= nil and self:getAIIsTurning() == true)
+        local combineSteering = self.rotatedTime ~= nil and (math.deg(self.rotatedTime) > 20)
+        local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
+        self.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
     end
 end
 
@@ -292,10 +268,6 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 end
 
 function AutoDrive:onDraw()
-    if self.ad.moduleInitialized == false then
-        return
-    end
-
     if self.ad ~= nil then
         if self.ad.showingHud ~= AutoDrive.Hud.showHud then
             AutoDrive.Hud:toggleHud(self)
@@ -488,71 +460,70 @@ function AutoDrive.drawPointsInProximity(vehicle)
 end
 
 function AutoDrive:handleRecording(vehicle)
-	if vehicle == nil or vehicle.ad.stateModule:isInCreationMode() == false then
-		return
-	end
+    if vehicle == nil or vehicle.ad.stateModule:isInCreationMode() == false then
+        return
+    end
 
-	if g_server == nil then
-		return
-	end
+    if g_server == nil then
+        return
+    end
 
-	--first entry
-	if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
-		local startPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
-		local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
-		vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x1, y1, z1, false)
+    --first entry
+    if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
+        local startPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
+        vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x1, y1, z1, false)
 
-		if AutoDrive.getSetting("autoConnectStart") then
-			if startPoint ~= nil then
-				local startNode = ADGraphManager:getWayPointById(startPoint)
-				if startNode ~= nil then
-					if ADGraphManager:getDistanceBetweenNodes(startPoint, vehicle.ad.lastCreatedWp.id) < 20 then
-						table.insert(startNode.out, vehicle.ad.lastCreatedWp.id)
-						table.insert(vehicle.ad.lastCreatedWp.incoming, startNode.id)
+        if AutoDrive.getSetting("autoConnectStart") then
+            if startPoint ~= nil then
+                local startNode = ADGraphManager:getWayPointById(startPoint)
+                if startNode ~= nil then
+                    if ADGraphManager:getDistanceBetweenNodes(startPoint, vehicle.ad.lastCreatedWp.id) < 20 then
+                        table.insert(startNode.out, vehicle.ad.lastCreatedWp.id)
+                        table.insert(vehicle.ad.lastCreatedWp.incoming, startNode.id)
 
-						if vehicle.ad.stateModule:isInDualCreationMode() then
-							table.insert(ADGraphManager:getWayPointById(startPoint).incoming, vehicle.ad.lastCreatedWp.id)
-							table.insert(vehicle.ad.lastCreatedWp.out, startPoint)
-						end
+                        if vehicle.ad.stateModule:isInDualCreationMode() then
+                            table.insert(ADGraphManager:getWayPointById(startPoint).incoming, vehicle.ad.lastCreatedWp.id)
+                            table.insert(vehicle.ad.lastCreatedWp.out, startPoint)
+                        end
 
-						AutoDriveCourseEditEvent:sendEvent(startNode)
-					end
-				end
-			end
-		end
-	else
-		if vehicle.ad.secondLastCreatedWp == nil then
-			local x, y, z = getWorldTranslation(vehicle.components[1].node)
-			local wp = vehicle.ad.lastCreatedWp
-			if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then				
+                        AutoDriveCourseEditEvent:sendEvent(startNode)
+                    end
+                end
+            end
+        end
+    else
+        if vehicle.ad.secondLastCreatedWp == nil then
+            local x, y, z = getWorldTranslation(vehicle.components[1].node)
+            local wp = vehicle.ad.lastCreatedWp
+            if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then
                 vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
                 vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true)
-			end
-		else
-			local x, y, z = getWorldTranslation(vehicle.components[1].node)
-			local angle = math.abs(AutoDrive.angleBetween({x = x - vehicle.ad.secondLastCreatedWp.x, z = z - vehicle.ad.secondLastCreatedWp.z},
-			 {x = vehicle.ad.lastCreatedWp.x - vehicle.ad.secondLastCreatedWp.x, z = vehicle.ad.lastCreatedWp.z - vehicle.ad.secondLastCreatedWp.z}))
-			local max_distance = 6
-			if angle < 1 then
-				max_distance = 6
-			elseif angle < 3 then
-				max_distance = 4
-			elseif angle < 5 then
-				max_distance = 3
-			elseif angle < 8 then
-				max_distance = 2
-			elseif angle < 15 then
-				max_distance = 1
-			elseif angle < 50 then
-				max_distance = 0.5
-			end
+            end
+        else
+            local x, y, z = getWorldTranslation(vehicle.components[1].node)
+            local angle = math.abs(AutoDrive.angleBetween({x = x - vehicle.ad.secondLastCreatedWp.x, z = z - vehicle.ad.secondLastCreatedWp.z}, {x = vehicle.ad.lastCreatedWp.x - vehicle.ad.secondLastCreatedWp.x, z = vehicle.ad.lastCreatedWp.z - vehicle.ad.secondLastCreatedWp.z}))
+            local max_distance = 6
+            if angle < 1 then
+                max_distance = 6
+            elseif angle < 3 then
+                max_distance = 4
+            elseif angle < 5 then
+                max_distance = 3
+            elseif angle < 8 then
+                max_distance = 2
+            elseif angle < 15 then
+                max_distance = 1
+            elseif angle < 50 then
+                max_distance = 0.5
+            end
 
-			if AutoDrive.getDistance(x, z, vehicle.ad.lastCreatedWp.x, vehicle.ad.lastCreatedWp.z) > max_distance then
-			    vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
+            if AutoDrive.getDistance(x, z, vehicle.ad.lastCreatedWp.x, vehicle.ad.lastCreatedWp.z) > max_distance then
+                vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
                 vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true)
-			end
-		end
-	end
+            end
+        end
+    end
 end
 
 function AutoDrive:preRemoveVehicle(vehicle)
@@ -564,20 +535,6 @@ FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicl
 
 function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
-end
-
-function AutoDrive.handleVehicleIntegrity(vehicle)
-	if g_server ~= nil then
-		vehicle.ad.enableAI = math.max(vehicle.ad.enableAI - 1, 0)
-		vehicle.ad.disableAI = math.max(vehicle.ad.disableAI - 1, 0)
-	else
-		if vehicle.ad.enableAI > 0 then
-			AutoDrive.startAD(vehicle)
-		end
-		if vehicle.ad.disableAI > 0 then
-			AutoDrive.disableAutoDriveFunctions(vehicle)
-		end
-	end
 end
 
 function AutoDrive:updateAILights(superFunc)
@@ -612,7 +569,6 @@ function AutoDrive:getCanMotorRun(superFunc)
         return superFunc(self)
     end
 end
-
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
     if self.getMotorStartTime ~= nil then

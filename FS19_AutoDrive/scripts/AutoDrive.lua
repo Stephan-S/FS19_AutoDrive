@@ -126,7 +126,7 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.showMouse = false
 	AutoDrive.mouseWheelActive = false
-	
+
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}
 
@@ -181,7 +181,7 @@ function AutoDrive:firstRun()
 	else
 		ADGraphManager:checkYPositionIntegrity()
 	end
-	
+
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
 end
@@ -266,7 +266,12 @@ function AutoDrive:update(dt)
 		delayedCallBack:update(dt)
 	end
 
-	AutoDrive.handlePerFrameOperations(dt)
+	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
+		if trigger.stoppedTimer == nil then
+			trigger.stoppedTimer = AutoDriveTON:new()
+		end
+		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
+	end
 
 	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
 	--AutoDrive.renderTime = 0
@@ -276,37 +281,6 @@ end
 function AutoDrive:draw()
 	DrawingManager:draw()
 	MessagesManager:draw()
-end
-
-function AutoDrive.handlePerFrameOperations(dt)
-	for _, vehicle in pairs(g_currentMission.vehicles) do
-		if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
-			vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt)
-
-			local vehicleSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 10)
-			if (not vehicleSteering) and ((vehicle.lastSpeedReal * vehicle.movingDirection) >= 0.0008) then
-				vehicle.ad.driveForwardTimer:timer(true, 20000, dt)
-			else
-				vehicle.ad.driveForwardTimer:timer(false)
-			end
-		end		
-
-		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
-			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
-			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or (vehicle.cp.driver.fieldworkState ~= nil and vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING))
-			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
-			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20);
-			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
-		end
-	end
-
-	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
-		if trigger.stoppedTimer == nil then
-			trigger.stoppedTimer = AutoDriveTON:new()
-		end
-		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
-	end
 end
 
 function AutoDrive.startAD(vehicle)
@@ -350,10 +324,6 @@ function AutoDrive.startAD(vehicle)
 		end
 	end
 
-	if g_server ~= nil then
-		vehicle.ad.enableAI = 5
-	end
-
 	AutoDriveHud:createMapHotspot(vehicle)
 	if vehicle.isServer then
 		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", 1)
@@ -365,16 +335,16 @@ function AutoDrive.disableAutoDriveFunctions(vehicle)
 	if vehicle.isServer and vehicle.ad.stateModule:isActive() then
 		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", -1)
 	end
-	
+
 	vehicle.ad.drivePathModule:reset()
 	vehicle.ad.specialDrivingModule:reset()
 	vehicle.ad.trailerModule:reset()
-	
+
 	for _, mode in pairs(vehicle.ad.modes) do
 		mode:reset()
 	end
-	
-	vehicle.ad.stateModule:setActive(false)	
+
+	vehicle.ad.stateModule:setActive(false)
 
 	if vehicle.ad.callBackFunction ~= nil and (vehicle.ad.isStoppingWithError == nil or vehicle.ad.isStoppingWithError == false) then
 		--work with copys, so we can remove the callBackObjects before calling the function
@@ -416,11 +386,6 @@ function AutoDrive.disableAutoDriveFunctions(vehicle)
 		vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
 		AIVehicleUtil.driveInDirection(vehicle, 16, 30, 0, 0.2, 20, false, vehicle.ad.drivingForward, 0, 0, 0, 1)
 
-		--tell clients to dismiss ai worker etc.
-		if g_server ~= nil then
-			vehicle.ad.disableAI = 5
-		end
-
 		if vehicle.ad.onRouteToPark == true then
 			vehicle.ad.onRouteToPark = false
 			-- We don't need that, since the motor is turned off automatically when the helper is kicked out
@@ -447,7 +412,7 @@ function AutoDrive.disableAutoDriveFunctions(vehicle)
 	if vehicle.setBeaconLightsVisibility ~= nil then
 		vehicle:setBeaconLightsVisibility(false)
 	end
-	
+
 	vehicle.ad.taskModule:reset()
 end
 

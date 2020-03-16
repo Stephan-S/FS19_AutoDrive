@@ -165,7 +165,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 end
 
                 local textTargetWidth
-                
+
                 if listEntry.isFolder then
                     textTargetWidth = math.abs(self.rightIconPos3.x - self.position.x) - AutoDrive.Hud.gapWidth
                 else
@@ -483,7 +483,7 @@ function ADPullDownList:getNewState_Unload(vehicle)
             self.text = markerSelected.name
         else
             self.text = ""
-        end 
+        end
     end
     return newState, newSelection
 end
@@ -527,7 +527,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
-                            AutoDrive.InputHandlingSenderOnly(vehicle, "input_setDestinationFilter")
+                            InputManager:onInputCall(vehicle, "input_setDestinationFilter")
                         end
                     end
                 elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.stateModule:isEditorModeEnabled() then
@@ -552,7 +552,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
-                            AutoDrive.InputHandlingSenderOnly(vehicle, "input_setDestinationFilter")
+                            InputManager:onInputCall(vehicle, "input_setDestinationFilter")
                         end
                     end
                 end
@@ -580,7 +580,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive.mouseWheelActive = true
             return true
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_COLLAPSED then
-            AutoDrive.InputHandlingSenderOnly(vehicle, "input_setDestinationFilter")
+            InputManager:onInputCall(vehicle, "input_setDestinationFilter")
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_EXPANDED then
             if hitIcon ~= nil and ((hitIcon == 2 and (not vehicle.ad.stateModule:isEditorModeEnabled())) or (hitIcon == 4 and vehicle.ad.stateModule:isEditorModeEnabled())) then
                 if hitElement.isFolder then

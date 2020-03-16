@@ -14,7 +14,7 @@ function AutoDrive.isTrailerInCrop(vehicle)
         if trailer.ad == nil then
             trailer.ad = {}
         end
-        ADSensor:handleSensors(trailer, dt)
+        ADSensor:handleSensors(trailer, dt) --TODO: Missing "dt"
         inCrop = trailer.ad.sensors.centerSensorFruit:pollInfo()
     end
     return inCrop
@@ -100,7 +100,7 @@ end
 
 function AutoDrive.combineIsTurning(combine)
     local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStage ~= nil and combine.cp.turnStage > 0))
-    local cpIsTurningTwo = combine.cp ~= nil and combine.cp.driver and (combine.cp.driver.turnIsDriving or (combine.cp.driver.fieldworkState ~= nil and combine.cp.driver.fieldworkState == self.combine.cp.driver.states.TURNING))
+    local cpIsTurningTwo = combine.cp ~= nil and combine.cp.driver and (combine.cp.driver.turnIsDriving or (combine.cp.driver.fieldworkState ~= nil and combine.cp.driver.fieldworkState == combine.cp.driver.states.TURNING))
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true)
     local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 30);
     local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering

@@ -126,7 +126,6 @@ function AutoDrive:InputHandling(vehicle, input)
 		return
 	end
 
-	-- Why is this called 'ServerOnly' if it's called even on clients?
 	AutoDrive:InputHandlingServerOnly(vehicle, input)
 
 	vehicle.ad.currentInput = ""
