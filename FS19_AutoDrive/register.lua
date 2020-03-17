@@ -19,26 +19,22 @@ source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirector
 source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))
 
-source(Utils.getFilename("scripts/Events/AutoDriveEventUtil.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateDestinationsEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveCourseEditEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveCourseDownloadEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveGroupsEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveCreateMapMarkerEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveDeleteMapMarkerEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveRenameMapMarkerEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveChangeMapMarkerGroupEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveUserDataEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveDeleteWayPointEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveRequestWayPointEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveAcknowledgeCourseUpdateEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveUpdateSettingsEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveRenameDriverEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveUserConnectedEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveToggleConnectionEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveExperimentalFeaturesEvent.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Events/AutoDriveMessageEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/CourseEditEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/GroupsEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/UserDataEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/UpdateSettingsEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/RenameDriverEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/UserConnectedEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/ExperimentalFeaturesEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/MessageEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/InputEvent.lua", g_currentModDirectory))
+
+source(Utils.getFilename("scripts/Events/Graph/CreateMapMarkerEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/DeleteMapMarkerEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/RenameMapMarkerEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/ChangeMapMarkerGroupEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/ToggleConnectionEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/DeleteWayPointEvent.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Utils/AutoDriveDelayedCallBacks.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
@@ -52,6 +48,7 @@ source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuns.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/AutoDriveEventUtil.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
@@ -91,7 +88,6 @@ source(Utils.getFilename("scripts/Modes/PickupAndDeliverMode.lua", g_currentModD
 source(Utils.getFilename("scripts/Modes/LoadMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/BGAMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/CombineUnloaderMode.lua", g_currentModDirectory))
-
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version

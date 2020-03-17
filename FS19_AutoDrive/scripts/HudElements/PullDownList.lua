@@ -644,8 +644,6 @@ function ADPullDownList:collapse(vehicle, setItem)
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
                 vehicle.ad.stateModule:setFillType(selectedEntry.returnValue)
             end
-
-            AutoDriveUpdateDestinationsEvent:sendEvent(vehicle)
         end
     end
     AutoDrive.Hud.lastUIScale = 0
