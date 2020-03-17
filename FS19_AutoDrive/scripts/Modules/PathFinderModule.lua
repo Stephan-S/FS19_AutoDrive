@@ -539,7 +539,7 @@ function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, cornerX, corn
 end
 
 function PathFinderModule:drawDebugForPF()
-    local AutoDriveDM = DrawingManager
+    local AutoDriveDM = ADDrawingManager
     local pointTarget = self:gridLocationToWorldLocation(self.targetCell)
     local pointTargetUp = self:gridLocationToWorldLocation(self.targetCell)
     pointTarget.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTarget.x, 1, pointTarget.z) + 3
@@ -628,7 +628,7 @@ function PathFinderModule:drawDebugForPF()
 end
 
 function PathFinderModule:drawDebugForCreatedRoute()
-    local AutoDriveDM = DrawingManager
+    local AutoDriveDM = ADDrawingManager
     if self.chainStartToTarget ~= nil then
         for _, cell in pairs(self.chainStartToTarget) do
             local shape = self:getShapeDefByDirectionType(cell)

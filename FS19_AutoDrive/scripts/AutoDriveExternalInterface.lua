@@ -162,8 +162,10 @@ end
 
 function AutoDrive:GetParkDestination(vehicle)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetParkDestination()")
-    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination) ~= nil then
-        return vehicle.ad.parkDestination
+    if vehicle ~= nil and vehicle.ad ~= nil then
+        if vehicle.ad.stateModule:hasParkDestination() then
+            return vehicle.ad.stateModule:getParkDestination()
+        end
     end
     return nil
 end

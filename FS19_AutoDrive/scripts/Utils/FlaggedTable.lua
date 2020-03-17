@@ -1,23 +1,17 @@
---
--- FlaggedTable utility for AutoDrive
---
--- @author TyKonKet
--- @date  06/03/20
-
 FlaggedTable = {}
-FlaggedTable_mt = Class(FlaggedTable)
 
 function FlaggedTable:new()
-    local q = {}
-    setmetatable(q, FlaggedTable_mt)
-    q.items = {}
-    q.itemsCount = 0
-    return q
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.items = {}
+    o.itemsCount = 0
+    return o
 end
 
 function FlaggedTable:Add(key, value)
     if self.items[key] ~= nil then
-        print("porcoddio ecco perchè " .. key)
+        g_logManager:devError("FlaggedTable key %s with value %s will be replaced by %s", key, self.items[key], value)
     end
     self.items[key] = {value = value, flag = false}
     self.itemsCount = self.itemsCount + 1

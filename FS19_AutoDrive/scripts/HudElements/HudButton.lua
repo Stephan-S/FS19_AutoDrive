@@ -155,10 +155,10 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_parkVehicle" then
-        if vehicle.ad.parkDestination == nil or vehicle.ad.parkDestination <= 1 then
-            newState = 2
-        else
+        if vehicle.ad.stateModule:hasParkDestination() then
             newState = 1
+        else
+            newState = 2
         end
     end
 
@@ -172,9 +172,9 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
         vehicle.ad.sToolTipInfo = nil
 
         if self.primaryAction == "input_parkVehicle" then
-            if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 then
+            if vehicle.ad.stateModule:hasParkDestination() then
                 vehicle.ad.sToolTip = vehicle.ad.sToolTip
-                vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination).name
+                vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(vehicle.ad.stateModule:getParkDestination()).name
             end
         end
 

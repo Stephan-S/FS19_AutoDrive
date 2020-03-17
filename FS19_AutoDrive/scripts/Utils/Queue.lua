@@ -1,18 +1,12 @@
---
--- Queue utility for AutoDrive
---
--- @author TyKonKet
--- @date  03/03/20
-
 Queue = {}
-Queue_mt = Class(Queue)
 
 function Queue:new()
-    local q = {}
-    setmetatable(q, Queue_mt)
-    q.items = {}
-    q.itemsCount = 0
-    return q
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.items = {}
+    o.itemsCount = 0
+    return o
 end
 
 function Queue:Enqueue(item)

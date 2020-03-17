@@ -73,7 +73,6 @@ AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
 	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
@@ -129,8 +128,6 @@ function AutoDrive:loadMap(name)
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}
 
-	AutoDrive.delayedCallBacks = {}
-
 	AutoDrive.mapHotspotsBuffer = {}
 
 	AutoDrive.requestWayPointTimer = 10000
@@ -165,16 +162,14 @@ function AutoDrive:loadMap(name)
 	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
 
-	AutoDriveBenchmarks.Run()
-	RoutesManager.load()
-	DrawingManager:load()
-	MessagesManager:load()
+	ADRoutesManager.load()
+	ADDrawingManager:load()
+	ADMessagesManager:load()
 	ADHarvestManager:load()
 	ADInputManager:load()
 end
 
 function AutoDrive:firstRun()
-	AutoDriveBenchmarks.FirstRun()
 	if g_server == nil then
 		-- Here we could ask to server the initial sync
 		AutoDriveUserConnectedEvent.sendEvent()
@@ -215,7 +210,7 @@ function AutoDrive:deleteMap()
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
-	RoutesManager.delete()
+	ADRoutesManager.delete()
 	if g_server ~= nil then
 		delete(AutoDrive.adXml)
 	end
@@ -261,16 +256,10 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
-	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do
-		delayedCallBack:update(dt)
-	end
-
 	AutoDrive.handlePerFrameOperations(dt)
 
-	--renderText(0.1, 0.5, 0.015, string.format("Render time: %s", AutoDrive.renderTime))
-	--AutoDrive.renderTime = 0
 	ADHarvestManager:update()
+	ADMessagesManager:update(dt)
 end
 
 function AutoDrive.handlePerFrameOperations(dt)
@@ -305,8 +294,8 @@ function AutoDrive.handlePerFrameOperations(dt)
 end
 
 function AutoDrive:draw()
-	DrawingManager:draw()
-	MessagesManager:draw()
+	ADDrawingManager:draw()
+	ADMessagesManager:draw()
 end
 
 function AutoDrive.startAD(vehicle)
