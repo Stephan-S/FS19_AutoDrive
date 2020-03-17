@@ -36,7 +36,7 @@ function ADEnterTargetNameGui:onOpen()
         local closest, _ = ADGraphManager:findClosestWayPoint(g_currentMission.controlledVehicle)
         if closest ~= nil and closest ~= -1 and ADGraphManager:getWayPointById(closest) ~= nil then
             local cId = closest
-            for i, mapMarker in pairs(ADGraphManager:getMapMarker()) do
+            for i, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
                 -- If we have already a map marker on this waypoint, we edit it otherwise we create a new one
                 if mapMarker.id == cId then
                     self.editId = i

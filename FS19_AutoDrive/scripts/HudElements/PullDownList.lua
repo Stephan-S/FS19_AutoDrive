@@ -128,7 +128,7 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             if wps ~= nil then
                 local vehicleDestination = wps[#wps]
                 if vehicleDestination ~= nil then
-                    for _, mapMarker in pairs(ADGraphManager:getMapMarker()) do
+                    for _, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
                         if mapMarker.id == vehicleDestination.id then
                             actualTarget = mapMarker.name
                             break
@@ -379,7 +379,7 @@ function ADPullDownList:createSelection_Target()
         self.options[1] = {}
     end
 
-    for markerID, marker in pairs(ADGraphManager:getMapMarker()) do
+    for markerID, marker in pairs(ADGraphManager:getMapMarkers()) do
         if useFolders then
             table.insert(self.options[self.groups[marker.group]], {displayName = marker.name, returnValue = markerID})
         else

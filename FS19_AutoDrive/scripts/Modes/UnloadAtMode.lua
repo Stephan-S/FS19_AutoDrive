@@ -37,7 +37,7 @@ function UnloadAtMode:handleFinishedTask()
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         local target = self.vehicle.ad.stateModule:getFirstMarker().name
-        for _, mapMarker in pairs(ADGraphManager:getMapMarker()) do
+        for _, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
             if self.destinationID == mapMarker.id then
                 target = mapMarker.name
             end

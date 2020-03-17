@@ -47,7 +47,7 @@ function AutoDrive:writeWaypointsToStream(streamId, startId, endId)
 end
 
 function AutoDrive:writeMapMarkersToStream(streamId)
-    local markerCounter = #ADGraphManager:getMapMarker()
+    local markerCounter = #ADGraphManager:getMapMarkers()
     streamWriteInt32(streamId, markerCounter)
     local i = 1
     while i <= markerCounter do

@@ -534,7 +534,7 @@ function AutoDrive.updateDestinationsMapHotspots()
 		end
 
 		-- Filling the buffer
-		local missingAmount = #ADGraphManager:getMapMarker() - #AutoDrive.mapHotspotsBuffer
+		local missingAmount = #ADGraphManager:getMapMarkers() - #AutoDrive.mapHotspotsBuffer
 		if missingAmount > 0 then
 			local width, height = getNormalizedScreenValues(9, 9)
 			for i = 1, missingAmount do
@@ -548,7 +548,7 @@ function AutoDrive.updateDestinationsMapHotspots()
 		end
 
 		-- Updating and adding hotspots
-		for index, marker in ipairs(ADGraphManager:getMapMarker()) do
+		for index, marker in ipairs(ADGraphManager:getMapMarkers()) do
 			local mh = AutoDrive.mapHotspotsBuffer[index]
 			mh:setText(marker.name)
 			local wp = ADGraphManager:getWayPointById(marker.id)

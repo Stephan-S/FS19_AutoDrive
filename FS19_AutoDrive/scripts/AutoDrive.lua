@@ -478,7 +478,7 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 				end
 			end
 			-- Moving all markers in the deleted group to default group
-			for markerID, mapMarker in pairs(ADGraphManager:getMapMarker()) do
+			for markerID, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
 				if mapMarker.group == groupName then
 					mapMarker.group = "All"
 				end

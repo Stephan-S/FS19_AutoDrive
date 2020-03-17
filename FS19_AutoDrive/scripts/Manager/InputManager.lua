@@ -275,7 +275,7 @@ end
 function ADInputManager:input_nextTarget(vehicle)
     if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
         local currentTarget = vehicle.ad.stateModule:getFirstMarkerId()
-        if currentTarget < #ADGraphManager:getMapMarker() then
+        if currentTarget < #ADGraphManager:getMapMarkers() then
             currentTarget = currentTarget + 1
         else
             currentTarget = 1
@@ -290,7 +290,7 @@ function ADInputManager:input_previousTarget(vehicle)
         if currentTarget > 1 then
             currentTarget = currentTarget - 1
         else
-            currentTarget = #ADGraphManager:getMapMarker()
+            currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setFirstMarker(currentTarget)
     end
@@ -299,7 +299,7 @@ end
 function ADInputManager:input_nextTarget_Unload(vehicle)
     if ADGraphManager:getMapMarkerById(1) ~= nil and ADGraphManager:getWayPointById(1) ~= nil then
         local currentTarget = vehicle.ad.stateModule:getSecondMarkerId()
-        if currentTarget < #ADGraphManager:getMapMarker() then
+        if currentTarget < #ADGraphManager:getMapMarkers() then
             currentTarget = currentTarget + 1
         else
             currentTarget = 1
@@ -314,7 +314,7 @@ function ADInputManager:input_previousTarget_Unload(vehicle)
         if currentTarget > 1 then
             currentTarget = currentTarget - 1
         else
-            currentTarget = #ADGraphManager:getMapMarker()
+            currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
     end

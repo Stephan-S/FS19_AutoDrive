@@ -243,7 +243,7 @@ function ADTriggerManager.getRefuelDestinations()
 
     local refuelTriggers = ADTriggerManager.getRefuelTriggers()
 
-    for mapMarkerID, mapMarker in pairs(ADGraphManager:getMapMarker()) do
+    for mapMarkerID, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
         for _, refuelTrigger in pairs(refuelTriggers) do
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(refuelTrigger)
             local distance = MathUtil.vector2Length(triggerX - ADGraphManager:getWayPointById(mapMarker.id).x, triggerZ - ADGraphManager:getWayPointById(mapMarker.id).z)

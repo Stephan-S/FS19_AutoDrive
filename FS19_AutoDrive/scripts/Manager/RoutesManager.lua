@@ -95,7 +95,7 @@ function ADRoutesManager.export(name)
         saveXml = createXMLFile("routeExport_xml", ADRoutesManager.routesFolder .. fileName, "routeExport")
     end
 
-    AutoDrive.writeGraphToXml(saveXml, "routeExport", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarker(), AutoDrive.groups)
+    AutoDrive.writeGraphToXml(saveXml, "routeExport", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarkers(), AutoDrive.groups)
 
     saveXMLFile(saveXml)
     delete(saveXml)
