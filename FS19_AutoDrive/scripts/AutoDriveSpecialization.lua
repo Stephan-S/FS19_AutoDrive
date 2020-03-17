@@ -152,11 +152,6 @@ function AutoDrive:onReadStream(streamId, connection)
 end
 
 function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
-    if g_server ~= nil then
-        if self.ad.stateModule:isDirty() then
-            self:raiseDirtyFlags(self.ad.dirtyFlag)
-        end
-    end
 end
 
 function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
