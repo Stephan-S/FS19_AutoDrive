@@ -175,7 +175,7 @@ function ADDrivePathModule:followWaypoints(dt)
         if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + ADDrivePathModule.MAX_SPEED_DEVIATION) then
             self.acceleration = -0.6
         end
-        DrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
+        ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
         AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
     end
 end

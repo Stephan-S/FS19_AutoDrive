@@ -192,5 +192,5 @@ function AutoDrive:notifyDestinationListeners()
 end
 
 function AutoDrive:combineIsCallingDriver(combine)
-    return ADHarvestManager:alreadyAssignedUnloader(combine)
+    return ADHarvestManager.doesHarvesterNeedUnloading(combine)
 end

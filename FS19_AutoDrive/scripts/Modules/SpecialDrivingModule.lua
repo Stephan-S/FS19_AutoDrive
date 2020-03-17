@@ -119,7 +119,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
         if (self.vehicle.lastSpeedReal * 3600) > (speed + ADDrivePathModule.MAX_SPEED_DEVIATION) then
             self.acceleration = -0.6
         end
-        DrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
+        ADDrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
         AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
     end
 end
