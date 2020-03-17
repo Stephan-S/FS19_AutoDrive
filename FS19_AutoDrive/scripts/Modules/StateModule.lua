@@ -437,7 +437,6 @@ function ADStateModule:setFirstMarkerByWayPointId(wayPointId)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
         if mapMarker.id == wayPointId then
             self:setFirstMarker(markerId)
-            self:raiseDirtyFlag(self.firstMarkerDirtyFlag)
             break
         end
     end
@@ -447,7 +446,6 @@ function ADStateModule:setFirstMarkerByName(markerName)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
         if mapMarker.name == markerName then
             self:setFirstMarker(markerId)
-            self:raiseDirtyFlag(self.firstMarkerDirtyFlag)
             break
         end
     end
@@ -490,7 +488,6 @@ function ADStateModule:setSecondMarkerByWayPointId(wayPointId)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
         if mapMarker.id == wayPointId then
             self:setSecondMarker(markerId)
-            self:raiseDirtyFlag(self.secondMarkerDirtyFlag)
             break
         end
     end
@@ -500,7 +497,6 @@ function ADStateModule:setSecondMarkerByName(markerName)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
         if mapMarker.name == markerName then
             self:setSecondMarker(markerId)
-            self:raiseDirtyFlag(self.secondMarkerDirtyFlag)
             break
         end
     end

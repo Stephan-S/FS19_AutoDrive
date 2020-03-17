@@ -489,7 +489,7 @@ end
 function AutoDrive:mapHotSpotClicked(superFunc)
 	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") then
 		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-			g_currentMission.controlledVehicle.ad.stateModule:setFirstMarker(self.markerID)
+			AutoDriveHudInputEventEvent:sendFirstMarkerEvent(g_currentMission.controlledVehicle, self.markerID)
 		end
 	end
 
@@ -504,7 +504,7 @@ function AutoDrive:ingameMapElementMouseEvent(superFunc, posX, posY, isDown, isU
 				if self.ingameMap.filter[hotspot.category] and hotspot.visible and hotspot.category ~= MapHotspot.CATEGORY_FIELD_DEFINITION and hotspot.category ~= MapHotspot.CATEGORY_COLLECTABLE and hotspot:getIsActive() then
 					if GuiUtils.checkOverlayOverlap(posX, posY, hotspot.x, hotspot.y, hotspot:getWidth(), hotspot:getHeight(), nil) then
 						if AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") and hotspot.isADMarker and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-							g_currentMission.controlledVehicle.ad.stateModule:setSecondMarker(hotspot.markerID)
+							AutoDriveHudInputEventEvent:sendSecondMarkerEvent(g_currentMission.controlledVehicle, hotspot.markerID)
 						end
 						break
 					end

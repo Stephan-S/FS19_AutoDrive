@@ -78,7 +78,7 @@ end
 function ADInputManager:onInputCall(vehicle, input, sendEvent)
     local func = self[input]
     if type(func) ~= "function" then
-        g_logManager:devError("[AutoDrive] Input '%s' = '%s'", input, func)
+        g_logManager:devError("[AutoDrive] Input '%s' = '%s'", input, type(func))
         return
     end
 

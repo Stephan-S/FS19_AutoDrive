@@ -307,29 +307,28 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 					marker.markerIndex = markerID
 				end
 
-				-- Removing references to it on all vehicles
-				for _, vehicle in pairs(g_currentMission.vehicles) do
-					if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
-						local parkDestination = vehicle.ad.stateModule:getParkDestination()
-						if parkDestination ~= nil and parkDestination >= markerId then
-							vehicle.ad.stateModule:setParkDestination(-1)
-						end
-						if vehicle.ad.stateModule:getFirstMarker() == nil then
-							vehicle.ad.stateModule:setFirstMarker(ADGraphManager:getMapMarkerById(1))
-						end
-						if vehicle.ad.stateModule:getFirstMarkerId() ~= nil and vehicle.ad.stateModule:getFirstMarkerId() >= markerId then
-							vehicle.ad.stateModule:setFirstMarker(math.max(vehicle.ad.stateModule:getFirstMarkerId() - 1, 1))
-						end
-						if vehicle.ad.stateModule:getSecondMarker() == nil then
-							vehicle.ad.stateModule:setSecondMarker(ADGraphManager:getMapMarkerById(1))
-						end
-						if vehicle.ad.stateModule:getSecondMarkerId() ~= nil and vehicle.ad.stateModule:getSecondMarkerId() >= markerId then
-							vehicle.ad.stateModule:setSecondMarker(math.max(vehicle.ad.stateModule:getSecondMarkerId() - 1, 1))
+				if g_server ~= nil then
+					-- Removing references to it on all vehicles
+					for _, vehicle in pairs(g_currentMission.vehicles) do
+						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+							local parkDestination = vehicle.ad.stateModule:getParkDestination()
+							if parkDestination ~= nil and parkDestination >= markerId then
+								vehicle.ad.stateModule:setParkDestination(-1)
+							end
+							if vehicle.ad.stateModule:getFirstMarker() == nil then
+								vehicle.ad.stateModule:setFirstMarker(ADGraphManager:getMapMarkerById(1))
+							end
+							if vehicle.ad.stateModule:getFirstMarkerId() ~= nil and vehicle.ad.stateModule:getFirstMarkerId() >= markerId then
+								vehicle.ad.stateModule:setFirstMarker(math.max(vehicle.ad.stateModule:getFirstMarkerId() - 1, 1))
+							end
+							if vehicle.ad.stateModule:getSecondMarker() == nil then
+								vehicle.ad.stateModule:setSecondMarker(ADGraphManager:getMapMarkerById(1))
+							end
+							if vehicle.ad.stateModule:getSecondMarkerId() ~= nil and vehicle.ad.stateModule:getSecondMarkerId() >= markerId then
+								vehicle.ad.stateModule:setSecondMarker(math.max(vehicle.ad.stateModule:getSecondMarkerId() - 1, 1))
+							end
 						end
 					end
-				end
-
-				if g_server ~= nil then
 					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarkers + 1))
 				end
 			end

@@ -635,14 +635,14 @@ function ADPullDownList:collapse(vehicle, setItem)
         if selectedEntry ~= nil and selectedEntry.returnValue ~= nil and selectedEntry.isFolder == false then
             if self.type == ADPullDownList.TYPE_TARGET then
                 if ADGraphManager:getMapMarkerById(selectedEntry.returnValue) ~= nil then
-                    vehicle.ad.stateModule:setFirstMarker(selectedEntry.returnValue)
+                    AutoDriveHudInputEventEvent:sendFirstMarkerEvent(vehicle, selectedEntry.returnValue)
                 end
             elseif self.type == ADPullDownList.TYPE_UNLOAD then
                 if ADGraphManager:getMapMarkerById(selectedEntry.returnValue) ~= nil then
-                    vehicle.ad.stateModule:setSecondMarker(selectedEntry.returnValue)
+                    AutoDriveHudInputEventEvent:sendSecondMarkerEvent(vehicle, selectedEntry.returnValue)
                 end
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
-                vehicle.ad.stateModule:setFillType(selectedEntry.returnValue)
+                AutoDriveHudInputEventEvent:sendFillTypeEvent(vehicle, selectedEntry.returnValue)
             end
         end
     end
