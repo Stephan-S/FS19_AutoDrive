@@ -24,9 +24,16 @@ function DriveToDestinationTask:update(dt)
     if self.state == DriveToDestinationTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
-            self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
-            self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
-            self.state = DriveToDestinationTask.STATE_DRIVING
+            if self.wayPoints == nil or #self.wayPoints == 0 then
+                g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
+                self.vehicle.ad.taskModule:abortAllTasks()
+                AutoDrive.disableAutoDriveFunctions(self.vehicle)
+                AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
+            else
+                self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+                self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
+                self.state = DriveToDestinationTask.STATE_DRIVING
+            end
         else
             self.vehicle.ad.pathFinderModule:update()
             self.vehicle.ad.specialDrivingModule:stopVehicle()

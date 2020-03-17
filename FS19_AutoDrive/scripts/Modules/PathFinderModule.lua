@@ -54,7 +54,7 @@ function PathFinderModule:update()
     self.steps = self.steps + 1
 
     if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
-        if (not self.fallBackMode and not self.chasingVehicle) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
+        if (not self.fallBackMode) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
             --g_logManager:devInfo("Going into fallback mode - no fruit free path found in reasonable time");
             if not self.possiblyBlockedByOtherVehicle then
                 self.fallBackMode = true
@@ -76,10 +76,10 @@ function PathFinderModule:update()
             self.smoothDone = true
             self.wayPoints = {}
 
-            g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
-            self.vehicle.ad.taskModule:abortAllTasks()
-            AutoDrive.disableAutoDriveFunctions(self.vehicle)
-            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
+            --g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
+            --self.vehicle.ad.taskModule:abortAllTasks()
+            --AutoDrive.disableAutoDriveFunctions(self.vehicle)
+            --AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
         end
     end
 
@@ -328,14 +328,6 @@ end
 
 function PathFinderModule:checkGridCell(cell)
     if cell.hasInfo == false then
-        if cell.x == self.targetCell.x and cell.z == self.targetCell.z then
-            cell.isRestricted = false
-            cell.hasCollision = false
-            cell.hasFruit = false
-            cell.hasInfo = true
-            return
-        end
-
         local worldPos = self:gridLocationToWorldLocation(cell)
 
         local cornerX = worldPos.x + (-self.vectorX.x - self.vectorZ.x) / 2
@@ -381,6 +373,10 @@ function PathFinderModule:checkGridCell(cell)
             cell.hasVehicleCollision = true
         end
         self.possiblyBlockedByOtherVehicle = self.possiblyBlockedByOtherVehicle or vehiclePathCollides
+
+        if cell.x == self.targetCell.x and cell.z == self.targetCell.z then
+            cell.hasFruit = false
+        end
     end
 end
 
@@ -537,7 +533,7 @@ function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, cornerX, corn
     cell.hasFruit = (fruitValue > 150)
 
     --Allow fruit in the first few grid cells
-    if self:cellDistance(cell) <= 3 and self.goingToPipe then
+    if (self:cellDistance(cell) <= 3 and self.goingToPipe) or (self:cellDistance(cell) > 10 and self.fallBackMode) then
         cell.isRestricted = false or wasRestricted
     end
 end

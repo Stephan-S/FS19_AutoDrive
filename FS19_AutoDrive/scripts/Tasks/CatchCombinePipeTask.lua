@@ -30,8 +30,14 @@ function CatchCombinePipeTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING finished")
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
-            self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
-            self.state = CatchCombinePipeTask.STATE_DRIVING
+            if self.wayPoints == nil or #self.wayPoints < 1 then
+                --restart
+                AutoDriveMessageEvent.sendNotification(self.vehicle, MessagesManager.messageTypes.WARN , "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.driverName, self.combine.ad.driverName)
+                self:startNewPathFinding()
+            else
+                self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
+                self.state = CatchCombinePipeTask.STATE_DRIVING
+            end
         else
             self.vehicle.ad.pathFinderModule:update()
             self.vehicle.ad.specialDrivingModule:stopVehicle()

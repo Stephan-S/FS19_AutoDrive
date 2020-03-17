@@ -149,7 +149,8 @@ end
 
 function FollowCombineTask:shouldWaitForChasePos(dt)
     self:getAngleToChasePos(dt)
-    return self.angleWrongTimer:done() or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
+    local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.chasePos.x, self.chasePos.y, self.chasePos.z)
+    return self.angleWrongTimer:done() or (not self.combine.ad.sensors.frontSensorFruit:pollInfo()) or diffZ <= -1
 end
 
 function FollowCombineTask:getAngleToChasePos(dt)

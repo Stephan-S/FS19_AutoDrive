@@ -188,3 +188,7 @@ function AutoDrive:notifyDestinationListeners()
         callBackFunction(object, true)
     end
 end
+
+function AutoDrive:combineIsCallingDriver(combine)
+    return ADHarvestManager:alreadyAssignedUnloader(combine)
+end

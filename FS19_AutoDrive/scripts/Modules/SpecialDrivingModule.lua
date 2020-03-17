@@ -106,7 +106,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
         speed = maxFollowSpeed + self.distanceToChasePos*2
     end
 
-    print("Targetspeed: " .. speed .. " distance: " .. self.distanceToChasePos .. " maxFollowSpeed: " .. maxFollowSpeed)
+    --print("Targetspeed: " .. speed .. " distance: " .. self.distanceToChasePos .. " maxFollowSpeed: " .. maxFollowSpeed)
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
 
@@ -115,8 +115,9 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
         self:stopVehicle(lx, lz)
         self:update(dt)
     else
-        if self.vehicle.lastSpeedReal * 3600 > speed * 0.8 then
-            acc = -acc
+        -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
+        if (self.vehicle.lastSpeedReal * 3600) > (speed + ADDrivePathModule.MAX_SPEED_DEVIATION) then
+            self.acceleration = -0.6
         end
         DrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
         AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)

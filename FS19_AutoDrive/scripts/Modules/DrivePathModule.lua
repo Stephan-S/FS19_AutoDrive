@@ -174,9 +174,9 @@ function ADDrivePathModule:followWaypoints(dt)
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
         if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + ADDrivePathModule.MAX_SPEED_DEVIATION) then
             self.acceleration = -0.6
-        end        
+        end
         DrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 0.65)
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
     end
 end
 
@@ -284,7 +284,7 @@ function ADDrivePathModule:getSpeedLimitBySteeringAngle()
     end
 
     if steeringAngle > maxAngle * 0.85 then
-        maxSpeed = 7
+        maxSpeed = 10
     end
     return maxSpeed
 end

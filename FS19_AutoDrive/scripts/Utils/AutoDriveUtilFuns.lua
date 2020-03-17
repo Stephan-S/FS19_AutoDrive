@@ -14,7 +14,7 @@ function AutoDrive.isTrailerInCrop(vehicle)
         if trailer.ad == nil then
             trailer.ad = {}
         end
-        ADSensor:handleSensors(trailer, dt) --TODO: Missing "dt"
+        ADSensor:handleSensors(trailer, 0)
         inCrop = trailer.ad.sensors.centerSensorFruit:pollInfo()
     end
     return inCrop
