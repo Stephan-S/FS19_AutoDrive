@@ -33,7 +33,8 @@ function FollowCombineTask:update(dt)
     self:updateStates()
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
     local reachedFieldBorder = not self.vehicle.ad.sensors.frontSensorField:pollInfo()
-    if self.filled or combineStopped or reachedFieldBorder then
+    if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombine < 5) then
+        print("reachedFieldBorder: " .. AutoDrive.boolToString(reachedFieldBorder))
         if self.state ~= FollowCombineTask.STATE_REVERSING then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
             self.reverseStartLocation = {x = x, y = y, z = z}
@@ -45,7 +46,9 @@ function FollowCombineTask:update(dt)
     end
 
     if self.state == FollowCombineTask.STATE_CHASING then
-        if AutoDrive.combineIsTurning(self.combine) then
+        print("Angle to combine: " .. self.angleToCombine)
+        if AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 60 or not self.combine:getIsBufferCombine()) then
+            print("AutoDrive.combineIsTurning(self.combine): " .. AutoDrive.boolToString(AutoDrive.combineIsTurning(self.combine)))
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
@@ -90,7 +93,6 @@ function FollowCombineTask:updateStates()
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local cx, cy, cz = getWorldTranslation(self.combine.components[1].node)
     self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
-    --local isChopper = combine:getIsBufferCombine()
     self.leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (not self.combine.ad.sensors.leftSensorField:pollInfo())
     self.rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (not self.combine.ad.sensors.rightSensorField:pollInfo())
 
@@ -137,6 +139,7 @@ end
 
 function FollowCombineTask:followChasePoint(dt)
     if self:shouldWaitForChasePos(dt) then
+        print("Should wait for chase pos")
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
     else

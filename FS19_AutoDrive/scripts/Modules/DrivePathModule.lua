@@ -111,12 +111,14 @@ function ADDrivePathModule:isCloseToWaypoint()
     local maxSkipWayPoints = 2
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self.currentWayPoint + i] ~= nil then
-            if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z) < self.min_distance then
+            local distanceToCurrentWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z)
+            if distanceToCurrentWp < self.min_distance then
                 return true
             end
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
             if i > 0 then
-                if AutoDrive.pointIsBetweenTwoPoints(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z) then
+                local distanceToLastWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z)
+                if distanceToCurrentWp < distanceToLastWp then
                     return true
                 end
             end
@@ -320,7 +322,6 @@ end
 
 function ADDrivePathModule:getLookAheadTarget()
     --start driving to the nextWayPoint when closing in on current waypoint in order to avoid harsh steering angles and oversteering
-
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
     local targetX = x
     local targetZ = z
@@ -338,9 +339,10 @@ function ADDrivePathModule:getLookAheadTarget()
         local distanceToCurrentTarget = AutoDrive.getDistance(x, z, wp_current.x, wp_current.z)
 
         local wp_ahead = self.wayPoints[self.currentWayPoint + lookAheadID]
+        local distance_wp_ahead_to_current_wp = AutoDrive.getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z)
         local distanceToNextTarget = AutoDrive.getDistance(x, z, wp_ahead.x, wp_ahead.z)
 
-        if distanceToCurrentTarget < distanceToNextTarget then
+        if distance_wp_ahead_to_current_wp > distanceToNextTarget then
             lookAheadDistance = lookAheadDistance - distanceToCurrentTarget
         end
 

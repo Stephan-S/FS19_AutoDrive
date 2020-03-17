@@ -92,6 +92,7 @@ function AutoDrive:onPostLoad(savegame)
 
         self.ad.noMovementTimer = AutoDriveTON:new()
         self.ad.noTurningTimer = AutoDriveTON:new()
+        self.ad.turningTimer = AutoDriveTON:new()
         self.ad.driveForwardTimer = AutoDriveTON:new()
 
         if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
