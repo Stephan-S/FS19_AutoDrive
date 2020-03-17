@@ -276,9 +276,9 @@ function AutoDrive.handlePerFrameOperations(dt)
 		end
 
 		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
-			local cpIsTurning = false -- vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
-			local cpIsTurningTwo = false --vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or (vehicle.cp.driver.fieldworkState ~= nil and vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING))
-			local aiIsTurning = false --(vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
+			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
+			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or (vehicle.cp.driver.fieldworkState ~= nil and vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING))
+			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
 			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20)
 			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
 			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)

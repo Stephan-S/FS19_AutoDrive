@@ -132,6 +132,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
     self.acceleration = 1
+    self.distanceToLookAhead = 8
     if self.wayPoints[self.currentWayPoint - 1] ~= nil and self.wayPoints[self.currentWayPoint + 1] ~= nil then
         local highestAngle = self:getHighestApproachingAngle()
         self.speedLimit = self:getMaxSpeedForAngle(highestAngle)
@@ -302,8 +303,10 @@ function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
         while self.wayPoints[self.currentWayPoint + lookAhead] ~= nil and lookAhead < maxLookAhead do
             local p1 = self.wayPoints[self.currentWayPoint + lookAhead]
             local p2 = self.wayPoints[self.currentWayPoint + lookAhead - 1]
-            distance = distance + MathUtil.vector2Length(p2.x - p1.x, p2.z - p1.z)
-
+            local pointDistance = MathUtil.vector2Length(p2.x - p1.x, p2.z - p1.z)
+            if pointDistance ~= nil then
+                distance = distance + pointDistance
+            end
             lookAhead = lookAhead + 1
         end
     end
@@ -322,6 +325,7 @@ end
 
 function ADDrivePathModule:getLookAheadTarget()
     --start driving to the nextWayPoint when closing in on current waypoint in order to avoid harsh steering angles and oversteering
+
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
     local targetX = x
     local targetZ = z
@@ -339,10 +343,9 @@ function ADDrivePathModule:getLookAheadTarget()
         local distanceToCurrentTarget = AutoDrive.getDistance(x, z, wp_current.x, wp_current.z)
 
         local wp_ahead = self.wayPoints[self.currentWayPoint + lookAheadID]
-        local distance_wp_ahead_to_current_wp = AutoDrive.getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z)
         local distanceToNextTarget = AutoDrive.getDistance(x, z, wp_ahead.x, wp_ahead.z)
 
-        if distance_wp_ahead_to_current_wp > distanceToNextTarget then
+        if distanceToCurrentTarget < distanceToNextTarget then
             lookAheadDistance = lookAheadDistance - distanceToCurrentTarget
         end
 

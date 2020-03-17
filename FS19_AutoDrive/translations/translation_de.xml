@@ -270,5 +270,6 @@
 		<text name="AD_task_chase_side_rear"					text="hinten" />	
 		<text name="AD_task_chase_side_right"					text="rechts" />
 		<text name="AD_task_waiting_for_room"					text="Warte auf Platz" />		
+		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 	</texts>
 </l10n>

@@ -69,6 +69,7 @@ source(Utils.getFilename("scripts/Tasks/ClearCropTask.lua", g_currentModDirector
 source(Utils.getFilename("scripts/Tasks/CatchCombinePipeTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/FollowCombineTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/RefuelTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/ExitFieldTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))
