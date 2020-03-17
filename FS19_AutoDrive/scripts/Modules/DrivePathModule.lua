@@ -135,7 +135,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     local distanceToTarget = self:getDistanceToLastWaypoint(10)
     if distanceToTarget < 20 then
-        self.speedLimit = math.clamp(8, self.speedLimit, 10 + distanceToTarget)
+        self.speedLimit = math.clamp(8, self.speedLimit, 2 + distanceToTarget)
     end
 
     if ADTriggerManager.checkForTriggerProximity(self.vehicle) then

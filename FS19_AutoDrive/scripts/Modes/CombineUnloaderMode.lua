@@ -236,10 +236,10 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         if (not leftBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 2)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
             sideIndex = self.CHASEPOS_LEFT
         elseif (not rightBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 2)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
             sideIndex = self.CHASEPOS_RIGHT
         else
             chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
