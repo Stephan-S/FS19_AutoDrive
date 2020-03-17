@@ -224,7 +224,7 @@ function AutoDrive.readFromXML(xmlFile)
 		g_logManager:devInfo("[AutoDrive] Loaded %s waypoints", wp_counter)
 	end
 
-	for markerIndex, marker in pairs(ADGraphManager:getMapMarker()) do
+	for markerIndex, marker in pairs(ADGraphManager:getMapMarkers()) do
 		if ADGraphManager:getWayPointById(marker.id) == nil then
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
@@ -294,7 +294,7 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming", table.concat(incomingTable, ";"))
 	end
 
-	for i in pairs(ADGraphManager:getMapMarker()) do
+	for i in pairs(ADGraphManager:getMapMarkers()) do
 		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", ADGraphManager:getMapMarkerById(i).id)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", ADGraphManager:getMapMarkerById(i).name)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", ADGraphManager:getMapMarkerById(i).group)

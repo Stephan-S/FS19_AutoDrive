@@ -327,7 +327,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
 
     --Draw close destination (names)
     local maxDistance = AutoDrive.drawDistance
-    for _, marker in pairs(ADGraphManager:getMapMarker()) do
+    for _, marker in pairs(ADGraphManager:getMapMarkers()) do
         local wp = ADGraphManager:getWayPointById(marker.id)
         if AutoDrive.getDistance(wp.x, wp.z, x1, z1) < maxDistance then
             Utils.renderTextAtWorldPosition(wp.x, wp.y + 4, wp.z, marker.name, getCorrectTextSize(0.013), 0)

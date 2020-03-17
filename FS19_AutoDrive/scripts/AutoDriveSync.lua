@@ -134,11 +134,11 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     -- writing the amount of markers we are going to send
-    local markersCount = #ADGraphManager:getMapMarker()
+    local markersCount = #ADGraphManager:getMapMarkers()
     g_logManager:info(string.format("[AutoDriveSync] Writing %s markers", markersCount))
     streamWriteUIntN(streamId, markersCount, AutoDriveSync.MC_SEND_NUM_BITS)
     -- writing markers
-    for _, marker in pairs(ADGraphManager:getMapMarker()) do
+    for _, marker in pairs(ADGraphManager:getMapMarkers()) do
         streamWriteUIntN(streamId, marker.id, AutoDriveSync.MWPC_SEND_NUM_BITS)
         AutoDrive.streamWriteStringOrEmpty(streamId, marker.name)
         AutoDrive.streamWriteStringOrEmpty(streamId, marker.group)

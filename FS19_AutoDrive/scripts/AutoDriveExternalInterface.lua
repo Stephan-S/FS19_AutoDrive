@@ -82,7 +82,7 @@ end
 function AutoDrive:GetAvailableDestinations()
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetAvailableDestinations()")
     local destinations = {}
-    for markerID, marker in pairs(ADGraphManager:getMapMarker()) do
+    for markerID, marker in pairs(ADGraphManager:getMapMarkers()) do
         local point = ADGraphManager:getWayPointById(marker.id)
         if point ~= nil then
             destinations[markerID] = {name = marker.name, x = point.x, y = point.y, z = point.z, id = markerID}

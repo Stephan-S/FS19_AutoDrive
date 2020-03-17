@@ -5,7 +5,7 @@ function ADGraphManager:new()
 	setmetatable(o, self)
 	self.__index = self
 	o.wayPoints = {}
-	o.mapMarker = {}
+	o.mapMarkers = {}
 	o.groups = {}
 	return o
 end
@@ -35,16 +35,16 @@ function ADGraphManager:setWayPoint(newPoint)
 	self.wayPoints[newPoint.id] = newPoint
 end
 
-function ADGraphManager:getMapMarker()
-	return self.mapMarker
+function ADGraphManager:getMapMarkers()
+	return self.mapMarkers
 end
 
 function ADGraphManager:getMapMarkerById(mapMarkerId)
-	return self.mapMarker[mapMarkerId]
+	return self.mapMarkers[mapMarkerId]
 end
 
 function ADGraphManager:getMapMarkerByWayPointId(wayPointId)
-	for _, mapMarker in pairs(self.mapMarker) do
+	for _, mapMarker in pairs(self.mapMarkers) do
 		if mapMarker.id == wayPointId then
 			return mapMarker
 		end
@@ -53,7 +53,7 @@ function ADGraphManager:getMapMarkerByWayPointId(wayPointId)
 end
 
 function ADGraphManager:getMapMarkerByName(mapMarkerName)
-	for _, mapMarker in pairs(self.mapMarker) do
+	for _, mapMarker in pairs(self.mapMarkers) do
 		if mapMarker.name == mapMarkerName then
 			return mapMarker
 		end
@@ -62,15 +62,15 @@ function ADGraphManager:getMapMarkerByName(mapMarkerName)
 end
 
 function ADGraphManager:resetMapMarkers()
-	self.mapMarker = {}
+	self.mapMarkers = {}
 end
 
 function ADGraphManager:setMapMarkers(mapMarkers)
-	self.mapMarker = mapMarkers
+	self.mapMarkers = mapMarkers
 end
 
 function ADGraphManager:setMapMarker(mapMarker)
-	self.mapMarker[mapMarker.markerIndex] = mapMarker
+	self.mapMarkers[mapMarker.markerIndex] = mapMarker
 end
 
 function ADGraphManager:getPathTo(vehicle, waypointId)
@@ -97,8 +97,8 @@ end
 
 function ADGraphManager:pathFromToMarker(startWaypointId, markerId)
 	local wp = {}
-	if startWaypointId ~= nil and self.wayPoints[startWaypointId] ~= nil and self.mapMarker[markerId] ~= nil and self.mapMarker[markerId].id ~= nil then
-		local targetId = self.mapMarker[markerId].id
+	if startWaypointId ~= nil and self.wayPoints[startWaypointId] ~= nil and self.mapMarkers[markerId] ~= nil and self.mapMarkers[markerId].id ~= nil then
+		local targetId = self.mapMarkers[markerId].id
 		if targetId == startWaypointId then
 			table.insert(wp, 1, self.wayPoints[targetId])
 			return wp
@@ -118,9 +118,9 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 		return wp
 	end
 
-	for i in pairs(self.mapMarker) do
-		if self.mapMarker[i].name == markerName then
-			target_id = self.mapMarker[i].id
+	for i in pairs(self.mapMarkers) do
+		if self.mapMarkers[i].name == markerName then
+			target_id = self.mapMarkers[i].id
 			break
 		end
 	end
@@ -205,7 +205,7 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 			end
 
 			-- Adjusting way point id in markers
-			for _, marker in pairs(self.mapMarker) do
+			for _, marker in pairs(self.mapMarkers) do
 				if marker.id > wayPointId then
 					marker.id = marker.id - 1
 				end
@@ -229,9 +229,9 @@ function ADGraphManager:renameMapMarker(newName, markerId, sendEvent)
 			AutoDriveRenameMapMarkerEvent.sendEvent(newName, markerId)
 		else
 			-- Saving old map marker name
-			local oldName = self.mapMarker[markerId].name
+			local oldName = self.mapMarkers[markerId].name
 			-- Renaming map marker
-			self.mapMarker[markerId].name = newName
+			self.mapMarkers[markerId].name = newName
 
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
@@ -266,7 +266,7 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 			local wayPoint = self.wayPoints[markerId]
 
 			-- Creating the new map marker
-			self.mapMarker[#self.mapMarker + 1] = {id = markerId, markerIndex = (#self.mapMarker + 1), name = markerName, group = "All"}
+			self.mapMarkers[#self.mapMarkers + 1] = {id = markerId, markerIndex = (#self.mapMarkers + 1), name = markerName, group = "All"}
 
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
@@ -289,7 +289,7 @@ function ADGraphManager:changeMapMarkerGroup(groupName, markerId, sendEvent)
 			AutoDriveChangeMapMarkerGroupEvent.sendEvent(groupName, markerId)
 		else
 			-- Changing the group name of the marker
-			self.mapMarker[markerId].group = groupName
+			self.mapMarkers[markerId].group = groupName
 		end
 	end
 end
@@ -300,10 +300,10 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 			-- Propagating marker deletion all over the network
 			AutoDriveDeleteMapMarkerEvent.sendEvent(markerId)
 		else
-			if self.mapMarker[markerId] ~= nil then
-				table.remove(self.mapMarker, markerId)
+			if self.mapMarkers[markerId] ~= nil then
+				table.remove(self.mapMarkers, markerId)
 				--Readjust stored markerIndex values to point to corrected ID
-				for markerID, marker in pairs(self.mapMarker) do
+				for markerID, marker in pairs(self.mapMarkers) do
 					marker.markerIndex = markerID
 				end
 
@@ -330,7 +330,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 				end
 
 				if g_server ~= nil then
-					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarker + 1))
+					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarkers + 1))
 				end
 			end
 
@@ -352,7 +352,7 @@ function ADGraphManager:removeMapMarkerByWayPoint(wayPointId, sendEvent)
 	if wayPointId ~= nil and wayPointId >= 0 then
 		-- Finding the map waypoint where the marker should be
 		local wayPoint = self.wayPoints[wayPointId]
-		for markerId, marker in pairs(self.mapMarker) do
+		for markerId, marker in pairs(self.mapMarkers) do
 			-- Checking if the waypoint id matches the marker id
 			if marker.id == wayPoint.id then
 				self:removeMapMarker(markerId, sendEvent)
@@ -427,7 +427,7 @@ function ADGraphManager:getDistanceBetweenNodes(start, target)
 	local distance = euclidianDistance
 
 	if AutoDrive.getSetting("mapMarkerDetour") > 0 then
-		for _, mapMarker in pairs(self.mapMarker) do
+		for _, mapMarker in pairs(self.mapMarkers) do
 			if mapMarker.id == start then
 				distance = distance + AutoDrive.getSetting("mapMarkerDetour")
 				break
@@ -489,7 +489,7 @@ function ADGraphManager:getDriveTimeBetweenNodes(start, target, past, maxDriving
 
 	if not arrivalTime == true then --only for djikstra, for live travel timer we ignore it
 		if AutoDrive.getSetting("mapMarkerDetour") > 0 then
-			for _, mapMarker in pairs(self.mapMarker) do
+			for _, mapMarker in pairs(self.mapMarkers) do
 				if mapMarker.id == start then
 					driveTime = driveTime + (AutoDrive.getSetting("mapMarkerDetour") / (20 / 3.6))
 					break
