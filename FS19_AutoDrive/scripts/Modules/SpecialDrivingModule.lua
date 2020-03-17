@@ -101,9 +101,9 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
     if self.distanceToChasePos < 0.5 then
         speed = maxFollowSpeed * 0.95
     elseif self.distanceToChasePos < 7 then
-        speed = maxFollowSpeed + (self.distanceToChasePos*0.5)
+        speed = maxFollowSpeed + self.distanceToChasePos*2
     elseif self.distanceToChasePos < 20 then
-        speed = maxFollowSpeed + self.distanceToChasePos * 0.7
+        speed = maxFollowSpeed + self.distanceToChasePos*2
     end
 
     print("Targetspeed: " .. speed .. " distance: " .. self.distanceToChasePos .. " maxFollowSpeed: " .. maxFollowSpeed)
@@ -118,6 +118,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
         if self.vehicle.lastSpeedReal * 3600 > speed * 0.8 then
             acc = -acc
         end
+        DrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
         AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
     end
 end

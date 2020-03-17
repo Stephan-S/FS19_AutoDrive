@@ -52,6 +52,12 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local frontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["frontSensorFruit"] = frontSensorFruit
 
+    sensorParameters.dynamicLength = false
+    sensorParameters.length = 15
+    sensorParameters.width = vehicle.sizeWidth * 0.5
+    local frontSensorField = ADFieldSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["frontSensorField"] = frontSensorField
+
     sensorParameters = {}
     sensorParameters.position = ADSensor.POS_REAR
     local rearSensor = ADCollSensor:new(vehicle, sensorParameters)

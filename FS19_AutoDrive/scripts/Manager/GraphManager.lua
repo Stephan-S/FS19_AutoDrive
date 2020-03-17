@@ -5,7 +5,6 @@ function ADGraphManager:new()
 	setmetatable(o, self)
 	self.__index = self
 	o.wayPoints = {}
-	o.numberOfWayPoints = 0 -- maybe this value can be stored to prevent #self.wayPoints calls, we'll see
 	o.mapMarker = {}
 	o.groups = {}
 	return o
@@ -267,7 +266,7 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 			local wayPoint = self.wayPoints[markerId]
 
 			-- Creating the new map marker
-			self.mapMarker[#self.mapMarker + 1] = {id = markerId, markerIndex = #self.mapMarker, name = markerName, group = "All"}
+			self.mapMarker[#self.mapMarker + 1] = {id = markerId, markerIndex = (#self.mapMarker + 1), name = markerName, group = "All"}
 
 			-- Calling external interop listeners
 			AutoDrive:notifyDestinationListeners()
@@ -303,6 +302,10 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 		else
 			if self.mapMarker[markerId] ~= nil then
 				table.remove(self.mapMarker, markerId)
+				--Readjust stored markerIndex values to point to corrected ID
+				for markerID, marker in pairs(self.mapMarker) do
+					marker.markerIndex = markerID
+				end
 
 				-- Removing references to it on all vehicles
 				for _, vehicle in pairs(g_currentMission.vehicles) do

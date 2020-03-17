@@ -353,6 +353,7 @@ function ADInputManager:input_parkVehicle(vehicle)
 end
 
 function ADInputManager:input_swapTargets(vehicle)
+    local currentFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
     vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
-    vehicle.ad.stateModule:setSecondMarker(vehicle.ad.stateModule:getFirstMarkerId())
+    vehicle.ad.stateModule:setSecondMarker(currentFirstMarker)
 end
