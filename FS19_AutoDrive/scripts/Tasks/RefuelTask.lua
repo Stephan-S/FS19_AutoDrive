@@ -3,10 +3,11 @@ RefuelTask = ADInheritsFrom(AbstractTask)
 RefuelTask.STATE_PATHPLANNING = 1
 RefuelTask.STATE_DRIVING = 2
 
-function RefuelTask:new(vehicle)
+function RefuelTask:new(vehicle, destinationID)
     local o = RefuelTask:create()
     o.vehicle = vehicle
     o.hasRefueled = false
+    o.destinationID = destinationID
     return o
 end
 

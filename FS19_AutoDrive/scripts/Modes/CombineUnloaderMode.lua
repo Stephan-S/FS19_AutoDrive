@@ -15,6 +15,9 @@ CombineUnloaderMode.CHASEPOS_LEFT = 1
 CombineUnloaderMode.CHASEPOS_RIGHT = 2
 CombineUnloaderMode.CHASEPOS_REAR = 3
 
+
+CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 90
+
 function CombineUnloaderMode:new(vehicle)
     local o = CombineUnloaderMode:create()
     o.vehicle = vehicle
@@ -236,10 +239,10 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         if (not leftBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 2)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
             sideIndex = self.CHASEPOS_LEFT
         elseif (not rightBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 2)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
             sideIndex = self.CHASEPOS_RIGHT
         else
             chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
@@ -250,7 +253,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
-        if ((not leftBlocked) and combineFillPercent < 90) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
+        if ((not leftBlocked) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
             chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 9.5, 6)
             sideIndex = self.CHASEPOS_LEFT
 
@@ -270,10 +273,10 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 -- Get the next trailer that hasn't reached fill level yet
                 for trailerIndex, trailer in ipairs(trailers) do
-                    local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(targetTrailer)
+                    local _, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(targetTrailer)
                     if (trailerLeftCapacity < 1) and currentTrailer < trailerCount then
                         currentTrailer = trailerIndex
-                        targetTrailer = AutoDrive.getTrailersOf(self.vehicle, true)[currentTrailer]
+                        targetTrailer = trailer
                     end
                 end
 

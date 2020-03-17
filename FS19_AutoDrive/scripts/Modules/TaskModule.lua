@@ -41,9 +41,9 @@ function ADTaskModule:setCurrentTaskFinished(stoppedFlag)
     self.activeTask = nil
 
     if self:hasToRefuel() then
-        local refuelDestination = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
-        if refuelDestination ~= nil then
-            self.activeTask = RefuelTask:new(self.vehicle, refuelDestination)
+        local refuelDestinationMarkerID = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
+        if refuelDestinationMarkerID ~= nil then
+            self.activeTask = RefuelTask:new(self.vehicle, ADGraphManager:getMapMarkerById(refuelDestinationMarkerID).id)
         end
     end
 

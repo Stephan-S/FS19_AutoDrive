@@ -2,6 +2,8 @@ ADDrivePathModule = {}
 
 ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
+ADDrivePathModule.MAX_SPEED_DEVIATION = 6
+ADDrivePathModule.MAX_STEERING_ANGLE = 30
 
 function ADDrivePathModule:new(vehicle)
     local o = {}
@@ -134,9 +136,11 @@ function ADDrivePathModule:followWaypoints(dt)
     end
 
     local distanceToTarget = self:getDistanceToLastWaypoint(10)
-    if distanceToTarget < 20 then
-        self.speedLimit = math.clamp(8, self.speedLimit, 10 + distanceToTarget)
+    if distanceToTarget < self.distanceToLookAhead then
+        self.speedLimit = math.clamp(8, self.speedLimit, 2 + distanceToTarget)
     end
+
+    self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
 
     if ADTriggerManager.checkForTriggerProximity(self.vehicle) then
         self.speedLimit = math.min(5, self.speedLimit)
@@ -167,7 +171,12 @@ function ADDrivePathModule:followWaypoints(dt)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle / 1.5, true, true, lx, lz, self.speedLimit, 0.65)
+        -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
+        if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + ADDrivePathModule.MAX_SPEED_DEVIATION) then
+            self.acceleration = -0.6
+        end        
+        DrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 0.65)
     end
 end
 
@@ -207,7 +216,7 @@ function ADDrivePathModule:getCurrentLookAheadDistance()
 end
 
 function ADDrivePathModule:getHighestApproachingAngle()
-    local distanceToLookAhead = self:getCurrentLookAheadDistance()
+    self.distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
 
     local highestAngle = 0
@@ -222,7 +231,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             angle = math.abs(angle)
 
-            if AutoDrive.getDistance(self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= distanceToLookAhead then
+            if AutoDrive.getDistance(self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= self.distanceToLookAhead then
                 if angle < 100 then
                     highestAngle = math.max(highestAngle, angle)
                 end
@@ -258,6 +267,26 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     end
 
     return maxSpeed * 1.25 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
+end
+
+function ADDrivePathModule:getSpeedLimitBySteeringAngle()
+    local steeringAngle = math.deg(math.abs(self.vehicle.rotatedTime))
+    
+    local maxSpeed = math.huge
+
+    local maxAngle = 60
+    if self.vehicle.maxRotation then
+        if self.vehicle.maxRotation > (2 * math.pi) then
+            maxAngle = self.vehicle.maxRotation
+        else
+            maxAngle = math.deg(self.vehicle.maxRotation)
+        end
+    end
+
+    if steeringAngle > maxAngle * 0.85 then
+        maxSpeed = 7
+    end
+    return maxSpeed
 end
 
 function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
