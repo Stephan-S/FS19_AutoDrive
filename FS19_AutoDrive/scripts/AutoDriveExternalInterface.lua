@@ -76,7 +76,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
 end
 
 function AutoDrive:GetDriverName(vehicle)
-    return vehicle.ad.driverName
+    return vehicle.ad.stateModule:getName()
 end
 
 function AutoDrive:GetAvailableDestinations()

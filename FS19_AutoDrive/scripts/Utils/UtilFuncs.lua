@@ -457,8 +457,8 @@ end
 function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
-		if (vehicle ~= nil) and (vehicle.ad.driverName ~= nil) then
-			printText = vehicle.ad.driverName .. ": "
+		if vehicle ~= nil then
+			printText = vehicle.ad.stateModule:getName() .. ": "
 		end
 
 		g_logManager:info(printText .. debugText, ...)

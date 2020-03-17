@@ -396,6 +396,10 @@ function ADStateModule:setName(newName)
     self.driverName = newName
 end
 
+function ADStateModule:getName()
+    return self.driverName
+end
+
 function ADStateModule:getFirstMarker()
     return self.firstMarker
 end

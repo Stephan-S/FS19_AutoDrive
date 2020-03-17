@@ -200,7 +200,7 @@ function UnloadBGATask:initializeBGA()
     if self.shovel == nil then
         self:getVehicleShovel()
         if self.shovel == nil then
-            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Shovel;", 5000, self.vehicle.ad.driverName)
+            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Shovel;", 5000, self.vehicle.ad.stateModule:getName())
             self.state = self.STATE_IDLE
             AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
             return
@@ -208,7 +208,7 @@ function UnloadBGATask:initializeBGA()
     end
 
     if self.targetBunker == nil then
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.driverName)
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.stateModule:getName())
         self.state = self.STATE_IDLE
         AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
     end
@@ -1160,7 +1160,7 @@ end
 
 function UnloadBGATask:driveToBGAUnload(dt)
     if self.targetTrailer == nil then
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Trailer;", 5000, self.vehicle.ad.driverName)
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Trailer;", 5000, self.vehicle.stateModule:getName())
         self:getVehicleToPause()
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
@@ -1346,7 +1346,7 @@ function UnloadBGATask:setShovelOffsetToNonEmptyRow()
     end
 
     if ((currentFillLevel == 0) and (iterations < 0)) then
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.driverName)
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.stateModule:getName())
         self.state = self.STATE_IDLE
         AutoDrive.disableAutoDriveFunctions(self.vehicle, true)
     end

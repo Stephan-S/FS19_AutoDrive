@@ -23,7 +23,7 @@ function ADEnterDriverNameGui:onOpen()
     self.textInputElement.blockTime = 0
     self.textInputElement:onFocusActivate()
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
+        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.stateModule:getName())
     end
 end
 
@@ -37,7 +37,7 @@ end
 
 function ADEnterDriverNameGui:onClickCancel()
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
-        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.driverName)
+        self.textInputElement:setText(g_currentMission.controlledVehicle.ad.stateModule:getName())
     end
 end
 

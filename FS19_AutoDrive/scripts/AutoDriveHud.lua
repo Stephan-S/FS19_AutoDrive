@@ -311,12 +311,12 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							if vehicle.ad.nodeToMoveId == nil then
 								vehicle.ad.nodeToMoveId = point.id
 							end
-						end	
+						end
 					end
 				end
 
-				if AutoDrive.getSettingState("lineHeight") > 1  then
-					local pointOnGround = {x=point.x, y=point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z=point.z}
+				if AutoDrive.getSettingState("lineHeight") > 1 then
+					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
 					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
 						vehicle.ad.hoveredNodeId = point.id
 						if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
@@ -367,7 +367,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					end
 				end
 			end
-		else			
+		else
 			vehicle.ad.selectedNodeId = nil
 			vehicle.ad.nodeToMoveId = nil
 			vehicle.ad.hoveredNodeId = nil
@@ -382,7 +382,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 
 	-- First I use project to get a proper depth value for the unproject funtion
 	local _, _, depth = project(node.x, node.y, node.z)
-	
+
 	if node ~= nil and g_lastMousePosX ~= nil and g_lastMousePosY ~= nil then
 		node.x, node.y, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 		-- And just to correct for slope changes, we now set the height to the terrain height
@@ -465,9 +465,7 @@ function AutoDriveHud:createMapHotspot(vehicle)
 		if vehicle.name ~= nil then
 			vehicle.ad.mapHotspot:setText("AD: " .. vehicle.name)
 		end
-		if vehicle.ad.driverName ~= nil then
-			vehicle.ad.mapHotspot:setText("AD: " .. vehicle.ad.driverName)
-		end
+		vehicle.ad.mapHotspot:setText("AD: " .. vehicle.ad.stateModule:getName())
 		vehicle.ad.mapHotspot:setImage(nil, getNormalizedUVs(MapHotspot.UV.HELPER), {0.052, 0.1248, 0.672, 1})
 		vehicle.ad.mapHotspot:setBackgroundImage(nil, getNormalizedUVs(MapHotspot.UV.HELPER))
 		vehicle.ad.mapHotspot:setIconScale(0.4) --Iconsize vehicle.ad.mapHotspot:setIconScale(0.7)
