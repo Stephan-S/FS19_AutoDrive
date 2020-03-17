@@ -34,7 +34,6 @@ function FollowCombineTask:update(dt)
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
     local reachedFieldBorder = not self.vehicle.ad.sensors.frontSensorField:pollInfo()
     if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombine < 5) then
-        print("reachedFieldBorder: " .. AutoDrive.boolToString(reachedFieldBorder))
         if self.state ~= FollowCombineTask.STATE_REVERSING then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
             self.reverseStartLocation = {x = x, y = y, z = z}
@@ -46,9 +45,7 @@ function FollowCombineTask:update(dt)
     end
 
     if self.state == FollowCombineTask.STATE_CHASING then
-        print("Angle to combine: " .. self.angleToCombine)
         if AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 60 or not self.combine:getIsBufferCombine()) then
-            print("AutoDrive.combineIsTurning(self.combine): " .. AutoDrive.boolToString(AutoDrive.combineIsTurning(self.combine)))
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
@@ -139,7 +136,6 @@ end
 
 function FollowCombineTask:followChasePoint(dt)
     if self:shouldWaitForChasePos(dt) then
-        print("Should wait for chase pos")
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
