@@ -14,6 +14,10 @@ function ADStateModule:new(vehicle)
     setmetatable(o, self)
     self.__index = self
     o.vehicle = vehicle
+    if g_server ~= nil then
+        self.nextDirtyFlag = 1
+        self.dirtyMask = 0
+    end
     ADStateModule.reset(o)
     return o
 end
@@ -31,15 +35,28 @@ function ADStateModule:reset()
 
     self.speedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
 
+    self.parkDestination = -1
+
     self.pointToNeighbour = false
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
 
-    self.parkDestination = -1
-
     self.driverName = g_i18n:getText("UNKNOWN")
     if self.getName ~= nil then
         self.driverName = self:getName()
+    end
+
+    if g_server ~= nil then
+        self.activeDirtyFlag = self:getNextDirtyFlag()
+        self.modeDirtyFlag = self:getNextDirtyFlag()
+        self.firstMarkerDirtyFlag = self:getNextDirtyFlag()
+        self.secondMarkerDirtyFlag = self:getNextDirtyFlag()
+        self.creationModeDirtyFlag = self:getNextDirtyFlag()
+        self.editorModeDirtyFlag = self:getNextDirtyFlag()
+        self.fillTypeDirtyFlag = self:getNextDirtyFlag()
+        self.loopCounterDirtyFlag = self:getNextDirtyFlag()
+        self.speedLimitDirtyFlag = self:getNextDirtyFlag()
+        self.parkDestinationDirtyFlag = self:getNextDirtyFlag()
     end
 end
 
@@ -100,6 +117,149 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
 end
 
+function ADStateModule:writeStream(streamId)
+    streamWriteBool(streamId, self.active)
+    streamWriteUIntN(streamId, self.mode, 4)
+    streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 20)
+    streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 20)
+    streamWriteUIntN(streamId, self.creationMode, 3)
+    streamWriteUIntN(streamId, self.editorMode, 3)
+    streamWriteUIntN(streamId, self.fillType, 8)
+    streamWriteUIntN(streamId, self.loopCounter, 4)
+    streamWriteUIntN(streamId, self.speedLimit, 8)
+    streamWriteUIntN(streamId, self.parkDestination + 1, 20)
+end
+
+function ADStateModule:readStream(streamId)
+    self.active = streamReadBool(streamId)
+    self.mode = streamReadUIntN(streamId, 4)
+    self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 20) - 1)
+    self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 20) - 1)
+    self.creationMode = streamReadUIntN(streamId, 3)
+    self.editorMode = streamReadUIntN(streamId, 3)
+    self.fillType = streamReadUIntN(streamId, 8)
+    self.loopCounter = streamReadUIntN(streamId, 4)
+    self.speedLimit = streamReadUIntN(streamId, 8)
+    self.parkDestination = streamReadUIntN(streamId, 20) - 1
+end
+
+function ADStateModule:writeUpdateStream(streamId)
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.activeDirtyFlag) ~= 0) then
+        streamWriteBool(streamId, self.active)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.modeDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.mode, 4)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.firstMarkerDirtyFlag) ~= 0) then
+        local firstMarkerId = -1
+        if self.firstMarker ~= nil then
+            firstMarkerId = self.firstMarker.id
+        end
+        streamWriteUIntN(streamId, firstMarkerId + 1, 20)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.secondMarkerDirtyFlag) ~= 0) then
+        local secondMarkerId = -1
+        if self.secondMarker ~= nil then
+            secondMarkerId = self.secondMarker.id
+        end
+        streamWriteUIntN(streamId, secondMarkerId + 1, 20)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.creationModeDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.creationMode, 3)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.editorModeDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.editorMode, 3)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.fillTypeDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.fillType, 8)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.loopCounterDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.loopCounter, 4)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.speedLimitDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.speedLimit, 8)
+    end
+
+    if streamWriteBool(streamId, bitAND(self.dirtyMask, self.parkDestinationDirtyFlag) ~= 0) then
+        streamWriteUIntN(streamId, self.parkDestination + 1, 20)
+    end
+
+    self.dirtyMask = 0
+end
+
+function ADStateModule:readUpdateStream(streamId)
+    if streamReadBool(streamId) then
+        self.active = streamReadBool(streamId)
+    end
+
+    if streamReadBool(streamId) then
+        self.mode = streamReadUIntN(streamId, 4)
+    end
+
+    if streamReadBool(streamId) then
+        local firstMarkerId = streamReadUIntN(streamId, 20) - 1
+        if firstMarkerId > -1 then
+            self.firstMarker = ADGraphManager:getMapMarkerByWayPointId(firstMarkerId)
+        end
+    end
+
+    if streamReadBool(streamId) then
+        local secondMarkerId = streamReadUIntN(streamId, 20) - 1
+        if secondMarkerId > -1 then
+            self.secondMarker = ADGraphManager:getMapMarkerByWayPointId(secondMarkerId)
+        end
+    end
+
+    if streamReadBool(streamId) then
+        self.creationMode = streamReadUIntN(streamId, 3)
+    end
+
+    if streamReadBool(streamId) then
+        self.editorMode = streamReadUIntN(streamId, 3)
+    end
+
+    if streamReadBool(streamId) then
+        self.fillType = streamReadUIntN(streamId, 8)
+    end
+
+    if streamReadBool(streamId) then
+        self.loopCounter = streamReadUIntN(streamId, 4)
+    end
+
+    if streamReadBool(streamId) then
+        self.speedLimit = streamReadUIntN(streamId, 8)
+    end
+
+    if streamReadBool(streamId) then
+        self.parkDestination = streamReadUIntN(streamId, 20) - 1
+    end
+end
+
+function ADStateModule:update(dt)
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+        local debug = {}
+        debug.active = self.active
+        debug.mode = self.mode
+        debug.firstMarker = self.firstMarker.name
+        debug.secondMarker = self.secondMarker.name
+        debug.creationMode = self.creationMode
+        debug.editorMode = self.editorMode
+        debug.fillType = self.fillType
+        debug.loopCounter = self.loopCounter
+        debug.speedLimit = self.speedLimit
+        debug.parkDestination = self.parkDestination
+        AutoDrive.renderTable(0.4, 0.4, 0.014, debug)
+    end
+end
+
 function ADStateModule:getMode()
     return self.mode
 end
@@ -114,6 +274,7 @@ function ADStateModule:nextMode()
     else
         self.mode = AutoDrive.MODE_DRIVETO
     end
+    self:raiseDirtyFlag(self.modeDirtyFlag)
 end
 
 function ADStateModule:previousMode()
@@ -122,11 +283,13 @@ function ADStateModule:previousMode()
     else
         self.mode = AutoDrive.MODE_BGA
     end
+    self:raiseDirtyFlag(self.modeDirtyFlag)
 end
 
 function ADStateModule:setMode(newMode)
-    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_BGA then
+    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_BGA and newMode ~= self.mode then
         self.mode = newMode
+        self:raiseDirtyFlag(self.modeDirtyFlag)
     end
 end
 
@@ -135,10 +298,14 @@ function ADStateModule:isActive()
 end
 
 function ADStateModule:setActive(active)
-    self.active = active
+    if active ~= self.active then
+        self.active = active
+        self:raiseDirtyFlag(self.activeDirtyFlag)
+    end
 
     if self.active then
         self.creationMode = ADStateModule.CREATE_OFF
+        self:raiseDirtyFlag(self.creationModeDirtyFlag)
     end
 end
 
@@ -166,6 +333,7 @@ function ADStateModule:cycleEditMode()
     elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW then
         self.editorMode = ADStateModule.EDITOR_OFF
     end
+    self:raiseDirtyFlag(self.editorModeDirtyFlag)
 end
 
 function ADStateModule:cycleEditorShowMode()
@@ -174,6 +342,7 @@ function ADStateModule:cycleEditorShowMode()
     else
         self.editorMode = ADStateModule.EDITOR_OFF
     end
+    self:raiseDirtyFlag(self.editorModeDirtyFlag)
 end
 
 function ADStateModule:isInCreationMode()
@@ -190,23 +359,19 @@ end
 
 function ADStateModule:disableCreationMode()
     self.creationMode = ADStateModule.CREATE_OFF
+    self:raiseDirtyFlag(self.creationModeDirtyFlag)
 end
 
 function ADStateModule:startNormalCreationMode()
     self.creationMode = ADStateModule.CREATE_NORMAL
+    self:raiseDirtyFlag(self.creationModeDirtyFlag)
     self:setActive(false)
 end
 
 function ADStateModule:startDualCreationMode()
     self.creationMode = ADStateModule.CREATE_DUAL
+    self:raiseDirtyFlag(self.creationModeDirtyFlag)
     self:setActive(false)
-end
-
-function ADStateModule:getSelectedNeighbourPoint()
-    if not self.pointToNeighbour then
-        return nil
-    end
-    return self.neighbourPoints[self.currentNeighbourToPointAt]
 end
 
 function ADStateModule:getLoopCounter()
@@ -215,6 +380,7 @@ end
 
 function ADStateModule:increaseLoopCounter()
     self.loopCounter = (self.loopCounter + 1) % 10
+    self:raiseDirtyFlag(self.loopCounterDirtyFlag)
 end
 
 function ADStateModule:decreaseLoopCounter()
@@ -223,6 +389,7 @@ function ADStateModule:decreaseLoopCounter()
     else
         self.loopCounter = 9
     end
+    self:raiseDirtyFlag(self.loopCounterDirtyFlag)
 end
 
 function ADStateModule:setName(newName)
@@ -234,25 +401,39 @@ function ADStateModule:getFirstMarker()
 end
 
 function ADStateModule:getFirstMarkerId()
-    return self.firstMarker.markerIndex
+    if self.firstMarker ~= nil then
+        return self.firstMarker.markerIndex
+    else
+        return -1
+    end
 end
 
 function ADStateModule:getFirstWayPoint()
-    return self.firstMarker.id
+    if self.firstMarker ~= nil then
+        return self.firstMarker.id
+    else
+        return -1
+    end
 end
 
 function ADStateModule:getFirstMarkerName()
-    return self.secondMarker.name
+    if self.firstMarker ~= nil then
+        return self.firstMarker.name
+    else
+        return nil
+    end
 end
 
 function ADStateModule:setFirstMarker(markerId)
     self.firstMarker = ADGraphManager:getMapMarkerById(markerId)
+    self:raiseDirtyFlag(self.firstMarkerDirtyFlag)
 end
 
 function ADStateModule:setFirstMarkerByWayPointId(wayPointId)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.id == wayPointId then
             self:setFirstMarker(markerId)
+            self:raiseDirtyFlag(self.firstMarkerDirtyFlag)
             break
         end
     end
@@ -262,6 +443,7 @@ function ADStateModule:setFirstMarkerByName(markerName)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.name == markerName then
             self:setFirstMarker(markerId)
+            self:raiseDirtyFlag(self.firstMarkerDirtyFlag)
             break
         end
     end
@@ -272,25 +454,39 @@ function ADStateModule:getSecondMarker()
 end
 
 function ADStateModule:getSecondMarkerId()
-    return self.secondMarker.markerIndex
+    if self.secondMarker ~= nil then
+        return self.secondMarker.markerIndex
+    else
+        return -1
+    end
 end
 
 function ADStateModule:getSecondWayPoint()
-    return self.secondMarker.id
+    if self.secondMarker ~= nil then
+        return self.secondMarker.id
+    else
+        return -1
+    end
 end
 
 function ADStateModule:getSecondMarkerName()
-    return self.secondMarker.name
+    if self.secondMarker ~= nil then
+        return self.secondMarker.name
+    else
+        return nil
+    end
 end
 
 function ADStateModule:setSecondMarker(markerId)
     self.secondMarker = ADGraphManager:getMapMarkerById(markerId)
+    self:raiseDirtyFlag(self.secondMarkerDirtyFlag)
 end
 
 function ADStateModule:setSecondMarkerByWayPointId(wayPointId)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.id == wayPointId then
             self:setSecondMarker(markerId)
+            self:raiseDirtyFlag(self.secondMarkerDirtyFlag)
             break
         end
     end
@@ -300,6 +496,7 @@ function ADStateModule:setSecondMarkerByName(markerName)
     for markerId, mapMarker in pairs(ADGraphManager:getMapMarker()) do
         if mapMarker.name == markerName then
             self:setSecondMarker(markerId)
+            self:raiseDirtyFlag(self.secondMarkerDirtyFlag)
             break
         end
     end
@@ -311,6 +508,7 @@ end
 
 function ADStateModule:setFillType(fillType)
     self.fillType = fillType
+    self:raiseDirtyFlag(self.fillTypeDirtyFlag)
 end
 
 function ADStateModule:nextFillType()
@@ -318,6 +516,7 @@ function ADStateModule:nextFillType()
     if g_fillTypeManager:getFillTypeByIndex(self.fillType) == nil then
         self.fillType = 2
     end
+    self:raiseDirtyFlag(self.fillTypeDirtyFlag)
 end
 
 function ADStateModule:previousFillType()
@@ -328,6 +527,7 @@ function ADStateModule:previousFillType()
         end
         self.fillType = self.fillType - 1
     end
+    self:raiseDirtyFlag(self.fillTypeDirtyFlag)
 end
 
 function ADStateModule:getSpeedLimit()
@@ -338,12 +538,34 @@ function ADStateModule:increaseSpeedLimit()
     if self.speedLimit < AutoDrive.getVehicleMaxSpeed(self.vehicle) then
         self.speedLimit = self.speedLimit + 1
     end
+    self:raiseDirtyFlag(self.speedLimitDirtyFlag)
 end
 
 function ADStateModule:decreaseSpeedLimit()
     if self.speedLimit > 2 then
         self.speedLimit = self.speedLimit - 1
     end
+    self:raiseDirtyFlag(self.speedLimitDirtyFlag)
+end
+
+function ADStateModule:getParkDestination()
+    return self.parkDestination
+end
+
+function ADStateModule:setParkDestination(parkDestination)
+    self.parkDestination = parkDestination
+    self:raiseDirtyFlag(self.parkDestinationDirtyFlag)
+end
+
+function ADStateModule:hasParkDestination(parkDestination)
+    return self.parkDestination ~= nil and self.parkDestination >= 1 and ADGraphManager:getMapMarkerById(self.parkDestination) ~= nil
+end
+
+function ADStateModule:getSelectedNeighbourPoint()
+    if not self.pointToNeighbour then
+        return nil
+    end
+    return self.neighbourPoints[self.currentNeighbourToPointAt]
 end
 
 function ADStateModule:getPointToNeighbor()
@@ -403,5 +625,30 @@ function ADStateModule:updateNeighborPoint()
                 break -- Since array was already sorted by distance, we dont need to search for another one
             end
         end
+    end
+end
+
+function ADStateModule:isDirty()
+    return self.dirtyMask ~= 0
+end
+
+function ADStateModule:getNextDirtyFlag()
+    if g_server ~= nil then
+        -- up to 31 flags
+        local nextFlag = self.nextDirtyFlag
+        self.nextDirtyFlag = self.nextDirtyFlag * 2
+        return nextFlag
+    end
+end
+
+function ADStateModule:raiseDirtyFlag(flag)
+    if g_server ~= nil then
+        self.dirtyMask = bitOR(self.dirtyMask, flag)
+    end
+end
+
+function ADStateModule:clearDirtyFlag(flag)
+    if g_server ~= nil then
+        self.dirtyMask = bitAND(self.dirtyMask, bitNOT(flag))
     end
 end

@@ -3,8 +3,7 @@ function AutoDrive.prerequisitesPresent(specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
-    -- "onReadUpdateStream", "onWriteUpdateStream"
-    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream"}) do
+    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick"}) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -58,6 +57,8 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_LOAD] = LoadMode:new(self)
     self.ad.modes[AutoDrive.MODE_BGA] = BGAMode:new(self)
     self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
+
+    self.ad.dirtyFlag = self:getNextDirtyFlag()
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -89,10 +90,6 @@ function AutoDrive:onPostLoad(savegame)
             end
         end
 
-        if self.ad.settings == nil then
-            AutoDrive.copySettingsToVehicle(self)
-        end
-
         self.ad.noMovementTimer = AutoDriveTON:new()
         self.ad.noTurningTimer = AutoDriveTON:new()
         self.ad.driveForwardTimer = AutoDriveTON:new()
@@ -100,6 +97,10 @@ function AutoDrive:onPostLoad(savegame)
         if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
             ADHarvestManager:registerHarvester(self)
         end
+    end
+
+    if self.ad.settings == nil then
+        AutoDrive.copySettingsToVehicle(self)
     end
 
     -- Pure client side state
@@ -129,6 +130,62 @@ function AutoDrive:onPostLoad(savegame)
     if self.spec_autodrive == nil then
         self.spec_autodrive = AutoDrive
     end
+end
+
+function AutoDrive:onWriteStream(streamId, connection)
+    for settingName, setting in pairs(AutoDrive.settings) do
+        if setting ~= nil and setting.isVehicleSpecific then
+            streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self))
+        end
+    end
+    self.ad.stateModule:writeStream(streamId)
+end
+
+function AutoDrive:onReadStream(streamId, connection)
+    for settingName, setting in pairs(AutoDrive.settings) do
+        if setting ~= nil and setting.isVehicleSpecific then
+            self.ad.settings[settingName].current = streamReadInt16(streamId)
+        end
+    end
+    self.ad.stateModule:readStream(streamId)
+end
+
+function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    if g_server ~= nil then
+        if self.ad.stateModule:isDirty() then
+            self:raiseDirtyFlags(self.ad.dirtyFlag)
+        end
+    end
+end
+
+function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
+    if connection:getIsServer() then
+        if streamReadBool(streamId) then
+            self.ad.stateModule:readUpdateStream(streamId)
+        end
+    end
+end
+
+function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
+    if not connection:getIsServer() then
+        if streamWriteBool(streamId, bitAND(dirtyMask, self.ad.dirtyFlag) ~= 0) then
+            self.ad.stateModule:writeUpdateStream(streamId)
+        end
+    end
+end
+
+function AutoDrive:onUpdate(dt)
+    -- Cloest point is stored per frame
+    self.ad.closest = nil
+
+    self.ad.taskModule:update(dt)
+    if self.getIsEntered ~= nil and self:getIsEntered() then
+        self.ad.stateModule:update(dt)
+    end
+
+    AutoDrive:handleRecording(self)
+    ADSensor:handleSensors(self, dt)
+    AutoDrive:handleDriverWages(self, dt)
 end
 
 function AutoDrive:onPreLeaveVehicle()
@@ -172,34 +229,6 @@ function AutoDrive:onToggleMouse(vehicle)
     end
 
     vehicle.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
-end
-
-function AutoDrive:onWriteStream(streamId, connection)
-    for settingName, setting in pairs(AutoDrive.settings) do
-        if setting ~= nil and setting.isVehicleSpecific then
-            streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self))
-        end
-    end
-end
-
-function AutoDrive:onReadStream(streamId, connection)
-    for settingName, setting in pairs(AutoDrive.settings) do
-        if setting ~= nil and setting.isVehicleSpecific then
-            self.ad.settings[settingName].current = streamReadInt16(streamId)
-        end
-    end
-end
-
-function AutoDrive:onUpdate(dt)
-    -- Cloest point is stored per frame
-    self.ad.closest = nil
-
-    self.ad.taskModule:update(dt)
-
-    AutoDrive:handleRecording(self)
-    ADSensor:handleSensors(self, dt)
-    AutoDrive.handleVehicleMultiplayer(self, dt)
-    AutoDrive:handleDriverWages(self, dt)
 end
 
 function AutoDrive:handleDriverWages(vehicle, dt)
@@ -256,8 +285,8 @@ function AutoDrive:onDraw()
             --draw line with direction markers (arrow)
             local sWP = wps[currentWp]
             local eWP = wps[currentWp + 1]
-            DrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
-            DrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, DrawingManager.arrows.position.start, 1, 1, 1)
+            ADDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
+            ADDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, ADDrawingManager.arrows.position.start, 1, 1, 1)
         end
     end
 
@@ -284,7 +313,7 @@ function AutoDrive:onDrawControlledVehicle(vehicle)
 end
 
 function AutoDrive:onDrawCreationMode(vehicle)
-    local AutoDriveDM = DrawingManager
+    local AutoDriveDM = ADDrawingManager
 
     local startNode = vehicle.ad.frontNode
     if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
@@ -371,7 +400,7 @@ function AutoDrive.mouseIsAtPos(position, radius)
 end
 
 function AutoDrive.drawPointsInProximity(vehicle)
-    local AutoDriveDM = DrawingManager
+    local AutoDriveDM = ADDrawingManager
     local arrowPosition = AutoDriveDM.arrows.position.start
     AutoDrive.getNewPointsInProximity(vehicle)
 

@@ -1,56 +1,56 @@
-MessagesManager = {}
-MessagesManager.messageTypes = {}
-MessagesManager.messageTypes.INFO = 1
-MessagesManager.messageTypes.WARN = 2
-MessagesManager.messageTypes.ERROR = 3
-MessagesManager.messageTypeColors = {{1, 1, 1}, {1, 1, 0}, {1, 0, 0}}
+ADMessagesManager = {}
+ADMessagesManager.messageTypes = {}
+ADMessagesManager.messageTypes.INFO = 1
+ADMessagesManager.messageTypes.WARN = 2
+ADMessagesManager.messageTypes.ERROR = 3
+ADMessagesManager.messageTypeColors = {{1, 1, 1}, {1, 1, 0}, {1, 0, 0}}
 
-MessagesManager.messages = {}
-MessagesManager.currentMessage = nil
-MessagesManager.currentMessageTimer = 0
+ADMessagesManager.messages = {}
+ADMessagesManager.currentMessage = nil
+ADMessagesManager.currentMessageTimer = 0
 
-MessagesManager.notifications = {}
-MessagesManager.currentNotification = nil
-MessagesManager.currentNotificationTimer = 0
+ADMessagesManager.notifications = {}
+ADMessagesManager.currentNotification = nil
+ADMessagesManager.currentNotificationTimer = 0
 
-MessagesManager.lastNotificationVehicle = nil
+ADMessagesManager.lastNotificationVehicle = nil
 
-function MessagesManager:load()
+function ADMessagesManager:load()
     self.messages = Queue:new()
     self.notifications = Queue:new()
 end
 
-function MessagesManager:addInfoMessage(text, duration)
+function ADMessagesManager:addInfoMessage(text, duration)
     self:addMessage(self.messageTypes.INFO, text, duration)
 end
 
-function MessagesManager:addWarnMessage(text, duration)
+function ADMessagesManager:addWarnMessage(text, duration)
     self:addMessage(self.messageTypes.WARN, text, duration)
 end
 
-function MessagesManager:addErrorMessage(text, duration)
+function ADMessagesManager:addErrorMessage(text, duration)
     self:addMessage(self.messageTypes.ERROR, text, duration)
 end
 
-function MessagesManager:addMessage(messageType, text, duration)
+function ADMessagesManager:addMessage(messageType, text, duration)
     self.messages:Enqueue({messageType = messageType, text = text, duration = duration})
 end
 
-function MessagesManager:addNotification(vehicle, messageType, text, duration)
+function ADMessagesManager:addNotification(vehicle, messageType, text, duration)
     self.notifications:Enqueue({vehicle = vehicle, messageType = messageType, text = text, duration = duration})
 end
 
-function MessagesManager:removeCurrentMessage()
+function ADMessagesManager:removeCurrentMessage()
     self.currentMessage = nil
     self.currentMessageTimer = 0
 end
 
-function MessagesManager:removeCurrentNotification()
+function ADMessagesManager:removeCurrentNotification()
     self.currentNotification = nil
     self.currentNotificationTimer = 0
 end
 
-function MessagesManager:update(dt)
+function ADMessagesManager:update(dt)
     -- messages handling
     if self.currentMessage == nil then
         self.currentMessage = self.messages:Dequeue()
@@ -80,7 +80,7 @@ function MessagesManager:update(dt)
     end
 end
 
-function MessagesManager:draw()
+function ADMessagesManager:draw()
     -- TODO: we should implement some kind of hud instead of a simple text, maybe with also a dismiss button
     if self.currentMessage ~= nil then
         local color = self.messageTypeColors[self.currentMessage.messageType]

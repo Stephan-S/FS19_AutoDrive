@@ -1,49 +1,49 @@
-DrawingManager = {}
-DrawingManager.i3DBaseDir = "drawing/"
-DrawingManager.yOffset = 0
-DrawingManager.emittivity = 0
-DrawingManager.emittivityNextUpdate = 0
-DrawingManager.debug = {}
+ADDrawingManager = {}
+ADDrawingManager.i3DBaseDir = "drawing/"
+ADDrawingManager.yOffset = 0
+ADDrawingManager.emittivity = 0
+ADDrawingManager.emittivityNextUpdate = 0
+ADDrawingManager.debug = {}
 
-DrawingManager.lines = {}
-DrawingManager.lines.fileName = "line.i3d"
-DrawingManager.lines.buffer = Buffer:new()
-DrawingManager.lines.objects = FlaggedTable:new()
-DrawingManager.lines.tasks = {}
-DrawingManager.lines.lastDrawZero = true
+ADDrawingManager.lines = {}
+ADDrawingManager.lines.fileName = "line.i3d"
+ADDrawingManager.lines.buffer = Buffer:new()
+ADDrawingManager.lines.objects = FlaggedTable:new()
+ADDrawingManager.lines.tasks = {}
+ADDrawingManager.lines.lastDrawZero = true
 
-DrawingManager.arrows = {}
-DrawingManager.arrows.fileName = "arrow.i3d"
-DrawingManager.arrows.buffer = Buffer:new()
-DrawingManager.arrows.objects = FlaggedTable:new()
-DrawingManager.arrows.tasks = {}
-DrawingManager.arrows.lastDrawZero = true
-DrawingManager.arrows.position = {}
-DrawingManager.arrows.position.start = 1
-DrawingManager.arrows.position.middle = 2
+ADDrawingManager.arrows = {}
+ADDrawingManager.arrows.fileName = "arrow.i3d"
+ADDrawingManager.arrows.buffer = Buffer:new()
+ADDrawingManager.arrows.objects = FlaggedTable:new()
+ADDrawingManager.arrows.tasks = {}
+ADDrawingManager.arrows.lastDrawZero = true
+ADDrawingManager.arrows.position = {}
+ADDrawingManager.arrows.position.start = 1
+ADDrawingManager.arrows.position.middle = 2
 
-DrawingManager.sSphere = {}
-DrawingManager.sSphere.fileName = "sphere_small.i3d"
-DrawingManager.sSphere.buffer = Buffer:new()
-DrawingManager.sSphere.objects = FlaggedTable:new()
-DrawingManager.sSphere.tasks = {}
-DrawingManager.sSphere.lastDrawZero = true
+ADDrawingManager.sSphere = {}
+ADDrawingManager.sSphere.fileName = "sphere_small.i3d"
+ADDrawingManager.sSphere.buffer = Buffer:new()
+ADDrawingManager.sSphere.objects = FlaggedTable:new()
+ADDrawingManager.sSphere.tasks = {}
+ADDrawingManager.sSphere.lastDrawZero = true
 
-DrawingManager.sphere = {}
-DrawingManager.sphere.fileName = "sphere.i3d"
-DrawingManager.sphere.buffer = Buffer:new()
-DrawingManager.sphere.objects = FlaggedTable:new()
-DrawingManager.sphere.tasks = {}
-DrawingManager.sphere.lastDrawZero = true
+ADDrawingManager.sphere = {}
+ADDrawingManager.sphere.fileName = "sphere.i3d"
+ADDrawingManager.sphere.buffer = Buffer:new()
+ADDrawingManager.sphere.objects = FlaggedTable:new()
+ADDrawingManager.sphere.tasks = {}
+ADDrawingManager.sphere.lastDrawZero = true
 
-DrawingManager.markers = {}
-DrawingManager.markers.fileName = "marker.i3d"
-DrawingManager.markers.buffer = Buffer:new()
-DrawingManager.markers.objects = FlaggedTable:new()
-DrawingManager.markers.tasks = {}
-DrawingManager.markers.lastDrawZero = true
+ADDrawingManager.markers = {}
+ADDrawingManager.markers.fileName = "marker.i3d"
+ADDrawingManager.markers.buffer = Buffer:new()
+ADDrawingManager.markers.objects = FlaggedTable:new()
+ADDrawingManager.markers.tasks = {}
+ADDrawingManager.markers.lastDrawZero = true
 
-function DrawingManager:load()
+function ADDrawingManager:load()
     -- preloading and storing in chache I3D files
     self.i3DBaseDir = AutoDrive.directory .. self.i3DBaseDir
     g_i3DManager:fillSharedI3DFileCache(self.lines.fileName, self.i3DBaseDir)
@@ -53,7 +53,7 @@ function DrawingManager:load()
     g_i3DManager:fillSharedI3DFileCache(self.markers.fileName, self.i3DBaseDir)
 end
 
-function DrawingManager.initObject(id)
+function ADDrawingManager.initObject(id)
     local itemId = getChildAt(id, 0)
     link(getRootNode(), itemId)
     setRigidBodyType(itemId, "NoRigidBody")
@@ -63,31 +63,31 @@ function DrawingManager.initObject(id)
     return itemId
 end
 
-function DrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
+function ADDrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
     -- storing task
     local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, r, g, b)
     table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, hash = hash})
 end
 
-function DrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
+function ADDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
     -- storing task
     local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, position, r, g, b)
     table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position, hash = hash})
 end
 
-function DrawingManager:addSmallSphereTask(x, y, z, r, g, b)
+function ADDrawingManager:addSmallSphereTask(x, y, z, r, g, b)
     -- storing task
     local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f", x, y, z, r, g, b)
     table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, hash = hash})
 end
 
-function DrawingManager:addMarkerTask(x, y, z)
+function ADDrawingManager:addMarkerTask(x, y, z)
     -- storing task
     local hash = string.format("m%.2f%.2f%.2f", x, y, z)
     table.insert(self.markers.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
-function DrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
+function ADDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     scale = scale or 1
     a = a or 0
     -- storing task
@@ -95,7 +95,7 @@ function DrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     table.insert(self.sphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, a = a, scale = scale, hash = hash})
 end
 
-function DrawingManager:draw()
+function ADDrawingManager:draw()
     local time = netGetTime()
     local ad = AutoDrive
     self.yOffset = ad.drawHeight + ad.getSetting("lineHeight")
@@ -141,7 +141,7 @@ function DrawingManager:draw()
     end
 end
 
-function DrawingManager:drawObjects(obj, dFunc, iFunc)
+function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
     local taskCount = #obj.tasks
 
     local stats = {}
@@ -201,7 +201,7 @@ function DrawingManager:drawObjects(obj, dFunc, iFunc)
     return stats
 end
 
-function DrawingManager:drawLine(id, task)
+function ADDrawingManager:drawLine(id, task)
     local atan2 = math.atan2
 
     -- Get the direction to the end point
@@ -229,7 +229,7 @@ function DrawingManager:drawLine(id, task)
     setVisibility(id, true)
 end
 
-function DrawingManager:drawArrow(id, task)
+function ADDrawingManager:drawArrow(id, task)
     local atan2 = math.atan2
 
     local x = task.ex
@@ -265,18 +265,18 @@ function DrawingManager:drawArrow(id, task)
     setVisibility(id, true)
 end
 
-function DrawingManager:drawSmallSphere(id, task)
+function ADDrawingManager:drawSmallSphere(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setShaderParameter(id, "color", task.r, task.g, task.b, self.emittivity, false)
     setVisibility(id, true)
 end
 
-function DrawingManager:drawMarker(id, task)
+function ADDrawingManager:drawMarker(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setVisibility(id, true)
 end
 
-function DrawingManager:drawSphere(id, task)
+function ADDrawingManager:drawSphere(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setScale(id, task.scale, task.scale, task.scale)
     setShaderParameter(id, "color", task.r, task.g, task.b, self.emittivity + task.a, false)

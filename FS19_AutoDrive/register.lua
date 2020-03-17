@@ -36,12 +36,9 @@ source(Utils.getFilename("scripts/Events/Graph/ChangeMapMarkerGroupEvent.lua", g
 source(Utils.getFilename("scripts/Events/Graph/ToggleConnectionEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/DeleteWayPointEvent.lua", g_currentModDirectory))
 
-source(Utils.getFilename("scripts/Utils/AutoDriveDelayedCallBacks.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/UtilFuncs.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Utils/AutoDriveBenchmarkUtil.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Utils/AutoDriveBenchmarks.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory))

@@ -79,7 +79,7 @@ function PathFinderModule:update()
             g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
             self.vehicle.ad.taskModule:abortAllTasks()
             AutoDrive.disableAutoDriveFunctions(self.vehicle)
-            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
+            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.driverName)
         end
     end
 
@@ -543,7 +543,7 @@ function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, cornerX, corn
 end
 
 function PathFinderModule:drawDebugForPF()
-    local AutoDriveDM = DrawingManager
+    local AutoDriveDM = ADDrawingManager
     local pointTarget = self:gridLocationToWorldLocation(self.targetCell)
     local pointTargetUp = self:gridLocationToWorldLocation(self.targetCell)
     pointTarget.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointTarget.x, 1, pointTarget.z) + 3
@@ -632,7 +632,7 @@ function PathFinderModule:drawDebugForPF()
 end
 
 function PathFinderModule:drawDebugForCreatedRoute()
-    local AutoDriveDM = DrawingManager
+    local AutoDriveDM = ADDrawingManager
     if self.chainStartToTarget ~= nil then
         for _, cell in pairs(self.chainStartToTarget) do
             local shape = self:getShapeDefByDirectionType(cell)

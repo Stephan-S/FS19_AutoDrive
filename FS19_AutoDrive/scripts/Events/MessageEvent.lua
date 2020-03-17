@@ -65,9 +65,9 @@ function AutoDriveMessageEvent:run(connection)
             end
 
             if not self.isNotification then
-                MessagesManager:addMessage(self.messageType, self.text, self.duration)
+                ADMessagesManager:addMessage(self.messageType, self.text, self.duration)
             else
-                MessagesManager:addNotification(self.vehicle, self.messageType, self.text, self.duration)
+                ADMessagesManager:addNotification(self.vehicle, self.messageType, self.text, self.duration)
             end
         end
     end

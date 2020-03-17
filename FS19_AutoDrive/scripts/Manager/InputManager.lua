@@ -184,8 +184,8 @@ function ADInputManager:input_routesManager()
 end
 
 function ADInputManager:input_goToVehicle()
-    if MessagesManager.lastNotificationVehicle ~= nil then
-        g_currentMission:requestToEnterVehicle(MessagesManager.lastNotificationVehicle)
+    if ADMessagesManager.lastNotificationVehicle ~= nil then
+        g_currentMission:requestToEnterVehicle(ADMessagesManager.lastNotificationVehicle)
     end
 end
 
@@ -225,8 +225,8 @@ end
 
 function ADInputManager:input_setParkDestination(vehicle)
     if vehicle.ad.stateModule:getFirstMarker() ~= nil then
-        vehicle.ad.parkDestination = vehicle.ad.stateModule:getFirstMarkerId()
-        AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+        vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+        AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
     end
 end
 
@@ -339,8 +339,8 @@ function ADInputManager:input_callDriver(vehicle)
 end
 
 function ADInputManager:input_parkVehicle(vehicle)
-    if vehicle.ad.parkDestination ~= nil and vehicle.ad.parkDestination >= 1 and ADGraphManager:getMapMarkerById(vehicle.ad.parkDestination) ~= nil then
-        vehicle.ad.stateModule:setFirstMarker(vehicle.ad.parkDestination)
+    if vehicle.ad.stateModule:hasParkDestination() then
+        vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getParkDestination())
         if vehicle.ad.stateModule:isActive() then
             self:input_start_stop(vehicle) --disable if already active
         end
@@ -348,7 +348,7 @@ function ADInputManager:input_parkVehicle(vehicle)
         self:input_start_stop(vehicle)
         vehicle.ad.onRouteToPark = true
     else
-        AutoDriveMessageEvent.sendMessage(vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
+        AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 3000)
     end
 end
 
