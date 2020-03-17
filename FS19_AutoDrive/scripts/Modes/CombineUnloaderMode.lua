@@ -10,6 +10,7 @@ CombineUnloaderMode.STATE_DRIVE_TO_UNLOAD = 7
 CombineUnloaderMode.STATE_FOLLOW_COMBINE = 8
 CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 9
 CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER = 10
+CombineUnloaderMode.STATE_EXIT_FIELD = 11
 
 CombineUnloaderMode.CHASEPOS_LEFT = 1
 CombineUnloaderMode.CHASEPOS_RIGHT = 2
@@ -120,6 +121,10 @@ function CombineUnloaderMode:getNextTask()
     elseif self.state == self.STATE_FOLLOW_CURRENT_UNLOADER then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_FOLLOW_CURRENT_UNLOADER")
         self:setToWaitForCall()
+    elseif self.state == self.STATE_EXIT_FIELD then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_EXIT_FIELD")
+        nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+        self.state = self.STATE_DRIVE_TO_UNLOAD
     end
 
     return nextTask
@@ -174,8 +179,13 @@ end
 function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local nextTask
     if filledToUnload then
-        nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-        self.state = self.STATE_DRIVE_TO_UNLOAD
+        if AutoDrive.getSetting("exitField", self.vehicle) ~= 2 then
+            nextTask = ExitFieldTask:new(self.vehicle)
+            self.state = self.STATE_EXIT_FIELD
+        else
+            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+            self.state = self.STATE_DRIVE_TO_UNLOAD
+        end
         ADHarvestManager:unregisterAsUnloader(self.vehicle)
         self.followingUnloader = nil
         self.combine = nil

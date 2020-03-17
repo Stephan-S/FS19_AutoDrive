@@ -41,7 +41,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
                 -- check for other pathfinder steered vehicles and avoid any intersection with their routes
                 if otherWPs ~= nil then
                     for index, wp in pairs(otherWPs) do
-                        if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and index > 2 and index < (#otherWPs - 2) then
+                        if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and index > 2 and index < (#otherWPs - 5) then
                             local widthOfColBox = math.sqrt(math.pow(minTurnRadius, 2) + math.pow(minTurnRadius, 2))
                             local sideLength = widthOfColBox / 2
 

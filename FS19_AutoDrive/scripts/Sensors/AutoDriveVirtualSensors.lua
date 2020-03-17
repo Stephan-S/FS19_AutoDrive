@@ -53,7 +53,7 @@ function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors["frontSensorFruit"] = frontSensorFruit
 
     sensorParameters.dynamicLength = false
-    sensorParameters.length = 15
+    sensorParameters.length = 2
     sensorParameters.width = vehicle.sizeWidth * 0.5
     local frontSensorField = ADFieldSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["frontSensorField"] = frontSensorField

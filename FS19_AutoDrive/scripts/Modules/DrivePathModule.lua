@@ -111,12 +111,14 @@ function ADDrivePathModule:isCloseToWaypoint()
     local maxSkipWayPoints = 2
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self.currentWayPoint + i] ~= nil then
-            if AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z) < self.min_distance then
+            local distanceToCurrentWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z)
+            if distanceToCurrentWp < self.min_distance then
                 return true
             end
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
             if i > 0 then
-                if AutoDrive.pointIsBetweenTwoPoints(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z) then
+                local distanceToLastWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z)
+                if distanceToCurrentWp < distanceToLastWp then
                     return true
                 end
             end
@@ -130,6 +132,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
     self.acceleration = 1
+    self.distanceToLookAhead = 8
     if self.wayPoints[self.currentWayPoint - 1] ~= nil and self.wayPoints[self.currentWayPoint + 1] ~= nil then
         local highestAngle = self:getHighestApproachingAngle()
         self.speedLimit = self:getMaxSpeedForAngle(highestAngle)
@@ -300,8 +303,10 @@ function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
         while self.wayPoints[self.currentWayPoint + lookAhead] ~= nil and lookAhead < maxLookAhead do
             local p1 = self.wayPoints[self.currentWayPoint + lookAhead]
             local p2 = self.wayPoints[self.currentWayPoint + lookAhead - 1]
-            distance = distance + MathUtil.vector2Length(p2.x - p1.x, p2.z - p1.z)
-
+            local pointDistance = MathUtil.vector2Length(p2.x - p1.x, p2.z - p1.z)
+            if pointDistance ~= nil then
+                distance = distance + pointDistance
+            end
             lookAhead = lookAhead + 1
         end
     end

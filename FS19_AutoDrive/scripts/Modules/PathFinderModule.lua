@@ -54,13 +54,27 @@ function PathFinderModule:update()
     self.steps = self.steps + 1
 
     if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
-        if (not self.fallBackMode) or (self.possiblyBlockedByOtherVehicle and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
+        if (not self.fallBackMode) or ((self.possiblyBlockedByOtherVehicle or self.destinationId ~= nil) and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
             --g_logManager:devInfo("Going into fallback mode - no fruit free path found in reasonable time");
-            if not self.possiblyBlockedByOtherVehicle then
+            if not self.possiblyBlockedByOtherVehicle and self.destinationId == nil then
                 self.fallBackMode = true
             else
                 self.retryCounter = self.retryCounter + 1
                 self.possiblyBlockedByOtherVehicle = false
+                --if we are going to the network and can't find a path. Just select the next waypoint for now
+                if self.destinationId ~= nil then
+                    self.closestId = self.closestId + 1
+                    local targetNode = ADGraphManager:getWayPointById(self.closestId)
+                    local wayPoints = ADGraphManager:pathFromTo(self.closestId, self.destinationId)
+                    if wayPoints ~= nil and #wayPoints > 1 then
+                        local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
+                        local storedRetryCounter = self.retryCounter
+                        local storedDestinationId = self.destinationId
+                        self:startPathPlanningTo(targetNode, vecToNextPoint)
+                        self.retryCounter = storedRetryCounter
+                        self.destinationId = storedDestinationId
+                    end
+                end
             end
             self.steps = 0
             self.grid = {}
@@ -79,7 +93,7 @@ function PathFinderModule:update()
             --g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
             --self.vehicle.ad.taskModule:abortAllTasks()
             --AutoDrive.disableAutoDriveFunctions(self.vehicle)
-            --AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, MessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.stateModule:getName())
+            --AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.stateModule:getName())
         end
     end
 
@@ -151,6 +165,8 @@ function PathFinderModule:startPathPlanningToNetwork(destinationId)
     if wayPoints ~= nil and #wayPoints > 1 then
         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
         self:startPathPlanningTo(targetNode, vecToNextPoint)
+        self.destinationId = destinationId
+        self.closestId = closest
     end
     return
 end
@@ -272,6 +288,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     self.goingToPipe = false
     self.chasingVehicle = false
+    self.destinationId = nil
 end
 
 function PathFinderModule:testNextCells(cell)

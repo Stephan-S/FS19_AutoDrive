@@ -282,6 +282,7 @@ function AutoDrive.handlePerFrameOperations(dt)
 			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20)
 			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
 			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
+			vehicle.ad.turningTimer:timer(combineIsTurning, 4000, dt)
 		end
 	end
 

@@ -32,8 +32,8 @@ end
 function FollowCombineTask:update(dt)
     self:updateStates()
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
-    local reachedFieldBorder = not self.vehicle.ad.sensors.frontSensorField:pollInfo()
-    if self.filled or combineStopped or reachedFieldBorder then
+    local reachedFieldBorder = false --not self.vehicle.ad.sensors.frontSensorField:pollInfo()
+    if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombine < 5 and self.fillLevel > 2000) then
         if self.state ~= FollowCombineTask.STATE_REVERSING then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
             self.reverseStartLocation = {x = x, y = y, z = z}
@@ -45,7 +45,7 @@ function FollowCombineTask:update(dt)
     end
 
     if self.state == FollowCombineTask.STATE_CHASING then
-        if AutoDrive.combineIsTurning(self.combine) then
+        if AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 60 or not self.combine:getIsBufferCombine()) then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
@@ -60,7 +60,11 @@ function FollowCombineTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
         if not AutoDrive.combineIsTurning(self.combine) then
-            self:finished()
+            if self.angleToCombine < 40 then
+                self.state = FollowCombineTask.STATE_CHASING
+            else
+                self:finished()
+            end
         end
         if self.filledToUnload then
             self:finished()
@@ -90,7 +94,6 @@ function FollowCombineTask:updateStates()
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local cx, cy, cz = getWorldTranslation(self.combine.components[1].node)
     self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
-    --local isChopper = combine:getIsBufferCombine()
     self.leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (not self.combine.ad.sensors.leftSensorField:pollInfo())
     self.rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (not self.combine.ad.sensors.rightSensorField:pollInfo())
 
@@ -125,8 +128,8 @@ function FollowCombineTask:updateStates()
     self.combineFillPercent = (self.cfillLevel / self.cmaxCapacity) * 100
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-    local maxCapacity = fillLevel + leftCapacity
+    self.fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+    local maxCapacity = self.fillLevel + leftCapacity
     self.filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
     self.filled = leftCapacity <= 1
 end
