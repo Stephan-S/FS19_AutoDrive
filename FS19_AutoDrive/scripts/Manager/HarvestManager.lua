@@ -7,6 +7,7 @@ function ADHarvestManager:load()
     self.harvesters = {}
     self.activeUnloaders = {}
     self.idleUnloaders = {}
+    self.assignmentDelayTimer = AutoDriveTON:new()
 end
 
 function ADHarvestManager:registerHarvester(harvester)
@@ -38,27 +39,31 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
     end
     if table.contains(self.activeUnloaders, vehicle) then
         table.removeValue(self.activeUnloaders, vehicle)
+        self.assignmentDelayTimer:timer(false)
     end
 end
 
 function ADHarvestManager:update(dt)
+    self.assignmentDelayTimer:timer(true, 10000, dt)
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil then
-            if not self:alreadyAssignedUnloader(harvester) then
-                if  ADHarvestManager.doesHarvesterNeedUnloading(harvester) or (not AutoDrive.combineIsTurning(harvester) and ADHarvestManager.isHarvesterActive(harvester)) then
-                    self:assignUnloaderToHarvester(harvester)
-                end
-            else
-                if AutoDrive.getSetting("callSecondUnloader", harvester) then
-                    local unloader = self:getAssignedUnloader(harvester)
-                    if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then         
-                        local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
-                        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-                        local maxCapacity = fillLevel + leftCapacity
-                        if fillLevel >= (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
-                            local closestUnloader = self:getClosestIdleUnloader(harvester)
-                            if closestUnloader ~= nil then
-                                closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:driveToUnloader(unloader)
+            if self.assignmentDelayTimer:done() then
+                if not self:alreadyAssignedUnloader(harvester) then
+                    if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or (not AutoDrive.combineIsTurning(harvester) and ADHarvestManager.isHarvesterActive(harvester)) then
+                        self:assignUnloaderToHarvester(harvester)
+                    end
+                else
+                    if AutoDrive.getSetting("callSecondUnloader", harvester) then
+                        local unloader = self:getAssignedUnloader(harvester)
+                        if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then         
+                            local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
+                            local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                            local maxCapacity = fillLevel + leftCapacity
+                            if fillLevel >= (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
+                                local closestUnloader = self:getClosestIdleUnloader(harvester)
+                                if closestUnloader ~= nil then
+                                    closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:driveToUnloader(unloader)
+                                end
                             end
                         end
                     end
