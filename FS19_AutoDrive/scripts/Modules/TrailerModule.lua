@@ -123,7 +123,11 @@ function ADTrailerModule:updateUnload(dt)
         -- Check if we can unload at some trigger
         for _, trailer in pairs(self.trailers) do
             local unloadTrigger = self:lookForPossibleUnloadTrigger(trailer)
-            if unloadTrigger ~= nil then
+            if trailer.unloadDelayTimer == nil then
+                trailer.unloadDelayTimer = AutoDriveTON:new()
+            end
+            trailer.unloadDelayTimer:timer(unloadTrigger ~= nil, 250, dt)
+            if unloadTrigger ~= nil and trailer.unloadDelayTimer:done() then
                 self:startUnloadingIntoTrigger(trailer, unloadTrigger)
                 return
             end
@@ -214,7 +218,7 @@ end
 function ADTrailerModule:startUnloadingIntoTrigger(trailer, trigger)
     if trigger.bunkerSiloArea == nil then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
-        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT, true)
+        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
         self.isUnloading = true
         self.isUnloadingWithTrailer = trailer
         self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
