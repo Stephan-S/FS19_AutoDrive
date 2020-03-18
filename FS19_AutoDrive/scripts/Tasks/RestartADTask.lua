@@ -23,7 +23,7 @@ end
 
 function RestartADTask:doRestart()
     if self.vehicle.ad.stateModule:isActive() then
-        AutoDrive.disableAutoDriveFunctions(self.vehicle)
+        self.vehicle:stopAutoDrive()
     end
     self.vehicle.ad.stateModule:getCurrentMode():start()
 end

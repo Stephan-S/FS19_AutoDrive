@@ -14,7 +14,7 @@ end
 
 function StopAndDisableADTask:update(dt)
     if math.abs(self.vehicle.lastSpeedReal) < 0.0015 then
-        AutoDrive.disableAutoDriveFunctions(self.vehicle)
+        self.vehicle:stopAutoDrive()
         if self.restart ~= nil and self.restart == true then
             self.vehicle.ad.stateModule:getCurrentMode():start()
         end

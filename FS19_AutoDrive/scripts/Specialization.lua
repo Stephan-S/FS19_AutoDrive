@@ -3,7 +3,7 @@ function AutoDrive.prerequisitesPresent(specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
-    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick"}) do
+    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick", "onStartAutoDrive", "onStopAutoDrive"}) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -11,6 +11,16 @@ end
 function AutoDrive.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateAILights", AutoDrive.updateAILights)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "getCanMotorRun", AutoDrive.getCanMotorRun)
+end
+
+function AutoDrive.registerFunctions(vehicleType)
+    SpecializationUtil.registerFunction(vehicleType, "startAutoDrive", AutoDrive.startAutoDrive)
+    SpecializationUtil.registerFunction(vehicleType, "stopAutoDrive", AutoDrive.stopAutoDrive)
+end
+
+function AutoDrive.registerEvents(vehicleType)
+    SpecializationUtil.registerEvent(vehicleType, "onStartAutoDrive")
+    SpecializationUtil.registerEvent(vehicleType, "onStopAutoDrive")
 end
 
 function AutoDrive:onRegisterActionEvents(_, isOnActiveVehicle)
@@ -182,6 +192,147 @@ function AutoDrive:onUpdate(dt)
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriverWages(self, dt)
+end
+
+function AutoDrive:startAutoDrive()
+    if self.isServer then
+        self.ad.stateModule:setActive(true)
+
+        self.ad.isStoppingWithError = false
+        self.ad.onRouteToPark = false
+
+        if self.getAINeedsTrafficCollisionBox ~= nil then
+            if self:getAINeedsTrafficCollisionBox() then
+                local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, self.baseDirectory, false, true, false)
+                if collisionRoot ~= nil and collisionRoot ~= 0 then
+                    local collision = getChildAt(collisionRoot, 0)
+                    link(getRootNode(), collision)
+                    self.spec_aiVehicle.aiTrafficCollision = collision
+                    delete(collisionRoot)
+                end
+            end
+        end
+
+        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
+
+        AutoDriveStartStopEvent:sendStartEvent(self)
+    else
+        g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
+    end
+end
+
+function AutoDrive:stopAutoDrive()
+    if self.isServer then
+        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
+        self.ad.drivePathModule:reset()
+        self.ad.specialDrivingModule:reset()
+        self.ad.trailerModule:reset()
+
+        for _, mode in pairs(self.ad.modes) do
+            mode:reset()
+        end
+
+        local hasCallbacks = self.ad.callBackFunction ~= nil and (self.ad.isStoppingWithError == nil or self.ad.isStoppingWithError == false)
+
+        if hasCallbacks then
+            --work with copys, so we can remove the callBackObjects before calling the function
+            local callBackFunction = self.ad.callBackFunction
+            local callBackObject = self.ad.callBackObject
+            local callBackArg = self.ad.callBackArg
+            self.ad.callBackFunction = nil
+            self.ad.callBackObject = nil
+            self.ad.callBackArg = nil
+
+            if callBackObject ~= nil then
+                if callBackArg ~= nil then
+                    callBackFunction(callBackObject, callBackArg)
+                else
+                    callBackFunction(callBackObject)
+                end
+            else
+                if callBackArg ~= nil then
+                    callBackFunction(callBackArg)
+                else
+                    callBackFunction()
+                end
+            end
+        else
+            AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
+            self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
+
+            if self.ad.onRouteToPark == true then
+                self.ad.onRouteToPark = false
+                if self.spec_lights ~= nil then
+                    self:deactivateLights()
+                end
+            end
+
+            if self.ad.sensors ~= nil then
+                for _, sensor in pairs(self.ad.sensors) do
+                    sensor:setEnabled(false)
+                end
+            end
+        end
+
+        if self.setBeaconLightsVisibility ~= nil then
+            self:setBeaconLightsVisibility(false)
+        end
+
+        self.ad.stateModule:setActive(false)
+
+        self.ad.taskModule:reset()
+
+        AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
+    else
+        g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
+    end
+end
+
+function AutoDrive:onStartAutoDrive()
+    self.forceIsActive = true
+    self.spec_motorized.stopMotorOnLeave = false
+    self.spec_enterable.disableCharacterOnLeave = false
+    self.spec_aiVehicle.isActive = true
+    self.steeringEnabled = false
+
+    if self.currentHelper == nil then
+        self.currentHelper = g_helperManager:getRandomHelper()
+        if self.setRandomVehicleCharacter ~= nil then
+            self:setRandomVehicleCharacter()
+            self.ad.vehicleCharacter = self.spec_enterable.vehicleCharacter
+        end
+        if self.spec_enterable.controllerFarmId ~= 0 then
+            self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
+        end
+    end
+
+    AutoDriveHud:createMapHotspot(self)
+end
+
+function AutoDrive:onStopAutoDrive(hasCallbacks)
+    if not hasCallbacks then
+        if self.raiseAIEvent ~= nil then
+            self:raiseAIEvent("onAIEnd", "onAIImplementEnd")
+        end
+
+        self.spec_aiVehicle.isActive = false
+        self.forceIsActive = false
+        self.spec_motorized.stopMotorOnLeave = true
+        self.spec_enterable.disableCharacterOnLeave = true
+        self.currentHelper = nil
+
+        if self.restoreVehicleCharacter ~= nil then
+            self:restoreVehicleCharacter()
+        end
+
+        if self.steeringEnabled == false then
+            self.steeringEnabled = true
+        end
+    end
+
+    self:requestActionEventUpdate()
+
+    AutoDriveHud:deleteMapHotspot(self)
 end
 
 function AutoDrive:onPreLeaveVehicle()
@@ -467,7 +618,7 @@ function AutoDrive:toggleRecording(vehicle, dual)
         else
             vehicle.ad.stateModule:startNormalCreationMode()
         end
-        AutoDrive.disableAutoDriveFunctions(vehicle)
+        vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:disableCreationMode()
 
@@ -564,7 +715,7 @@ end
 
 function AutoDrive:preRemoveVehicle(vehicle)
     if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:isActive() then
-        AutoDrive.disableAutoDriveFunctions(vehicle)
+        vehicle:stopAutoDrive()
     end
 end
 FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle)

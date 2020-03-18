@@ -14,7 +14,7 @@ end
 
 function DriveToMode:start()
     if not self.vehicle.ad.stateModule:isActive() then
-        AutoDrive.startAD(self.vehicle)
+        self.vehicle:startAutoDrive()
     end
 
     if self.vehicle.ad.stateModule:getFirstMarker() == nil then

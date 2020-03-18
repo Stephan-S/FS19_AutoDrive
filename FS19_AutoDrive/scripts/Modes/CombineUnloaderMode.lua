@@ -16,7 +16,6 @@ CombineUnloaderMode.CHASEPOS_LEFT = 1
 CombineUnloaderMode.CHASEPOS_RIGHT = 2
 CombineUnloaderMode.CHASEPOS_REAR = 3
 
-
 CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 90
 
 function CombineUnloaderMode:new(vehicle)
@@ -37,7 +36,7 @@ end
 function CombineUnloaderMode:start()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:start")
     if not self.vehicle.ad.stateModule:isActive() then
-        AutoDrive.startAD(self.vehicle)
+        self.vehicle:startAutoDrive()
     end
 
     if self.vehicle.ad.stateModule:getFirstMarker() == nil or self.vehicle.ad.stateModule:getSecondMarker() == nil then

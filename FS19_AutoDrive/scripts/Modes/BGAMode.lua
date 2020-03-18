@@ -12,7 +12,7 @@ end
 
 function BGAMode:start()
     if not self.vehicle.ad.stateModule:isActive() then
-        AutoDrive.startAD(self.vehicle)
+        self.vehicle:startAutoDrive()
     end
 
     self.vehicle.ad.taskModule:addTask(UnloadBGATask:new(self.vehicle))

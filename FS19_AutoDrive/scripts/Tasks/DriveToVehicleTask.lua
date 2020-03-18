@@ -25,7 +25,7 @@ function DriveToVehicleTask:update(dt)
             if self.wayPoints == nil or #self.wayPoints == 0 then
                 g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
                 self.vehicle.ad.taskModule:abortAllTasks()
-                AutoDrive.disableAutoDriveFunctions(self.vehicle)
+                self.vehicle:stopAutoDrive()
                 AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)

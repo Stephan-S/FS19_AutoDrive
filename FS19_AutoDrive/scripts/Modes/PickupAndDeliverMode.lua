@@ -20,7 +20,7 @@ end
 
 function PickupAndDeliverMode:start()
     if not self.vehicle.ad.stateModule:isActive() then
-        AutoDrive.startAD(self.vehicle)
+        self.vehicle:startAutoDrive()
     end
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)

@@ -17,12 +17,12 @@ function AutoDriveInputEventEvent:new(vehicle, inputId)
 end
 
 function AutoDriveInputEventEvent:writeStream(streamId, connection)
-    streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
+    NetworkUtil.writeNodeObjectId(streamId, NetworkUtil.getObjectId(self.vehicle))
     streamWriteUIntN(streamId, self.inputId, 5)
 end
 
 function AutoDriveInputEventEvent:readStream(streamId, connection)
-    self.vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
+    self.vehicle = NetworkUtil.getObject(NetworkUtil.readNodeObjectId(streamId))
     self.inputId = streamReadUIntN(streamId, 5)
     self:run(connection)
 end

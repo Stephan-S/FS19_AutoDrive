@@ -209,7 +209,7 @@ function ADInputManager:input_start_stop(vehicle)
     end
     if vehicle.ad.stateModule:isActive() then
         vehicle.ad.isStoppingWithError = true
-        AutoDrive.disableAutoDriveFunctions(vehicle)
+        vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:getCurrentMode():start()
     end

@@ -86,15 +86,14 @@ function PathFinderModule:update()
             self.smoothStep = 0
             self.smoothDone = false
         else
+            --g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
+            --self.vehicle.ad.taskModule:abortAllTasks()
+            --self.vehicle:stopAutoDrive()
+            --AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.stateModule:getName())
             --stop searching
             self.isFinished = true
             self.smoothDone = true
             self.wayPoints = {}
-
-            --g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
-            --self.vehicle.ad.taskModule:abortAllTasks()
-            --AutoDrive.disableAutoDriveFunctions(self.vehicle)
-            --AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.stateModule:getName())
         end
     end
 
@@ -360,7 +359,7 @@ function PathFinderModule:checkGridCell(cell)
 
         local corner4X = worldPos.x + (self.vectorX.x + self.vectorZ.x) / 2
         local corner4Z = worldPos.z + (self.vectorX.z + self.vectorZ.z) / 2
-        
+
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
 
         local angleRad = math.atan2(self.targetVector.z, self.targetVector.x)
@@ -377,10 +376,10 @@ function PathFinderModule:checkGridCell(cell)
             if self.isSecondChasingVehicle then
                 local cornerWideX = worldPos.x + (-self.vectorX.x - self.vectorZ.x) * 1
                 local cornerWideZ = worldPos.z + (-self.vectorX.z - self.vectorZ.z) * 1
-        
+
                 local cornerWide2X = worldPos.x + (self.vectorX.x - self.vectorZ.x) * 1
                 local cornerWide2Z = worldPos.z + (self.vectorX.z - self.vectorZ.z) * 1
-        
+
                 local cornerWide3X = worldPos.x + (-self.vectorX.x + self.vectorZ.x) * 1
                 local cornerWide3Z = worldPos.z + (-self.vectorX.z + self.vectorZ.z) * 1
                 self:checkForFruitInArea(cell, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide3X, cornerWide3Z)
@@ -974,10 +973,10 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                     if self.isSecondChasingVehicle then
                         local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 2
                         local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 2
-        
+
                         local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 2
                         local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 2
-               
+
                         local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 2
                         local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 2
 
@@ -988,7 +987,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, nil, false)
                             fruitValue = fruitValueResult
                         end
-                    else                        
+                    else
                         if self.fruitToCheck == 9 or self.fruitToCheck == 22 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
                             fruitValue = fruitValueResult
