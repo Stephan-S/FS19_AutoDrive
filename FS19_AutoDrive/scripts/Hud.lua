@@ -353,7 +353,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 							-- And just to correct for slope changes, we now set the height to the terrain height
 							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-							local newNode = ADGraphManager:createWayPoint(vehicle, x, y, z, false)
+							ADGraphManager:createWayPoint(x, y, z)
 						end
 					end
 				end

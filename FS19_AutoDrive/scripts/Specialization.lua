@@ -510,10 +510,10 @@ function AutoDrive.getNewPointsInProximity(vehicle)
         local newPointsToDraw = {}
         local pointsCheckedThisFrame = 0
         --only handly a limited amount of points per frame
-        while pointsCheckedThisFrame < 1000 and pointsCheckedThisFrame < ADGraphManager:getWayPointCount() do
+        while pointsCheckedThisFrame < 1000 and pointsCheckedThisFrame < ADGraphManager:getWayPointsCount() do
             pointsCheckedThisFrame = pointsCheckedThisFrame + 1
             vehicle.ad.lastPointCheckedForProximity = vehicle.ad.lastPointCheckedForProximity + 1
-            if vehicle.ad.lastPointCheckedForProximity > ADGraphManager:getWayPointCount() then
+            if vehicle.ad.lastPointCheckedForProximity > ADGraphManager:getWayPointsCount() then
                 vehicle.ad.lastPointCheckedForProximity = 1
             end
             local pointToCheck = ADGraphManager:getWayPointById(vehicle.ad.lastPointCheckedForProximity)
@@ -659,7 +659,7 @@ function AutoDrive:handleRecording(vehicle)
     if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
         local startPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
         local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
-        vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x1, y1, z1, false)
+        vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, vehicle.ad.stateModule:isInDualCreationMode())
 
         if AutoDrive.getSetting("autoConnectStart") then
             if startPoint ~= nil then
@@ -685,7 +685,7 @@ function AutoDrive:handleRecording(vehicle)
             local wp = vehicle.ad.lastCreatedWp
             if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then
                 vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
-                vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true)
+                vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x, y, z, true, vehicle.ad.stateModule:isInDualCreationMode())
             end
         else
             local x, y, z = getWorldTranslation(vehicle.components[1].node)
@@ -707,7 +707,7 @@ function AutoDrive:handleRecording(vehicle)
 
             if AutoDrive.getDistance(x, z, vehicle.ad.lastCreatedWp.x, vehicle.ad.lastCreatedWp.z) > max_distance then
                 vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
-                vehicle.ad.lastCreatedWp = ADGraphManager:createWayPoint(vehicle, x, y, z, true)
+                vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x, y, z, true, vehicle.ad.stateModule:isInDualCreationMode())
             end
         end
     end

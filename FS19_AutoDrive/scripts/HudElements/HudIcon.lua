@@ -70,15 +70,6 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         textToShow = textToShow .. " - " .. activeTask:getInfoText()
     end
 
-    if AutoDrive.totalNumberOfWayPointsToReceive ~= nil then
-        if ADGraphManager:getWayPointCount() ~= AutoDrive.totalNumberOfWayPointsToReceive then
-            if AutoDrive.requestedWaypoints then
-                textToShow = textToShow .. " - " .. g_i18n:getText("AD_synchronizing")
-                textToShow = textToShow .. " " .. ADGraphManager:getWayPointCount() .. "/" .. AutoDrive.totalNumberOfWayPointsToReceive
-            end
-        end
-    end
-
     if vehicle.ad.stateModule:isInExtendedEditorMode() then
         textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
         textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")

@@ -27,7 +27,7 @@ function ADGraphManager:setWayPoints(wayPoints)
 	self.wayPoints = wayPoints
 end
 
-function ADGraphManager:getWayPointCount()
+function ADGraphManager:getWayPointsCount()
 	return #self.wayPoints
 end
 
@@ -381,31 +381,55 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, sendEvent)
 	end
 end
 
-function ADGraphManager:createWayPoint(vehicle, x, y, z, connectPrevious)
-	AutoDrive.MarkChanged()
-	if #self.wayPoints > 1 and connectPrevious then
-		--edit previous point
-		local out_index = #self.wayPoints[#self.wayPoints].out
-		self.wayPoints[#self.wayPoints].out[out_index + 1] = #self.wayPoints + 1
+function ADGraphManager:createWayPoint(x, y, z, sendEvent)
+	if sendEvent == nil or sendEvent == true then
+		-- Propagating waypoint creation all over the network
+		AutoDriveCreateWayPointEvent.sendEvent(x, y, z)
+	else
+		local prevId = self:getWayPointsCount()
+		local newId = prevId + 1
+		--local prevWp = self:getWayPointById(prevId)
+		local newWp = self:createNode(newId, x, y, z, {}, {})
+		self:setWayPoint(newWp)
+		--if connectPrevious then
+		--	self:toggleConnectionBetween(prevWp, newWp, false)
+		--	if dual then
+		--		self:toggleConnectionBetween(newWp, prevWp, false)
+		--	end
+		--end
+		if g_server ~= nil then
+			-- On the server we must mark the change
+			AutoDrive.MarkChanged()
+		end
 	end
+end
 
-	--edit current point
-	table.insert(self.wayPoints, self:createNode(#self.wayPoints + 1, x, y, z, {}, {}, {}))
-	self.wayPoints[#self.wayPoints].incoming[1] = #self.wayPoints - 1
-
-	if vehicle.ad.stateModule:isInDualCreationMode() and connectPrevious then
-		local incomingNodes = #self.wayPoints[#self.wayPoints - 1].incoming
-		self.wayPoints[#self.wayPoints - 1].incoming[incomingNodes] = #self.wayPoints
-		--edit current point
-		self.wayPoints[#self.wayPoints].out[1] = #self.wayPoints - 1
+function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, sendEvent)
+	if g_server ~= nil then
+		if sendEvent ~= false then
+			-- Propagating waypoint recording to clients
+			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual)
+		end
+		-- On the server we must mark the change
+		AutoDrive.MarkChanged()
+	else
+		if sendEvent ~= false then
+			g_logManager:devWarning("ADGraphManager:recordWayPoint() must be called only on the server.")
+			return
+		end
 	end
-
-	AutoDriveCourseEditEvent:sendEvent(self.wayPoints[#self.wayPoints])
-	if (self.wayPoints[#self.wayPoints - 1] ~= nil) then
-		AutoDriveCourseEditEvent:sendEvent(self.wayPoints[#self.wayPoints - 1])
+	local prevId = self:getWayPointsCount()
+	local newId = prevId + 1
+	local prevWp = self:getWayPointById(prevId)
+	local newWp = self:createNode(newId, x, y, z, {}, {})
+	self:setWayPoint(newWp)
+	if connectPrevious then
+		self:toggleConnectionBetween(prevWp, newWp, false)
+		if dual then
+			self:toggleConnectionBetween(newWp, prevWp, false)
+		end
 	end
-
-	return self.wayPoints[#self.wayPoints]
+	return newWp
 end
 
 function ADGraphManager:isDualRoad(start, target)
