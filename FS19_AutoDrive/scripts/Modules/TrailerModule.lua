@@ -212,9 +212,9 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
 end
 
 function ADTrailerModule:startUnloadingIntoTrigger(trailer, trigger)
-    if trailer.bunkerSiloArea == nil then
+    if trigger.bunkerSiloArea == nil then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
-        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
+        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT, true)
         self.isUnloading = true
         self.isUnloadingWithTrailer = trailer
         self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
