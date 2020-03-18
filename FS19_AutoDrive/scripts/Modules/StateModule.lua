@@ -33,6 +33,8 @@ function ADStateModule:reset()
 
     self.parkDestination = -1
 
+    self.currentDestination = nil
+
     self.pointToNeighbour = false
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
@@ -111,6 +113,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
+    streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
 end
 
 function ADStateModule:readStream(streamId)
@@ -124,6 +127,7 @@ function ADStateModule:readStream(streamId)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
+    self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
 end
 
 function ADStateModule:writeUpdateStream(streamId)
@@ -137,6 +141,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
+    streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -150,6 +155,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
+    self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
 end
 
 function ADStateModule:update(dt)
@@ -165,8 +171,27 @@ function ADStateModule:update(dt)
         debug.loopCounter = self.loopCounter
         debug.speedLimit = self.speedLimit
         debug.parkDestination = self.parkDestination
+        if self.currentDestination ~= nil then
+            debug.currentDestination = self.currentDestination.name
+        end
         AutoDrive.renderTable(0.4, 0.4, 0.014, debug)
     end
+end
+
+function ADStateModule:getCurrentDestination()
+    return self.currentDestination
+end
+
+function ADStateModule:getCurrentDestinationId()
+    if self.currentDestination ~= nil then
+        return self.currentDestination.markerIndex
+    end
+    return -1
+end
+
+function ADStateModule:setCurrentDestination(marker)
+    self.currentDestination = marker
+    self:raiseDirtyFlag()
 end
 
 function ADStateModule:getMode()

@@ -124,17 +124,9 @@ function ADPullDownList:onDraw(vehicle, uiScale)
             end
             local actualTarget = ""
 
-            local wps, currentWp = vehicle.ad.drivePathModule:getWayPoints()
-            if wps ~= nil then
-                local vehicleDestination = wps[#wps]
-                if vehicleDestination ~= nil then
-                    for _, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
-                        if mapMarker.id == vehicleDestination.id then
-                            actualTarget = mapMarker.name
-                            break
-                        end
-                    end
-                end
+            local destination = vehicle.ad.stateModule:getCurrentDestination()
+            if destination ~= nil then
+                actualTarget = destination.name
             end
 
             if actualTarget == targetToCheck then
