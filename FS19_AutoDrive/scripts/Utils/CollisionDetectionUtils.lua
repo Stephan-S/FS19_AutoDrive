@@ -42,8 +42,8 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
                 if otherWPs ~= nil then
                     for index, wp in pairs(otherWPs) do
                         if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and index > 2 and index < (#otherWPs - 5) then
-                            local widthOfColBox = math.sqrt(math.pow(minTurnRadius, 2) + math.pow(minTurnRadius, 2))
-                            local sideLength = widthOfColBox / 2
+                            local widthOfColBox = minTurnRadius
+                            local sideLength = widthOfColBox / 1.66
 
                             local vectorX = lastWp.x - wp.x
                             local vectorZ = lastWp.z - wp.z

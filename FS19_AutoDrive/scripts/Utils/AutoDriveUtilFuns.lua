@@ -108,6 +108,9 @@ function AutoDrive.combineIsTurning(combine)
     if ((combine:getIsBufferCombine() and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not combine:getIsBufferCombine()))) and (not combineIsTurning) then
         return false
     end
+    if combine.ad.noMovementTimer.elapsedTime > 3000 then
+        return false
+    end
     return true
 end
 
