@@ -48,6 +48,7 @@ end
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
     self.ad = {}
+    self.ad.dirtyFlag = self:getNextDirtyFlag()
     self.ad.smootherDriving = {}
     self.ad.smootherDriving.lastMaxSpeed = 0
     self.ad.groups = {}
@@ -67,8 +68,6 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_LOAD] = LoadMode:new(self)
     self.ad.modes[AutoDrive.MODE_BGA] = BGAMode:new(self)
     self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
-
-    self.ad.dirtyFlag = self:getNextDirtyFlag()
 end
 
 function AutoDrive:onPostLoad(savegame)

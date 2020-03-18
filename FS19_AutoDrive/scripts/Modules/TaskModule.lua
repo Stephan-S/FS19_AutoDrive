@@ -23,6 +23,8 @@ function ADTaskModule:reset()
 
     self.tasks:Clear()
     self.activeTask = nil
+    self:onTaskChange()
+    self.lastTaskInfo = ""
 end
 
 function ADTaskModule:addTask(newTask)
@@ -53,6 +55,7 @@ function ADTaskModule:setCurrentTaskFinished(stoppedFlag)
     end
 
     if self.activeTask ~= nil then
+        self:onTaskChange()
         self.activeTask:setUp()
     end
 end
@@ -62,12 +65,14 @@ function ADTaskModule:abortCurrentTask(abortMessage)
         AutoDrive.printMessage(self.vehicle, abortMessage)
     end
     self.activeTask = nil
+    self:onTaskChange()
 end
 
 function ADTaskModule:abortAllTasks()
     self.activeTask:abort()
     self.tasks:Clear()
     self.activeTask = nil
+    self:onTaskChange()
 end
 
 function ADTaskModule:stopAndRestartAD()
@@ -78,9 +83,14 @@ end
 function ADTaskModule:update(dt)
     if self.activeTask ~= nil and self.activeTask.update ~= nil then
         self.activeTask:update(dt)
+        local taskInfo = self.activeTask:getI18nInfo()
+        if self.lastTaskInfo ~= taskInfo then
+            self:onTaskInfoChange(taskInfo)
+        end
     else
         self.activeTask = self.tasks:Dequeue()
         if self.activeTask ~= nil then
+            self:onTaskChange()
             self.activeTask:setUp()
         end
     end
@@ -88,4 +98,19 @@ end
 
 function ADTaskModule:hasToRefuel()
     return AutoDrive.getSetting("autoRefuel", self.vehicle) and AutoDrive.hasToRefuel(self.vehicle)
+end
+
+function ADTaskModule:onTaskChange()
+    local taskInfo = ""
+    if self.activeTask ~= nil then
+        taskInfo = self.activeTask:getI18nInfo()
+    end
+    if self.lastTaskInfo ~= taskInfo then
+        self:onTaskInfoChange(taskInfo)
+    end
+end
+
+function ADTaskModule:onTaskInfoChange(taskInfo)
+    self.vehicle.ad.stateModule:setCurrentTaskInfo(taskInfo)
+    self.lastTaskInfo = taskInfo
 end

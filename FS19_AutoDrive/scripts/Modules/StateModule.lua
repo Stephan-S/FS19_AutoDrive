@@ -35,6 +35,9 @@ function ADStateModule:reset()
 
     self.currentDestination = nil
 
+    self.currentTaskInfo = ""
+    self.currentLocalizedTaskInfo = ""
+
     self.pointToNeighbour = false
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
@@ -114,6 +117,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
+    streamWriteString(streamId, self.currentTaskInfo)
 end
 
 function ADStateModule:readStream(streamId)
@@ -128,6 +132,8 @@ function ADStateModule:readStream(streamId)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
+    self.currentTaskInfo = streamReadString(streamId)
+    self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
 
 function ADStateModule:writeUpdateStream(streamId)
@@ -142,6 +148,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
+    streamWriteString(streamId, self.currentTaskInfo)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -156,6 +163,8 @@ function ADStateModule:readUpdateStream(streamId)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
+    self.currentTaskInfo = streamReadString(streamId)
+    self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
 
 function ADStateModule:update(dt)
@@ -174,7 +183,25 @@ function ADStateModule:update(dt)
         if self.currentDestination ~= nil then
             debug.currentDestination = self.currentDestination.name
         end
+        debug.currentTaskInfo = self.currentTaskInfo
+        debug.currentLocalizedTaskInfo = self.currentLocalizedTaskInfo
         AutoDrive.renderTable(0.4, 0.4, 0.014, debug)
+    end
+end
+
+function ADStateModule:getCurrentTaskInfo()
+    return self.currentTaskInfo
+end
+
+function ADStateModule:getCurrentLocalizedTaskInfo()
+    return self.currentLocalizedTaskInfo
+end
+
+function ADStateModule:setCurrentTaskInfo(text)
+    if text ~= nil and text ~= self.currentTaskInfo then
+        self.currentTaskInfo = text
+        self.currentLocalizedTaskInfo = AutoDrive.localize(text)
+        self:raiseDirtyFlag()
     end
 end
 

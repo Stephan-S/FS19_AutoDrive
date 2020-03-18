@@ -59,3 +59,11 @@ function DriveToVehicleTask:getInfoText()
         return g_i18n:getText("AD_task_drive_to_vehicle")
     end
 end
+
+function DriveToVehicleTask:getI18nInfo()
+    if self.state == DriveToVehicleTask.STATE_PATHPLANNING then
+        return "$l10n_AD_task_pathfinding;"
+    else
+        return "$l10n_AD_task_drive_to_vehicle;"
+    end
+end

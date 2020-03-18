@@ -24,3 +24,7 @@ end
 function WaitForCallTask:getInfoText()
     return g_i18n:getText("AD_task_wait_for_call")
 end
+
+function WaitForCallTask:getI18nInfo()
+    return "$l10n_AD_task_wait_for_call;"
+end

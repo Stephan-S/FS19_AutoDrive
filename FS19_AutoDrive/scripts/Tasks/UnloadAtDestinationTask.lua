@@ -75,3 +75,11 @@ function UnloadAtDestinationTask:getInfoText()
         return g_i18n:getText("AD_task_drive_to_unload_point")
     end
 end
+
+function UnloadAtDestinationTask:getI18nInfo()
+    if self.state == UnloadAtDestinationTask.STATE_PATHPLANNING then
+        return "$l10n_AD_task_pathfinding;"
+    else
+        return "$l10n_AD_task_drive_to_unload_point;"
+    end
+end
