@@ -137,6 +137,7 @@ function CombineUnloaderMode:setToWaitForCall()
     self.vehicle.ad.taskModule:addTask(WaitForCallTask:new(self.vehicle))
     if self.combine ~= nil and self.combine.ad ~= nil then
         self.combine.ad.currentDriver = nil
+        self.combine = nil
     end
     ADHarvestManager:registerAsUnloader(self.vehicle)
 end

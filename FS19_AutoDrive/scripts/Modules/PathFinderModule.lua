@@ -54,7 +54,7 @@ function PathFinderModule:update()
     self.steps = self.steps + 1
 
     if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
-        if (not self.fallBackMode) or ((self.possiblyBlockedByOtherVehicle or self.destinationId ~= nil) and self.retryCounter < self.PATHFINDER_MAX_RETRIES) then
+        if (not self.isSecondChasingVehicle) and ((not self.fallBackMode) or ((self.possiblyBlockedByOtherVehicle or self.destinationId ~= nil) and self.retryCounter < self.PATHFINDER_MAX_RETRIES)) then
             --g_logManager:devInfo("Going into fallback mode - no fruit free path found in reasonable time");
             if not self.possiblyBlockedByOtherVehicle and self.destinationId == nil then
                 self.fallBackMode = true
@@ -270,13 +270,19 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.startCell.hasFruit = false
     self.startCell.steps = 0
 
-    self.targetCell = self:worldLocationToGridLocation(targetX, targetZ)
-    self:determineBlockedCells(self.targetCell)
-
     table.insert(self.grid, self.startCell)
     self.smoothStep = 0
     self.smoothDone = false
     self.target = {x = targetX, z = targetZ}
+
+    local targetCellZ = (((targetX - self.startX) / self.vectorX.x) * self.vectorX.z - targetZ + self.startZ) / (((self.vectorZ.x / self.vectorX.x) * self.vectorX.z) - self.vectorZ.z)
+    local targetCellX = (targetZ - self.startZ - targetCellZ * self.vectorZ.z) / self.vectorX.z
+
+    targetCellX = AutoDrive.round(targetCellX)
+    targetCellZ = AutoDrive.round(targetCellZ)
+    self.targetCell = {x=targetCellX, z=targetCellZ} --self:worldLocationToGridLocation(targetX, targetZ)
+    self:determineBlockedCells(self.targetCell)
+
 
     self.appendWayPoints = {}
     self.appendWayPoints[1] = targetPoint
@@ -414,8 +420,8 @@ end
 function PathFinderModule:gridLocationToWorldLocation(cell)
     local result = {x = 0, z = 0}
 
-    result.x = self.startX + cell.x * self.vectorX.x + cell.z * self.vectorZ.x
-    result.z = self.startZ + cell.x * self.vectorX.z + cell.z * self.vectorZ.z
+    result.x = self.target.x + (cell.x - self.targetCell.x) * self.vectorX.x + (cell.z - self.targetCell.z) * self.vectorZ.x
+    result.z = self.target.z + (cell.x - self.targetCell.x) * self.vectorX.z + (cell.z - self.targetCell.z) * self.vectorZ.z
 
     return result
 end
