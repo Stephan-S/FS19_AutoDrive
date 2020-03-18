@@ -38,8 +38,8 @@ function ADStateModule:reset()
     self.neighbourPoints = {}
 
     self.driverName = g_i18n:getText("UNKNOWN")
-    if self.getName ~= nil then
-        self.driverName = self:getName()
+    if self.vehicle.getName ~= nil then
+        self.driverName = self.vehicle:getName()
     end
 end
 
