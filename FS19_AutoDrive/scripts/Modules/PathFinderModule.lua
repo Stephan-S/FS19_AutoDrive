@@ -73,6 +73,7 @@ function PathFinderModule:update()
                         self:startPathPlanningTo(targetNode, vecToNextPoint)
                         self.retryCounter = storedRetryCounter
                         self.destinationId = storedDestinationId
+                        self.fallBackMode = true
                     end
                 end
             end
