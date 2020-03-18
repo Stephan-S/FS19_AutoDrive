@@ -117,6 +117,14 @@ function EmptyHarvesterTask:finished()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
 
+function EmptyHarvesterTask:getExcludedVehiclesForCollisionCheck()
+    local excludedVehicles = {}
+    if self.state == EmptyHarvesterTask.STATE_DRIVING then
+        table.insert(excludedVehicles, self.combine)
+    end
+    return excludedVehicles
+end
+
 function EmptyHarvesterTask:getInfoText()
     if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
         return g_i18n:getText("AD_task_pathfinding")
