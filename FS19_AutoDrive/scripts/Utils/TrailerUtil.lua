@@ -439,11 +439,11 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
 
                     local fillLevels = {}
                     if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
-                        fillLevels, _ = trigger.source:getAllFillLevels(g_currentMission:getFarmId())
+                        fillLevels, _ = trigger.source:getAllFillLevels(vehicle:getOwnerFarmId())
                     end
                     local gcFillLevels = {}
                     if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
-                        gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(g_currentMission:getFarmId(), trigger.managerId)
+                        gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(vehicle:getOwnerFarmId(), trigger.managerId)
                     end
                     if #fillLevels == 0 and #gcFillLevels == 0 and trigger.source ~= nil and trigger.source.gcId ~= nil and trigger.source.fillLevels ~= nil then
                         --g_logManager:devInfo("Adding gm fill levels now")
