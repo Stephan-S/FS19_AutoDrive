@@ -26,12 +26,14 @@ function ADDrivePathModule:reset()
     self.minDistanceTimer:timer(false, 5000, 0)
 end
 
-function ADDrivePathModule:setPathTo(waypointID)
-    self.wayPoints = ADGraphManager:getPathTo(self.vehicle, waypointID)
+function ADDrivePathModule:setPathTo(waypointId)
+    self.wayPoints = ADGraphManager:getPathTo(self.vehicle, waypointId)
+    local destination = ADGraphManager:getMapMarkerByWayPointId(self:getLastWayPointId())
+    self.vehicle.ad.stateModule:setCurrentDestination(destination)
     self:setDirtyFlag()
     self.minDistanceToNextWp = math.huge
 
-    if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= waypointID))) then
+    if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= waypointId))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.stateModule:getName(), self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
@@ -68,6 +70,8 @@ end
 
 function ADDrivePathModule:setWayPoints(wayPoints)
     self.wayPoints = wayPoints
+    local destination = ADGraphManager:getMapMarkerByWayPointId(self:getLastWayPointId())
+    self.vehicle.ad.stateModule:setCurrentDestination(destination)
     self.minDistanceToNextWp = math.huge
     self.atTarget = false
     if self.wayPoints[2] ~= nil then
@@ -121,7 +125,7 @@ function ADDrivePathModule:isCloseToWaypoint()
                 if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
                     return true
                 end
-            end     
+            end
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
             if i == 1 then
                 local wp_ahead = self.wayPoints[self.currentWayPoint + 1]
@@ -220,6 +224,21 @@ function ADDrivePathModule:getWayPoints()
     return self.wayPoints, self.currentWayPoint
 end
 
+function ADDrivePathModule:getLastWayPoint()
+    if self.wayPoints ~= nil then
+        return self.wayPoints[#self.wayPoints]
+    end
+    return nil
+end
+
+function ADDrivePathModule:getLastWayPointId()
+    local lastWp = self:getLastWayPoint()
+    if lastWp ~= nil then
+        return lastWp.id
+    end
+    return -1
+end
+
 function ADDrivePathModule:getCurrentLookAheadDistance()
     local totalMass = self.vehicle:getTotalMass(false)
     local massFactor = math.max(1, math.min(3, (totalMass + 20) / 30))
@@ -286,7 +305,7 @@ end
 
 function ADDrivePathModule:getSpeedLimitBySteeringAngle()
     local steeringAngle = math.deg(math.abs(self.vehicle.rotatedTime))
-    
+
     local maxSpeed = math.huge
 
     local maxAngle = 60
