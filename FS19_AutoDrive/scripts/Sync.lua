@@ -102,12 +102,12 @@ function AutoDriveSync:writeStream(streamId)
     local time = netGetTime()
 
     -- writing the amount of bits we are going to use as "MWPC_SEND_NUM_BITS"
-    AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(ADGraphManager:getWayPointCount() + 1, 2))
+    AutoDriveSync.MWPC_SEND_NUM_BITS = math.ceil(math.log(ADGraphManager:getWayPointsCount() + 1, 2))
     streamWriteUIntN(streamId, AutoDriveSync.MWPC_SEND_NUM_BITS, AutoDriveSync.MWPC_SNB_SEND_NUM_BITS)
 
     -- writing the amount of waypoints we are going to send
-    streamWriteUIntN(streamId, ADGraphManager:getWayPointCount(), AutoDriveSync.MWPC_SEND_NUM_BITS)
-    g_logManager:info(string.format("[AutoDriveSync] Writing %s waypoints", ADGraphManager:getWayPointCount()))
+    streamWriteUIntN(streamId, ADGraphManager:getWayPointsCount(), AutoDriveSync.MWPC_SEND_NUM_BITS)
+    g_logManager:info(string.format("[AutoDriveSync] Writing %s waypoints", ADGraphManager:getWayPointsCount()))
 
     -- writing waypoints
     for i, wp in pairs(ADGraphManager:getWayPoints()) do

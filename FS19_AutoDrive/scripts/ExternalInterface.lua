@@ -94,7 +94,7 @@ end
 function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
     AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetClosestPointToLocation(%s, %s, %s)", x, z, minDistance)
     local closest = -1
-    if ADGraphManager:getWayPointCount() < 1 then
+    if ADGraphManager:getWayPointsCount() < 1 then
         local distance = math.huge
 
         for i in pairs(ADGraphManager:getWayPoints()) do
