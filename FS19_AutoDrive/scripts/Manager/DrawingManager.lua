@@ -65,25 +65,25 @@ end
 
 function ADDrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
     -- storing task
-    local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, r, g, b)
+    local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.1f", sx, sy, sz, ex, ey, ez, r, g, b, self.yOffset)
     table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, hash = hash})
 end
 
 function ADDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
     -- storing task
-    local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f", sx, sy, sz, ex, ey, ez, position, r, g, b)
+    local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f%.1f", sx, sy, sz, ex, ey, ez, position, r, g, b, self.yOffset)
     table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position, hash = hash})
 end
 
 function ADDrawingManager:addSmallSphereTask(x, y, z, r, g, b)
     -- storing task
-    local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f", x, y, z, r, g, b)
+    local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f%.1f", x, y, z, r, g, b, self.yOffset)
     table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, hash = hash})
 end
 
 function ADDrawingManager:addMarkerTask(x, y, z)
     -- storing task
-    local hash = string.format("m%.2f%.2f%.2f", x, y, z)
+    local hash = string.format("m%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
     table.insert(self.markers.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
@@ -91,7 +91,7 @@ function ADDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     scale = scale or 1
     a = a or 0
     -- storing task
-    local hash = string.format("s%.2f%.2f%.2f%.3f%.2f%.2f%.2f%.2f", x, y, z, scale, r, g, b, a)
+    local hash = string.format("s%.2f%.2f%.2f%.3f%.2f%.2f%.2f%.2f%.1f", x, y, z, scale, r, g, b, a, self.yOffset)
     table.insert(self.sphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, a = a, scale = scale, hash = hash})
 end
 
