@@ -48,21 +48,20 @@ function ADHarvestManager:update()
                 if  ADHarvestManager.doesHarvesterNeedUnloading(harvester) or (not AutoDrive.combineIsTurning(harvester) and ADHarvestManager.isHarvesterActive(harvester)) then
                     self:assignUnloaderToHarvester(harvester)
                 end
-            --[[
             else
                 local unloader = self:getAssignedUnloader(harvester)
-                if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then                
+                if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then         
                     local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
                     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                     local maxCapacity = fillLevel + leftCapacity
-                    if leftCapacity < (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
+                    if fillLevel >= (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
                         local closestUnloader = self:getClosestIdleUnloader(harvester)
                         if closestUnloader ~= nil then
                             closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:driveToUnloader(unloader)
                         end
                     end
                 end
-                --]]
+                
             end
         end
     end

@@ -226,6 +226,7 @@ function PathFinderModule:startPathPlanningToVehicle(targetVehicle, targetDistan
 
     self.goingToPipe = false
     self.chasingVehicle = true
+    self.isSecondChasingVehicle = false
 end
 
 function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
@@ -358,7 +359,7 @@ function PathFinderModule:checkGridCell(cell)
 
         local corner4X = worldPos.x + (self.vectorX.x + self.vectorZ.x) / 2
         local corner4Z = worldPos.z + (self.vectorX.z + self.vectorZ.z) / 2
-
+        
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
 
         local angleRad = math.atan2(self.targetVector.z, self.targetVector.x)
@@ -372,7 +373,19 @@ function PathFinderModule:checkGridCell(cell)
         cell.hasCollision = cell.hasCollision or AutoDrive.checkSlopeAngle(worldPos.x, worldPos.z, worldPosPrevious.x, worldPosPrevious.z)
 
         if (self.ignoreFruit == nil or self.ignoreFruit == false) and AutoDrive.getSetting("avoidFruit", self.vehicle) then
-            self:checkForFruitInArea(cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+            if self.isSecondChasingVehicle then
+                local cornerWideX = worldPos.x + (-self.vectorX.x - self.vectorZ.x) * 1
+                local cornerWideZ = worldPos.z + (-self.vectorX.z - self.vectorZ.z) * 1
+        
+                local cornerWide2X = worldPos.x + (self.vectorX.x - self.vectorZ.x) * 1
+                local cornerWide2Z = worldPos.z + (self.vectorX.z - self.vectorZ.z) * 1
+        
+                local cornerWide3X = worldPos.x + (-self.vectorX.x + self.vectorZ.x) * 1
+                local cornerWide3Z = worldPos.z + (-self.vectorX.z + self.vectorZ.z) * 1
+                self:checkForFruitInArea(cell, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide3X, cornerWide3Z)
+            else
+                self:checkForFruitInArea(cell, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
+            end
         else
             cell.isRestricted = false
             cell.hasFruit = not AutoDrive.getSetting("avoidFruit", self.vehicle) --make sure that on fallback mode or when fruit avoidance is off, we don't park in the fruit next to the combine!
