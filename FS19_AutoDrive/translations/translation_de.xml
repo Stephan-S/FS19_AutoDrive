@@ -55,8 +55,6 @@
 		<text name="AD_lalt_for_deletion" 						text="LALT zum Löschen" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Einstellungen" />
 		<text name="gui_ad_pipe_offset"							text="Abstand Rohr" />
-		<text name="gui_ad_trailerOffset"						text="Abstand Hänger" />
-		<text name="gui_ad_trailerOffset_tooltip"				text="Abstand Hänger - Längsachse" />
 		<text name="gui_ad_followDistance"						text="Abstand Häcksler" />
 		<text name="gui_ad_followDistance_tooltip"				text="Abstand vom Häcksler, wenn von hinten abgefahren/gefolgt wird" />
 		<text name="gui_ad_lookahead_turning"					text="Distanz Vorausschauen (Lenkung)" />
@@ -144,6 +142,8 @@
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Ziele als Ziel/Abladepunkt übernehmen, wenn auf Karte geclicked" />
 		<text name="gui_ad_cornerSpeed"							text="Kurvengeschwindigkeit" />
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Passe die Kurvengeschwindikeit pro Fahrzeug an. Masse und Geschwindikeit beeinflussen weiterhin den Bremspunkt" />
+		<text name="gui_ad_callSecondUnloader"					text="Rufe 2. Ablader" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Rufe 2. Ablader wenn der aktuelle Abfahrer das eingestellte Füll Level erreicht hat" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />

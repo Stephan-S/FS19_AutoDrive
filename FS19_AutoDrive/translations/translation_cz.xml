@@ -55,8 +55,6 @@
 		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
 		<text name="gui_ad_pipe_offset"							text="Odstup od kombajnu" />
-		<text name="gui_ad_trailerOffset"						text="Posun ke kombajnu vpřed/vzad" />
-		<text name="gui_ad_trailerOffset_tooltip"				text="Posun vpřed/vzad vzhledem ke kombajnu, pokud kombajn nemůže vysypat odvozci" />
 		<text name="gui_ad_followDistance"						text="Distance combine" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Kontola vpřed" />
@@ -144,6 +142,8 @@
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
 		<text name="gui_ad_cornerSpeed"							text="Corner speed" />
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Adjust corner speed for individual vehicle. Mass and current speed will still impact brake point" />
+		<text name="gui_ad_callSecondUnloader"					text="Call 2. Unloader" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Call 2. Unloader when the current unloader reaches the precall fill level" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

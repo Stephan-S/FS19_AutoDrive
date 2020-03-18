@@ -121,14 +121,14 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
 
             if unloadDestinationID >= 0 and ADGraphManager:getMapMarkerById(unloadDestinationID) ~= nil then
                 vehicle.ad.stateModule:setSecondMarker(unloadDestinationID)
-                AutoDrive.startAD(vehicle)
+                vehicle.ad.stateModule:getCurrentMode():start()
             elseif unloadDestinationID == -3 then --park
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
                 vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
-                AutoDrive.startAD(vehicle)
+                vehicle.ad.stateModule:getCurrentMode():start()
                 vehicle.ad.onRouteToPark = true
             else --unloadDestinationID == -2 refuel
-                AutoDrive.startAD(vehicle)
+                vehicle.ad.stateModule:getCurrentMode():start()
             end
         end
     end

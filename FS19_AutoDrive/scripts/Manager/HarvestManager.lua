@@ -41,7 +41,7 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
     end
 end
 
-function ADHarvestManager:update()
+function ADHarvestManager:update(dt)
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil then
             if not self:alreadyAssignedUnloader(harvester) then
@@ -49,19 +49,41 @@ function ADHarvestManager:update()
                     self:assignUnloaderToHarvester(harvester)
                 end
             else
-                local unloader = self:getAssignedUnloader(harvester)
-                if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then         
-                    local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
-                    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-                    local maxCapacity = fillLevel + leftCapacity
-                    if fillLevel >= (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
-                        local closestUnloader = self:getClosestIdleUnloader(harvester)
-                        if closestUnloader ~= nil then
-                            closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:driveToUnloader(unloader)
+                if AutoDrive.getSetting("callSecondUnloader", harvester) then
+                    local unloader = self:getAssignedUnloader(harvester)
+                    if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then         
+                        local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
+                        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                        local maxCapacity = fillLevel + leftCapacity
+                        if fillLevel >= (maxCapacity * AutoDrive.getSetting("preCallLevel", harvester)) then
+                            local closestUnloader = self:getClosestIdleUnloader(harvester)
+                            if closestUnloader ~= nil then
+                                closestUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:driveToUnloader(unloader)
+                            end
                         end
                     end
                 end
-                
+            end
+
+            if (harvester.ad ~= nil and harvester.ad.noMovementTimer ~= nil and harvester.lastSpeedReal ~= nil) then
+                harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0010), 3000, dt)
+    
+                local vehicleSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 10)
+                if (not vehicleSteering) and ((harvester.lastSpeedReal * harvester.movingDirection) >= 0.0008) then
+                    harvester.ad.driveForwardTimer:timer(true, 20000, dt)
+                else
+                    harvester.ad.driveForwardTimer:timer(false)
+                end
+            end
+    
+            if (harvester.ad ~= nil and harvester.ad.noTurningTimer ~= nil) then
+                local cpIsTurning = harvester.cp ~= nil and (harvester.cp.isTurning or (harvester.cp.turnStage ~= nil and harvester.cp.turnStage > 0))
+                local cpIsTurningTwo = harvester.cp ~= nil and harvester.cp.driver and (harvester.cp.driver.turnIsDriving or (harvester.cp.driver.fieldworkState ~= nil and harvester.cp.driver.fieldworkState == harvester.cp.driver.states.TURNING))
+                local aiIsTurning = (harvester.getAIIsTurning ~= nil and harvester:getAIIsTurning() == true)
+                local combineSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 20)
+                local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
+                harvester.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
+                harvester.ad.turningTimer:timer(combineIsTurning, 4000, dt)
             end
         end
     end

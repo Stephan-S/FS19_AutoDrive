@@ -275,7 +275,6 @@ function CombineUnloaderMode:getPipeChasePosition()
                 end
 
                 local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
-                local trailerOffset = AutoDrive.getSetting("trailerOffset", self.vehicle)
 
                 local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
                 local currentTrailer = 1
@@ -293,7 +292,7 @@ function CombineUnloaderMode:getPipeChasePosition()
                 local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
                 local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
 
-                local totalDiff = -diffZ + trailerOffset + 2
+                local totalDiff = -diffZ + 2
 
                 local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z

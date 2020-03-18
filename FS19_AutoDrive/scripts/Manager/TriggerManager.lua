@@ -10,6 +10,15 @@ function ADTriggerManager.load()
     ADTriggerManager.loadAllTriggers()
 end
 
+function ADTriggerManager:update(dt)
+    for _, trigger in pairs(self:getLoadTriggers()) do
+        if trigger.stoppedTimer == nil then
+            trigger.stoppedTimer = AutoDriveTON:new()
+        end
+        trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
+    end
+end
+
 function ADTriggerManager.checkForTriggerProximity(vehicle)
     local shouldLoad = vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger(vehicle)
     local shouldUnload = vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger(vehicle)

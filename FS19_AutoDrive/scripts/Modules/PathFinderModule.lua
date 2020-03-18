@@ -226,7 +226,7 @@ function PathFinderModule:startPathPlanningToVehicle(targetVehicle, targetDistan
 
     self.goingToPipe = false
     self.chasingVehicle = true
-    self.isSecondChasingVehicle = false
+    self.isSecondChasingVehicle = true
 end
 
 function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
@@ -969,9 +969,32 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 end
 
                 if self.fruitToCheck ~= nil then
-                    local fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, nil, false)
-                    if self.fruitToCheck == 9 or self.fruitToCheck == 22 then
-                        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
+                    local fruitValue = 0
+                    if self.isSecondChasingVehicle then
+                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 2
+                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 2
+        
+                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 2
+                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 2
+               
+                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 2
+                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 2
+
+                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 then
+                            local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, true, true)
+                            fruitValue = fruitValueResult
+                        else
+                            local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, nil, false)
+                            fruitValue = fruitValueResult
+                        end
+                    else                        
+                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 then
+                            local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
+                            fruitValue = fruitValueResult
+                        else
+                            local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, nil, false)
+                            fruitValue = fruitValueResult
+                        end
                     end
 
                     hasCollision = hasCollision or (fruitValue > 50)

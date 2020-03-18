@@ -72,14 +72,14 @@ AutoDrive.DC_ALL = 65535
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
-	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveDijkstraLive.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/XML.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Settings.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/ExternalInterface.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/VirtualSensors.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/CollSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/FruitSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/FieldSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/DijkstraLive.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if g_server ~= nil then
@@ -256,42 +256,9 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	AutoDrive.handlePerFrameOperations(dt)
-
-	ADHarvestManager:update()
+	ADHarvestManager:update(dt)
 	ADMessagesManager:update(dt)
-end
-
-function AutoDrive.handlePerFrameOperations(dt)
-	for _, vehicle in pairs(g_currentMission.vehicles) do
-		if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
-			vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt)
-
-			local vehicleSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 10)
-			if (not vehicleSteering) and ((vehicle.lastSpeedReal * vehicle.movingDirection) >= 0.0008) then
-				vehicle.ad.driveForwardTimer:timer(true, 20000, dt)
-			else
-				vehicle.ad.driveForwardTimer:timer(false)
-			end
-		end
-
-		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
-			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
-			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or (vehicle.cp.driver.fieldworkState ~= nil and vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING))
-			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
-			local combineSteering = vehicle.rotatedTime ~= nil and (math.deg(vehicle.rotatedTime) > 20)
-			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
-			vehicle.ad.turningTimer:timer(combineIsTurning, 4000, dt)
-		end
-	end
-
-	for _, trigger in pairs(ADTriggerManager:getLoadTriggers()) do
-		if trigger.stoppedTimer == nil then
-			trigger.stoppedTimer = AutoDriveTON:new()
-		end
-		trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
-	end
+	ADTriggerManager:update(dt)
 end
 
 function AutoDrive:draw()
@@ -324,7 +291,6 @@ function AutoDrive.startAD(vehicle)
 		vehicle.steeringEnabled = false
 	end
 
-	--vehicle.spec_aiVehicle.aiTrafficCollision = nil;
 	--Code snippet from function AIVehicle:startAIVehicle(helperIndex, noEventSend, startedFarmId):
 	if vehicle.getAINeedsTrafficCollisionBox ~= nil then
 		if vehicle:getAINeedsTrafficCollisionBox() then
@@ -342,7 +308,6 @@ function AutoDrive.startAD(vehicle)
 
 	AutoDriveHud:createMapHotspot(vehicle)
 	if vehicle.isServer then
-		--g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("workersHired", 1)
 		g_currentMission:farmStats(vehicle:getOwnerFarmId()):updateStats("driversHired", 1)
 	end
 end
@@ -404,8 +369,6 @@ function AutoDrive.disableAutoDriveFunctions(vehicle)
 
 		if vehicle.ad.onRouteToPark == true then
 			vehicle.ad.onRouteToPark = false
-			-- We don't need that, since the motor is turned off automatically when the helper is kicked out
-			--vehicle:stopMotor()
 			if vehicle.spec_lights ~= nil then
 				vehicle:deactivateLights()
 			end

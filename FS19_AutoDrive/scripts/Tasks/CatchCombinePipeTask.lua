@@ -16,7 +16,13 @@ end
 
 function CatchCombinePipeTask:setUp()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:setUp()")
-    self:startNewPathFinding()
+    local angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
+
+    if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60 then
+        self:finished()
+    else
+        self:startNewPathFinding()
+    end
 end
 
 function CatchCombinePipeTask:update(dt)

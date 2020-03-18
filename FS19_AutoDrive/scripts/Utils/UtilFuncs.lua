@@ -691,4 +691,110 @@ function AutoDrive:onFillTypeSelection(superFunc, fillType)
 	end
 end
 
+AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
+    if self.getMotorStartTime ~= nil then
+        allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
+    end
+
+    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
+        if self.ad.stateModule:isActive() and allowedToDrive then
+            --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
+
+            local accFactor = 2 / 1000 -- km h / s converted to km h / ms
+            accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 2000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
+            if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
+                self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)
+            else
+                self.ad.smootherDriving.lastMaxSpeed = math.max(self.ad.smootherDriving.lastMaxSpeed - accFactor * dt, maxSpeed)
+            end
+
+            if maxSpeed < 1 then
+                -- Hard braking, is needed to prevent combine's pipe overstep and crash
+                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
+            end
+            --AutoDrive.renderTable(0.1, 0.9, 0.012, {maxSpeed = maxSpeed, lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed})
+            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
+        else
+            self.ad.smootherDriving.lastMaxSpeed = 0
+        end
+    end
+
+    local angle = 0
+    if lx ~= nil and lz ~= nil then
+        local dot = lz
+        angle = math.deg(math.acos(dot))
+        if angle < 0 then
+            angle = angle + 180
+        end
+        local turnLeft = lx > 0.00001
+        if not moveForwards then
+            turnLeft = not turnLeft
+        end
+        local targetRotTime = 0
+        if turnLeft then
+            --rotate to the left
+            targetRotTime = self.maxRotTime * math.min(angle / steeringAngleLimit, 1)
+        else
+            --rotate to the right
+            targetRotTime = self.minRotTime * math.min(angle / steeringAngleLimit, 1)
+        end
+        if targetRotTime > self.rotatedTime then
+            self.rotatedTime = math.min(self.rotatedTime + dt * self:getAISteeringSpeed(), targetRotTime)
+        else
+            self.rotatedTime = math.max(self.rotatedTime - dt * self:getAISteeringSpeed(), targetRotTime)
+        end
+    end
+    if self.firstTimeRun then
+        local acc = acceleration
+        if maxSpeed ~= nil and maxSpeed ~= 0 then
+            if math.abs(angle) >= slowAngleLimit then
+                maxSpeed = maxSpeed * slowDownFactor
+            end
+            self.spec_motorized.motor:setSpeedLimit(maxSpeed)
+            if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
+                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE)
+            end
+        else
+            if math.abs(angle) >= slowAngleLimit then
+                acc = slowAcceleration
+            end
+        end
+        if not allowedToDrive then
+            acc = 0
+        end
+        if not moveForwards then
+            acc = -acc
+        end
+        --FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
+        WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
+    end
+end
+
+function AIVehicle:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    local spec = self.spec_aiVehicle
+
+    if self.isClient then
+        local actionEvent = spec.actionEvents[InputAction.TOGGLE_AI]
+        if actionEvent ~= nil then
+            local showAction = false
+
+            if self:getIsActiveForInput(true, true) then
+                -- If ai is active we always display the dismiss helper action
+                -- But only if the AutoDrive is not active :)
+                showAction = self:getCanStartAIVehicle() or (self:getIsAIActive() and (self.ad == nil or not self.ad.stateModule:isActive()))
+
+                if showAction then
+                    if self:getIsAIActive() then
+                        g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_dismissEmployee"))
+                    else
+                        g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_hireEmployee"))
+                    end
+                end
+            end
+
+            g_inputBinding:setActionEventActive(actionEvent.actionEventId, showAction)
+        end
+    end
+end
+
 -- TODO: Maybe we should add a console command that allows to run console commands to server

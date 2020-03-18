@@ -9,9 +9,9 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/AutoDriveSync.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/AutoDriveSpecialization.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/AutoDriveHud.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Sync.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Specialization.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
@@ -46,7 +46,7 @@ source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuns.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Utils/AutoDriveEventUtil.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/EventUtil.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))

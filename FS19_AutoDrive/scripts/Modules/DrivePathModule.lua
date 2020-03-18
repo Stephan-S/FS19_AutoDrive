@@ -118,7 +118,19 @@ function ADDrivePathModule:isCloseToWaypoint()
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
             if i > 0 then
                 local distanceToLastWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z)
-                if distanceToCurrentWp < distanceToLastWp then
+                if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
+                    return true
+                end
+            end     
+            -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
+            if i == 1 then
+                local wp_ahead = self.wayPoints[self.currentWayPoint + 1]
+                local wp_current = self.wayPoints[self.currentWayPoint]
+
+                local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - x, z = wp_current.z - z})
+                angle = math.abs(angle)
+
+                if angle >= 90 then
                     return true
                 end
             end

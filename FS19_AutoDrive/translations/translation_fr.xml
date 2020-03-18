@@ -55,10 +55,8 @@
 		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"							text="Décalage du tuyau (pipe)" />
-		<text name="gui_ad_trailerOffset"						text="Décalage vertical (remorque)" />
 		<text name="gui_ad_followDistance"						text="Distance de moissonneuse" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance de la moissonneuse depuis son extrémité arrière, lorsqu'elle est suivie." />
-		<text name="gui_ad_trailerOffset_tooltip"				text="Avancer/reculer (remorque), par rapport à la moissonneuse lorsque celle-ci est décentrée." />
 		<text name="gui_ad_lookahead_turning"					text="Distance devant vous (virage)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant." />
 		<text name="gui_ad_useFastestRoute"						text="Préférer les routes rapide" />
@@ -142,6 +140,8 @@
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
 		<text name="gui_ad_cornerSpeed"							text="Corner speed" />
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Adjust corner speed for individual vehicle. Mass and current speed will still impact brake point" />
+		<text name="gui_ad_callSecondUnloader"					text="Call 2. Unloader" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Call 2. Unloader when the current unloader reaches the precall fill level" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
