@@ -140,3 +140,19 @@ function EmptyHarvesterTask:getInfoText()
         return g_i18n:getText("AD_task_unloading_combine")
     end
 end
+
+function EmptyHarvesterTask:getI18nInfo()
+    if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
+        return "$l10n_AD_task_pathfinding;"
+    elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
+        return "$l10n_AD_task_drive_to_combine_pipe;"
+    elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
+        return "$l10n_AD_task_unloading_combine;"
+    elseif self.state == EmptyHarvesterTask.STATE_REVERSING then
+        return "$l10n_AD_task_reversing_from_combine;"
+    elseif self.state == EmptyHarvesterTask.STATE_WAITING then
+        return "$l10n_AD_task_waiting_for_room;"
+    else
+        return "$l10n_AD_task_unloading_combine;"
+    end
+end

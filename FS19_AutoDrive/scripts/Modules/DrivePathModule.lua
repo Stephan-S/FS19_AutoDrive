@@ -24,6 +24,8 @@ function ADDrivePathModule:reset()
     self.onRoadNetwork = true
     self.minDistanceToNextWp = math.huge
     self.minDistanceTimer:timer(false, 5000, 0)
+    self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
+    self.vehicle.ad.stateModule:setNextWayPointId(-1)
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -40,9 +42,9 @@ function ADDrivePathModule:setPathTo(waypointId)
     else
         --skip first wp for a smoother start
         if self.wayPoints[2] ~= nil then
-            self.currentWayPoint = 2
+            self:setCurrentWayPointIndex(2)
         else
-            self.currentWayPoint = 1
+            self:setCurrentWayPointIndex(1)
         end
 
         if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
@@ -75,9 +77,9 @@ function ADDrivePathModule:setWayPoints(wayPoints)
     self.minDistanceToNextWp = math.huge
     self.atTarget = false
     if self.wayPoints[2] ~= nil then
-        self.currentWayPoint = 2
+        self:setCurrentWayPointIndex(2)
     else
-        self.currentWayPoint = 1
+        self:setCurrentWayPointIndex(1)
     end
 end
 
@@ -98,7 +100,7 @@ function ADDrivePathModule:resetDirtyFlag()
 end
 
 function ADDrivePathModule:update(dt)
-    if self.wayPoints ~= nil and self.currentWayPoint <= #self.wayPoints then
+    if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
         if self:isCloseToWaypoint() then
             self:handleReachedWayPoint()
@@ -114,22 +116,22 @@ function ADDrivePathModule:isCloseToWaypoint()
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
     local maxSkipWayPoints = 2
     for i = 0, maxSkipWayPoints do
-        if self.wayPoints[self.currentWayPoint + i] ~= nil then
-            local distanceToCurrentWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i].x, self.wayPoints[self.currentWayPoint + i].z)
+        if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
+            local distanceToCurrentWp = AutoDrive.getDistance(x, z, self.wayPoints[self:getCurrentWayPointIndex() + i].x, self.wayPoints[self:getCurrentWayPointIndex() + i].z)
             if distanceToCurrentWp < self.min_distance then
                 return true
             end
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
             if i > 0 then
-                local distanceToLastWp = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint + i - 1].x, self.wayPoints[self.currentWayPoint + i - 1].z)
+                local distanceToLastWp = AutoDrive.getDistance(x, z, self.wayPoints[self:getCurrentWayPointIndex() + i - 1].x, self.wayPoints[self:getCurrentWayPointIndex() + i - 1].z)
                 if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
                     return true
                 end
             end
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
             if i == 1 then
-                local wp_ahead = self.wayPoints[self.currentWayPoint + 1]
-                local wp_current = self.wayPoints[self.currentWayPoint]
+                local wp_ahead = self:getNextWayPoint()
+                local wp_current = self:getCurrentWayPoint()
 
                 local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - x, z = wp_current.z - z})
                 angle = math.abs(angle)
@@ -149,7 +151,7 @@ function ADDrivePathModule:followWaypoints(dt)
     self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
     self.acceleration = 1
     self.distanceToLookAhead = 8
-    if self.wayPoints[self.currentWayPoint - 1] ~= nil and self.wayPoints[self.currentWayPoint + 1] ~= nil then
+    if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
         local highestAngle = self:getHighestApproachingAngle()
         self.speedLimit = self:getMaxSpeedForAngle(highestAngle)
     end
@@ -200,7 +202,7 @@ function ADDrivePathModule:followWaypoints(dt)
 end
 
 function ADDrivePathModule:handleReachedWayPoint()
-    if self:getNextWaypoint() ~= nil then
+    if self:getNextWayPoint() ~= nil then
         self:switchToNextWayPoint()
     else
         self:reachedTarget()
@@ -221,7 +223,7 @@ function ADDrivePathModule:isOnRoadNetwork()
 end
 
 function ADDrivePathModule:getWayPoints()
-    return self.wayPoints, self.currentWayPoint
+    return self.wayPoints, self:getCurrentWayPointIndex()
 end
 
 function ADDrivePathModule:getLastWayPoint()
@@ -257,15 +259,15 @@ function ADDrivePathModule:getHighestApproachingAngle()
     local doneCheckingRoute = false
     local currentLookAheadPoint = 1
     while not doneCheckingRoute and currentLookAheadPoint <= pointsToLookAhead do
-        if self.wayPoints[self.currentWayPoint + currentLookAheadPoint] ~= nil then
-            local wp_ahead = self.wayPoints[self.currentWayPoint + currentLookAheadPoint]
-            local wp_current = self.wayPoints[self.currentWayPoint + currentLookAheadPoint - 1]
-            local wp_ref = self.wayPoints[self.currentWayPoint + currentLookAheadPoint - 2]
+        if self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint] ~= nil then
+            local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint]
+            local wp_current = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 1]
+            local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 2]
 
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             angle = math.abs(angle)
 
-            if AutoDrive.getDistance(self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z, wp_ahead.x, wp_ahead.z) <= self.distanceToLookAhead then
+            if AutoDrive.getDistance(self:getCurrentWayPoint().x, self:getCurrentWayPoint().z, wp_ahead.x, wp_ahead.z) <= self.distanceToLookAhead then
                 if angle < 100 then
                     highestAngle = math.max(highestAngle, angle)
                 end
@@ -329,11 +331,11 @@ function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
     if maxLookAhead == nil then
         maxLookAhead = 10
     end
-    if self.wayPoints ~= nil and self.currentWayPoint ~= nil and self.wayPoints[self.currentWayPoint] ~= nil then
+    if self.wayPoints ~= nil and self:getCurrentWayPointIndex() ~= nil and self:getCurrentWayPoint() ~= nil then
         local lookAhead = 1
-        while self.wayPoints[self.currentWayPoint + lookAhead] ~= nil and lookAhead < maxLookAhead do
-            local p1 = self.wayPoints[self.currentWayPoint + lookAhead]
-            local p2 = self.wayPoints[self.currentWayPoint + lookAhead - 1]
+        while self.wayPoints[self:getCurrentWayPointIndex() + lookAhead] ~= nil and lookAhead < maxLookAhead do
+            local p1 = self.wayPoints[self:getCurrentWayPointIndex() + lookAhead]
+            local p2 = self.wayPoints[self:getCurrentWayPointIndex() + lookAhead - 1]
             local pointDistance = MathUtil.vector2Length(p2.x - p1.x, p2.z - p1.z)
             if pointDistance ~= nil then
                 distance = distance + pointDistance
@@ -345,12 +347,51 @@ function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
     return distance
 end
 
-function ADDrivePathModule:getNextWaypoint()
-    return self.wayPoints[self.currentWayPoint + 1]
+function ADDrivePathModule:getNextWayPoint()
+    return self.wayPoints[self:getNextWayPointIndex()]
+end
+
+function ADDrivePathModule:getNextWayPointId()
+    local nWp = self:getNextWayPoint()
+    if nWp ~= nil then
+        return nWp.id
+    end
+    return -1
+end
+
+function ADDrivePathModule:getNextWayPoints()
+    local cId = self:getCurrentWayPointIndex()
+    return self.wayPoints[cId + 1], self.wayPoints[cId + 2], self.wayPoints[cId + 3], self.wayPoints[cId + 4], self.wayPoints[cId + 5]
+end
+
+function ADDrivePathModule:setCurrentWayPointIndex(waypointId)
+    self.currentWayPoint = waypointId
+    self.vehicle.ad.stateModule:setCurrentWayPointId(self:getCurrentWayPointId())
+    self.vehicle.ad.stateModule:setNextWayPointId(self:getNextWayPointId())
+end
+
+function ADDrivePathModule:getCurrentWayPointIndex()
+    return self.currentWayPoint
+end
+
+function ADDrivePathModule:getCurrentWayPoint()
+    return self.wayPoints[self:getCurrentWayPointIndex()]
+end
+
+function ADDrivePathModule:getCurrentWayPointId()
+    local nWp = self:getCurrentWayPoint()
+    if nWp ~= nil then
+        return nWp.id
+    end
+    return -1
+end
+
+function ADDrivePathModule:getNextWayPointIndex()
+    return self:getCurrentWayPointIndex() + 1
 end
 
 function ADDrivePathModule:switchToNextWayPoint()
-    self.currentWayPoint = self.currentWayPoint + 1
+    self:setCurrentWayPointIndex(self:getNextWayPointIndex())
     self.minDistanceToNextWp = math.huge
 end
 
@@ -361,19 +402,19 @@ function ADDrivePathModule:getLookAheadTarget()
     local targetX = x
     local targetZ = z
 
-    if self.wayPoints[self.currentWayPoint] ~= nil then
-        targetX = self.wayPoints[self.currentWayPoint].x
-        targetZ = self.wayPoints[self.currentWayPoint].z
+    local wp_current = self:getCurrentWayPoint()
+
+    if wp_current ~= nil then
+        targetX = wp_current.x
+        targetZ = wp_current.z
     end
 
-    if self.wayPoints[self.currentWayPoint + 1] ~= nil then
-        local wp_current = self.wayPoints[self.currentWayPoint]
-
+    if self:getNextWayPoint() ~= nil then
         local lookAheadID = 1
         local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
         local distanceToCurrentTarget = AutoDrive.getDistance(x, z, wp_current.x, wp_current.z)
 
-        local wp_ahead = self.wayPoints[self.currentWayPoint + lookAheadID]
+        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + lookAheadID]
         local distanceToNextTarget = AutoDrive.getDistance(x, z, wp_ahead.x, wp_ahead.z)
 
         if distanceToCurrentTarget < distanceToNextTarget then
@@ -383,11 +424,11 @@ function ADDrivePathModule:getLookAheadTarget()
         while lookAheadDistance > distanceToNextTarget do
             lookAheadDistance = lookAheadDistance - distanceToNextTarget
             lookAheadID = lookAheadID + 1
-            if self.wayPoints[self.currentWayPoint + lookAheadID] == nil then
+            if self.wayPoints[self:getCurrentWayPointIndex() + lookAheadID] == nil then
                 break
             end
             wp_current = wp_ahead
-            wp_ahead = self.wayPoints[self.currentWayPoint + lookAheadID]
+            wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + lookAheadID]
             distanceToNextTarget = AutoDrive.getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z)
         end
 
@@ -445,9 +486,10 @@ end
 
 function ADDrivePathModule:checkIfStuck(dt)
     if self.vehicle.isServer then
-        if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() and self.wayPoints[self.currentWayPoint] ~= nil then
+        local wp = self:getCurrentWayPoint()
+        if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() and wp ~= nil then
             local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-            local distanceToNextWayPoint = AutoDrive.getDistance(x, z, self.wayPoints[self.currentWayPoint].x, self.wayPoints[self.currentWayPoint].z)
+            local distanceToNextWayPoint = AutoDrive.getDistance(x, z, wp.x, wp.z)
             self.minDistanceTimer:timer(distanceToNextWayPoint >= self.minDistanceToNextWp, 8000, dt)
             self.minDistanceToNextWp = math.min(self.minDistanceToNextWp, distanceToNextWayPoint)
             if self.minDistanceTimer:done() then

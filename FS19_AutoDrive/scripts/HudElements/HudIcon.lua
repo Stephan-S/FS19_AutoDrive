@@ -65,9 +65,9 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         end
     end
 
-    local activeTask = vehicle.ad.taskModule:getActiveTask()
-    if activeTask ~= nil and activeTask:getInfoText() ~= nil then
-        textToShow = textToShow .. " - " .. activeTask:getInfoText()
+    local taskInfo = vehicle.ad.stateModule:getCurrentLocalizedTaskInfo()
+    if taskInfo ~= "" then
+        textToShow = textToShow .. " - " .. taskInfo
     end
 
     if vehicle.ad.stateModule:isInExtendedEditorMode() then

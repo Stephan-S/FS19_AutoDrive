@@ -5,7 +5,6 @@ FollowCombineTask.STATE_WAIT_FOR_TURN = 2
 FollowCombineTask.STATE_REVERSING = 3
 FollowCombineTask.STATE_WAIT_FOR_PASS_BY = 4
 
-
 FollowCombineTask.MAX_REVERSE_DISTANCE = 18
 FollowCombineTask.MIN_COMBINE_DISTANCE = 25
 FollowCombineTask.MAX_REVERSE_TIME = 10000
@@ -49,7 +48,7 @@ function FollowCombineTask:update(dt)
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
         else
             self:followChasePoint(dt)
-        end        
+        end
         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
         AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
@@ -208,6 +207,31 @@ function FollowCombineTask:getInfoText()
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_PASS_BY then
         text = g_i18n:getText("AD_task_wait_for_combine_pass_by")
     end
+    return text
+end
 
+function FollowCombineTask:getI18nInfo()
+    local text = ""
+    if self.state == FollowCombineTask.STATE_CHASING then
+        text = "$l10n_AD_task_chasing_combine;" .. "-"
+        if not self.caughtCurrentChaseSide then
+            text = text .. "$l10n_AD_task_catching_chase_side;" .. ": "
+        else
+            text = text .. "$l10n_AD_task_chase_side;" .. ": "
+        end
+        if self.chaseSide == CombineUnloaderMode.CHASEPOS_LEFT then
+            text = text .. "$l10n_AD_task_chase_side_left;"
+        elseif self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR then
+            text = text .. "$l10n_AD_task_chase_side_rear;"
+        elseif self.chaseSide == CombineUnloaderMode.CHASEPOS_RIGHT then
+            text = text .. "$l10n_AD_task_chase_side_right;"
+        end
+    elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
+        text = "$l10n_AD_task_wait_for_combine_turn;"
+    elseif self.state == FollowCombineTask.STATE_REVERSING then
+        text = "$l10n_AD_task_reversing_from_combine;"
+    elseif self.state == FollowCombineTask.STATE_WAIT_FOR_PASS_BY then
+        text = "$l10n_AD_task_wait_for_combine_pass_by;"
+    end
     return text
 end

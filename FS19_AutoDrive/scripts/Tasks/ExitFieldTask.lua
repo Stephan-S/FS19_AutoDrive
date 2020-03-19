@@ -64,3 +64,11 @@ function ExitFieldTask:getInfoText()
         return g_i18n:getText("AD_task_exiting_field")
     end
 end
+
+function ExitFieldTask:getI18nInfo()
+    if self.state == ExitFieldTask.STATE_PATHPLANNING then
+        return "$l10n_AD_task_pathfinding;"
+    else
+        return "$l10n_AD_task_exiting_field;"
+    end
+end

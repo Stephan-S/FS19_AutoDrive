@@ -17,6 +17,10 @@ function AbstractTask:getInfoText()
     return nil
 end
 
+function AbstractTask:getI18nInfo()
+    return ""
+end
+
 function AbstractTask:getExcludedVehiclesForCollisionCheck()
     return {}
 end

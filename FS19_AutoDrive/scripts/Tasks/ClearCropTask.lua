@@ -17,7 +17,7 @@ function ClearCropTask:setUp()
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 2))
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 3))
     table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 4))
-    
+
     self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
 end
 
@@ -44,4 +44,8 @@ end
 
 function ClearCropTask:getInfoText()
     return g_i18n:getText("AD_task_clearcrop")
+end
+
+function ClearCropTask:getI18nInfo()
+    return "$l10n_AD_task_clearcrop;"
 end

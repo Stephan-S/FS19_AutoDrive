@@ -48,6 +48,7 @@ end
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
     self.ad = {}
+    self.ad.dirtyFlag = self:getNextDirtyFlag()
     self.ad.smootherDriving = {}
     self.ad.smootherDriving.lastMaxSpeed = 0
     self.ad.groups = {}
@@ -67,8 +68,6 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_LOAD] = LoadMode:new(self)
     self.ad.modes[AutoDrive.MODE_BGA] = BGAMode:new(self)
     self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
-
-    self.ad.dirtyFlag = self:getNextDirtyFlag()
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -427,11 +426,10 @@ function AutoDrive:onDraw()
     end
 
     if AutoDrive.getSetting("showNextPath") == true then
-        local wps, currentWp = self.ad.drivePathModule:getWayPoints()
-        if wps ~= nil and currentWp ~= nil and currentWp > 0 and wps[currentWp] ~= nil and wps[currentWp + 1] ~= nil then
+        local sWP = self.ad.stateModule:getCurrentWayPoint()
+        local eWP = self.ad.stateModule:getNextWayPoint()
+        if sWP ~= nil and eWP ~= nil then
             --draw line with direction markers (arrow)
-            local sWP = wps[currentWp]
-            local eWP = wps[currentWp + 1]
             ADDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
             ADDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, ADDrawingManager.arrows.position.start, 1, 1, 1)
         end

@@ -34,3 +34,7 @@ end
 function StopAndDisableADTask:getInfoText()
     return g_i18n:getText("AD_task_stop_and_disable")
 end
+
+function StopAndDisableADTask:getI18nInfo()
+    return "$l10n_AD_task_stop_and_disable;"
+end
