@@ -762,5 +762,3 @@ function ADGraphManager:createNode(id, x, y, z, out, incoming)
 		incoming = incoming
 	}
 end
-
-ADGraphManager = ADGraphManager:new()

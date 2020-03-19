@@ -100,8 +100,12 @@ end
 function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#mode", self.mode)
     setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
-    setXMLInt(xmlFile, key .. "#firstMarker", self.firstMarker.markerIndex)
-    setXMLInt(xmlFile, key .. "#secondMarker", self.secondMarker.markerIndex)
+    if self.firstMarker ~= nil then
+        setXMLInt(xmlFile, key .. "#firstMarker", self.firstMarker.markerIndex)
+    end
+    if self.secondMarker ~= nil then
+        setXMLInt(xmlFile, key .. "#secondMarker", self.secondMarker.markerIndex)
+    end
     setXMLInt(xmlFile, key .. "#fillType", self.fillType)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
     setXMLInt(xmlFile, key .. "#loopCounter", self.loopCounter)
