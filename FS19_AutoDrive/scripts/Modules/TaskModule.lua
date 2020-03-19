@@ -82,8 +82,8 @@ end
 
 function ADTaskModule:update(dt)
     if self.activeTask ~= nil and self.activeTask.update ~= nil then
-        self.activeTask:update(dt)
         local taskInfo = self.activeTask:getI18nInfo()
+        self.activeTask:update(dt)
         if self.lastTaskInfo ~= taskInfo then
             self:onTaskInfoChange(taskInfo)
         end

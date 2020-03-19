@@ -38,6 +38,9 @@ function ADStateModule:reset()
     self.currentTaskInfo = ""
     self.currentLocalizedTaskInfo = ""
 
+    self.currentWayPointId = -1
+    self.nextWayPointId = -1
+
     self.pointToNeighbour = false
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
@@ -118,6 +121,8 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
     streamWriteString(streamId, self.currentTaskInfo)
+    streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
+    streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
 end
 
 function ADStateModule:readStream(streamId)
@@ -134,6 +139,8 @@ function ADStateModule:readStream(streamId)
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
     self.currentTaskInfo = streamReadString(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
+    self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
+    self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
 end
 
 function ADStateModule:writeUpdateStream(streamId)
@@ -149,6 +156,8 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
     streamWriteString(streamId, self.currentTaskInfo)
+    streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
+    streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -165,6 +174,8 @@ function ADStateModule:readUpdateStream(streamId)
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
     self.currentTaskInfo = streamReadString(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
+    self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
+    self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
 end
 
 function ADStateModule:update(dt)
@@ -185,8 +196,40 @@ function ADStateModule:update(dt)
         end
         debug.currentTaskInfo = self.currentTaskInfo
         debug.currentLocalizedTaskInfo = self.currentLocalizedTaskInfo
+        debug.currentWayPointId = self.currentWayPointId
+        debug.nextWayPointId = self.nextWayPointId
         AutoDrive.renderTable(0.4, 0.4, 0.014, debug)
     end
+end
+
+function ADStateModule:getCurrentWayPointId()
+    return self.currentWayPointId
+end
+
+function ADStateModule:setCurrentWayPointId(wayPointId)
+    if wayPointId ~= self.currentWayPointId then
+        self.currentWayPointId = wayPointId
+        self:raiseDirtyFlag()
+    end
+end
+
+function ADStateModule:getCurrentWayPoint()
+    return ADGraphManager:getWayPointById(self.currentWayPointId)
+end
+
+function ADStateModule:getNextWayPointId()
+    return self.nextWayPointId
+end
+
+function ADStateModule:setNextWayPointId(wayPointId)
+    if wayPointId ~= self.nextWayPointId then
+        self.nextWayPointId = wayPointId
+        self:raiseDirtyFlag()
+    end
+end
+
+function ADStateModule:getNextWayPoint()
+    return ADGraphManager:getWayPointById(self.nextWayPointId)
 end
 
 function ADStateModule:getCurrentTaskInfo()
