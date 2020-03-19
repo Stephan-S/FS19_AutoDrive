@@ -38,6 +38,7 @@ function ADDrivePathModule:setPathTo(waypointId)
     if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= waypointId))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.stateModule:getName(), self.vehicle.ad.stateModule:getFirstMarker().name)
+        self.vehicle.ad.taskModule:abortAllTasks()
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         --skip first wp for a smoother start
@@ -61,6 +62,7 @@ function ADDrivePathModule:appendPathTo(wayPointId)
     if appendWayPoints == nil or (appendWayPoints[2] == nil and (appendWayPoints[1] == nil or (appendWayPoints[1] ~= nil and appendWayPoints[1].id ~= wayPointId))) then
         g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.stateModule:getName(), self.vehicle.ad.stateModule:getFirstMarker().name)
+        self.vehicle.ad.taskModule:abortAllTasks()
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     else
         --skip first wp for a smoother start
@@ -353,7 +355,7 @@ end
 
 function ADDrivePathModule:getNextWayPointId()
     local nWp = self:getNextWayPoint()
-    if nWp ~= nil then
+    if nWp ~= nil and nWp.id ~= nil then
         return nWp.id
     end
     return -1
@@ -380,7 +382,7 @@ end
 
 function ADDrivePathModule:getCurrentWayPointId()
     local nWp = self:getCurrentWayPoint()
-    if nWp ~= nil then
+    if nWp ~= nil and nWp.id ~= nil then
         return nWp.id
     end
     return -1

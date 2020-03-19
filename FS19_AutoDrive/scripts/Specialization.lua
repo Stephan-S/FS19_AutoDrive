@@ -191,6 +191,9 @@ function AutoDrive:onUpdate(dt)
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriverWages(self, dt)
+
+    --For 'legacy' purposes, this value should be kept since other mods already test for this:
+    self.ad.isActive = self.ad.stateModule:isActive()
 end
 
 function AutoDrive:startAutoDrive()

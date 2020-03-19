@@ -229,7 +229,10 @@ function ADStateModule:setNextWayPointId(wayPointId)
 end
 
 function ADStateModule:getNextWayPoint()
-    return ADGraphManager:getWayPointById(self.nextWayPointId)
+    if self.nextWayPointId > 1 then
+        return ADGraphManager:getWayPointById(self.nextWayPointId)
+    end
+    return nil
 end
 
 function ADStateModule:getCurrentTaskInfo()
