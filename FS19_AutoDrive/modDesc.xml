@@ -37,14 +37,14 @@ Changelog 1.1.0.0:
 			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
 
 Changelog 1.1.0.0:
-- NOVITÀ: HUD-Design aggiornato
+- NOVITÀ: Design HUD aggiornato
 - NOVITÀ: Menu impostazioni migliorato
-- NOVITÀ: Aumento delle prestazioni e delle funzionalità del Multiplayer
-- NOVITÀ: Codebase completamente rielaborato.
+- NOVITÀ: Migliorate le prestazioni e le funzionalità del Multiplayer
+- NOVITÀ: Rielaborazione completa del Codebase.
 - NOVITÀ: Migliorata la modalità di scarico combinato con precalibrazione e scarico attivo affiancato.
-- NOVITÀ: Ricerca automatica del percorso quando la rete non è nelle vicinanze
-- NOVITÀ: Nuovo editor Ingame per creare e modificare la rete
-- FIX: Innumerevoli piccole correzioni - oltre 650 modifiche dall'ultima versione (1.0.1.9)
+- NOVITÀ: Ricerca automatica del percorso per raggiungere la rete stradale
+- NOVITÀ: Nuovo editor in gioco per creare e modificare i percorsi
+- FIX: Innumerevoli correzioni - oltre 650 modifiche dall'ultima versione (1.0.1.9)
 ]]>
 		</it>
 		<fr>

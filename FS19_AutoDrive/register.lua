@@ -19,7 +19,6 @@ source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirector
 source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))
 
-source(Utils.getFilename("scripts/Events/CourseEditEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/GroupsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/UserDataEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/UpdateSettingsEvent.lua", g_currentModDirectory))
@@ -39,6 +38,7 @@ source(Utils.getFilename("scripts/Events/Graph/ToggleConnectionEvent.lua", g_cur
 source(Utils.getFilename("scripts/Events/Graph/DeleteWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/CreateWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/RecordWayPointEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/MoveWayPointEvent.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory))

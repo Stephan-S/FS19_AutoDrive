@@ -332,7 +332,10 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 			if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
 				if (button == 2 or button == 3) and isUp then
-					vehicle.ad.nodeToMoveId = nil
+					if vehicle.ad.nodeToMoveId ~= nil then
+						ADGraphManager:changeWayPointPosition(vehicle.ad.nodeToMoveId)
+						vehicle.ad.nodeToMoveId = nil
+					end
 				end
 
 				if vehicle.ad.nodeToMoveId ~= nil then
