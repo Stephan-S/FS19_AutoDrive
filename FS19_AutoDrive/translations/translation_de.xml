@@ -154,14 +154,14 @@
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Alle Änderungen gehen verloren" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Wirklich ohne Speichern schließen?" />
 		
-		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
-		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
-		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
+		<text name="gui_ad_routesManagerTitle" 					text="Routen Manager" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Routennamen eingeben:" />
+		<text name="gui_ad_button_export" 						text="Exportieren" />
+		<text name="gui_ad_button_import" 						text="Importieren" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Möchtest du wirklich den aktuellen Kurs überschreiben?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Route überschreiben" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Möchtest du diese Route wirklich löschen '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Route löschen" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Gefahrene Strecke der Fahrer" />
 		<text name="statistic_driversHired" 					text="Eingestellte Fahrer" />

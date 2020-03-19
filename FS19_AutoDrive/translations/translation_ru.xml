@@ -51,8 +51,8 @@
 		<text name="AD_MODE_LOAD"								text="Загрузка" />
 		<text name="AD_MODE_BGA"								text="Перегрузка из силосной ямы" />
 		<text name="AD_synchronizing"							text="загрузка сети из сервера.." />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
-		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL для создания" />
+		<text name="AD_lalt_for_deletion" 						text="LALT ДОЛЖЕН удалять" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_followDistance"						text="Расстояние до комбайна" />
@@ -138,12 +138,12 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Если автоматически определена неправильная высота ковша, используйте эту настройку, чтобы установить необходимую высоту от земли." />
 		<text name="gui_ad_showMarkersOnMap"					text="Отображать маркеры" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Отображать маркеры/пункты назначения на карте." />
-		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
-		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
-		<text name="gui_ad_cornerSpeed"							text="Corner speed" />
-		<text name="gui_ad_cornerSpeed_tooltip"					text="Adjust corner speed for individual vehicle. Mass and current speed will still impact brake point" />
-		<text name="gui_ad_callSecondUnloader"					text="Call 2. Unloader" />
-		<text name="gui_ad_callSecondUnloader_tooltip"			text="Call 2. Unloader when the current unloader reaches the precall fill level" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Переключиться на маркеры" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Установить цель/выгрузить цель при щелчке по горячим точкам карты" />
+		<text name="gui_ad_cornerSpeed"							text="Скорость в повороте" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Отрегулируйте скорость поворота для отдельного автомобиля. Масса и текущая скорость все равно будут влиять на точку торможения" />
+		<text name="gui_ad_callSecondUnloader"					text="Звоните 2. Разгрузчик" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Звоните 2. Разгрузчик, когда текущий разгрузчик достигнет уровня предварительного заполнения." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />
@@ -154,14 +154,14 @@
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Все изменения будут утеряны" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Вы уверены, что хотите закрыть окно настроек без сохранения?" />
 		
-		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
-		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
-		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
+		<text name="gui_ad_routesManagerTitle" 					text="Менеджер маршрутов" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Вставьте имя маршрута:" />
+		<text name="gui_ad_button_export" 						text="Экспорт" />
+		<text name="gui_ad_button_import" 						text="Импорт" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Вы уверены, что хотите переписать существующий маршрут?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Перезапись маршрута" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Вы уверены, что хотите удалить маршрут '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Удаление маршрута" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Расстояние от водителей" />
 		<text name="statistic_driversHired" 					text="Водители в настоящее время наняты" />
@@ -248,29 +248,29 @@
 		<text name="ad_helpText_13_05"							text="Так как транспортное средство пытается автоматически найти для ковша идеальное положение погрузки, может случиться так, что оно поднимает передние колеса. Для этого сценария предусмотрено обнаружение, которое проверяет, все ли колеса находятся на земле, и начинает поднимать ковш, если эта проверка возвращает ЛОЖЬ в течение нескольких сотен миллисекунд." />
 
 		
-		<text name="AD_task_pathfinding"						text="Planning path" />
-		<text name="AD_task_catch_up_with_combine"				text="Catching up with combine" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" />
-		<text name="AD_task_drive_to_destination"				text="Driving to destination" />
-		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
-		<text name="AD_task_drive_to_combine_pipe"				text="Drive to combine pipe" />
-		<text name="AD_task_unloading_combine"					text="Unloading combine" />
-		<text name="AD_task_reversing_from_combine"				text="Reversing from combine" />
-		<text name="AD_task_waiting_for_space"					text="Waiting for maneuver room" />
-		<text name="AD_task_wait_for_combine_turn"				text="Wait for combine's turn" />
-		<text name="AD_task_drive_to_load_point"				text="Drive to loading point" />
-		<text name="AD_task_drive_to_refuel_point"				text="Drive to refuel station" />
-		<text name="AD_task_stop_and_disable"					text="Stopping" />
-		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
-		<text name="AD_task_wait_for_call"						text="Waiting for call" />	
-		<text name="AD_task_chasing_combine"					text="Chaising combine" />
-		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
-		<text name="AD_task_catching_chase_side"				text="Catching side" />	
-		<text name="AD_task_chase_side"							text="Side" />	
-		<text name="AD_task_chase_side_left"					text="left" />	
-		<text name="AD_task_chase_side_rear"					text="rear" />	
-		<text name="AD_task_chase_side_right"					text="right" />		
-		<text name="AD_task_waiting_for_room"					text="Waiting for room" />	
-		<text name="AD_task_exiting_field"						text="Exiting field" />
+		<text name="AD_task_pathfinding"						text="Путь планирования" />
+		<text name="AD_task_catch_up_with_combine"				text="Догоняющий с комбайном" />
+		<text name="AD_task_clearcrop"							text="Расчистка урожая" />
+		<text name="AD_task_drive_to_destination"				text="Поездка в пункт назначения" />
+		<text name="AD_task_drive_to_vehicle"					text="Вождение к целевой машине" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Привод для комбинирования труб" />
+		<text name="AD_task_unloading_combine"					text="Разгрузочный комбайн" />
+		<text name="AD_task_reversing_from_combine"				text="Реверсирование от комбайна" />
+		<text name="AD_task_waiting_for_space"					text="Комната ожидания для маневра" />
+		<text name="AD_task_wait_for_combine_turn"				text="Ждать очереди комбайна" />
+		<text name="AD_task_drive_to_load_point"				text="Поездка к месту погрузки" />
+		<text name="AD_task_drive_to_refuel_point"				text="Поездка на заправку" />
+		<text name="AD_task_stop_and_disable"					text="Остановка" />
+		<text name="AD_task_drive_to_unload_point"				text="Поездка к месту разгрузки" />
+		<text name="AD_task_wait_for_call"						text="Жду звонка" />	
+		<text name="AD_task_chasing_combine"					text="цепной комбайн" />
+		<text name="AD_task_wait_for_combine_pass_by"			text="Пропускной комбайн проходит мимо" />	
+		<text name="AD_task_catching_chase_side"				text="Ловящая сторона" />	
+		<text name="AD_task_chase_side"							text="Сайд" />	
+		<text name="AD_task_chase_side_left"					text="левый" />	
+		<text name="AD_task_chase_side_rear"					text="тыловой" />	
+		<text name="AD_task_chase_side_right"					text="правильный" />		
+		<text name="AD_task_waiting_for_room"					text="Ожидание в очереди" />	
+		<text name="AD_task_exiting_field"						text="Выходное поле" />
 	</texts>
 </l10n>
