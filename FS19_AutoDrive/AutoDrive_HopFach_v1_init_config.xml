@@ -11,12 +11,10 @@
     <useFastestRoute>1.000000</useFastestRoute>
     <parkInField>2.000000</parkInField>
     <lookAheadBraking>7.000000</lookAheadBraking>
-    <avoidMarkers>1.000000</avoidMarkers>
     <refillSeedAndFertilizer>2.000000</refillSeedAndFertilizer>
     <showNextPath>2.000000</showNextPath>
     <unloadFillLevel>10.000000</unloadFillLevel>
     <recalculationSpeed>2.000000</recalculationSpeed>
-    <smoothField>2.000000</smoothField>
     <continueOnEmptySilo>1.000000</continueOnEmptySilo>
     <lineHeight>2.000000</lineHeight>
     <showHelp>1.000000</showHelp>
@@ -25,7 +23,6 @@
     <pathFinderTime>3.000000</pathFinderTime>
     <preCallLevel>7.000000</preCallLevel>
     <autoConnectEnd>2.000000</autoConnectEnd>
-    <chaseCombine>1.000000</chaseCombine>
     <restrictToField>2.000000</restrictToField>
     <useBeaconLights>1.000000</useBeaconLights>
     <avoidFruit>2.000000</avoidFruit>
@@ -38,9 +35,7 @@
     <lookAheadTurning>4.000000</lookAheadTurning>
     <findDriver>2.000000</findDriver>
     <pipeOffset>24.000000</pipeOffset>
-    <preCallDriver>1.000000</preCallDriver>
     <driverWages>2.000000</driverWages>
-    <trailerOffset>21.000000</trailerOffset>
     <mapMarkerDetour>1.000000</mapMarkerDetour>
     <shovelHeight>26.000000</shovelHeight>
     <Hopfach_v1>

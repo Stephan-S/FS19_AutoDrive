@@ -1,18 +1,12 @@
---
--- Buffer utility for AutoDrive
---
--- @author TyKonKet
--- @date  06/03/20
-
 Buffer = {}
-Buffer_mt = Class(Buffer)
 
 function Buffer:new()
-    local q = {}
-    setmetatable(q, Buffer_mt)
-    q.items = {}
-    q.itemsCount = 0
-    return q
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.items = {}
+    o.itemsCount = 0
+    return o
 end
 
 function Buffer:Insert(item)

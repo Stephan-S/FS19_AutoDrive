@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Select Next Unload" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Select Previous Unload" />
 		<text name="input_ADActivateDebug"						text="AD: Edit Mode" />
-		<text name="input_ADDebugShowClosest"					text="AD: Show closest Point" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Select Neighbour Point" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Select next Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Toggle connection between" />
@@ -42,7 +41,6 @@
 		<text name="AD_cannot_reach"							text="can't reach" />
 		<text name="AD_cannot_find_path"						text="can't calculate a path" />
 		<text name="AD_new_marker"								text="New Goal:" />
-		<text name="AD_new_marker_helptext"						text="Please enter new name (Stop with enter key)" />
 		<text name="AD_No_Trailer"								text="couldn't find trailer" />
 		<text name="AD_No_Bunker"								text="couldn't find silo bunker" />
 		<text name="AD_No_Shovel"								text="couldn't find a connected shovel" />
@@ -57,18 +55,12 @@
 		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Settings" />
 		<text name="gui_ad_pipe_offset"							text="Pipe Offset" />
-		<text name="gui_ad_trailerOffset"						text="Trailer offset" />
-		<text name="gui_ad_trailerOffset_tooltip"				text="Offset of trailer unloading position - front/rear" />
 		<text name="gui_ad_followDistance"						text="Distance combine" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Look ahead distance (turn)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="The distance the vehicle looks ahead to adjust steering to follow the next segment" />
-		<text name="gui_ad_lookahead_braking"					text="Look ahead distance (brake)" />
-		<text name="gui_ad_lookahead_braking_tooltip"			text="The distance the vehicle looks ahead to adjust the speed to the expected turn radius" />
 		<text name="gui_ad_useFastestRoute"						text="Use fastest Route" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="Take the driving speed into consideration instead of simple distances, when calculating best routes" />
-		<text name="gui_ad_avoidMarkers"						text="Avoid other targets" />
-		<text name="gui_ad_avoidMarkers_tooltip"				text="The pathfinding tries to find detours around targets. Useful to avoid jams" />
 		<text name="gui_ad_mapMarkerDetour"						text="Maximum detour" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Maximum detour when avoiding targets" />
 		<text name="gui_ad_siloEmpty"							text="If silo empty" />
@@ -79,12 +71,6 @@
 		<text name="gui_ad_drive"								text="Drive on" />
 		<text name="gui_ad_yes"									text="Yes" />
 		<text name="gui_ad_no"									text="No" />
-		<text name="ad_wait_for_combine"						text="Wait for combine" />
-		<text name="ad_drive_to_combine"						text="Drive to combine" />
-		<text name="ad_unloading_combine"						text="Unloading combine" />
-		<text name="ad_drive_to_parkpos"						text="Parking" />
-		<text name="ad_drive_to_startpos"						text="Drive to start" />
-		<text name="ad_drive_to_unloadpos"						text="Drive to unload" />
 		<text name="ad_bga_init"								text="Initializing" />
 		<text name="ad_bga_waiting"								text="Waiting for trailer/silo" />
 		<text name="ad_bga_active"								text="Active" />
@@ -109,8 +95,6 @@
 		<text name="gui_ad_showHelp_tooltip"					text="Display keybinding in F1 window" />
 		<text name="gui_ad_driverWages"							text="Driver wages" />
 		<text name="gui_ad_driverWages_tooltip"					text="Driver wages will be multiplied with this value" />
-		<text name="gui_ad_smoothField"							text="Smoother field driving" />
-		<text name="gui_ad_smoothField_tooltip"					text="Generated field courses to and from combine will be smoothed (experimental)" />
 		<text name="gui_ad_showNextPath"						text="Show next path" />
 		<text name="gui_ad_showNextPath_tooltip"				text="En/Disable the display of the next two waypoints" />
 		<text name="gui_ad_avoidFruit"							text="Avoid fruit" />
@@ -121,20 +105,12 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Line height in editor mode. Either on ground level or above the tractor" />
 		<text name="gui_ad_ground"								text="Ground level" />
 		<text name="gui_ad_aboveDriver"							text="Above tractor" />
-		<text name="gui_ad_allowConsoleStyle"					text="Allow target(text) input" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Allow advanced target input via keyboard - default right click on target text field" />
 		<text name="gui_ad_enableTrafficDetection"				text="Collision detection" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Advanced collision detection, which also detects AI-traffic, signs, fences etc" />
-		<text name="gui_ad_refillSeedAndFertilizer"				text="Seed and fertilizer" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Enables AutoDrive to refill both seed and fertilizer compartments, if one of these is selected as filltype." />
 		<text name="gui_ad_shovelWidth"							text="Shovel width (Addition)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="If automatically detected shovel width is too small, it can be increased with this value" />
-		<text name="gui_ad_preCallDriver"						text="Pre call driver" />
-		<text name="gui_ad_preCallDriver_tooltip"				text="Pre call unloader at the set fill level." />
 		<text name="gui_ad_preCallLevel"						text="Pre call level" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Pre call unloader at the set fill level." />
-		<text name="gui_ad_chaseCombine"						text="Chase combine" />
-		<text name="gui_ad_chaseCombine_tooltip"				text="Unlaoder follows combine after being pre called" />
 		<text name="gui_ad_distributeToFolder"					text="Multiple targets" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="All targets in same folder will be rotated as unload targets." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximum trigger distance" />
@@ -155,8 +131,6 @@
 		<text name="gui_ad_enterGroupNameText"					text="Insert folder name:" />
 		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
-		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Turns off the vehicle when the destination is reached (and the player is not driving)" />
 		<text name="gui_ad_filter"								text="Filter" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
@@ -166,6 +140,10 @@
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
 		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
+		<text name="gui_ad_cornerSpeed"							text="Corner speed" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Adjust corner speed for individual vehicle. Mass and current speed will still impact brake point" />
+		<text name="gui_ad_callSecondUnloader"					text="Call 2. Unloader" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Call 2. Unloader when the current unloader reaches the precall fill level" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
@@ -267,5 +245,31 @@
 		<text name="ad_helpText_13_03"							text="Caution: There is currently no collision detection included in this mode!" />
 		<text name="ad_helpText_13_04"							text="" />
 		<text name="ad_helpText_13_05"							text="Since the vehicle tries to find the ideal loading position for the shovel automatically, it can happen that he lifts it’s front wheels up. There is a detection included for this scenario, which checks if all wheels are on the ground and starts lifting the shovel if this check returns false for a few hundred milliseconds." />
+
+
+		<text name="AD_task_pathfinding"						text="Planning path" />
+		<text name="AD_task_catch_up_with_combine"				text="Catching up with combine" />
+		<text name="AD_task_clearcrop"							text="Clearing crop" />
+		<text name="AD_task_drive_to_destination"				text="Driving to destination" />
+		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Drive to combine pipe" />
+		<text name="AD_task_unloading_combine"					text="Unloading combine" />
+		<text name="AD_task_reversing_from_combine"				text="Reversing from combine" />
+		<text name="AD_task_waiting_for_space"					text="Waiting for maneuver room" />
+		<text name="AD_task_wait_for_combine_turn"				text="Wait for combine's turn" />
+		<text name="AD_task_drive_to_load_point"				text="Drive to loading point" />
+		<text name="AD_task_drive_to_refuel_point"				text="Drive to refuel station" />
+		<text name="AD_task_stop_and_disable"					text="Stopping" />
+		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
+		<text name="AD_task_wait_for_call"						text="Waiting for call" />
+		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
+		<text name="AD_task_catching_chase_side"				text="Catching side" />	
+		<text name="AD_task_chase_side"							text="Side" />	
+		<text name="AD_task_chase_side_left"					text="left" />	
+		<text name="AD_task_chase_side_rear"					text="rear" />	
+		<text name="AD_task_chase_side_right"					text="right" />		
+		<text name="AD_task_waiting_for_room"					text="Waiting for room" />
+		<text name="AD_task_exiting_field"						text="Exiting field" />
 	</texts>
 </l10n>

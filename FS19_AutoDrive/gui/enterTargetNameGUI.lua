@@ -30,13 +30,13 @@ function ADEnterTargetNameGui:onOpen()
 
     -- If editSelectedMapMarker is true, we have to edit the map marker selected on the pull down list otherwise we can go for closest waypoint
     if AutoDrive.editSelectedMapMarker ~= nil and AutoDrive.editSelectedMapMarker == true then
-        self.editId = g_currentMission.controlledVehicle.ad.mapMarkerSelected
-        self.editName = AutoDrive.mapMarker[self.editId].name
+        self.editId = g_currentMission.controlledVehicle.ad.stateModule:getFirstMarkerId()
+        self.editName = ADGraphManager:getMapMarkerById(self.editId).name
     else
-        local closest, _ = AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)
-        if closest ~= nil and closest ~= -1 and AutoDrive.mapWayPoints[closest] ~= nil then
-            local cId = AutoDrive.mapWayPoints[closest].id
-            for i, mapMarker in pairs(AutoDrive.mapMarker) do
+        local closest, _ = ADGraphManager:findClosestWayPoint(g_currentMission.controlledVehicle)
+        if closest ~= nil and closest ~= -1 and ADGraphManager:getWayPointById(closest) ~= nil then
+            local cId = closest
+            for i, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
                 -- If we have already a map marker on this waypoint, we edit it otherwise we create a new one
                 if mapMarker.id == cId then
                     self.editId = i
@@ -66,16 +66,16 @@ end
 function ADEnterTargetNameGui:onClickOk()
     ADEnterTargetNameGui:superClass().onClickOk(self)
     if self.edit then
-        AutoDrive.renameMapMarker(self.textInputElement.text, self.editId)
+        ADGraphManager:renameMapMarker(self.textInputElement.text, self.editId)
     else
-        AutoDrive.createMapMarkerOnClosest(g_currentMission.controlledVehicle, self.textInputElement.text)
+        ADGraphManager:createMapMarkerOnClosest(g_currentMission.controlledVehicle, self.textInputElement.text)
     end
     self:onClickBack()
 end
 
 function ADEnterTargetNameGui:onClickActivate()
     ADEnterTargetNameGui:superClass().onClickActivate(self)
-    AutoDrive.removeMapMarker(self.editId)
+    ADGraphManager:removeMapMarker(self.editId)
     self:onClickBack()
 end
 

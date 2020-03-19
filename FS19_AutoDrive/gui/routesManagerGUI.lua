@@ -22,7 +22,7 @@ function ADRoutesManagerGui:onOpen()
 end
 
 function ADRoutesManagerGui:refreshItems()
-    self.routes = AutoDriveRoutesManager.getRoutes(AutoDrive.loadedMap)
+    self.routes = ADRoutesManager.getRoutes(AutoDrive.loadedMap)
     self.autoDriveRoutesManagerList:deleteListItems()
     for _, r in pairs(self.routes) do
         local new = self.listItemTemplate:clone(self.autoDriveRoutesManagerList)
@@ -59,14 +59,14 @@ end
 
 function ADRoutesManagerGui:onExportDialogCallback(yes)
     if yes then
-        AutoDriveRoutesManager.export(self.textInputElement.text)
+        ADRoutesManager.export(self.textInputElement.text)
         self:refreshItems()
     end
 end
 
 function ADRoutesManagerGui:onClickCancel()
     if #self.routes > 0 then
-        AutoDriveRoutesManager.import(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
+        ADRoutesManager.import(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
     end
     ADRoutesManagerGui:superClass().onClickCancel(self)
 end
@@ -84,7 +84,7 @@ end
 
 function ADRoutesManagerGui:onDeleteDialogCallback(yes)
     if yes then
-        AutoDriveRoutesManager.remove(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
+        ADRoutesManager.remove(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
         self:refreshItems()
     end
 end

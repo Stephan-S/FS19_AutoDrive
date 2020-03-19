@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.0.7.2"
+AutoDrive.version = "1.1.0.0"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -12,6 +12,8 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 
 AutoDrive.developmentControls = false
 
+--AutoDrive.renderTime = 0
+
 AutoDrive.configChanged = false
 
 AutoDrive.actions = {
@@ -23,7 +25,6 @@ AutoDrive.actions = {
 	{"ADSelectTargetUnload", false, 0},
 	{"ADSelectPreviousTargetUnload", false, 0},
 	{"ADActivateDebug", false, 0},
-	{"ADDebugShowClosest", false, 0},
 	{"ADDebugSelectNeighbor", false, 0},
 	{"ADDebugChangeNeighbor", false, 0},
 	{"ADDebugCreateConnection", false, 0},
@@ -54,7 +55,7 @@ AutoDrive.MODE_UNLOAD = 5
 AutoDrive.MODE_BGA = 6
 
 AutoDrive.WAYPOINTS_PER_PACKET = 100
-AutoDrive.SPEED_ON_FIELD = 38
+AutoDrive.SPEED_ON_FIELD = 100
 
 AutoDrive.DC_NONE = 0
 AutoDrive.DC_VEHICLEINFO = 1
@@ -68,26 +69,17 @@ AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
 AutoDrive.DC_ALL = 65535
 
-AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE --AutoDrive.DC_ALL;
+AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
-	source(Utils.getFilename("scripts/AutoDriveFunc.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveXML.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveInputFunctions.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveGraphHandling.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveDriveFuncs.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveTrigger.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveMultiplayer.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveCombineMode.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDrivePathFinder.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveSettings.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveBGAUnloader.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/AutoDriveVirtualSensors.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/ADCollSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/ADFruitSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/ADFieldSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/AutoDriveDijkstraLive.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/XML.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Settings.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/ExternalInterface.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/VirtualSensors.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/CollSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/FruitSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/Sensors/FieldSensor.lua", AutoDrive.directory))
+	source(Utils.getFilename("scripts/DijkstraLive.lua", AutoDrive.directory))
 	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
 
 	if g_server ~= nil then
@@ -119,19 +111,12 @@ function AutoDrive:loadMap(name)
 		end
 	end
 
-	AutoDrive.mapWayPoints = {}
-	AutoDrive.mapWayPointsCounter = 0
-	AutoDrive.mapMarker = {}
-	AutoDrive.mapMarkerCounter = 0
-
 	AutoDrive.groups = {}
 	AutoDrive.groups["All"] = 1
 	AutoDrive.groupCounter = 1
 
 	AutoDrive.pullDownListExpanded = 0
 	AutoDrive.pullDownListDirection = 0
-
-	--AutoDrive.lastSetSpeed = 50
 
 	AutoDrive.requestedWaypoints = false
 	AutoDrive.requestedWaypointCount = 1
@@ -143,9 +128,9 @@ function AutoDrive:loadMap(name)
 	AutoDrive.waitingUnloadDrivers = {}
 	AutoDrive.destinationListeners = {}
 
-	AutoDrive.delayedCallBacks = {}
-
 	AutoDrive.mapHotspotsBuffer = {}
+
+	AutoDrive.requestWayPointTimer = 10000
 
 	AutoDrive.loadStoredXML()
 
@@ -161,30 +146,6 @@ function AutoDrive:loadMap(name)
 	AutoDrive.Hud = AutoDriveHud:new()
 	AutoDrive.Hud:loadHud()
 
-	AutoDriveBenchmarks.Run()
-	AutoDriveRoutesManager.load()
-	AutoDriveDrawingManager:load()
-	AutoDriveMessagesManager:load()
-
-	--AutoDrive.delayedCallBacks.openEnterDriverNameGUI =
-	--    DelayedCallBack:new(
-	--    function()
-	--        g_gui:showGui("ADEnterDriverNameGui")
-	--    end
-	--)
-	--AutoDrive.delayedCallBacks.openEnterTargetNameGUI =
-	--    DelayedCallBack:new(
-	--    function()
-	--        g_gui:showGui("ADEnterTargetNameGui")
-	--    end
-	--)
-	--AutoDrive.delayedCallBacks.openEnterGroupNameGUI =
-	--    DelayedCallBack:new(
-	--    function()
-	--        g_gui:showGui("ADEnterGroupNameGui")
-	--    end
-	--)
-
 	-- Save Configuration when saving savegame
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
 
@@ -194,37 +155,30 @@ function AutoDrive:loadMap(name)
 
 	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly)
 
-	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, AutoDrive.loadTriggerLoad)
-	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, AutoDrive.loadTriggerDelete)
+	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, ADTriggerManager.loadTriggerLoad)
+	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, ADTriggerManager.loadTriggerDelete)
 
 	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
 	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
+
+	ADRoutesManager.load()
+	ADDrawingManager:load()
+	ADMessagesManager:load()
+	ADHarvestManager:load()
+	ADInputManager:load()
 end
 
 function AutoDrive:firstRun()
-	AutoDriveBenchmarks.FirstRun()
 	if g_server == nil then
 		-- Here we could ask to server the initial sync
 		AutoDriveUserConnectedEvent.sendEvent()
 	else
-		AutoDrive.checkYPositionIntegrity()
+		ADGraphManager:checkYPositionIntegrity()
 	end
 
-	if AutoDrive.searchedTriggers ~= true then
-		AutoDrive.getAllTriggers()
-		AutoDrive.searchedTriggers = true
-	end
 	AutoDrive.updateDestinationsMapHotspots()
 	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.updateDestinationsMapHotspots)
-end
-
-function AutoDrive.checkYPositionIntegrity()
-	for _, wp in pairs(AutoDrive.mapWayPoints) do
-		if wp.y == -1 then
-			wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
-		end
-	end
 end
 
 function AutoDrive:saveSavegame()
@@ -256,7 +210,7 @@ function AutoDrive:deleteMap()
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
-	AutoDriveRoutesManager.delete()
+	ADRoutesManager.delete()
 	if g_server ~= nil then
 		delete(AutoDrive.adXml)
 	end
@@ -295,18 +249,6 @@ function AutoDrive:update(dt)
 		AutoDrive.isFirstRun = false
 		self:firstRun()
 	end
-	--if (g_currentMission.controlledVehicle ~= nil) then
-	--AutoDrive.renderTable(0.05, 0.95, 0.013, AutoDrive.mapWayPoints[AutoDrive:findClosestWayPoint(g_currentMission.controlledVehicle)])
-	--if g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint] ~= nil then
-	--AutoDrive.renderTable(0.3, 0.95, 0.013, g_currentMission.controlledVehicle.ad.iteratedDebugPoints[g_currentMission.controlledVehicle.ad.selectedDebugPoint])
-	--end
-	--AutoDrive.renderTable(0.3, 0.98, 0.008, AutoDrive.mapMarker)
-	--	--	local printTable = {}
-	--	--	printTable.g_logManager = g_logManager
-	--	--	printTable.LogManager = LogManager
-	--	AutoDrive.renderTable(0.1, 0.9, 0.008, AutoDrive.Triggers)
-	--	AutoDrive.renderTable(0.8, 0.9, 0.009, UserManager)
-	--end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
 		if AutoDrive.debug.lastSentEvent ~= nil then
@@ -314,53 +256,14 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	--local t = {}
-	--for k, v in pairs(AutoDrive.settings) do
-	--	t[k] = tostring(v.current) .. " -> " .. tostring(v.values[v.current])
-	--end
-	--AutoDrive.renderTable(0.2, 0.9, 0.009, t)
-
-	-- Iterate over all delayed call back instances and call update (that's needed to make the script working)
-	for _, delayedCallBack in pairs(AutoDrive.delayedCallBacks) do
-		delayedCallBack:update(dt)
-	end
-
-	AutoDrive.handlePerFrameOperations(dt)
-
-	AutoDrive.handleMultiplayer(dt)
-
-	AutoDriveMessagesManager:update(dt)
+	ADHarvestManager:update(dt)
+	ADMessagesManager:update(dt)
+	ADTriggerManager:update(dt)
 end
 
 function AutoDrive:draw()
-	AutoDriveDrawingManager:draw()
-	AutoDriveMessagesManager:draw()
-end
-
-function AutoDrive.handlePerFrameOperations(dt)
-	for _, vehicle in pairs(g_currentMission.vehicles) do
-		if (vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil and vehicle.lastSpeedReal ~= nil) then
-			vehicle.ad.noMovementTimer:timer((vehicle.lastSpeedReal <= 0.0010), 3000, dt)
-		end
-
-		if (vehicle.ad ~= nil and vehicle.ad.noTurningTimer ~= nil) then
-			local cpIsTurning = vehicle.cp ~= nil and (vehicle.cp.isTurning or (vehicle.cp.turnStage ~= nil and vehicle.cp.turnStage > 0))
-			local cpIsTurningTwo = vehicle.cp ~= nil and vehicle.cp.driver and (vehicle.cp.driver.turnIsDriving or vehicle.cp.driver.fieldworkState == vehicle.cp.driver.states.TURNING)
-			local aiIsTurning = (vehicle.getAIIsTurning ~= nil and vehicle:getAIIsTurning() == true)
-			local combineSteering = false --combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 10);
-			local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-			vehicle.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
-		end
-	end
-
-	if AutoDrive.Triggers ~= nil then
-		for _, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-			if trigger.stoppedTimer == nil then
-				trigger.stoppedTimer = AutoDriveTON:new()
-			end
-			trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
-		end
-	end
+	ADDrawingManager:draw()
+	ADMessagesManager:draw()
 end
 
 function AutoDrive.MarkChanged()
@@ -410,9 +313,9 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 				end
 			end
 			-- Moving all markers in the deleted group to default group
-			for markerID, _ in pairs(AutoDrive.mapMarker) do
-				if AutoDrive.mapMarker[markerID].group == groupName then
-					AutoDrive.mapMarker[markerID].group = "All"
+			for markerID, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
+				if mapMarker.group == groupName then
+					mapMarker.group = "All"
 				end
 			end
 			-- Resetting other goups id
@@ -426,139 +329,6 @@ function AutoDrive.removeGroup(groupName, sendEvent)
 			AutoDrive.groupCounter = table.count(AutoDrive.groups)
 		end
 	end
-end
-
-function AutoDrive.renameDriver(vehicle, name, sendEvent)
-	if name:len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
-		if sendEvent == nil or sendEvent == true then
-			-- Propagating driver rename all over the network
-			AutoDriveRenameDriverEvent.sendEvent(vehicle, name)
-		else
-			vehicle.ad.driverName = name
-		end
-	end
-end
-
-function AutoDrive.getIsStuckInTraffic(vehicle)
-	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stuckInTrafficTimer ~= nil then
-		return vehicle.ad.stuckInTrafficTimer >= 1000 -- 1 second
-	end
-	return false
-end
-
-function AutoDrive.getVehicleMaxSpeed(vehicle)
-	-- 255 is the max value to prevent errors with MP sync
-	if vehicle ~= nil and vehicle.spec_motorized ~= nil and vehicle.spec_motorized.motor ~= nil then
-		local motor = vehicle.spec_motorized.motor
-		return math.min(motor:getMaximumForwardSpeed() * 3.6, 255)
-	end
-	return 255
-end
-
-function AutoDrive:zoomSmoothly(superFunc, offset)
-	if not AutoDrive.mouseWheelActive then -- don't zoom camera when mouse wheel is used to scroll targets (thanks to sperrgebiet)
-		superFunc(self, offset)
-	end
-end
-
-function AutoDrive:onActivateObject(superFunc, vehicle)
-	if vehicle ~= nil then
-		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
-		if g_currentMission.controlledVehicle ~= vehicle or g_currentMission.controlledVehicles[vehicle] == nil then
-			local oldControlledVehicle = nil
-			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
-				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
-			else
-				oldControlledVehicle = g_currentMission.controlledVehicle
-			end
-			g_currentMission.controlledVehicle = vehicle
-
-			superFunc(self, vehicle)
-
-			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
-				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
-				vehicle.ad.oldControlledVehicle = nil
-			else
-				if oldControlledVehicle ~= nil then
-					g_currentMission.controlledVehicle = oldControlledVehicle
-				end
-			end
-			return
-		end
-	end
-
-	superFunc(self, vehicle)
-end
-
-function AutoDrive:onFillTypeSelection(superFunc, fillType)
-	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
-		for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
-			if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
-				self.validFillableObject = fillableObject.object
-				self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
-			end
-		end
-		local validFillableObject = self.validFillableObject
-		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
-			local fillUnitIndex = self.validFillableFillUnitIndex
-			self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
-		end
-	end
-end
-
--- LoadTrigger doesn't allow filling non controlled tools
-function AutoDrive:getIsActivatable(superFunc, objectToFill)
-	--when the trigger is filling, it uses this function without objectToFill
-	if objectToFill ~= nil then
-		local vehicle = objectToFill:getRootVehicle()
-		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.isActive then
-			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
-			if g_currentMission.controlledVehicle ~= vehicle then
-				local oldControlledVehicle = nil
-				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
-					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
-				else
-					oldControlledVehicle = g_currentMission.controlledVehicle
-				end
-				g_currentMission.controlledVehicle = vehicle or objectToFill
-
-				local result = superFunc(self, objectToFill)
-
-				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
-					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
-					vehicle.ad.oldControlledVehicle = nil
-				else
-					if oldControlledVehicle ~= nil then
-						g_currentMission.controlledVehicle = oldControlledVehicle
-					end
-				end
-				return result
-			end
-		end
-	end
-	return superFunc(self, objectToFill)
-end
-
-function AutoDrive:loadTriggerLoad(superFunc, rootNode, xmlFile, xmlNode)
-	local result = superFunc(self, rootNode, xmlFile, xmlNode)
-
-	if result and AutoDrive.Triggers ~= nil then
-		AutoDrive.Triggers.loadTriggerCount = AutoDrive.Triggers.loadTriggerCount + 1
-		AutoDrive.Triggers.siloTriggers[AutoDrive.Triggers.loadTriggerCount] = self
-	end
-
-	return result
-end
-
-function AutoDrive:loadTriggerDelete(superFunc)
-	if AutoDrive.Triggers ~= nil then
-		for i, trigger in pairs(AutoDrive.Triggers.siloTriggers) do
-			if trigger == self then
-				AutoDrive.Triggers.siloTriggers[i] = nil
-			end
-		end
-	end
-	superFunc(self)
 end
 
 AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}

@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
 		<text name="input_ADActivateDebug"						text="AD: Activer mode édition" />
-		<text name="input_ADDebugShowClosest"					text="AD: Afficher point proche" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Sélecteur de connection" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Sélect. point suivant" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Connecter entre" />
@@ -42,7 +41,6 @@
 		<text name="AD_cannot_reach"							text="ne peut pas rejoindre" />
 		<text name="AD_cannot_find_path"						text="n'a pas pu calculer un chemin d'accès à la destination" />
 		<text name="AD_new_marker"								text="Nouvel objectif:" />
-		<text name="AD_new_marker_helptext"						text="Veuillez entrer un nouveau nom (Validez avec Éntrée)" />
 		<text name="AD_No_Trailer"								text="Ne trouve pas de remorque" />
 		<text name="AD_No_Bunker"								text="Ne trouve pas le silo (bunker)" />
 		<text name="AD_No_Shovel"								text="Ne trouve pas de pelle" />
@@ -57,18 +55,12 @@
 		<text name="AD_lalt_for_deletion" 						text="LALT pour effacer" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
 		<text name="gui_ad_pipe_offset"							text="Décalage du tuyau (pipe)" />
-		<text name="gui_ad_trailerOffset"						text="Décalage vertical (remorque)" />
 		<text name="gui_ad_followDistance"						text="Distance de moissonneuse" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance de la moissonneuse depuis son extrémité arrière, lorsqu'elle est suivie." />
-		<text name="gui_ad_trailerOffset_tooltip"				text="Avancer/reculer (remorque), par rapport à la moissonneuse lorsque celle-ci est décentrée." />
 		<text name="gui_ad_lookahead_turning"					text="Distance devant vous (virage)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distance à laquelle le véhicule tourne afin de suivre le segment suivant." />
-		<text name="gui_ad_lookahead_braking"					text="Distance devant vous (frein)" />
-		<text name="gui_ad_lookahead_braking_tooltip"			text="Distance du véhicule pour ralentir plus tôt avant le virage." />
 		<text name="gui_ad_useFastestRoute"						text="Préférer les routes rapide" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="Lors du calcul de l'itinéraire, la vitesse de conduite privilégiée est prise en compte, pas seulement la distance." />
-		<text name="gui_ad_avoidMarkers"						text="Éviter de traverser les destinations" />
-		<text name="gui_ad_avoidMarkers_tooltip"				text="La recherche de destination essaie d'éviter de passer par d'autres destinations." />
 		<text name="gui_ad_mapMarkerDetour"						text="Détour maximum" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Détour maximum quand des destinations doivent être évités." />
 		<text name="gui_ad_siloEmpty"							text="Quand le silo est vide" />
@@ -79,12 +71,6 @@
 		<text name="gui_ad_drive"								text="Continuer" />
 		<text name="gui_ad_yes"									text="Oui" />
 		<text name="gui_ad_no"									text="Non" />
-		<text name="ad_wait_for_combine"						text="Attente de moissonneuse" />
-		<text name="ad_drive_to_combine"						text="Conduire à la moissonneuse" />
-		<text name="ad_unloading_combine"						text="Déchargement de moissonneuse" />
-		<text name="ad_drive_to_parkpos"						text="Stationnement" />
-		<text name="ad_drive_to_startpos"						text="Conduire au départ" />
-		<text name="ad_drive_to_unloadpos"						text="Conduire au déchargement" />
 		<text name="ad_bga_init"								text="Initialiser" />
 		<text name="ad_bga_waiting"								text="En attente de remorque/silo" />
 		<text name="ad_bga_active"								text="Actif" />
@@ -109,8 +95,6 @@
 		<text name="gui_ad_showHelp_tooltip"					text="Afficher l'affectation des touches dans la fenêtre d'aide F1." />
 		<text name="gui_ad_driverWages"							text="Salaire du chauffeur" />
 		<text name="gui_ad_driverWages_tooltip"					text="Avec cette option, les coûts salariaux des chauffeurs sont multipliés." />
-		<text name="gui_ad_smoothField"							text="Conduite adoucie au champ" />
-		<text name="gui_ad_smoothField_tooltip"					text="Les itinéraires vers/depuis les moissonneuses sont lissés - Expérimental." />
 		<text name="gui_ad_showNextPath"						text="Montrer chemin suivant" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Activer/Désactiver l'affichage des deux prochains points de passage." />
 		<text name="gui_ad_avoidFruit"							text="Éviter les cultures" />
@@ -121,20 +105,12 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Hauteur de ligne en mode d'édition, au-dessus ou au-dessous du tracteur." />
 		<text name="gui_ad_ground"								text="Niveau du sol" />
 		<text name="gui_ad_aboveDriver"							text="Au-dessus du tracteur" />
-		<text name="gui_ad_allowConsoleStyle"					text="Autoriser la saisie de texte" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Autoriser la saisie de destination étendue de texte via le clavier - Par défaut: Bouton millieu de souris sur le nom de la destination." />
 		<text name="gui_ad_enableTrafficDetection"				text="Détection de collision" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Permet la détection de collision avancée, qui réagit également au trafic d'intelligence artificielle, aux panneaux, aux clôtures, etc..." />
-		<text name="gui_ad_refillSeedAndFertilizer"				text="Semences et engrais" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Permet de choisir le chargement des semences et de l'engrais, si l'un ou l'autre est sélectionné." />
 		<text name="gui_ad_shovelWidth"							text="Largeur de la pelle (ajout)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée." />
-		<text name="gui_ad_preCallDriver"						text="Appel anticipé pour charger" />
-		<text name="gui_ad_preCallDriver_tooltip"				text="Appel anticipé du chauffeur au niveau de remplissage défini." />
 		<text name="gui_ad_preCallLevel"						text="Appel anticipé pour décharger" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur au niveau de déchargement défini." />
-		<text name="gui_ad_chaseCombine"						text="Suivre la moissonneuse" />
-		<text name="gui_ad_chaseCombine_tooltip"				text="Le chauffeur décharge et suit la moissonneuse après avoir reçu un appel anticipé." />
 		<text name="gui_ad_distributeToFolder"					text="Objectifs multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Toutes les cibles d'un même dossier deviendront des cibles de déchargement les unes après les autres." />
 		<text name="gui_ad_maxTriggerDistance"					text="Zone maxi du silo" />
@@ -155,8 +131,6 @@
 		<text name="gui_ad_enterGroupNameText"					text="Entrez le nom du dossier:" />
 		<text name="gui_ad_autoRefuel"							text="Faire le plein automatiquement" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Lorsque le niveau du réservoir est bas, la station-service la plus proche est automatiquement ajoutée dans les trajets." />
-		<text name="gui_ad_fuelSaving"							text="Économies de carburant" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Arrête le moteur des véhicules lorsque la destination est atteinte (et que le joueur ne les conduits pas)." />
 		<text name="gui_ad_filter"								text="Filtrage" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Changer le filtre de destination" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Entrez le filtre de destination:" />
@@ -164,7 +138,11 @@
 		<text name="gui_ad_shovelHeight_tooltip"				text="Si la hauteur de pelle détectée automatiquement n’est pas correcte au sol, utilisez cette valeur pour ajuster." />
 		<text name="gui_ad_switchToMarkersOnMap"				text="Commutation de marqueurs" />
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Définissez la cible/décharger la cible en cliquant sur les points disponible de la carte." />
-		
+		<text name="gui_ad_cornerSpeed"							text="Vitesse dans les virages" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajuster la vitesse de virage pour chaque véhicule. La masse et la vitesse actuelle auront toujours un impact sur le point de freinage" />
+		<text name="gui_ad_callSecondUnloader"					text="Appelez le 2. Déchargeur" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Appelez le 2. Déchargeur lorsque le déchargeur actuel atteint le niveau de remplissage préappel" />
+
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Paramètres de déchargements moissonneuses - AutoDrive" />
@@ -267,5 +245,31 @@
 		<text name="ad_helpText_13_03"							text="Attention: aucune détection de collision n'est actuellement incluse dans ce mode!" />
 		<text name="ad_helpText_13_04"							text="" />
 		<text name="ad_helpText_13_05"							text="Étant donné que le véhicule essaie de trouver automatiquement la position de chargement idéale pour la pelle, il se peut qu’il soulève ses roues avant. Une détection est incluse pour ce scénario, qui vérifie si toutes les roues sont au sol et commence à soulever la pelle si cette vérification est fausse pendant quelques centaines de millisecondes." />
+
+		
+		<text name="AD_task_pathfinding"						text="Planifier le parcours" />
+		<text name="AD_task_catch_up_with_combine"				text="Rattraper le temps perdu avec la moissonneuse-batteuse" />
+		<text name="AD_task_clearcrop"							text="Culture de défrichement" />
+		<text name="AD_task_drive_to_destination"				text="Conduire jusqu'à destination" />
+		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Conduite vers le véhicule cible" />
+		<text name="AD_task_unloading_combine"					text="Déchargement de la moissonneuse-batteuse" />
+		<text name="AD_task_reversing_from_combine"				text="Inversion de la combinaison" />
+		<text name="AD_task_waiting_for_space"					text="En attente d'une marge de manœuvre" />
+		<text name="AD_task_wait_for_combine_turn"				text="Attendre le tour de la moissonneuse-batteuse" />
+		<text name="AD_task_drive_to_load_point"				text="Conduire jusqu'au point de chargement" />
+		<text name="AD_task_drive_to_refuel_point"				text="Conduire jusqu'à la station-service" />
+		<text name="AD_task_stop_and_disable"					text="Arrêter" />
+		<text name="AD_task_drive_to_unload_point"				text="Conduire jusqu'au point de déchargement" />
+		<text name="AD_task_wait_for_call"						text="En attente d'un appel" />	
+		<text name="AD_task_chasing_combine"					text="Combinaison de chaînage" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Laisser passer la moissonneuse-batteuse" />	
+		<text name="AD_task_catching_chase_side"				text="Côté attrapage" />	
+		<text name="AD_task_chase_side"							text="Côté" />	
+		<text name="AD_task_chase_side_left"					text="à gauche" />	
+		<text name="AD_task_chase_side_rear"					text="arrière" />	
+		<text name="AD_task_chase_side_right"					text="droite" />	
+		<text name="AD_task_waiting_for_room"					text="En attente d'une chambre" />	
+		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 	</texts>
 </l10n>

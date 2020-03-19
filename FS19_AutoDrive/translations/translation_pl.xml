@@ -17,7 +17,6 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Następny punkt rozładunku" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Poprzedni punkt rozładunku" />
 		<text name="input_ADActivateDebug"						text="AD: Tryb edycji" />
-		<text name="input_ADDebugShowClosest"					text="AD: Wskaż najbliższy punkt" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Wybierz sąsiadujący punkt" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Wybierz następny sąsiadujący punkt" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Połączenie punktów wł./wył." />
@@ -42,7 +41,6 @@
 		<text name="AD_cannot_reach"							text="nie może dotrzeć do" />
 		<text name="AD_cannot_find_path"						text="nie może określić trasy" />
 		<text name="AD_new_marker"								text="Nowy cel:" />
-		<text name="AD_new_marker_helptext"						text="Wprowadź nazwę - Zakończ za pomocą klawisza Enter" />
 		<text name="AD_No_Trailer"								text="nie mogłem znaleźć przyczepy" />
 		<text name="AD_No_Bunker"								text="nie mogłem znaleźć silosu" />
 		<text name="AD_No_Shovel"								text="nie mogłem znaleźć łychy" />
@@ -53,22 +51,16 @@
 		<text name="AD_MODE_LOAD"								text="Załadunek" />
 		<text name="AD_MODE_BGA"								text="Rozładunek do silosu" />
 		<text name="AD_synchronizing"							text="wczytywanie tras z serwera..." />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
-		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL do utworzenia" />
+		<text name="AD_lalt_for_deletion" 						text="LALT do usunięcia" />
 		<text name="gui_ad_Setting"								text="AutoDrive - ustawienia" />
 		<text name="gui_ad_pipe_offset"							text="Przesunięcie rury" />
-		<text name="gui_ad_trailerOffset"						text="Przesunięcie przyczepy" />
-		<text name="gui_ad_trailerOffset_tooltip"				text="Przesunięcie pozycji rozładunku przyczepy - przód/tył" />
 		<text name="gui_ad_followDistance"						text="Distance combine" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Odległość patrzenia w przód (skręcanie)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Odległość jaką pojazd sprawdza przed sobą, aby dostosować sterowanie do następnego segmentu trasy" />
-		<text name="gui_ad_lookahead_braking"					text="Odległość patrzenia w przód (hamowanie)" />
-		<text name="gui_ad_lookahead_braking_tooltip"			text="Odległość jaką pojazd sprawdza przed sobą, aby dostosować prędkość do oczekiwanego promienia skrętu" />
 		<text name="gui_ad_useFastestRoute"						text="Użyj najszybszej trasy" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="Obliczając najlepsze trasy, weź pod uwagę prędkość jazdy zamiast  samej odległości" />
-		<text name="gui_ad_avoidMarkers"						text="Unikaj innych celów" />
-		<text name="gui_ad_avoidMarkers_tooltip"				text="Wyszukiwanie tras próbuje znaleźć objazdy celów. Przydatne, aby uniknąć zatorów" />
 		<text name="gui_ad_mapMarkerDetour"						text="Maksymalny objazd" />
 		<text name="gui_ad_mapMarkerDetour_tooltip"				text="Maksymalny objazd podczas omijania celów" />
 		<text name="gui_ad_siloEmpty"							text="Jeśli silos jest pusty" />
@@ -79,12 +71,6 @@
 		<text name="gui_ad_drive"								text="Jedź dalej" />
 		<text name="gui_ad_yes"									text="Tak" />
 		<text name="gui_ad_no"									text="Nie" />
-		<text name="ad_wait_for_combine"						text="Czekaj na kombajn" />
-		<text name="ad_drive_to_combine"						text="Podjedź do kombajnu" />
-		<text name="ad_unloading_combine"						text="Rozładowanie kombajnu" />
-		<text name="ad_drive_to_parkpos"						text="Parking" />
-		<text name="ad_drive_to_startpos"						text="Jedź na początek" />
-		<text name="ad_drive_to_unloadpos"						text="Jedź do rozładunku" />
 		<text name="ad_bga_init"								text="Inicjowanie" />
 		<text name="ad_bga_waiting"								text="Oczekiwanie na przyczepę/silos" />
 		<text name="ad_bga_active"								text="Aktywny" />
@@ -109,8 +95,6 @@
 		<text name="gui_ad_showHelp_tooltip"					text="Wyświetl skróty klawiszowe w oknie F1" />
 		<text name="gui_ad_driverWages"							text="Wynagrodzenie kierowcy" />
 		<text name="gui_ad_driverWages_tooltip"					text="Wynagrodzenie kierowcy będzie mnożone przez tą wartość" />
-		<text name="gui_ad_smoothField"							text="Płynniejsza jazda po polu" />
-		<text name="gui_ad_smoothField_tooltip"					text="Kursy wygenerowane do i od kombajnu zostaną wygładzone (eksperymentalne)" />
 		<text name="gui_ad_showNextPath"						text="Pokaż następną trasę" />
 		<text name="gui_ad_showNextPath_tooltip"				text="Wł./wył. wyświetlanie dwóch kolejnych punktów trasy" />
 		<text name="gui_ad_avoidFruit"							text="Unikaj upraw" />
@@ -121,20 +105,12 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Wysokość linii w trybie edycji. Na poziomie gruntu lub nad ciągnikiem" />
 		<text name="gui_ad_ground"								text="Poziom gruntu" />
 		<text name="gui_ad_aboveDriver"							text="Powyżej ciągnika" />
-		<text name="gui_ad_allowConsoleStyle"					text="Zezwól na wprowadzanie nazwy celu (tekst)" />
-		<text name="gui_ad_allowConsoleStyle_tooltip"			text="Zezwól na zaawansowane wprowadzanie nazwy celu za pomocą klawiatury - domyślnie prawy klik na polu z tekstem nazwy celu" />
 		<text name="gui_ad_enableTrafficDetection"				text="Wykrywanie kolizji" />
 		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Zaawansowane wykrywanie kolizji, które wykrywa również ruch AI, znaki, ogrodzenia itp" />
-		<text name="gui_ad_refillSeedAndFertilizer"				text="Nasiona i nawóz" />
-		<text name="gui_ad_refillSeedAndFertilizer_tooltip"		text="Umożliwia AutoDrive napełnianie zarówno nasion, jak i nawozu, jeżeli jeden z nich jest wybrany jako rodzaj napełnienia." />
 		<text name="gui_ad_shovelWidth"							text="Szerokość łychy (dodatek)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Jeżeli automatycznie wykryta szerokość łychy jest zbyt mała, można ją zwiększyć o tą wartość" />
-		<text name="gui_ad_preCallDriver"						text="Wcześniejsze przywołanie kierowcy" />
-		<text name="gui_ad_preCallDriver_tooltip"				text="Przywołanie kierowcy przy wybranym poziomie napełnienia." />
 		<text name="gui_ad_preCallLevel"						text="Poziom wcześniejszego przywołania kierowcy" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Poziom napełnienia, przy którym przywoływany jest kierowca." />
-		<text name="gui_ad_chaseCombine"						text="Podążanie za kombajnem" />
-		<text name="gui_ad_chaseCombine_tooltip"				text="Wezwany wcześniej kierowca podąża za kombajnem" />
 		<text name="gui_ad_distributeToFolder"					text="Wiele celów" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Wszystkie cele w jednym folderze będą używane jedne pod drugim jak miejsca wyładunku." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maksymalna odległość do triggerów" />
@@ -155,49 +131,51 @@
 		<text name="gui_ad_enterGroupNameText"					text="Podaj nazwę folderu:" />
 		<text name="gui_ad_autoRefuel"							text="Automatyczne tankowanie" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Jedź do miejsca tankowania (blisko triggera z paliwem), kiedy poziom paliwa jest niski (15%)." />
-		<text name="gui_ad_fuelSaving"							text="Fuel Saving" />
-		<text name="gui_ad_fuelSaving_tooltip"					text="Turns off the vehicle when the destination is reached (and the player is not driving)" />
 		<text name="gui_ad_filter"								text="Filtr" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Zmień tekst filtrowania celów" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Podaj tekst filtrowania:" />
-		<text name="gui_ad_shovelHeight"						text="Shovel height" />
-		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
-		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
-		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
+		<text name="gui_ad_shovelHeight"						text="Wysokość łopaty" />
+		<text name="gui_ad_shovelHeight_tooltip"				text="Jeśli automatycznie wykryta wysokość łopaty jest nieprawidłowa. Wykorzystaj to do regulacji wysokości podłoża, na którym znajduje się cel." />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Przełączanie na znaczniki" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Ustawianie celu/rozładowanie celu po kliknięciu na hotspoty na mapie" />
+		<text name="gui_ad_cornerSpeed"							text="Prędkość na zakręcie" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Regulacja prędkości na zakrętach dla poszczególnych pojazdów. Masa i aktualna prędkość nadal będą wpływać na punkt hamowania" />
+		<text name="gui_ad_callSecondUnloader"					text="Wezwij 2. Rozładowarka ." />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Wezwij 2. Rozładowarka, gdy aktualny rozładowacz osiągnie poziom wypełnienia wstępnego" />
 		
-		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
-		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
-		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
-		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
-		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimental Features Settings - AutoDrive" />
-		<text name="gui_ad_restoreButtonText" 					text="Restore" />
-		<text name="gui_ad_settingsClosingDialog_title" 		text="All changes will be lost" />
-		<text name="gui_ad_settingsClosingDialog_text" 			text="Are you sure you want to close the settings without saving?" />
-		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
-		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
+		<text name="gui_ad_settingsPage_title"					text="Ustawienia - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Ustawienia pojazdu - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Łączenie ustawień rozładunku - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title" 			text="Ustawienia debugowania - AutoDrive" />
+		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Ustawienia funkcji eksperymentalnych - AutoDrive" />
+		<text name="gui_ad_restoreButtonText" 					text="Przywrócenie" />
+		<text name="gui_ad_settingsClosingDialog_title" 		text="Wszystkie zmiany zostaną utracone" />
+		<text name="gui_ad_settingsClosingDialog_text" 			text="Czy na pewno chcesz zamknąć ustawienia bez zapisywania?" />
+		<text name="gui_ad_showMarkersOnMap"					text="Markery prysznicowe" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Pokaż markery/przeznaczenia na mapie gry" />
 		
-		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
+		<text name="gui_ad_routesManagerTitle" 					text="Kierownik trasy" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Wstawić nazwę trasy:" />
+		<text name="gui_ad_button_export" 						text="Eksport" />
 		<text name="gui_ad_button_import" 						text="Import" />
-		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
-		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Czy na pewno chcesz nadpisać istniejącą trasę?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Nadpisywanie trasy" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Czy na pewno chcesz usunąć trasę '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Usuwanie trasy" />
 
-		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
-		<text name="statistic_driversHired" 					text="Drivers currently hired" />
+		<text name="statistic_driversTraveledDistance" 			text="Odległość od kierowców" />
+		<text name="statistic_driversHired" 					text="Aktualnie zatrudnieni kierowcy" />
 
-		<text name="gui_ad_debugChannelVehicle" 				text="Vehicles" />
-		<text name="gui_ad_debugChannelCombine" 				text="Combines" />
-		<text name="gui_ad_debugChannelTrailer" 				text="Trailers" />
-		<text name="gui_ad_debugChannelDev" 					text="Developing" />
+		<text name="gui_ad_debugChannelVehicle" 				text="Pojazdy" />
+		<text name="gui_ad_debugChannelCombine" 				text="Łączy" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Przyczepy" />
+		<text name="gui_ad_debugChannelDev" 					text="Rozwój" />
 		<text name="gui_ad_debugChannelPath" 					text="Pathfinding" />
-		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
-		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
-		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
+		<text name="gui_ad_debugChannelSensor" 					text="Czujniki" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Sieć" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfejs zewnętrzny" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
-		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+		<text name="gui_ad_debugChannelAll" 					text="Wszystko" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
@@ -267,5 +245,31 @@
 		<text name="ad_helpText_13_03"							text="Caution: There is currently no collision detection included in this mode!" />
 		<text name="ad_helpText_13_04"							text="" />
 		<text name="ad_helpText_13_05"							text="Since the vehicle tries to find the ideal loading position for the shovel automatically, it can happen that he lifts it’s front wheels up. There is a detection included for this scenario, which checks if all wheels are on the ground and starts lifting the shovel if this check returns false for a few hundred milliseconds." />
+		
+
+		<text name="AD_task_pathfinding"						text="Ścieżka planowania" />
+		<text name="AD_task_catch_up_with_combine"				text="Nadrabianie zaległości z kombajnem" />
+		<text name="AD_task_clearcrop"							text="Czyszczenie upraw" />
+		<text name="AD_task_drive_to_destination"				text="Jazda do celu" />
+		<text name="AD_task_drive_to_vehicle"					text="Jazda do pojazdu docelowego" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Drive to combine pipe" />
+		<text name="AD_task_unloading_combine"					text="Kombinacja rozładunkowa" />
+		<text name="AD_task_reversing_from_combine"				text="Odwracanie się od kombajnu" />
+		<text name="AD_task_waiting_for_space"					text="Czekając na pole manewru" />
+		<text name="AD_task_wait_for_combine_turn"				text="Poczekaj na kolejkę kombajnów" />
+		<text name="AD_task_drive_to_load_point"				text="Przejazd do punktu załadunku" />
+		<text name="AD_task_drive_to_refuel_point"				text="Przejazd do stacji paliw" />
+		<text name="AD_task_stop_and_disable"					text="Zatrzymanie się" />
+		<text name="AD_task_drive_to_unload_point"				text="Przejazd do punktu rozładunku" />
+		<text name="AD_task_wait_for_call"						text="Czekanie na telefon" />	
+		<text name="AD_task_chasing_combine"					text="Kombinacja łańcuchowa" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Puszczanie kombinacji przechodzi przez" />	
+		<text name="AD_task_catching_chase_side"				text="Strona przechwytująca" />	
+		<text name="AD_task_chase_side"							text="Strona" />	
+		<text name="AD_task_chase_side_left"					text="w lewo" />	
+		<text name="AD_task_chase_side_rear"					text="tył" />	
+		<text name="AD_task_chase_side_right"					text="prawo" />		
+		<text name="AD_task_waiting_for_room"					text="Czekanie na pokój" />
+		<text name="AD_task_exiting_field"						text="Wyjście z pola" />
 	</texts>
 </l10n>
