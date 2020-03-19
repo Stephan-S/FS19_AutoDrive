@@ -32,6 +32,11 @@ function CatchCombinePipeTask:update(dt)
         self:finished()
     end
 
+    if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
+        self:finished()
+        return
+    end
+
     if self.state == CatchCombinePipeTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING finished")

@@ -139,7 +139,6 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
     if vehicle ~= nil and vehicle.ad ~= nil and not vehicle.ad.stateModule:isActive() then
         if unloadDestinationID < -1 then
             if unloadDestinationID == -3 then --park
-                local PreviousStartPosition = vehicle.ad.stateModule:getFirstMarkerId()
                 AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
             elseif unloadDestinationID == -2 then --refuel
                 vehicle.ad.storedFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()

@@ -25,6 +25,11 @@ function EmptyHarvesterTask:setUp()
 end
 
 function EmptyHarvesterTask:update(dt)
+    if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
+        self:finished()
+        return
+    end
+
     if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()

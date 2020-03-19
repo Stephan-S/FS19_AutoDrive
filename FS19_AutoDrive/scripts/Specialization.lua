@@ -194,6 +194,8 @@ function AutoDrive:onUpdate(dt)
 
     --For 'legacy' purposes, this value should be kept since other mods already test for this:
     self.ad.isActive = self.ad.stateModule:isActive()
+    self.ad.mapMarkerSelected = self.ad.stateModule:getFirstMarkerId()
+    self.ad.mapMarkerSelected_Unload = self.ad.stateModule:getSecondMarkerId()
 end
 
 function AutoDrive:startAutoDrive()
@@ -330,6 +332,8 @@ function AutoDrive:onStopAutoDrive(hasCallbacks)
         if self.steeringEnabled == false then
             self.steeringEnabled = true
         end
+
+        ADHarvestManager:unregisterVehicle(self)
     end
 
     self:requestActionEventUpdate()

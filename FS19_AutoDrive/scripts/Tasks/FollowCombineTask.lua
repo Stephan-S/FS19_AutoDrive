@@ -29,6 +29,11 @@ function FollowCombineTask:setUp()
 end
 
 function FollowCombineTask:update(dt)
+    if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
+        self:finished()
+        return
+    end
+
     self:updateStates()
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
     local reachedFieldBorder = false --not self.vehicle.ad.sensors.frontSensorField:pollInfo()
