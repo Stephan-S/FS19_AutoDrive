@@ -51,6 +51,13 @@ function PathFinderModule:update()
         return
     end
 
+    --stop if called without prior 'start' method calls
+    if self.startCell == nil then
+        self.isFinished = true
+        self.smoothDone = true
+        self.wayPoints = {}
+    end
+
     self.steps = self.steps + 1
 
     if self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
