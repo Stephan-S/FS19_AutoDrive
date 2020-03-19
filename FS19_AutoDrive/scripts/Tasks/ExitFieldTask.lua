@@ -11,16 +11,7 @@ end
 
 function ExitFieldTask:setUp()
     self.state = ExitFieldTask.STATE_PATHPLANNING
-    local targetNode = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstWayPoint())
-    local wayPoints = ADGraphManager:pathFromTo(self.vehicle.ad.stateModule:getFirstWayPoint(), self.vehicle.ad.stateModule:getSecondWayPoint())
-    if wayPoints ~= nil and #wayPoints > 1 then
-        local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
-        if AutoDrive.getSetting("exitField", self.vehicle) == 1 and #wayPoints > 6 then
-            targetNode = wayPoints[5]
-            vecToNextPoint = {x = wayPoints[6].x - targetNode.x, z = wayPoints[6].z - targetNode.z}
-        end
-        self.vehicle.ad.pathFinderModule:startPathPlanningTo(targetNode, vecToNextPoint)
-    end
+    self:startPathPlanning()
 end
 
 function ExitFieldTask:update(dt)
@@ -28,10 +19,9 @@ function ExitFieldTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
-                g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
-                self.vehicle.ad.taskModule:abortAllTasks()
-                self.vehicle:stopAutoDrive()
-                AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
+                --restart
+                AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
+                self:startPathPlanning()
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
                 self.state = ExitFieldTask.STATE_DRIVING
@@ -55,6 +45,19 @@ end
 
 function ExitFieldTask:finished()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
+end
+
+function ExitFieldTask:startPathPlanning()
+    local targetNode = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstWayPoint())
+    local wayPoints = ADGraphManager:pathFromTo(self.vehicle.ad.stateModule:getFirstWayPoint(), self.vehicle.ad.stateModule:getSecondWayPoint())
+    if wayPoints ~= nil and #wayPoints > 1 then
+        local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
+        if AutoDrive.getSetting("exitField", self.vehicle) == 1 and #wayPoints > 6 then
+            targetNode = wayPoints[5]
+            vecToNextPoint = {x = wayPoints[6].x - targetNode.x, z = wayPoints[6].z - targetNode.z}
+        end
+        self.vehicle.ad.pathFinderModule:startPathPlanningTo(targetNode, vecToNextPoint)
+    end
 end
 
 function ExitFieldTask:getInfoText()

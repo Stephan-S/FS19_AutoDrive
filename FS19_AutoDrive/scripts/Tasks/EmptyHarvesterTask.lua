@@ -30,7 +30,9 @@ function EmptyHarvesterTask:update(dt)
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
             if self.wayPoints == nil or #self.wayPoints == 0 then
-                self:finished()
+                --restart
+                AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
+                self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
             else
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_DRIVING")
                 self.state = EmptyHarvesterTask.STATE_DRIVING

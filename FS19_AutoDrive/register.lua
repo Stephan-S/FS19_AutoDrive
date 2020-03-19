@@ -48,7 +48,7 @@ source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuns.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/EventUtil.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
