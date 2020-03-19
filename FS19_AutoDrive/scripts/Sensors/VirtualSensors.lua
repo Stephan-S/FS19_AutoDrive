@@ -42,8 +42,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_FRONT
     sensorParameters.width = vehicle.sizeWidth * 0.6
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
-    frontSensor.drawDebug = true --test
-    frontSensor.enabled = true --test
+    --frontSensor.drawDebug = true --test
+    --frontSensor.enabled = true --test
     vehicle.ad.sensors["frontSensor"] = frontSensor
 
     sensorParameters.dynamicLength = false
