@@ -51,8 +51,8 @@
 		<text name="AD_MODE_LOAD"								text="Ophalen" />
 		<text name="AD_MODE_BGA"								text="Lossen in Bunker Silo" />
 		<text name="AD_synchronizing"							text="synchroniseren met server.." />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
-		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL te creëren" />
+		<text name="AD_lalt_for_deletion" 						text="LALT te verwijderen" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Instellingen" />
 		<text name="gui_ad_pipe_offset"							text="Afstand Pijp" />
 		<text name="gui_ad_followDistance"						text="Distance combine" />
@@ -134,48 +134,48 @@
 		<text name="gui_ad_filter"								text="Filter" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Wijzig de bestemming filer tekst" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Filter tekst invoeren:" />
-		<text name="gui_ad_shovelHeight"						text="Shovel height" />
-		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
-		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
-		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
+		<text name="gui_ad_shovelHeight"						text="Schophoogte" />
+		<text name="gui_ad_shovelHeight_tooltip"				text="Als de automatisch gedetecteerde schophoogte niet correct is. Gebruik dit om de doelhoogte van de grond aan te passen" />
+		<text name="gui_ad_showMarkersOnMap"					text="Toon markers" />
+		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Toon markeringen/bestemmingen op de spelkaart" />
 		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
-		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
-		<text name="gui_ad_cornerSpeed"							text="Corner speed" />
-		<text name="gui_ad_cornerSpeed_tooltip"					text="Adjust corner speed for individual vehicle. Mass and current speed will still impact brake point" />
-		<text name="gui_ad_callSecondUnloader"					text="Call 2. Unloader" />
-		<text name="gui_ad_callSecondUnloader_tooltip"			text="Call 2. Unloader when the current unloader reaches the precall fill level" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Overschakelen naar markers" />
+		<text name="gui_ad_cornerSpeed"							text="Hoeksnelheid" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Pas de hoeksnelheid aan voor een individueel voertuig. Massa en huidige snelheid zullen nog steeds het rempunt beïnvloeden" />
+		<text name="gui_ad_callSecondUnloader"					text="Bel 2. Ontlader" />
+		<text name="gui_ad_callSecondUnloader_tooltip"			text="Bel 2. Ontlader wanneer de huidige ontlader het voorloopvullingsniveau bereikt" />
 		
-		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
-		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
-		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
-		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
-		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimental Features Settings - AutoDrive" />
-		<text name="gui_ad_restoreButtonText" 					text="Restore" />
-		<text name="gui_ad_settingsClosingDialog_title" 		text="All changes will be lost" />
-		<text name="gui_ad_settingsClosingDialog_text" 			text="Are you sure you want to close the settings without saving?" />
+		<text name="gui_ad_settingsPage_title"					text="Instellingen - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Voertuiginstellingen - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combineer Ontladingsinstellingen - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title" 			text="Debug-instellingen - AutoDrive" />
+		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimentele functies Instellingen - AutoDrive" />
+		<text name="gui_ad_restoreButtonText" 					text="Herstel" />
+		<text name="gui_ad_settingsClosingDialog_title" 		text="Alle veranderingen zullen verloren gaan" />
+		<text name="gui_ad_settingsClosingDialog_text" 			text="Weet u zeker dat u de instellingen wilt sluiten zonder op te slaan?" />
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
-		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
-		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Route deletion" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Voeg de naam van de route in:" />
+		<text name="gui_ad_button_export" 						text="Exporteer" />
+		<text name="gui_ad_button_import" 						text="Importeer" />
+		<text name="gui_ad_routeExportWarn_text" 				text="Weet u zeker dat u de bestaande route wilt overschrijven?" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Route overschrijven" />
+		<text name="gui_ad_routeDeleteWarn_text" 				text="Weet u zeker dat u de route wilt verwijderen '%s'?" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Verwijdering van de route" />
 
-		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
-		<text name="statistic_driversHired" 					text="Drivers currently hired" />
+		<text name="statistic_driversTraveledDistance" 			text="Rijafstand van chauffeurs" />
+		<text name="statistic_driversHired" 					text="Momenteel gehuurde chauffeurs" />
 		
-		<text name="gui_ad_debugChannelVehicle" 				text="Vehicles" />
-		<text name="gui_ad_debugChannelCombine" 				text="Combines" />
-		<text name="gui_ad_debugChannelTrailer" 				text="Trailers" />
-		<text name="gui_ad_debugChannelDev" 					text="Developing" />
-		<text name="gui_ad_debugChannelPath" 					text="Pathfinding" />
-		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
-		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
-		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
+		<text name="gui_ad_debugChannelVehicle" 				text="Voertuigen" />
+		<text name="gui_ad_debugChannelCombine" 				text="Combineert" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Aanhangwagens" />
+		<text name="gui_ad_debugChannelDev" 					text="Het ontwikkelen van" />
+		<text name="gui_ad_debugChannelPath" 					text="Padvinderij" />
+		<text name="gui_ad_debugChannelSensor" 					text="Sensoren" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Netwerk" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="Externe interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
-		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+		<text name="gui_ad_debugChannelAll" 					text="Alles" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
@@ -247,29 +247,29 @@
 		<text name="ad_helpText_13_05"							text="Since the vehicle tries to find the ideal loading position for the shovel automatically, it can happen that he lifts it’s front wheels up. There is a detection included for this scenario, which checks if all wheels are on the ground and starts lifting the shovel if this check returns false for a few hundred milliseconds." />
 		
 
-		<text name="AD_task_pathfinding"						text="Planning path" />
-		<text name="AD_task_catch_up_with_combine"				text="Catching up with combine" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" />
-		<text name="AD_task_drive_to_destination"				text="Driving to destination" />
-		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
-		<text name="AD_task_drive_to_combine_pipe"				text="Drive to combine pipe" />
-		<text name="AD_task_unloading_combine"					text="Unloading combine" />
-		<text name="AD_task_reversing_from_combine"				text="Reversing from combine" />
-		<text name="AD_task_waiting_for_space"					text="Waiting for maneuver room" />
-		<text name="AD_task_wait_for_combine_turn"				text="Wait for combine's turn" />
-		<text name="AD_task_drive_to_load_point"				text="Drive to loading point" />
-		<text name="AD_task_drive_to_refuel_point"				text="Drive to refuel station" />
-		<text name="AD_task_stop_and_disable"					text="Stopping" />
-		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
-		<text name="AD_task_wait_for_call"						text="Waiting for call" />	
-		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
-		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
-		<text name="AD_task_catching_chase_side"				text="Catching side" />	
-		<text name="AD_task_chase_side"							text="Side" />	
-		<text name="AD_task_chase_side_left"					text="left" />	
-		<text name="AD_task_chase_side_rear"					text="rear" />	
-		<text name="AD_task_chase_side_right"					text="right" />		
-		<text name="AD_task_waiting_for_room"					text="Waiting for room" />
-		<text name="AD_task_exiting_field"						text="Exiting field" />
+		<text name="AD_task_pathfinding"						text="Planningstraject" />
+		<text name="AD_task_catch_up_with_combine"				text="Inhaalslag maken met combineren" />
+		<text name="AD_task_clearcrop"							text="Het opruimen van het gewas" />
+		<text name="AD_task_drive_to_destination"				text="Rijden naar de bestemming" />
+		<text name="AD_task_drive_to_vehicle"					text="Rijden naar het doelwit" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Aandrijving om pijp te combineren" />
+		<text name="AD_task_unloading_combine"					text="Lossen combineren" />
+		<text name="AD_task_reversing_from_combine"				text="Omkeren van maaidorser" />
+		<text name="AD_task_waiting_for_space"					text="Wachten op manoeuvreerruimte" />
+		<text name="AD_task_wait_for_combine_turn"				text="Wacht op de beurt van de maaidorser" />
+		<text name="AD_task_drive_to_load_point"				text="Rijden naar het laadpunt" />
+		<text name="AD_task_drive_to_refuel_point"				text="Rijden naar tankstation" />
+		<text name="AD_task_stop_and_disable"					text="Stoppen" />
+		<text name="AD_task_drive_to_unload_point"				text="Aandrijving naar lospunt" />
+		<text name="AD_task_wait_for_call"						text="Wachten op gesprek" />	
+		<text name="AD_task_chasing_combine"					text="Chaising combineer" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Laat de combinatie voorbijgaan" />	
+		<text name="AD_task_catching_chase_side"				text="Vangkant" />	
+		<text name="AD_task_chase_side"							text="Kant" />	
+		<text name="AD_task_chase_side_left"					text="links" />	
+		<text name="AD_task_chase_side_rear"					text="achterzijde" />	
+		<text name="AD_task_chase_side_right"					text="juist" />		
+		<text name="AD_task_waiting_for_room"					text="Wachten op ruimte" />
+		<text name="AD_task_exiting_field"						text="Uitgangsveld" />
 	</texts>
 </l10n>

@@ -60,7 +60,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_record" then
-        if vehicle.ad.stateModule:isInNormalCreationMode() then
+        if vehicle.ad.stateModule:isInCreationMode() then
             newState = 2
             if vehicle.ad.stateModule:isInDualCreationMode() then
                 newState = 3
