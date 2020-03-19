@@ -16,11 +16,11 @@ function AutoDriveDeleteWayPointEvent:new(wayPointId)
 end
 
 function AutoDriveDeleteWayPointEvent:writeStream(streamId, connection)
-	streamWriteUIntN(streamId, self.wayPointId, 17)
+	streamWriteUIntN(streamId, self.wayPointId, 20)
 end
 
 function AutoDriveDeleteWayPointEvent:readStream(streamId, connection)
-	self.wayPointId = streamReadUIntN(streamId, 17)
+	self.wayPointId = streamReadUIntN(streamId, 20)
 	self:run(connection)
 end
 

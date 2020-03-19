@@ -388,18 +388,36 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	else
 		local prevId = self:getWayPointsCount()
 		local newId = prevId + 1
-		--local prevWp = self:getWayPointById(prevId)
 		local newWp = self:createNode(newId, x, y, z, {}, {})
 		self:setWayPoint(newWp)
-		--if connectPrevious then
-		--	self:toggleConnectionBetween(prevWp, newWp, false)
-		--	if dual then
-		--		self:toggleConnectionBetween(newWp, prevWp, false)
-		--	end
-		--end
 		if g_server ~= nil then
 			-- On the server we must mark the change
 			AutoDrive.MarkChanged()
+		end
+	end
+end
+
+function ADGraphManager:changeWayPointPosition(wayPonitId)
+	local wayPoint = self:getWayPointById(wayPonitId)
+	if wayPoint ~= nil then
+		self:moveWayPoint(wayPonitId, wayPoint.x, wayPoint.y, wayPoint.z)
+	end
+end
+
+function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
+	local wayPoint = self:getWayPointById(wayPonitId)
+	if wayPoint ~= nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating waypoint moving all over the network
+			AutoDriveMoveWayPointEvent.sendEvent(wayPonitId, x, y, z)
+		else
+			wayPoint.x = x
+			wayPoint.y = y
+			wayPoint.z = z
+			if g_server ~= nil then
+				-- On the server we must mark the change
+				AutoDrive.MarkChanged()
+			end
 		end
 	end
 end

@@ -629,14 +629,10 @@ function AutoDrive:toggleRecording(vehicle, dual)
                 if targetID ~= nil then
                     local targetNode = ADGraphManager:getWayPointById(targetID)
                     if targetNode ~= nil then
-                        targetNode.incoming[#targetNode.incoming + 1] = vehicle.ad.lastCreatedWp.id
-                        vehicle.ad.lastCreatedWp.out[#vehicle.ad.lastCreatedWp.out + 1] = targetNode.id
+                        ADGraphManager:toggleConnectionBetween(vehicle.ad.lastCreatedWp, targetNode)
                         if dual == true then
-                            targetNode.out[#targetNode.out + 1] = vehicle.ad.lastCreatedWp.id
-                            vehicle.ad.lastCreatedWp.incoming[#vehicle.ad.lastCreatedWp.incoming + 1] = targetNode.id
+                            ADGraphManager:toggleConnectionBetween(targetNode, vehicle.ad.lastCreatedWp)
                         end
-
-                        AutoDriveCourseEditEvent:sendEvent(targetNode)
                     end
                 end
             end
@@ -658,24 +654,19 @@ function AutoDrive:handleRecording(vehicle)
 
     --first entry
     if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
-        local startPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local startNodeId, _ = ADGraphManager:findClosestWayPoint(vehicle)
         local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
         vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, vehicle.ad.stateModule:isInDualCreationMode())
 
         if AutoDrive.getSetting("autoConnectStart") then
-            if startPoint ~= nil then
-                local startNode = ADGraphManager:getWayPointById(startPoint)
+            if startNodeId ~= nil then
+                local startNode = ADGraphManager:getWayPointById(startNodeId)
                 if startNode ~= nil then
-                    if ADGraphManager:getDistanceBetweenNodes(startPoint, vehicle.ad.lastCreatedWp.id) < 20 then
-                        table.insert(startNode.out, vehicle.ad.lastCreatedWp.id)
-                        table.insert(vehicle.ad.lastCreatedWp.incoming, startNode.id)
-
+                    if ADGraphManager:getDistanceBetweenNodes(startNodeId, vehicle.ad.lastCreatedWp.id) < 20 then
+                        ADGraphManager:toggleConnectionBetween(startNode, vehicle.ad.lastCreatedWp)
                         if vehicle.ad.stateModule:isInDualCreationMode() then
-                            table.insert(ADGraphManager:getWayPointById(startPoint).incoming, vehicle.ad.lastCreatedWp.id)
-                            table.insert(vehicle.ad.lastCreatedWp.out, startPoint)
+                            ADGraphManager:toggleConnectionBetween(vehicle.ad.lastCreatedWp, startNode)
                         end
-
-                        AutoDriveCourseEditEvent:sendEvent(startNode)
                     end
                 end
             end
