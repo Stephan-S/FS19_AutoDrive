@@ -73,7 +73,7 @@ end
 function AutoDrive:onPostLoad(savegame)
     -- This will run before initial MP sync
 
-    for groupName, _ in pairs(AutoDrive.groups) do
+    for groupName, _ in pairs(ADGraphManager:getGroups()) do
         self.ad.groups[groupName] = false
     end
 
@@ -286,6 +286,8 @@ function AutoDrive:stopAutoDrive()
 
         self.ad.taskModule:reset()
 
+        ADHarvestManager:unregisterVehicle(self)
+
         AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
@@ -332,8 +334,6 @@ function AutoDrive:onStopAutoDrive(hasCallbacks)
         if self.steeringEnabled == false then
             self.steeringEnabled = true
         end
-
-        ADHarvestManager:unregisterVehicle(self)
     end
 
     self:requestActionEventUpdate()
@@ -407,7 +407,7 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 
     if self.ad.groups ~= nil then
         local combinedString = ""
-        for groupName, _ in pairs(AutoDrive.groups) do
+        for groupName, _ in pairs(ADGraphManager:getGroups()) do
             for myGroupName, value in pairs(self.ad.groups) do
                 if groupName == myGroupName then
                     if string.len(combinedString) > 0 then

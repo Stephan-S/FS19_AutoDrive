@@ -64,8 +64,8 @@ function AutoDrive:writeMapMarkersToStream(streamId)
 end
 
 function AutoDrive:writeGroupsToStream(streamId)
-    streamWriteInt32(streamId, table.count(AutoDrive.groups))
-    for groupName, groupID in pairs(AutoDrive.groups) do
+    streamWriteInt32(streamId, table.count(ADGraphManager:getGroups()))
+    for groupName, groupID in pairs(ADGraphManager:getGroups()) do
         AutoDrive.streamWriteStringOrEmpty(streamId, groupName)
         streamWriteFloat32(streamId, groupID)
     end
@@ -129,21 +129,6 @@ function AutoDrive:readMapMarkerFromStream(streamId, numberOfMapMarkers)
         end
     end
     AutoDrive:notifyDestinationListeners()
-end
-
-function AutoDrive:readGroupsFromStream(streamId)
-    AutoDrive.groups = {}
-    local numberOfGroups = streamReadInt32(streamId)
-    local loopCounter = 1
-    while loopCounter <= numberOfGroups do
-        local groupName = AutoDrive.streamReadStringOrEmpty(streamId)
-        local groupID = streamReadFloat32(streamId)
-        if groupName ~= nil and groupName ~= "" then
-            AutoDrive.groups[groupName] = groupID
-        end
-        loopCounter = loopCounter + 1
-    end
-    AutoDrive.groups["All"] = 1
 end
 
 function AutoDrive.streamReadStringOrEmpty(streamId)

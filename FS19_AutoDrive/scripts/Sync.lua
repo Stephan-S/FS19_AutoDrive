@@ -77,17 +77,18 @@ function AutoDriveSync:readStream(streamId)
     end
 
     -- reading amount of groups we are going to read
+    ADGraphManager:setGroups({})
+    ADGraphManager:addGroup("All")
     local groupsCount = streamReadUIntN(streamId, AutoDriveSync.GC_SEND_NUM_BITS)
     g_logManager:devInfo(string.format("[AutoDriveSync] Reading %s groups", groupsCount))
     -- reading groups
     for i = 1, groupsCount do
         local gId = streamReadUIntN(streamId, AutoDriveSync.GC_SEND_NUM_BITS)
         local gName = AutoDrive.streamReadStringOrEmpty(streamId)
-        if gName ~= nil and gName ~= "" then
-            AutoDrive.groups[gName] = gId
+        if gName ~= nil and gName ~= "" then            
+            ADGraphManager:addGroup(gName)
         end
     end
-    AutoDrive.groups["All"] = 1
 
     offset = streamGetReadOffset(streamId) - offset
     g_logManager:devInfo(string.format("[AutoDriveSync] Read %s bits (%s bytes) in %s ms", offset, offset / 8, netGetTime() - time))
@@ -146,11 +147,11 @@ function AutoDriveSync:writeStream(streamId)
     end
 
     -- writing the amount of groups we are going to send
-    local groupsCount = table.count(AutoDrive.groups)
+    local groupsCount = table.count(ADGraphManager:getGroups())
     streamWriteUIntN(streamId, groupsCount, AutoDriveSync.GC_SEND_NUM_BITS)
     g_logManager:info(string.format("[AutoDriveSync] Writing %s groups", groupsCount))
     -- writing groups
-    for gName, gId in pairs(AutoDrive.groups) do
+    for gName, gId in pairs(ADGraphManager:getGroups()) do
         streamWriteUIntN(streamId, gId, AutoDriveSync.GC_SEND_NUM_BITS)
         AutoDrive.streamWriteStringOrEmpty(streamId, gName)
     end

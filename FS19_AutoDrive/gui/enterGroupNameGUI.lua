@@ -27,7 +27,7 @@ end
 
 function ADEnterGroupNameGui:onClickOk()
     ADEnterGroupNameGui:superClass().onClickOk(self)
-    AutoDrive.addGroup(self.textInputElement.text)
+    ADGraphManager:addGroup(self.textInputElement.text)
     self:onClickBack()
 end
 

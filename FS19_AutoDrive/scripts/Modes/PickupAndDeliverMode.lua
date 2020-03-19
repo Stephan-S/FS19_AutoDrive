@@ -71,6 +71,9 @@ function PickupAndDeliverMode:getNextTask()
             nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             self.state = PickupAndDeliverMode.STATE_RETURN_TO_START
         end
+        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            self.vehicle.ad.stateModule:setNextTargetInFolder()
+        end
     elseif self.state == PickupAndDeliverMode.STATE_PICKUP then
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         self.loopsDone = self.loopsDone + 1

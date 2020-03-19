@@ -60,7 +60,7 @@ function ADRoutesManager.import(name)
             -- here we will handle MP upload
             ADGraphManager:setWayPoints(wayPoints)
             ADGraphManager:setMapMarkers(mapMarkers)
-            AutoDrive.groups = groups
+            ADGraphManager:setGroups(groups)
         end
     end
 end
@@ -95,7 +95,7 @@ function ADRoutesManager.export(name)
         saveXml = createXMLFile("routeExport_xml", ADRoutesManager.routesFolder .. fileName, "routeExport")
     end
 
-    AutoDrive.writeGraphToXml(saveXml, "routeExport", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarkers(), AutoDrive.groups)
+    AutoDrive.writeGraphToXml(saveXml, "routeExport", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarkers(), ADGraphManager:getGroups())
 
     saveXMLFile(saveXml)
     delete(saveXml)

@@ -111,9 +111,6 @@ function AutoDrive:loadMap(name)
 		end
 	end
 
-	AutoDrive.groups = {}
-	AutoDrive.groups["All"] = 1
-	AutoDrive.groupCounter = 1
 
 	AutoDrive.pullDownListExpanded = 0
 	AutoDrive.pullDownListDirection = 0
@@ -132,6 +129,7 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.requestWayPointTimer = 10000
 
+	ADGraphManager:load()
 	AutoDrive.loadStoredXML()
 
 	if g_server ~= nil then
@@ -272,63 +270,6 @@ end
 
 function AutoDrive.GetChanged()
 	return AutoDrive.configChanged
-end
-
-function AutoDrive.addGroup(groupName, sendEvent)
-	if groupName:len() > 1 and AutoDrive.groups[groupName] == nil then
-		if sendEvent == nil or sendEvent == true then
-			-- Propagating group creation all over the network
-			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_ADD)
-		else
-			AutoDrive.groupCounter = table.count(AutoDrive.groups) + 1
-			AutoDrive.groups[groupName] = AutoDrive.groupCounter
-			for _, vehicle in pairs(g_currentMission.vehicles) do
-				if (vehicle.ad ~= nil) then
-					if vehicle.ad.groups[groupName] == nil then
-						vehicle.ad.groups[groupName] = false
-					end
-				end
-			end
-			-- Resetting HUD
-			AutoDrive.Hud.lastUIScale = 0
-		end
-	end
-end
-
-function AutoDrive.removeGroup(groupName, sendEvent)
-	if AutoDrive.groups[groupName] ~= nil then
-		if sendEvent == nil or sendEvent == true then
-			-- Propagating group creation all over the network
-			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_REMOVE)
-		else
-			local groupId = AutoDrive.groups[groupName]
-			-- Removing group from the groups list
-			AutoDrive.groups[groupName] = nil
-			-- Removing group from the vehicles groups list
-			for _, vehicle in pairs(g_currentMission.vehicles) do
-				if (vehicle.ad ~= nil) then
-					if vehicle.ad.groups[groupName] ~= nil then
-						vehicle.ad.groups[groupName] = nil
-					end
-				end
-			end
-			-- Moving all markers in the deleted group to default group
-			for markerID, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
-				if mapMarker.group == groupName then
-					mapMarker.group = "All"
-				end
-			end
-			-- Resetting other goups id
-			for gName, gId in pairs(AutoDrive.groups) do
-				if groupId <= gId then
-					AutoDrive.groups[gName] = gId - 1
-				end
-			end
-			-- Resetting HUD
-			AutoDrive.Hud.lastUIScale = 0
-			AutoDrive.groupCounter = table.count(AutoDrive.groups)
-		end
-	end
 end
 
 AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}

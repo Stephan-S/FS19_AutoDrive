@@ -36,9 +36,9 @@ function AutoDriveGroupsEvent:run(connection)
 	else
 		-- If the event is coming from the server, both clients and server have to do the job
 		if self.eventType == AutoDriveGroupsEvent.TYPE_ADD then
-			AutoDrive.addGroup(self.groupName, false)
+			ADGraphManager:addGroup(self.groupName, false)
 		elseif self.eventType == AutoDriveGroupsEvent.TYPE_REMOVE then
-			AutoDrive.removeGroup(self.groupName, false)
+			ADGraphManager:removeGroup(self.groupName, false)
 		end
 	end
 end

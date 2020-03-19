@@ -638,3 +638,37 @@ end
 function ADStateModule:raiseDirtyFlag()
     self.vehicle:raiseDirtyFlags(self.vehicle.ad.dirtyFlag)
 end
+
+function ADStateModule:setNextTargetInFolder()
+    local group = self.secondMarker.group
+    if group ~= "All" then
+        local firstMarkerInGroup = nil
+        local nextMarkerInGroup = nil
+        local markerSeen = false
+        for markerID, marker in pairs(ADGraphManager:getMapMarkers()) do
+            if marker.group == group then
+                if firstMarkerInGroup == nil then
+                    firstMarkerInGroup = markerID
+                end
+
+                if markerSeen and nextMarkerInGroup == nil then
+                    nextMarkerInGroup = markerID
+                end
+
+                if markerID == self.secondMarker.markerIndex then
+                    markerSeen = true
+                end
+            end
+        end
+
+        local markerToSet = self.secondMarker
+        if nextMarkerInGroup ~= nil then
+            markerToSet = nextMarkerInGroup
+        elseif firstMarkerInGroup ~= nil then
+            markerToSet = firstMarkerInGroup
+        end
+
+        self:setSecondMarker(markerToSet)
+        AutoDrive.Hud.lastUIScale = 0
+    end
+end

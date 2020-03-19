@@ -1,13 +1,10 @@
 ADGraphManager = {}
 
-function ADGraphManager:new()
-	local o = {}
-	setmetatable(o, self)
-	self.__index = self
-	o.wayPoints = {}
-	o.mapMarkers = {}
-	o.groups = {}
-	return o
+function ADGraphManager:load()
+	self.wayPoints = {}
+	self.mapMarkers = {}
+	self.groups = {}
+	self.groups["All"] = 1
 end
 
 -- Calling functions expect a linear, continuous array
@@ -282,6 +279,63 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 	end
 end
 
+function ADGraphManager:addGroup(groupName, sendEvent)
+	if groupName:len() > 1 and self.groups[groupName] == nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating group creation all over the network
+			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_ADD)
+		else
+			self.groups[groupName] = table.count(self.groups) + 1
+			for _, vehicle in pairs(g_currentMission.vehicles) do
+				if (vehicle.ad ~= nil and vehicle.ad.groups ~= nil) then
+					if vehicle.ad.groups[groupName] == nil then
+						vehicle.ad.groups[groupName] = false
+					end
+				end
+			end
+			-- Resetting HUD
+			if AutoDrive.Hud ~= nil then
+				AutoDrive.Hud.lastUIScale = 0
+			end
+		end
+	end
+end
+
+function ADGraphManager:removeGroup(groupName, sendEvent)
+	if self.groups[groupName] ~= nil then
+		if sendEvent == nil or sendEvent == true then
+			-- Propagating group creation all over the network
+			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_REMOVE)
+		else
+			local groupId = self.groups[groupName]
+			-- Removing group from the groups list
+			self.groups[groupName] = nil
+			-- Removing group from the vehicles groups list
+			for _, vehicle in pairs(g_currentMission.vehicles) do
+				if (vehicle.ad ~= nil and vehicle.ad.groups ~= nil) then
+					if vehicle.ad.groups[groupName] ~= nil then
+						vehicle.ad.groups[groupName] = nil
+					end
+				end
+			end
+			-- Moving all markers in the deleted group to default group
+			for markerID, mapMarker in pairs(self:getMapMarkers()) do
+				if mapMarker.group == groupName then
+					mapMarker.group = "All"
+				end
+			end
+			-- Resetting other goups id
+			for gName, gId in pairs(self.groups) do
+				if groupId <= gId then
+					self.groups[gName] = gId - 1
+				end
+			end
+			-- Resetting HUD
+			AutoDrive.Hud.lastUIScale = 0
+		end
+	end
+end
+
 function ADGraphManager:changeMapMarkerGroup(groupName, markerId, sendEvent)
 	if groupName:len() > 1 and self.groups[groupName] ~= nil and markerId >= 0 then
 		if sendEvent == nil or sendEvent == true then
@@ -292,6 +346,18 @@ function ADGraphManager:changeMapMarkerGroup(groupName, markerId, sendEvent)
 			self.mapMarkers[markerId].group = groupName
 		end
 	end
+end
+
+function ADGraphManager:getGroups()
+	return self.groups
+end
+
+function ADGraphManager:setGroups(groups)
+	self.groups = groups
+end
+
+function ADGraphManager:getGroupByName(groupName)
+	return self.groups[groupName]
 end
 
 function ADGraphManager:removeMapMarker(markerId, sendEvent)

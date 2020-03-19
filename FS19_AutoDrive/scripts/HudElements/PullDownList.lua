@@ -396,7 +396,7 @@ function ADPullDownList:sortGroups()
     end
 
     local inverseTable = {}
-    for groupName, groupID in pairs(AutoDrive.groups) do
+    for groupName, groupID in pairs(ADGraphManager:getGroups()) do
         inverseTable[groupID] = groupName
     end
 
@@ -413,7 +413,7 @@ function ADPullDownList:sortGroups()
         if groupName ~= "All" then
             self.options[i] = {}
             self.groups[groupName] = i
-            self.fakeGroupIDs[i] = AutoDrive.groups[groupName]
+            self.fakeGroupIDs[i] = ADGraphManager:getGroupByName(groupName)
             i = i + 1
         end
     end
@@ -533,7 +533,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                         if (hitElement.displayName ~= "All") then
                             if self:getItemCountForGroup(hitElement.displayName) <= 0 then
                                 AutoDrive.pullDownListExpanded = 0
-                                AutoDrive.removeGroup(hitElement.returnValue)
+                                ADGraphManager:removeGroup(hitElement.returnValue)
                             end
                         else
                             self:collapse(vehicle, true)
@@ -719,7 +719,7 @@ function ADPullDownList:setSelected(vehicle)
 end
 
 function ADPullDownList:groupIDToGroupName(id)
-    for groupName, groupId in pairs(AutoDrive.groups) do
+    for groupName, groupId in pairs(ADGraphManager:getGroups()) do
         if groupId == id then
             return groupName
         end
@@ -782,7 +782,7 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
 
     table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarker.name, returnValue = mapMarker.markerIndex})
 
-    ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarker.id)
+    ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarker.markerIndex)
 
     self:sortCurrentItems()
 end

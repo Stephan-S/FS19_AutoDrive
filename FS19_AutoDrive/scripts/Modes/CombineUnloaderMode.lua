@@ -111,6 +111,9 @@ function CombineUnloaderMode:getNextTask()
     elseif self.state == self.STATE_DRIVE_TO_UNLOAD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_UNLOAD")
         nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
+        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            self.vehicle.ad.stateModule:setNextTargetInFolder()
+        end
         self.state = self.STATE_DRIVE_TO_START
     elseif self.state == self.STATE_DRIVE_TO_START then
         self:setToWaitForCall()

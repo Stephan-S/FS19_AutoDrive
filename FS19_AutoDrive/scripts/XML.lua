@@ -116,9 +116,8 @@ function AutoDrive.readFromXML(xmlFile)
 	if mapMarker.group == nil then
 		mapMarker.group = "All"
 	end
-	if AutoDrive.groups[mapMarker.group] == nil then
-		AutoDrive.groupCounter = AutoDrive.groupCounter + 1
-		AutoDrive.groups[mapMarker.group] = AutoDrive.groupCounter
+	if ADGraphManager:getGroupByName(mapMarker.group) == nil then
+		ADGraphManager:addGroup(mapMarker.group)
 	end
 
 	ADGraphManager:resetMapMarkers()
@@ -137,9 +136,8 @@ function AutoDrive.readFromXML(xmlFile)
 		if mapMarker.group == nil then
 			mapMarker.group = "All"
 		end
-		if AutoDrive.groups[mapMarker.group] == nil then
-			AutoDrive.groupCounter = AutoDrive.groupCounter + 1
-			AutoDrive.groups[mapMarker.group] = AutoDrive.groupCounter
+		if ADGraphManager:getGroupByName(mapMarker.group) == nil then
+			ADGraphManager:addGroup(mapMarker.group)
 		end
 	end
 
