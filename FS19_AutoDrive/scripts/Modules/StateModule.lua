@@ -276,7 +276,7 @@ function ADStateModule:getCurrentMode()
 end
 
 function ADStateModule:nextMode()
-    if self.mode < AutoDrive.MODE_BGA then
+    if self.mode < AutoDrive.MODE_UNLOAD then
         self.mode = self.mode + 1
     else
         self.mode = AutoDrive.MODE_DRIVETO
@@ -288,13 +288,13 @@ function ADStateModule:previousMode()
     if self.mode > AutoDrive.MODE_DRIVETO then
         self.mode = self.mode - 1
     else
-        self.mode = AutoDrive.MODE_BGA
+        self.mode = AutoDrive.MODE_UNLOAD
     end
     self:raiseDirtyFlag()
 end
 
 function ADStateModule:setMode(newMode)
-    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_BGA and newMode ~= self.mode then
+    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_UNLOAD and newMode ~= self.mode then
         self.mode = newMode
         self:raiseDirtyFlag()
     end
