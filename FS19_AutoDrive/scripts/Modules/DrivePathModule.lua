@@ -328,12 +328,14 @@ function ADDrivePathModule:getSpeedLimitBySteeringAngle()
 end
 
 function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
-    local distance = 0
+    local distance = math.huge
     local maxLookAhead = maxLookAheadPar
     if maxLookAhead == nil then
         maxLookAhead = 10
     end
-    if self.wayPoints ~= nil and self:getCurrentWayPointIndex() ~= nil and self:getCurrentWayPoint() ~= nil then
+    
+    if self.wayPoints ~= nil and self:getCurrentWayPointIndex() ~= nil and self:getCurrentWayPoint() ~= nil and (self:getCurrentWayPointIndex() + maxLookAheadPar) >= #self.wayPoints then
+        distance = 0
         local lookAhead = 1
         while self.wayPoints[self:getCurrentWayPointIndex() + lookAhead] ~= nil and lookAhead < maxLookAhead do
             local p1 = self.wayPoints[self:getCurrentWayPointIndex() + lookAhead]

@@ -57,6 +57,10 @@ function ExitFieldTask:startPathPlanning()
             vecToNextPoint = {x = wayPoints[6].x - targetNode.x, z = wayPoints[6].z - targetNode.z}
         end
         self.vehicle.ad.pathFinderModule:startPathPlanningTo(targetNode, vecToNextPoint)
+    else
+        AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
+        self.vehicle.ad.taskModule:abortAllTasks()
+        self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
     end
 end
 
