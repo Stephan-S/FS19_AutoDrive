@@ -92,6 +92,7 @@ function AutoDriveSync:readStream(streamId)
     offset = streamGetReadOffset(streamId) - offset
     g_logManager:devInfo(string.format("[AutoDriveSync] Read %s bits (%s bytes) in %s ms", offset, offset / 8, netGetTime() - time))
     AutoDriveSync:superClass().readStream(self, streamId)
+    AutoDrive.Hud.lastUIScale = 0
 end
 
 function AutoDriveSync:writeStream(streamId)
