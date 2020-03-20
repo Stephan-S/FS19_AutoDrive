@@ -5,19 +5,19 @@ function ADGraphManager:load()
 	self.mapMarkers = {}
 	self.groups = {}
 	self.groups["All"] = 1
-	self.hasChanges = false
+	self.changes = false
 end
 
 function ADGraphManager:markChanges()
-	self.hasChanges = true
+	self.changes = true
 end
 
 function ADGraphManager:resetChanges()
-	self.hasChanges = false
+	self.changes = false
 end
 
 function ADGraphManager:hasChanges()
-	return self.hasChanges
+	return self.changes
 end
 
 -- Calling functions expect a linear, continuous array
