@@ -242,14 +242,14 @@ function ADInputManager:input_record(vehicle)
     if not vehicle.ad.stateModule:isEditorModeEnabled() then
         return
     end
-    AutoDrive:toggleRecording(vehicle, false)
+    vehicle.ad.recordingModule:toggle(false)
 end
 
 function ADInputManager:input_record_dual(vehicle)
     if not vehicle.ad.stateModule:isEditorModeEnabled() then
         return
     end
-    AutoDrive:toggleRecording(vehicle, true)
+    vehicle.ad.recordingModule:toggle(true)
 end
 
 function ADInputManager:input_debug(vehicle)

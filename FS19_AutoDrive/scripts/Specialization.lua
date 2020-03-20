@@ -54,6 +54,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.groups = {}
 
     self.ad.stateModule = ADStateModule:new(self)
+    self.ad.recordingModule = ADRecordingModule:new(self)
     self.ad.taskModule = ADTaskModule:new(self)
     self.ad.trailerModule = ADTrailerModule:new(self)
     self.ad.drivePathModule = ADDrivePathModule:new(self)
@@ -163,6 +164,9 @@ function AutoDrive:onReadStream(streamId, connection)
 end
 
 function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    if self.isServer then
+        self.ad.recordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    end
 end
 
 function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
@@ -185,12 +189,15 @@ function AutoDrive:onUpdate(dt)
     -- Cloest point is stored per frame
     self.ad.closest = nil
 
-    self.ad.taskModule:update(dt)
+    if self.isServer then
+        self.ad.recordingModule:update(dt)
+        self.ad.taskModule:update(dt)
+    end
+
     if self.getIsEntered ~= nil and self:getIsEntered() then
         self.ad.stateModule:update(dt)
     end
 
-    AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriverWages(self, dt)
 
@@ -202,26 +209,28 @@ end
 
 function AutoDrive:startAutoDrive()
     if self.isServer then
-        self.ad.stateModule:setActive(true)
+        if not self.ad.stateModule:isActive() then
+            self.ad.stateModule:setActive(true)
 
-        self.ad.isStoppingWithError = false
-        self.ad.onRouteToPark = false
+            self.ad.isStoppingWithError = false
+            self.ad.onRouteToPark = false
 
-        if self.getAINeedsTrafficCollisionBox ~= nil then
-            if self:getAINeedsTrafficCollisionBox() then
-                local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, self.baseDirectory, false, true, false)
-                if collisionRoot ~= nil and collisionRoot ~= 0 then
-                    local collision = getChildAt(collisionRoot, 0)
-                    link(getRootNode(), collision)
-                    self.spec_aiVehicle.aiTrafficCollision = collision
-                    delete(collisionRoot)
+            if self.getAINeedsTrafficCollisionBox ~= nil then
+                if self:getAINeedsTrafficCollisionBox() then
+                    local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, self.baseDirectory, false, true, false)
+                    if collisionRoot ~= nil and collisionRoot ~= 0 then
+                        local collision = getChildAt(collisionRoot, 0)
+                        link(getRootNode(), collision)
+                        self.spec_aiVehicle.aiTrafficCollision = collision
+                        delete(collisionRoot)
+                    end
                 end
             end
+
+            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
+
+            AutoDriveStartStopEvent:sendStartEvent(self)
         end
-
-        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
-
-        AutoDriveStartStopEvent:sendStartEvent(self)
     else
         g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
     end
@@ -229,68 +238,70 @@ end
 
 function AutoDrive:stopAutoDrive()
     if self.isServer then
-        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
-        self.ad.drivePathModule:reset()
-        self.ad.specialDrivingModule:reset()
-        self.ad.trailerModule:reset()
+        if self.ad.stateModule:isActive() then
+            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
+            self.ad.drivePathModule:reset()
+            self.ad.specialDrivingModule:reset()
+            self.ad.trailerModule:reset()
 
-        for _, mode in pairs(self.ad.modes) do
-            mode:reset()
-        end
+            for _, mode in pairs(self.ad.modes) do
+                mode:reset()
+            end
 
-        local hasCallbacks = self.ad.callBackFunction ~= nil and (self.ad.isStoppingWithError == nil or self.ad.isStoppingWithError == false)
+            local hasCallbacks = self.ad.callBackFunction ~= nil and (self.ad.isStoppingWithError == nil or self.ad.isStoppingWithError == false)
 
-        if hasCallbacks then
-            --work with copys, so we can remove the callBackObjects before calling the function
-            local callBackFunction = self.ad.callBackFunction
-            local callBackObject = self.ad.callBackObject
-            local callBackArg = self.ad.callBackArg
-            self.ad.callBackFunction = nil
-            self.ad.callBackObject = nil
-            self.ad.callBackArg = nil
+            if hasCallbacks then
+                --work with copys, so we can remove the callBackObjects before calling the function
+                local callBackFunction = self.ad.callBackFunction
+                local callBackObject = self.ad.callBackObject
+                local callBackArg = self.ad.callBackArg
+                self.ad.callBackFunction = nil
+                self.ad.callBackObject = nil
+                self.ad.callBackArg = nil
 
-            if callBackObject ~= nil then
-                if callBackArg ~= nil then
-                    callBackFunction(callBackObject, callBackArg)
+                if callBackObject ~= nil then
+                    if callBackArg ~= nil then
+                        callBackFunction(callBackObject, callBackArg)
+                    else
+                        callBackFunction(callBackObject)
+                    end
                 else
-                    callBackFunction(callBackObject)
+                    if callBackArg ~= nil then
+                        callBackFunction(callBackArg)
+                    else
+                        callBackFunction()
+                    end
                 end
             else
-                if callBackArg ~= nil then
-                    callBackFunction(callBackArg)
-                else
-                    callBackFunction()
-                end
-            end
-        else
-            AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
-            self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
+                AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
+                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
 
-            if self.ad.onRouteToPark == true then
-                self.ad.onRouteToPark = false
-                if self.spec_lights ~= nil then
-                    self:deactivateLights()
+                if self.ad.onRouteToPark == true then
+                    self.ad.onRouteToPark = false
+                    if self.spec_lights ~= nil then
+                        self:deactivateLights()
+                    end
+                end
+
+                if self.ad.sensors ~= nil then
+                    for _, sensor in pairs(self.ad.sensors) do
+                        sensor:setEnabled(false)
+                    end
                 end
             end
 
-            if self.ad.sensors ~= nil then
-                for _, sensor in pairs(self.ad.sensors) do
-                    sensor:setEnabled(false)
-                end
+            if self.setBeaconLightsVisibility ~= nil then
+                self:setBeaconLightsVisibility(false)
             end
+
+            self.ad.stateModule:setActive(false)
+
+            self.ad.taskModule:reset()
+
+            ADHarvestManager:unregisterVehicle(self)
+
+            AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
         end
-
-        if self.setBeaconLightsVisibility ~= nil then
-            self:setBeaconLightsVisibility(false)
-        end
-
-        self.ad.stateModule:setActive(false)
-
-        self.ad.taskModule:reset()
-
-        ADHarvestManager:unregisterVehicle(self)
-
-        AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
     end
@@ -615,99 +626,6 @@ function AutoDrive.drawPointsInProximity(vehicle)
             --just a quick way to highlight single (forgotten) points with no connections
             if (#point.out == 0) and (#point.incoming == 0) then
                 AutoDriveDM:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
-            end
-        end
-    end
-end
-
-function AutoDrive:toggleRecording(vehicle, dual)
-    if not vehicle.ad.stateModule:isInCreationMode() then
-        if dual then
-            vehicle.ad.stateModule:startDualCreationMode()
-        else
-            vehicle.ad.stateModule:startNormalCreationMode()
-        end
-        vehicle:stopAutoDrive()
-    else
-        vehicle.ad.stateModule:disableCreationMode()
-
-        if AutoDrive.getSetting("autoConnectEnd") then
-            if vehicle.ad.lastCreatedWp ~= nil then
-                local targetID = ADGraphManager:findMatchingWayPointForVehicle(vehicle)
-                if targetID ~= nil then
-                    local targetNode = ADGraphManager:getWayPointById(targetID)
-                    if targetNode ~= nil then
-                        ADGraphManager:toggleConnectionBetween(vehicle.ad.lastCreatedWp, targetNode)
-                        if dual == true then
-                            ADGraphManager:toggleConnectionBetween(targetNode, vehicle.ad.lastCreatedWp)
-                        end
-                    end
-                end
-            end
-        end
-
-        vehicle.ad.lastCreatedWp = nil
-        vehicle.ad.secondLastCreatedWp = nil
-    end
-end
-
-function AutoDrive:handleRecording(vehicle)
-    if vehicle == nil or vehicle.ad.stateModule:isInCreationMode() == false then
-        return
-    end
-
-    if g_server == nil then
-        return
-    end
-
-    --first entry
-    if vehicle.ad.lastCreatedWp == nil and vehicle.ad.secondLastCreatedWp == nil then
-        local startNodeId, _ = ADGraphManager:findClosestWayPoint(vehicle)
-        local x1, y1, z1 = getWorldTranslation(vehicle.components[1].node)
-        vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, vehicle.ad.stateModule:isInDualCreationMode())
-
-        if AutoDrive.getSetting("autoConnectStart") then
-            if startNodeId ~= nil then
-                local startNode = ADGraphManager:getWayPointById(startNodeId)
-                if startNode ~= nil then
-                    if ADGraphManager:getDistanceBetweenNodes(startNodeId, vehicle.ad.lastCreatedWp.id) < 20 then
-                        ADGraphManager:toggleConnectionBetween(startNode, vehicle.ad.lastCreatedWp)
-                        if vehicle.ad.stateModule:isInDualCreationMode() then
-                            ADGraphManager:toggleConnectionBetween(vehicle.ad.lastCreatedWp, startNode)
-                        end
-                    end
-                end
-            end
-        end
-    else
-        if vehicle.ad.secondLastCreatedWp == nil then
-            local x, y, z = getWorldTranslation(vehicle.components[1].node)
-            local wp = vehicle.ad.lastCreatedWp
-            if AutoDrive.getDistance(x, z, wp.x, wp.z) > 3 then
-                vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
-                vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x, y, z, true, vehicle.ad.stateModule:isInDualCreationMode())
-            end
-        else
-            local x, y, z = getWorldTranslation(vehicle.components[1].node)
-            local angle = math.abs(AutoDrive.angleBetween({x = x - vehicle.ad.secondLastCreatedWp.x, z = z - vehicle.ad.secondLastCreatedWp.z}, {x = vehicle.ad.lastCreatedWp.x - vehicle.ad.secondLastCreatedWp.x, z = vehicle.ad.lastCreatedWp.z - vehicle.ad.secondLastCreatedWp.z}))
-            local max_distance = 6
-            if angle < 1 then
-                max_distance = 6
-            elseif angle < 3 then
-                max_distance = 4
-            elseif angle < 5 then
-                max_distance = 3
-            elseif angle < 8 then
-                max_distance = 2
-            elseif angle < 15 then
-                max_distance = 1
-            elseif angle < 50 then
-                max_distance = 0.5
-            end
-
-            if AutoDrive.getDistance(x, z, vehicle.ad.lastCreatedWp.x, vehicle.ad.lastCreatedWp.z) > max_distance then
-                vehicle.ad.secondLastCreatedWp = vehicle.ad.lastCreatedWp
-                vehicle.ad.lastCreatedWp = ADGraphManager:recordWayPoint(x, y, z, true, vehicle.ad.stateModule:isInDualCreationMode())
             end
         end
     end
