@@ -90,9 +90,9 @@ function ADTaskModule:update(dt)
     else
         self.activeTask = self.tasks:Dequeue()
         if self.activeTask ~= nil then
-            self:onTaskChange()
             self.activeTask:setUp()
         end
+        self:onTaskChange()
     end
 end
 
