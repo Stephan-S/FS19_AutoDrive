@@ -25,27 +25,27 @@ function AutoDrive.isVehicleOrTrailerInCrop(vehicle)
 end
 
 function AutoDrive:checkIsConnected(toCheck, other)
-	local isAttachedToMe = false
-	if toCheck == nil or other == nil then
-		return false
-	end
-	if toCheck.getAttachedImplements == nil then
-		return false
-	end
+    local isAttachedToMe = false
+    if toCheck == nil or other == nil then
+        return false
+    end
+    if toCheck.getAttachedImplements == nil then
+        return false
+    end
 
-	for _, impl in pairs(toCheck:getAttachedImplements()) do
-		if impl.object ~= nil then
-			if impl.object == other then
-				return true
-			end
+    for _, impl in pairs(toCheck:getAttachedImplements()) do
+        if impl.object ~= nil then
+            if impl.object == other then
+                return true
+            end
 
-			if impl.object.getAttachedImplements ~= nil then
-				isAttachedToMe = isAttachedToMe or AutoDrive:checkIsConnected(impl.object, other)
-			end
-		end
-	end
+            if impl.object.getAttachedImplements ~= nil then
+                isAttachedToMe = isAttachedToMe or AutoDrive:checkIsConnected(impl.object, other)
+            end
+        end
+    end
 
-	return isAttachedToMe
+    return isAttachedToMe
 end
 
 function AutoDrive.defineMinDistanceByVehicleType(vehicle)
@@ -69,23 +69,23 @@ function AutoDrive.defineMinDistanceByVehicleType(vehicle)
 end
 
 function AutoDrive.getVehicleMaxSpeed(vehicle)
-	-- 255 is the max value to prevent errors with MP sync
-	if vehicle ~= nil and vehicle.spec_motorized ~= nil and vehicle.spec_motorized.motor ~= nil then
-		local motor = vehicle.spec_motorized.motor
-		return math.min(motor:getMaximumForwardSpeed() * 3.6, 255)
-	end
-	return 255
+    -- 255 is the max value to prevent errors with MP sync
+    if vehicle ~= nil and vehicle.spec_motorized ~= nil and vehicle.spec_motorized.motor ~= nil then
+        local motor = vehicle.spec_motorized.motor
+        return math.min(motor:getMaximumForwardSpeed() * 3.6, 255)
+    end
+    return 255
 end
 
 function AutoDrive.renameDriver(vehicle, name, sendEvent)
-	if name:len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
-		if sendEvent == nil or sendEvent == true then
-			-- Propagating driver rename all over the network
-			AutoDriveRenameDriverEvent.sendEvent(vehicle, name)
-		else
-			vehicle.ad.stateModule:setName(name)
-		end
-	end
+    if name:len() > 1 and vehicle ~= nil and vehicle.ad ~= nil then
+        if sendEvent == nil or sendEvent == true then
+            -- Propagating driver rename all over the network
+            AutoDriveRenameDriverEvent.sendEvent(vehicle, name)
+        else
+            vehicle.ad.stateModule:setName(name)
+        end
+    end
 end
 
 function AutoDrive.hasToRefuel(vehicle)
@@ -94,17 +94,17 @@ function AutoDrive.hasToRefuel(vehicle)
     if spec.consumersByFillTypeName ~= nil and spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
         return vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) <= AutoDrive.REFUEL_LEVEL
     end
-    
-    return false;
+
+    return false
 end
 
 function AutoDrive.combineIsTurning(combine)
     local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStage ~= nil and combine.cp.turnStage > 0))
     local cpIsTurningTwo = combine.cp ~= nil and combine.cp.driver and (combine.cp.driver.turnIsDriving or (combine.cp.driver.fieldworkState ~= nil and combine.cp.driver.fieldworkState == combine.cp.driver.states.TURNING))
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true)
-    local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 30);
+    local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 30)
     local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-    
+
     if ((combine:getIsBufferCombine() and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not combine:getIsBufferCombine()))) and (not combineIsTurning) then
         return false
     end
@@ -127,13 +127,25 @@ function AutoDrive.semanticVersionToValue(versionString)
         for i, code in ipairs(codes) do
             local subCodes = code:split("-")
             if subCodes ~= nil and subCodes[1] ~= nil then
-                value = value*10 + tonumber(subCodes[1])
+                value = value * 10 + tonumber(subCodes[1])
                 if subCodes[2] ~= nil then
-                    value = value + (tonumber(subCodes[2])/1000)
+                    value = value + (tonumber(subCodes[2]) / 1000)
                 end
-            end            
+            end
         end
     end
 
     return value
+end
+
+function AutoDrive.mouseIsAtPos(position, radius)
+    local x, y, _ = project(position.x, position.y + AutoDrive.drawHeight + AutoDrive.getSetting("lineHeight"), position.z)
+
+    if g_lastMousePosX < (x + radius) and g_lastMousePosX > (x - radius) then
+        if g_lastMousePosY < (y + radius) and g_lastMousePosY > (y - radius) then
+            return true
+        end
+    end
+
+    return false
 end
