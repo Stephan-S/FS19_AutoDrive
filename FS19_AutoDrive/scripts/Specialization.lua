@@ -532,7 +532,7 @@ function AutoDrive.getNewPointsInProximity(vehicle)
         end
         --go through all stored points to check if they are still in proximity
         for id, point in pairs(vehicle.ad.pointsInProximity) do
-            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointById(id) ~= nil then
+            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointById(id) ~= nil and  ADGraphManager:getWayPointById(id).x == point.x then
                 table.insert(newPointsToDraw, id, point)
             end
         end
