@@ -42,19 +42,23 @@ function LoadAtDestinationTask:update(dt)
     else
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             --Check if we have actually loaded / tried to load something
-            if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then
-                self:finished()
+            if self.vehicle.ad.callBackFunction ~= nil then
+                self.vehicle:stopAutoDrive()
             else
-                -- Wait to be loaded manally - check filllevel
-                self.vehicle.ad.specialDrivingModule:stopVehicle()
-                self.vehicle.ad.specialDrivingModule:update(dt)
-
-                local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-                local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-                local maxCapacity = fillLevel + leftCapacity
-
-                if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
+                if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then                
                     self:finished()
+                else
+                    -- Wait to be loaded manally - check filllevel
+                    self.vehicle.ad.specialDrivingModule:stopVehicle()
+                    self.vehicle.ad.specialDrivingModule:update(dt)
+
+                    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+                    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                    local maxCapacity = fillLevel + leftCapacity
+
+                    if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
+                        self:finished()
+                    end
                 end
             end
         else
