@@ -60,10 +60,10 @@ function ADHarvestManager:fireUnloader(unloader)
         local follower = unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader()
         if follower ~= nil then
             follower.ad.taskModule:abortAllTasks()
-            follower.ad.taskModule:addTask(StopAndDisableADTask:new(follower))
+            follower.ad.taskModule:addTask(StopAndDisableADTask:new(follower, ADTaskModule.DONT_PROPAGATE, true))
         end
         unloader.ad.taskModule:abortAllTasks()
-        unloader.ad.taskModule:addTask(StopAndDisableADTask:new(unloader))
+        unloader.ad.taskModule:addTask(StopAndDisableADTask:new(unloader, ADTaskModule.DONT_PROPAGATE, true))
     end
     self:unregisterAsUnloader(unloader)
 end

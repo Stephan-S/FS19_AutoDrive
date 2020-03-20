@@ -189,7 +189,7 @@ function AutoDrive:onUpdate(dt)
     -- Cloest point is stored per frame
     self.ad.closest = nil
 
-    if self.isServer then
+    if self.isServer and self.ad.stateModule:isActive() then
         self.ad.recordingModule:update(dt)
         self.ad.taskModule:update(dt)
     end
@@ -200,6 +200,10 @@ function AutoDrive:onUpdate(dt)
 
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriverWages(self, dt)
+
+    if not self.ad.stateModule:isActive() then
+        self.ad.taskModule:abortAllTasks()
+    end
 
     --For 'legacy' purposes, this value should be kept since other mods already test for this:
     self.ad.isActive = self.ad.stateModule:isActive()
