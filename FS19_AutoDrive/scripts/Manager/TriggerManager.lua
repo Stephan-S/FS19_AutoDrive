@@ -3,11 +3,12 @@ ADTriggerManager = {}
 ADTriggerManager.tipTriggers = {}
 ADTriggerManager.siloTriggers = {}
 
+ADTriggerManager.searchedForTriggers = false
+
 AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE = 15
 AutoDrive.REFUEL_LEVEL = 0.15
 
 function ADTriggerManager.load()
-    ADTriggerManager.loadAllTriggers()
 end
 
 function ADTriggerManager:update(dt)
@@ -80,7 +81,8 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
     return false
 end
 
-function ADTriggerManager.loadAllTriggers()
+function ADTriggerManager.loadAllTriggers()    
+    ADTriggerManager.searchedForTriggers = true
     for _, ownedItem in pairs(g_currentMission.ownedItems) do
         if ownedItem.storeItem ~= nil then
             if ownedItem.storeItem.categoryName == "SILOS" then
@@ -127,7 +129,7 @@ function ADTriggerManager.loadAllTriggers()
                     end
 
                     if myModule.loadPlace ~= nil then
-                        table.insert(ADTriggerManager.tipTriggers, myModule.loadPlace)
+                        table.insert(ADTriggerManager.siloTriggers, myModule.loadPlace)
                     end
                 end
             end
@@ -184,14 +186,14 @@ function ADTriggerManager.loadAllTriggers()
 end
 
 function ADTriggerManager.getUnloadTriggers()
-    if #ADTriggerManager.tipTriggers == 0 then
+    if not ADTriggerManager.searchedForTriggers then
         ADTriggerManager.loadAllTriggers()
     end
     return ADTriggerManager.tipTriggers
 end
 
 function ADTriggerManager.getLoadTriggers()
-    if #ADTriggerManager.siloTriggers == 0 then
+    if not ADTriggerManager.searchedForTriggers then
         ADTriggerManager.loadAllTriggers()
     end
     return ADTriggerManager.siloTriggers
@@ -220,7 +222,9 @@ function ADTriggerManager.getRefuelTriggers(vehicle)
             end
             local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[32] ~= nil and fillLevels[32] > 0) or (gcFillLevels[32] ~= nil and gcFillLevels[32] > 0)
 
-            table.insert(refuelTriggers, trigger)
+            if hasCapacity then
+                table.insert(refuelTriggers, trigger)
+            end
         end
     end
 

@@ -473,12 +473,6 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                         end
 
                         local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
-
-                        --g_logManager:devInfo(vehicle.ad.stateModule:getName() .. " i: " .. i .. " - checking trailer: hasRequiredFillType " .. AutoDrive.boolToString(hasRequiredFillType));
-                        --g_logManager:devInfo(vehicle.ad.stateModule:getName() .. " i: " .. i .. " - checking trailer: hasCapacity " .. AutoDrive.boolToString(hasCapacity));
-                        --g_logManager:devInfo(vehicle.ad.stateModule:getName() .. " i: " .. i .. " - checking trailer: trailerIsInRange " .. AutoDrive.boolToString(trailerIsInRange));
-                        --g_logManager:devInfo(vehicle.ad.stateModule:getName() .. " i: " .. i .. " - checking trailer: isNotFilled " .. AutoDrive.boolToString(isNotFilled) .. " level: " .. (trailer:getFillUnitFillLevelPercentage(i)*100) .. " setting: " .. (AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999) );
-
                         if trailerIsInRange and hasRequiredFillType and isNotFilled and hasCapacity then
                             local pair = {trailer = trailer, trigger = trigger}
                             table.insert(trailerTriggerPairs, pair)

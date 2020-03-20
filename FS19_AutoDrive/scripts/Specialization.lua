@@ -72,6 +72,7 @@ end
 
 function AutoDrive:onPostLoad(savegame)
     -- This will run before initial MP sync
+    print("Running post load for vehicle: " .. self:getName())
 
     for groupName, _ in pairs(ADGraphManager:getGroups()) do
         self.ad.groups[groupName] = false
@@ -105,6 +106,7 @@ function AutoDrive:onPostLoad(savegame)
         self.ad.driveForwardTimer = AutoDriveTON:new()
 
         if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
+            print("Running post load for vehicle: " .. self:getName() .. " registerHarvester")
             ADHarvestManager:registerHarvester(self)
         end
     end
@@ -191,7 +193,7 @@ function AutoDrive:onUpdate(dt)
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriverWages(self, dt)
-
+    
     --For 'legacy' purposes, this value should be kept since other mods already test for this:
     self.ad.isActive = self.ad.stateModule:isActive()
     self.ad.mapMarkerSelected = self.ad.stateModule:getFirstMarkerId()

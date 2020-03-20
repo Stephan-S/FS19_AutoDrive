@@ -91,9 +91,9 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
 end
 
-function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicCollisionWindow)
-    local speed = AutoDrive.SPEED_ON_FIELD
-    local acc = 1
+function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicCollisionWindow, maxAcc, maxSpeed)
+    local speed = math.min(AutoDrive.SPEED_ON_FIELD, maxSpeed)
+    local acc = math.min(0.75, maxAcc)
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     self.distanceToChasePos = MathUtil.vector2Length(x - point.x, z - point.z)

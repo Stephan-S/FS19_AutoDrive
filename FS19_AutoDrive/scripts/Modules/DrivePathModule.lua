@@ -499,6 +499,8 @@ function ADDrivePathModule:checkIfStuck(dt)
             if self.minDistanceTimer:done() then
                 self:handleBeingStuck()
             end
+        else
+            self.minDistanceTimer:timer(false)
         end
     end
 end
