@@ -591,28 +591,31 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
 end
 
 function ADPullDownList:expand(vehicle)
-    if self.state == ADPullDownList.STATE_COLLAPSED then
-        self.layer = self.layer + 1
+    local itemCount = self:getItemCount()
+    if itemCount > 0 then
+        if self.state == ADPullDownList.STATE_COLLAPSED then
+            self.layer = self.layer + 1
+        end
+        self.state = ADPullDownList.STATE_EXPANDED
+
+        AutoDrive.pullDownListExpanded = self.type
+        AutoDrive.pullDownListDirection = self.direction
+
+        --possibly adjust height to number of elements (visible)
+        self.expandedSize.height = math.min(itemCount, ADPullDownList.MAX_SHOWN) * AutoDrive.Hud.listItemHeight + self.size.height / 2
+
+        if self.direction == ADPullDownList.EXPANDED_UP then
+            self.ovTop = Overlay:new(self.imageBGTop, self.position.x, self.position.y + self.expandedSize.height - self.size.height / 2, self.size.width, self.size.height / 2)
+            self.ovStretch = Overlay:new(self.imageBGStretch, self.position.x, self.position.y + (self.size.height / 2), self.size.width, self.expandedSize.height - self.size.height)
+            self.ovBottom = Overlay:new(self.imageBGBottom, self.position.x, self.position.y, self.size.width, self.size.height / 2)
+        else
+            self.ovTop = Overlay:new(self.imageBGTop, self.position.x, self.position.y + self.size.height / 2, self.size.width, self.size.height / 2)
+            self.ovStretch = Overlay:new(self.imageBGStretch, self.position.x, self.position.y + (self.size.height / 2) * 3 - self.expandedSize.height, self.size.width, self.expandedSize.height - self.size.height)
+            self.ovBottom = Overlay:new(self.imageBGBottom, self.position.x, self.position.y - self.expandedSize.height + self.size.height, self.size.width, self.size.height / 2)
+        end
+
+        self:setSelected(vehicle)
     end
-    self.state = ADPullDownList.STATE_EXPANDED
-
-    AutoDrive.pullDownListExpanded = self.type
-    AutoDrive.pullDownListDirection = self.direction
-
-    --possibly adjust height to number of elements (visible)
-    self.expandedSize.height = math.min(self:getItemCount(), ADPullDownList.MAX_SHOWN) * AutoDrive.Hud.listItemHeight + self.size.height / 2
-
-    if self.direction == ADPullDownList.EXPANDED_UP then
-        self.ovTop = Overlay:new(self.imageBGTop, self.position.x, self.position.y + self.expandedSize.height - self.size.height / 2, self.size.width, self.size.height / 2)
-        self.ovStretch = Overlay:new(self.imageBGStretch, self.position.x, self.position.y + (self.size.height / 2), self.size.width, self.expandedSize.height - self.size.height)
-        self.ovBottom = Overlay:new(self.imageBGBottom, self.position.x, self.position.y, self.size.width, self.size.height / 2)
-    else
-        self.ovTop = Overlay:new(self.imageBGTop, self.position.x, self.position.y + self.size.height / 2, self.size.width, self.size.height / 2)
-        self.ovStretch = Overlay:new(self.imageBGStretch, self.position.x, self.position.y + (self.size.height / 2) * 3 - self.expandedSize.height, self.size.width, self.expandedSize.height - self.size.height)
-        self.ovBottom = Overlay:new(self.imageBGBottom, self.position.x, self.position.y - self.expandedSize.height + self.size.height, self.size.width, self.size.height / 2)
-    end
-
-    self:setSelected(vehicle)
 end
 
 function ADPullDownList:collapse(vehicle, setItem)

@@ -349,8 +349,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					if button == 1 and isDown then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
 						local closest = ADGraphManager:findClosestWayPoint(vehicle)
+						closest = ADGraphManager:getWayPointById(closest)
 						if closest ~= nil then
-							closest = ADGraphManager:getWayPointById(closest)
 							local _, _, depth = project(closest.x, closest.y, closest.z)
 
 							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
