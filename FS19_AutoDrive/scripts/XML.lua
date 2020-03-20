@@ -62,7 +62,7 @@ function AutoDrive.loadInitConfig(xmlFile, createNewXML)
 		end
 	end
 
-	AutoDrive.MarkChanged()
+	ADGraphManager:markChanges()
 	g_logManager:devInfo("[AutoDrive] Saving xml file to " .. xmlFile)
 	if createNewXML then
 		AutoDrive.adXml = createXMLFile("AutoDrive_XML", xmlFile, "AutoDrive")

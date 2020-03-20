@@ -50,6 +50,10 @@ AutoDrive.ItemFilterList = {
 	15 --wool
 }
 
+AutoDrive.pullDownListExpanded = 0
+AutoDrive.pullDownListDirection = 0
+AutoDrive.mouseWheelActive = false
+
 function AutoDriveHud:new()
 	local o = {}
 	setmetatable(o, self)

@@ -5,6 +5,19 @@ function ADGraphManager:load()
 	self.mapMarkers = {}
 	self.groups = {}
 	self.groups["All"] = 1
+	self.hasChanges = false
+end
+
+function ADGraphManager:markChanges()
+	self.hasChanges = true
+end
+
+function ADGraphManager:resetChanges()
+	self.hasChanges = false
+end
+
+function ADGraphManager:hasChanges()
+	return self.hasChanges
 end
 
 -- Calling functions expect a linear, continuous array
@@ -211,10 +224,7 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
 
-			if g_server ~= nil then
-				-- On the server we must mark the change
-				AutoDrive.MarkChanged()
-			end
+			self:markChanges()
 		end
 	end
 end
@@ -236,10 +246,7 @@ function ADGraphManager:renameMapMarker(newName, markerId, sendEvent)
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
 
-			if g_server ~= nil then
-				-- On the server we must mark the change
-				AutoDrive.MarkChanged()
-			end
+			self:markChanges()
 		end
 	end
 end
@@ -271,10 +278,7 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
 
-			if g_server ~= nil then
-				-- On the server we must mark the change
-				AutoDrive.MarkChanged()
-			end
+			self:markChanges()
 		end
 	end
 end
@@ -405,10 +409,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
 
-			if g_server ~= nil then
-				-- On the server we must mark the change
-				AutoDrive.MarkChanged()
-			end
+			self:markChanges()
 		end
 	end
 end
@@ -440,10 +441,7 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, sendEvent)
 			table.insert(endNode.incoming, startNode.id)
 		end
 
-		if g_server ~= nil then
-			-- On the server we must mark the change
-			AutoDrive.MarkChanged()
-		end
+		self:markChanges()
 	end
 end
 
@@ -456,10 +454,7 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 		local newId = prevId + 1
 		local newWp = self:createNode(newId, x, y, z, {}, {})
 		self:setWayPoint(newWp)
-		if g_server ~= nil then
-			-- On the server we must mark the change
-			AutoDrive.MarkChanged()
-		end
+		self:markChanges()
 	end
 end
 
@@ -480,10 +475,7 @@ function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
 			wayPoint.x = x
 			wayPoint.y = y
 			wayPoint.z = z
-			if g_server ~= nil then
-				-- On the server we must mark the change
-				AutoDrive.MarkChanged()
-			end
+			self:markChanges()
 		end
 	end
 end
@@ -494,8 +486,6 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, sendEvent
 			-- Propagating waypoint recording to clients
 			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual)
 		end
-		-- On the server we must mark the change
-		AutoDrive.MarkChanged()
 	else
 		if sendEvent ~= false then
 			g_logManager:devWarning("ADGraphManager:recordWayPoint() must be called only on the server.")
@@ -513,6 +503,7 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, sendEvent
 			self:toggleConnectionBetween(newWp, prevWp, false)
 		end
 	end
+	self:markChanges()
 	return newWp
 end
 

@@ -12,9 +12,36 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 
 AutoDrive.developmentControls = false
 
---AutoDrive.renderTime = 0
+AutoDrive.mapHotspotsBuffer = {}
 
-AutoDrive.configChanged = false
+AutoDrive.drawHeight = 0.3
+AutoDrive.drawDistance = getViewDistanceCoeff() * 50
+
+AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}
+for _, statName in pairs(AutoDrive.STAT_NAMES) do
+	table.insert(FarmStats.STAT_NAMES, statName)
+end
+
+AutoDrive.MODE_DRIVETO = 1
+AutoDrive.MODE_PICKUPANDDELIVER = 2
+AutoDrive.MODE_DELIVERTO = 3
+AutoDrive.MODE_LOAD = 4
+AutoDrive.MODE_UNLOAD = 5
+AutoDrive.MODE_BGA = 6
+
+AutoDrive.DC_NONE = 0
+AutoDrive.DC_VEHICLEINFO = 1
+AutoDrive.DC_COMBINEINFO = 2
+AutoDrive.DC_TRAILERINFO = 4
+AutoDrive.DC_DEVINFO = 8
+AutoDrive.DC_PATHINFO = 16
+AutoDrive.DC_SENSORINFO = 32
+AutoDrive.DC_NETWORKINFO = 64
+AutoDrive.DC_EXTERNALINTERFACEINFO = 128
+AutoDrive.DC_RENDERINFO = 256
+AutoDrive.DC_ALL = 65535
+
+AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
@@ -43,33 +70,6 @@ AutoDrive.actions = {
 	{"ADRenameMapMarker", false, 0},
 	{"ADSwapTargets", false, 0}
 }
-
-AutoDrive.drawHeight = 0.3
-AutoDrive.drawDistance = getViewDistanceCoeff() * 50
-
-AutoDrive.MODE_DRIVETO = 1
-AutoDrive.MODE_PICKUPANDDELIVER = 2
-AutoDrive.MODE_DELIVERTO = 3
-AutoDrive.MODE_LOAD = 4
-AutoDrive.MODE_UNLOAD = 5
-AutoDrive.MODE_BGA = 6
-
-AutoDrive.WAYPOINTS_PER_PACKET = 100
-AutoDrive.SPEED_ON_FIELD = 100
-
-AutoDrive.DC_NONE = 0
-AutoDrive.DC_VEHICLEINFO = 1
-AutoDrive.DC_COMBINEINFO = 2
-AutoDrive.DC_TRAILERINFO = 4
-AutoDrive.DC_DEVINFO = 8
-AutoDrive.DC_PATHINFO = 16
-AutoDrive.DC_SENSORINFO = 32
-AutoDrive.DC_NETWORKINFO = 64
-AutoDrive.DC_EXTERNALINTERFACEINFO = 128
-AutoDrive.DC_RENDERINFO = 256
-AutoDrive.DC_ALL = 65535
-
-AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
 function AutoDrive:loadMap(name)
 	source(Utils.getFilename("scripts/XML.lua", AutoDrive.directory))
@@ -111,34 +111,13 @@ function AutoDrive:loadMap(name)
 		end
 	end
 
-
-	AutoDrive.pullDownListExpanded = 0
-	AutoDrive.pullDownListDirection = 0
-
-	AutoDrive.requestedWaypoints = false
-	AutoDrive.requestedWaypointCount = 1
-	AutoDrive.playerSendsMapToServer = false
-
-	AutoDrive.showMouse = false
-	AutoDrive.mouseWheelActive = false
-
-	AutoDrive.waitingUnloadDrivers = {}
-	AutoDrive.destinationListeners = {}
-
-	AutoDrive.mapHotspotsBuffer = {}
-
-	AutoDrive.requestWayPointTimer = 10000
-
 	ADGraphManager:load()
+
 	AutoDrive.loadStoredXML()
 
 	if g_server ~= nil then
 		AutoDrive.usersData = {}
 		AutoDrive.loadUsersData()
-		AutoDrive.Server = {}
-		AutoDrive.Server.Users = {}
-	else
-		AutoDrive.highestIndex = 1
 	end
 
 	AutoDrive.Hud = AutoDriveHud:new()
@@ -160,6 +139,10 @@ function AutoDrive:loadMap(name)
 	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
 	IngameMapElement.mouseEvent = Utils.overwrittenFunction(IngameMapElement.mouseEvent, AutoDrive.ingameMapElementMouseEvent)
 
+	FarmStats.saveToXMLFile = Utils.appendedFunction(FarmStats.saveToXMLFile, AutoDrive.FarmStats_saveToXMLFile)
+	FarmStats.loadFromXMLFile = Utils.appendedFunction(FarmStats.loadFromXMLFile, AutoDrive.FarmStats_loadFromXMLFile)
+	FarmStats.getStatisticData = Utils.overwrittenFunction(FarmStats.getStatisticData, AutoDrive.FarmStats_getStatisticData)
+
 	ADRoutesManager.load()
 	ADDrawingManager:load()
 	ADMessagesManager:load()
@@ -167,7 +150,7 @@ function AutoDrive:loadMap(name)
 	ADInputManager:load()
 end
 
-function AutoDrive:firstRun()
+function AutoDrive:init()
 	if g_server == nil then
 		-- Here we could ask to server the initial sync
 		AutoDriveUserConnectedEvent.sendEvent()
@@ -180,16 +163,16 @@ function AutoDrive:firstRun()
 end
 
 function AutoDrive:saveSavegame()
-	if AutoDrive.GetChanged() == true or AutoDrive.HudChanged then
-		AutoDrive.saveToXML(AutoDrive.adXml)
-		AutoDrive.configChanged = false
-		AutoDrive.HudChanged = false
-	else
-		if AutoDrive.adXml ~= nil then
-			saveXMLFile(AutoDrive.adXml)
-		end
-	end
 	if g_server ~= nil then
+		if ADGraphManager:hasChanges() or AutoDrive.HudChanged then
+			AutoDrive.saveToXML(AutoDrive.adXml)
+			ADGraphManager:resetChanges()
+			AutoDrive.HudChanged = false
+		else
+			if AutoDrive.adXml ~= nil then
+				saveXMLFile(AutoDrive.adXml)
+			end
+		end
 		AutoDrive.saveUsersData()
 	end
 end
@@ -245,7 +228,7 @@ end
 function AutoDrive:update(dt)
 	if AutoDrive.isFirstRun == nil then
 		AutoDrive.isFirstRun = false
-		self:firstRun()
+		self:init()
 	end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
@@ -264,32 +247,17 @@ function AutoDrive:draw()
 	ADMessagesManager:draw()
 end
 
-function AutoDrive.MarkChanged()
-	AutoDrive.configChanged = true
-end
-
-function AutoDrive.GetChanged()
-	return AutoDrive.configChanged
-end
-
-AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}
-for _, statName in pairs(AutoDrive.STAT_NAMES) do
-	table.insert(FarmStats.STAT_NAMES, statName)
-end
-
 function AutoDrive:FarmStats_saveToXMLFile(xmlFile, key)
 	key = key .. ".statistics"
 	if self.statistics.driversTraveledDistance ~= nil then
 		setXMLFloat(xmlFile, key .. ".driversTraveledDistance", self.statistics.driversTraveledDistance.total)
 	end
 end
-FarmStats.saveToXMLFile = Utils.appendedFunction(FarmStats.saveToXMLFile, AutoDrive.FarmStats_saveToXMLFile)
 
 function AutoDrive:FarmStats_loadFromXMLFile(xmlFile, key)
 	key = key .. ".statistics"
 	self.statistics["driversTraveledDistance"].total = Utils.getNoNil(getXMLFloat(xmlFile, key .. ".driversTraveledDistance"), 0)
 end
-FarmStats.loadFromXMLFile = Utils.appendedFunction(FarmStats.loadFromXMLFile, AutoDrive.FarmStats_loadFromXMLFile)
 
 function AutoDrive:FarmStats_getStatisticData(superFunc)
 	if superFunc ~= nil then
@@ -318,6 +286,5 @@ function AutoDrive:FarmStats_getStatisticData(superFunc)
 	end
 	return Utils.getNoNil(self.statisticData, {})
 end
-FarmStats.getStatisticData = Utils.overwrittenFunction(FarmStats.getStatisticData, AutoDrive.FarmStats_getStatisticData)
 
 addModEventListener(AutoDrive)

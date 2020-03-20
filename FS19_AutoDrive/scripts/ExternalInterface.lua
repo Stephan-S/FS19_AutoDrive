@@ -1,3 +1,5 @@
+AutoDrive.destinationListeners = {}
+
 --startX, startZ: World location
 --startYRot: rotation in rad
 --destinationID: ID of marker to find path to

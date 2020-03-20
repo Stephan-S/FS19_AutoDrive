@@ -69,7 +69,9 @@ function ADTaskModule:abortCurrentTask(abortMessage)
 end
 
 function ADTaskModule:abortAllTasks()
-    self.activeTask:abort()
+    if self.activeTask ~= nil then
+        self.activeTask:abort()
+    end
     self.tasks:Clear()
     self.activeTask = nil
     self:onTaskChange()
