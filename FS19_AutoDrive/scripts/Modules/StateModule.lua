@@ -202,6 +202,21 @@ function ADStateModule:update(dt)
         debug.currentLocalizedTaskInfo = self.currentLocalizedTaskInfo
         debug.currentWayPointId = self.currentWayPointId
         debug.nextWayPointId = self.nextWayPointId
+        if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
+            debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
+        else
+            debug.combine = "-"
+        end
+        if ADHarvestManager:getAssignedUnloader(self.vehicle) ~= nil then
+            debug.unloader = ADHarvestManager:getAssignedUnloader(self.vehicle):getName()
+        else
+            debug.unloader = "-"
+        end
+        if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() ~= nil then
+            debug.follower = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader():getName()
+        else
+            debug.follower = "-"
+        end
         AutoDrive.renderTable(0.4, 0.4, 0.014, debug)
     end
 end
