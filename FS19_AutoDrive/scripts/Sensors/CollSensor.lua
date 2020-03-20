@@ -46,7 +46,7 @@ function ADCollSensor:buildMask()
     mask = mask + math.pow(2, ADCollSensor.mask_dynamic_objects - 1)
     mask = mask + math.pow(2, ADCollSensor.mask_dynamic_objects_machines - 1)
     mask = mask + math.pow(2, ADCollSensor.mask_trigger_trafficVehicles - 1)
-    mask = mask + math.pow(2, ADCollSensor.mask_trigger_dynamic_objects - 1)
+    --mask = mask + math.pow(2, ADCollSensor.mask_trigger_dynamic_objects - 1)
 
     return mask
 end
