@@ -5,20 +5,24 @@ ADHarvestManager.MAX_SEARCH_RANGE = 300
 
 function ADHarvestManager:load()
     self.harvesters = {}
+    self.idleHarvesters = {}
     self.activeUnloaders = {}
     self.idleUnloaders = {}
     self.assignmentDelayTimer = AutoDriveTON:new()
 end
 
 function ADHarvestManager:registerHarvester(harvester)
-    if not table.contains(self.harvesters, harvester) then
-        table.insert(self.harvesters, harvester)
+    if not table.contains(self.idleHarvesters, harvester) and not table.contains(self.harvesters, harvester) then
+        table.insert(self.idleHarvesters, harvester)
     end
 end
 
 function ADHarvestManager:unregisterVehicle(vehicle)
     if table.contains(self.harvesters, vehicle) then
         table.removeValue(self.harvesters, vehicle)
+    end
+    if table.contains(self.idleHarvesters, vehicle) then
+        table.removeValue(self.idleHarvesters, vehicle)
     end
 end
 
@@ -33,6 +37,7 @@ function ADHarvestManager:registerAsUnloader(vehicle)
 end
 
 function ADHarvestManager:unregisterAsUnloader(vehicle)
+    --[[
     if vehicle.ad.modes ~= nil and vehicle.ad.modes[AutoDrive.MODE_UNLOAD] ~= nil then
         local followingUnloder = vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader()
         if followingUnloder ~= nil then
@@ -40,6 +45,7 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
             followingUnloder.ad.modes[AutoDrive.MODE_UNLOAD].combine = vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine
         end
     end
+    --]]
     if table.contains(self.idleUnloaders, vehicle) then
         table.removeValue(self.idleUnloaders, vehicle)
     end
@@ -49,8 +55,38 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
     end
 end
 
+function ADHarvestManager:fireUnloader(unloader)
+    if unloader.ad.stateModule:isActive() then
+        local follower = unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader()
+        if follower ~= nil then
+            follower.ad.taskModule:abortAllTasks()
+            follower.ad.taskModule:addTask(StopAndDisableADTask:new(follower))
+        end
+        unloader.ad.taskModule:abortAllTasks()
+        unloader.ad.taskModule:addTask(StopAndDisableADTask:new(unloader))
+    end
+    self:unregisterAsUnloader(unloader)
+end
+
 function ADHarvestManager:update(dt)
     self.assignmentDelayTimer:timer(true, 10000, dt)
+    for _, idleHarvester in pairs(self.idleHarvesters) do
+        if (idleHarvester.spec_aiVehicle ~= nil and idleHarvester.spec_aiVehicle.isActive) or (idleHarvester.getIsEntered ~= nil and idleHarvester:getIsEntered()) then
+            table.insert(self.harvesters, idleHarvester)
+            table.removeValue(self.idleHarvesters, idleHarvester)
+        end
+    end
+    for _, harvester in pairs(self.harvesters) do
+        if not ((harvester.spec_aiVehicle ~= nil and harvester.spec_aiVehicle.isActive) or (harvester.getIsEntered ~= nil and harvester:getIsEntered())) then
+            table.insert(self.idleHarvesters, harvester)
+            table.removeValue(self.harvesters, harvester)
+
+            if self:getAssignedUnloader(harvester) ~= nil then
+                self:fireUnloader(self:getAssignedUnloader(harvester))
+            end
+        end
+    end
+
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil and g_currentMission.nodeToObject[harvester.components[1].node] ~= nil then
             if self.assignmentDelayTimer:done() then
@@ -61,7 +97,7 @@ function ADHarvestManager:update(dt)
                 else
                     if AutoDrive.getSetting("callSecondUnloader", harvester) then
                         local unloader = self:getAssignedUnloader(harvester)
-                        if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then         
+                        if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then     
                             local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
                             local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                             local maxCapacity = fillLevel + leftCapacity
@@ -96,7 +132,51 @@ function ADHarvestManager:update(dt)
                 harvester.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
                 harvester.ad.turningTimer:timer(combineIsTurning, 4000, dt)
             end
+        else
+            table.removeValue(self.harvesters, harvester)
         end
+    end
+
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_COMBINEINFO) then
+        local debug = {}
+        debug.harvesters = {}
+        for _, harvester in pairs(self.harvesters) do
+            local infoTable = {}
+            infoTable.name = harvester:getName()
+            if self:getAssignedUnloader(harvester) ~= nil then
+                infoTable.unloader = self:getAssignedUnloader(harvester):getName()
+            end
+            if self:getAssignedUnloader(harvester) ~= nil and self:getAssignedUnloader(harvester).ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() ~= nil then
+                infoTable.follower = self:getAssignedUnloader(harvester).ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader():getName()
+            end
+            table.insert(debug.harvesters, infoTable)
+        end
+        debug.idleUnloaders = {}
+        for _, idleUnloader in pairs(self.idleUnloaders) do
+            local infoTable = {}
+            infoTable.name = idleUnloader:getName()
+            if idleUnloader.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
+                infoTable.unloader = idleUnloader.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
+            end
+            if idleUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() ~= nil then
+                infoTable.follower = idleUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader():getName()
+            end
+            table.insert(debug.idleUnloaders, infoTable)
+        end
+        debug.activeUnloaders = {}
+        for _, activeUnloader in pairs(self.activeUnloaders) do
+            local infoTable = {}
+            infoTable.name = activeUnloader:getName()
+            if activeUnloader.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
+                infoTable.unloader = activeUnloader.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
+            end
+            if activeUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() ~= nil then
+                infoTable.follower = activeUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader():getName()
+            end
+            table.insert(debug.activeUnloaders, infoTable)
+        end
+        debug.delayTimer = self.assignmentDelayTimer.elapsedTime
+        AutoDrive.renderTable(0.65, 0.6, 0.014, debug, 3)
     end
 end
 
