@@ -11,11 +11,13 @@ end
 function AutoDrive.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateAILights", AutoDrive.updateAILights)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "getCanMotorRun", AutoDrive.getCanMotorRun)
+    SpecializationUtil.registerOverwrittenFunction(vehicleType, "leaveVehicle", AutoDrive.leaveVehicle)
 end
 
 function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "startAutoDrive", AutoDrive.startAutoDrive)
     SpecializationUtil.registerFunction(vehicleType, "stopAutoDrive", AutoDrive.stopAutoDrive)
+    SpecializationUtil.registerFunction(vehicleType, "toggleMouse", AutoDrive.toggleMouse)
 end
 
 function AutoDrive.registerEvents(vehicleType)
@@ -166,6 +168,18 @@ end
 function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
     if self.isServer then
         self.ad.recordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+
+        local spec = self.spec_aiVehicle
+        if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and self.ad.stateModule:isActive() then
+            local driverWages = AutoDrive.getSetting("driverWages")
+            local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier
+            local price = -dt * difficultyMultiplier * (driverWages - 1) * spec.pricePerMS
+            g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
+        end
+    end
+
+    if self.ad.lastMouseState ~= g_inputBinding:getShowMouseCursor() then
+        self:toggleMouse()
     end
 end
 
@@ -199,213 +213,11 @@ function AutoDrive:onUpdate(dt)
     end
 
     ADSensor:handleSensors(self, dt)
-    AutoDrive:handleDriverWages(self, dt)
 
     --For 'legacy' purposes, this value should be kept since other mods already test for this:
     self.ad.isActive = self.ad.stateModule:isActive()
     self.ad.mapMarkerSelected = self.ad.stateModule:getFirstMarkerId()
     self.ad.mapMarkerSelected_Unload = self.ad.stateModule:getSecondMarkerId()
-end
-
-function AutoDrive:startAutoDrive()
-    if self.isServer then
-        if not self.ad.stateModule:isActive() then
-            self.ad.stateModule:setActive(true)
-
-            self.ad.isStoppingWithError = false
-            self.ad.onRouteToPark = false
-
-            if self.getAINeedsTrafficCollisionBox ~= nil then
-                if self:getAINeedsTrafficCollisionBox() then
-                    local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, self.baseDirectory, false, true, false)
-                    if collisionRoot ~= nil and collisionRoot ~= 0 then
-                        local collision = getChildAt(collisionRoot, 0)
-                        link(getRootNode(), collision)
-                        self.spec_aiVehicle.aiTrafficCollision = collision
-                        delete(collisionRoot)
-                    end
-                end
-            end
-
-            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
-
-            AutoDriveStartStopEvent:sendStartEvent(self)
-        end
-    else
-        g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
-    end
-end
-
-function AutoDrive:stopAutoDrive()
-    if self.isServer then
-        g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
-        self.ad.drivePathModule:reset()
-        self.ad.specialDrivingModule:reset()
-        self.ad.trailerModule:reset()
-
-        ADHarvestManager:unregisterVehicle(self)
-
-        for _, mode in pairs(self.ad.modes) do
-            mode:reset()
-        end
-
-            local hasCallbacks = self.ad.callBackFunction ~= nil and (self.ad.isStoppingWithError == nil or self.ad.isStoppingWithError == false)
-
-            if hasCallbacks then
-                --work with copys, so we can remove the callBackObjects before calling the function
-                local callBackFunction = self.ad.callBackFunction
-                local callBackObject = self.ad.callBackObject
-                local callBackArg = self.ad.callBackArg
-                self.ad.callBackFunction = nil
-                self.ad.callBackObject = nil
-                self.ad.callBackArg = nil
-
-                if callBackObject ~= nil then
-                    if callBackArg ~= nil then
-                        callBackFunction(callBackObject, callBackArg)
-                    else
-                        callBackFunction(callBackObject)
-                    end
-                else
-                    if callBackArg ~= nil then
-                        callBackFunction(callBackArg)
-                    else
-                        callBackFunction()
-                    end
-                end
-            else
-                AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
-                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
-
-                if self.ad.onRouteToPark == true then
-                    self.ad.onRouteToPark = false
-                    if self.spec_lights ~= nil then
-                        self:deactivateLights()
-                    end
-                end
-
-                if self.ad.sensors ~= nil then
-                    for _, sensor in pairs(self.ad.sensors) do
-                        sensor:setEnabled(false)
-                    end
-                end
-            end
-
-            if self.setBeaconLightsVisibility ~= nil then
-                self:setBeaconLightsVisibility(false)
-            end
-
-            self.ad.stateModule:setActive(false)
-
-        self.ad.taskModule:abortAllTasks()
-        self.ad.taskModule:reset()
-
-        AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
-    else
-        g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
-    end
-end
-
-function AutoDrive:onStartAutoDrive()
-    self.forceIsActive = true
-    self.spec_motorized.stopMotorOnLeave = false
-    self.spec_enterable.disableCharacterOnLeave = false
-    self.spec_aiVehicle.isActive = true
-    self.steeringEnabled = false
-
-    if self.currentHelper == nil then
-        self.currentHelper = g_helperManager:getRandomHelper()
-        if self.setRandomVehicleCharacter ~= nil then
-            self:setRandomVehicleCharacter()
-            self.ad.vehicleCharacter = self.spec_enterable.vehicleCharacter
-        end
-        if self.spec_enterable.controllerFarmId ~= 0 then
-            self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
-        end
-    end
-
-    AutoDriveHud:createMapHotspot(self)
-end
-
-function AutoDrive:onStopAutoDrive(hasCallbacks)
-    if not hasCallbacks then
-        if self.raiseAIEvent ~= nil then
-            self:raiseAIEvent("onAIEnd", "onAIImplementEnd")
-        end
-
-        self.spec_aiVehicle.isActive = false
-        self.forceIsActive = false
-        self.spec_motorized.stopMotorOnLeave = true
-        self.spec_enterable.disableCharacterOnLeave = true
-        self.currentHelper = nil
-
-        if self.restoreVehicleCharacter ~= nil then
-            self:restoreVehicleCharacter()
-        end
-
-        if self.steeringEnabled == false then
-            self.steeringEnabled = true
-        end
-    end
-
-    self:requestActionEventUpdate()
-
-    AutoDriveHud:deleteMapHotspot(self)
-end
-
-function AutoDrive:onPreLeaveVehicle()
-    if self.ad == nil then
-        return
-    end
-    -- We have to do that only for the player who were in the vehicle ( this also fixes mouse cursor hiding bug in MP )
-    if self.getIsEntered ~= nil and self:getIsEntered() then
-        local storedshowingHud = self.ad.showingHud
-        if g_inputBinding:getShowMouseCursor() == true and (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
-            g_inputBinding:setShowMouseCursor(false)
-            AutoDrive:onToggleMouse(self)
-        end
-        self.ad.showingHud = storedshowingHud
-        if (g_currentMission.controlledVehicle == nil or (g_currentMission.controlledVehicle.ad.showingHud == false) or self == g_currentMission.controlledVehicle) then
-            AutoDrive.Hud:closeAllPullDownLists(self)
-        end
-    end
-end
-Enterable.leaveVehicle = Utils.prependedFunction(Enterable.leaveVehicle, AutoDrive.onPreLeaveVehicle)
-
-function AutoDrive:onToggleMouse(vehicle)
-    if g_inputBinding:getShowMouseCursor() == true then
-        if vehicle.spec_enterable ~= nil then
-            if vehicle.spec_enterable.cameras ~= nil then
-                for _, camera in pairs(vehicle.spec_enterable.cameras) do
-                    camera.allowTranslation = false
-                    camera.isRotatable = false
-                end
-            end
-        end
-    else
-        if vehicle.spec_enterable ~= nil then
-            if vehicle.spec_enterable.cameras ~= nil then
-                for _, camera in pairs(vehicle.spec_enterable.cameras) do
-                    camera.allowTranslation = true
-                    camera.isRotatable = true
-                end
-            end
-        end
-    end
-
-    vehicle.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
-end
-
-function AutoDrive:handleDriverWages(vehicle, dt)
-    local spec = vehicle.spec_aiVehicle
-    if vehicle.isServer and spec ~= nil then
-        if vehicle:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and vehicle.ad.stateModule:isActive() then
-            local driverWages = AutoDrive.getSetting("driverWages")
-            local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier
-            local price = -dt * difficultyMultiplier * (driverWages - 1) * spec.pricePerMS
-            g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
-        end
-    end
 end
 
 function AutoDrive:saveToXMLFile(xmlFile, key)
@@ -454,9 +266,7 @@ function AutoDrive:onDraw()
         end
     end
 
-    if self == g_currentMission.controlledVehicle and (g_dedicatedServerInfo == nil) then
-        AutoDrive:onDrawControlledVehicle(self)
-    end
+    AutoDrive:onDrawControlledVehicle(self)
 
     if (self.ad.stateModule:isEditorModeEnabled() or self.ad.stateModule:isEditorShowEnabled()) and self == g_currentMission.controlledVehicle then
         AutoDrive:onDrawCreationMode(self)
@@ -466,6 +276,10 @@ function AutoDrive:onDraw()
         self.ad.frontNodeGizmo:createWithNode(self.ad.frontNode, getName(self.ad.frontNode), false)
         self.ad.frontNodeGizmo:draw()
     end
+end
+
+function AutoDrive:onDelete()
+    AutoDriveHud:deleteMapHotspot(self)
 end
 
 function AutoDrive:onDrawControlledVehicle(vehicle)
@@ -544,25 +358,13 @@ function AutoDrive.getNewPointsInProximity(vehicle)
         end
         --go through all stored points to check if they are still in proximity
         for id, point in pairs(vehicle.ad.pointsInProximity) do
-            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointById(id) ~= nil and  ADGraphManager:getWayPointById(id).x == point.x then
+            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointById(id) ~= nil and ADGraphManager:getWayPointById(id).x == point.x then
                 table.insert(newPointsToDraw, id, point)
             end
         end
         --replace stored list with update
         vehicle.ad.pointsInProximity = newPointsToDraw
     end
-end
-
-function AutoDrive.mouseIsAtPos(position, radius)
-    local x, y, _ = project(position.x, position.y + AutoDrive.drawHeight + AutoDrive.getSetting("lineHeight"), position.z)
-
-    if g_lastMousePosX < (x + radius) and g_lastMousePosX > (x - radius) then
-        if g_lastMousePosY < (y + radius) and g_lastMousePosY > (y - radius) then
-            return true
-        end
-    end
-
-    return false
 end
 
 function AutoDrive.drawPointsInProximity(vehicle)
@@ -630,15 +432,183 @@ function AutoDrive.drawPointsInProximity(vehicle)
     end
 end
 
-function AutoDrive:preRemoveVehicle(vehicle)
-    if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:isActive() then
-        vehicle:stopAutoDrive()
+function AutoDrive:startAutoDrive()
+    if self.isServer then
+        if not self.ad.stateModule:isActive() then
+            self.ad.stateModule:setActive(true)
+
+            self.ad.isStoppingWithError = false
+            self.ad.onRouteToPark = false
+
+            if self.getAINeedsTrafficCollisionBox ~= nil then
+                if self:getAINeedsTrafficCollisionBox() then
+                    local collisionRoot = g_i3DManager:loadSharedI3DFile(AIVehicle.TRAFFIC_COLLISION_BOX_FILENAME, self.baseDirectory, false, true, false)
+                    if collisionRoot ~= nil and collisionRoot ~= 0 then
+                        local collision = getChildAt(collisionRoot, 0)
+                        link(getRootNode(), collision)
+                        self.spec_aiVehicle.aiTrafficCollision = collision
+                        delete(collisionRoot)
+                    end
+                end
+            end
+
+            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
+
+            AutoDriveStartStopEvent:sendStartEvent(self)
+        end
+    else
+        g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
     end
 end
-FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle)
 
-function AutoDrive:onDelete()
+function AutoDrive:stopAutoDrive()
+    if self.isServer then
+        if self.ad.stateModule:isActive() then
+            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
+            self.ad.drivePathModule:reset()
+            self.ad.specialDrivingModule:reset()
+            self.ad.trailerModule:reset()
+
+            ADHarvestManager:unregisterVehicle(self)
+
+            for _, mode in pairs(self.ad.modes) do
+                mode:reset()
+            end
+
+            local hasCallbacks = self.ad.callBackFunction ~= nil and (self.ad.isStoppingWithError == nil or self.ad.isStoppingWithError == false)
+
+            if hasCallbacks then
+                --work with copys, so we can remove the callBackObjects before calling the function
+                local callBackFunction = self.ad.callBackFunction
+                local callBackObject = self.ad.callBackObject
+                local callBackArg = self.ad.callBackArg
+                self.ad.callBackFunction = nil
+                self.ad.callBackObject = nil
+                self.ad.callBackArg = nil
+
+                if callBackObject ~= nil then
+                    if callBackArg ~= nil then
+                        callBackFunction(callBackObject, callBackArg)
+                    else
+                        callBackFunction(callBackObject)
+                    end
+                else
+                    if callBackArg ~= nil then
+                        callBackFunction(callBackArg)
+                    else
+                        callBackFunction()
+                    end
+                end
+            else
+                AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
+                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
+
+                if self.ad.onRouteToPark == true then
+                    self.ad.onRouteToPark = false
+                    if self.spec_lights ~= nil then
+                        self:deactivateLights()
+                    end
+                end
+
+                if self.ad.sensors ~= nil then
+                    for _, sensor in pairs(self.ad.sensors) do
+                        sensor:setEnabled(false)
+                    end
+                end
+            end
+
+            if self.setBeaconLightsVisibility ~= nil then
+                self:setBeaconLightsVisibility(false)
+            end
+
+            self.ad.stateModule:setActive(false)
+
+            self.ad.taskModule:abortAllTasks()
+            self.ad.taskModule:reset()
+
+            AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
+        end
+    else
+        g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
+    end
+end
+
+function AutoDrive:onStartAutoDrive()
+    self.forceIsActive = true
+    self.spec_motorized.stopMotorOnLeave = false
+    self.spec_enterable.disableCharacterOnLeave = false
+    self.spec_aiVehicle.isActive = true
+    self.steeringEnabled = false
+
+    if self.currentHelper == nil then
+        self.currentHelper = g_helperManager:getRandomHelper()
+        if self.setRandomVehicleCharacter ~= nil then
+            self:setRandomVehicleCharacter()
+            self.ad.vehicleCharacter = self.spec_enterable.vehicleCharacter
+        end
+        if self.spec_enterable.controllerFarmId ~= 0 then
+            self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
+        end
+    end
+
+    AutoDriveHud:createMapHotspot(self)
+end
+
+function AutoDrive:onStopAutoDrive(hasCallbacks)
+    if not hasCallbacks then
+        if self.raiseAIEvent ~= nil then
+            self:raiseAIEvent("onAIEnd", "onAIImplementEnd")
+        end
+
+        self.spec_aiVehicle.isActive = false
+        self.forceIsActive = false
+        self.spec_motorized.stopMotorOnLeave = true
+        self.spec_enterable.disableCharacterOnLeave = true
+        self.currentHelper = nil
+
+        if self.restoreVehicleCharacter ~= nil then
+            self:restoreVehicleCharacter()
+        end
+
+        if self.steeringEnabled == false then
+            self.steeringEnabled = true
+        end
+    end
+
+    self:requestActionEventUpdate()
+
     AutoDriveHud:deleteMapHotspot(self)
+end
+
+function AutoDrive:leaveVehicle(superFunc)
+    if self.ad ~= nil then
+        if self.getIsEntered ~= nil and self:getIsEntered() then
+            if g_inputBinding:getShowMouseCursor() then
+                g_inputBinding:setShowMouseCursor(false)
+            end
+            AutoDrive.Hud:closeAllPullDownLists(self)
+        end
+    end
+    superFunc(self)
+end
+
+function AutoDrive:toggleMouse()
+    if g_inputBinding:getShowMouseCursor() then
+        if self.spec_enterable ~= nil and self.spec_enterable.cameras ~= nil then
+            for _, camera in pairs(self.spec_enterable.cameras) do
+                camera.allowTranslation = false
+                camera.isRotatable = false
+            end
+        end
+    else
+        if self.spec_enterable ~= nil and self.spec_enterable.cameras ~= nil then
+            for _, camera in pairs(self.spec_enterable.cameras) do
+                camera.allowTranslation = true
+                camera.isRotatable = true
+            end
+        end
+    end
+    self.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
 end
 
 function AutoDrive:updateAILights(superFunc)

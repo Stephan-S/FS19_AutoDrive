@@ -143,6 +143,8 @@ function AutoDrive:loadMap(name)
 	FarmStats.loadFromXMLFile = Utils.appendedFunction(FarmStats.loadFromXMLFile, AutoDrive.FarmStats_loadFromXMLFile)
 	FarmStats.getStatisticData = Utils.overwrittenFunction(FarmStats.getStatisticData, AutoDrive.FarmStats_getStatisticData)
 
+	FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle)
+
 	ADRoutesManager.load()
 	ADDrawingManager:load()
 	ADMessagesManager:load()
@@ -216,10 +218,6 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 		end
 	end
 
-	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.lastMouseState ~= g_inputBinding:getShowMouseCursor() then
-		AutoDrive:onToggleMouse(vehicle)
-	end
-
 	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	end
@@ -245,6 +243,12 @@ end
 function AutoDrive:draw()
 	ADDrawingManager:draw()
 	ADMessagesManager:draw()
+end
+
+function AutoDrive:preRemoveVehicle(vehicle)
+	if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:isActive() then
+		vehicle:stopAutoDrive()
+	end
 end
 
 function AutoDrive:FarmStats_saveToXMLFile(xmlFile, key)
