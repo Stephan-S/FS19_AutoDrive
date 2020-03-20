@@ -146,7 +146,7 @@ function FollowCombineTask:followChasePoint(dt)
         -- Let's start driving a little slower when we are switching sides
         if not self.chaseTimer:done() then
             acc = 0.3
-            totalSpeedLimit = math.min(combineSpeed, 6)
+            totalSpeedLimit = math.max(combineSpeed, 6)
         end
         self.vehicle.ad.specialDrivingModule:driveToPoint(dt, self.chasePos, combineSpeed, dynamicCollisionWindow, acc, totalSpeedLimit)
     end
@@ -155,7 +155,7 @@ end
 function FollowCombineTask:shouldWaitForChasePos(dt)
     self:getAngleToChasePos(dt)
     local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.chasePos.x, self.chasePos.y, self.chasePos.z)
-    return self.angleWrongTimer:done() or (not self.combine.ad.sensors.frontSensorFruit:pollInfo()) or diffZ <= -1
+    return self.angleWrongTimer:done() or  diffZ <= -1 --or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
 end
 
 function FollowCombineTask:getAngleToChasePos(dt)
