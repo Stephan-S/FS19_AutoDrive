@@ -193,7 +193,7 @@ function AutoDrive:onUpdate(dt)
     AutoDrive:handleRecording(self)
     ADSensor:handleSensors(self, dt)
     AutoDrive:handleDriverWages(self, dt)
-    
+
     --For 'legacy' purposes, this value should be kept since other mods already test for this:
     self.ad.isActive = self.ad.stateModule:isActive()
     self.ad.mapMarkerSelected = self.ad.stateModule:getFirstMarkerId()
@@ -504,8 +504,10 @@ function AutoDrive:onDrawCreationMode(vehicle)
         --Draw line to closest point
         local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
         local wp = ADGraphManager:getWayPointById(closest)
-        AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
-        AutoDriveDM:addSmallSphereTask(x1, dy, z1, 1, g, 0)
+        if wp ~= nil then
+            AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
+            AutoDriveDM:addSmallSphereTask(x1, dy, z1, 1, g, 0)
+        end
     end
 end
 
