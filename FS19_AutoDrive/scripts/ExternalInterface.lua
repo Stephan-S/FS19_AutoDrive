@@ -146,7 +146,7 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
                 vehicle.ad.storedFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
                 vehicle.ad.storedMode = vehicle.ad.stateModule:getMode()
 
-                local refuelDestination = AutoDrive.getClosestRefuelDestination(vehicle)
+                local refuelDestination = ADTriggerManager.getClosestRefuelDestination(vehicle)
 
                 if refuelDestination ~= nil then
                     vehicle.ad.stateModule:setFirstMarker(refuelDestination)
