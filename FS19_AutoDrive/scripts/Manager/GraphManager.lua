@@ -383,7 +383,11 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
 							local parkDestination = vehicle.ad.stateModule:getParkDestination()
 							if parkDestination ~= nil and parkDestination >= markerId then
-								vehicle.ad.stateModule:setParkDestination(-1)
+								if parkDestination == markerId then
+									vehicle.ad.stateModule:setParkDestination(-1)
+								else
+									vehicle.ad.stateModule:setParkDestination(math.max(parkDestination - 1, 1))
+								end
 							end
 							if vehicle.ad.stateModule:getFirstMarker() == nil then
 								vehicle.ad.stateModule:setFirstMarker(ADGraphManager:getMapMarkerById(1))
