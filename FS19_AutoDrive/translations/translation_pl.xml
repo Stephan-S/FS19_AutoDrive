@@ -51,6 +51,7 @@
 		<text name="AD_MODE_LOAD"								text="Załadunek" />
 		<text name="AD_MODE_BGA"								text="Rozładunek do silosu" />
 		<text name="AD_synchronizing"							text="wczytywanie tras z serwera..." />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL do utworzenia" />
 		<text name="AD_lalt_for_deletion" 						text="LALT do usunięcia" />
 		<text name="gui_ad_Setting"								text="AutoDrive - ustawienia" />

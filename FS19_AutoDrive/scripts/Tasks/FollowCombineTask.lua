@@ -123,10 +123,10 @@ function FollowCombineTask:updateStates()
     self.combineFillPercent = (self.cfillLevel / self.cmaxCapacity) * 100
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    self.fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-    local maxCapacity = self.fillLevel + leftCapacity
-    self.filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
-    self.filled = leftCapacity <= 1
+    self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+    local maxCapacity = self.fillLevel + self.leftCapacity
+    self.filledToUnload = (self.leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
+    self.filled = self.leftCapacity <= 1
 end
 
 function FollowCombineTask:reverse(dt)

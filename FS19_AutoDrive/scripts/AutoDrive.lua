@@ -9,6 +9,7 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
+AutoDrive.experimentalFeatures.fastExtendedEditorMode = false
 
 AutoDrive.developmentControls = false
 
@@ -200,9 +201,25 @@ function AutoDrive:deleteMap()
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
-	--print("Key event called with modifier: " .. modifier .. " and key: " .. unicode .. " and isDown: " .. AutoDrive.boolToString(isDown))
 	AutoDrive.leftCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_LCTRL) > 0
 	AutoDrive.leftALTmodifierKeyPressed = bitAND(modifier, Input.MOD_LALT) > 0
+
+	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+		local vehicle = g_currentMission.controlledVehicle
+		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+			if vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
+				if AutoDrive.leftCTRLmodifierKeyPressed then
+					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_EXTENDED)
+					AutoDrive.toggledEditorMode = true
+				end
+			elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_EXTENDED and AutoDrive.toggledEditorMode then
+				if not AutoDrive.leftCTRLmodifierKeyPressed then
+					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_ON)
+					AutoDrive.toggledEditorMode = false
+				end
+			end
+		end
+	end
 end
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)

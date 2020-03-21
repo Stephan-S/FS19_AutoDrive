@@ -177,11 +177,15 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 
 	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, false)
 	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
-	self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false)
-	self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false)
-	self:AddButton("input_toggleConnection", "input_toggleConnectionInverted", "input_ADDebugCreateConnection", 1, false)
+	if not AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+		self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false)
+		self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false)
+		self:AddButton("input_toggleConnection", "input_toggleConnectionInverted", "input_ADDebugCreateConnection", 1, false)
+	end
 	self:AddButton("input_createMapMarker", "input_editMapMarker", "input_ADDebugCreateMapMarker", 1, false)
-	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
+	if not AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+		self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
+	end
 
 	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
@@ -299,7 +303,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			for _, point in pairs(vehicle.ad.pointsInProximity) do
 				if AutoDrive.mouseIsAtPos(point, 0.01) then
 					vehicle.ad.hoveredNodeId = point.id
-					if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
+					if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
 						if button == 1 and isUp then
 							if vehicle.ad.selectedNodeId ~= nil then
 								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
@@ -323,7 +327,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
 					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
 						vehicle.ad.hoveredNodeId = point.id
-						if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
+						if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then 
 							if (button == 2 or button == 3) and isDown then
 								if vehicle.ad.nodeToMoveId == nil then
 									vehicle.ad.nodeToMoveId = point.id
@@ -334,7 +338,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				end
 			end
 
-			if (not AutoDrive.leftCTRLmodifierKeyPressed) and (not AutoDrive.leftALTmodifierKeyPressed) then
+			if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
 				if (button == 2 or button == 3) and isUp then
 					if vehicle.ad.nodeToMoveId ~= nil then
 						ADGraphManager:changeWayPointPosition(vehicle.ad.nodeToMoveId)
@@ -349,7 +353,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 			--If no node is hovered / moved - check for creation of new node
 			if vehicle.ad.nodeToMoveId == nil and vehicle.ad.hoveredNodeId == nil then
-				if AutoDrive.leftCTRLmodifierKeyPressed then
+				if (AutoDrive.experimentalFeatures.fastExtendedEditorMode or AutoDrive.leftCTRLmodifierKeyPressed) then
 					if button == 1 and isDown then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
 						local closest = ADGraphManager:findClosestWayPoint(vehicle)

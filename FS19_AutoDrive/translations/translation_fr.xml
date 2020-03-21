@@ -51,6 +51,7 @@
 		<text name="AD_MODE_LOAD"								text="Chargement" />
 		<text name="AD_MODE_BGA"								text="Vider silo (bunker)" />
 		<text name="AD_synchronizing"							text="Chargement des routes du serveur .." />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL pour créer" />
 		<text name="AD_lalt_for_deletion" 						text="LALT pour effacer" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />

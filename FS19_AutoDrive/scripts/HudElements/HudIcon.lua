@@ -71,8 +71,14 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     end
 
     if vehicle.ad.stateModule:isInExtendedEditorMode() then
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
-        textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
+        if not AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
+            textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
+        else
+            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
+        end
+    elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON and AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
     end
 
     local textWidth = getTextWidth(adFontSize, textToShow)

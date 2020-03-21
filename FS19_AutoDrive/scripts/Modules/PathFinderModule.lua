@@ -22,6 +22,8 @@ PathFinderModule.PP_MIN_DISTANCE = 20
 PathFinderModule.PP_CELL_X = 9
 PathFinderModule.PP_CELL_Z = 9
 
+PathFinderModule.GRID_SIZE_FACTOR = 0.6
+
 function PathFinderModule:new(vehicle)
     local o = {}
     setmetatable(o, self)
@@ -372,17 +374,17 @@ function PathFinderModule:checkGridCell(cell)
     if cell.hasInfo == false then
         local worldPos = self:gridLocationToWorldLocation(cell)
 
-        local cornerX = worldPos.x + (-self.vectorX.x - self.vectorZ.x) / 2
-        local cornerZ = worldPos.z + (-self.vectorX.z - self.vectorZ.z) / 2
+        local cornerX = worldPos.x + (-self.vectorX.x - self.vectorZ.x) * PathFinderModule.GRID_SIZE_FACTOR
+        local cornerZ = worldPos.z + (-self.vectorX.z - self.vectorZ.z) * PathFinderModule.GRID_SIZE_FACTOR
 
-        local corner2X = worldPos.x + (self.vectorX.x - self.vectorZ.x) / 2
-        local corner2Z = worldPos.z + (self.vectorX.z - self.vectorZ.z) / 2
+        local corner2X = worldPos.x + (self.vectorX.x - self.vectorZ.x) * PathFinderModule.GRID_SIZE_FACTOR
+        local corner2Z = worldPos.z + (self.vectorX.z - self.vectorZ.z) * PathFinderModule.GRID_SIZE_FACTOR
 
-        local corner3X = worldPos.x + (-self.vectorX.x + self.vectorZ.x) / 2
-        local corner3Z = worldPos.z + (-self.vectorX.z + self.vectorZ.z) / 2
+        local corner3X = worldPos.x + (-self.vectorX.x + self.vectorZ.x) * PathFinderModule.GRID_SIZE_FACTOR
+        local corner3Z = worldPos.z + (-self.vectorX.z + self.vectorZ.z) * PathFinderModule.GRID_SIZE_FACTOR
 
-        local corner4X = worldPos.x + (self.vectorX.x + self.vectorZ.x) / 2
-        local corner4Z = worldPos.z + (self.vectorX.z + self.vectorZ.z) / 2
+        local corner4X = worldPos.x + (self.vectorX.x + self.vectorZ.x) * PathFinderModule.GRID_SIZE_FACTOR
+        local corner4Z = worldPos.z + (self.vectorX.z + self.vectorZ.z) * PathFinderModule.GRID_SIZE_FACTOR
 
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
 
@@ -926,7 +928,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
             end
 
             local widthOfColBox = self.minTurnRadius
-            local sideLength = widthOfColBox / 2
+            local sideLength = widthOfColBox * PathFinderModule.GRID_SIZE_FACTOR
             local y = worldPos.y
             local foundCollision = false
 
@@ -979,7 +981,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 local corner4X = node.x - math.cos(rightAngle) * sideLength
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength
 
-                local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.85, widthOfColBox / 2 + 1.5, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
+                local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.85, sideLength + 1.5, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
                 hasCollision = hasCollision or (shapes > 0)
 
                 if (self.smoothIndex > 1) then

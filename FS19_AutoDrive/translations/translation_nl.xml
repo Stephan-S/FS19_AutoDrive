@@ -51,6 +51,7 @@
 		<text name="AD_MODE_LOAD"								text="Ophalen" />
 		<text name="AD_MODE_BGA"								text="Lossen in Bunker Silo" />
 		<text name="AD_synchronizing"							text="synchroniseren met server.." />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL te creëren" />
 		<text name="AD_lalt_for_deletion" 						text="LALT te verwijderen" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Instellingen" />
