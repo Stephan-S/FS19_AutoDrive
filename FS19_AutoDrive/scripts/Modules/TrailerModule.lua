@@ -89,8 +89,10 @@ function ADTrailerModule:updateStates()
     for _, trailer in pairs(self.trailers) do
         if trailer.getDischargeState ~= nil then
             local dischargeState = trailer:getDischargeState()
-            if dischargeState ~= Trailer.TIPSTATE_CLOSED and dischargeState ~= Trailer.TIPSTATE_CLOSING then
+            if dischargeState ~= Dischargeable.DISCHARGE_STATE_OFF then
                 self.isUnloading = true
+                self.isUnloadingWithTrailer = trailer
+                self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
             end
         end
     end
@@ -119,6 +121,8 @@ function ADTrailerModule:stopLoading()
 end
 
 function ADTrailerModule:updateUnload(dt)
+    AutoDrive.setAugerPipeOpen(self.trailers,  AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+
     if not self.isUnloading then
         -- Check if we can unload at some trigger
         for _, trailer in pairs(self.trailers) do

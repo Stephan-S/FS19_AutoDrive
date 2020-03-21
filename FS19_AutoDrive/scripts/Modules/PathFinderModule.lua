@@ -76,11 +76,16 @@ function PathFinderModule:update()
                     if wayPoints ~= nil and #wayPoints > 1 then
                         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
                         local storedRetryCounter = self.retryCounter
+                        local storedTargetWayPointId = self.targetWayPointId
                         local storedDestinationId = self.destinationId
                         self:startPathPlanningTo(targetNode, vecToNextPoint)
                         self.retryCounter = storedRetryCounter
                         self.destinationId = storedDestinationId
                         self.fallBackMode = true
+                        self.targetWayPointId = storedTargetWayPointId
+                        if self.targetWayPointId ~= nil then
+                            self.appendWayPoints = ADGraphManager:pathFromTo(self.targetWayPointId, self.destinationId)
+                        end
                     end
                 end
             end

@@ -146,6 +146,9 @@ end
 
 function CombineUnloaderMode:assignToHarvester(harvester)
     if self.state == self.STATE_WAIT_TO_BE_CALLED then
+        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+        AutoDrive.setAugerPipeOpen(trailers, false)
+
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.combine = harvester
         self.combine.ad.currentDriver = self.vehicle
@@ -172,6 +175,9 @@ end
 
 function CombineUnloaderMode:driveToUnloader(unloader)
     if self.state == self.STATE_WAIT_TO_BE_CALLED then
+        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+        AutoDrive.setAugerPipeOpen(trailers, false)
+        
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.vehicle.ad.taskModule:addTask(DriveToVehicleTask:new(self.vehicle, unloader))
         unloader.ad.modes[AutoDrive.MODE_UNLOAD]:registerFollowingUnloader(self.vehicle)

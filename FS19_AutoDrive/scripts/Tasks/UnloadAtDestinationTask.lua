@@ -22,7 +22,6 @@ function UnloadAtDestinationTask:setUp()
         else
             self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
         end
-        self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
     else
         self.state = UnloadAtDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
@@ -50,7 +49,15 @@ function UnloadAtDestinationTask:update(dt)
         end
     else
         if self.vehicle.ad.drivePathModule:isTargetReached() then
-            self:finished()
+            local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+            local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+            if fillLevel <= 0.1 then
+                AutoDrive.setAugerPipeOpen(trailers, false)
+                self:finished()
+            else
+                self.vehicle.ad.specialDrivingModule:stopVehicle()
+                self.vehicle.ad.specialDrivingModule:update(dt)        
+            end
         else
             self.vehicle.ad.trailerModule:update(dt)
             self.vehicle.ad.specialDrivingModule:releaseVehicle()

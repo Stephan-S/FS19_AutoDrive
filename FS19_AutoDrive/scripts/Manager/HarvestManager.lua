@@ -27,16 +27,14 @@ function ADHarvestManager:registerAsUnloader(vehicle)
     end
 end
 
-function ADHarvestManager:unregisterAsUnloader(vehicle)
-    --[[
+function ADHarvestManager:unregisterAsUnloader(vehicle)    
     if vehicle.ad.modes ~= nil and vehicle.ad.modes[AutoDrive.MODE_UNLOAD] ~= nil then
         local followingUnloder = vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader()
         if followingUnloder ~= nil then
             --promote following unloader to current unloader
             followingUnloder.ad.modes[AutoDrive.MODE_UNLOAD].combine = vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine
         end
-    end
-    --]]
+    end    
     if table.contains(self.idleUnloaders, vehicle) then
         table.removeValue(self.idleUnloaders, vehicle)
     end
