@@ -17,15 +17,6 @@ function ADHarvestManager:registerHarvester(harvester)
     end
 end
 
-function ADHarvestManager:unregisterVehicle(vehicle)
-    if table.contains(self.harvesters, vehicle) then
-        table.removeValue(self.harvesters, vehicle)
-    end
-    if table.contains(self.idleHarvesters, vehicle) then
-        table.removeValue(self.idleHarvesters, vehicle)
-    end
-end
-
 function ADHarvestManager:registerAsUnloader(vehicle)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:registerAsUnloader")
     --remove from active and idle list

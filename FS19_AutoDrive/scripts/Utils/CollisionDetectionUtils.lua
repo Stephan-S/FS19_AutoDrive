@@ -95,7 +95,7 @@ function AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position, dynamic
     if dynamicSize then
         --Box should be a lookahead box which adjusts to vehicle steering rotation
         rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
-        lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 10 + 0.5
+        lookAheadDistance = math.clamp(0.13, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
     else
         rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
     end

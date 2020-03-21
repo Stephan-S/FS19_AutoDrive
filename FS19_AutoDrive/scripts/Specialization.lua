@@ -473,8 +473,6 @@ function AutoDrive:stopAutoDrive()
             self.ad.specialDrivingModule:reset()
             self.ad.trailerModule:reset()
 
-            ADHarvestManager:unregisterVehicle(self)
-
             for _, mode in pairs(self.ad.modes) do
                 mode:reset()
             end

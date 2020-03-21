@@ -41,11 +41,13 @@ function LoadAtDestinationTask:update(dt)
         end
     else
         if self.vehicle.ad.drivePathModule:isTargetReached() then
-            --Check if we have actually loaded / tried to load something
-            if self.vehicle.ad.callBackFunction ~= nil then
+            --Check if we have actually loaded / tried to load
+            local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+            AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
+            if self.vehicle.ad.callBackFunction ~= nil and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
                 self.vehicle:stopAutoDrive()
             else
-                if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then                
+                if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then
                     self:finished()
                 else
                     -- Wait to be loaded manally - check filllevel

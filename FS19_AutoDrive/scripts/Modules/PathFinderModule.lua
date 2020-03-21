@@ -302,6 +302,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     self.goingToPipe = false
     self.chasingVehicle = false
+    self.isSecondChasingVehicle = false
     self.destinationId = nil
 end
 
