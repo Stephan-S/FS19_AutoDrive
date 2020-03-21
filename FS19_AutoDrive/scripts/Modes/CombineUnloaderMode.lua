@@ -210,16 +210,12 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     return nextTask
 end
 
-function CombineUnloaderMode:shouldUnloadAtTrigger()
-    return self.state == self.STATE_DELIVER and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
-end
-
 function CombineUnloaderMode:shouldLoadOnTrigger()
     return self.state == self.STATE_PICKUP and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end
 
 function CombineUnloaderMode:shouldUnloadAtTrigger()
-    return self.state == self.STATE_DRIVE_TO_UNLOAD and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return self.state == self.STATE_DRIVE_TO_UNLOAD
 end
 
 function CombineUnloaderMode:getPipeChasePosition()

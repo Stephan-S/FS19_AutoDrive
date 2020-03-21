@@ -70,9 +70,9 @@ function PathFinderModule:update()
                 self.possiblyBlockedByOtherVehicle = false
                 --if we are going to the network and can't find a path. Just select the next waypoint for now
                 if self.destinationId ~= nil then
-                    self.closestId = self.closestId + 1
-                    local targetNode = ADGraphManager:getWayPointById(self.closestId)
-                    local wayPoints = ADGraphManager:pathFromTo(self.closestId, self.destinationId)
+                    self.targetWayPointId = self.targetWayPointId + 1
+                    local targetNode = ADGraphManager:getWayPointById(self.targetWayPointId)
+                    local wayPoints = ADGraphManager:pathFromTo(self.targetWayPointId, self.destinationId)
                     if wayPoints ~= nil and #wayPoints > 1 then
                         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
                         local storedRetryCounter = self.retryCounter
@@ -167,13 +167,18 @@ end
 
 function PathFinderModule:startPathPlanningToNetwork(destinationId)
     local closest = ADGraphManager:findClosestWayPoint(self.vehicle)
-    local targetNode = ADGraphManager:getWayPointById(closest)
-    local wayPoints = ADGraphManager:pathFromTo(closest, destinationId)
+    self:startPathPlanningToWayPoint(closest, destinationId)
+end
+
+function PathFinderModule:startPathPlanningToWayPoint(wayPointId, destinationId)
+    local targetNode = ADGraphManager:getWayPointById(wayPointId)
+    local wayPoints = ADGraphManager:pathFromTo(wayPointId, destinationId)
     if wayPoints ~= nil and #wayPoints > 1 then
         local vecToNextPoint = {x = wayPoints[2].x - targetNode.x, z = wayPoints[2].z - targetNode.z}
         self:startPathPlanningTo(targetNode, vecToNextPoint)
         self.destinationId = destinationId
-        self.closestId = closest
+        self.targetWayPointId = wayPointId
+        self.appendWayPoints = wayPoints
     end
     return
 end

@@ -87,7 +87,7 @@ function PickupAndDeliverMode:getNextTask()
 end
 
 function PickupAndDeliverMode:shouldUnloadAtTrigger()
-    return self.state == PickupAndDeliverMode.STATE_DELIVER and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return self.state == PickupAndDeliverMode.STATE_DELIVER
 end
 
 function PickupAndDeliverMode:shouldLoadOnTrigger()

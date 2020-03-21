@@ -57,7 +57,7 @@ function ADDrivePathModule:setPathTo(waypointId)
     end
 end
 
-function ADDrivePathModule:appendPathTo(wayPointId)
+function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
     local appendWayPoints = ADGraphManager:getPathTo(self.vehicle, wayPointId)
 
     if appendWayPoints == nil or (appendWayPoints[2] == nil and (appendWayPoints[1] == nil or (appendWayPoints[1] ~= nil and appendWayPoints[1].id ~= wayPointId))) then
@@ -174,8 +174,15 @@ function ADDrivePathModule:followWaypoints(dt)
         self.speedLimit = math.min(ADDrivePathModule.SPEED_ON_FIELD, self.speedLimit)
     end
 
+    local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
         self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
+        maxSpeedDiff = 1
+    else
+        if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
+            self.speedLimit = math.min(5, self.speedLimit)
+            maxSpeedDiff = 3
+        end
     end
 
     local maxAngle = 60
@@ -196,7 +203,7 @@ function ADDrivePathModule:followWaypoints(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
-        if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + ADDrivePathModule.MAX_SPEED_DEVIATION) then
+        if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + maxSpeedDiff) then
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)

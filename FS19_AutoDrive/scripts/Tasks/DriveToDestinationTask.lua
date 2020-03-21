@@ -31,7 +31,7 @@ function DriveToDestinationTask:update(dt)
                 AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
-                self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
+                --self.vehicle.ad.drivePathModule:appendPathTo(self.wayPoints[#self.wayPoints], self.destinationID)
                 self.state = DriveToDestinationTask.STATE_DRIVING
             end
         else

@@ -13,6 +13,15 @@ end
 function UnloadAtDestinationTask:setUp()
     if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.state = UnloadAtDestinationTask.STATE_PATHPLANNING
+        if self.vehicle.ad.callBackFunction ~= nil then
+            if self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
+                self.vehicle.ad.pathFinderModule:startPathPlanningToWayPoint(self.vehicle.ad.stateModule:getFirstWayPoint(), self.destinationID)
+            else
+                self.vehicle.ad.pathFinderModule:startPathPlanningToWayPoint(self.vehicle.ad.stateModule:getSecondWayPoint(), self.destinationID)
+            end
+        else
+            self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
+        end
         self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
     else
         self.state = UnloadAtDestinationTask.STATE_DRIVING
@@ -31,7 +40,7 @@ function UnloadAtDestinationTask:update(dt)
                 AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
-                self.vehicle.ad.drivePathModule:appendPathTo(self.destinationID)
+                --self.vehicle.ad.drivePathModule:appendPathTo(self.wayPoints[#self.wayPoints], self.destinationID)
                 self.state = UnloadAtDestinationTask.STATE_DRIVING
             end
         else

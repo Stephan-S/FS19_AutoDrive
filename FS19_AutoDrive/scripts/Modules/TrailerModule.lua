@@ -53,7 +53,7 @@ function ADTrailerModule:getBunkerSiloSpeed()
 
             local unloadTimeInMS = fillLevel / dischargeSpeed
 
-            local speed = ((vecHLength / unloadTimeInMS) * 1000) * 3.6 * 0.95
+            local speed = ((vecHLength / unloadTimeInMS) * 1000) * 3.6 * 0.85
 
             return speed
         end
@@ -201,7 +201,7 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
     end
 
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
-        if trigger.bunkerSiloArea == nil then
+        if trigger.bunkerSiloArea == nil and AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance") then
             if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
                 if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then
                     return trigger
@@ -227,7 +227,8 @@ function ADTrailerModule:startUnloadingIntoTrigger(trailer, trigger)
         trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
         if self.unloadingToBunkerSilo == false then
             self.bunkerStartFillLevel = self.fillLevel
-        end
+        end 
+        self.isUnloading = true
         self.unloadingToBunkerSilo = true
         self.bunkerTrigger = trigger
         self.bunkerTrailer = trailer

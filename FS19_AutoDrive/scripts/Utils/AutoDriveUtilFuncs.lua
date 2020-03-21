@@ -149,3 +149,18 @@ function AutoDrive.mouseIsAtPos(position, radius)
 
     return false
 end
+
+function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
+    for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
+        local x, y, z = getWorldTranslation(vehicle.components[1].node)
+        local tx, _, tz = x, y, z + 1
+        if trigger ~= nil and trigger.bunkerSiloArea ~= nil then
+            local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz
+            local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz
+            local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz
+            return MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z)
+        end
+    end
+
+    return false
+end
