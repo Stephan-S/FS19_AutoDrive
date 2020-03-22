@@ -430,11 +430,14 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                 local distance = MathUtil.vector2Length(triggerX - trailerX, triggerZ - trailerZ)
                 if distance <= AutoDrive.getSetting("maxTriggerDistance") then
                     local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
-                    if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
-                        allowedFillTypes = {}
-                        table.insert(allowedFillTypes, 13)
-                        table.insert(allowedFillTypes, 43)
-                        table.insert(allowedFillTypes, 44)
+                    local fillUnits = trailer:getFillUnits()
+                    if #fillUnits > 1 then
+                        if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
+                            allowedFillTypes = {}
+                            table.insert(allowedFillTypes, 13)
+                            table.insert(allowedFillTypes, 43)
+                            table.insert(allowedFillTypes, 44)
+                        end
                     end
 
                     local fillLevels = {}
@@ -461,7 +464,6 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                     end
 
                     local hasRequiredFillType = false
-                    local fillUnits = trailer:getFillUnits()
                     for i = 1, #fillUnits do
                         hasRequiredFillType = AutoDrive.fillTypesMatch(vehicle, trigger, trailer, allowedFillTypes, i)
                         local isNotFilled = trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999

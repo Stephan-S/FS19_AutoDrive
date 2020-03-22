@@ -140,11 +140,9 @@ function ADTrailerModule:updateUnload(dt)
         -- Monitor unloading
         local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
 
-        if fillUnitEmpty then
-            if self:areAllTrailersClosed(dt) then
-                self.isUnloading = false
-                self.unloadingToBunkerSilo = false
-            end
+        if fillUnitEmpty or self:areAllTrailersClosed(dt) then
+            self.isUnloading = false
+            self.unloadingToBunkerSilo = false
         end
     end
 end

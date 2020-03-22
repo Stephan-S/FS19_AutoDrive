@@ -48,6 +48,7 @@ function UnloadAtDestinationTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
     else
+        self.vehicle.ad.trailerModule:update(dt)
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
             local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
@@ -56,10 +57,9 @@ function UnloadAtDestinationTask:update(dt)
                 self:finished()
             else
                 self.vehicle.ad.specialDrivingModule:stopVehicle()
-                self.vehicle.ad.specialDrivingModule:update(dt)        
+                self.vehicle.ad.specialDrivingModule:update(dt)
             end
         else
-            self.vehicle.ad.trailerModule:update(dt)
             self.vehicle.ad.specialDrivingModule:releaseVehicle()
             if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 --print("UnloadAtDestinationTask - trailerModule:isActiveAtTrigger()")

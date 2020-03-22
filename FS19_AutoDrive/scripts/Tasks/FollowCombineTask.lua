@@ -49,9 +49,9 @@ function FollowCombineTask:update(dt)
         self:finished()
     end
 
-    if self.state == FollowCombineTask.STATE_CHASING then        
+    if self.state == FollowCombineTask.STATE_CHASING then
         self.chaseTimer:timer(true, 4000, dt)
-        if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 60 or not self.combine:getIsBufferCombine())) or self.angleWrongTimer.elapsedTime > 10000 then
+        if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 25 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
             self.angleWrongTimer:timer(false)
         else
