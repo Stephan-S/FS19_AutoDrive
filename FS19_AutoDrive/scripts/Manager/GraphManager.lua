@@ -389,18 +389,6 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 									vehicle.ad.stateModule:setParkDestination(math.max(parkDestination - 1, 1))
 								end
 							end
-							if vehicle.ad.stateModule:getFirstMarker() == nil then
-								vehicle.ad.stateModule:setFirstMarker(ADGraphManager:getMapMarkerById(1))
-							end
-							if vehicle.ad.stateModule:getFirstMarkerId() ~= nil and vehicle.ad.stateModule:getFirstMarkerId() >= markerId then
-								vehicle.ad.stateModule:setFirstMarker(math.max(vehicle.ad.stateModule:getFirstMarkerId() - 1, 1))
-							end
-							if vehicle.ad.stateModule:getSecondMarker() == nil then
-								vehicle.ad.stateModule:setSecondMarker(ADGraphManager:getMapMarkerById(1))
-							end
-							if vehicle.ad.stateModule:getSecondMarkerId() ~= nil and vehicle.ad.stateModule:getSecondMarkerId() >= markerId then
-								vehicle.ad.stateModule:setSecondMarker(math.max(vehicle.ad.stateModule:getSecondMarkerId() - 1, 1))
-							end
 						end
 					end
 					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarkers + 1))

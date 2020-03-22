@@ -71,7 +71,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
-                if distance < distanceToSlowDownAt then
+                if distance < distanceToSlowDownAt and (distance < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distance < 300)) then
                     return true
                 end
             end
