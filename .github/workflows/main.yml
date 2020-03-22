@@ -15,4 +15,4 @@ jobs:
        zip -r ../release.zip .
     - name: Uploading the mod zip to server
       run: |
-        curl -F 'u_file=@release.zip' 'http://services.tykonket.com/GitHub/files.php?m=u&k=${{ secrets.upload_key }}&t=adbuild'
+        curl -i -F 'file=@release.zip' 'https://host-my-bits.com/HostedFiles/Upload/1?key=${{ secrets.upload_key }}'
