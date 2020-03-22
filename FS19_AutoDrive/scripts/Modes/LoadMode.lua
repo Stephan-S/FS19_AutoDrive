@@ -23,15 +23,16 @@ function LoadMode:start()
     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local maxCapacity = fillLevel + leftCapacity
 
-    if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
-        self.state = LoadMode.STATE_TO_TARGET
-    end
-
     if self.vehicle.ad.stateModule:getFirstMarker() == nil or self.vehicle.ad.stateModule:getSecondMarker() == nil then
         return
     end
 
-    self.vehicle.ad.taskModule:addTask(LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id))
+    if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
+        self.state = LoadMode.STATE_TO_TARGET
+        self.vehicle.ad.taskModule:addTask(DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id))
+    else
+        self.vehicle.ad.taskModule:addTask(LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id))
+    end
 end
 
 function LoadMode:monitorTasks(dt)

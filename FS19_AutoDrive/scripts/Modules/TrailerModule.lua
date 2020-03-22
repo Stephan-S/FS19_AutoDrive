@@ -154,7 +154,11 @@ function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger)
     for i = 1, #fillUnits do
         if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
             if trigger:getIsActivatable(trailer) and not self.isLoading then                
-                self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
+                if #fillUnits > 1 then
+                    self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
+                else
+                    self:startLoadingAtTrigger(trigger, self.vehicle.ad.stateModule:getFillType(), i, trailer)
+                end
                 self.isLoading = self.isLoading or trigger.isLoading
             end
         end
