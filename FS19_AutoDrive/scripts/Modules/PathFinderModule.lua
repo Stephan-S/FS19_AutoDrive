@@ -574,7 +574,7 @@ end
 
 function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z)
     local fruitValue = 0
-    if fruitType == 9 or fruitType == 22 then
+    if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, true, true)
     else
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, nil, false)
