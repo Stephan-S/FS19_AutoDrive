@@ -22,6 +22,7 @@ function ADRoutesManagerGui:onOpen()
 end
 
 function ADRoutesManagerGui:refreshItems()
+    ADRoutesManager.loadRoutesFromXML()
     self.routes = ADRoutesManager.getRoutes(AutoDrive.loadedMap)
     self.autoDriveRoutesManagerList:deleteListItems()
     for _, r in pairs(self.routes) do

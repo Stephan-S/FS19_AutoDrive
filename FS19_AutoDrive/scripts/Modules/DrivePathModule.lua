@@ -159,14 +159,14 @@ function ADDrivePathModule:followWaypoints(dt)
         self.speedLimit = self:getMaxSpeedForAngle(highestAngle)
     end
 
-    local distanceToTarget = self:getDistanceToLastWaypoint(10)
-    if distanceToTarget < self.distanceToLookAhead then
-        self.speedLimit = math.clamp(8, self.speedLimit, 2 + distanceToTarget)
+    self.distanceToTarget = self:getDistanceToLastWaypoint(10)
+    if self.distanceToTarget < self.distanceToLookAhead then
+        self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
     end
 
     self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
 
-    if ADTriggerManager.checkForTriggerProximity(self.vehicle) then
+    if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
         self.speedLimit = math.min(5, self.speedLimit)
     end
 

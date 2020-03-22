@@ -1,5 +1,4 @@
 ADRoutesManager = {}
-ADRoutesManager.revision = 1
 
 ADRoutesManager.routes = {}
 ADRoutesManager.rootFolder = ""
@@ -17,6 +16,11 @@ function ADRoutesManager.load()
     ADRoutesManager.routesFolder = ADRoutesManager.managerFolder .. "routes/"
     createFolder(ADRoutesManager.routesFolder)
 
+    ADRoutesManager.loadRoutesFromXML()
+end
+
+function ADRoutesManager.loadRoutesFromXML()
+    ADRoutesManager.routes = {}
     ADRoutesManager.xmlFile = ADRoutesManager.managerFolder .. "routes.xml"
     if fileExists(ADRoutesManager.xmlFile) then
         ADRoutesManager.xml = loadXMLFile("RoutesManager_xml", ADRoutesManager.xmlFile)
@@ -86,11 +90,11 @@ function ADRoutesManager.export(name)
     -- saving route to xml, if a route with the same name and map already exists, overwrite it
     if routeIndex ~= nil then
         route = ADRoutesManager.routes[routeIndex]
-        route.revision = ADRoutesManager.revision
+        route.revision = route.revision + 1
         route.date = getDate("%Y/%m/%d %H:%M:%S")
         saveXml = loadXMLFile("routeExport_xml", ADRoutesManager.routesFolder .. route.fileName)
     else
-        route = {name = name, fileName = fileName, map = mapName, revision = ADRoutesManager.revision, date = getDate("%Y/%m/%d %H:%M:%S")}
+        route = {name = name, fileName = fileName, map = mapName, revision = 1, date = getDate("%Y/%m/%d %H:%M:%S")}
         table.insert(ADRoutesManager.routes, route)
         saveXml = createXMLFile("routeExport_xml", ADRoutesManager.routesFolder .. fileName, "routeExport")
     end

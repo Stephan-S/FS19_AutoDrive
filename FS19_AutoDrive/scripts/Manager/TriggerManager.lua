@@ -20,7 +20,7 @@ function ADTriggerManager:update(dt)
     end
 end
 
-function ADTriggerManager.checkForTriggerProximity(vehicle)
+function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
     local shouldLoad = vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger()
     local shouldUnload = vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger()
     if (not shouldUnload) and (not shouldLoad) then
@@ -71,7 +71,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle)
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
-                if distance < distanceToSlowDownAt and (distance < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distance < 300)) then
+                if distance < distanceToSlowDownAt and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < 300)) then
                     return true
                 end
             end
