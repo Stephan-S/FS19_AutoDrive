@@ -1,8 +1,8 @@
 ---
 name: Deutsch / German - Bug report - Titel bitte auf Englisch übersetzen!
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: "[BUG]"
+labels: bug
 assignees: ''
 
 ---
