@@ -1,5 +1,7 @@
 ADSpecialDrivingModule = {}
 
+ADSpecialDrivingModule.MAX_SPEED_DEVIATION = 2
+
 function ADSpecialDrivingModule:new(vehicle)
     local o = {}
     setmetatable(o, self)
@@ -91,15 +93,15 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
 end
 
-function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicCollisionWindow, maxAcc, maxSpeed)
+function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDynamicCollision, maxAcc, maxSpeed)
     local speed = math.min(ADDrivePathModule.SPEED_ON_FIELD, maxSpeed)
     local acc = math.min(0.75, maxAcc)
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     self.distanceToChasePos = MathUtil.vector2Length(x - point.x, z - point.z)
 
-    if self.distanceToChasePos < 1 then
-        speed = maxFollowSpeed * 0.95
+    if self.distanceToChasePos < 1.75 then
+        speed = maxFollowSpeed * 0.90
     elseif self.distanceToChasePos < 7 then
         speed = maxFollowSpeed + self.distanceToChasePos*2
     elseif self.distanceToChasePos < 20 then
@@ -110,13 +112,12 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, dynamicC
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
 
-    self.vehicle.ad.sensors.frontSensor.dynamicCollisionWindow = dynamicCollisionWindow
-    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() or self.vehicle.ad.sensors.frontSensor:pollInfo() then
+    if (checkDynamicCollision and self.vehicle.ad.collisionDetectionModule:hasDetectedObstable()) or self.vehicle.ad.sensors.frontSensor:pollInfo() then
         self:stopVehicle(lx, lz)
         self:update(dt)
     else
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
-        if (self.vehicle.lastSpeedReal * 3600) > (speed + ADDrivePathModule.MAX_SPEED_DEVIATION) then
+        if (self.vehicle.lastSpeedReal * 3600) > (speed + ADSpecialDrivingModule.MAX_SPEED_DEVIATION) then
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)

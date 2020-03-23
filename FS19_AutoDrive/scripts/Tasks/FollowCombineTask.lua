@@ -62,6 +62,7 @@ function FollowCombineTask:update(dt)
         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
         AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
+        self.caughtCurrentChaseSide = false
         if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength) / 2 + 2) then
             self:reverse(dt)
         else
@@ -84,6 +85,7 @@ function FollowCombineTask:update(dt)
         self.waitForPassByTimer:timer(true, 2200, dt)
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
+        self.caughtCurrentChaseSide = false
         if self.waitForPassByTimer:done() then
             self.waitForPassByTimer:timer(false)
             self.chaseTimer:timer(false)
@@ -147,15 +149,14 @@ function FollowCombineTask:followChasePoint(dt)
     else
         self.startedChasing = true
         local combineSpeed = self.combine.lastSpeedReal * 3600
-        local dynamicCollisionWindow = not self.caughtCurrentChaseSide
         local acc = 1
         local totalSpeedLimit = 40
         -- Let's start driving a little slower when we are switching sides
-        if not self.chaseTimer:done() then
-            acc = 0.3
-            totalSpeedLimit = math.max(combineSpeed, 6)
+        if not self.chaseTimer:done() or not self.caughtCurrentChaseSide then
+            acc = 1
+            totalSpeedLimit = math.max(combineSpeed + 3, 10)
         end
-        self.vehicle.ad.specialDrivingModule:driveToPoint(dt, self.chasePos, combineSpeed, dynamicCollisionWindow, acc, totalSpeedLimit)
+        self.vehicle.ad.specialDrivingModule:driveToPoint(dt, self.chasePos, combineSpeed, false, acc, totalSpeedLimit)
     end
 end
 

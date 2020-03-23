@@ -264,6 +264,8 @@ end
 function ADDrivePathModule:getHighestApproachingAngle()
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    local baseDistance = AutoDrive.getDistance(self:getCurrentWayPoint().x, self:getCurrentWayPoint().z, x, z)
 
     local highestAngle = 0
     local doneCheckingRoute = false
@@ -277,7 +279,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             angle = math.abs(angle)
 
-            if AutoDrive.getDistance(self:getCurrentWayPoint().x, self:getCurrentWayPoint().z, wp_ahead.x, wp_ahead.z) <= self.distanceToLookAhead then
+            if AutoDrive.getDistance(self:getCurrentWayPoint().x, self:getCurrentWayPoint().z, wp_ahead.x, wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
                 if angle < 100 then
                     highestAngle = math.max(highestAngle, angle)
                 end
