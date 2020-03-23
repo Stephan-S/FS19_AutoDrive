@@ -60,7 +60,7 @@ function ADCollSensor:onUpdate(dt)
         self.newHit = false
 
         local offsetCompensation = -math.tan(box.rx) * box.size[3]
-		box.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, box.x, 300, box.z), box.y) + 1.5 + offsetCompensation
+		box.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, box.x, 300, box.z), box.y) + offsetCompensation
 
         self.collisionHits = overlapBox(box.x, box.y, box.z, box.rx, box.ry, 0, box.size[1], box.size[2], box.size[3], "collisionTestCallback", self, self.mask, true, true, true) --AIVehicleUtil.COLLISION_MASK --16783599
 

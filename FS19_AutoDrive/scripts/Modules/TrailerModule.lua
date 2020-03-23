@@ -260,14 +260,20 @@ end
 function ADTrailerModule:areAllTrailersClosed(dt)
     local allClosed = true
     for _, trailer in pairs(self.trailers) do
+        local tipState = Trailer.TIPSTATE_CLOSED
         if trailer.getTipState ~= nil then
-            local tipState = trailer:getTipState()
-            if trailer.noDischargeTimer == nil then
-                trailer.noDischargeTimer = AutoDriveTON:new()
-            end
-            if not trailer.noDischargeTimer:timer((tipState == Trailer.TIPSTATE_CLOSED), 500, dt) then
-                allClosed = false
-            end
+            tipState = trailer:getTipState()
+        end
+        local dischargeState = Dischargeable.DISCHARGE_STATE_OFF
+        if trailer.getDischargeState ~= nil then
+            tipState = trailer:getDischargeState()
+        end
+        if trailer.noDischargeTimer == nil then
+            trailer.noDischargeTimer = AutoDriveTON:new()
+        end
+
+        if not trailer.noDischargeTimer:timer((tipState == Trailer.TIPSTATE_CLOSED and dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 500, dt) then
+            allClosed = false
         end
     end
 

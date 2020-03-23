@@ -272,7 +272,7 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitInde
     local fillTypeIsProhibited = false
     local isSelectedFillType = false
     for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-        if fillType == 1 or fillType == 34 or fillType == 33 or (fillType == 32 and hasOnlyDieselForFuel) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
+        if fillType == 1 or fillType == 34 or fillType == 33 or (fillType == 32 and hasOnlyDieselForFuel) and object.isEntered ~= nil then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
             --g_logManager:devInfo("Found prohibited filltype: " .. fillType);
             fillTypeIsProhibited = true
         end

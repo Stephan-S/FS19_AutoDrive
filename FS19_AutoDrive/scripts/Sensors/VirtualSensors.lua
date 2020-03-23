@@ -255,7 +255,7 @@ function ADSensor:getBoxShape()
 
     local boxYPos = 1.5
     if self.position == ADSensor.POS_FRONT_LEFT or self.position == ADSensor.POS_FRONT_RIGHT then
-        boxYPos = 3.5
+        boxYPos = 1.75
     end
 
     local box = {}

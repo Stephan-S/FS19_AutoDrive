@@ -23,7 +23,7 @@ end
 function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
     local shouldLoad = vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger()
     local shouldUnload = vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger()
-    if (not shouldUnload) and (not shouldLoad) then
+    if (not shouldUnload) and (not shouldLoad) or distanceToTarget == nil then
         return false
     end
 
@@ -81,7 +81,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
     return false
 end
 
-function ADTriggerManager.loadAllTriggers()    
+function ADTriggerManager.loadAllTriggers()
     ADTriggerManager.searchedForTriggers = true
     for _, ownedItem in pairs(g_currentMission.ownedItems) do
         if ownedItem.storeItem ~= nil then

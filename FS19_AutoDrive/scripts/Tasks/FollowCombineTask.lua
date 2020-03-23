@@ -54,7 +54,7 @@ function FollowCombineTask:update(dt)
         if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombineHeading > 60 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
             self.angleWrongTimer:timer(false)
-        elseif ((self.combine.lastSpeedReal * self.combine.movingDirection) <= -0.0002) then
+        elseif ((self.combine.lastSpeedReal * self.combine.movingDirection) <= -0.00005) then
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, self.combine.lastSpeedReal * 3600 * 1.3, 1)
         else
             self:followChasePoint(dt)
