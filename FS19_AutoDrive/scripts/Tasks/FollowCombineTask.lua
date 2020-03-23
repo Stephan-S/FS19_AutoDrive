@@ -51,7 +51,7 @@ function FollowCombineTask:update(dt)
 
     if self.state == FollowCombineTask.STATE_CHASING then
         self.chaseTimer:timer(true, 4000, dt)
-        if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 25 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
+        if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 50 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
             self.angleWrongTimer:timer(false)
         elseif ((self.combine.lastSpeedReal * self.combine.movingDirection) <= -0.0002) then
@@ -69,7 +69,7 @@ function FollowCombineTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
         if not AutoDrive.combineIsTurning(self.combine) and self.combine.ad.sensors.frontSensorFruit:pollInfo() then
-            if self.angleToCombine < 40 then
+            if self.angleToCombine < 60 then
                 self.state = FollowCombineTask.STATE_CHASING
                 self.chaseTimer:timer(false)
             else
@@ -81,7 +81,7 @@ function FollowCombineTask:update(dt)
             return
         end
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_PASS_BY then
-        self.waitForPassByTimer:timer(true, 5000, dt)
+        self.waitForPassByTimer:timer(true, 2200, dt)
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
         if self.waitForPassByTimer:done() then

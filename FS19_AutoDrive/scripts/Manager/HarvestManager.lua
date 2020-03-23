@@ -27,7 +27,7 @@ function ADHarvestManager:registerAsUnloader(vehicle)
     end
 end
 
-function ADHarvestManager:unregisterAsUnloader(vehicle)    
+function ADHarvestManager:unregisterAsUnloader(vehicle)
     if vehicle.ad.modes ~= nil and vehicle.ad.modes[AutoDrive.MODE_UNLOAD] ~= nil then
         local followingUnloder = vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader()
         if followingUnloder ~= nil then
@@ -40,7 +40,14 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
     end
     if table.contains(self.activeUnloaders, vehicle) then
         table.removeValue(self.activeUnloaders, vehicle)
-        self.assignmentDelayTimer:timer(false)
+        if g_currentMission.controlledVehicle ~= nil and vehicle == g_currentMission.controlledVehicle then
+            --Give the player some time to reset/reposition the fired unloader
+            self.assignmentDelayTimer:timer(false)
+        else
+            --Only short delay for AI controlled unloader being removed
+            self.assignmentDelayTimer:timer(false)
+            self.assignmentDelayTimer.elapsedTime = 7000
+        end
     end
 end
 

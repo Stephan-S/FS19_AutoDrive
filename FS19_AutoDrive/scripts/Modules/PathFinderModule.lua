@@ -22,7 +22,7 @@ PathFinderModule.PP_MIN_DISTANCE = 20
 PathFinderModule.PP_CELL_X = 9
 PathFinderModule.PP_CELL_Z = 9
 
-PathFinderModule.GRID_SIZE_FACTOR = 0.6
+PathFinderModule.GRID_SIZE_FACTOR = 0.5
 
 function PathFinderModule:new(vehicle)
     local o = {}

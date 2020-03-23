@@ -86,19 +86,22 @@ function ADTrailerModule:updateStates()
     self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers, self.vehicle.ad.stateModule:getFillType())
 
     --Check for already unloading trailers (e.g. when AD is started while unloading)
-    for _, trailer in pairs(self.trailers) do
-        if trailer.getDischargeState ~= nil then
-            local dischargeState = trailer:getDischargeState()
-            if dischargeState ~= Dischargeable.DISCHARGE_STATE_OFF then
-                self.isUnloading = true
-                self.isUnloadingWithTrailer = trailer
-                self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() then
+        for _, trailer in pairs(self.trailers) do
+            if trailer.getDischargeState ~= nil then
+                local dischargeState = trailer:getDischargeState()
+                if dischargeState ~= Dischargeable.DISCHARGE_STATE_OFF then
+                    self.isUnloading = true
+                    self.isUnloadingWithTrailer = trailer
+                    self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+                end
             end
         end
     end
 end
 
 function ADTrailerModule:updateLoad()
+    self:stopUnloading()
     if not self.isLoading then
         local loadPairs = AutoDrive.getTriggerAndTrailerPairs(self.vehicle)
         for _, pair in pairs(loadPairs) do
@@ -120,7 +123,18 @@ function ADTrailerModule:stopLoading()
     self.isLoading = false
 end
 
+function ADTrailerModule:stopUnloading()
+    self.isUnloading = false
+    self.unloadingToBunkerSilo = false
+    for _, trailer in pairs(self.trailers) do
+        if trailer.setDischargeState ~= nil then
+            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF)
+        end
+    end
+end
+
 function ADTrailerModule:updateUnload(dt)
+    self:stopLoading()
     AutoDrive.setAugerPipeOpen(self.trailers,  AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 
     if not self.isUnloading then
@@ -138,9 +152,9 @@ function ADTrailerModule:updateUnload(dt)
         end
     else
         -- Monitor unloading
-        local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
+        --local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
 
-        if fillUnitEmpty or self:areAllTrailersClosed(dt) then
+        if self:areAllTrailersClosed(dt) then --fillUnitEmpty or
             self.isUnloading = false
             self.unloadingToBunkerSilo = false
         end
