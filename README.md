@@ -7,7 +7,7 @@ Wer die Weiterentwicklung des Mods unterstützen möchte, kann dies am Besten du
 
 
 ## Discord Server:
-For help & support, feel free to join us on our Discord Server
+For help & support, feel free to join us on Discord: 
 https://discord.gg/9D4B5hX
 
 ### For a little thank you
