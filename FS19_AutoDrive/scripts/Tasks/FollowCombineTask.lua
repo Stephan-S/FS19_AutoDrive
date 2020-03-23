@@ -81,7 +81,7 @@ function FollowCombineTask:update(dt)
             return
         end
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_PASS_BY then
-        self.waitForPassByTimer:timer(true, 5000, dt)
+        self.waitForPassByTimer:timer(true, 2200, dt)
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
         if self.waitForPassByTimer:done() then
