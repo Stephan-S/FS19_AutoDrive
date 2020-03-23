@@ -266,7 +266,7 @@ function ADTrailerModule:areAllTrailersClosed(dt)
         end
         local dischargeState = Dischargeable.DISCHARGE_STATE_OFF
         if trailer.getDischargeState ~= nil then
-            tipState = trailer:getDischargeState()
+            dischargeState = trailer:getDischargeState()
         end
         if trailer.noDischargeTimer == nil then
             trailer.noDischargeTimer = AutoDriveTON:new()
