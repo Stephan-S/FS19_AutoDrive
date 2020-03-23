@@ -55,20 +55,25 @@ function LoadAtDestinationTask:update(dt)
             if self.vehicle.ad.callBackFunction ~= nil and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
                 self.vehicle:stopAutoDrive()
             else
-                if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then
-                    self:finished()
+                if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
+                    if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then
+                        self:finished()
+                    else
+                        -- Wait to be loaded manally - check filllevel
+                        self.vehicle.ad.specialDrivingModule:stopVehicle()
+                        self.vehicle.ad.specialDrivingModule:update(dt)
+
+                        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+                        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                        local maxCapacity = fillLevel + leftCapacity
+
+                        if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
+                            self:finished()
+                        end
+                    end
                 else
-                    -- Wait to be loaded manally - check filllevel
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
-
-                    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-                    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-                    local maxCapacity = fillLevel + leftCapacity
-
-                    if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
-                        self:finished()
-                    end
                 end
             end
         else

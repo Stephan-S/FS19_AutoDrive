@@ -39,8 +39,17 @@ end
 function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors = {}
     local sensorParameters = {}
+    sensorParameters.dynamicLength = true
     sensorParameters.position = ADSensor.POS_FRONT
-    sensorParameters.width = vehicle.sizeWidth * 0.6
+    sensorParameters.width = vehicle.sizeWidth * 0.95
+    local frontSensorDynamic = ADCollSensor:new(vehicle, sensorParameters)
+    --frontSensorDynamic.drawDebug = true --test
+    --frontSensorDynamic.enabled = true --test
+    vehicle.ad.sensors["frontSensorDynamic"] = frontSensorDynamic
+
+    sensorParameters.dynamicLength = false
+    sensorParameters.width = vehicle.sizeWidth * 0.65
+    sensorParameters.length = 0.1
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
     --frontSensor.drawDebug = true --test
     --frontSensor.enabled = true --test
@@ -231,11 +240,7 @@ function ADSensor:getBoxShape()
     self.location = self:getLocationByPosition()
     local lookAheadDistance = self.length
     if self.dynamicLength then
-        if self.dynamicCollisionWindow ~= nil and self.dynamicCollisionWindow == true then
-            lookAheadDistance = math.min(vehicle.lastSpeedReal * 3600 / 40, 1) * 7 --full distance at 40 kp/h -> 7 meters
-        else
-            lookAheadDistance = 0.1
-        end
+        lookAheadDistance = math.clamp(0.13, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
     end
 
     local vecZ = {x = 0, z = 1}

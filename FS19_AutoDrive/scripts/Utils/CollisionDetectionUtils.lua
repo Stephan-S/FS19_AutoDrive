@@ -1,9 +1,9 @@
-function AutoDrive:checkForVehicleCollision(vehicle, excludedVehicles, dynamicSize)
+function AutoDrive:checkForVehicleCollision(vehicle,boundingBox, excludedVehicles)
     if excludedVehicles == nil then
         excludedVehicles = {}
     end
     table.insert(excludedVehicles, vehicle)
-    return AutoDrive.checkForVehiclesInBox(AutoDrive.getBoundingBoxForVehicle(vehicle, dynamicSize), excludedVehicles)
+    return AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles)
 end
 
 function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnRadius)
@@ -21,7 +21,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
             local x, _, z = getWorldTranslation(otherVehicle.components[1].node)
             local distance = MathUtil.vector2Length(boundingBox[1].x - x, boundingBox[1].z - z)
             if distance < 50 then
-                if AutoDrive.boxesIntersect(boundingBox, AutoDrive.getBoundingBoxForVehicle(otherVehicle, false)) == true then
+                if AutoDrive.boxesIntersect(boundingBox, AutoDrive.getBoundingBoxForVehicle(otherVehicle)) == true then
                     --[[
                     ADDrawingManager:addLineTask(boundingBox[1].x, boundingBox[1].y, boundingBox[1].z, boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, 1, 0, 0)
                     ADDrawingManager:addLineTask(boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, 1, 0, 0)
@@ -71,7 +71,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
                                 return true, true
                             end
 
-                            if AutoDrive.boxesIntersect(boundingBox, AutoDrive.getBoundingBoxForVehicleAtPosition(otherVehicle, {x = wp.x, y = wp.y, z = wp.z}, false)) == true then
+                            if AutoDrive.boxesIntersect(boundingBox, AutoDrive.getBoundingBoxForVehicleAtPosition(otherVehicle, {x = wp.x, y = wp.y, z = wp.z})) == true then
                                 return true, true
                             end
                         end
@@ -85,58 +85,36 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
     return false, false
 end
 
-function AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
+function AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position)
     local x, y, z = position.x, position.y, position.z
-    local rx, _, rz = 0, 0, 0
-    local lookAheadDistance = 0
+    local rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
     local width = vehicle.sizeWidth
     local length = vehicle.sizeLength
-    local frontToolLength = AutoDrive.getFrontToolLength(vehicle)
-    if dynamicSize then
-        --Box should be a lookahead box which adjusts to vehicle steering rotation
-        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, math.sin(vehicle.rotatedTime), 0, math.cos(vehicle.rotatedTime))
-        lookAheadDistance = math.clamp(0.13, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
-    else
-        rx, _, rz = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
-    end
+    local frontToolLength = 0 --AutoDrive.getFrontToolLength(vehicle)
     local vehicleVector = {x = rx, z = rz}
     local ortho = {x = -vehicleVector.z, z = vehicleVector.x}
 
     local boundingBox = {}
     boundingBox[1] = {
-        x = x + (width / 2) * ortho.x + (length / 2 + frontToolLength) * vehicleVector.x,
+        x = x + (width / 2) * ortho.x - (length / 2) * vehicleVector.x,
         y = y + 2,
-        z = z + (width / 2) * ortho.z + (length / 2 + frontToolLength) * vehicleVector.z
+        z = z + (width / 2) * ortho.z - (length / 2) * vehicleVector.z
     }
     boundingBox[2] = {
-        x = x - (width / 2) * ortho.x + (length / 2 + frontToolLength) * vehicleVector.x,
+        x = x - (width / 2) * ortho.x - (length / 2) * vehicleVector.x,
         y = y + 2,
-        z = z - (width / 2) * ortho.z + (length / 2 + frontToolLength) * vehicleVector.z
+        z = z - (width / 2) * ortho.z - (length / 2) * vehicleVector.z
     }
     boundingBox[3] = {
-        x = x - (width / 2) * ortho.x + (length / 2 + frontToolLength + lookAheadDistance) * vehicleVector.x,
+        x = x - (width / 2) * ortho.x + (length / 2) * vehicleVector.x,
         y = y + 2,
-        z = z - (width / 2) * ortho.z + (length / 2 + frontToolLength + lookAheadDistance) * vehicleVector.z
+        z = z - (width / 2) * ortho.z + (length / 2) * vehicleVector.z
     }
     boundingBox[4] = {
-        x = x + (width / 2) * ortho.x + (length / 2 + frontToolLength + lookAheadDistance) * vehicleVector.x,
+        x = x + (width / 2) * ortho.x + (length / 2) * vehicleVector.x,
         y = y + 2,
-        z = z + (width / 2) * ortho.z + (length / 2 + frontToolLength + lookAheadDistance) * vehicleVector.z
+        z = z + (width / 2) * ortho.z + (length / 2) * vehicleVector.z
     }
-
-    --Box should just be vehicle dimensions;
-    if not dynamicSize then
-        boundingBox[1] = {
-            x = x + (width / 2) * ortho.x - (length / 2) * vehicleVector.x,
-            y = y + 2,
-            z = z + (width / 2) * ortho.z - (length / 2) * vehicleVector.z
-        }
-        boundingBox[2] = {
-            x = x - (width / 2) * ortho.x - (length / 2) * vehicleVector.x,
-            y = y + 2,
-            z = z - (width / 2) * ortho.z - (length / 2) * vehicleVector.z
-        }
-    end
 
     --ADDrawingManager:addLineTask(boundingBox[1].x, boundingBox[1].y, boundingBox[1].z, boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, 1, 1, 0)
     --ADDrawingManager:addLineTask(boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, 1, 1, 0)
@@ -146,12 +124,12 @@ function AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position, dynamic
     return boundingBox
 end
 
-function AutoDrive.getBoundingBoxForVehicle(vehicle, dynamicSize)
+function AutoDrive.getBoundingBoxForVehicle(vehicle)
     local x, y, z = getWorldTranslation(vehicle.components[1].node)
 
     local position = {x = x, y = y, z = z}
 
-    return AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position, dynamicSize)
+    return AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position)
 end
 
 function AutoDrive.getDistanceBetween(vehicleOne, vehicleTwo)

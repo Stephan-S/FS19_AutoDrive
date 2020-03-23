@@ -156,7 +156,7 @@ function ADDrivePathModule:followWaypoints(dt)
     self.distanceToLookAhead = 8
     if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
         local highestAngle = self:getHighestApproachingAngle()
-        self.speedLimit = self:getMaxSpeedForAngle(highestAngle)
+        self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
     end
 
     self.distanceToTarget = self:getDistanceToLastWaypoint(10)
@@ -294,7 +294,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
 end
 
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
-    local maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit()
+    local maxSpeed = math.huge
 
     if angle < 3 then
         maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit()

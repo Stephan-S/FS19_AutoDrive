@@ -56,7 +56,7 @@ function PickupAndDeliverMode:stop()
 end
 
 function PickupAndDeliverMode:continue()
-    if self.state == PickupAndDeliverMode.STATE_PICKUP then
+    if self.state == PickupAndDeliverMode.STATE_PICKUP or self.state == PickupAndDeliverMode.STATE_DELIVER then
         self.activeTask:continue()
     end
 end
@@ -73,6 +73,13 @@ function PickupAndDeliverMode:getNextTask()
         end
         if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
             self.vehicle.ad.stateModule:setNextTargetInFolder()
+            local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+            local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+            if fillLevel > 1 then
+                nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+                self.loopsDone = self.loopsDone + 1
+                self.state = PickupAndDeliverMode.STATE_DELIVER
+            end
         end
     elseif self.state == PickupAndDeliverMode.STATE_PICKUP then
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)

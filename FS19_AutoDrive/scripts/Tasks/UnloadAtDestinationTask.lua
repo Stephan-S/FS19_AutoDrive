@@ -7,6 +7,7 @@ function UnloadAtDestinationTask:new(vehicle, destinationID)
     local o = UnloadAtDestinationTask:create()
     o.vehicle = vehicle
     o.destinationID = destinationID
+    o.isContinued = false
     return o
 end
 
@@ -48,13 +49,17 @@ function UnloadAtDestinationTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
     else
-        self.vehicle.ad.trailerModule:update(dt)
+        if not self.isContinued then
+            self.vehicle.ad.trailerModule:update(dt)
+        end
         if self.vehicle.ad.drivePathModule:isTargetReached() then
-            local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-            local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-            if fillLevel <= 0.1 or AutoDrive.getSetting("distributeToFolder", self.vehicle) then
-                AutoDrive.setAugerPipeOpen(trailers, false)
-                self:finished()
+            if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
+                local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+                local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                if fillLevel <= 0.1 or AutoDrive.getSetting("distributeToFolder", self.vehicle) or self.isContinued then
+                    AutoDrive.setAugerPipeOpen(trailers, false)
+                    self:finished()
+                end
             else
                 self.vehicle.ad.specialDrivingModule:stopVehicle()
                 self.vehicle.ad.specialDrivingModule:update(dt)
@@ -78,6 +83,13 @@ function UnloadAtDestinationTask:update(dt)
 end
 
 function UnloadAtDestinationTask:abort()
+end
+
+function UnloadAtDestinationTask:continue()
+    if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
+        self.vehicle.ad.trailerModule:stopUnloading()
+    end
+    self.isContinued = true
 end
 
 function UnloadAtDestinationTask:finished()

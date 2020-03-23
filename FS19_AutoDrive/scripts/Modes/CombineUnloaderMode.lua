@@ -65,8 +65,16 @@ function CombineUnloaderMode:stop()
 end
 
 function CombineUnloaderMode:continue()
-    if self.state == self.STATE_PICKUP then
+    if self.state == self.STATE_DRIVE_TO_UNLOAD then
         self.activeTask:continue()
+    else
+        self.vehicle.ad.taskModule:abortCurrentTask()
+        self.activeTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+        self.state = self.STATE_DRIVE_TO_UNLOAD
+        ADHarvestManager:unregisterAsUnloader(self.vehicle)
+        self.followingUnloader = nil
+        self.combine = nil
+        self.vehicle.ad.taskModule:addTask(self.activeTask)
     end
 end
 
@@ -87,8 +95,9 @@ function CombineUnloaderMode:getNextTask()
             ADHarvestManager:unregisterAsUnloader(self.vehicle)
             self.followingUnloader = nil
             self.combine = nil
-        else
-            if ADGraphManager:getDistanceFromNetwork(self.vehicle) < 15 then
+        else            
+            local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+            if ADGraphManager:getDistanceFromNetwork(self.vehicle) < 15 and not AutoDrive.checkIsOnField(x, y, z) then
                 self.state = self.STATE_DRIVE_TO_START
                 nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             else
@@ -316,13 +325,22 @@ function CombineUnloaderMode:getAngleToCombineHeading()
         return math.huge
     end
 
-    --local combineWorldX, combineWorldY, combineWorldZ = getWorldTranslation(combine.components[1].node)
     local combineRx, _, combineRz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
-
-    --local worldX, worldY, worldZ = getWorldTranslation(vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineRx, z = combineRz}))
+end
+
+function CombineUnloaderMode:getAngleToCombine()
+    if self.vehicle == nil or self.combine == nil then
+        return math.huge
+    end
+    
+    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
+    local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+
+    return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineX - vehicleX, z = combineZ - vehicleZ}))
 end
 
 function CombineUnloaderMode:getFollowingUnloader()

@@ -38,7 +38,7 @@ function FollowCombineTask:update(dt)
     self:updateStates()
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
     local reachedFieldBorder = false --not self.vehicle.ad.sensors.frontSensorField:pollInfo()
-    if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombine < 5 and self.fillLevel > 2000) then
+    if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombineHeading < 5 and self.fillLevel > 2000) then
         if self.state ~= FollowCombineTask.STATE_REVERSING then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
             self.reverseStartLocation = {x = x, y = y, z = z}
@@ -51,7 +51,7 @@ function FollowCombineTask:update(dt)
 
     if self.state == FollowCombineTask.STATE_CHASING then
         self.chaseTimer:timer(true, 4000, dt)
-        if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombine > 25 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
+        if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombineHeading > 60 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
             self.angleWrongTimer:timer(false)
         elseif ((self.combine.lastSpeedReal * self.combine.movingDirection) <= -0.0002) then
@@ -69,7 +69,7 @@ function FollowCombineTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
         if not AutoDrive.combineIsTurning(self.combine) and self.combine.ad.sensors.frontSensorFruit:pollInfo() then
-            if self.angleToCombine < 40 then
+            if (self.angleToCombineHeading + self.angleToCombine) < 180 then
                 self.state = FollowCombineTask.STATE_CHASING
                 self.chaseTimer:timer(false)
             else
@@ -87,7 +87,7 @@ function FollowCombineTask:update(dt)
         if self.waitForPassByTimer:done() then
             self.waitForPassByTimer:timer(false)
             self.chaseTimer:timer(false)
-            if self.angleToCombine < 40 then
+            if self.angleToCombineHeading < 40 then
                 self.state = FollowCombineTask.STATE_CHASING
             else
                 self:finished()
@@ -108,7 +108,8 @@ end
 function FollowCombineTask:updateStates()
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local cx, cy, cz = getWorldTranslation(self.combine.components[1].node)
-    self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
+    self.angleToCombineHeading = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
+    self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombine()
 
     self.chasePos, self.chaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
     if self.chaseSide ~= self.lastChaseSide then
@@ -120,7 +121,7 @@ function FollowCombineTask:updateStates()
     end
     -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get muche closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
     if self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and not self.caughtCurrentChaseSide then
-        self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 5)
+        self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 1)
     end
     self.distanceToCombine = MathUtil.vector2Length(x - cx, z - cz)
 
@@ -170,7 +171,7 @@ function FollowCombineTask:getAngleToChasePos(dt)
     local angle = math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = self.chasePos.x - worldX, z = self.chasePos.z - worldZ}))
     self.angleWrongTimer:timer(angle > 50, 3000, dt)
 
-    if angle < 15 and self.angleToCombine < 15 then
+    if angle < 15 and self.angleToCombineHeading < 15 then
         self.caughtCurrentChaseSide = true
     end
 

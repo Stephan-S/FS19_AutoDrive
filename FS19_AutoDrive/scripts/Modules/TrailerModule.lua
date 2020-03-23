@@ -83,7 +83,7 @@ end
 
 function ADTrailerModule:updateStates()
     self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
-    self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers, self.vehicle.ad.stateModule:getFillType())
+    self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
 
     --Check for already unloading trailers (e.g. when AD is started while unloading)
     for _, trailer in pairs(self.trailers) do

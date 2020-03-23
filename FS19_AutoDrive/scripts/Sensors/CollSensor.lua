@@ -59,6 +59,9 @@ function ADCollSensor:onUpdate(dt)
         self:setTriggered(self.hit)
         self.newHit = false
 
+        local offsetCompensation = -math.tan(box.rx) * box.size[3]
+		box.y = math.max(getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, box.x, 300, box.z), y) + 1.5 + offsetCompensation
+
         self.collisionHits = overlapBox(box.x, box.y, box.z, box.rx, box.ry, 0, box.size[1], box.size[2], box.size[3], "collisionTestCallback", self, self.mask, true, true, true) --AIVehicleUtil.COLLISION_MASK --16783599
 
         --for some reason, I have to call this again if collisionHits > 0 to trigger the callback functions, which check if the hit object is me or is attached to me
