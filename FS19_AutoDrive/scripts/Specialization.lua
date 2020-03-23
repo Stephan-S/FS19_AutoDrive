@@ -75,7 +75,7 @@ end
 
 function AutoDrive:onPostLoad(savegame)
     -- This will run before initial MP sync
-    print("Running post load for vehicle: " .. self:getName())
+    --print("Running post load for vehicle: " .. self:getName())
 
     for groupName, _ in pairs(ADGraphManager:getGroups()) do
         self.ad.groups[groupName] = false
@@ -109,7 +109,7 @@ function AutoDrive:onPostLoad(savegame)
         self.ad.driveForwardTimer = AutoDriveTON:new()
 
         if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
-            print("Running post load for vehicle: " .. self:getName() .. " registerHarvester")
+            --print("Running post load for vehicle: " .. self:getName() .. " registerHarvester")
             ADHarvestManager:registerHarvester(self)
         end
     end
@@ -206,6 +206,9 @@ function AutoDrive:onUpdate(dt)
     if self.isServer and self.ad.stateModule:isActive() then
         self.ad.recordingModule:update(dt)
         self.ad.taskModule:update(dt)
+        if self.lastMovedDistance > 0 then
+            g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversTraveledDistance", self.lastMovedDistance * 0.001)
+        end
     end
 
     if self.getIsEntered ~= nil and self:getIsEntered() then

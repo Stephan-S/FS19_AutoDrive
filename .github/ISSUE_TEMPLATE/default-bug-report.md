@@ -1,13 +1,13 @@
 ---
 name: Default bug report
 about: Create a report to help us improve
-title: ''
-labels: 'bug'
+title: "[BUG]"
+labels: bug
 assignees: ''
 
 ---
 
-**AutoDrive Version:** 1.0.   
+**AutoDrive Version:** 1.1.x.x   
 **Release or Custom Zip:** Release  
 **Map (If applicable):** All  
 **Vehicle / Type (If applicable):**   

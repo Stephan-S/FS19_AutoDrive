@@ -1,13 +1,13 @@
 ---
 name: Deutsch / German - Bug report - Titel bitte auf Englisch übersetzen!
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: "[BUG]"
+labels: bug
 assignees: ''
 
 ---
 
-AutoDrive Version: 1.0.
+AutoDrive Version: 1.1.x.x
 Release or selbsterstelltes zip: Release
 Karte (falls relevant): Alle
 Fahrzeug(art) (falls relevant):
