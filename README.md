@@ -32,7 +32,7 @@ https://www.tipeeestream.com/iwan1803/tip
 ### Build
 [You can download the latest build here](https://host-my-bits.com/HostedFiles/Download/1?name=FS19_AutoDrive.zip)  
 
-![Download Counter](https://host-my-bits.com/cdn/badges/dc/1?v=1)  
+![Download Counter](https://host-my-bits.com/cdn/badges/dc/1?v=2)  
 ### Release
 [You can download the latest release here](https://github.com/Stephan-S/FS19_AutoDrive/releases)
 ### Course Editor
