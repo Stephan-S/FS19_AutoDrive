@@ -255,24 +255,26 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
     end
     local leftCapacity = 0
     local fillLevel = 0
-    --local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
     for fillUnitIndex, _ in pairs(object:getFillUnits()) do
-        --g_logManager:devInfo("object fillUnit " .. fillUnitIndex ..  " has :");
+        --print("object fillUnit " .. fillUnitIndex ..  " has :");
         local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
-        --g_logManager:devInfo("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity);
+        --print("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity);
         fillLevel = fillLevel + unitFillLevel
         leftCapacity = leftCapacity + unitLeftCapacity
     end
-    --g_logManager:devInfo("Total fillLevel: " .. fillLevel ..  " leftCapacity: " .. leftCapacity);
+    --print("Total fillLevel: " .. fillLevel ..  " leftCapacity: " .. leftCapacity);
     return fillLevel, leftCapacity
 end
 
 function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
     local fillTypeIsProhibited = false
     local isSelectedFillType = false
+    local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
     for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-        if (fillType == 1 or fillType == 34 or fillType == 33 or fillType == 32) and object.isEntered ~= nil then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
-            fillTypeIsProhibited = true
+        if (fillType == 1 or fillType == 34 or fillType == 33 or fillType == 32) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
+            if object.isEntered ~= nil or hasOnlyDieselForFuel then
+                fillTypeIsProhibited = true
+            end
         end
         if selectedFillType ~= nil and fillType == selectedFillType then
             isSelectedFillType = true
