@@ -393,13 +393,13 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 	local _, _, depth = project(node.x, node.y, node.z)
 
 	if node ~= nil and g_lastMousePosX ~= nil and g_lastMousePosY ~= nil then
-		node.x, node.y, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
+		node.x, _, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 		-- And just to correct for slope changes, we now set the height to the terrain height
-		node.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z)
+		--node.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z)
 		local collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		while collisions > 0 do
 			node.y = node.y + 0.1
-			local collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
+			collisions = overlapBox(node.x, node.y - 0.3, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
 	end
 end
