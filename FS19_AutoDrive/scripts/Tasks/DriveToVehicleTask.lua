@@ -23,14 +23,16 @@ function DriveToVehicleTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
-                --AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.targetVehicle.ad.stateModule:getName())
-                self.vehicle.ad.pathFinderModule:startPathPlanningToVehicle(self.targetVehicle, DriveToVehicleTask.TARGET_DISTANCE)
+                --Don't just restart pathfinder here. We might not even have to go to the vehicle anymore.
+                self:finished(ADTaskModule.DONT_PROPAGATE)
+                self.vehicle:stopAutoDrive()
+                --self.vehicle.ad.pathFinderModule:startPathPlanningToVehicle(self.targetVehicle, DriveToVehicleTask.TARGET_DISTANCE)
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
                 self.state = DriveToVehicleTask.STATE_DRIVING
             end
         else
-            self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.pathFinderModule:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
@@ -47,9 +49,9 @@ function DriveToVehicleTask:abort()
     self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
 end
 
-function DriveToVehicleTask:finished()
+function DriveToVehicleTask:finished(propagate)
     self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
-    self.vehicle.ad.taskModule:setCurrentTaskFinished()
+    self.vehicle.ad.taskModule:setCurrentTaskFinished(propagate)
 end
 
 function DriveToVehicleTask:getInfoText()

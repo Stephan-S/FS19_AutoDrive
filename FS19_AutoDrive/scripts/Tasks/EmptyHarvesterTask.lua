@@ -35,15 +35,21 @@ function EmptyHarvesterTask:update(dt)
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
             if self.wayPoints == nil or #self.wayPoints == 0 then
-                --restart
-                --AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
-                self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
+                -- If the target/pipe location is blocked, we can issue a notification and stop the task - Otherwise we pause a moment and retry
+                if self.vehicle.ad.pathFinderModule:isTargetBlocked() then
+                    self:finished(ADTaskModule.DONT_PROPAGATE)
+                    self.vehicle:stopAutoDrive()
+                    AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
+                else
+                    self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
+                    self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
+                end
             else
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_DRIVING")
                 self.state = EmptyHarvesterTask.STATE_DRIVING
             end
         else
-            self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.pathFinderModule:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
@@ -119,9 +125,9 @@ end
 function EmptyHarvesterTask:abort()
 end
 
-function EmptyHarvesterTask:finished()
+function EmptyHarvesterTask:finished(propagate)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:finished()")
-    self.vehicle.ad.taskModule:setCurrentTaskFinished()
+    self.vehicle.ad.taskModule:setCurrentTaskFinished(propagate)
 end
 
 function EmptyHarvesterTask:getExcludedVehiclesForCollisionCheck()

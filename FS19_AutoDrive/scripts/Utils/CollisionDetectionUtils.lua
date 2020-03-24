@@ -6,7 +6,7 @@ function AutoDrive:checkForVehicleCollision(vehicle,boundingBox, excludedVehicle
     return AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles)
 end
 
-function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnRadius)
+function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles)
     for _, otherVehicle in pairs(g_currentMission.vehicles) do
         local isExcluded = false
         if excludedVehicles ~= nil and otherVehicle ~= nil then
@@ -22,26 +22,25 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
             local distance = MathUtil.vector2Length(boundingBox[1].x - x, boundingBox[1].z - z)
             if distance < 50 then
                 if AutoDrive.boxesIntersect(boundingBox, AutoDrive.getBoundingBoxForVehicle(otherVehicle)) == true then
-                    --[[
-                    ADDrawingManager:addLineTask(boundingBox[1].x, boundingBox[1].y, boundingBox[1].z, boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, 1, 0, 0)
-                    ADDrawingManager:addLineTask(boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, 1, 0, 0)
-                    ADDrawingManager:addLineTask(boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, boundingBox[1].x, boundingBox[1].y, boundingBox[1].z, 1, 0, 0)
-
-                    ADDrawingManager:addLineTask(boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, 1, 1, 1)
-                    ADDrawingManager:addLineTask(boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, boundingBox[4].x, boundingBox[4].y, boundingBox[4].z, 1, 1, 1)
-                    ADDrawingManager:addLineTask(boundingBox[4].x, boundingBox[4].y, boundingBox[4].z, boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, 1, 1, 1)
-                    --]]
-                    return true, false
+                    return true
                 end
             end
-                        
+        end
+    end
+
+    return false
+end
+
+function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius)
+    for _, otherVehicle in pairs(g_currentMission.vehicles) do
+        if otherVehicle ~= nil and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then                            
             if minTurnRadius ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil then
                 local otherWPs, otherCurrentWp = otherVehicle.ad.drivePathModule:getWayPoints()
                 local lastWp = nil
                 -- check for other pathfinder steered vehicles and avoid any intersection with their routes
                 if otherWPs ~= nil then
                     for index, wp in pairs(otherWPs) do
-                        if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and index > 2 and index < (#otherWPs - 5) then
+                        if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and wp.isPathFinderPoint and index > 2 and index < (#otherWPs - 5) then
                             local widthOfColBox = minTurnRadius
                             local sideLength = widthOfColBox / 1.66
 
@@ -68,11 +67,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
                             local cellBox = AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
 
                             if AutoDrive.boxesIntersect(boundingBox, cellBox) == true then
-                                return true, true
-                            end
-
-                            if AutoDrive.boxesIntersect(boundingBox, AutoDrive.getBoundingBoxForVehicleAtPosition(otherVehicle, {x = wp.x, y = wp.y, z = wp.z})) == true then
-                                return true, true
+                                return true
                             end
                         end
                         lastWp = wp
@@ -82,7 +77,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles, minTurnR
         end
     end
 
-    return false, false
+    return false
 end
 
 function AutoDrive.getBoundingBoxForVehicleAtPosition(vehicle, position)

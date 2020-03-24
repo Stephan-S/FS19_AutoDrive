@@ -35,7 +35,7 @@ function DriveToDestinationTask:update(dt)
                 self.state = DriveToDestinationTask.STATE_DRIVING
             end
         else
-            self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.pathFinderModule:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end

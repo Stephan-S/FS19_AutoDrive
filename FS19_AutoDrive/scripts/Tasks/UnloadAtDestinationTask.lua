@@ -34,6 +34,17 @@ function UnloadAtDestinationTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
+                if self.vehicle.ad.pathFinderModule:isTargetBlocked() then
+                    -- If the selected field exit isn't reachable, try the closest one                    
+                    self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.vehicle.ad.stateModule:getSecondWayPoint())
+                elseif self.vehicle.ad.pathFinderModule:timedOut() or self.vehicle.ad.pathFinderModule:isBlocked() then
+                    -- Add some delay to give the situation some room to clear itself
+                    self:startPathPlanning()
+                    self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
+                else
+                    self:startPathPlanning()
+                end
+
                 g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
                 self.vehicle.ad.taskModule:abortAllTasks()
                 self.vehicle:stopAutoDrive()
@@ -44,7 +55,7 @@ function UnloadAtDestinationTask:update(dt)
                 self.state = UnloadAtDestinationTask.STATE_DRIVING
             end
         else
-            self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.pathFinderModule:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end

@@ -120,13 +120,13 @@ function ADDrivePathModule:isCloseToWaypoint()
     local maxSkipWayPoints = 2
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
-            local distanceToCurrentWp = AutoDrive.getDistance(x, z, self.wayPoints[self:getCurrentWayPointIndex() + i].x, self.wayPoints[self:getCurrentWayPointIndex() + i].z)
+            local distanceToCurrentWp = MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i].z)
             if distanceToCurrentWp < self.min_distance then
                 return true
             end
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
             if i > 0 then
-                local distanceToLastWp = AutoDrive.getDistance(x, z, self.wayPoints[self:getCurrentWayPointIndex() + i - 1].x, self.wayPoints[self:getCurrentWayPointIndex() + i - 1].z)
+                local distanceToLastWp =  MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].z)
                 if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
                     return true
                 end
@@ -265,7 +265,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-    local baseDistance = AutoDrive.getDistance(self:getCurrentWayPoint().x, self:getCurrentWayPoint().z, x, z)
+    local baseDistance = MathUtil.vector2Length(self:getCurrentWayPoint().x - x, self:getCurrentWayPoint().z - z)
 
     local highestAngle = 0
     local doneCheckingRoute = false
@@ -279,7 +279,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             angle = math.abs(angle)
 
-            if AutoDrive.getDistance(self:getCurrentWayPoint().x, self:getCurrentWayPoint().z, wp_ahead.x, wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
+            if MathUtil.vector2Length(self:getCurrentWayPoint().x - wp_ahead.x, self:getCurrentWayPoint().z - wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
                 if angle < 100 then
                     highestAngle = math.max(highestAngle, angle)
                 end
@@ -426,10 +426,10 @@ function ADDrivePathModule:getLookAheadTarget()
     if self:getNextWayPoint() ~= nil then
         local lookAheadID = 1
         local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
-        local distanceToCurrentTarget = AutoDrive.getDistance(x, z, wp_current.x, wp_current.z)
+        local distanceToCurrentTarget = MathUtil.vector2Length(x - wp_current.x, z - wp_current.z)
 
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + lookAheadID]
-        local distanceToNextTarget = AutoDrive.getDistance(x, z, wp_ahead.x, wp_ahead.z)
+        local distanceToNextTarget = MathUtil.vector2Length(x - wp_ahead.x, z - wp_ahead.z)
 
         if distanceToCurrentTarget < distanceToNextTarget then
             lookAheadDistance = lookAheadDistance - distanceToCurrentTarget
@@ -443,7 +443,7 @@ function ADDrivePathModule:getLookAheadTarget()
             end
             wp_current = wp_ahead
             wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + lookAheadID]
-            distanceToNextTarget = AutoDrive.getDistance(wp_current.x, wp_current.z, wp_ahead.x, wp_ahead.z)
+            distanceToNextTarget = MathUtil.vector2Length(wp_current.x - wp_ahead.x, wp_current.z - wp_ahead.z)
         end
 
         local distX = wp_ahead.x - wp_current.x
@@ -503,7 +503,7 @@ function ADDrivePathModule:checkIfStuck(dt)
         local wp = self:getCurrentWayPoint()
         if not self.vehicle.ad.specialDrivingModule:isStoppingVehicle() and wp ~= nil then
             local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-            local distanceToNextWayPoint = AutoDrive.getDistance(x, z, wp.x, wp.z)
+            local distanceToNextWayPoint = MathUtil.vector2Length(x - wp.x, z - wp.z)
             self.minDistanceTimer:timer(distanceToNextWayPoint >= self.minDistanceToNextWp, 8000, dt)
             self.minDistanceToNextWp = math.min(self.minDistanceToNextWp, distanceToNextWayPoint)
             if self.minDistanceTimer:done() then

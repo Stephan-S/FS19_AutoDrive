@@ -63,10 +63,6 @@ string.randomCharset = {
 	"z"
 }
 
-function AutoDrive.getDistance(x1, z1, x2, z2)
-	return math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2))
-end
-
 function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
@@ -576,7 +572,11 @@ function AutoDrive.renderColoredTextAtWorldPosition(x,y,z, text, textSize, color
 end
 
 function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
-    local densityBits = 0
+	local densityBits = 0
+	
+	if worldY == 0 then
+		worldY = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldX, 1, worldZ)
+	end
 
     local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ)
     densityBits = bitOR(densityBits, bits)
@@ -700,7 +700,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
         if self.ad.stateModule:isActive() and allowedToDrive then
             --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 
-            local accFactor = 2 / 1000 -- km h / s converted to km h / ms
+            local accFactor = 4 / 1000 -- km h / s converted to km h / ms
             accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 2000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
             if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
                 self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)

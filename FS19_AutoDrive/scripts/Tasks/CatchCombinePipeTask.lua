@@ -46,12 +46,13 @@ function CatchCombinePipeTask:update(dt)
                 --restart
                 --AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
                 self:startNewPathFinding()
+                self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
                 self.state = CatchCombinePipeTask.STATE_DRIVING
             end
         else
-            self.vehicle.ad.pathFinderModule:update()
+            self.vehicle.ad.pathFinderModule:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
@@ -94,7 +95,7 @@ function CatchCombinePipeTask:finished()
 end
 
 function CatchCombinePipeTask:startNewPathFinding()
-    self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, true)
+    self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))
     self.combinesStartLocation = {}
     self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)
 end

@@ -194,7 +194,7 @@ function AutoDrive.getDistanceToUnloadPosition(vehicle)
     if destination == nil then
         return math.huge
     end
-    return AutoDrive.getDistance(x, z, destination.x, destination.z)
+    return MathUtil.vector2Length(x - destination.x, z - destination.z)
 end
 
 function AutoDrive.getDistanceToTargetPosition(vehicle)
@@ -206,7 +206,7 @@ function AutoDrive.getDistanceToTargetPosition(vehicle)
     if destination == nil then
         return math.huge
     end
-    return AutoDrive.getDistance(x, z, destination.x, destination.z)
+    return MathUtil.vector2Length(x - destination.x, z - destination.z)
 end
 
 function AutoDrive.getFillLevelAndCapacityOfAll(trailers, selectedFillType)
@@ -268,24 +268,19 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
 end
 
 function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
-    local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
     local fillTypeIsProhibited = false
     local isSelectedFillType = false
     for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-        if fillType == 1 or fillType == 34 or fillType == 33 or (fillType == 32 and hasOnlyDieselForFuel and object.isEntered == nil) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
-            --g_logManager:devInfo("Found prohibited filltype: " .. fillType);
+        if (fillType == 1 or fillType == 34 or fillType == 33 or fillType == 32) and object.isEntered ~= nil then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
             fillTypeIsProhibited = true
         end
         if selectedFillType ~= nil and fillType == selectedFillType then
-            --g_logManager:devInfo("Found selected filltype: " .. fillType);
             isSelectedFillType = true
         end
-        --g_logManager:devInfo("FillType: " .. fillType .. " : " .. g_fillTypeManager:getFillTypeByIndex(fillType).title .. "  free Capacity: " ..  object:getFillUnitFreeCapacity(fillUnitIndex));
     end
     if isSelectedFillType then
         fillTypeIsProhibited = false
     end
-    --g_logManager:devInfo("DieselForFuel: " .. AutoDrive.boolToString(hasOnlyDieselForFuel));
 
     if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex)

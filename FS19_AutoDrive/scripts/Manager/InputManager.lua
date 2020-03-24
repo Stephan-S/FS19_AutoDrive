@@ -108,7 +108,7 @@ end
 
 function ADInputManager:input_removeWaypoint(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
-        local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             -- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
             ADGraphManager:removeWayPoint(closestWayPoint)
@@ -118,7 +118,7 @@ end
 
 function ADInputManager:input_removeMapMarker(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
-        local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             -- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
             ADGraphManager:removeMapMarkerByWayPoint(closestWayPoint)
@@ -128,7 +128,7 @@ end
 
 function ADInputManager:input_createMapMarker(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
-        local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             -- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
             AutoDrive.editSelectedMapMarker = false
@@ -139,7 +139,7 @@ end
 
 function ADInputManager:input_toggleConnection(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
-        local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
                 ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.stateModule:getSelectedNeighbourPoint())
@@ -150,7 +150,7 @@ end
 
 function ADInputManager:input_toggleConnectionInverted(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
-        local closestWayPoint, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
                 ADGraphManager:toggleConnectionBetween(vehicle.ad.stateModule:getSelectedNeighbourPoint(), ADGraphManager:getWayPointById(closestWayPoint))

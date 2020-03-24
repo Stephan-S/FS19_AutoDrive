@@ -298,7 +298,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 		vehicle.ad.hoveredNodeId = nil
 		if vehicle.ad.stateModule:isInExtendedEditorMode() then
-			for _, point in pairs(vehicle.ad.pointsInProximity) do
+			for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
 				if AutoDrive.mouseIsAtPos(point, 0.01) then
 					vehicle.ad.hoveredNodeId = point.id
 					if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
@@ -325,7 +325,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
 					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
 						vehicle.ad.hoveredNodeId = point.id
-						if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then 
+						if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
 							if (button == 2 or button == 3) and isDown then
 								if vehicle.ad.nodeToMoveId == nil then
 									vehicle.ad.nodeToMoveId = point.id
@@ -354,7 +354,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				if (AutoDrive.experimentalFeatures.fastExtendedEditorMode or AutoDrive.leftCTRLmodifierKeyPressed) then
 					if button == 1 and isDown then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
-						local closest = ADGraphManager:findClosestWayPoint(vehicle)
+						local closest = vehicle:getClosestWayPoint()
 						closest = ADGraphManager:getWayPointById(closest)
 						if closest ~= nil then
 							local _, _, depth = project(closest.x, closest.y, closest.z)
@@ -396,6 +396,11 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 		node.x, node.y, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 		-- And just to correct for slope changes, we now set the height to the terrain height
 		node.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z)
+		local collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
+		while collisions > 0 do
+			node.y = node.y + 0.1
+			local collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
+		end
 	end
 end
 

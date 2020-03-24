@@ -197,13 +197,8 @@ end
 function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local nextTask
     if filledToUnload then
-        if AutoDrive.getSetting("exitField", self.vehicle) ~= 2 then
-            nextTask = ExitFieldTask:new(self.vehicle)
-            self.state = self.STATE_EXIT_FIELD
-        else
-            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-            self.state = self.STATE_DRIVE_TO_UNLOAD
-        end
+        nextTask = ExitFieldTask:new(self.vehicle)
+        self.state = self.STATE_EXIT_FIELD
         ADHarvestManager:unregisterAsUnloader(self.vehicle)
         self.followingUnloader = nil
         self.combine = nil

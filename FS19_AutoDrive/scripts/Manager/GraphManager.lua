@@ -150,12 +150,7 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 end
 
 function ADGraphManager:getDistanceFromNetwork(vehicle)
-	local distance = math.huge
-	local x, y, z = getWorldTranslation(vehicle.components[1].node)
-	local closest = self:findClosestWayPoint(vehicle)
-	if closest ~= nil and self.wayPoints[closest] ~= nil then
-		distance = MathUtil.vector2Length(x - self.wayPoints[closest].x, z - self.wayPoints[closest].z)
-	end
+	local _, distance = vehicle:getClosestWayPoint()
 	return distance
 end
 
@@ -194,8 +189,11 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 				end
 			end
 
-			-- Removing waypoint from waypoints array
-			table.remove(self.wayPoints, wayPoint.id)
+			-- Removing waypoint from waypoints array and invalidate it by setting id to -1
+			local wp = table.remove(self.wayPoints, wayPoint.id)
+			if wp ~= nil then
+				wp.id = -1
+			end
 
 			-- Adjusting ids for all succesive nodes :(
 			for _, wp in pairs(self.wayPoints) do
@@ -254,7 +252,7 @@ end
 function ADGraphManager:createMapMarkerOnClosest(vehicle, markerName, sendEvent)
 	if vehicle ~= nil and markerName:len() > 1 then
 		-- Finding closest waypoint
-		local closest, _ = self:findClosestWayPoint(vehicle)
+		local closest, _ = vehicle:getClosestWayPoint()
 		if closest ~= nil and closest ~= -1 and self.wayPoints[closest] ~= nil then
 			self:createMapMarker(closest, markerName, sendEvent)
 		end
@@ -267,8 +265,6 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 			-- Propagating marker creation all over the network
 			AutoDriveCreateMapMarkerEvent.sendEvent(markerId, markerName)
 		else
-			local wayPoint = self.wayPoints[markerId]
-
 			-- Creating the new map marker
 			self.mapMarkers[#self.mapMarkers + 1] = {id = markerId, markerIndex = (#self.mapMarkers + 1), name = markerName, group = "All"}
 
@@ -512,7 +508,7 @@ function ADGraphManager:isDualRoad(start, target)
 end
 
 function ADGraphManager:getDistanceBetweenNodes(start, target)
-	local euclidianDistance = AutoDrive.getDistance(self.wayPoints[start].x, self.wayPoints[start].z, self.wayPoints[target].x, self.wayPoints[target].z)
+	local euclidianDistance = MathUtil.vector2Length(self.wayPoints[start].x - self.wayPoints[target].x, self.wayPoints[start].z - self.wayPoints[target].z)
 
 	local distance = euclidianDistance
 
@@ -571,7 +567,7 @@ function ADGraphManager:getDriveTimeBetweenNodes(start, target, past, maxDriving
 		drivingSpeed = math.min(drivingSpeed, maxDrivingSpeed)
 	end
 
-	local drivingDistance = AutoDrive.getDistance(wp_ahead.x, wp_ahead.z, wp_current.x, wp_current.z)
+	local drivingDistance = MathUtil.vector2Length(wp_ahead.x - wp_current.x, wp_ahead.z - wp_current.z)
 
 	driveTime = (drivingDistance) / (drivingSpeed * (1000 / 3600))
 
@@ -623,36 +619,6 @@ function ADGraphManager:getHighestConsecutiveIndex()
 	return (toCheckFor - 1)
 end
 
-function ADGraphManager:findClosestWayPoint(vehicle)
-	if vehicle.ad.closest ~= nil then
-		return vehicle.ad.closest, vehicle.ad.closestDistance
-	end
-
-	local startNode = vehicle.ad.frontNode
-	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
-		startNode = vehicle.components[1].node
-	end
-
-	--returns waypoint closest to vehicle position
-	local x1, _, z1 = getWorldTranslation(startNode)
-	local closest = -1
-	local minDistance = math.huge
-	if self.wayPoints[1] ~= nil then
-		for _, wp in pairs(self.wayPoints) do
-			local distance = AutoDrive.getDistance(wp.x, wp.z, x1, z1)
-			if distance < minDistance then
-				closest = wp.id
-				minDistance = distance
-			end
-		end
-	end
-
-	vehicle.ad.closest = closest
-	vehicle.ad.closestDistance = minDistance
-
-	return closest, minDistance
-end
-
 function ADGraphManager:findMatchingWayPointForVehicle(vehicle)
 	local startNode = vehicle.ad.frontNode
 	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
@@ -664,17 +630,17 @@ function ADGraphManager:findMatchingWayPointForVehicle(vehicle)
 	local vehicleVector = {x = rx, z = rz}
 	local point = {x = x1, z = z1}
 
-	local bestPoint, distance = self:findMatchingWayPoint(point, vehicleVector, 1, 20)
+	local bestPoint, distance = self:findMatchingWayPoint(point, vehicleVector, vehicle:getWayPointIdsInRange(1, 20))
 
 	if bestPoint == -1 then
-		return self:findClosestWayPoint(vehicle)
+		return vehicle:getClosestWayPoint()
 	end
 
 	return bestPoint, distance
 end
 
-function ADGraphManager:findMatchingWayPoint(point, direction, rangeMin, rangeMax)
-	local candidates = self:getWayPointsInRange(point, rangeMin, rangeMax)
+function ADGraphManager:findMatchingWayPoint(point, direction, candidates)
+	candidates = candidates or {}
 
 	local closest = -1
 	local distance = -1
@@ -694,7 +660,7 @@ function ADGraphManager:findMatchingWayPoint(point, direction, rangeMin, rangeMa
 				local vecToVehicle = {x = toCheck.x - point.x, z = toCheck.z - point.z}
 				local angleToNextPoint = AutoDrive.angleBetween(direction, vecToNextPoint)
 				local angleToVehicle = AutoDrive.angleBetween(direction, vecToVehicle)
-				local dis = AutoDrive.getDistance(toCheck.x, toCheck.z, point.x, point.z)
+				local dis = MathUtil.vector2Length(toCheck.x - point.x, toCheck.z - point.z)
 				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
 					closest = toCheck.id
 					distance = dis
@@ -726,7 +692,7 @@ function ADGraphManager:getWayPointsInRange(point, rangeMin, rangeMax)
 	local inRange = {}
 
 	for _, wp in pairs(self.wayPoints) do
-		local dis = AutoDrive.getDistance(wp.x, wp.z, point.x, point.z)
+		local dis = MathUtil.vector2Length(wp.x - point.x, wp.z - point.z)
 		if dis < rangeMax and dis > rangeMin then
 			table.insert(inRange, wp.id)
 		end

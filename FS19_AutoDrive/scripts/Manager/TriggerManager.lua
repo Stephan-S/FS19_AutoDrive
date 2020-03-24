@@ -38,13 +38,17 @@ function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
     local speedFactor = math.max(0.5, math.min(4, (((vehicle.lastSpeedReal * 3600) + 10) / 20.0)))
     local distanceToSlowDownAt = 15 * speedFactor * massFactor
 
+    if vehicle.ad.trailerModule:isActiveAtTrigger() then
+        return true
+    end
+
     if shouldLoad then
         for _, trigger in pairs(ADTriggerManager.siloTriggers) do
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - x, triggerZ - z)
 
-                if distance < distanceToSlowDownAt then
+                if distance < distanceToSlowDownAt and distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") then
                     local hasRequiredFillType = false
                     local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
                     if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
