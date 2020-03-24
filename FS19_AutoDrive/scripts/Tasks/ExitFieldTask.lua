@@ -23,7 +23,7 @@ function ExitFieldTask:update(dt)
     if self.state == ExitFieldTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
-            if self.wayPoints == nil or #self.wayPoints == 0 then  
+            if self.wayPoints == nil or #self.wayPoints == 0 then
                 self:selectNextStrategy()                  
                 if self.vehicle.ad.pathFinderModule:isTargetBlocked() then
                     -- If the selected field exit isn't reachable, try the next strategy and restart without delay
@@ -61,8 +61,18 @@ function ExitFieldTask:finished()
 end
 
 function ExitFieldTask:startPathPlanning()
-    if self.nextExitStrategy == ExitFieldTask.STRATEGY_CLOSEST then
-        self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.vehicle.ad.stateModule:getSecondWayPoint())
+    if self.nextExitStrategy == ExitFieldTask.STRATEGY_CLOSEST then        
+        local closest = self.vehicle:getClosestWayPoint()
+        local closestNode = ADGraphManager:getWayPointById(closest)
+        local wayPoints = ADGraphManager:pathFromTo(closest, self.vehicle.ad.stateModule:getSecondWayPoint())
+        if wayPoints ~= nil and #wayPoints > 1 then
+            local vecToNextPoint = {x = wayPoints[2].x - closestNode.x, z = wayPoints[2].z - closestNode.z}
+            self.vehicle.ad.pathFinderModule:startPathPlanningTo(closestNode, vecToNextPoint)
+        else
+            AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
+            self.vehicle.ad.taskModule:abortAllTasks()
+            self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
+        end
     else
         local targetNode = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstWayPoint())
         local wayPoints = ADGraphManager:pathFromTo(self.vehicle.ad.stateModule:getFirstWayPoint(), self.vehicle.ad.stateModule:getSecondWayPoint())
