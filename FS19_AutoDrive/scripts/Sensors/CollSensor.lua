@@ -1,6 +1,6 @@
 ADCollSensor = ADInheritsFrom(ADSensor)
 
-ADCollSensor.collisionMask = 16777455
+ADCollSensor.collisionMask = 239
 ADCollSensor.mask_Non_Pushable_1 = 1
 ADCollSensor.mask_Non_Pushable_2 = 2
 ADCollSensor.mask_static_world_1 = 3
@@ -45,7 +45,7 @@ function ADCollSensor:buildMask()
     mask = mask + math.pow(2, ADCollSensor.mask_trailers - 1)
     --mask = mask + math.pow(2, ADCollSensor.mask_dynamic_objects - 1)
     --mask = mask + math.pow(2, ADCollSensor.mask_dynamic_objects_machines - 1)
-    mask = mask + math.pow(2, ADCollSensor.mask_trigger_trafficVehicles - 1)
+    --mask = mask + math.pow(2, ADCollSensor.mask_trigger_trafficVehicles - 1)
     --mask = mask + math.pow(2, ADCollSensor.mask_trigger_dynamic_objects - 1)
 
     return mask

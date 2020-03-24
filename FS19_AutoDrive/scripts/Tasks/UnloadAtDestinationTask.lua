@@ -39,10 +39,10 @@ function UnloadAtDestinationTask:update(dt)
                     self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.vehicle.ad.stateModule:getSecondWayPoint())
                 elseif self.vehicle.ad.pathFinderModule:timedOut() or self.vehicle.ad.pathFinderModule:isBlocked() then
                     -- Add some delay to give the situation some room to clear itself
-                    self:startPathPlanning()
+                    self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.vehicle.ad.stateModule:getSecondWayPoint())
                     self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
                 else
-                    self:startPathPlanning()
+                    self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.vehicle.ad.stateModule:getSecondWayPoint())
                 end
 
                 g_logManager:error("[AutoDrive] Could not calculate path - shutting down")
