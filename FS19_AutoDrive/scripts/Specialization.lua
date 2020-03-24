@@ -325,7 +325,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
     local maxDistance = AutoDrive.drawDistance
     for _, marker in pairs(ADGraphManager:getMapMarkers()) do
         local wp = ADGraphManager:getWayPointById(marker.id)
-        if AutoDrive.getDistance(wp.x, wp.z, x1, z1) < maxDistance then
+        if MathUtil.vector2Length(wp.x - x1, wp.z - z1) < maxDistance then
             Utils.renderTextAtWorldPosition(wp.x, wp.y + 4, wp.z, marker.name, getCorrectTextSize(0.013), 0)
             if not (vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_EXTENDED) then
                 AutoDriveDM:addMarkerTask(wp.x, wp.y + 0.45, wp.z)
@@ -569,17 +569,17 @@ function AutoDrive:updateWayPointsDistance()
     self.ad.distances.closest.wayPoint = nil
     self.ad.distances.closest.distance = math.huge
 
-    local adGetDistance = AutoDrive.getDistance
-
     local x, _, z = getWorldTranslation(self.components[1].node)
 
     for _, wp in pairs(ADGraphManager:getWayPoints()) do
-        local distance = adGetDistance(wp.x, wp.z, x, z)
+        local distance = MathUtil.vector2Length(wp.x - x, wp.z - z)
         if distance < self.ad.distances.closest.distance then
             self.ad.distances.closest.distance = distance
             self.ad.distances.closest.wayPoint = wp
         end
-        table.insert(self.ad.distances.wayPoints, {distance = distance, wayPoint = wp})
+        if distance <= AutoDrive.drawDistance then
+            table.insert(self.ad.distances.wayPoints, {distance = distance, wayPoint = wp})
+        end
     end
 end
 

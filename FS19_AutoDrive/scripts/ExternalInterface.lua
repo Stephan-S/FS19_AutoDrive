@@ -100,7 +100,7 @@ function AutoDrive:GetClosestPointToLocation(x, z, minDistance)
         local distance = math.huge
 
         for i in pairs(ADGraphManager:getWayPoints()) do
-            local dis = AutoDrive.getDistance(ADGraphManager:getWayPointById(i).x, ADGraphManager:getWayPointById(i).z, x, z)
+            local dis = MathUtil.vector2Length(ADGraphManager:getWayPointById(i).x - x, ADGraphManager:getWayPointById(i).z - z)
             if dis < distance and dis >= minDistance then
                 closest = i
                 distance = dis

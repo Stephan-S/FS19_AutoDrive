@@ -77,7 +77,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
 
     if self.secondLastWp == nil then
-        if AutoDrive.getDistance(x, z, self.lastWp.x, self.lastWp.z) > 3 then
+        if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > 3 then
             self.secondLastWp = self.lastWp
             self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual)
         end
@@ -102,7 +102,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
             max_distance = 0.25
         end
 
-        if AutoDrive.getDistance(x, z, self.lastWp.x, self.lastWp.z) > max_distance then
+        if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance then
             self.secondLastWp = self.lastWp
             self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual)
         end

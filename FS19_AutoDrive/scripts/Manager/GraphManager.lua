@@ -508,7 +508,7 @@ function ADGraphManager:isDualRoad(start, target)
 end
 
 function ADGraphManager:getDistanceBetweenNodes(start, target)
-	local euclidianDistance = AutoDrive.getDistance(self.wayPoints[start].x, self.wayPoints[start].z, self.wayPoints[target].x, self.wayPoints[target].z)
+	local euclidianDistance = MathUtil.vector2Length(self.wayPoints[start].x - self.wayPoints[target].x, self.wayPoints[start].z - self.wayPoints[target].z)
 
 	local distance = euclidianDistance
 
@@ -567,7 +567,7 @@ function ADGraphManager:getDriveTimeBetweenNodes(start, target, past, maxDriving
 		drivingSpeed = math.min(drivingSpeed, maxDrivingSpeed)
 	end
 
-	local drivingDistance = AutoDrive.getDistance(wp_ahead.x, wp_ahead.z, wp_current.x, wp_current.z)
+	local drivingDistance = MathUtil.vector2Length(wp_ahead.x - wp_current.x, wp_ahead.z - wp_current.z)
 
 	driveTime = (drivingDistance) / (drivingSpeed * (1000 / 3600))
 
@@ -660,7 +660,7 @@ function ADGraphManager:findMatchingWayPoint(point, direction, candidates)
 				local vecToVehicle = {x = toCheck.x - point.x, z = toCheck.z - point.z}
 				local angleToNextPoint = AutoDrive.angleBetween(direction, vecToNextPoint)
 				local angleToVehicle = AutoDrive.angleBetween(direction, vecToVehicle)
-				local dis = AutoDrive.getDistance(toCheck.x, toCheck.z, point.x, point.z)
+				local dis = MathUtil.vector2Length(toCheck.x - point.x, toCheck.z - point.z)
 				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
 					closest = toCheck.id
 					distance = dis
@@ -692,7 +692,7 @@ function ADGraphManager:getWayPointsInRange(point, rangeMin, rangeMax)
 	local inRange = {}
 
 	for _, wp in pairs(self.wayPoints) do
-		local dis = AutoDrive.getDistance(wp.x, wp.z, point.x, point.z)
+		local dis = MathUtil.vector2Length(wp.x - point.x, wp.z - point.z)
 		if dis < rangeMax and dis > rangeMin then
 			table.insert(inRange, wp.id)
 		end

@@ -63,10 +63,6 @@ string.randomCharset = {
 	"z"
 }
 
-function AutoDrive.getDistance(x1, z1, x2, z2)
-	return math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2))
-end
-
 function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
