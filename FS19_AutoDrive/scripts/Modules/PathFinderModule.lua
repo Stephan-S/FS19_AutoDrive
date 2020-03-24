@@ -228,6 +228,7 @@ function PathFinderModule:autoRestart()
     self.steps = 0
     self.grid = {}
     self.startCell.visited = false
+    self.startCell.out = nil
     self.currentCell = nil
     table.insert(self.grid, self.startCell)
     self:determineBlockedCells(self.targetCell)
@@ -270,7 +271,6 @@ function PathFinderModule:update(dt)
         return
     end
 
-
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
         self:drawDebugForPF()
     end
@@ -307,15 +307,14 @@ function PathFinderModule:update(dt)
                 self:restartAtNextWayPoint()
             else
                 self:abort()
-                return
             end  
         elseif fallBackModeAllowed then
             self.fallBackMode = true
             self:autoRestart()
         else
             self:abort()
-            return
         end
+        return
     end
 
     for i = 1, self.MAX_PATHFINDER_STEPS_PER_FRAME, 1 do
