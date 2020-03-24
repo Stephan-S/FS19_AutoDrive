@@ -3,7 +3,7 @@ function AutoDrive.prerequisitesPresent(specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
-    for _, n in pairs({"load", "onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick", "onStartAutoDrive", "onStopAutoDrive"}) do
+    for _, n in pairs({"onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick", "onStartAutoDrive", "onStopAutoDrive"}) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -18,6 +18,13 @@ function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "startAutoDrive", AutoDrive.startAutoDrive)
     SpecializationUtil.registerFunction(vehicleType, "stopAutoDrive", AutoDrive.stopAutoDrive)
     SpecializationUtil.registerFunction(vehicleType, "toggleMouse", AutoDrive.toggleMouse)
+    SpecializationUtil.registerFunction(vehicleType, "updateWayPointsDistance", AutoDrive.updateWayPointsDistance)
+    SpecializationUtil.registerFunction(vehicleType, "resetClosestWayPoint", AutoDrive.resetClosestWayPoint)
+    SpecializationUtil.registerFunction(vehicleType, "resetWayPointsDistance", AutoDrive.resetWayPointsDistance)
+    SpecializationUtil.registerFunction(vehicleType, "getWayPointsDistance", AutoDrive.getWayPointsDistance)
+    SpecializationUtil.registerFunction(vehicleType, "getClosestWayPoint", AutoDrive.getClosestWayPoint)
+    SpecializationUtil.registerFunction(vehicleType, "getWayPointsInRange", AutoDrive.getWayPointsInRange)
+    SpecializationUtil.registerFunction(vehicleType, "getWayPointIdsInRange", AutoDrive.getWayPointIdsInRange)
 end
 
 function AutoDrive.registerEvents(vehicleType)
@@ -54,6 +61,12 @@ function AutoDrive:onLoad(savegame)
     self.ad.smootherDriving = {}
     self.ad.smootherDriving.lastMaxSpeed = 0
     self.ad.groups = {}
+
+    self.ad.distances = {}
+    self.ad.distances.wayPoints = nil
+    self.ad.distances.closest = {}
+    self.ad.distances.closest.wayPoint = -1
+    self.ad.distances.closest.distance = 0
 
     self.ad.stateModule = ADStateModule:new(self)
     self.ad.recordingModule = ADRecordingModule:new(self)
@@ -130,10 +143,6 @@ function AutoDrive:onPostLoad(savegame)
     end
     self.ad.showingMouse = false
 
-    -- Points used for drawing nearby points without iterating over complete network each time
-    self.ad.pointsInProximity = {}
-    self.ad.lastPointCheckedForProximity = 1
-
     self.ad.lastMouseState = false
 
     -- Creating a new transform on front of the vehicle
@@ -166,6 +175,11 @@ function AutoDrive:onReadStream(streamId, connection)
 end
 
 function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
+    -- waypoints distances are updated once every ~2 frames
+    self:resetClosestWayPoint()
+    -- if we want to update distances every frame, when lines drawing is enabled, we can move this at the end of onDraw function
+    self:resetWayPointsDistance()
+
     if self.isServer then
         self.ad.recordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
 
@@ -200,9 +214,6 @@ function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
 end
 
 function AutoDrive:onUpdate(dt)
-    -- Cloest point is stored per frame
-    self.ad.closest = nil
-
     if self.isServer and self.ad.stateModule:isActive() then
         self.ad.recordingModule:update(dt)
         self.ad.taskModule:update(dt)
@@ -333,7 +344,7 @@ function AutoDrive:onDrawCreationMode(vehicle)
         end
 
         --Draw line to closest point
-        local closest, _ = ADGraphManager:findClosestWayPoint(vehicle)
+        local closest, _ = vehicle:getClosestWayPoint()
         local wp = ADGraphManager:getWayPointById(closest)
         if wp ~= nil then
             AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
@@ -342,44 +353,12 @@ function AutoDrive:onDrawCreationMode(vehicle)
     end
 end
 
-function AutoDrive.getNewPointsInProximity(vehicle)
-    local x1, _, z1 = getWorldTranslation(vehicle.components[1].node)
-    local maxDistance = AutoDrive.drawDistance
-
-    if ADGraphManager:getWayPointById(1) ~= nil then
-        local newPointsToDraw = {}
-        local pointsCheckedThisFrame = 0
-        --only handly a limited amount of points per frame
-        while pointsCheckedThisFrame < 1000 and pointsCheckedThisFrame < ADGraphManager:getWayPointsCount() do
-            pointsCheckedThisFrame = pointsCheckedThisFrame + 1
-            vehicle.ad.lastPointCheckedForProximity = vehicle.ad.lastPointCheckedForProximity + 1
-            if vehicle.ad.lastPointCheckedForProximity > ADGraphManager:getWayPointsCount() then
-                vehicle.ad.lastPointCheckedForProximity = 1
-            end
-            local pointToCheck = ADGraphManager:getWayPointById(vehicle.ad.lastPointCheckedForProximity)
-            if pointToCheck ~= nil then
-                if AutoDrive.getDistance(pointToCheck.x, pointToCheck.z, x1, z1) < maxDistance then
-                    table.insert(newPointsToDraw, pointToCheck.id, pointToCheck)
-                end
-            end
-        end
-        --go through all stored points to check if they are still in proximity
-        for id, point in pairs(vehicle.ad.pointsInProximity) do
-            if AutoDrive.getDistance(point.x, point.z, x1, z1) < maxDistance and newPointsToDraw[id] == nil and ADGraphManager:getWayPointById(id) ~= nil and ADGraphManager:getWayPointById(id).x == point.x then
-                table.insert(newPointsToDraw, id, point)
-            end
-        end
-        --replace stored list with update
-        vehicle.ad.pointsInProximity = newPointsToDraw
-    end
-end
-
 function AutoDrive.drawPointsInProximity(vehicle)
     local AutoDriveDM = ADDrawingManager
     local arrowPosition = AutoDriveDM.arrows.position.start
-    AutoDrive.getNewPointsInProximity(vehicle)
+    local pointsInProximity = vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)
 
-    for _, point in pairs(vehicle.ad.pointsInProximity) do
+    for _, point in pairs(pointsInProximity) do
         local x = point.x
         local y = point.y
         local z = point.z
@@ -585,16 +564,71 @@ function AutoDrive:onStopAutoDrive(hasCallbacks)
     AutoDriveHud:deleteMapHotspot(self)
 end
 
-function AutoDrive:leaveVehicle(superFunc)
-    if self.ad ~= nil then
-        if self.getIsEntered ~= nil and self:getIsEntered() then
-            if g_inputBinding:getShowMouseCursor() then
-                g_inputBinding:setShowMouseCursor(false)
-            end
-            AutoDrive.Hud:closeAllPullDownLists(self)
+function AutoDrive:updateWayPointsDistance()
+    self.ad.distances.wayPoints = {}
+    self.ad.distances.closest.wayPoint = nil
+    self.ad.distances.closest.distance = math.huge
+
+    local adGetDistance = AutoDrive.getDistance
+
+    local x, _, z = getWorldTranslation(self.components[1].node)
+
+    for _, wp in pairs(ADGraphManager:getWayPoints()) do
+        local distance = adGetDistance(wp.x, wp.z, x, z)
+        if distance < self.ad.distances.closest.distance then
+            self.ad.distances.closest.distance = distance
+            self.ad.distances.closest.wayPoint = wp
+        end
+        table.insert(self.ad.distances.wayPoints, {distance = distance, wayPoint = wp})
+    end
+end
+
+function AutoDrive:resetClosestWayPoint()
+    self.ad.distances.closest.wayPoint = -1
+end
+
+function AutoDrive:resetWayPointsDistance()
+    self.ad.distances.wayPoints = nil
+end
+
+function AutoDrive:getWayPointsDistance()
+    return self.ad.distances.wayPoints
+end
+
+function AutoDrive:getClosestWayPoint()
+    if self.ad.distances.closest.wayPoint == -1 then
+        self:updateWayPointsDistance()
+    end
+    if self.ad.distances.closest.wayPoint ~= nil then
+        return self.ad.distances.closest.wayPoint.id, self.ad.distances.closest.distance
+    end
+    return -1, math.huge
+end
+
+function AutoDrive:getWayPointsInRange(minDistance, maxDistance)
+    if self.ad.distances.wayPoints == nil then
+        self:updateWayPointsDistance()
+    end
+    local inRange = {}
+    for _, elem in pairs(self.ad.distances.wayPoints) do
+        if elem.distance >= minDistance and elem.distance <= maxDistance and elem.wayPoint.id > 0 then
+            table.insert(inRange, elem.wayPoint)
         end
     end
-    superFunc(self)
+    return inRange
+end
+
+function AutoDrive:getWayPointIdsInRange(minDistance, maxDistance)
+    if self.ad.distances.wayPoints == nil then
+        self:updateWayPointsDistance()
+    end
+    local inRange = {}
+    for _, elem in pairs(self.ad.distances.wayPoints) do
+        if elem.distance >= minDistance and elem.distance <= maxDistance and elem.wayPoint.id > 0 then
+            table.insert(inRange, elem.wayPoint.id)
+        end
+    end
+    return inRange
 end
 
 function AutoDrive:toggleMouse()
@@ -614,6 +648,18 @@ function AutoDrive:toggleMouse()
         end
     end
     self.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
+end
+
+function AutoDrive:leaveVehicle(superFunc)
+    if self.ad ~= nil then
+        if self.getIsEntered ~= nil and self:getIsEntered() then
+            if g_inputBinding:getShowMouseCursor() then
+                g_inputBinding:setShowMouseCursor(false)
+            end
+            AutoDrive.Hud:closeAllPullDownLists(self)
+        end
+    end
+    superFunc(self)
 end
 
 function AutoDrive:updateAILights(superFunc)

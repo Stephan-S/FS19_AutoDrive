@@ -33,7 +33,7 @@ function ADRecordingModule:start(dual)
     self.lastWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, false)
 
     if AutoDrive.getSetting("autoConnectStart") then
-        local startNodeId, _ = ADGraphManager:findClosestWayPoint(self.vehicle)
+        local startNodeId, _ = self.vehicle:getClosestWayPoint()
         local startNode = ADGraphManager:getWayPointById(startNodeId)
         if startNode ~= nil then
             if ADGraphManager:getDistanceBetweenNodes(startNodeId, self.lastWp.id) < 12 then

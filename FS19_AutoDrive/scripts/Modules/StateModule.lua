@@ -621,15 +621,14 @@ end
 
 function ADStateModule:updateNeighborPoint()
     -- Find all candidate points, no further away than 15 units from vehicle
-    local x1, _, z1 = getWorldTranslation(self.vehicle.components[1].node)
-    local candidateNeighborPoints = {}
-    for _, point in pairs(ADGraphManager:getWayPoints()) do
-        local distance = AutoDrive.getDistance(point.x, point.z, x1, z1)
-        if distance < 15 then
-            -- Add new element consisting of 'distance' (for sorting) and 'point'
-            table.insert(candidateNeighborPoints, {distance = distance, point = point})
+    local candidateNeighborPoints =
+        table.f_filter(
+        self.vehicle:getWayPointsDistance(),
+        function(elem)
+            return elem.distance <= 15
         end
-    end
+    )
+
     -- If more than one point found, then arrange them from inner closest to further out
     if #candidateNeighborPoints > 1 then
         -- Sort by distance
@@ -643,7 +642,7 @@ function ADStateModule:updateNeighborPoint()
         self.neighbourPoints = {}
         -- Only need 'point' in the neighbourPoints-array
         for _, elem in pairs(candidateNeighborPoints) do
-            table.insert(self.neighbourPoints, elem.point)
+            table.insert(self.neighbourPoints, elem.wayPoint)
         end
         -- Begin at the 2nd closest one (assuming 1st is 'ourself / the closest')
         self.currentNeighbourToPointAt = 2

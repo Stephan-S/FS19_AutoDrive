@@ -173,7 +173,7 @@ function PathFinderModule:getPath()
 end
 
 function PathFinderModule:startPathPlanningToNetwork(destinationId)
-    local closest = ADGraphManager:findClosestWayPoint(self.vehicle)
+    local closest = self.vehicle:getClosestWayPoint()
     self:startPathPlanningToWayPoint(closest, destinationId)
 end
 

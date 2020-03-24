@@ -33,7 +33,7 @@ function ADEnterTargetNameGui:onOpen()
         self.editId = g_currentMission.controlledVehicle.ad.stateModule:getFirstMarkerId()
         self.editName = ADGraphManager:getMapMarkerById(self.editId).name
     else
-        local closest, _ = ADGraphManager:findClosestWayPoint(g_currentMission.controlledVehicle)
+        local closest, _ = g_currentMission.controlledVehicle:getClosestWayPoint()
         if closest ~= nil and closest ~= -1 and ADGraphManager:getWayPointById(closest) ~= nil then
             local cId = closest
             for i, mapMarker in pairs(ADGraphManager:getMapMarkers()) do

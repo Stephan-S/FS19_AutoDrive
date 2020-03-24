@@ -21,10 +21,10 @@ function AutoDrive:GetPath(startX, startZ, startYRot, destinationID, options)
         maxDistance = options.maxDistance
     end
     local directionVec = {x = math.sin(startYRot), z = math.cos(startYRot)}
-    local bestPoint = ADGraphManager:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance)
+    local bestPoint = ADGraphManager:findMatchingWayPoint(startPoint, directionVec, ADGraphManager:getWayPointsInRange(startPoint, minDistance, maxDistance))
 
     if bestPoint == -1 then
-        bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance, maxDistance)
+        bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance)
         if bestPoint == -1 then
             return
         end
@@ -51,7 +51,7 @@ function AutoDrive:GetPathVia(startX, startZ, startYRot, viaID, destinationID, o
         maxDistance = options.maxDistance
     end
     local directionVec = {x = math.sin(startYRot), z = math.cos(startYRot)}
-    local bestPoint = ADGraphManager:findMatchingWayPoint(startPoint, directionVec, minDistance, maxDistance)
+    local bestPoint = ADGraphManager:findMatchingWayPoint(startPoint, directionVec, ADGraphManager:getWayPointsInRange(startPoint, minDistance, maxDistance))
 
     if bestPoint == -1 then
         bestPoint = AutoDrive:GetClosestPointToLocation(startX, startZ, minDistance)

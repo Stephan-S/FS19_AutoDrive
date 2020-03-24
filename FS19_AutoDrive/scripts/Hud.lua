@@ -298,7 +298,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 		vehicle.ad.hoveredNodeId = nil
 		if vehicle.ad.stateModule:isInExtendedEditorMode() then
-			for _, point in pairs(vehicle.ad.pointsInProximity) do
+			for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
 				if AutoDrive.mouseIsAtPos(point, 0.01) then
 					vehicle.ad.hoveredNodeId = point.id
 					if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
@@ -325,7 +325,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
 					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
 						vehicle.ad.hoveredNodeId = point.id
-						if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then 
+						if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
 							if (button == 2 or button == 3) and isDown then
 								if vehicle.ad.nodeToMoveId == nil then
 									vehicle.ad.nodeToMoveId = point.id
@@ -354,7 +354,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				if (AutoDrive.experimentalFeatures.fastExtendedEditorMode or AutoDrive.leftCTRLmodifierKeyPressed) then
 					if button == 1 and isDown then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
-						local closest = ADGraphManager:findClosestWayPoint(vehicle)
+						local closest = vehicle:getClosestWayPoint()
 						closest = ADGraphManager:getWayPointById(closest)
 						if closest ~= nil then
 							local _, _, depth = project(closest.x, closest.y, closest.z)
