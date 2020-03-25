@@ -180,9 +180,9 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     targetCellX = AutoDrive.round(targetCellX)
     targetCellZ = AutoDrive.round(targetCellZ)
-    self.targetCell = {x=targetCellX, z=targetCellZ, direction=self.PP_UP} --self:worldLocationToGridLocation(targetX, targetZ)
+    self.targetCell = {x=targetCellX, z=targetCellZ, direction=self.PP_UP}
     self:determineBlockedCells(self.targetCell)
-    self:checkGridCell(self.targetCell)
+    --self:checkGridCell(self.targetCell)
 
     self.appendWayPoints = {}
     self.appendWayPoints[1] = targetPoint
@@ -199,7 +199,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.isSecondChasingVehicle = false
     self.destinationId = nil
     self.completelyBlocked = false
-    self.targetBlocked = self.targetCell.hasCollision or self.targetCell.isRestricted
+    self.targetBlocked = false --self.targetCell.hasCollision or self.targetCell.isRestricted
     self.blockedByOtherVehicle = false
 end
 
@@ -272,7 +272,11 @@ function PathFinderModule:update(dt)
     end
 
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-        self:drawDebugForPF()
+        if self.isFinished and self.smoothDone then
+            self:drawDebugForCreatedRoute()
+        else
+            self:drawDebugForPF()
+        end
     end
 
     if self.isFinished then
@@ -362,7 +366,7 @@ function PathFinderModule:testNextCells(cell)
     for _, location in pairs(cell.out) do
         local createPoint = true
         for _, c in pairs(self.grid) do
-            if c.x == location.x and c.z == location.z and c.direction == location.direction then
+            if c.x == location.x and c.z == location.z then
                 if c.direction == -1 then
                     createPoint = false
                 elseif c.direction == location.direction then

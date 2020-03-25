@@ -117,7 +117,7 @@ end
 
 function ADDrivePathModule:isCloseToWaypoint()
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-    local maxSkipWayPoints = 2
+    local maxSkipWayPoints = 1
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
             local distanceToCurrentWp = MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i].z)
@@ -125,12 +125,15 @@ function ADDrivePathModule:isCloseToWaypoint()
                 return true
             end
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
+            --[[ I am currently afraid this might cause him to skip sharp turns in pathfinder mode and thus cause crashes with the combine
+
             if i > 0 then
                 local distanceToLastWp =  MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].z)
                 if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
                     return true
                 end
             end
+            --]]
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
             if i == 1 then
                 local wp_ahead = self:getNextWayPoint()

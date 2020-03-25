@@ -700,7 +700,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
         if self.ad.stateModule:isActive() and allowedToDrive then
             --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 
-            local accFactor = 4 / 1000 -- km h / s converted to km h / ms
+            local accFactor = 2 / 1000 -- km h / s converted to km h / ms
             accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 2000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
             if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
                 self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)
