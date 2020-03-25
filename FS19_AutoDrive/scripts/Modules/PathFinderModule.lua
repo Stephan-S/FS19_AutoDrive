@@ -420,14 +420,14 @@ function PathFinderModule:checkGridCell(cell)
     end
     
     if not cell.hasCollision then
-        local shapeDefinition = self:getShapeDefByDirectionType(cell)    
-        local shapes = overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, ADCollSensor.collisionMask, true, true, true)
+        local shapeDefinition = self:getShapeDefByDirectionType(cell)
+        local shapes = overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, AIVehicleUtil.COLLISION_MASK, true, true, true)
 
-        cell.hasCollision = cell.hasCollision or (shapes > 0)
+        cell.hasCollision = (shapes > 0)
     end
 
     --only check for restriction if not already blocked due to collision
-    if not cell.hasCollision then        
+    if not cell.hasCollision then
         cell.isRestricted = cell.isRestricted or (self.restrictToField and (not self.fallBackMode) and (not AutoDrive.checkIsOnField(worldPos.x, 0, worldPos.z)))
 
         --Increase checked cell size for vehicles that follow an already active unloader -> prevent deadlocks when meeting on the crop's edge while unloading harvester
@@ -439,7 +439,7 @@ function PathFinderModule:checkGridCell(cell)
         if not cell.isRestricted then
             local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
             if self.avoidFruitSetting and not self.fallBackMode then
-                self:checkForFruitInArea(cell, corners)        
+                self:checkForFruitInArea(cell, corners)
             end
 
             if not cell.isRestricted then
