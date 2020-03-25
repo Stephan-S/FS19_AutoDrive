@@ -30,7 +30,7 @@ https://www.tipeeestream.com/iwan1803/tip
 # Download
 ![Zip Builder](https://github.com/Stephan-S/FS19_AutoDrive/workflows/Zip%20Builder/badge.svg?branch=master)
 ### Build
-[You can download the latest build here](https://host-my-bits.com/cdn/files/1/AutoDrive.zip)  
+[You can download the latest build here](https://host-my-bits.com/cdn/files/1/FS19_AutoDrive.zip)  
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/1?v=3)  
 ### Release
