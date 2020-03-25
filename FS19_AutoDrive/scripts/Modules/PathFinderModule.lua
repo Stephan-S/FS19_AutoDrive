@@ -1096,3 +1096,22 @@ function PathFinderModule:smoothResultingPPPath_Refined()
         self.smoothDone = true
     end
 end
+
+
+function PathFinderModule.checkSlopeAngle(x1, z1, x2, z2)
+    local vectorFromPrevious = {x = x1 - x2, z = z1 - z2}
+    local worldPosMiddle = {x = x2 + vectorFromPrevious.x / 2, z = z2 + vectorFromPrevious.z / 2}
+
+    local terrain1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x1, 0, z1)
+    local terrain2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x2, 0, z2)
+    local terrain3 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPosMiddle.x, 0, worldPosMiddle.z)
+    local length = MathUtil.vector3Length(x1 - x2, terrain1 - terrain2, z1 - z2)
+    local lengthMiddle = MathUtil.vector3Length(worldPosMiddle.x - x2, terrain3 - terrain2, worldPosMiddle.z - z2)
+    local angleBetween = math.atan(math.abs(terrain1 - terrain2) / length)
+    local angleBetweenCenter = math.atan(math.abs(terrain3 - terrain2) / lengthMiddle)
+
+    if (angleBetween * 3) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 3) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+        return true
+    end
+    return false
+end
