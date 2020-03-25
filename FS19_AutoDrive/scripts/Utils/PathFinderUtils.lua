@@ -40,7 +40,7 @@ function AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
     return boundingBox
 end
 
-function AutoDrive.checkSlopeAngle(x1, z1, x2, z2)
+function PathFinderModule.checkSlopeAngle(x1, z1, x2, z2)
     local vectorFromPrevious = {x = x1 - x2, z = z1 - z2}
     local worldPosMiddle = {x = x2 + vectorFromPrevious.x / 2, z = z2 + vectorFromPrevious.z / 2}
 

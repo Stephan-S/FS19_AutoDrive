@@ -570,9 +570,14 @@ function AutoDrive:updateWayPointsDistance()
     self.ad.distances.closest.distance = math.huge
 
     local x, _, z = getWorldTranslation(self.components[1].node)
-
+    
+    --We should see some perfomance increase by localizing the sqrt/pow functions right here
+    local sqrt = math.sqrt
+    local distanceFunc = function(a,b) 
+        return sqrt(a*a + b*b)
+    end
     for _, wp in pairs(ADGraphManager:getWayPoints()) do
-        local distance = MathUtil.vector2Length(wp.x - x, wp.z - z)
+        local distance = distanceFunc(wp.x - x, wp.z - z) 
         if distance < self.ad.distances.closest.distance then
             self.ad.distances.closest.distance = distance
             self.ad.distances.closest.wayPoint = wp
