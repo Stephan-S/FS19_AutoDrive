@@ -621,9 +621,6 @@ end
 
 function ADGraphManager:findMatchingWayPointForVehicle(vehicle)
 	local startNode = vehicle.ad.frontNode
-	if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
-		startNode = vehicle.components[1].node
-	end
 	--returns waypoint closest to vehicle position and with the most suited heading
 	local x1, _, z1 = getWorldTranslation(startNode)
 	local rx, _, rz = localDirectionToWorld(startNode, 0, 0, 1)
