@@ -364,6 +364,7 @@ function PathFinderModule:update(dt)
                 --Mark process stopped if we have no more cells to check
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - Mark process stopped if we have no more cells to check")
                 self.completelyBlocked = true
+                break
             end
         else
             if self.currentCell.out == nil then
@@ -421,8 +422,7 @@ function PathFinderModule:checkGridCell(cell)
     
     if not cell.hasCollision then
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
-        local shapes = overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 224, true, true, true)
-
+        local shapes =  overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 224, true, true, true)
         cell.hasCollision = (shapes > 0)
     end
 
@@ -646,7 +646,7 @@ function PathFinderModule:drawDebugForPF()
         pointD.x = pointD.x - self.vectorX.x * size + self.vectorZ.x * size
         pointD.z = pointD.z - self.vectorX.z * size + self.vectorZ.z * size
         pointD.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointD.x, 1, pointD.z) + 3
-
+        
         if cell.isRestricted == true then
             AutoDriveDM:addLineTask(pointA.x, pointA.y, pointA.z, pointB.x, pointB.y, pointB.z, 1, 0, 0)
             if cell.hasCollision == true then
@@ -783,9 +783,9 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
     local worldPos = self:gridLocationToWorldLocation(cell)
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-    shapeDefinition.height = 2.85
+    shapeDefinition.height = 2.4
 
-    if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT then
+    if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT or cell.direction == -1 then
         --default size:
         shapeDefinition.x = worldPos.x
         shapeDefinition.z = worldPos.z
