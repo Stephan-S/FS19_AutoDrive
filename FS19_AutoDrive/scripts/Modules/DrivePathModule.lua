@@ -169,9 +169,6 @@ function ADDrivePathModule:followWaypoints(dt)
 
     self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
 
-    if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
-        self.speedLimit = math.min(5, self.speedLimit)
-    end
 
     if AutoDrive.checkIsOnField(x, y, z) then
         self.speedLimit = math.min(ADDrivePathModule.SPEED_ON_FIELD, self.speedLimit)
@@ -185,6 +182,10 @@ function ADDrivePathModule:followWaypoints(dt)
         if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
             self.speedLimit = math.min(5, self.speedLimit)
             maxSpeedDiff = 3
+        else
+            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
+                self.speedLimit = math.min(5, self.speedLimit)
+            end
         end
     end
 
@@ -224,6 +225,8 @@ end
 
 function ADDrivePathModule:reachedTarget()
     self.atTarget = true
+    self.wayPoints = nil
+    self.currentWayPoint = 0
 end
 
 function ADDrivePathModule:isTargetReached()

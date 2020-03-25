@@ -328,7 +328,7 @@ function PathFinderModule:update(dt)
 
     --We should see some perfomance increase by localizing the sqrt/pow functions right here
     local sqrt = math.sqrt
-    local distanceFunc = function(a,b) 
+    local distanceFunc = function(a,b)
         return sqrt(a*a + b*b)
     end
 
@@ -354,9 +354,9 @@ function PathFinderModule:update(dt)
 
             self.currentCell = bestCell
 
-            if self.currentCell ~= nil and distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z) == 0 then
+            if self.currentCell ~= nil and distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z) < 1.5 then
                 self.isFinished = true
-                self.targetCell.incoming = self.currentCell.incoming
+                self.targetCell.incoming = self.currentCell --.incoming
                 self:createWayPoints()
             end
 
@@ -1024,7 +1024,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                     end
                 end
 
-                if self.fruitToCheck ~= nil then
+                if self.fruitToCheck ~= nil and self.avoidFruitSetting and not self.fallBackMode then
                     local fruitValue = 0
                     if self.isSecondChasingVehicle then
                         local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 2
