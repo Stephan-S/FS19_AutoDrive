@@ -39,6 +39,7 @@ source(Utils.getFilename("scripts/Events/Graph/DeleteWayPointEvent.lua", g_curre
 source(Utils.getFilename("scripts/Events/Graph/CreateWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/RecordWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/MoveWayPointEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/RoutesUploadEvent.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory))
@@ -49,7 +50,6 @@ source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Utils/EventUtil.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
