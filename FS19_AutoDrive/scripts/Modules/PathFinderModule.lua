@@ -192,7 +192,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     local startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo()
     local endIsOnField = AutoDrive.checkIsOnField(targetX, vehicleWorldY, targetZ)
 
-    self.restrictToField = startIsOnField and endIsOnField and AutoDrive.getSetting("restrictToField")
+    self.restrictToField = endIsOnField and AutoDrive.getSetting("restrictToField") --and startIsOnField
 
     self.goingToPipe = false
     self.chasingVehicle = false
@@ -202,6 +202,19 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.targetBlocked = false --self.targetCell.hasCollision or self.targetCell.isRestricted
     self.blockedByOtherVehicle = false
     self.avoidFruitSetting = AutoDrive.getSetting("avoidFruit", self.vehicle)
+    self.targetFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(targetX, targetZ)
+    if self.restrictToField and self.targetFieldId ~= nil and self.targetFieldId > 0 then
+        self.reachedFieldBorder = startIsOnField
+        self.targetFieldPos = {x = g_farmlandManager.farmlands[self.targetFieldId].xWorldPos, z = g_farmlandManager.farmlands[self.targetFieldId].zWorldPos}
+
+        self.fieldCellZ = (((self.targetFieldPos.x - self.startX) / self.vectorX.x) * self.vectorX.z - self.targetFieldPos.z + self.startZ) / (((self.vectorZ.x / self.vectorX.x) * self.vectorX.z) - self.vectorZ.z)
+        self.fieldCellX = (self.targetFieldPos.z - self.startZ - self.fieldCellZ * self.vectorZ.z) / self.vectorX.z
+
+        self.fieldCellX = AutoDrive.round(self.fieldCellX)
+        self.fieldCellZ = AutoDrive.round(self.fieldCellZ)
+    else
+        self.reachedFieldBorder = true
+    end
 end
 
 function PathFinderModule:restartAtNextWayPoint()
@@ -342,7 +355,12 @@ function PathFinderModule:update(dt)
             for _, cell in pairs(grid) do
                 --also checking for chasingVehicle here -> don't ever drive through fruit in chasingVehicle mode -> this will often result in driver cutting through fruit in front of combine!
                 if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) then
-                    local distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
+                    local distance = 0
+                    if not self.reachedFieldBorder and self.targetFieldId ~= nil then
+                        distance = distanceFunc(self.fieldCellX - cell.x, self.fieldCellZ - cell.z)
+                    else
+                        distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
+                    end
 
                     if (distance < minDistance) or (distance == minDistance and cell.steps < bestSteps) then
                         minDistance = distance
@@ -428,25 +446,30 @@ function PathFinderModule:checkGridCell(cell)
 
     --only check for restriction if not already blocked due to collision
     if not cell.hasCollision then
-        cell.isRestricted = cell.isRestricted or (self.restrictToField and (not self.fallBackMode) and (not AutoDrive.checkIsOnField(worldPos.x, 0, worldPos.z)))
-
         --Increase checked cell size for vehicles that follow an already active unloader -> prevent deadlocks when meeting on the crop's edge while unloading harvester
         local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
         if self.isSecondChasingVehicle then
             gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
         end
 
+        local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
+        if self.avoidFruitSetting and not self.fallBackMode then
+            self:checkForFruitInArea(cell, corners)
+        end
+
         if not cell.isRestricted then
-            local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
-            if self.avoidFruitSetting and not self.fallBackMode then
-                self:checkForFruitInArea(cell, corners)
+            local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius)
+            cell.isRestricted = cellUsedByVehiclePath
+            self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
+        end
+        
+        if not cell.isRestricted then
+            local isOnField = AutoDrive.checkIsOnField(worldPos.x, 0, worldPos.z)
+            if isOnField then
+                self.reachedFieldBorder = true
             end
 
-            if not cell.isRestricted then
-                local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius)
-                cell.isRestricted = cellUsedByVehiclePath
-                self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
-            end
+            cell.isRestricted = cell.isRestricted or (self.restrictToField and self.reachedFieldBorder and (not self.fallBackMode) and (not isOnField))
         end
     end
 end
