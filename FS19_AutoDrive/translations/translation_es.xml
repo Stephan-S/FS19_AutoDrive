@@ -157,8 +157,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Gerente de Rutas" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Inserte el nombre de la ruta:" />
-		<text name="gui_ad_button_export" 						text="Exportación" />
-		<text name="gui_ad_button_import" 						text="Importación" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="¿Estás seguro de que quieres sobrescribir la ruta existente?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="La ruta se sobreescribe" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="¿Estás seguro de que quieres borrar la ruta '%s'?" />

@@ -25,6 +25,7 @@ function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "getClosestWayPoint", AutoDrive.getClosestWayPoint)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointsInRange", AutoDrive.getWayPointsInRange)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointIdsInRange", AutoDrive.getWayPointIdsInRange)
+    SpecializationUtil.registerFunction(vehicleType, "onDrawEditorMode", AutoDrive.onDrawEditorMode)
 end
 
 function AutoDrive.registerEvents(vehicleType)
@@ -268,9 +269,13 @@ function AutoDrive:saveToXMLFile(xmlFile, key)
 end
 
 function AutoDrive:onDraw()
-    if self.ad ~= nil then
-        if self.ad.showingHud ~= AutoDrive.Hud.showHud then
-            AutoDrive.Hud:toggleHud(self)
+    if self.ad.showingHud ~= AutoDrive.Hud.showHud then
+        AutoDrive.Hud:toggleHud(self)
+    end
+
+    if AutoDrive.Hud ~= nil then
+        if AutoDrive.Hud.showHud == true then
+            AutoDrive.Hud:drawHud(self)
         end
     end
 
@@ -284,10 +289,8 @@ function AutoDrive:onDraw()
         end
     end
 
-    AutoDrive:onDrawControlledVehicle(self)
-
-    if (self.ad.stateModule:isEditorModeEnabled() or self.ad.stateModule:isEditorShowEnabled()) and self == g_currentMission.controlledVehicle then
-        AutoDrive:onDrawCreationMode(self)
+    if (self.ad.stateModule:isEditorModeEnabled() or self.ad.stateModule:isEditorShowEnabled()) then
+        self:onDrawEditorMode()
     end
 
     if AutoDrive.experimentalFeatures.redLinePosition and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) and self.ad.frontNodeGizmo ~= nil then
@@ -300,92 +303,76 @@ function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
 end
 
-function AutoDrive:onDrawControlledVehicle(vehicle)
-    if AutoDrive.Hud ~= nil then
-        if AutoDrive.Hud.showHud == true then
-            AutoDrive.Hud:drawHud(vehicle)
-        end
+function AutoDrive:onDrawEditorMode()
+    local DrawingManager = ADDrawingManager
+
+    local startNode = self.ad.frontNode
+    if not AutoDrive.experimentalFeatures.redLinePosition then
+        startNode = self.components[1].node
     end
-end
-
-function AutoDrive:onDrawCreationMode(vehicle)
-    local AutoDriveDM = ADDrawingManager
-
-    local startNode = vehicle.ad.frontNode
-    if AutoDrive.getSetting("autoConnectStart") or not AutoDrive.experimentalFeatures.redLinePosition then
-        startNode = vehicle.components[1].node
-    end
-
     local x1, y1, z1 = getWorldTranslation(startNode)
+
     local dy = y1 + 3.5 - AutoDrive.getSetting("lineHeight")
-
-    AutoDrive.drawPointsInProximity(vehicle)
-
-    --Draw close destination (names)
     local maxDistance = AutoDrive.drawDistance
+    local arrowPosition = DrawingManager.arrows.position.start
+
+    --Draw close destinations
     for _, marker in pairs(ADGraphManager:getMapMarkers()) do
         local wp = ADGraphManager:getWayPointById(marker.id)
         if MathUtil.vector2Length(wp.x - x1, wp.z - z1) < maxDistance then
             Utils.renderTextAtWorldPosition(wp.x, wp.y + 4, wp.z, marker.name, getCorrectTextSize(0.013), 0)
-            if not (vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_EXTENDED) then
-                AutoDriveDM:addMarkerTask(wp.x, wp.y + 0.45, wp.z)
+            if not self.ad.stateModule:isInExtendedEditorMode() then
+                DrawingManager:addMarkerTask(wp.x, wp.y + 0.45, wp.z)
             end
         end
     end
 
-    if ADGraphManager:getWayPointById(1) ~= nil and not vehicle.ad.stateModule:isEditorShowEnabled() then
+    if ADGraphManager:getWayPointById(1) ~= nil and not self.ad.stateModule:isEditorShowEnabled() then
         local g = 0
-
         --Draw line to selected neighbor point
-        local neighbour = vehicle.ad.stateModule:getSelectedNeighbourPoint()
+        local neighbour = self.ad.stateModule:getSelectedNeighbourPoint()
         if neighbour ~= nil then
-            AutoDriveDM:addLineTask(x1, dy, z1, neighbour.x, neighbour.y, neighbour.z, 1, 1, 0)
+            DrawingManager:addLineTask(x1, dy, z1, neighbour.x, neighbour.y, neighbour.z, 1, 1, 0)
             g = 0.4
         end
 
         --Draw line to closest point
-        local closest, _ = vehicle:getClosestWayPoint()
+        local closest, _ = self:getClosestWayPoint()
         local wp = ADGraphManager:getWayPointById(closest)
         if wp ~= nil then
-            AutoDriveDM:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
-            AutoDriveDM:addSmallSphereTask(x1, dy, z1, 1, g, 0)
+            DrawingManager:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
+            DrawingManager:addSmallSphereTask(x1, dy, z1, 1, g, 0)
         end
     end
-end
 
-function AutoDrive.drawPointsInProximity(vehicle)
-    local AutoDriveDM = ADDrawingManager
-    local arrowPosition = AutoDriveDM.arrows.position.start
-    local pointsInProximity = vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)
-
-    for _, point in pairs(pointsInProximity) do
+    for _, point in pairs(self:getWayPointsInRange(0, maxDistance)) do
         local x = point.x
         local y = point.y
         local z = point.z
-        if vehicle.ad.stateModule:isInExtendedEditorMode() then
-            arrowPosition = AutoDriveDM.arrows.position.middle
+        if self.ad.stateModule:isInExtendedEditorMode() then
+            arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.mouseIsAtPos(point, 0.01) then
-                AutoDriveDM:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
+                DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
             else
-                if point.id == vehicle.ad.selectedNodeId then
-                    AutoDriveDM:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
+                if point.id == self.ad.selectedNodeId then
+                    DrawingManager:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
                 else
-                    AutoDriveDM:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
+                    DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
                 end
             end
 
             -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
             if AutoDrive.getSettingState("lineHeight") > 1 then
                 local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
-                AutoDriveDM:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
+                DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
 
                 if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
-                    AutoDriveDM:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
+                    DrawingManager:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
                 else
-                    if point.id == vehicle.ad.selectedNodeId then
-                        AutoDriveDM:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
+                    if point.id == self.ad.selectedNodeId then
+                        DrawingManager:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
                     else
-                        AutoDriveDM:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
+                        DrawingManager:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
                     end
                 end
             end
@@ -399,20 +386,20 @@ function AutoDrive.drawPointsInProximity(vehicle)
                     local nWp = ADGraphManager:getWayPointById(neighbor)
                     if table.contains(point.incoming, neighbor) then
                         --draw simple line
-                        AutoDriveDM:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                        DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        AutoDriveDM:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
-                        AutoDriveDM:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                        DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
+                        DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                     end
                 end
             end
         end
 
-        if not vehicle.ad.stateModule:isInExtendedEditorMode() then
+        if not self.ad.stateModule:isInExtendedEditorMode() then
             --just a quick way to highlight single (forgotten) points with no connections
             if (#point.out == 0) and (#point.incoming == 0) then
-                AutoDriveDM:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
+                DrawingManager:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
             end
         end
     end
@@ -570,14 +557,14 @@ function AutoDrive:updateWayPointsDistance()
     self.ad.distances.closest.distance = math.huge
 
     local x, _, z = getWorldTranslation(self.components[1].node)
-    
+
     --We should see some perfomance increase by localizing the sqrt/pow functions right here
     local sqrt = math.sqrt
-    local distanceFunc = function(a,b) 
-        return sqrt(a*a + b*b)
+    local distanceFunc = function(a, b)
+        return sqrt(a * a + b * b)
     end
     for _, wp in pairs(ADGraphManager:getWayPoints()) do
-        local distance = distanceFunc(wp.x - x, wp.z - z) 
+        local distance = distanceFunc(wp.x - x, wp.z - z)
         if distance < self.ad.distances.closest.distance then
             self.ad.distances.closest.distance = distance
             self.ad.distances.closest.wayPoint = wp

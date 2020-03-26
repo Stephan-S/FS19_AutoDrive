@@ -157,8 +157,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Менеджер маршрутов" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Назначить название маршрута:" />
-		<text name="gui_ad_button_export" 						text="Экспорт" />
-		<text name="gui_ad_button_import" 						text="Импорт" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Вы уверены, что хотите перезаписать существующий маршрут?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Перезапись маршрута" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Вы уверены, что хотите удалить маршрут '%s'?" />

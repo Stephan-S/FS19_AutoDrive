@@ -157,8 +157,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Gestionnaire d'itinéraires" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Entrez le nom de l'itinéraire:" />
-		<text name="gui_ad_button_export" 						text="Exporter" />
-		<text name="gui_ad_button_import" 						text="Importer" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Voulez-vous vraiment remplacer les itinéraires existant ?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Ecrasement des itinéraires" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Voulez-vous vraiment supprimer l'itinéraire '%s'?" />

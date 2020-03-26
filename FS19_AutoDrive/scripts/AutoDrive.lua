@@ -146,7 +146,7 @@ function AutoDrive:loadMap(name)
 
 	FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle)
 
-	ADRoutesManager.load()
+	ADRoutesManager:load()
 	ADDrawingManager:load()
 	ADMessagesManager:load()
 	ADHarvestManager:load()
@@ -194,7 +194,7 @@ function AutoDrive:deleteMap()
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
-	ADRoutesManager.delete()
+	ADRoutesManager:delete()
 	if g_server ~= nil then
 		delete(AutoDrive.adXml)
 	end
@@ -255,6 +255,7 @@ function AutoDrive:update(dt)
 	ADHarvestManager:update(dt)
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
+	ADRoutesManager:update(dt)
 end
 
 function AutoDrive:draw()

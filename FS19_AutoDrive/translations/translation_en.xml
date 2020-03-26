@@ -157,8 +157,8 @@
 
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />

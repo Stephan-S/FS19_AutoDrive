@@ -157,8 +157,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Voeg de naam van de route in:" />
-		<text name="gui_ad_button_export" 						text="Exporteer" />
-		<text name="gui_ad_button_import" 						text="Importeer" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Weet u zeker dat u de bestaande route wilt overschrijven?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route overschrijven" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Weet u zeker dat u de route wilt verwijderen '%s'?" />

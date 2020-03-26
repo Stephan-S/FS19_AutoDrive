@@ -157,8 +157,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Inserisci nome del percorso:" />
-		<text name="gui_ad_button_export" 						text="Esporta" />
-		<text name="gui_ad_button_import" 						text="Importa" />
+		<text name="gui_ad_button_export" 						text="Salva" />
+		<text name="gui_ad_button_import" 						text="Carica" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Sei sicuro di voler sovrascrivere i percorsi esistent1?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Sovrascrittura percorsi" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Sei sicuro di voler cancellare il percorso '%s'?" />
