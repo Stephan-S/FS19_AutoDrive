@@ -435,9 +435,7 @@ function PathFinderModule:checkGridCell(cell)
     local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
     if self.isSecondChasingVehicle then
         gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
-    end
-    local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
-        
+    end   
     local worldPos = self:gridLocationToWorldLocation(cell)
     if cell.incoming ~= nil then
         local worldPosPrevious = self:gridLocationToWorldLocation(cell.incoming)
@@ -445,13 +443,15 @@ function PathFinderModule:checkGridCell(cell)
     end
     
     if not cell.hasCollision then
-        local shapeDefinition = self:getShapeDefByDirectionType(cell, corners)
+        local shapeDefinition = self:getShapeDefByDirectionType(cell)
         local shapes =  overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 224, true, true, true)
         cell.hasCollision = (shapes > 0)
     end
 
     --only check for restriction if not already blocked due to collision
-    if not cell.hasCollision then
+    if not cell.hasCollision then        
+        local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
+     
         --Increase checked cell size for vehicles that follow an already active unloader -> prevent deadlocks when meeting on the crop's edge while unloading harvester
         if self.avoidFruitSetting and not self.fallBackMode then
             self:checkForFruitInArea(cell, corners)
@@ -690,16 +690,23 @@ function PathFinderModule:drawDebugForPF()
             end
         end
 
-        --[[
+        
         local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
         if self.isSecondChasingVehicle then
             gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
         end
+        --[[
         local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
         AutoDriveDM:addLineTask(corners[1].x, pointA.y+1, corners[1].z, corners[2].x, pointA.y+1, corners[2].z, 0, 1, 0)
         AutoDriveDM:addLineTask(corners[2].x, pointA.y+1, corners[2].z, corners[3].x, pointA.y+1, corners[3].z, 1, 0, 0)
         AutoDriveDM:addLineTask(corners[3].x, pointA.y+1, corners[3].z, corners[4].x, pointA.y+1, corners[4].z, 0, 0, 1)
         AutoDriveDM:addLineTask(corners[4].x, pointA.y+1, corners[4].z, corners[1].x, pointA.y+1, corners[1].z, 1, 0, 1)
+        local shapeDefinition = self:getShapeDefByDirectionType(cell)
+        local red = 0
+        if cell.hasCollision then
+            red = 1
+        end
+        DebugUtil.drawOverlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, red, 0, 0)
         --]]
     end
 
@@ -812,7 +819,7 @@ function PathFinderModule:drawDebugForCreatedRoute()
     end
 end
 
-function PathFinderModule:getShapeDefByDirectionType(cell, corners)
+function PathFinderModule:getShapeDefByDirectionType(cell)
     local shapeDefinition = {}
     shapeDefinition.angleRad = math.atan2(-self.targetVector.z, self.targetVector.x)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
@@ -860,6 +867,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell, corners)
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
 
+    local corners = self:getCornersFromShapeDefinition(shapeDefinition)
     if corners ~= nil then
         for _, corner in pairs(corners) do
             shapeDefinition.y = math.max(shapeDefinition.y, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner.x, 1, corner.z))
@@ -867,6 +875,16 @@ function PathFinderModule:getShapeDefByDirectionType(cell, corners)
     end
 
     return shapeDefinition
+end
+
+function PathFinderModule:getCornersFromShapeDefinition(shapeDefinition)
+    local corners = {}
+    corners[1] = {x=shapeDefinition.x + (-shapeDefinition.widthX), z=shapeDefinition.z + (-shapeDefinition.widthZ)}
+    corners[2] = {x=shapeDefinition.x + ( shapeDefinition.widthX), z=shapeDefinition.z + ( shapeDefinition.widthZ)}
+    corners[3] = {x=shapeDefinition.x + (-shapeDefinition.widthX), z=shapeDefinition.z + ( shapeDefinition.widthZ)}
+    corners[4] = {x=shapeDefinition.x + ( shapeDefinition.widthX), z=shapeDefinition.z + (-shapeDefinition.widthZ)}
+
+    return corners
 end
 
 function PathFinderModule:getCorners(cell, vectorX, vectorZ)
