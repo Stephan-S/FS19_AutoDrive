@@ -30,6 +30,7 @@ function AutoDriveSync:readStream(streamId)
     local wayPoints, mapMarkers, groups = AutoDriveSync.streamReadGraph(streamId)
     ADGraphManager:setWayPoints(wayPoints)
     ADGraphManager:setMapMarkers(mapMarkers)
+    AutoDrive:notifyDestinationListeners()
     ADGraphManager:setGroups(groups)
     AutoDrive.Hud.lastUIScale = 0
     AutoDriveSync:superClass().readStream(self, streamId)

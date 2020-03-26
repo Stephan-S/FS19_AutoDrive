@@ -34,6 +34,7 @@ function AutoDriveRoutesUploadEvent:run(connection)
 		-- If the event is coming from the server, both clients and server have to delete the way point
 		ADGraphManager:setWayPoints(self.wayPoints)
 		ADGraphManager:setMapMarkers(self.mapMarkers)
+		AutoDrive:notifyDestinationListeners()
 		ADGraphManager:setGroups(self.groups)
 	end
 end

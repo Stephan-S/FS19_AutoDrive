@@ -321,9 +321,7 @@ function AutoDrive:onDrawEditorMode()
         local wp = ADGraphManager:getWayPointById(marker.id)
         if MathUtil.vector2Length(wp.x - x1, wp.z - z1) < maxDistance then
             Utils.renderTextAtWorldPosition(wp.x, wp.y + 4, wp.z, marker.name, getCorrectTextSize(0.013), 0)
-            if not self.ad.stateModule:isInExtendedEditorMode() then
-                DrawingManager:addMarkerTask(wp.x, wp.y + 0.45, wp.z)
-            end
+            DrawingManager:addMarkerTask(wp.x, wp.y + 0.45, wp.z)
         end
     end
 
@@ -396,11 +394,10 @@ function AutoDrive:onDrawEditorMode()
             end
         end
 
-        if not self.ad.stateModule:isInExtendedEditorMode() then
-            --just a quick way to highlight single (forgotten) points with no connections
-            if (#point.out == 0) and (#point.incoming == 0) then
-                DrawingManager:addSphereTask(x, y, z, 1.5, 1, 0, 0, 0.1)
-            end
+        --just a quick way to highlight single (forgotten) points with no connections
+        if (#point.out == 0) and (#point.incoming == 0) then
+            y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z) + 0.5
+            DrawingManager:addCrossTask(x, y, z)
         end
     end
 end

@@ -43,6 +43,13 @@ ADDrawingManager.markers.objects = FlaggedTable:new()
 ADDrawingManager.markers.tasks = {}
 ADDrawingManager.markers.lastDrawZero = true
 
+ADDrawingManager.cross = {}
+ADDrawingManager.cross.fileName = "cross.i3d"
+ADDrawingManager.cross.buffer = Buffer:new()
+ADDrawingManager.cross.objects = FlaggedTable:new()
+ADDrawingManager.cross.tasks = {}
+ADDrawingManager.cross.lastDrawZero = true
+
 function ADDrawingManager:load()
     -- preloading and storing in chache I3D files
     self.i3DBaseDir = AutoDrive.directory .. self.i3DBaseDir
@@ -85,6 +92,12 @@ function ADDrawingManager:addMarkerTask(x, y, z)
     -- storing task
     local hash = string.format("m%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
     table.insert(self.markers.tasks, {x = x, y = y, z = z, hash = hash})
+end
+
+function ADDrawingManager:addCrossTask(x, y, z)
+    -- storing task
+    local hash = string.format("c%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
+    table.insert(self.cross.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
 function ADDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
@@ -134,6 +147,10 @@ function ADDrawingManager:draw()
     tTime = netGetTime()
     self.debug["Markers"] = self:drawObjects(self.markers, self.drawMarker, self.initObject)
     self.debug["Markers"].Time = netGetTime() - tTime
+
+    tTime = netGetTime()
+    self.debug["Cross"] = self:drawObjects(self.cross, self.drawCross, self.initObject)
+    self.debug["Cross"].Time = netGetTime() - tTime
 
     self.debug["TotalTime"] = netGetTime() - time
     if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_RENDERINFO) then
@@ -272,6 +289,11 @@ function ADDrawingManager:drawSmallSphere(id, task)
 end
 
 function ADDrawingManager:drawMarker(id, task)
+    setTranslation(id, task.x, task.y + self.yOffset, task.z)
+    setVisibility(id, true)
+end
+
+function ADDrawingManager:drawCross(id, task)
     setTranslation(id, task.x, task.y + self.yOffset, task.z)
     setVisibility(id, true)
 end
