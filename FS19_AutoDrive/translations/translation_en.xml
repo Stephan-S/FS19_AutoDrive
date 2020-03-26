@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Increase loop counter" />
 		<text name="input_ADParkVehicle"						text="AD: Park vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="hud_avoidFruit"								text="AD: Avoid fruit" />
 		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
 		<text name="AD_Driver_of"								text="Driver of" />

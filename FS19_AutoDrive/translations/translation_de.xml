@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Anzahl Wiederholungen erhöhen" />
 		<text name="input_ADParkVehicle"						text="AD: Fahrzeug parken" />
 		<text name="input_ADSwapTargets"						text="AD: Ziele tauschen" />
+		<text name="hud_avoidFruit"								text="AD: Fruchtumfahrung" />
 		<text name="AD_parkVehicle_noPosSet"					text="Kein Parkplatz zugewiesen. Bitte mit rechter Maustaste auf Button festlegen. (Aktuelles Ziel)" />
 		<text name="AD_parkVehicle_selected"					text="Als Parkplatz zugewiesen: " />
 		<text name="AD_Driver_of"								text="Der Fahrer von" />

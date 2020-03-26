@@ -15,6 +15,7 @@ source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/HudElements/HudSettingsButton.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))

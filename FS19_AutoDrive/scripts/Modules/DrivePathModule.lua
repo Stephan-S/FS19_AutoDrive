@@ -4,7 +4,6 @@ ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
-ADDrivePathModule.SPEED_ON_FIELD = 100
 
 function ADDrivePathModule:new(vehicle)
     local o = {}
@@ -172,7 +171,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
 
     if AutoDrive.checkIsOnField(x, y, z) then
-        self.speedLimit = math.min(ADDrivePathModule.SPEED_ON_FIELD, self.speedLimit)
+        self.speedLimit = math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), self.speedLimit)
     end
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION

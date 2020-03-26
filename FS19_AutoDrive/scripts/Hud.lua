@@ -185,21 +185,21 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_createMapMarker", "input_editMapMarker", "input_ADDebugCreateMapMarker", 1, false)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
 
+	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+		self:AddSettingsButton("avoidFruit", "hud_avoidFruit", 1, true)
+		self.buttonCounter = self.buttonCounter + 1
+		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
+	end
+
 	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
-	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight))
-	--self:AddButton("input_continue", nil,"input_AD_continue", 1, true);
-	--self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true);
-	--self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true);
-
-	--local parkX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth;
-	--table.insert(self.hudElements, ADHudButton:new(parkX, self.row4, self.buttonWidth, self.buttonHeight, "input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true));
-
-	--local incCounterX = self.posX + (self.cols - 2) * self.borderX + (self.cols - 3) * self.buttonWidth;
-	--table.insert(self.hudElements, ADHudButton:new(incCounterX, self.row4, self.buttonWidth, self.buttonHeight, "input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true));
-
-	--local continueX = self.posX + (self.cols - 3) * self.borderX + (self.cols - 4) * self.buttonWidth;
-	--table.insert(self.hudElements, ADHudButton:new(continueX, self.row4, self.buttonWidth, self.buttonHeight, "input_continue", nil, "input_AD_continue", 1, true));
+	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, false))
+	
+	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+		speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
+		speedY = self.posY + (2) * self.borderY + (1) * self.buttonHeight
+		table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, true))
+	end
 
 	-- Refreshing layer sequence must be called, after all elements have been added
 	self:refreshHudElementsLayerSequence()
@@ -217,6 +217,20 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, 
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
 	--toolTip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
 	table.insert(self.hudElements, ADHudButton:new(posX, posY, self.buttonWidth, self.buttonHeight, primaryAction, secondaryAction, toolTip, state, visible))
+end
+
+function AutoDriveHud:AddSettingsButton(setting, toolTip, state, visible)
+	self.buttonCounter = self.buttonCounter + 1
+	self.colCurrent = self.buttonCounter % self.cols
+	if self.colCurrent == 0 then
+		self.colCurrent = self.cols
+	end
+	self.rowCurrent = math.ceil(self.buttonCounter / self.cols)
+
+	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
+	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
+	--toolTip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
+	table.insert(self.hudElements, ADHudSettingsButton:new(posX, posY, self.buttonWidth, self.buttonHeight, setting, toolTip, state, visible))
 end
 
 function AutoDriveHud:refreshHudElementsLayerSequence()
