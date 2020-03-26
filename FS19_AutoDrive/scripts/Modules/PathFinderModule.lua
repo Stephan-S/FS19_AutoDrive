@@ -432,6 +432,12 @@ end
 
 function PathFinderModule:checkGridCell(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
+    local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
+    if self.isSecondChasingVehicle then
+        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
+    end
+    local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
+        
     local worldPos = self:gridLocationToWorldLocation(cell)
     if cell.incoming ~= nil then
         local worldPosPrevious = self:gridLocationToWorldLocation(cell.incoming)
@@ -439,7 +445,7 @@ function PathFinderModule:checkGridCell(cell)
     end
     
     if not cell.hasCollision then
-        local shapeDefinition = self:getShapeDefByDirectionType(cell)
+        local shapeDefinition = self:getShapeDefByDirectionType(cell, corners)
         local shapes =  overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 224, true, true, true)
         cell.hasCollision = (shapes > 0)
     end
@@ -447,12 +453,6 @@ function PathFinderModule:checkGridCell(cell)
     --only check for restriction if not already blocked due to collision
     if not cell.hasCollision then
         --Increase checked cell size for vehicles that follow an already active unloader -> prevent deadlocks when meeting on the crop's edge while unloading harvester
-        local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
-        if self.isSecondChasingVehicle then
-            gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
-        end
-
-        local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
         if self.avoidFruitSetting and not self.fallBackMode then
             self:checkForFruitInArea(cell, corners)
         end
@@ -812,7 +812,7 @@ function PathFinderModule:drawDebugForCreatedRoute()
     end
 end
 
-function PathFinderModule:getShapeDefByDirectionType(cell)
+function PathFinderModule:getShapeDefByDirectionType(cell, corners)
     local shapeDefinition = {}
     shapeDefinition.angleRad = math.atan2(-self.targetVector.z, self.targetVector.x)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
@@ -859,6 +859,12 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     local increaseCellFactor = 1.3
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
+
+    if corners ~= nil then
+        for _, corner in pairs(corners) do
+            shapeDefinition.y = math.max(shapeDefinition.y, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corner.x, 1, corner.z))
+        end
+    end
 
     return shapeDefinition
 end
