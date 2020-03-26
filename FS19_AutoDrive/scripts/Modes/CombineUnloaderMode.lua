@@ -131,6 +131,9 @@ function CombineUnloaderMode:getNextTask()
         nextTask = self:getTaskAfterUnload(filledToUnload)
     elseif self.state == self.STATE_FOLLOW_CURRENT_UNLOADER then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_FOLLOW_CURRENT_UNLOADER")
+        if self.targetUnloader ~= nil then
+            self.targetUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
+        end
         self:setToWaitForCall()
     elseif self.state == self.STATE_EXIT_FIELD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_EXIT_FIELD")
@@ -190,6 +193,7 @@ function CombineUnloaderMode:driveToUnloader(unloader)
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.vehicle.ad.taskModule:addTask(DriveToVehicleTask:new(self.vehicle, unloader))
         unloader.ad.modes[AutoDrive.MODE_UNLOAD]:registerFollowingUnloader(self.vehicle)
+        self.targetUnloader = unloader
         self.state = self.STATE_FOLLOW_CURRENT_UNLOADER
     end
 end

@@ -105,13 +105,14 @@ end
 function ADDrivePathModule:update(dt)
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-        if self:isCloseToWaypoint() then
-            self:handleReachedWayPoint()
-        end
 
         self:followWaypoints(dt)
         self:checkActiveAttributesSet()
         self:checkIfStuck(dt)
+
+        if self:isCloseToWaypoint() then
+            self:handleReachedWayPoint()
+        end
     end
 end
 
