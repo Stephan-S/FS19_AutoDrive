@@ -157,8 +157,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Routen Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Routennamen eingeben:" />
-		<text name="gui_ad_button_export" 						text="Außer" />
-		<text name="gui_ad_button_import" 						text="Gebühr" />
+		<text name="gui_ad_button_export" 						text="Speichern" />
+		<text name="gui_ad_button_import" 						text="Laden" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Möchtest du wirklich den aktuellen Kurs überschreiben?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route überschreiben" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Möchtest du diese Route wirklich löschen '%s'?" />
