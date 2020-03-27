@@ -14,5 +14,4 @@ jobs:
        ls
        zip -r ../release.zip .
     - name: Uploading the mod zip to server
-      run: |
-        curl -i -F 'file=@release.zip' 'https://host-my-bits.com/HostedFiles/Upload/1?key=${{ secrets.upload_key }}'
+      run: curl -i -F "file=@release.zip" "https://host-my-bits.com/HostedFiles/Upload/1?key=${{ secrets.upload_key }}"
