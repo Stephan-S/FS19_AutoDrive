@@ -9,16 +9,21 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/Sync.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Specialization.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Sync.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/XML.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Settings.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/DijkstraLive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/ExternalInterface.lua", g_currentModDirectory))
 
-source(Utils.getFilename("scripts/HudElements/GenericHudElement.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/HudElements/HudButton.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/HudElements/HudSettingsButton.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/HudElements/HudIcon.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/HudElements/HudSpeedmeter.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/HudElements/PullDownList.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud/GenericHudElement.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud/HudButton.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud/HudSettingsButton.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud/HudIcon.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud/HudSpeedmeter.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Hud/PullDownList.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Events/GroupsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/UserDataEvent.lua", g_currentModDirectory))
@@ -92,6 +97,21 @@ source(Utils.getFilename("scripts/Modes/PickupAndDeliverMode.lua", g_currentModD
 source(Utils.getFilename("scripts/Modes/LoadMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/BGAMode.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modes/CombineUnloaderMode.lua", g_currentModDirectory))
+
+source(Utils.getFilename("scripts/Sensors/VirtualSensors.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Sensors/CollSensor.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Sensors/FruitSensor.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Sensors/FieldSensor.lua", g_currentModDirectory))
+
+source(Utils.getFilename("scripts/Gui/RoutesManagerGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/EnterDriverNameGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/EnterGroupNameGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/EnterTargetNameGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/EnterDestinationFilterGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/SettingsPage.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/DebugSettingsPage.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/ExperimentalFeaturesSettingsPage.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/Settings.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version

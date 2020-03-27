@@ -73,16 +73,6 @@ AutoDrive.actions = {
 }
 
 function AutoDrive:loadMap(name)
-	source(Utils.getFilename("scripts/XML.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Settings.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/ExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/VirtualSensors.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/CollSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/FruitSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/FieldSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/DijkstraLive.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
-
 	if g_server ~= nil then
 		AutoDrive.AutoDriveSync = AutoDriveSync:new(g_server ~= nil, g_client ~= nil)
 		AutoDrive.AutoDriveSync:register(false)

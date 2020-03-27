@@ -1,13 +1,5 @@
 function AutoDrive:loadGUI()
-	source(Utils.getFilename("gui/routesManagerGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterDriverNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterGroupNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterTargetNameGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/enterDestinationFilterGUI.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/settingsPage.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/debugSettingsPage.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/experimentalFeaturesSettingsPage.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/settings.lua", AutoDrive.directory))
+	GuiOverlay.loadOverlay = AutoDrive.overwrittenStaticFunction(GuiOverlay.loadOverlay, AutoDrive.GuiOverlay_loadOverlay)
 
 	g_gui:loadProfiles(AutoDrive.directory .. "gui/guiProfiles.xml")
 	AutoDrive.gui = {}
@@ -52,7 +44,6 @@ function AutoDrive.GuiOverlay_loadOverlay(superFunc, ...)
 
 	return overlay
 end
-GuiOverlay.loadOverlay = AutoDrive.overwrittenStaticFunction(GuiOverlay.loadOverlay, AutoDrive.GuiOverlay_loadOverlay)
 
 function AutoDrive.onOpenSettings()
 	if AutoDrive.gui.ADSettings.isOpen then
