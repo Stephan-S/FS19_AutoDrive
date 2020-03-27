@@ -37,7 +37,7 @@ function FollowCombineTask:update(dt)
 
     self:updateStates()
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
-    local reachedFieldBorder = false --not self.vehicle.ad.sensors.frontSensorField:pollInfo()
+    local reachedFieldBorder = false
     if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombineHeading < 5 and self.fillLevel > 2000) then
         if self.state ~= FollowCombineTask.STATE_REVERSING then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
@@ -46,6 +46,7 @@ function FollowCombineTask:update(dt)
         end
     end
     if self.combineFillPercent >= CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING then
+        self.stayOnField = true
         self:finished()
     end
 
@@ -74,6 +75,7 @@ function FollowCombineTask:update(dt)
                 self.state = FollowCombineTask.STATE_CHASING
                 self.chaseTimer:timer(false)
             else
+                self.stayOnField = true
                 self:finished()
             end
         end
@@ -92,6 +94,7 @@ function FollowCombineTask:update(dt)
             if self.angleToCombineHeading < 40 then
                 self.state = FollowCombineTask.STATE_CHASING
             else
+                self.stayOnField = true
                 self:finished()
             end
         end

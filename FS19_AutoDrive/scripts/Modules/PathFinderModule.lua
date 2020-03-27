@@ -5,7 +5,7 @@ PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
 PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 35
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
-PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 12
+PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 16
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 6
 PathFinderModule.PATHFINDER_START_DISTANCE = 7
 
@@ -192,7 +192,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     local startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo()
     local endIsOnField = AutoDrive.checkIsOnField(targetX, vehicleWorldY, targetZ)
 
-    self.restrictToField = endIsOnField and AutoDrive.getSetting("restrictToField") --and startIsOnField
+    self.restrictToField = endIsOnField and AutoDrive.getSetting("restrictToField", self.vehicle) --and startIsOnField
 
     self.goingToPipe = false
     self.chasingVehicle = false
@@ -207,11 +207,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
         self.reachedFieldBorder = startIsOnField
         self.targetFieldPos = {x = g_farmlandManager.farmlands[self.targetFieldId].xWorldPos, z = g_farmlandManager.farmlands[self.targetFieldId].zWorldPos}
 
-        self.fieldCellZ = (((self.targetFieldPos.x - self.startX) / self.vectorX.x) * self.vectorX.z - self.targetFieldPos.z + self.startZ) / (((self.vectorZ.x / self.vectorX.x) * self.vectorX.z) - self.vectorZ.z)
-        self.fieldCellX = (self.targetFieldPos.z - self.startZ - self.fieldCellZ * self.vectorZ.z) / self.vectorX.z
-
-        self.fieldCellX = AutoDrive.round(self.fieldCellX)
-        self.fieldCellZ = AutoDrive.round(self.fieldCellZ)
+        self.fieldCell = self:worldLocationToGridLocation(self.targetFieldPos.x, self.targetFieldPos.z)
     else
         self.reachedFieldBorder = true
     end
@@ -286,7 +282,7 @@ function PathFinderModule:update(dt)
     end
 
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-        if self.isFinished and self.smoothDone then
+        if self.isFinished and self.smoothDone and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
             self:drawDebugForCreatedRoute()
         else
             self:drawDebugForPF()
@@ -303,6 +299,9 @@ function PathFinderModule:update(dt)
     self.steps = self.steps + 1
 
     if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
+        if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+            return
+        end
         --[[ We need some better logic here. 
         Some situations might be solved by the module itself by either
             a) 'fallBackMode (ignore fruit and field restrictions)'
@@ -357,7 +356,7 @@ function PathFinderModule:update(dt)
                 if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) then
                     local distance = 0
                     if not self.reachedFieldBorder and self.targetFieldId ~= nil then
-                        distance = distanceFunc(self.fieldCellX - cell.x, self.fieldCellZ - cell.z)
+                        distance = distanceFunc(self.fieldCell.x - cell.x, self.fieldCell.z - cell.z)
                     else
                         distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
                     end
@@ -449,7 +448,7 @@ function PathFinderModule:checkGridCell(cell)
     end
 
     --only check for restriction if not already blocked due to collision
-    if not cell.hasCollision then        
+    if not cell.hasCollision then
         local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
      
         --Increase checked cell size for vehicles that follow an already active unloader -> prevent deadlocks when meeting on the crop's edge while unloading harvester

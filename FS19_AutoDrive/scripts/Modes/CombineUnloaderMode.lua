@@ -55,6 +55,7 @@ end
 function CombineUnloaderMode:handleFinishedTask()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:handleFinishedTask")
     self.vehicle.ad.trailerModule:reset()
+    self.lastTask = self.activeTask
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -214,7 +215,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         self.combine = nil
     else
         -- Should we park in the field?
-        if AutoDrive.getSetting("parkInField", self.vehicle) then
+        if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then
             -- If we are in fruit, we should clear it
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
                 nextTask = ClearCropTask:new(self.vehicle)
@@ -223,6 +224,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
                 self:setToWaitForCall()
             end
         else
+            ADHarvestManager:unregisterAsUnloader(self.vehicle)
             nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             self.state = self.STATE_DRIVE_TO_START
         end
@@ -315,6 +317,9 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z
+            --else
+                --sideIndex = self.CHASEPOS_REAR
+                --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
             end
         else
             sideIndex = self.CHASEPOS_REAR

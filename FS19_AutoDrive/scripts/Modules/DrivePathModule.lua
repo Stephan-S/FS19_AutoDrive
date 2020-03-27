@@ -155,6 +155,9 @@ function ADDrivePathModule:followWaypoints(dt)
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
 
     self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
+    if AutoDrive.checkIsOnField(x, y, z) then
+        self.speedLimit = self.vehicle.ad.stateModule:getFieldSpeedLimit() --math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), self.speedLimit)
+    end
     self.acceleration = 1
     self.distanceToLookAhead = 8
     if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
@@ -170,9 +173,6 @@ function ADDrivePathModule:followWaypoints(dt)
     self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
 
 
-    if AutoDrive.checkIsOnField(x, y, z) then
-        self.speedLimit = math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), self.speedLimit)
-    end
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then

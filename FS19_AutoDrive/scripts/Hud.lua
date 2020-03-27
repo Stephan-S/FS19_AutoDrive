@@ -417,6 +417,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			node.y = node.y + 0.1
 			collisions = overlapBox(node.x, node.y - 0.3, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
+		ADGraphManager:markChanges()
 	end
 end
 
