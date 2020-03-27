@@ -1,0 +1,16 @@
+name: Zip Builder (Release)
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Zipping the mod folder
+      run: |
+       cd FS19_AutoDrive
+       ls
+       zip -r ../release.zip .
+    - name: Uploading the mod zip to server
+      run: curl -i -F "file=@release.zip" "https://host-my-bits.com/HostedFiles/Upload/2?key=${{ secrets.upload_key }}&v=${GITHUB_REF##*/}"
