@@ -54,7 +54,6 @@ function ADHudSettingsButton:act(vehicle, posX, posY, isDown, isUp, button)
             end
             AutoDrive.setSettingState(self.setting, currentState, vehicle)
             AutoDriveUpdateSettingsEvent.sendEvent(vehicle)
-            AutoDrive.gui.ADVehicleSettingsPage:updateMyGUISettings()
         end
     end
 

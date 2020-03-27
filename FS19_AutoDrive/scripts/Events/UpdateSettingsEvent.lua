@@ -44,10 +44,9 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 		end
 	end
 
-	local includesVehicleSpecificSettings = streamReadBool(streamId)
 	local vehicle = nil
 
-	if includesVehicleSpecificSettings then
+	if streamReadBool(streamId) then
 		vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
 		if vehicle ~= nil then
 			-- Reading vehicle confings
@@ -61,15 +60,11 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 		end
 	end
 
-	-- If the current user is editing the settings the gui will be closed and then opened to show new settings
-	if g_gui.currentGui ~= nil and g_gui.currentGui.name == "ADSettings" then
-		g_gui:showGui()
-		g_gui:showGui("ADSettings")
-	end
+	AutoDrive.gui.ADSettings:forceLoadGUISettings()
 
 	-- Server have to broadcast to all clients
 	if g_server ~= nil then
-		g_server:broadcastEvent(AutoDriveUpdateSettingsEvent:new(vehicle))
+		AutoDriveUpdateSettingsEvent.sendEvent(vehicle)
 	end
 end
 
@@ -82,4 +77,5 @@ function AutoDriveUpdateSettingsEvent.sendEvent(vehicle)
 		-- Client have to send to server
 		g_client:getServerConnection():sendEvent(event)
 	end
+	AutoDrive.gui.ADSettings:forceLoadGUISettings()
 end
