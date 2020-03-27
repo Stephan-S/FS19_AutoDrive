@@ -1169,7 +1169,7 @@ function PathFinderModule.checkSlopeAngle(x1, z1, x2, z2)
     local angleBetween = math.atan(math.abs(terrain1 - terrain2) / length)
     local angleBetweenCenter = math.atan(math.abs(terrain3 - terrain2) / lengthMiddle)
 
-    if (angleBetween * 3) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 3) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+    if (angleBetween * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
         return true
     end
     return false

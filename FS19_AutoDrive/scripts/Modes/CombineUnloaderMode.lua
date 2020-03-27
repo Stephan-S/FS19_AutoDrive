@@ -242,7 +242,7 @@ end
 
 function CombineUnloaderMode:getPipeChasePosition()
     local worldX, worldY, worldZ = getWorldTranslation(self.combine.components[1].node)
-    --local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local vehicleX, _, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
     local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
@@ -269,14 +269,21 @@ function CombineUnloaderMode:getPipeChasePosition()
     end
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        if (not leftBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
+        
+        local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
+        local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
+
+        if (not leftBlocked) and angleToLeftChaseSide < angleToRearChaseSide then
+            chaseNode = leftChasePos
             sideIndex = self.CHASEPOS_LEFT
         elseif (not rightBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
+            chaseNode = rightChasePos
             sideIndex = self.CHASEPOS_RIGHT
         else
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
+            chaseNode = rearChasePos
             sideIndex = self.CHASEPOS_REAR
         end
     else
@@ -351,6 +358,14 @@ function CombineUnloaderMode:getAngleToCombine()
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineX - vehicleX, z = combineZ - vehicleZ}))
+end
+
+function CombineUnloaderMode:getAngleToChasePos(chasePos)
+    local worldX, _, worldZ = getWorldTranslation(self.vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+    local angle = AutoDrive.angleBetween({x = rx, z = rz}, {x = chasePos.x - worldX, z = chasePos.z - worldZ})
+
+    return angle
 end
 
 function CombineUnloaderMode:getFollowingUnloader()

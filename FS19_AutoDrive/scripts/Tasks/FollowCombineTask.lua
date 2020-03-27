@@ -91,7 +91,7 @@ function FollowCombineTask:update(dt)
         if self.waitForPassByTimer:done() then
             self.waitForPassByTimer:timer(false)
             self.chaseTimer:timer(false)
-            if self.angleToCombineHeading < 40 then
+            if (self.angleToCombineHeading + self.angleToCombine) < 180 then
                 self.state = FollowCombineTask.STATE_CHASING
             else
                 self.stayOnField = true
@@ -124,7 +124,7 @@ function FollowCombineTask:updateStates()
         self.caughtCurrentChaseSide = false
         self.lastChaseSide = self.chaseSide
     end
-    -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get muche closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
+    -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get much closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
     if self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and not self.caughtCurrentChaseSide then
         self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 1)
     end

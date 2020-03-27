@@ -180,7 +180,7 @@ function ADDrivePathModule:followWaypoints(dt)
         maxSpeedDiff = 1
     else
         if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
-            self.speedLimit = math.min(5, self.speedLimit)
+            self.speedLimit = math.min(15, self.speedLimit)
             maxSpeedDiff = 3
         else
             if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
