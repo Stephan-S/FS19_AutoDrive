@@ -211,6 +211,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     else
         self.reachedFieldBorder = true
     end
+    self.chainStartToTarget = {}
 end
 
 function PathFinderModule:restartAtNextWayPoint()
@@ -282,7 +283,7 @@ function PathFinderModule:update(dt)
     end
 
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-        if self.isFinished and self.smoothDone and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
+        if self.isFinished and self.smoothDone and self.wayPoints ~= nil and #self.chainStartToTarget > 0 and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
             self:drawDebugForCreatedRoute()
         else
             self:drawDebugForPF()
@@ -298,10 +299,7 @@ function PathFinderModule:update(dt)
 
     self.steps = self.steps + 1
 
-    if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
-        if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-            return
-        end
+    if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then        
         --[[ We need some better logic here. 
         Some situations might be solved by the module itself by either
             a) 'fallBackMode (ignore fruit and field restrictions)'
@@ -332,6 +330,9 @@ function PathFinderModule:update(dt)
             self.fallBackMode = true
             self:autoRestart()
         else
+            if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+                return
+            end
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: no -> fallBackModeAllowed: no -> aborting now")
             self:abort()
         end
@@ -458,9 +459,6 @@ function PathFinderModule:checkGridCell(cell)
 
         if not cell.isRestricted then
             local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius, self.vehicle)
-            if cellUsedByVehiclePath then
-                print("cell used by vehicle")
-            end
             cell.isRestricted = cellUsedByVehiclePath
             self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
         end

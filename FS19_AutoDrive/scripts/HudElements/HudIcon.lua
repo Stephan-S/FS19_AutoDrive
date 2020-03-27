@@ -77,8 +77,14 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         else
             textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
         end
-    elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON and AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
+    --elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON and AutoDrive.experimentalFeatures.fastExtendedEditorMode then
+        --textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
+    end
+
+    if vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+        if vehicle.ad.pathFinderModule.steps > 0 then
+            textToShow = textToShow .. " - " .. "Fallback: " .. AutoDrive.boolToString(vehicle.ad.pathFinderModule.fallBackMode)
+        end
     end
 
     local textWidth = getTextWidth(adFontSize, textToShow)
