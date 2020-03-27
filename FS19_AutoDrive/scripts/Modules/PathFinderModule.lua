@@ -457,7 +457,10 @@ function PathFinderModule:checkGridCell(cell)
         end
 
         if not cell.isRestricted then
-            local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius)
+            local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius, self.vehicle)
+            if cellUsedByVehiclePath then
+                print("cell used by vehicle")
+            end
             cell.isRestricted = cellUsedByVehiclePath
             self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
         end
@@ -1116,7 +1119,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 end
 
                 local cellBox = AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
-                hasCollision = hasCollision or AutoDrive.checkForVehiclePathInBox(cellBox, self.minTurnRadius)
+                hasCollision = hasCollision or AutoDrive.checkForVehiclePathInBox(cellBox, self.minTurnRadius, self.vehicle)
 
                 foundCollision = hasCollision
 
