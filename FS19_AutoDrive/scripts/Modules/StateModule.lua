@@ -30,6 +30,7 @@ function ADStateModule:reset()
     self.loopCounter = 0
 
     self.speedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
+    self.fieldSpeedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
 
     self.parkDestination = -1
 
@@ -60,6 +61,11 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
     local speedLimit = getXMLInt(xmlFile, key .. "#speedLimit")
     if speedLimit ~= nil then
         self.speedLimit = math.min(speedLimit, AutoDrive.getVehicleMaxSpeed(self.vehicle))
+    end
+
+    local fieldSpeedLimit = getXMLInt(xmlFile, key .. "#fieldSpeedLimit")
+    if fieldSpeedLimit ~= nil then
+        self.fieldSpeedLimit = math.min(fieldSpeedLimit, AutoDrive.getVehicleMaxSpeed(self.vehicle))
     end
 
     local firstMarker = getXMLInt(xmlFile, key .. "#firstMarker")
@@ -100,6 +106,7 @@ end
 function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#mode", self.mode)
     setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
+    setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
     if self.firstMarker ~= nil then
         setXMLInt(xmlFile, key .. "#firstMarker", self.firstMarker.markerIndex)
     end
@@ -122,6 +129,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
+    streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
     streamWriteString(streamId, self.currentTaskInfo)
@@ -139,6 +147,7 @@ function ADStateModule:readStream(streamId)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
+    self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
     self.currentTaskInfo = streamReadString(streamId)
@@ -157,6 +166,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
+    streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
     streamWriteString(streamId, self.currentTaskInfo)
@@ -174,6 +184,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
+    self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
     self.currentTaskInfo = streamReadString(streamId)
@@ -194,6 +205,7 @@ function ADStateModule:update(dt)
         debug.fillType = self.fillType
         debug.loopCounter = self.loopCounter
         debug.speedLimit = self.speedLimit
+        debug.fieldSpeedLimit = self.fieldSpeedLimit
         debug.parkDestination = self.parkDestination
         if self.currentDestination ~= nil then
             debug.currentDestination = self.currentDestination.name
@@ -574,6 +586,24 @@ end
 function ADStateModule:decreaseSpeedLimit()
     if self.speedLimit > 2 then
         self.speedLimit = self.speedLimit - 1
+    end
+    self:raiseDirtyFlag()
+end
+
+function ADStateModule:getFieldSpeedLimit()
+    return self.fieldSpeedLimit
+end
+
+function ADStateModule:increaseFieldSpeedLimit()
+    if self.fieldSpeedLimit < AutoDrive.getVehicleMaxSpeed(self.vehicle) then
+        self.fieldSpeedLimit = self.fieldSpeedLimit + 1
+    end
+    self:raiseDirtyFlag()
+end
+
+function ADStateModule:decreaseFieldSpeedLimit()
+    if self.fieldSpeedLimit > 2 then
+        self.fieldSpeedLimit = self.fieldSpeedLimit - 1
     end
     self:raiseDirtyFlag()
 end

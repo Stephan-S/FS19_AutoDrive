@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Increase loop counter" />
 		<text name="input_ADParkVehicle"						text="AD: Park vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="hud_avoidFruit"								text="AD: Avoid fruit" />
 		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
 		<text name="AD_Driver_of"								text="Driver of" />
@@ -157,8 +158,8 @@
 
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Export" />
-		<text name="gui_ad_button_import" 						text="Import" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />

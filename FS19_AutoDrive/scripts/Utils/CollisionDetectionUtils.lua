@@ -31,9 +31,9 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles)
     return false
 end
 
-function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius)
+function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius, searchingVehicle)
     for _, otherVehicle in pairs(g_currentMission.vehicles) do
-        if otherVehicle ~= nil and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then                            
+        if otherVehicle ~= nil and otherVehicle ~= searchingVehicle and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then                            
             if minTurnRadius ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil then
                 local otherWPs, otherCurrentWp = otherVehicle.ad.drivePathModule:getWayPoints()
                 local lastWp = nil

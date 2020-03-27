@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Zwiększ liczbę powtórzeń" />
 		<text name="input_ADParkVehicle"						text="AD: Zaparkuj pojazd" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="hud_avoidFruit"								text="AD: Unikaj upraw" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nie przydzielono parkingu. Przypisz wybrany cel trasy za pomocą prawego kliku." />
 		<text name="AD_parkVehicle_selected"					text="Obecnie wybrany parking: " />
 		<text name="AD_Driver_of"								text="Kierowca" />
@@ -157,8 +158,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Kierownik trasy" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Wstawić nazwę trasy:" />
-		<text name="gui_ad_button_export" 						text="Eksport" />
-		<text name="gui_ad_button_import" 						text="Import" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Czy na pewno chcesz nadpisać istniejącą trasę?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Nadpisywanie trasy" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Czy na pewno chcesz usunąć trasę '%s'?" />

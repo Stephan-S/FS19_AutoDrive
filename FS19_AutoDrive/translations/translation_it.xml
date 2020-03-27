@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Aumenta contatore ciclo" />
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
+		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -157,8 +158,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Inserisci nome del percorso:" />
-		<text name="gui_ad_button_export" 						text="Esporta" />
-		<text name="gui_ad_button_import" 						text="Importa" />
+		<text name="gui_ad_button_export" 						text="Salva" />
+		<text name="gui_ad_button_import" 						text="Carica" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Sei sicuro di voler sovrascrivere i percorsi esistent1?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Sovrascrittura percorsi" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Sei sicuro di voler cancellare il percorso '%s'?" />

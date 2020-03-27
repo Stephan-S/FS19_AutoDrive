@@ -24,7 +24,7 @@ function ExitFieldTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
-                self:selectNextStrategy()                  
+                self:selectNextStrategy()
                 if self.vehicle.ad.pathFinderModule:isTargetBlocked() then
                     -- If the selected field exit isn't reachable, try the next strategy and restart without delay
                     self:startPathPlanning()
@@ -61,7 +61,7 @@ function ExitFieldTask:finished()
 end
 
 function ExitFieldTask:startPathPlanning()
-    if self.nextExitStrategy == ExitFieldTask.STRATEGY_CLOSEST then        
+    if self.nextExitStrategy == ExitFieldTask.STRATEGY_CLOSEST then
         local closest = self.vehicle:getClosestWayPoint()
         local closestNode = ADGraphManager:getWayPointById(closest)
         local wayPoints = ADGraphManager:pathFromTo(closest, self.vehicle.ad.stateModule:getSecondWayPoint())
@@ -92,7 +92,7 @@ function ExitFieldTask:startPathPlanning()
 end
 
 function ExitFieldTask:selectNextStrategy()
-    self.nextExitStrategy = (self.nextExitStrategy + 1) % ExitFieldTask.STRATEGY_CLOSEST
+    self.nextExitStrategy = (self.nextExitStrategy + 1) % (ExitFieldTask.STRATEGY_CLOSEST + 1)
 end
 
 function ExitFieldTask:getInfoText()

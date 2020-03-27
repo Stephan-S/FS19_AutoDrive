@@ -24,7 +24,7 @@ function ADSettingsPage:onFrameOpen()
     FocusManager:unsetHighlight(FocusManager.currentFocusData.highlightElement)
     FocusManager:unsetFocus(FocusManager.currentFocusData.focusElement)
     if not self:hasChanges() then
-        self:updateMyGUISettings()
+        self:loadGUISettings()
     end
 end
 
@@ -79,13 +79,11 @@ function ADSettingsPage:hasChanges()
     for settingName, _ in pairs(self.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
             local setting = AutoDrive.settings[settingName]
-            if setting ~= nil then
-                if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
-                    setting = g_currentMission.controlledVehicle.ad.settings[settingName]
-                end
-                if setting.new ~= nil and setting.new ~= setting.current then
-                    return true
-                end
+            if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
+                setting = g_currentMission.controlledVehicle.ad.settings[settingName]
+            end
+            if setting.new ~= nil and setting.new ~= setting.current then
+                return true
             end
         end
     end
@@ -107,19 +105,19 @@ function ADSettingsPage:onIngameMenuHelpTextChanged(box)
     self.ingameMenuHelpBox:setVisible(hasText)
 end
 
-function ADSettingsPage:updateMyGUISettings()
+function ADSettingsPage:loadGUISettings()
     for settingName, _ in pairs(self.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
             local setting = AutoDrive.settings[settingName]
-            if setting ~= nil and setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil then
+            if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
                 setting = g_currentMission.controlledVehicle.ad.settings[settingName]
             end
-            self:updateGUISettings(settingName, setting.current)
+            self:loadGUISetting(settingName, setting.current)
         end
     end
 end
 
-function ADSettingsPage:updateGUISettings(settingName, state)
+function ADSettingsPage:loadGUISetting(settingName, state)
     local element = self.settingElements[settingName]
     element:setState(state, false)
     self:onOptionChange(state, element)

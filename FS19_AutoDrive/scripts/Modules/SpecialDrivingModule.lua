@@ -94,7 +94,7 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDynamicCollision, maxAcc, maxSpeed)
-    local speed = math.min(ADDrivePathModule.SPEED_ON_FIELD, maxSpeed)
+    local speed = math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), maxSpeed)
     local acc = math.min(0.75, maxAcc)
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)

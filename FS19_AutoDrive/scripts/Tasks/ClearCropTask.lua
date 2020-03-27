@@ -1,6 +1,6 @@
 ClearCropTask = ADInheritsFrom(AbstractTask)
 
-ClearCropTask.TARGET_DISTANCE_SIDE = 12
+ClearCropTask.TARGET_DISTANCE_SIDE = 10
 ClearCropTask.TARGET_DISTANCE_FRONT_STEP = 10
 
 function ClearCropTask:new(vehicle)

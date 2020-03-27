@@ -7,70 +7,89 @@ ADRoutesManager.routesFolder = ""
 ADRoutesManager.xmlFile = ""
 ADRoutesManager.xml = nil
 
-function ADRoutesManager.load()
-    -- defining and creating needed folders
-    ADRoutesManager.rootFolder = getUserProfileAppPath() .. "autoDrive/"
-    createFolder(ADRoutesManager.rootFolder)
-    ADRoutesManager.managerFolder = ADRoutesManager.rootFolder .. "routesManager/"
-    createFolder(ADRoutesManager.managerFolder)
-    ADRoutesManager.routesFolder = ADRoutesManager.managerFolder .. "routes/"
-    createFolder(ADRoutesManager.routesFolder)
+ADRoutesManager.cfnTimer = 0
+ADRoutesManager.cfnInterval = 1000
+ADRoutesManager.cfnFile = ""
 
-    ADRoutesManager.loadRoutesFromXML()
+function ADRoutesManager:load()
+    -- defining and creating needed folders
+    self.rootFolder = getUserProfileAppPath() .. "autoDrive/"
+    createFolder(self.rootFolder)
+    self.managerFolder = self.rootFolder .. "routesManager/"
+    createFolder(self.managerFolder)
+    self.routesFolder = self.managerFolder .. "routes/"
+    createFolder(self.routesFolder)
+
+    self.cfnFile = self.managerFolder .. "reload.cfn"
+
+    self:loadRoutesFromXML()
 end
 
-function ADRoutesManager.loadRoutesFromXML()
-    ADRoutesManager.routes = {}
-    ADRoutesManager.xmlFile = ADRoutesManager.managerFolder .. "routes.xml"
-    if fileExists(ADRoutesManager.xmlFile) then
-        ADRoutesManager.xml = loadXMLFile("RoutesManager_xml", ADRoutesManager.xmlFile)
+function ADRoutesManager:loadRoutesFromXML()
+    self:delete()
+    self.routes = {}
+    self.xmlFile = self.managerFolder .. "routes.xml"
+    if fileExists(self.xmlFile) then
+        self.xml = loadXMLFile("RoutesManager_xml", self.xmlFile)
         -- loading routes
         local i = 0
         while true do
             local key = string.format("autoDriveRoutesManager.routes.route(%d)", i)
-            if not hasXMLProperty(ADRoutesManager.xml, key) then
+            if not hasXMLProperty(self.xml, key) then
                 break
             end
-            local name = getXMLString(ADRoutesManager.xml, key .. "#name")
-            local fileName = getXMLString(ADRoutesManager.xml, key .. "#fileName")
-            local map = getXMLString(ADRoutesManager.xml, key .. "#map")
-            local revision = getXMLInt(ADRoutesManager.xml, key .. "#revision")
-            local date = getXMLString(ADRoutesManager.xml, key .. "#date")
+            local name = getXMLString(self.xml, key .. "#name")
+            local fileName = getXMLString(self.xml, key .. "#fileName")
+            local map = getXMLString(self.xml, key .. "#map")
+            local revision = getXMLInt(self.xml, key .. "#revision")
+            local date = getXMLString(self.xml, key .. "#date")
+            local serverId = getXMLString(self.xml, key .. ".serverId") or ""
             i = i + 1
-            ADRoutesManager.routes[i] = {name = name, fileName = fileName, map = map, revision = revision, date = date}
+            self.routes[i] = {name = name, fileName = fileName, map = map, revision = revision, date = date, serverId = serverId}
         end
     else
-        ADRoutesManager.xml = createXMLFile("RoutesManager_xml", ADRoutesManager.xmlFile, "autoDriveRoutesManager")
-        saveXMLFile(ADRoutesManager.xml)
+        self.xml = createXMLFile("RoutesManager_xml", self.xmlFile, "autoDriveRoutesManager")
+        saveXMLFile(self.xml)
     end
 end
 
-function ADRoutesManager.import(name)
+function ADRoutesManager:update(dt)
+    self.cfnTimer = self.cfnTimer + dt
+    if self.cfnTimer >= self.cfnInterval then
+        if fileExists(self.cfnFile) then
+            getfenv(0).deleteFile(self.cfnFile)
+            self:loadRoutesFromXML()
+            if g_gui.currentGuiName == AutoDrive.gui.ADRoutesManagerGui.name then
+                AutoDrive.gui.ADRoutesManagerGui:refreshItems()
+            end
+        end
+        self.cfnTimer = 0
+    end
+end
+
+function ADRoutesManager:import(name)
     local route =
         table.f_find(
-        ADRoutesManager.routes,
+        self.routes,
         function(v)
             return v.name == name
         end
     )
     if route ~= nil then
-        if fileExists(ADRoutesManager.routesFolder .. route.fileName) then
-            local loadXml = loadXMLFile("routeImport_xml", ADRoutesManager.routesFolder .. route.fileName)
+        if fileExists(self.routesFolder .. route.fileName) then
+            local loadXml = loadXMLFile("routeImport_xml", self.routesFolder .. route.fileName)
             local wayPoints = {}
             local mapMarkers = {}
             local groups = {}
             AutoDrive.readGraphFromXml(loadXml, "routeExport", wayPoints, mapMarkers, groups)
             delete(loadXml)
-            -- here we will handle MP upload
-            ADGraphManager:setWayPoints(wayPoints)
-            ADGraphManager:setMapMarkers(mapMarkers)
-            ADGraphManager:setGroups(groups)
+            AutoDriveRoutesUploadEvent.sendEvent(wayPoints, mapMarkers, groups)
         end
     end
 end
 
-function ADRoutesManager.export(name)
-    local fileName = ADRoutesManager.getFileName()
+function ADRoutesManager:export(name)
+    local fileName = self:getFileName()
     if name == nil or name == "" then
         name = fileName
     end
@@ -81,7 +100,7 @@ function ADRoutesManager.export(name)
     local mapName = AutoDrive.loadedMap
     local routeIndex =
         table.f_indexOf(
-        ADRoutesManager.routes,
+        self.routes,
         function(v)
             return v.name == name and v.map == mapName
         end
@@ -89,14 +108,14 @@ function ADRoutesManager.export(name)
 
     -- saving route to xml, if a route with the same name and map already exists, overwrite it
     if routeIndex ~= nil then
-        route = ADRoutesManager.routes[routeIndex]
+        route = self.routes[routeIndex]
         route.revision = route.revision + 1
         route.date = getDate("%Y/%m/%d %H:%M:%S")
-        saveXml = loadXMLFile("routeExport_xml", ADRoutesManager.routesFolder .. route.fileName)
+        saveXml = loadXMLFile("routeExport_xml", self.routesFolder .. route.fileName)
     else
-        route = {name = name, fileName = fileName, map = mapName, revision = 1, date = getDate("%Y/%m/%d %H:%M:%S")}
-        table.insert(ADRoutesManager.routes, route)
-        saveXml = createXMLFile("routeExport_xml", ADRoutesManager.routesFolder .. fileName, "routeExport")
+        route = {name = name, fileName = fileName, map = mapName, revision = 1, date = getDate("%Y/%m/%d %H:%M:%S"), serverId = ""}
+        table.insert(self.routes, route)
+        saveXml = createXMLFile("routeExport_xml", self.routesFolder .. fileName, "routeExport")
     end
 
     AutoDrive.writeGraphToXml(saveXml, "routeExport", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarkers(), ADGraphManager:getGroups())
@@ -104,61 +123,62 @@ function ADRoutesManager.export(name)
     saveXMLFile(saveXml)
     delete(saveXml)
 
-    ADRoutesManager.saveRoutes()
+    self:saveRoutes()
 end
 
-function ADRoutesManager.remove(name)
+function ADRoutesManager:remove(name)
     local mapName = AutoDrive.loadedMap
     local routeIndex =
         table.f_indexOf(
-        ADRoutesManager.routes,
+        self.routes,
         function(v)
             return v.name == name and v.map == mapName
         end
     )
 
     if routeIndex ~= nil then
-        local route = table.remove(ADRoutesManager.routes, routeIndex)
-        getfenv(0).deleteFile(ADRoutesManager.routesFolder .. route.fileName)
-        ADRoutesManager.saveRoutes()
+        local route = table.remove(self.routes, routeIndex)
+        getfenv(0).deleteFile(self.routesFolder .. route.fileName)
+        self:saveRoutes()
     end
 end
 
-function ADRoutesManager.getFileName()
+function ADRoutesManager:getFileName()
     local fileName = string.random(16)
     -- finding a not used file name
-    while fileExists(ADRoutesManager.routesFolder .. fileName .. ".xml") do
+    while fileExists(self.routesFolder .. fileName .. ".xml") do
         fileName = string.random(16)
     end
     return fileName
 end
 
-function ADRoutesManager.saveRoutes()
+function ADRoutesManager:saveRoutes()
     -- updating routes.xml
-    removeXMLProperty(ADRoutesManager.xml, "autoDriveRoutesManager.routes")
-    for i, route in pairs(ADRoutesManager.routes) do
+    removeXMLProperty(self.xml, "autoDriveRoutesManager.routes")
+    for i, route in pairs(self.routes) do
         local key = string.format("autoDriveRoutesManager.routes.route(%d)", i - 1)
-        removeXMLProperty(ADRoutesManager.xml, key)
-        setXMLString(ADRoutesManager.xml, key .. "#name", route.name)
-        setXMLString(ADRoutesManager.xml, key .. "#fileName", route.fileName)
-        setXMLString(ADRoutesManager.xml, key .. "#map", route.map)
-        setXMLInt(ADRoutesManager.xml, key .. "#revision", route.revision)
-        setXMLString(ADRoutesManager.xml, key .. "#date", route.date)
+        removeXMLProperty(self.xml, key)
+        setXMLString(self.xml, key .. "#name", route.name)
+        setXMLString(self.xml, key .. "#fileName", route.fileName)
+        setXMLString(self.xml, key .. "#map", route.map)
+        setXMLInt(self.xml, key .. "#revision", route.revision)
+        setXMLString(self.xml, key .. "#date", route.date)
+        setXMLString(self.xml, key .. ".serverId", route.serverId)
     end
-    saveXMLFile(ADRoutesManager.xml)
+    saveXMLFile(self.xml)
 end
 
-function ADRoutesManager.getRoutes(map)
+function ADRoutesManager:getRoutes(map)
     return table.f_filter(
-        ADRoutesManager.routes,
+        self.routes,
         function(v)
             return v.map == map
         end
     )
 end
 
-function ADRoutesManager.delete()
-    if ADRoutesManager.xml ~= nil then
-        delete(ADRoutesManager.xml)
+function ADRoutesManager:delete()
+    if self.xml ~= nil then
+        delete(self.xml)
     end
 end

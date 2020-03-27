@@ -63,6 +63,21 @@ string.randomCharset = {
 	"z"
 }
 
+function AutoDrive.streamReadStringOrEmpty(streamId)
+	local string = streamReadString(streamId)
+	if string == nil or string == "nil" then
+		string = ""
+	end
+	return string
+end
+
+function AutoDrive.streamWriteStringOrEmpty(streamId, string)
+	if string == nil or string == "" then
+		string = "nil"
+	end
+	streamWriteString(streamId, string)
+end
+
 function AutoDrive.boxesIntersect(a, b)
 	local polygons = {a, b}
 	local minA, maxA, minB, maxB
@@ -124,7 +139,7 @@ end
 function math.clamp(minValue, value, maxValue)
 	if minValue ~= nil and value ~= nil and maxValue ~= nil then
 		return math.max(minValue, math.min(maxValue, value))
-	end	
+	end
 	return value
 end
 
@@ -558,53 +573,53 @@ function AutoDrive.overwrittenStaticFunction(oldFunc, newFunc)
 	end
 end
 
-function AutoDrive.renderColoredTextAtWorldPosition(x,y,z, text, textSize, color)
-    local sx,sy,sz = project(x,y,z);
-    if sx > -1 and sx < 2 and sy > -1 and sy < 2 and sz <= 1 then
-        setTextAlignment(RenderText.ALIGN_CENTER);
-        setTextBold(false);
-        setTextColor(0.0, 0.0, 0.0, 0.75);
-        renderText(sx, sy-0.0015, textSize, text);
-        setTextColor(color.r, color.g, color.b, 1.0);
-        renderText(sx, sy, textSize, text);
-        setTextAlignment(RenderText.ALIGN_LEFT);
-    end
+function AutoDrive.renderColoredTextAtWorldPosition(x, y, z, text, textSize, color)
+	local sx, sy, sz = project(x, y, z)
+	if sx > -1 and sx < 2 and sy > -1 and sy < 2 and sz <= 1 then
+		setTextAlignment(RenderText.ALIGN_CENTER)
+		setTextBold(false)
+		setTextColor(0.0, 0.0, 0.0, 0.75)
+		renderText(sx, sy - 0.0015, textSize, text)
+		setTextColor(color.r, color.g, color.b, 1.0)
+		renderText(sx, sy, textSize, text)
+		setTextAlignment(RenderText.ALIGN_LEFT)
+	end
 end
 
 function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
 	local densityBits = 0
-	
+
 	if worldY == 0 then
 		worldY = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldX, 1, worldZ)
 	end
 
-    local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ)
-    densityBits = bitOR(densityBits, bits)
-    if densityBits ~= 0 then
-        return true
-    end
+	local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, worldX, worldY, worldZ)
+	densityBits = bitOR(densityBits, bits)
+	if densityBits ~= 0 then
+		return true
+	end
 
-    return false
+	return false
 end
 
 Sprayer.registerOverwrittenFunctions =
-    Utils.appendedFunction(
-    Sprayer.registerOverwrittenFunctions,
-    function(vehicleType)
-        -- Work-around/fix for issue #863 ( thanks to DeckerMMIV )
-        -- Having a slurry tank with a spreading unit attached, then avoid having the AI automatically turn these on when FollowMe is active.
-        SpecializationUtil.registerOverwrittenFunction(
-            vehicleType,
-            "getIsAIActive",
-            function(self, superFunc)
-                local rootVehicle = self:getRootVehicle()
-                if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
-                    return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
-                end
-                return superFunc(self)
-            end
-        )
-    end
+	Utils.appendedFunction(
+	Sprayer.registerOverwrittenFunctions,
+	function(vehicleType)
+		-- Work-around/fix for issue #863 ( thanks to DeckerMMIV )
+		-- Having a slurry tank with a spreading unit attached, then avoid having the AI automatically turn these on when FollowMe is active.
+		SpecializationUtil.registerOverwrittenFunction(
+			vehicleType,
+			"getIsAIActive",
+			function(self, superFunc)
+				local rootVehicle = self:getRootVehicle()
+				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
+					return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
+				end
+				return superFunc(self)
+			end
+		)
+	end
 )
 
 -- LoadTrigger doesn't allow filling non controlled tools
@@ -692,109 +707,109 @@ function AutoDrive:onFillTypeSelection(superFunc, fillType)
 end
 
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
-    if self.getMotorStartTime ~= nil then
-        allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
-    end
+	if self.getMotorStartTime ~= nil then
+		allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
+	end
 
-    if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
-        if self.ad.stateModule:isActive() and allowedToDrive then
-            --slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
+	if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
+		if self.ad.stateModule:isActive() and allowedToDrive then
+			--slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 
-            local accFactor = 4 / 1000 -- km h / s converted to km h / ms
-            accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 2000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
-            if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
-                self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)
-            else
-                self.ad.smootherDriving.lastMaxSpeed = math.max(self.ad.smootherDriving.lastMaxSpeed - accFactor * dt, maxSpeed)
-            end
+			local accFactor = 2 / 1000 -- km h / s converted to km h / ms
+			accFactor = accFactor + math.abs((maxSpeed - self.lastSpeedReal * 3600) / 2000) -- Changing accFactor based on missing speed to reach target (useful for sudden braking)
+			if self.ad.smootherDriving.lastMaxSpeed < maxSpeed then
+				self.ad.smootherDriving.lastMaxSpeed = math.min(self.ad.smootherDriving.lastMaxSpeed + accFactor / 2 * dt, maxSpeed)
+			else
+				self.ad.smootherDriving.lastMaxSpeed = math.max(self.ad.smootherDriving.lastMaxSpeed - accFactor * dt, maxSpeed)
+			end
 
-            if maxSpeed < 1 then
-                -- Hard braking, is needed to prevent combine's pipe overstep and crash
-                self.ad.smootherDriving.lastMaxSpeed = maxSpeed
-            end
-            --AutoDrive.renderTable(0.1, 0.9, 0.012, {maxSpeed = maxSpeed, lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed})
-            maxSpeed = self.ad.smootherDriving.lastMaxSpeed
-        else
-            self.ad.smootherDriving.lastMaxSpeed = 0
-        end
-    end
+			if maxSpeed < 1 then
+				-- Hard braking, is needed to prevent combine's pipe overstep and crash
+				self.ad.smootherDriving.lastMaxSpeed = maxSpeed
+			end
+			--AutoDrive.renderTable(0.1, 0.9, 0.012, {maxSpeed = maxSpeed, lastMaxSpeed = self.ad.smootherDriving.lastMaxSpeed})
+			maxSpeed = self.ad.smootherDriving.lastMaxSpeed
+		else
+			self.ad.smootherDriving.lastMaxSpeed = 0
+		end
+	end
 
-    local angle = 0
-    if lx ~= nil and lz ~= nil then
-        local dot = lz
-        angle = math.deg(math.acos(dot))
-        if angle < 0 then
-            angle = angle + 180
-        end
-        local turnLeft = lx > 0.00001
-        if not moveForwards then
-            turnLeft = not turnLeft
-        end
-        local targetRotTime = 0
-        if turnLeft then
-            --rotate to the left
-            targetRotTime = self.maxRotTime * math.min(angle / steeringAngleLimit, 1)
-        else
-            --rotate to the right
-            targetRotTime = self.minRotTime * math.min(angle / steeringAngleLimit, 1)
-        end
-        if targetRotTime > self.rotatedTime then
-            self.rotatedTime = math.min(self.rotatedTime + dt * self:getAISteeringSpeed(), targetRotTime)
-        else
-            self.rotatedTime = math.max(self.rotatedTime - dt * self:getAISteeringSpeed(), targetRotTime)
-        end
-    end
-    if self.firstTimeRun then
-        local acc = acceleration
-        if maxSpeed ~= nil and maxSpeed ~= 0 then
-            if math.abs(angle) >= slowAngleLimit then
-                maxSpeed = maxSpeed * slowDownFactor
-            end
-            self.spec_motorized.motor:setSpeedLimit(maxSpeed)
-            if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
-                self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE)
-            end
-        else
-            if math.abs(angle) >= slowAngleLimit then
-                acc = slowAcceleration
-            end
-        end
-        if not allowedToDrive then
-            acc = 0
-        end
-        if not moveForwards then
-            acc = -acc
-        end
-        --FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
-        WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
-    end
+	local angle = 0
+	if lx ~= nil and lz ~= nil then
+		local dot = lz
+		angle = math.deg(math.acos(dot))
+		if angle < 0 then
+			angle = angle + 180
+		end
+		local turnLeft = lx > 0.00001
+		if not moveForwards then
+			turnLeft = not turnLeft
+		end
+		local targetRotTime = 0
+		if turnLeft then
+			--rotate to the left
+			targetRotTime = self.maxRotTime * math.min(angle / steeringAngleLimit, 1)
+		else
+			--rotate to the right
+			targetRotTime = self.minRotTime * math.min(angle / steeringAngleLimit, 1)
+		end
+		if targetRotTime > self.rotatedTime then
+			self.rotatedTime = math.min(self.rotatedTime + dt * self:getAISteeringSpeed(), targetRotTime)
+		else
+			self.rotatedTime = math.max(self.rotatedTime - dt * self:getAISteeringSpeed(), targetRotTime)
+		end
+	end
+	if self.firstTimeRun then
+		local acc = acceleration
+		if maxSpeed ~= nil and maxSpeed ~= 0 then
+			if math.abs(angle) >= slowAngleLimit then
+				maxSpeed = maxSpeed * slowDownFactor
+			end
+			self.spec_motorized.motor:setSpeedLimit(maxSpeed)
+			if self.spec_drivable.cruiseControl.state ~= Drivable.CRUISECONTROL_STATE_ACTIVE then
+				self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_ACTIVE)
+			end
+		else
+			if math.abs(angle) >= slowAngleLimit then
+				acc = slowAcceleration
+			end
+		end
+		if not allowedToDrive then
+			acc = 0
+		end
+		if not moveForwards then
+			acc = -acc
+		end
+		--FS 17 Version WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal, acc, not allowedToDrive, self.requiredDriveMode);
+		WheelsUtil.updateWheelsPhysics(self, dt, self.lastSpeedReal * self.movingDirection, acc, not allowedToDrive, true)
+	end
 end
 
 function AIVehicle:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
-    local spec = self.spec_aiVehicle
+	local spec = self.spec_aiVehicle
 
-    if self.isClient then
-        local actionEvent = spec.actionEvents[InputAction.TOGGLE_AI]
-        if actionEvent ~= nil then
-            local showAction = false
+	if self.isClient then
+		local actionEvent = spec.actionEvents[InputAction.TOGGLE_AI]
+		if actionEvent ~= nil then
+			local showAction = false
 
-            if self:getIsActiveForInput(true, true) then
-                -- If ai is active we always display the dismiss helper action
-                -- But only if the AutoDrive is not active :)
-                showAction = self:getCanStartAIVehicle() or (self:getIsAIActive() and (self.ad == nil or not self.ad.stateModule:isActive()))
+			if self:getIsActiveForInput(true, true) then
+				-- If ai is active we always display the dismiss helper action
+				-- But only if the AutoDrive is not active :)
+				showAction = self:getCanStartAIVehicle() or (self:getIsAIActive() and (self.ad == nil or not self.ad.stateModule:isActive()))
 
-                if showAction then
-                    if self:getIsAIActive() then
-                        g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_dismissEmployee"))
-                    else
-                        g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_hireEmployee"))
-                    end
-                end
-            end
+				if showAction then
+					if self:getIsAIActive() then
+						g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_dismissEmployee"))
+					else
+						g_inputBinding:setActionEventText(actionEvent.actionEventId, g_i18n:getText("action_hireEmployee"))
+					end
+				end
+			end
 
-            g_inputBinding:setActionEventActive(actionEvent.actionEventId, showAction)
-        end
-    end
+			g_inputBinding:setActionEventActive(actionEvent.actionEventId, showAction)
+		end
+	end
 end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server

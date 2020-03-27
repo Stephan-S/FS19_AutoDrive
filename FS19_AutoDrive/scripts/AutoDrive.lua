@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.2-3"
+AutoDrive.version = "1.1.0.3-rc1"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -9,7 +9,7 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.fastExtendedEditorMode = false
+AutoDrive.experimentalFeatures.fastExtendedEditorMode = true
 
 AutoDrive.developmentControls = false
 
@@ -73,16 +73,6 @@ AutoDrive.actions = {
 }
 
 function AutoDrive:loadMap(name)
-	source(Utils.getFilename("scripts/XML.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Settings.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/ExternalInterface.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/VirtualSensors.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/CollSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/FruitSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/Sensors/FieldSensor.lua", AutoDrive.directory))
-	source(Utils.getFilename("scripts/DijkstraLive.lua", AutoDrive.directory))
-	source(Utils.getFilename("gui/AutoDriveGUI.lua", AutoDrive.directory))
-
 	if g_server ~= nil then
 		AutoDrive.AutoDriveSync = AutoDriveSync:new(g_server ~= nil, g_client ~= nil)
 		AutoDrive.AutoDriveSync:register(false)
@@ -146,7 +136,7 @@ function AutoDrive:loadMap(name)
 
 	FSBaseMission.removeVehicle = Utils.prependedFunction(FSBaseMission.removeVehicle, AutoDrive.preRemoveVehicle)
 
-	ADRoutesManager.load()
+	ADRoutesManager:load()
 	ADDrawingManager:load()
 	ADMessagesManager:load()
 	ADHarvestManager:load()
@@ -194,7 +184,7 @@ function AutoDrive:deleteMap()
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
-	ADRoutesManager.delete()
+	ADRoutesManager:delete()
 	if g_server ~= nil then
 		delete(AutoDrive.adXml)
 	end
@@ -255,6 +245,7 @@ function AutoDrive:update(dt)
 	ADHarvestManager:update(dt)
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
+	ADRoutesManager:update(dt)
 end
 
 function AutoDrive:draw()

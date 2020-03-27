@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Augmenter le nombre de répétitions" />
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
 		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
+		<text name="hud_avoidFruit"								text="AD: Éviter les cultures" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />
@@ -157,8 +158,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Gestionnaire d'itinéraires" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Entrez le nom de l'itinéraire:" />
-		<text name="gui_ad_button_export" 						text="Exporter" />
-		<text name="gui_ad_button_import" 						text="Importer" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Voulez-vous vraiment remplacer les itinéraires existant ?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Ecrasement des itinéraires" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Voulez-vous vraiment supprimer l'itinéraire '%s'?" />

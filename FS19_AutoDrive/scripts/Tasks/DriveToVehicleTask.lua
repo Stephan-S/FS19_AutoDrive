@@ -24,8 +24,8 @@ function DriveToVehicleTask:update(dt)
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
                 --Don't just restart pathfinder here. We might not even have to go to the vehicle anymore.
-                self:finished(ADTaskModule.DONT_PROPAGATE)
-                self.vehicle:stopAutoDrive()
+                self:finished()
+                --self.vehicle:stopAutoDrive()
                 --self.vehicle.ad.pathFinderModule:startPathPlanningToVehicle(self.targetVehicle, DriveToVehicleTask.TARGET_DISTANCE)
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)

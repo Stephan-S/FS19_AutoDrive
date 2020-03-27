@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Verander het Aantal Herhalingen" />
 		<text name="input_ADParkVehicle"						text="AD: Parkeer Voertuig" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="hud_avoidFruit"								text="AD: Fruit vermijden" />
 		<text name="AD_parkVehicle_noPosSet"					text="Geen parkeerbestemming toegewezen. Wijzig het momenteel geselecteerde bestemming toe met de rechtermuisknop." />
 		<text name="AD_parkVehicle_selected"					text="Toegewezen als parkeerplaats: " />
 		<text name="AD_Driver_of"								text="De bestuurder van" />
@@ -157,8 +158,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Voeg de naam van de route in:" />
-		<text name="gui_ad_button_export" 						text="Exporteer" />
-		<text name="gui_ad_button_import" 						text="Importeer" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Weet u zeker dat u de bestaande route wilt overschrijven?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route overschrijven" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Weet u zeker dat u de route wilt verwijderen '%s'?" />

@@ -55,6 +55,7 @@ end
 function CombineUnloaderMode:handleFinishedTask()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:handleFinishedTask")
     self.vehicle.ad.trailerModule:reset()
+    self.lastTask = self.activeTask
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -131,6 +132,9 @@ function CombineUnloaderMode:getNextTask()
         nextTask = self:getTaskAfterUnload(filledToUnload)
     elseif self.state == self.STATE_FOLLOW_CURRENT_UNLOADER then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_FOLLOW_CURRENT_UNLOADER")
+        if self.targetUnloader ~= nil then
+            self.targetUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
+        end
         self:setToWaitForCall()
     elseif self.state == self.STATE_EXIT_FIELD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_EXIT_FIELD")
@@ -190,6 +194,7 @@ function CombineUnloaderMode:driveToUnloader(unloader)
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.vehicle.ad.taskModule:addTask(DriveToVehicleTask:new(self.vehicle, unloader))
         unloader.ad.modes[AutoDrive.MODE_UNLOAD]:registerFollowingUnloader(self.vehicle)
+        self.targetUnloader = unloader
         self.state = self.STATE_FOLLOW_CURRENT_UNLOADER
     end
 end
@@ -210,7 +215,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         self.combine = nil
     else
         -- Should we park in the field?
-        if AutoDrive.getSetting("parkInField", self.vehicle) then
+        if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then
             -- If we are in fruit, we should clear it
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
                 nextTask = ClearCropTask:new(self.vehicle)
@@ -219,6 +224,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
                 self:setToWaitForCall()
             end
         else
+            ADHarvestManager:unregisterAsUnloader(self.vehicle)
             nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             self.state = self.STATE_DRIVE_TO_START
         end
@@ -236,7 +242,7 @@ end
 
 function CombineUnloaderMode:getPipeChasePosition()
     local worldX, worldY, worldZ = getWorldTranslation(self.combine.components[1].node)
-    --local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local vehicleX, _, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
     local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
@@ -263,14 +269,21 @@ function CombineUnloaderMode:getPipeChasePosition()
     end
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        if (not leftBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
+        
+        local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
+        local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
+
+        if (not leftBlocked) and angleToLeftChaseSide < angleToRearChaseSide then
+            chaseNode = leftChasePos
             sideIndex = self.CHASEPOS_LEFT
         elseif (not rightBlocked) then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
+            chaseNode = rightChasePos
             sideIndex = self.CHASEPOS_RIGHT
         else
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
+            chaseNode = rearChasePos
             sideIndex = self.CHASEPOS_REAR
         end
     else
@@ -311,6 +324,9 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z
+            --else
+                --sideIndex = self.CHASEPOS_REAR
+                --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
             end
         else
             sideIndex = self.CHASEPOS_REAR
@@ -342,6 +358,14 @@ function CombineUnloaderMode:getAngleToCombine()
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineX - vehicleX, z = combineZ - vehicleZ}))
+end
+
+function CombineUnloaderMode:getAngleToChasePos(chasePos)
+    local worldX, _, worldZ = getWorldTranslation(self.vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+    local angle = AutoDrive.angleBetween({x = rx, z = rz}, {x = chasePos.x - worldX, z = chasePos.z - worldZ})
+
+    return angle
 end
 
 function CombineUnloaderMode:getFollowingUnloader()

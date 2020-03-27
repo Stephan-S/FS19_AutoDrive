@@ -33,6 +33,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Aumentar los ciclos" />
 		<text name="input_ADParkVehicle"						text="AD: Aparcar Vehículo" />
 		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
+		<text name="hud_avoidFruit"								text="AD: Evitar destruir sosechas" />
 		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino deestacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"								text="Conductor de" />
@@ -157,8 +158,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Gerente de Rutas" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Inserte el nombre de la ruta:" />
-		<text name="gui_ad_button_export" 						text="Exportación" />
-		<text name="gui_ad_button_import" 						text="Importación" />
+		<text name="gui_ad_button_export" 						text="Save" />
+		<text name="gui_ad_button_import" 						text="Load" />
 		<text name="gui_ad_routeExportWarn_text" 				text="¿Estás seguro de que quieres sobrescribir la ruta existente?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="La ruta se sobreescribe" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="¿Estás seguro de que quieres borrar la ruta '%s'?" />

@@ -1,14 +1,20 @@
 ADHudSpeedmeter = ADInheritsFrom(ADGenericHudElement)
 
-function ADHudSpeedmeter:new(posX, posY, width, height)
+function ADHudSpeedmeter:new(posX, posY, width, height, fieldSpeed)
     local o = ADHudSpeedmeter:create()
     o:init(posX, posY, width, height)
     o.primaryAction = "input_increaseSpeed"
     o.secondaryAction = "input_decreaseSpeed"
+    o.image = AutoDrive.directory .. "textures/speedmeter.dds"
+
+    if fieldSpeed then
+        o.primaryAction = "input_increaseFieldSpeed"
+        o.secondaryAction = "input_decreaseFieldSpeed"
+        o.image = AutoDrive.directory .. "textures/speedmeter_field.dds"
+    end
 
     o.layer = 5
-
-    o.image = AutoDrive.directory .. "textures/speedmeter.dds"
+    o.isFieldSpeed = fieldSpeed
 
     o.ov = Overlay:new(o.image, o.position.x, o.position.y, o.size.width, o.size.height)
 
@@ -22,7 +28,13 @@ function ADHudSpeedmeter:onDraw(vehicle, uiScale)
         local adFontSize = AutoDrive.FONT_SCALE * uiScale
         setTextColor(1, 1, 1, 1)
         setTextAlignment(RenderText.ALIGN_CENTER)
-        local text = string.format("%1d", g_i18n:getSpeed(vehicle.ad.stateModule:getSpeedLimit()))
+        local speed = 0
+        if self.isFieldSpeed then
+            speed = g_i18n:getSpeed(vehicle.ad.stateModule:getFieldSpeedLimit())
+        else
+            speed = g_i18n:getSpeed(vehicle.ad.stateModule:getSpeedLimit())
+        end
+        local text = string.format("%1d", speed)
         local posX = self.position.x + (self.size.width / 2)
         local posY = self.position.y + AutoDrive.Hud.gapHeight
         renderText(posX, posY, adFontSize, text)

@@ -4,7 +4,6 @@ ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
-ADDrivePathModule.SPEED_ON_FIELD = 100
 
 function ADDrivePathModule:new(vehicle)
     local o = {}
@@ -105,19 +104,20 @@ end
 function ADDrivePathModule:update(dt)
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-        if self:isCloseToWaypoint() then
-            self:handleReachedWayPoint()
-        end
 
         self:followWaypoints(dt)
         self:checkActiveAttributesSet()
         self:checkIfStuck(dt)
+
+        if self:isCloseToWaypoint() then
+            self:handleReachedWayPoint()
+        end
     end
 end
 
 function ADDrivePathModule:isCloseToWaypoint()
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-    local maxSkipWayPoints = 2
+    local maxSkipWayPoints = 1
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
             local distanceToCurrentWp = MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i].z)
@@ -125,12 +125,15 @@ function ADDrivePathModule:isCloseToWaypoint()
                 return true
             end
             -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
+            --[[ I am currently afraid this might cause him to skip sharp turns in pathfinder mode and thus cause crashes with the combine
+
             if i > 0 then
                 local distanceToLastWp =  MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].z)
                 if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
                     return true
                 end
             end
+            --]]
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
             if i == 1 then
                 local wp_ahead = self:getNextWayPoint()
@@ -152,6 +155,9 @@ function ADDrivePathModule:followWaypoints(dt)
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
 
     self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
+    if AutoDrive.checkIsOnField(x, y, z) then
+        self.speedLimit = self.vehicle.ad.stateModule:getFieldSpeedLimit() --math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), self.speedLimit)
+    end
     self.acceleration = 1
     self.distanceToLookAhead = 8
     if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
@@ -166,13 +172,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
 
-    if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
-        self.speedLimit = math.min(5, self.speedLimit)
-    end
 
-    if AutoDrive.checkIsOnField(x, y, z) then
-        self.speedLimit = math.min(ADDrivePathModule.SPEED_ON_FIELD, self.speedLimit)
-    end
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
@@ -180,8 +180,12 @@ function ADDrivePathModule:followWaypoints(dt)
         maxSpeedDiff = 1
     else
         if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
-            self.speedLimit = math.min(5, self.speedLimit)
+            self.speedLimit = math.min(12, self.speedLimit)
             maxSpeedDiff = 3
+        else
+            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
+                self.speedLimit = math.min(5, self.speedLimit)
+            end
         end
     end
 
@@ -221,6 +225,8 @@ end
 
 function ADDrivePathModule:reachedTarget()
     self.atTarget = true
+    self.wayPoints = nil
+    self.currentWayPoint = 0
 end
 
 function ADDrivePathModule:isTargetReached()

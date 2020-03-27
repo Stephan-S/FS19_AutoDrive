@@ -37,7 +37,7 @@ function FollowCombineTask:update(dt)
 
     self:updateStates()
     local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
-    local reachedFieldBorder = false --not self.vehicle.ad.sensors.frontSensorField:pollInfo()
+    local reachedFieldBorder = false
     if self.filled or combineStopped or (reachedFieldBorder and self.angleToCombineHeading < 5 and self.fillLevel > 2000) then
         if self.state ~= FollowCombineTask.STATE_REVERSING then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
@@ -46,6 +46,7 @@ function FollowCombineTask:update(dt)
         end
     end
     if self.combineFillPercent >= CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING then
+        self.stayOnField = true
         self:finished()
     end
 
@@ -74,6 +75,7 @@ function FollowCombineTask:update(dt)
                 self.state = FollowCombineTask.STATE_CHASING
                 self.chaseTimer:timer(false)
             else
+                self.stayOnField = true
                 self:finished()
             end
         end
@@ -89,9 +91,10 @@ function FollowCombineTask:update(dt)
         if self.waitForPassByTimer:done() then
             self.waitForPassByTimer:timer(false)
             self.chaseTimer:timer(false)
-            if self.angleToCombineHeading < 40 then
+            if (self.angleToCombineHeading + self.angleToCombine) < 180 then
                 self.state = FollowCombineTask.STATE_CHASING
             else
+                self.stayOnField = true
                 self:finished()
             end
         end
@@ -121,10 +124,10 @@ function FollowCombineTask:updateStates()
         self.caughtCurrentChaseSide = false
         self.lastChaseSide = self.chaseSide
     end
-    -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get muche closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
-    if self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and not self.caughtCurrentChaseSide then
-        self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 1)
-    end
+    -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get much closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
+    --if self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and not self.caughtCurrentChaseSide then
+        --self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 1)
+    --end
     self.distanceToCombine = MathUtil.vector2Length(x - cx, z - cz)
 
     self.cfillLevel, self.cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)

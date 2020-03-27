@@ -170,7 +170,7 @@ function ADSettings:resetPage(page)
                     setting = g_currentMission.controlledVehicle.ad.settings[settingName]
                 end
                 setting.new = setting.current
-                page:updateGUISettings(settingName, setting.current)
+                page:loadGUISetting(settingName, setting.current)
             end
         end
     end
@@ -183,10 +183,10 @@ function ADSettings:restorePage(page)
     for settingName, _ in pairs(page.settingElements) do
         if AutoDrive.settings[settingName] ~= nil then
             local setting = AutoDrive.settings[settingName]
-            -- We will restore only global settings to prevent confusion but we could even restore them if it will be requested in future
+            -- We will restore only global settings to prevent confusion but we could even restore vehicle settings if it will be requested in future
             if not setting.isVehicleSpecific then
                 setting.new = setting.default
-                page:updateGUISettings(settingName, setting.default)
+                page:loadGUISetting(settingName, setting.default)
             end
         end
     end
@@ -203,4 +203,12 @@ function ADSettings:pagesHasChanges()
         end
     end
     return false
+end
+
+function ADSettings:forceLoadGUISettings()
+    for _, pageName in pairs(ADSettings.CONTROLS) do
+        if self[pageName].loadGUISettings ~= nil then
+            self[pageName]:loadGUISettings()
+        end
+    end
 end

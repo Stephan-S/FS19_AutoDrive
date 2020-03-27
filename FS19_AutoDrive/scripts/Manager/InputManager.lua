@@ -19,6 +19,8 @@ ADInputManager.actionsToInputs = {
     ADNameDriver = "input_nameDriver",
     AD_Speed_up = "input_increaseSpeed",
     AD_Speed_down = "input_decreaseSpeed",
+    AD_FieldSpeed_up = "input_increaseFieldSpeed",
+    AD_FieldSpeed_down = "input_decreaseFieldSpeed",
     ADToggleHud = "input_toggleHud",
     ADToggleMouse = "input_toggleMouse",
     ADDebugDeleteWayPoint = "input_removeWaypoint",
@@ -45,16 +47,18 @@ ADInputManager.inputsToIds = {
     input_displayMapPoints = 10,
     input_increaseSpeed = 11,
     input_decreaseSpeed = 12,
-    input_nextTarget_Unload = 13,
-    input_previousTarget_Unload = 14,
-    input_nextFillType = 15,
-    input_previousFillType = 16,
-    input_continue = 17,
-    input_callDriver = 18,
-    input_parkVehicle = 19,
-    input_swapTargets = 20,
-    input_nextTarget = 21,
-    input_previousTarget = 22
+    input_increaseFieldSpeed = 13,
+    input_decreaseFieldSpeed = 14,
+    input_nextTarget_Unload = 15,
+    input_previousTarget_Unload = 16,
+    input_nextFillType = 17,
+    input_previousFillType = 18,
+    input_continue = 19,
+    input_callDriver = 20,
+    input_parkVehicle = 21,
+    input_swapTargets = 22,
+    input_nextTarget = 23,
+    input_previousTarget = 24
 }
 
 ADInputManager.idsToInputs = {}
@@ -268,8 +272,12 @@ function ADInputManager:input_decreaseSpeed(vehicle)
     vehicle.ad.stateModule:decreaseSpeedLimit()
 end
 
-function ADInputManager:input_decreaseSpeed(vehicle)
-    vehicle.ad.stateModule:decreaseSpeedLimit()
+function ADInputManager:input_increaseFieldSpeed(vehicle)
+    vehicle.ad.stateModule:increaseFieldSpeedLimit()
+end
+
+function ADInputManager:input_decreaseFieldSpeed(vehicle)
+    vehicle.ad.stateModule:decreaseFieldSpeedLimit()
 end
 
 function ADInputManager:input_nextTarget(vehicle)
