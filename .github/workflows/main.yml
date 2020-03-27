@@ -1,4 +1,4 @@
-name: Zip Builder
+name: Zip Builder (Latest)
 on:
   push:
     branches:
