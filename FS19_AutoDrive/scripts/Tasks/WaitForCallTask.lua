@@ -7,6 +7,7 @@ function WaitForCallTask:new(vehicle)
 end
 
 function WaitForCallTask:setUp()
+    ADHarvestManager:registerAsUnloader(self.vehicle)
     self.vehicle.ad.specialDrivingModule:stopVehicle()
 end
 

@@ -65,11 +65,13 @@ function RefuelTask:abort()
 end
 
 function RefuelTask:finished()
-    self.vehicle.ad.taskModule:setCurrentTaskFinished()
+    self.vehicle:stopAutoDrive()
+    self.vehicle.ad.stateModule:getCurrentMode():start()
+    self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
 end
 
 function RefuelTask:isInRefuelRange()
-    if self.refuelTrigger ~= nil then
+    if self.refuelTrigger ~= nil and not self.refuelTrigger.isLoading then
         local spec = self.vehicle.spec_motorized
         local fillUnitIndex = spec.consumersByFillTypeName.diesel.fillUnitIndex
         for _, fillableObject in pairs(self.refuelTrigger.fillableObjects) do

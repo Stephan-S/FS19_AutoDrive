@@ -48,7 +48,7 @@ function FollowCombineTask:update(dt)
             self.state = FollowCombineTask.STATE_REVERSING
         end
     end
-    
+
     if self.combineFillPercent >= CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING then
         self.stayOnField = true
         self:finished()
@@ -122,7 +122,7 @@ function FollowCombineTask:updateStates()
 
     self.chasePos, self.chaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
     if self.chaseSide ~= self.lastChaseSide then
-        if self.lastChaseSide ~= -1 then
+        if self.lastChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
             self.state = FollowCombineTask.STATE_WAIT_FOR_PASS_BY
         end
         self.caughtCurrentChaseSide = false
