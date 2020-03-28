@@ -4,7 +4,7 @@ PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
 PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 35
-PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
+PathFinderModule.PATHFINDER_TARGET_DISTANCE = 5
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 16
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 6
 PathFinderModule.PATHFINDER_START_DISTANCE = 7
@@ -80,16 +80,26 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local combineVector = {x = rx, z = rz}
 
     local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
-    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, false)
+    -- We use the follow distance as a proxy measure for "what works" for the size of the
+    -- field being worked.
+    local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
+    -- Use the length of the tractor-trailer combo to determine how far to drive to straighten
+    -- the trailer. Add an extra follow distance because the unloader stops well before the back
+    -- of the trailer.
+    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, true) * 1.5
     -- A bit of a sanity check, in case the vehicle is absurdly long.
-    if lengthOffset > self.PATHFINDER_TARGET_DISTANCE * 3 then
-        lengthOffset = self.PATHFINDER_TARGET_DISTANCE * 3
+    -- Using pi because the factor is an arbitrary choice any way you slice it.
+    if lengthOffset > (followDistance + 1) * math.pi then
+        lengthOffset = (followDistance + 1)* math.pi
+    elseif lengthOffset <= followDistance then
+        -- Add one to make sure the waypoints below aren't the same
+        lengthOffset = followDistance + 1
     end
     g_logManager:info("Straightening offset: " .. lengthOffset)
 
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
         local pathFinderTarget = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
-        local appendTarget = {x = pipeChasePos.x - (lengthOffset / 2) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset / 2) * rz}
+        local appendTarget = {x = pipeChasePos.x - followDistance * rx, y = worldY, z = pipeChasePos.z - followDistance * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
@@ -97,7 +107,7 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     else
         local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
-        local appendedNode = {x = pipeChasePos.x - (lengthOffset / 2) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset / 2) * rz}
+        local appendedNode = {x = pipeChasePos.x - followDistance * rx, y = worldY, z = pipeChasePos.z - followDistance * rz}
         if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
             pathFinderTarget = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
         end
