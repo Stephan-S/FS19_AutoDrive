@@ -151,10 +151,8 @@ function CombineUnloaderMode:setToWaitForCall()
     self.state = self.STATE_WAIT_TO_BE_CALLED
     self.vehicle.ad.taskModule:addTask(WaitForCallTask:new(self.vehicle))
     if self.combine ~= nil and self.combine.ad ~= nil then
-        self.combine.ad.currentDriver = nil
         self.combine = nil
     end
-    ADHarvestManager:registerAsUnloader(self.vehicle)
 end
 
 function CombineUnloaderMode:assignToHarvester(harvester)
@@ -164,7 +162,6 @@ function CombineUnloaderMode:assignToHarvester(harvester)
 
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.combine = harvester
-        self.combine.ad.currentDriver = self.vehicle
         -- if combine has extended pipe, aim for that. Otherwise DriveToVehicle and choose from there
         local spec = self.combine.spec_pipe
         if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
@@ -326,6 +323,7 @@ function CombineUnloaderMode:getPipeChasePosition()
                 for _, dischargeNodeIter in pairs(self.combine.spec_dischargeable.dischargeNodes) do
                     dischargeNode = dischargeNodeIter
                 end
+
                 local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
                 local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
 

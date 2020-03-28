@@ -36,29 +36,51 @@ end
 function ADTrailerModule:getBunkerSiloSpeed()
     local trailer = self.bunkerTrailer
     local trigger = self.bunkerTrigger
-    local fillLevel = self.bunkerStartFillLevel
+    local fillLevel =  AutoDrive.getFillLevelAndCapacityOf(trailer)
 
     if trailer ~= nil and trailer.getCurrentDischargeNode ~= nil and fillLevel ~= nil then
         local dischargeNode = trailer:getCurrentDischargeNode()
         if dischargeNode ~= nil and trigger ~= nil and trigger.bunkerSiloArea ~= nil then
             local dischargeSpeed = dischargeNode.emptySpeed
-            --        vecW
-            local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz --      1 ---- 2
-            --local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz--vecH | ---- |
-            local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz --      | ---- |
-            --local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1) --      3 ---- 4    4 = 2 + vecH
+            local unloadTimeInMS = fillLevel / dischargeSpeed
+
+            local dischargeNodeX, dischargeNodeY, dischargeNodeZ = getWorldTranslation(dischargeNode.node)
+            local rx, _, rz = localDirectionToWorld(trailer.components[1].node, 0, 0, 1)
+            local normalVector = {x = -rz, z = rx}
+            
+            --                                                                                  vecW
+            local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz --              1 ---- 2
+            --local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz--     vecH    | ---- |
+            local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz --              | ---- |
+            --local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1) --                                  3 ---- 4    4 = 2 + vecH
 
             local vecH = {x = (x3 - x1), z = (z3 - z1)}
             local vecHLength = MathUtil.vector2Length(vecH.x, vecH.z)
+            
+            local hitX, hitZ, insideBunker, positive = AutoDrive.segmentIntersects(x1, z1, x3, z3, dischargeNodeX, dischargeNodeZ, dischargeNodeX + 50 * normalVector.x, dischargeNodeZ + 50 * normalVector.z)
+            
+            --ADDrawingManager:addLineTask(dischargeNodeX, dischargeNodeY + 3, dischargeNodeZ , dischargeNodeX + 50 * normalVector.x,dischargeNodeY + 3, dischargeNodeZ + 50 * normalVector.z, 1, 0, 0)
+            --ADDrawingManager:addLineTask(x1, dischargeNodeY + 3, z1 , x3, dischargeNodeY + 3, z3, 1, 0, 0)
+            
+            if hitX ~= 0 and hitY ~= 0 then
+                --ADDrawingManager:addLineTask(x1, dischargeNodeY + 5, z1 , hitX, dischargeNodeY + 5, hitZ, 0, 0, 1)
+                local remainingDistance = vecHLength
+                if insideBunker then
+                    local drivenDistance = MathUtil.vector2Length(hitX - x1, hitZ - z1)
+                    if not positive then
+                        drivenDistance = MathUtil.vector2Length(hitX - x3, hitZ - z3)
+                    end
 
-            local unloadTimeInMS = fillLevel / dischargeSpeed
+                    remainingDistance = vecHLength - drivenDistance
+                end
 
-            local speed = ((vecHLength / unloadTimeInMS) * 1000) * 3.6 * 0.85
+                local speed = ((math.max(1, remainingDistance - 3) / unloadTimeInMS) * 1000) * 3.6 * 1
 
-            return speed
+                return speed
+            end
         end
     end
-    return 8
+    return 12
 end
 
 function ADTrailerModule:update(dt)
@@ -165,7 +187,7 @@ function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger)
     local fillUnits = trailer:getFillUnits()
     for i = 1, #fillUnits do
         if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
-            if trigger:getIsActivatable(trailer) and not self.isLoading then                
+            if trigger:getIsActivatable(trailer) and not self.isLoading then
                 if #fillUnits > 1 then
                     self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
                 else

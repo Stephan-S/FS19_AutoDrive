@@ -11,6 +11,7 @@ function DriveToVehicleTask:new(vehicle, targetVehicle)
     o.targetVehicle = targetVehicle
     o.state = DriveToVehicleTask.STATE_PATHPLANNING
     o.wayPoints = nil
+    o.delayRestartTimer = 10000
     return o
 end
 
@@ -24,7 +25,11 @@ function DriveToVehicleTask:update(dt)
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
                 --Don't just restart pathfinder here. We might not even have to go to the vehicle anymore.
-                self:finished()
+                if self.delayRestartTimer <= 0 then
+                    self:finished()
+                else
+                    self.delayRestartTimer = self.delayRestartTimer - dt
+                end
                 --self.vehicle:stopAutoDrive()
                 --self.vehicle.ad.pathFinderModule:startPathPlanningToVehicle(self.targetVehicle, DriveToVehicleTask.TARGET_DISTANCE)
             else
