@@ -834,7 +834,7 @@ function AutoDrive.segmentIntersects(x1, y1, x2, y2, x3, y3, x4, y4)
         local x = x1 + Ua * (x2 - x1)
 		local y = y1 + Ua * (y2 - y1)
 		local insideSector = Ua > 0
-		local insideSecondSector = Ua > 0
+		local insideSecondSector = d > 0
         return x,y, insideSector, insideSecondSector
     else
         return 0, 0, false, false
