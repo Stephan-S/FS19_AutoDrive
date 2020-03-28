@@ -78,12 +78,12 @@ function EmptyHarvesterTask:update(dt)
             self:finished()
         end
 
-        if self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF then
+        local combineFillLevel, _ = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
+        if combineFillLevel > 1 and self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF then
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         else
             --Is the current trailer filled or is the combine empty?
-            local combineFillLevel, _ = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
             local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
             local _, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
             local distanceToCombine = AutoDrive.getDistanceBetween(self.vehicle, self.combine)
