@@ -243,7 +243,7 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
     end
 
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
-        if trigger.bunkerSiloArea == nil and AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance") then
+        if trigger.bunkerSiloArea == nil then
             if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
                 if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then
                     return trigger

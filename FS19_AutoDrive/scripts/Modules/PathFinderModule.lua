@@ -378,9 +378,16 @@ function PathFinderModule:update(dt)
             self.currentCell = bestCell
 
             if self.currentCell ~= nil and distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z) < 1.5 then
-                self.isFinished = true
-                self.targetCell.incoming = self.currentCell --.incoming
-                self:createWayPoints()
+                if self.currentCell.out == nil then
+                    self:determineNextGridCells(self.currentCell)
+                end
+                for _, outCell in pairs(self.currentCell.out) do
+                    if outCell.x == self.targetCell.x and outCell.z == self.targetCell.z then
+                        self.isFinished = true
+                        self.targetCell.incoming = self.currentCell --.incoming
+                        self:createWayPoints()
+                    end
+                end
             end
 
             if self.currentCell == nil then
