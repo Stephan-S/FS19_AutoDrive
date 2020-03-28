@@ -39,13 +39,3 @@ function AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
 
     return boundingBox
 end
-
-function AutoDrive.sign(x)
-    if x<0 then
-        return -1
-    elseif x>0 then
-        return 1
-    else
-        return 0
-    end
-end
