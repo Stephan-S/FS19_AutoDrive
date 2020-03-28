@@ -304,19 +304,17 @@ end
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
-    if angle < 3 then
-        maxSpeed = self.vehicle.ad.stateModule:getSpeedLimit()
-    elseif angle < 5 then
+    if angle > 3 then
         maxSpeed = 38
-    elseif angle < 8 then
+    elseif angle > 5 then
         maxSpeed = 27
-    elseif angle < 12 then
+    elseif angle > 8 then
         maxSpeed = 20
-    elseif angle < 15 then
+    elseif angle > 12 then
         maxSpeed = 17
-    elseif angle < 20 then
+    elseif angle > 15 then
         maxSpeed = 16
-    else
+    elseif angle > 20 then
         maxSpeed = 13
     end
 
