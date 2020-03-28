@@ -295,11 +295,11 @@ end
 
 function ADTriggerManager.getTriggerPos(trigger)
     local x, y, z = 0, 0, 0
-    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil then
+    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil and entityExists(trigger.triggerNode) then
         x, y, z = getWorldTranslation(trigger.triggerNode)
     --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
-    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil then
+    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil and entityExists(trigger.exactFillRootNode)  then
         x, y, z = getWorldTranslation(trigger.exactFillRootNode)
     --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
