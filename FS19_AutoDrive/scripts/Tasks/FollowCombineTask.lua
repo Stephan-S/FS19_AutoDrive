@@ -30,7 +30,7 @@ function FollowCombineTask:setUp()
 end
 
 function FollowCombineTask:update(dt)
-    if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
+    if self.combine == nil or g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
         self:finished()
         return
     end
