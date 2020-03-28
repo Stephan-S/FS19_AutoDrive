@@ -80,9 +80,14 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local combineVector = {x = rx, z = rz}
 
     local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
+    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, false)
+    -- A bit of a sanity check, in case the vehicle is absurdly long.
+    if lengthOffset > self.PATHFINDER_TARGET_DISTANCE * 3 then
+        lengthOffset = self.PATHFINDER_TARGET_DISTANCE
+    end
 
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * 2 * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * 2 * rz}
+        local pathFinderTarget = {x = pipeChasePos.x - (self.PATHFINDER_TARGET_DISTANCE + lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (self.PATHFINDER_TARGET_DISTANCE + lengthOffset) * rz}
         local appendTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
@@ -91,9 +96,9 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     else
         local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
-        local appendedNode = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
+        local appendedNode = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
         if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
-            pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
+            pathFinderTarget = {x = pipeChasePos.x - (self.PATHFINDER_TARGET_DISTANCE + lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (self.PATHFINDER_TARGET_DISTANCE + lengthOffset) * rz}
         end
 
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")

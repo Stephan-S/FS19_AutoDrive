@@ -40,6 +40,22 @@ function AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
     return boundingBox
 end
 
+function AutoDrive.getTractorAndTrailersLength(vehicle, onlyfirst)
+    local totalLength = vehicle.sizeLength
+    g_logManager:info("Vechicle length: " .. vehicle.sizeLength)
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
+
+    for _, trailer in ipairs(trailers) do
+        g_logManager:info("Trailer length: " .. trailer.sizeLength)
+        totalLength = totalLength + trailer.sizeLength
+        if onlyFirst then
+            break
+        end
+    end
+    g_logManager:info("Total length: " .. totalLength)
+    return totalLength
+end
+
 function AutoDrive.sign(x)
     if x<0 then
         return -1
