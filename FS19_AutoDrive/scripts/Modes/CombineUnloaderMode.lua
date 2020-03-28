@@ -240,6 +240,31 @@ function CombineUnloaderMode:shouldUnloadAtTrigger()
     return self.state == self.STATE_DRIVE_TO_UNLOAD
 end
 
+function CombineUnloaderMode:getPipeSlopeCorrection(combineNode, dischargeNode)
+    local combineX, combineY, combineZ = getWorldTranslation(combineNode)    
+    local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
+    -- +1 means left, -1 means right. 0 means we don't know
+    pipeSide = AutoDrive.sign(AutoDrive.getSetting("pipeOffset", self.vehicle))
+    local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, combineX, combineY, combineZ)
+    g_logManager:info("heightUnderCombine: " .. heightUnderCombine);
+    local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeX, nodeY, nodeZ)
+    g_logManager:info("heightUnderPipe: " .. heightUnderPipe);
+
+    -- want this to be negative if the ground is lower under the pipe
+    local dh = heightUnderPipe - heightUnderCombine
+    g_logManager:info("dh: " .. dh);
+    local _, _, _, hyp = AutoDrive.getWorldDirection(combineX, heightUnderCombine, combineZ, nodeX, heightUnderPipe, nodeZ)
+    g_logManager:info("hyp: " .. hyp);
+    local run = math.sqrt(hyp * hyp - dh * dh)
+    g_logManager:info("run: " .. run);
+    local theta = math.asin(dh/hyp)
+    g_logManager:info("theta: " .. theta)
+    g_logManager:info("nodeY: " .. nodeY)
+    local elevationCorrection = (run * math.cos(theta) + (nodeY - heightUnderPipe) * math.sin(theta)) - run
+    g_logManager:info("elevationCorrection: " .. elevationCorrection)
+    return elevationCorrection * pipeSide
+end
+
 function CombineUnloaderMode:getPipeChasePosition()
     local worldX, worldY, worldZ = getWorldTranslation(self.combine.components[1].node)
     local vehicleX, _, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
@@ -301,8 +326,8 @@ function CombineUnloaderMode:getPipeChasePosition()
                 for _, dischargeNodeIter in pairs(self.combine.spec_dischargeable.dischargeNodes) do
                     dischargeNode = dischargeNodeIter
                 end
-
-                local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
+                local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
+                local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
 
                 local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
                 local currentTrailer = 1
