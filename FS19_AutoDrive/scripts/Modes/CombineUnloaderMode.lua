@@ -151,10 +151,8 @@ function CombineUnloaderMode:setToWaitForCall()
     self.state = self.STATE_WAIT_TO_BE_CALLED
     self.vehicle.ad.taskModule:addTask(WaitForCallTask:new(self.vehicle))
     if self.combine ~= nil and self.combine.ad ~= nil then
-        self.combine.ad.currentDriver = nil
         self.combine = nil
     end
-    ADHarvestManager:registerAsUnloader(self.vehicle)
 end
 
 function CombineUnloaderMode:assignToHarvester(harvester)
@@ -164,7 +162,6 @@ function CombineUnloaderMode:assignToHarvester(harvester)
 
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.combine = harvester
-        self.combine.ad.currentDriver = self.vehicle
         -- if combine has extended pipe, aim for that. Otherwise DriveToVehicle and choose from there
         local spec = self.combine.spec_pipe
         if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
@@ -302,7 +299,8 @@ function CombineUnloaderMode:getPipeChasePosition()
                     dischargeNode = dischargeNodeIter
                 end
 
-                local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
+                --local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
+                local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) --+ slopeCorrection
 
                 local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
                 local currentTrailer = 1
@@ -336,6 +334,24 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     return chaseNode, sideIndex
 end
+--[[
+    -- function by aletheist!
+function CombineUnloaderMode:getPipeSlopeCorrection(combineNode, dischargeNode)
+    local combineX, combineY, combineZ = getWorldTranslation(combineNode)
+    local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
+    -- +1 means left, -1 means right. 0 means we don't know
+    local pipeSide = AutoDrive.sign(AutoDrive.getSetting("pipeOffset", self.vehicle))
+    local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, combineX, combineY, combineZ)
+    local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeX, nodeY, nodeZ)
+
+    -- want this to be negative if the ground is lower under the pipe
+    local dh = heightUnderPipe - heightUnderCombine
+    local hyp = MathUtil.vector3Length(combineX - nodeX, heightUnderCombine - heightUnderPipe, combineZ - nodeZ)
+    local run = math.sqrt(hyp * hyp - dh * dh)
+    local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh/hyp)) - run
+    return elevationCorrection * pipeSide
+end
+--]]
 
 function CombineUnloaderMode:getAngleToCombineHeading()
     if self.vehicle == nil or self.combine == nil then
