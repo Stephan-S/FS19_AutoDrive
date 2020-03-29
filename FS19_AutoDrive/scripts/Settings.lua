@@ -703,7 +703,7 @@ AutoDrive.settings.followOnlyOnField = {
     text = "gui_ad_followOnlyOnField",
     tooltip = "gui_ad_followOnlyOnField_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 function AutoDrive.getSetting(settingName, vehicle)
