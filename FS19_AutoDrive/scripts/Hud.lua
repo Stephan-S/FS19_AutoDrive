@@ -186,7 +186,11 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
 
 	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-		self:AddSettingsButton("avoidFruit", "hud_avoidFruit", 1, true)
+		if g_courseplay ~= nil then
+			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+		else
+			self:AddSettingsButton("avoidFruit", "hud_avoidFruit", 1, true)
+		end
 		self.buttonCounter = self.buttonCounter + 1
 		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
 	end
@@ -194,7 +198,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
 	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, false))
-	
+
 	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
 		speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
 		speedY = self.posY + (2) * self.borderY + (1) * self.buttonHeight

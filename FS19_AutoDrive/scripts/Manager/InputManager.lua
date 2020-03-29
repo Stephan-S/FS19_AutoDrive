@@ -58,7 +58,8 @@ ADInputManager.inputsToIds = {
     input_parkVehicle = 21,
     input_swapTargets = 22,
     input_nextTarget = 23,
-    input_previousTarget = 24
+    input_previousTarget = 24,
+    input_startCp = 25
 }
 
 ADInputManager.idsToInputs = {}
@@ -362,4 +363,8 @@ function ADInputManager:input_swapTargets(vehicle)
     local currentFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
     vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
     vehicle.ad.stateModule:setSecondMarker(currentFirstMarker)
+end
+
+function ADInputManager:input_startCp(vehicle)
+    vehicle.ad.stateModule:toggleStartCp()
 end

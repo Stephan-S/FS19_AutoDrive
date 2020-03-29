@@ -474,7 +474,7 @@ function AutoDrive:stopAutoDrive()
                 AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
                 self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
 
-                if self.ad.onRouteToPark and self.ad.isStoppingWithError == false then
+                if self.ad.onRouteToPark and not self.ad.isStoppingWithError then
                     self.ad.onRouteToPark = false
                     if self.deactivateLights ~= nil then
                         self:deactivateLights()
@@ -501,6 +501,13 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:reset()
 
             AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
+
+            if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
+                self.ad.stateModule:setStartCp(false)
+                if not self.ad.isStoppingWithError then
+                    g_courseplay.courseplay:startStop(self)
+                end
+            end
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")

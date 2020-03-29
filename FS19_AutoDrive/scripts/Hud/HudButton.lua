@@ -162,6 +162,14 @@ function ADHudButton:getNewState(vehicle)
         end
     end
 
+    if self.primaryAction == "input_startCp" then
+        if vehicle.ad.stateModule:getStartCp() then
+            newState = 2
+        else
+            newState = 1
+        end
+    end
+
     return newState
 end
 

@@ -34,6 +34,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Parkeer Voertuig" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="hud_avoidFruit"								text="AD: Fruit vermijden" />
+		<text name="hud_startCp"								text="AD: Start CP at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Geen parkeerbestemming toegewezen. Wijzig het momenteel geselecteerde bestemming toe met de rechtermuisknop." />
 		<text name="AD_parkVehicle_selected"					text="Toegewezen als parkeerplaats: " />
 		<text name="AD_Driver_of"								text="De bestuurder van" />
