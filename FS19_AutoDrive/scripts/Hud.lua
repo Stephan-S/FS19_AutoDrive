@@ -268,6 +268,12 @@ function AutoDriveHud:drawHud(vehicle)
 	end
 end
 
+function AutoDriveHud:update(dt)
+	for _, element in ipairs(self.hudElements) do -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
+		element:update(dt)
+	end
+end
+
 function AutoDriveHud:toggleHud(vehicle)
 	if self.showHud == false then
 		self.showHud = true

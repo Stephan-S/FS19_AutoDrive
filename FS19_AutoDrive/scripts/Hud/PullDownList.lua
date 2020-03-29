@@ -83,6 +83,12 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     return o
 end
 
+function ADPullDownList:update(dt)
+    if self.startedDraggingTimer ~= nil then
+        self.startedDraggingTimer = self.startedDraggingTimer + dt
+    end
+end
+
 function ADPullDownList:onDraw(vehicle, uiScale)
     if not (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) then
         return
@@ -219,6 +225,15 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                     self.selected = 1
                     self.hovered = 1
                 end
+            end
+        end
+
+        if vehicle.ad.stateModule:isEditorModeEnabled() and self.dragged ~= nil and self.startedDraggingTimer > 200 then
+            if g_lastMousePosX ~= nil and g_lastMousePosY ~= nil then
+                setTextBold(true)
+                setTextColor(0.0, 0.569, 0.835, 1)
+
+                renderText(g_lastMousePosX, g_lastMousePosY, adFontSize, self.draggedElement.displayName)
             end
         end
     end
@@ -504,7 +519,11 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
     if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
         local hitElement, hitIndex, hitIcon = self:getElementAt(vehicle, posX, posY)
         if button == 1 and isUp then
-            if self.state == ADPullDownList.STATE_COLLAPSED and AutoDrive.pullDownListExpanded <= 0 then
+            if self.state == ADPullDownList.STATE_EXPANDED and self.dragged ~= nil and self.startedDraggingTimer > 200 then
+                if hitElement ~= nil then
+                    self:sortDraggedInGroup(self.draggedElement, hitElement)
+                end
+            elseif self.state == ADPullDownList.STATE_COLLAPSED and AutoDrive.pullDownListExpanded <= 0 then
                 self:expand(vehicle)
             elseif self.state == ADPullDownList.STATE_EXPANDED then
                 if hitIcon == nil or hitIcon == 0 then
@@ -549,6 +568,8 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     end
                 end
             end
+            self.dragged = nil
+            self.startedDraggingTimer = nil
             return true
         elseif button == 4 and isUp then
             local oldSelected = self.selected
@@ -580,6 +601,12 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                         vehicle.ad.destinationFilterText = ""
                     end
                 end
+            end
+        elseif self.state == ADPullDownList.STATE_EXPANDED and button == 1 and isDown then
+            if hitIndex ~= nil and self.dragged == nil and hitElement ~= nil and not hitElement.isFolder then
+                self.dragged = self.selected + (hitIndex - 1)
+                self.startedDraggingTimer = 0
+                self.draggedElement = hitElement
             end
         elseif isDown == false and isUp == false then
             if hitIndex ~= nil then
@@ -786,6 +813,29 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
     table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarker.name, returnValue = mapMarker.markerIndex})
 
     ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarker.markerIndex)
+
+    self:sortCurrentItems()
+end
+
+function ADPullDownList:sortDraggedInGroup(draggedElement, hitElement)
+    local targetGroupName
+    if hitElement.isFolder then
+        targetGroupName = hitElement.returnValue
+    else
+        targetGroupName = ADGraphManager:getMapMarkerById(hitElement.returnValue).group
+    end
+
+    for _, entries in pairs(self.options) do
+        for i, entry in pairs(entries) do
+            if entry.returnValue == draggedElement.returnValue then
+                table.remove(entries, i)
+            end
+        end
+    end
+
+    table.insert(self.options[self.groups[targetGroupName]], {displayName = draggedElement.displayName, returnValue = draggedElement.returnValue})
+
+    ADGraphManager:changeMapMarkerGroup(targetGroupName, draggedElement.returnValue)
 
     self:sortCurrentItems()
 end

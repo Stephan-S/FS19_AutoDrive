@@ -318,7 +318,7 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
         maxSpeed = 13
     end
 
-    return maxSpeed * 1.25 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
+    return maxSpeed * 1.0 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
 end
 
 function ADDrivePathModule:getSpeedLimitBySteeringAngle()

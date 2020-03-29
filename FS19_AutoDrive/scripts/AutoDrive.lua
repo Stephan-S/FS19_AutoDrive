@@ -241,6 +241,12 @@ function AutoDrive:update(dt)
 			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
 		end
 	end
+	
+    if AutoDrive.Hud ~= nil then
+        if AutoDrive.Hud.showHud == true then
+            AutoDrive.Hud:update(dt)
+        end
+    end
 
 	ADHarvestManager:update(dt)
 	ADMessagesManager:update(dt)
