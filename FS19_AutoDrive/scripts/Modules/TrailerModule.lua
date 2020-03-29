@@ -62,7 +62,7 @@ function ADTrailerModule:getBunkerSiloSpeed()
             --ADDrawingManager:addLineTask(dischargeNodeX, dischargeNodeY + 3, dischargeNodeZ , dischargeNodeX + 50 * normalVector.x,dischargeNodeY + 3, dischargeNodeZ + 50 * normalVector.z, 1, 0, 0)
             --ADDrawingManager:addLineTask(x1, dischargeNodeY + 3, z1 , x3, dischargeNodeY + 3, z3, 1, 0, 0)
             
-            if hitX ~= 0 and hitY ~= 0 then
+            if hitX ~= 0 and hitZ ~= 0 then
                 --ADDrawingManager:addLineTask(x1, dischargeNodeY + 5, z1 , hitX, dischargeNodeY + 5, hitZ, 0, 0, 1)
                 local remainingDistance = vecHLength
                 if insideBunker then

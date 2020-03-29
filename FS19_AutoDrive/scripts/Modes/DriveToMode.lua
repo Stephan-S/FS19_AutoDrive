@@ -40,8 +40,9 @@ function DriveToMode:handleFinishedTask()
                 target = mapMarker.name
             end
         end
-
-        AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.stateModule:getName(), target)
+        if self.vehicle.ad.isStoppingWithError == false then
+            AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.stateModule:getName(), target)
+        end
     end
 end
 
