@@ -146,6 +146,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Отрегулируйте скорость поворота для отдельного автомобиля. Масса и текущая скорость все равно будут влиять на точку торможения" />
 		<text name="gui_ad_callSecondUnloader"					text="Звоните 2. Разгрузчик" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Звоните 2. Разгрузчик, когда текущий разгрузчик достигнет уровня предварительного заполнения." />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />

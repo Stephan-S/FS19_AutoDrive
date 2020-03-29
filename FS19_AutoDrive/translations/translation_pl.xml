@@ -144,6 +144,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Regulacja prędkości na zakrętach dla poszczególnych pojazdów. Masa i aktualna prędkość nadal będą wpływać na punkt hamowania" />
 		<text name="gui_ad_callSecondUnloader"					text="Wezwij 2. Rozładowarka ." />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Wezwij 2. Rozładowarka, gdy aktualny rozładowacz osiągnie poziom wypełnienia wstępnego" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Ustawienia - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Ustawienia pojazdu - AutoDrive" />

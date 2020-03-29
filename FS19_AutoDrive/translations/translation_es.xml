@@ -146,6 +146,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajustar la velocidad de las curvas para cada vehículo. La masa y la velocidad actual todavía impactarán en el punto de frenado" />
 		<text name="gui_ad_callSecondUnloader"					text="Llamada 2. Descargador" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Llamada 2. Descargador cuando el descargador actual alcanza el nivel de llenado previo" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />

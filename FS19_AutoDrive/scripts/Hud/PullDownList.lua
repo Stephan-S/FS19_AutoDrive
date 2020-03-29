@@ -519,7 +519,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
     if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
         local hitElement, hitIndex, hitIcon = self:getElementAt(vehicle, posX, posY)
         if button == 1 and isUp then
-            if self.state == ADPullDownList.STATE_EXPANDED and self.dragged ~= nil and self.startedDraggingTimer > 200 then
+            if self.state == ADPullDownList.STATE_EXPANDED and AutoDrive.getSetting("useFolders") and self.dragged ~= nil and self.startedDraggingTimer > 200 then
                 if hitElement ~= nil then
                     self:sortDraggedInGroup(self.draggedElement, hitElement)
                 end

@@ -146,6 +146,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Passe die Kurvengeschwindikeit pro Fahrzeug an. Masse und Geschwindikeit beeinflussen weiterhin den Bremspunkt" />
 		<text name="gui_ad_callSecondUnloader"					text="Rufe 2. Ablader" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Rufe 2. Ablader wenn der aktuelle Abfahrer das eingestellte Füll Level erreicht hat" />
+		<text name="gui_ad_followOnlyOnField"					text="Abfahrer aufs Feld begrenzen" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Während dem aktiven Abladen / Häckseln, darf nicht über Feldgrenzen hinausgfahren werden" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />

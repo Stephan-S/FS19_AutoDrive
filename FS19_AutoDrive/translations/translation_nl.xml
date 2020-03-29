@@ -146,6 +146,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Pas de hoeksnelheid aan voor een individueel voertuig. Massa en huidige snelheid zullen nog steeds het rempunt beïnvloeden" />
 		<text name="gui_ad_callSecondUnloader"					text="Bel 2. Ontlader" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Bel 2. Ontlader wanneer de huidige ontlader het voorloopvullingsniveau bereikt" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Instellingen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Voertuiginstellingen - AutoDrive" />

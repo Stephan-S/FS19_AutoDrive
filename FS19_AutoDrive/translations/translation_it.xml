@@ -146,6 +146,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Regola la velocità di svolta per il singolo veicolo. La massa e la velocità continueranno ad influenzare il punto di frenata" />
 		<text name="gui_ad_callSecondUnloader"					text="Chiamata secondo carro" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Chiama il secondo carro quando lo quello attuale raggiunge il livello di riempimento di preallarme" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />
