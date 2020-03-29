@@ -228,6 +228,8 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	end
+
+	ADMessagesManager:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
 function AutoDrive:update(dt)
@@ -241,12 +243,12 @@ function AutoDrive:update(dt)
 			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
 		end
 	end
-	
-    if AutoDrive.Hud ~= nil then
-        if AutoDrive.Hud.showHud == true then
-            AutoDrive.Hud:update(dt)
-        end
-    end
+
+	if AutoDrive.Hud ~= nil then
+		if AutoDrive.Hud.showHud == true then
+			AutoDrive.Hud:update(dt)
+		end
+	end
 
 	ADHarvestManager:update(dt)
 	ADMessagesManager:update(dt)

@@ -188,9 +188,7 @@ function ADInputManager:input_routesManager()
 end
 
 function ADInputManager:input_goToVehicle()
-    if ADMessagesManager.lastNotificationVehicle ~= nil then
-        g_currentMission:requestToEnterVehicle(ADMessagesManager.lastNotificationVehicle)
-    end
+    ADMessagesManager:goToVehicle()
 end
 
 function ADInputManager:input_showNeighbor(vehicle)
