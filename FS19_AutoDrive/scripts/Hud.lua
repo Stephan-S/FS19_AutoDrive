@@ -196,7 +196,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive.experimentalFeatures.wideHUD then		
 		self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 		self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
-		self:AddSettingsButton("exitField", "gui_ad_exitField ", 1, true)
+		self:AddSettingsButton("exitField", "gui_ad_exitField", 1, true)
 		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 
