@@ -10,6 +10,7 @@ AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.fastExtendedEditorMode = true
+AutoDrive.experimentalFeatures.wideHUD = true
 
 AutoDrive.developmentControls = false
 

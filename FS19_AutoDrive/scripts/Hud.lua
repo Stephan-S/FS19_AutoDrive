@@ -100,10 +100,26 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	local listItemSize = 20
 
 	self.headerHeight = 0.016 * uiScale
+	
+	self.Background = {}
+	self.Buttons = {}
+	self.buttonCounter = 0
+	self.rows = 1
+	self.rowCurrent = 1
+	self.cols = 7
+	self.colCurrent = 1
+	self.buttonCollOffset = 0
+	self.pullDownRowOffset = 2
+
+	if AutoDrive.experimentalFeatures.wideHUD then
+		self.buttonCollOffset = 7
+		self.pullDownRowOffset = 0
+		numButtonRows = 0
+	end
 
 	self.borderX, self.borderY = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize)
 	self.buttonWidth, self.buttonHeight = getNormalizedScreenValues(uiScale * buttonSize, uiScale * buttonSize)
-	self.width, self.height = getNormalizedScreenValues((numButtons * (gapSize + buttonSize) + gapSize) * uiScale, ((numButtonRows * (gapSize + buttonSize)) + (3 * (gapSize + iconSize)) + gapSize) * uiScale + self.headerHeight)
+	self.width, self.height = getNormalizedScreenValues(((numButtons + self.buttonCollOffset) * (gapSize + buttonSize) + gapSize) * uiScale, ((numButtonRows * (gapSize + buttonSize)) + (3 * (gapSize + iconSize)) + gapSize) * uiScale + self.headerHeight)
 	self.gapWidth, self.gapHeight = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize)
 	self.iconWidth, self.iconHeight = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize)
 	self.listItemWidth, self.listItemHeight = getNormalizedScreenValues(uiScale * listItemSize, uiScale * listItemSize)
@@ -123,18 +139,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self.Target = ADGraphManager:getMapMarkerById(1).name
 	end
 
-	self.Background = {}
-	self.Buttons = {}
-	self.buttonCounter = 0
-	self.rows = 1
-	self.rowCurrent = 1
-	self.cols = 7
-	self.colCurrent = 1
-
-	self.row2 = self.posY + 3 * self.borderY + 2 * self.buttonHeight
-	self.row3 = self.posY + 4 * self.borderY + 3 * self.buttonHeight
-	self.row4 = self.posY + 5 * self.borderY + 4 * self.buttonHeight
-	self.rowHeader = self.posY + 6 * self.borderY + 5 * self.buttonHeight
+	self.row2 = self.posY + (self.pullDownRowOffset + 1) * self.borderY + (self.pullDownRowOffset + 0) * self.buttonHeight
+	self.row3 = self.posY + (self.pullDownRowOffset + 2) * self.borderY + (self.pullDownRowOffset + 1) * self.buttonHeight
+	self.row4 = self.posY + (self.pullDownRowOffset + 3) * self.borderY + (self.pullDownRowOffset + 2) * self.buttonHeight
+	self.rowHeader = self.posY + (self.pullDownRowOffset + 4) * self.borderY + (self.pullDownRowOffset + 3) * self.buttonHeight
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.posY - 2 * self.gapHeight, self.width, self.height + 5 * self.gapHeight, AutoDrive.directory .. "textures/Background.dds", 0, "background"))
 
@@ -186,21 +194,21 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
 
 	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-		if g_courseplay ~= nil then
+		if g_courseplay ~= nil then			
+			self.buttonCounter = self.buttonCounter - 1
 			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
-		else
-			self:AddSettingsButton("avoidFruit", "hud_avoidFruit", 1, true)
 		end
+		self:AddSettingsButton("avoidFruit", "hud_avoidFruit", 1, true)
 		self.buttonCounter = self.buttonCounter + 1
 		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
 	end
 
-	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
+	local speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
 	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, false))
 
 	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-		speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
+		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 		speedY = self.posY + (2) * self.borderY + (1) * self.buttonHeight
 		table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, true))
 	end
@@ -216,6 +224,7 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, 
 		self.colCurrent = self.cols
 	end
 	self.rowCurrent = math.ceil(self.buttonCounter / self.cols)
+	self.colCurrent = self.colCurrent + self.buttonCollOffset
 
 	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
@@ -230,6 +239,7 @@ function AutoDriveHud:AddSettingsButton(setting, toolTip, state, visible)
 		self.colCurrent = self.cols
 	end
 	self.rowCurrent = math.ceil(self.buttonCounter / self.cols)
+	self.colCurrent = self.colCurrent + self.buttonCollOffset
 
 	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
