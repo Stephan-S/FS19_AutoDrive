@@ -9,7 +9,7 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.wideHUD = true
+AutoDrive.experimentalFeatures.wideHUD = false
 
 AutoDrive.developmentControls = false
 
