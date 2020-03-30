@@ -152,6 +152,14 @@ function ADHudIcon:updateVisibility(vehicle)
             newVisibility = false
         end
     end
+    
+    if self.name == "fruitOverlay" then
+        if (vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD) then
+            newVisibility = true
+        else
+            newVisibility = false
+        end
+    end
 
     self.isVisible = newVisibility
 end
