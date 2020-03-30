@@ -193,16 +193,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--------------------------------------------------
 
 	---------- SECOND ROW BUTTONS ---------------------
-	if AutoDrive.experimentalFeatures.wideHUD then
-		self.buttonCounter = self.buttonCounter + 1
-
-		if g_courseplay ~= nil then
-			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
-		else
-			self.buttonCounter = self.buttonCounter + 1
-		end
-		
+	if AutoDrive.experimentalFeatures.wideHUD then		
 		self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
+		self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
+		self:AddSettingsButton("exitField", "gui_ad_exitField ", 1, true)
 		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 
@@ -214,16 +208,16 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
 	else
 		self:AddEditModeButtons()
-		self.buttonCounter = self.buttonCounter - 1
-		self.buttonCounter = self.buttonCounter - 1
-		self.buttonCounter = self.buttonCounter - 1
+		self.buttonCounter = self.buttonCounter - 5
 
 		if g_courseplay ~= nil then
-			self.buttonCounter = self.buttonCounter - 1
 			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+		else
+			self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 		end
-		
-		self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
+
+		self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
+		self:AddSettingsButton("exitField", "gui_ad_exitField", 1, true)
 		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 
@@ -239,6 +233,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	---------- THIRD ROW BUTTONS ---------------------
 	if AutoDrive.experimentalFeatures.wideHUD then
 		self:AddEditModeButtons()
+
+		if g_courseplay ~= nil then
+			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+		end
 	end
 
 	-- Refreshing layer sequence must be called, after all elements have been added
