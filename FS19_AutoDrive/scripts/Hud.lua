@@ -67,6 +67,7 @@ function AutoDriveHud:loadHud()
 		if AutoDrive.getSetting("guiScale") ~= 0 then
 			uiScale = AutoDrive.getSetting("guiScale")
 		end
+
 		local numButtons = 7
 		local numButtonRows = 2
 		local buttonSize = 32
@@ -100,10 +101,26 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	local listItemSize = 20
 
 	self.headerHeight = 0.016 * uiScale
+	
+	self.Background = {}
+	self.Buttons = {}
+	self.buttonCounter = 0
+	self.rows = 1
+	self.rowCurrent = 1
+	self.cols = 7
+	self.colCurrent = 1
+	self.buttonCollOffset = 0
+	self.pullDownRowOffset = 2
+
+	if AutoDrive.experimentalFeatures.wideHUD then
+		self.buttonCollOffset = 7
+		self.pullDownRowOffset = 0
+		numButtonRows = 0
+	end
 
 	self.borderX, self.borderY = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize)
 	self.buttonWidth, self.buttonHeight = getNormalizedScreenValues(uiScale * buttonSize, uiScale * buttonSize)
-	self.width, self.height = getNormalizedScreenValues((numButtons * (gapSize + buttonSize) + gapSize) * uiScale, ((numButtonRows * (gapSize + buttonSize)) + (3 * (gapSize + iconSize)) + gapSize) * uiScale + self.headerHeight)
+	self.width, self.height = getNormalizedScreenValues(((numButtons + self.buttonCollOffset) * (gapSize + buttonSize) + gapSize) * uiScale, ((numButtonRows * (gapSize + buttonSize)) + (3 * (gapSize + iconSize)) + gapSize) * uiScale + self.headerHeight)
 	self.gapWidth, self.gapHeight = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize)
 	self.iconWidth, self.iconHeight = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize)
 	self.listItemWidth, self.listItemHeight = getNormalizedScreenValues(uiScale * listItemSize, uiScale * listItemSize)
@@ -123,18 +140,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self.Target = ADGraphManager:getMapMarkerById(1).name
 	end
 
-	self.Background = {}
-	self.Buttons = {}
-	self.buttonCounter = 0
-	self.rows = 1
-	self.rowCurrent = 1
-	self.cols = 7
-	self.colCurrent = 1
-
-	self.row2 = self.posY + 3 * self.borderY + 2 * self.buttonHeight
-	self.row3 = self.posY + 4 * self.borderY + 3 * self.buttonHeight
-	self.row4 = self.posY + 5 * self.borderY + 4 * self.buttonHeight
-	self.rowHeader = self.posY + 6 * self.borderY + 5 * self.buttonHeight
+	self.row2 = self.posY + (self.pullDownRowOffset + 1) * self.borderY + (self.pullDownRowOffset + 0) * self.buttonHeight
+	self.row3 = self.posY + (self.pullDownRowOffset + 2) * self.borderY + (self.pullDownRowOffset + 1) * self.buttonHeight
+	self.row4 = self.posY + (self.pullDownRowOffset + 3) * self.borderY + (self.pullDownRowOffset + 2) * self.buttonHeight
+	self.rowHeader = self.posY + (self.pullDownRowOffset + 4) * self.borderY + (self.pullDownRowOffset + 3) * self.buttonHeight
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.posY - 2 * self.gapHeight, self.width, self.height + 5 * self.gapHeight, AutoDrive.directory .. "textures/Background.dds", 0, "background"))
 
@@ -152,8 +161,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	table.insert(self.hudElements, self.targetPullDownList)
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX + self.gapWidth, self.row3, self.iconWidth, self.iconHeight, AutoDrive.directory .. "textures/tipper_overlay.dds", 1, "unloadOverlay"))
-
+	
 	table.insert(self.hudElements, ADPullDownList:new(self.posX + 2 * self.gapWidth + self.buttonWidth, self.row3, self.iconWidth * 6 + self.gapWidth * 5, self.listItemHeight, ADPullDownList.TYPE_UNLOAD, 1))
+
+	table.insert(self.hudElements, ADHudIcon:new(self.posX + self.gapWidth, self.row2, self.iconWidth, self.iconHeight, AutoDrive.directory .. "textures/fruit_overlay.dds", 1, "fruitOverlay"))
 
 	table.insert(
 		self.hudElements,
@@ -167,42 +178,81 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		)
 	)
 
+	-------- BASE ROW BUTTONS --------------
 	self:AddButton("input_start_stop", nil, "input_ADEnDisable", 1, true)
 	self:AddButton("input_silomode", "input_previousMode", "input_ADSilomode", 1, true)
 	self:AddButton("input_continue", nil, "input_AD_continue", 1, true)
 	self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true)
 	self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true)
-	self.buttonCounter = self.buttonCounter + 1
-	self:AddButton("input_debug", "input_displayMapPoints", "input_ADActivateDebug", 1, true)
-
-	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, false)
-	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
-	if not AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-		self:AddButton("input_showNeighbor", nil, "input_ADDebugSelectNeighbor", 1, false)
-		self:AddButton("input_nextNeighbor", "input_previousNeighbor", "input_ADDebugChangeNeighbor", 1, false)
-		self:AddButton("input_toggleConnection", "input_toggleConnectionInverted", "input_ADDebugCreateConnection", 1, false)
-	end
-	self:AddButton("input_createMapMarker", "input_editMapMarker", "input_ADDebugCreateMapMarker", 1, false)
-	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
-
-	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-		self:AddSettingsButton("avoidFruit", "hud_avoidFruit", 1, true)
-		self.buttonCounter = self.buttonCounter + 1
-		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
-	end
-
-	local speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
+	
+	local speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
 	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, false))
-	
-	if AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-		speedX = self.posX + (self.cols - 1) * self.borderX + (self.cols - 2) * self.buttonWidth
+	self.buttonCounter = self.buttonCounter + 1
+
+	self:AddButton("input_debug", "input_displayMapPoints", "input_ADActivateDebug", 1, true)
+	--------------------------------------------------
+
+	---------- SECOND ROW BUTTONS ---------------------
+	if AutoDrive.experimentalFeatures.wideHUD then		
+		self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
+		self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
+		self:AddSettingsButton("exitField", "gui_ad_exitField", 1, true)
+		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
+		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
+
+		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 		speedY = self.posY + (2) * self.borderY + (1) * self.buttonHeight
 		table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, true))
+		self.buttonCounter = self.buttonCounter + 1
+
+		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
+	else
+		self:AddEditModeButtons()
+		self.buttonCounter = self.buttonCounter - 5
+
+		if g_courseplay ~= nil then
+			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+		else
+			self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
+		end
+
+		self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
+		self:AddSettingsButton("exitField", "gui_ad_exitField", 1, true)
+		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
+		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
+
+		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
+		speedY = self.posY + (2) * self.borderY + (1) * self.buttonHeight
+		table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, true))
+		self.buttonCounter = self.buttonCounter + 1
+
+		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
+	end
+	--------------------------------------------------
+
+	---------- THIRD ROW BUTTONS ---------------------
+	if AutoDrive.experimentalFeatures.wideHUD then
+		self:AddEditModeButtons()
+
+		if g_courseplay ~= nil then
+			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+		end
 	end
 
 	-- Refreshing layer sequence must be called, after all elements have been added
 	self:refreshHudElementsLayerSequence()
+end
+
+function AutoDriveHud:AddEditModeButtons()
+	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, false)
+	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
+	self:AddButton("input_createMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
+	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
+	self:AddButton("input_editMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
+	if AutoDrive.experimentalFeatures.wideHUD then
+		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteWayPoint", 1, false)
+	end
 end
 
 function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, visible)
@@ -212,6 +262,7 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, 
 		self.colCurrent = self.cols
 	end
 	self.rowCurrent = math.ceil(self.buttonCounter / self.cols)
+	self.colCurrent = self.colCurrent + self.buttonCollOffset
 
 	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
@@ -226,6 +277,7 @@ function AutoDriveHud:AddSettingsButton(setting, toolTip, state, visible)
 		self.colCurrent = self.cols
 	end
 	self.rowCurrent = math.ceil(self.buttonCounter / self.cols)
+	self.colCurrent = self.colCurrent + self.buttonCollOffset
 
 	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
@@ -265,6 +317,12 @@ function AutoDriveHud:drawHud(vehicle)
 		for _, element in ipairs(self.hudElements) do -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
 			element:onDraw(vehicle, uiScale)
 		end
+	end
+end
+
+function AutoDriveHud:update(dt)
+	for _, element in ipairs(self.hudElements) do -- `ipairs` is important, as we want "index-value pairs", not "key-value pairs". https://stackoverflow.com/a/55109411
+		element:update(dt)
 	end
 end
 
@@ -315,7 +373,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
 				if AutoDrive.mouseIsAtPos(point, 0.01) then
 					vehicle.ad.hoveredNodeId = point.id
-					if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
+					if not AutoDrive.leftALTmodifierKeyPressed then
 						if button == 1 and isUp then
 							if vehicle.ad.selectedNodeId ~= nil then
 								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
@@ -339,7 +397,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
 					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
 						vehicle.ad.hoveredNodeId = point.id
-						if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
+						if not AutoDrive.leftALTmodifierKeyPressed then
 							if (button == 2 or button == 3) and isDown then
 								if vehicle.ad.nodeToMoveId == nil then
 									vehicle.ad.nodeToMoveId = point.id
@@ -350,7 +408,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				end
 			end
 
-			if (not AutoDrive.leftALTmodifierKeyPressed) and (AutoDrive.experimentalFeatures.fastExtendedEditorMode or (not AutoDrive.leftCTRLmodifierKeyPressed)) then
+			if not AutoDrive.leftALTmodifierKeyPressed then
 				if (button == 2 or button == 3) and isUp then
 					if vehicle.ad.nodeToMoveId ~= nil then
 						ADGraphManager:changeWayPointPosition(vehicle.ad.nodeToMoveId)
@@ -365,19 +423,17 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 			--If no node is hovered / moved - check for creation of new node
 			if vehicle.ad.nodeToMoveId == nil and vehicle.ad.hoveredNodeId == nil then
-				if (AutoDrive.experimentalFeatures.fastExtendedEditorMode or AutoDrive.leftCTRLmodifierKeyPressed) then
-					if button == 1 and isDown then
-						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
-						local closest = vehicle:getClosestWayPoint()
-						closest = ADGraphManager:getWayPointById(closest)
-						if closest ~= nil then
-							local _, _, depth = project(closest.x, closest.y, closest.z)
+				if button == 1 and isDown then
+					--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
+					local closest = vehicle:getClosestWayPoint()
+					closest = ADGraphManager:getWayPointById(closest)
+					if closest ~= nil then
+						local _, _, depth = project(closest.x, closest.y, closest.z)
 
-							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
-							-- And just to correct for slope changes, we now set the height to the terrain height
-							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-							ADGraphManager:createWayPoint(x, y, z)
-						end
+						local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
+						-- And just to correct for slope changes, we now set the height to the terrain height
+						y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+						ADGraphManager:createWayPoint(x, y, z)
 					end
 				end
 			end

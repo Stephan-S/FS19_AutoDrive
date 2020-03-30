@@ -36,7 +36,8 @@ function ADDrivePathModule:setPathTo(waypointId)
     self.minDistanceToNextWp = math.huge
 
     if self.wayPoints == nil or (self.wayPoints[2] == nil and (self.wayPoints[1] == nil or (self.wayPoints[1] ~= nil and self.wayPoints[1].id ~= waypointId))) then
-        g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
+        self.vehicle.ad.isStoppingWithError = true
+        g_logManager:devError("[AutoDrive] Encountered a problem during initialization 'setPathTo'")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.stateModule:getName(), self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:abortAllTasks()
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
@@ -60,7 +61,8 @@ function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
     local appendWayPoints = ADGraphManager:getPathTo(self.vehicle, wayPointId)
 
     if appendWayPoints == nil or (appendWayPoints[2] == nil and (appendWayPoints[1] == nil or (appendWayPoints[1] ~= nil and appendWayPoints[1].id ~= wayPointId))) then
-        g_logManager:error("[AutoDrive] Encountered a problem during initialization - shutting down")
+        self.vehicle.ad.isStoppingWithError = true
+        g_logManager:devError("[AutoDrive] Encountered a problem during initialization 'appendPathTo'")
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_reach; %s", 5000, self.vehicle.ad.stateModule:getName(), self.vehicle.ad.stateModule:getFirstMarker().name)
         self.vehicle.ad.taskModule:abortAllTasks()
         self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
@@ -171,8 +173,6 @@ function ADDrivePathModule:followWaypoints(dt)
     end
 
     self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
-
-
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
@@ -304,21 +304,23 @@ end
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
-    if angle > 3 then
+    if angle < 3 then
+        maxSpeed = math.huge
+    elseif angle < 5 then
         maxSpeed = 38
-    elseif angle > 5 then
+    elseif angle < 8 then
         maxSpeed = 27
-    elseif angle > 8 then
+    elseif angle < 12 then
         maxSpeed = 20
-    elseif angle > 12 then
+    elseif angle < 15 then
         maxSpeed = 17
-    elseif angle > 15 then
+    elseif angle < 20 then
         maxSpeed = 16
-    elseif angle > 20 then
+    elseif angle >= 20 then
         maxSpeed = 13
     end
 
-    return maxSpeed * 1.25 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
+    return maxSpeed * 1.0 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
 end
 
 function ADDrivePathModule:getSpeedLimitBySteeringAngle()
@@ -347,7 +349,7 @@ function ADDrivePathModule:getDistanceToLastWaypoint(maxLookAheadPar)
     if maxLookAhead == nil then
         maxLookAhead = 10
     end
-    
+
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() ~= nil and self:getCurrentWayPoint() ~= nil and (self:getCurrentWayPointIndex() + maxLookAheadPar) >= #self.wayPoints then
         distance = 0
         local lookAhead = 1

@@ -85,6 +85,9 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_LOAD] = LoadMode:new(self)
     self.ad.modes[AutoDrive.MODE_BGA] = BGAMode:new(self)
     self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
+
+    self.ad.onRouteToPark = false
+    self.ad.isStoppingWithError = false
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -443,7 +446,7 @@ function AutoDrive:stopAutoDrive()
                 mode:reset()
             end
 
-            local hasCallbacks = self.ad.callBackFunction ~= nil and (self.ad.isStoppingWithError == nil or self.ad.isStoppingWithError == false)
+            local hasCallbacks = self.ad.callBackFunction ~= nil and self.ad.isStoppingWithError == false
 
             if hasCallbacks then
                 --work with copys, so we can remove the callBackObjects before calling the function
@@ -471,10 +474,13 @@ function AutoDrive:stopAutoDrive()
                 AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
                 self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
 
-                if self.ad.onRouteToPark == true then
+                if self.ad.onRouteToPark and not self.ad.isStoppingWithError then
                     self.ad.onRouteToPark = false
-                    if self.spec_lights ~= nil then
+                    if self.deactivateLights ~= nil then
                         self:deactivateLights()
+                    end
+                    if self.stopMotor ~= nil then
+                        self:stopMotor()
                     end
                 end
 
@@ -483,6 +489,7 @@ function AutoDrive:stopAutoDrive()
                         sensor:setEnabled(false)
                     end
                 end
+                
             end
 
             if self.setBeaconLightsVisibility ~= nil then
@@ -495,6 +502,15 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:reset()
 
             AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
+            
+            if not hasCallbacks and not self.ad.isStoppingWithError then
+                if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
+                    self.ad.stateModule:setStartCp(false)
+                    if not self.ad.isStoppingWithError then
+                        g_courseplay.courseplay:startStop(self)
+                    end
+                end
+            end
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")

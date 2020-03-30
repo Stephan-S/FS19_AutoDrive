@@ -90,7 +90,18 @@ function ADTaskModule:update(dt)
             self:onTaskInfoChange(taskInfo)
         end
     else
-        self.activeTask = self.tasks:Dequeue()
+        if self:hasToRefuel() then
+            local refuelDestinationMarkerID = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
+            if refuelDestinationMarkerID ~= nil then
+                self.activeTask = RefuelTask:new(self.vehicle, ADGraphManager:getMapMarkerById(refuelDestinationMarkerID).id)
+            end
+        end
+    
+        -- No refuel needed or no refuel trigger available
+        if self.activeTask == nil then
+            self.activeTask = self.tasks:Dequeue()
+        end
+        
         if self.activeTask ~= nil then
             self.activeTask:setUp()
         end

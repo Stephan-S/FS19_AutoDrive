@@ -24,6 +24,9 @@ end
 function ADGenericHudElement:onDraw(vehicle, uiScale)
 end
 
+function ADGenericHudElement:update(dt)
+end
+
 function ADInheritsFrom(baseClass)
     local new_class = {}
     local class_mt = {__index = new_class}

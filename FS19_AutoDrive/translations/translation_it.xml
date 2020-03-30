@@ -34,6 +34,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
 		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />
+		<text name="hud_startCp"								text="AD: Start CP at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -146,6 +147,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Regola la velocità di svolta per il singolo veicolo. La massa e la velocità continueranno ad influenzare il punto di frenata" />
 		<text name="gui_ad_callSecondUnloader"					text="Chiamata secondo carro" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Chiama il secondo carro quando lo quello attuale raggiunge il livello di riempimento di preallarme" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />

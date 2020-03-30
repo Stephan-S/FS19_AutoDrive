@@ -34,6 +34,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Parkeer Voertuig" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="hud_avoidFruit"								text="AD: Fruit vermijden" />
+		<text name="hud_startCp"								text="AD: Start CP at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Geen parkeerbestemming toegewezen. Wijzig het momenteel geselecteerde bestemming toe met de rechtermuisknop." />
 		<text name="AD_parkVehicle_selected"					text="Toegewezen als parkeerplaats: " />
 		<text name="AD_Driver_of"								text="De bestuurder van" />
@@ -146,6 +147,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Pas de hoeksnelheid aan voor een individueel voertuig. Massa en huidige snelheid zullen nog steeds het rempunt beïnvloeden" />
 		<text name="gui_ad_callSecondUnloader"					text="Bel 2. Ontlader" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Bel 2. Ontlader wanneer de huidige ontlader het voorloopvullingsniveau bereikt" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Instellingen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Voertuiginstellingen - AutoDrive" />

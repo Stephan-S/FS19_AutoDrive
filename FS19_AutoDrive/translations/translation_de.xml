@@ -34,6 +34,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Fahrzeug parken" />
 		<text name="input_ADSwapTargets"						text="AD: Ziele tauschen" />
 		<text name="hud_avoidFruit"								text="AD: Fruchtumfahrung" />
+		<text name="hud_startCp" 								text="AD: Start CP at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Kein Parkplatz zugewiesen. Bitte mit rechter Maustaste auf Button festlegen. (Aktuelles Ziel)" />
 		<text name="AD_parkVehicle_selected"					text="Als Parkplatz zugewiesen: " />
 		<text name="AD_Driver_of"								text="Der Fahrer von" />
@@ -146,6 +147,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Passe die Kurvengeschwindikeit pro Fahrzeug an. Masse und Geschwindikeit beeinflussen weiterhin den Bremspunkt" />
 		<text name="gui_ad_callSecondUnloader"					text="Rufe 2. Ablader" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Rufe 2. Ablader wenn der aktuelle Abfahrer das eingestellte Füll Level erreicht hat" />
+		<text name="gui_ad_followOnlyOnField"					text="Abfahrer aufs Feld begrenzen" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Während dem aktiven Abladen / Häckseln, darf nicht über Feldgrenzen hinausgfahren werden" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />

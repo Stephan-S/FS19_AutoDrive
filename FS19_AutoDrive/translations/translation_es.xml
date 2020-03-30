@@ -34,6 +34,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Aparcar Vehículo" />
 		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
 		<text name="hud_avoidFruit"								text="AD: Evitar destruir sosechas" />
+		<text name="hud_startCp" 								text="AD: Start CP at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino deestacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"								text="Conductor de" />
@@ -146,6 +147,8 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajustar la velocidad de las curvas para cada vehículo. La masa y la velocidad actual todavía impactarán en el punto de frenado" />
 		<text name="gui_ad_callSecondUnloader"					text="Llamada 2. Descargador" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Llamada 2. Descargador cuando el descargador actual alcanza el nivel de llenado previo" />
+		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />

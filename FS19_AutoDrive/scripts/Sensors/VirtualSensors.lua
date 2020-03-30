@@ -84,6 +84,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     sensorParameters.width = 6.5
     local leftSensorField = ADFieldSensor:new(vehicle, sensorParameters)
+    --leftSensorField.drawDebug = true --test
+    --leftSensorField.enabled = true --test
     vehicle.ad.sensors["leftSensor"] = leftSensor
     vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit
     vehicle.ad.sensors["leftSensorField"] = leftSensorField

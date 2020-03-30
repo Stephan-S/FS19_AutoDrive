@@ -65,9 +65,21 @@ function RefuelTask:abort()
 end
 
 function RefuelTask:finished()
+    local callBackFunction = self.vehicle.ad.callBackFunction
+    local callBackObject = self.vehicle.ad.callBackObject
+    local callBackArg = self.vehicle.ad.callBackArg
+    self.vehicle.ad.callBackFunction = nil
+    self.vehicle.ad.callBackObject = nil
+    self.vehicle.ad.callBackArg = nil
+
     self.vehicle:stopAutoDrive()
     self.vehicle.ad.stateModule:getCurrentMode():start()
     self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
+    
+    self.vehicle.ad.callBackFunction = callBackFunction
+    self.vehicle.ad.callBackObject = callBackObject
+    self.vehicle.ad.callBackArg = callBackArg
+
 end
 
 function RefuelTask:isInRefuelRange()

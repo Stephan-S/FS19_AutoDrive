@@ -68,11 +68,7 @@ function ADHudButton:getNewState(vehicle)
         else
             newState = 1
         end
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
     if self.primaryAction == "input_start_stop" then
@@ -92,11 +88,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_showNeighbor" then
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
 
         if vehicle.ad.showSelectedDebugPoint == true then
             newState = 2
@@ -106,43 +98,31 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_toggleConnection" then
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
     if self.primaryAction == "input_nextNeighbor" then
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
     if self.primaryAction == "input_createMapMarker" then
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
     if self.primaryAction == "input_routesManager" then
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
     if self.primaryAction == "input_removeWaypoint" then
-        if vehicle.ad.stateModule:isEditorModeEnabled() then
-            self.isVisible = true
-        else
-            self.isVisible = false
-        end
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
+    end
+
+    if self.primaryAction == "input_editMapMarker" then
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
+    end
+
+    if self.primaryAction == "input_removeMapMarker" then
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
     if self.primaryAction == "input_incLoopCounter" then
@@ -162,6 +142,15 @@ function ADHudButton:getNewState(vehicle)
         end
     end
 
+    if self.primaryAction == "input_startCp" then
+        if vehicle.ad.stateModule:getStartCp() then
+            newState = 2
+        else
+            newState = 1
+        end
+        self.isVisible = not vehicle.ad.stateModule:isEditorModeEnabled() or AutoDrive.experimentalFeatures.wideHUD
+    end
+
     return newState
 end
 
@@ -170,6 +159,7 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
         vehicle.ad.sToolTip = self.toolTip
         vehicle.ad.nToolTipWait = 5
         vehicle.ad.sToolTipInfo = nil
+        vehicle.ad.toolTipIsSetting = false
 
         if self.primaryAction == "input_parkVehicle" then
             if vehicle.ad.stateModule:hasParkDestination() then

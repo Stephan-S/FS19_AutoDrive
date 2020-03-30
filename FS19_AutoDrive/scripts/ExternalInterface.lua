@@ -130,6 +130,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.stateModule:getCurrentMode():start()
                 vehicle.ad.onRouteToPark = true
             else --unloadDestinationID == -2 refuel
+                vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
                 vehicle.ad.stateModule:getCurrentMode():start()
             end
         end
@@ -143,17 +144,7 @@ function AutoDrive:StartDrivingWithPathFinder(vehicle, destinationID, unloadDest
             if unloadDestinationID == -3 then --park
                 AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)
             elseif unloadDestinationID == -2 then --refuel
-                vehicle.ad.storedFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
-                vehicle.ad.storedMode = vehicle.ad.stateModule:getMode()
-
-                local refuelDestination = ADTriggerManager.getClosestRefuelDestination(vehicle)
-
-                if refuelDestination ~= nil then
-                    vehicle.ad.stateModule:setFirstMarker(refuelDestination)
-                    vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
-                    vehicle.ad.onRouteToRefuel = true
-                    AutoDrive:StartDriving(vehicle, vehicle.ad.stateModule:getFirstMarkerId(), unloadDestinationID, callBackObject, callBackFunction, callBackArg)
-                end
+                AutoDrive:StartDriving(vehicle, vehicle.ad.stateModule:getFirstMarkerId(), unloadDestinationID, callBackObject, callBackFunction, callBackArg)
             end
         else
             AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, callBackObject, callBackFunction, callBackArg)

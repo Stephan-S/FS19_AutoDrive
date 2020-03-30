@@ -46,6 +46,8 @@ function ADStateModule:reset()
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
 
+    self.startCp = false
+
     self.driverName = g_i18n:getText("UNKNOWN")
     if self.vehicle.getName ~= nil then
         self.driverName = self.vehicle:getName()
@@ -135,6 +137,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
+    streamWriteBool(streamId, self.startCp)
 end
 
 function ADStateModule:readStream(streamId)
@@ -172,6 +175,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
+    streamWriteBool(streamId, self.startCp)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -191,6 +195,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
+    self.startCp = streamReadBool(streamId)
 end
 
 function ADStateModule:update(dt)
@@ -214,6 +219,7 @@ function ADStateModule:update(dt)
         debug.currentLocalizedTaskInfo = self.currentLocalizedTaskInfo
         debug.currentWayPointId = self.currentWayPointId
         debug.nextWayPointId = self.nextWayPointId
+        debug.startCp = self.startCp
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
         else
@@ -231,6 +237,22 @@ function ADStateModule:update(dt)
         end
         AutoDrive.renderTable(0.4, 0.4, 0.014, debug)
     end
+end
+
+function ADStateModule:toggleStartCp()
+    self.startCp = not self.startCp
+    self:raiseDirtyFlag()
+end
+
+function ADStateModule:setStartCp(enabled)
+    if enabled ~= self.startCp then
+        self.startCp = enabled
+        self:raiseDirtyFlag()
+    end
+end
+
+function ADStateModule:getStartCp()
+    return self.startCp
 end
 
 function ADStateModule:getCurrentWayPointId()
@@ -370,9 +392,7 @@ end
 function ADStateModule:cycleEditMode()
     if self.editorMode == ADStateModule.EDITOR_OFF then
         self.editorMode = ADStateModule.EDITOR_ON
-    elseif self.editorMode == ADStateModule.EDITOR_ON and (not AutoDrive.experimentalFeatures.fastExtendedEditorMode) then
-        self.editorMode = ADStateModule.EDITOR_EXTENDED
-    elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or (AutoDrive.experimentalFeatures.fastExtendedEditorMode and self.editorMode == ADStateModule.EDITOR_ON) then
+    elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or self.editorMode == ADStateModule.EDITOR_ON then
         self.editorMode = ADStateModule.EDITOR_OFF
     end
     self:raiseDirtyFlag()
