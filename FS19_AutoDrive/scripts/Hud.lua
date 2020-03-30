@@ -67,6 +67,7 @@ function AutoDriveHud:loadHud()
 		if AutoDrive.getSetting("guiScale") ~= 0 then
 			uiScale = AutoDrive.getSetting("guiScale")
 		end
+
 		local numButtons = 7
 		local numButtonRows = 2
 		local buttonSize = 32
