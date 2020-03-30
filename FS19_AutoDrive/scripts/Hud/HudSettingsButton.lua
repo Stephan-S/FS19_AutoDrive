@@ -45,6 +45,7 @@ function ADHudSettingsButton:act(vehicle, posX, posY, isDown, isUp, button)
         vehicle.ad.sToolTip = self.toolTip
         vehicle.ad.nToolTipWait = 5
         vehicle.ad.sToolTipInfo = nil
+        vehicle.ad.toolTipIsSetting = true
 
         if button == 1 and isUp then
             local currentState = AutoDrive.getSettingState(self.setting, vehicle)

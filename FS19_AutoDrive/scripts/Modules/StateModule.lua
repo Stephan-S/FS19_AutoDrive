@@ -392,9 +392,7 @@ end
 function ADStateModule:cycleEditMode()
     if self.editorMode == ADStateModule.EDITOR_OFF then
         self.editorMode = ADStateModule.EDITOR_ON
-    elseif self.editorMode == ADStateModule.EDITOR_ON and (not AutoDrive.experimentalFeatures.fastExtendedEditorMode) then
-        self.editorMode = ADStateModule.EDITOR_EXTENDED
-    elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or (AutoDrive.experimentalFeatures.fastExtendedEditorMode and self.editorMode == ADStateModule.EDITOR_ON) then
+    elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or self.editorMode == ADStateModule.EDITOR_ON then
         self.editorMode = ADStateModule.EDITOR_OFF
     end
     self:raiseDirtyFlag()

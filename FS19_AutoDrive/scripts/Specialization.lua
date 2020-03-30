@@ -490,14 +490,6 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
                 
-                if not self.ad.isStoppingWithError then
-                    if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
-                        self.ad.stateModule:setStartCp(false)
-                        if not self.ad.isStoppingWithError then
-                            g_courseplay.courseplay:startStop(self)
-                        end
-                    end
-                end
             end
 
             if self.setBeaconLightsVisibility ~= nil then
@@ -510,6 +502,15 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:reset()
 
             AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
+            
+            if not hasCallbacks and not self.ad.isStoppingWithError then
+                if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
+                    self.ad.stateModule:setStartCp(false)
+                    if not self.ad.isStoppingWithError then
+                        g_courseplay.courseplay:startStop(self)
+                    end
+                end
+            end
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")

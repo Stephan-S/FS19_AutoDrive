@@ -59,7 +59,12 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     end
 
     if vehicle.ad.sToolTip ~= "" and AutoDrive.getSetting("showTooltips") then
-        textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
+        if vehicle.ad.toolTipIsSetting then
+            textToShow = textToShow .. " - " .. g_i18n:getText(vehicle.ad.sToolTip)
+        else
+            textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
+        end
+
         if vehicle.ad.sToolTipInfo ~= nil then
             textToShow = textToShow .. " - " .. vehicle.ad.sToolTipInfo
         end
@@ -70,15 +75,10 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         textToShow = textToShow .. " - " .. taskInfo
     end
 
-    if vehicle.ad.stateModule:isInExtendedEditorMode() then
-        if not AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
-            textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
-        else
-            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
-        end
-    --elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON and AutoDrive.experimentalFeatures.fastExtendedEditorMode then
-        --textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
+    if vehicle.ad.stateModule:isInExtendedEditorMode() then        
+        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
+    elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
+        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
     end
 
     if vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then

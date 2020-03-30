@@ -140,7 +140,7 @@ function ADHudButton:getNewState(vehicle)
         else
             newState = 1
         end
-        self.isVisible = not vehicle.ad.stateModule:isEditorModeEnabled()
+        self.isVisible = not vehicle.ad.stateModule:isEditorModeEnabled() or AutoDrive.experimentalFeatures.wideHUD
     end
 
     return newState
@@ -151,6 +151,7 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
         vehicle.ad.sToolTip = self.toolTip
         vehicle.ad.nToolTipWait = 5
         vehicle.ad.sToolTipInfo = nil
+        vehicle.ad.toolTipIsSetting = false
 
         if self.primaryAction == "input_parkVehicle" then
             if vehicle.ad.stateModule:hasParkDestination() then
