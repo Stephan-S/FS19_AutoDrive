@@ -281,8 +281,10 @@ function CombineUnloaderMode:getPipeChasePosition()
     end
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
-        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
+        --local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, self.combine.spec_dischargeable.dischargeNodes[1].node)
+        local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) --+ slopeCorrection
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, (self.vehicle.sizeWidth + self.combine.sizeWidth) / 2 + pipeOffset, self.vehicle.sizeLength / 5)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -(self.vehicle.sizeWidth + self.combine.sizeWidth) / 2 + pipeOffset, self.vehicle.sizeLength / 5)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
         
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
@@ -304,7 +306,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
         if ((not leftBlocked) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 9.5, 6)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, self.combine.sizeWidth*2 * AutoDrive.sign(pipeOffset), self.combine.sizeLength*2)
             sideIndex = self.CHASEPOS_LEFT
 
             local spec = self.combine.spec_pipe
@@ -316,7 +318,6 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
                 local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
-
                 local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
                 local currentTrailer = 1
                 local targetTrailer = trailers[1]
@@ -333,7 +334,7 @@ function CombineUnloaderMode:getPipeChasePosition()
                 local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
                 local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
 
-                local totalDiff = -diffZ + 2
+                local totalDiff = -diffZ + (targetTrailer.sizeLength) / 5
 
                 local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z

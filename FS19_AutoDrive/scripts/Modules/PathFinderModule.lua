@@ -86,7 +86,7 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     -- Use the length of the tractor-trailer combo to determine how far to drive to straighten
     -- the trailer. Add an extra follow distance because the unloader stops well before the back
     -- of the trailer.
-    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, true) * 1.5
+    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, true) * 1.1
     -- A bit of a sanity check, in case the vehicle is absurdly long.
     -- Using pi because the factor is an arbitrary choice any way you slice it.
     if lengthOffset > (followDistance + 1) * math.pi then
