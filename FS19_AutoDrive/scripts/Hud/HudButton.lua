@@ -117,6 +117,14 @@ function ADHudButton:getNewState(vehicle)
         self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
     end
 
+    if self.primaryAction == "input_editMapMarker" then
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
+    end
+
+    if self.primaryAction == "input_removeMapMarker" then
+        self.isVisible = vehicle.ad.stateModule:isEditorModeEnabled()
+    end
+
     if self.primaryAction == "input_incLoopCounter" then
         newState = math.max(0, vehicle.ad.stateModule:getLoopCounter() - vehicle.ad.modes[AutoDrive.MODE_PICKUPANDDELIVER].loopsDone) + 1
         if vehicle.ad.stateModule:isActive() and vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then

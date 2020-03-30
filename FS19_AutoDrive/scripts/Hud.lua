@@ -195,15 +195,16 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	---------- SECOND ROW BUTTONS ---------------------
 	if AutoDrive.experimentalFeatures.wideHUD then
 		self.buttonCounter = self.buttonCounter + 1
-		self.buttonCounter = self.buttonCounter + 1
-		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
-		
+
 		if g_courseplay ~= nil then
 			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
 		else
 			self.buttonCounter = self.buttonCounter + 1
 		end
-		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)		
+		
+		self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
+		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
+		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 
 		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 		speedY = self.posY + (2) * self.borderY + (1) * self.buttonHeight
@@ -213,11 +214,17 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self:AddButton("input_openGUI", nil, "input_ADOpenGUI", 1, true)
 	else
 		self:AddEditModeButtons()
+		self.buttonCounter = self.buttonCounter - 1
+		self.buttonCounter = self.buttonCounter - 1
+		self.buttonCounter = self.buttonCounter - 1
 
 		if g_courseplay ~= nil then
 			self.buttonCounter = self.buttonCounter - 1
 			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
 		end
+		
+		self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
+		self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 		self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 
 		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
@@ -241,8 +248,12 @@ end
 function AutoDriveHud:AddEditModeButtons()
 	self:AddButton("input_record", "input_record_dual", "input_ADRecord", 1, false)
 	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
-	self:AddButton("input_createMapMarker", "input_editMapMarker", "input_ADDebugCreateMapMarker", 1, false)
+	self:AddButton("input_createMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
+	self:AddButton("input_editMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
+	if AutoDrive.experimentalFeatures.wideHUD then
+		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteWayPoint", 1, false)
+	end
 end
 
 function AutoDriveHud:AddButton(primaryAction, secondaryAction, toolTip, state, visible)
