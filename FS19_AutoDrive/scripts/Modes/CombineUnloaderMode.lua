@@ -50,6 +50,13 @@ function CombineUnloaderMode:start()
 end
 
 function CombineUnloaderMode:monitorTasks(dt)
+    if self.combine ~= nil and (self.state == self.STATE_LEAVE_CROP or self.state == self.STATE_DRIVE_TO_START or self.state == self.STATE_DRIVE_TO_UNLOAD or self.state == self.STATE_EXIT_FIELD) then
+        if AutoDrive.getDistanceBetween(self.vehicle, self.combine) > 25 then
+            ADHarvestManager:unregisterAsUnloader(self.vehicle)
+            self.followingUnloader = nil
+            self.combine = nil
+        end
+    end
 end
 
 function CombineUnloaderMode:handleFinishedTask()
@@ -207,9 +214,9 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
             self.state = self.STATE_DRIVE_TO_UNLOAD
         end
         
-        ADHarvestManager:unregisterAsUnloader(self.vehicle)
-        self.followingUnloader = nil
-        self.combine = nil
+        --ADHarvestManager:unregisterAsUnloader(self.vehicle)
+        --self.followingUnloader = nil
+        --self.combine = nil
     else
         -- Should we park in the field?
         if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then

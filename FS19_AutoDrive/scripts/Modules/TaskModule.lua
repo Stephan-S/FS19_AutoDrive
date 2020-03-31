@@ -86,6 +86,7 @@ function ADTaskModule:update(dt)
     if self.activeTask ~= nil and self.activeTask.update ~= nil then
         local taskInfo = self.activeTask:getI18nInfo()
         self.activeTask:update(dt)
+        self.vehicle.ad.stateModule:getCurrentMode():monitorTasks(dt)
         if self.lastTaskInfo ~= taskInfo then
             self:onTaskInfoChange(taskInfo)
         end
