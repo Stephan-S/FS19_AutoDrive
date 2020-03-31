@@ -195,8 +195,9 @@ function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger, fillUnitIndex)
     --for i = 1, #fillUnits do
     local i = fillUnitIndex
         if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
-            if trigger:getIsActivatable(trailer) and not self.isLoading then
-                if #fillUnits > 1 then                    
+            local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
+            if trigger:getIsActivatable(trailer) and trailerIsInRange and not self.isLoading then
+                if #fillUnits > 1 then                
                     --print("startLoadingCorrectFillTypeAtTrigger now - " .. i)
                     self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
                 else
