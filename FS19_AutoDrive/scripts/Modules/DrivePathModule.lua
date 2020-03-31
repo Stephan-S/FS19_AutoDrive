@@ -176,7 +176,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
-        self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
+        self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit) - 1
         maxSpeedDiff = 1
     else
         if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
