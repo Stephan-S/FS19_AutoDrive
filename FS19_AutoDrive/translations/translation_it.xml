@@ -151,6 +151,8 @@
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
 		<text name="gui_ad_addSettingsToHUD"					text="Add settings to HUD" />
 		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Adds buttons to the HUD to change settings without opening this menu" />
+		<text name="gui_ad_iconSetToUse"						text="Destination logo" />
+		<text name="gui_ad_iconSetToUse_tooltip"				text="Default logo or fanboy" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Impostazioni Veicolo" />

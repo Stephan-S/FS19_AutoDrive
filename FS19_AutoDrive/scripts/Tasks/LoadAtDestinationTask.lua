@@ -13,15 +13,15 @@ end
 function LoadAtDestinationTask:setUp()
     if ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.state = LoadAtDestinationTask.STATE_PATHPLANNING
-        if self.vehicle.ad.callBackFunction ~= nil then
-            if self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
-                self.vehicle.ad.pathFinderModule:startPathPlanningToWayPoint(self.vehicle.ad.stateModule:getFirstWayPoint(), self.destinationID)
-            else
-                self.vehicle.ad.pathFinderModule:startPathPlanningToWayPoint(self.vehicle.ad.stateModule:getSecondWayPoint(), self.destinationID)
-            end
-        else
+        --if self.vehicle.ad.callBackFunction ~= nil then
+            --if self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
+                --self.vehicle.ad.pathFinderModule:startPathPlanningToWayPoint(self.vehicle.ad.stateModule:getFirstWayPoint(), self.destinationID)
+            --else
+                --self.vehicle.ad.pathFinderModule:startPathPlanningToWayPoint(self.vehicle.ad.stateModule:getSecondWayPoint(), self.destinationID)
+            --end
+        --else
             self.vehicle.ad.pathFinderModule:startPathPlanningToNetwork(self.destinationID)
-        end
+        --end
     else
         self.state = LoadAtDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)

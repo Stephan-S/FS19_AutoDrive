@@ -718,6 +718,16 @@ AutoDrive.settings.addSettingsToHUD = {
     isVehicleSpecific = false
 }
 
+AutoDrive.settings.iconSetToUse = {
+    values = {1, 2},
+    texts = {"gui_ad_default", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_iconSetToUse",
+    tooltip = "gui_ad_iconSetToUse_tooltip",
+    translate = true,
+    isVehicleSpecific = false
+}
 
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then

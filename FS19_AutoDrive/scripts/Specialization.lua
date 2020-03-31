@@ -511,6 +511,10 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
+            
+            self.ad.callBackFunction = nil
+            self.ad.callBackObject = nil
+            self.ad.callBackArg = nil
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")

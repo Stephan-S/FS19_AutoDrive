@@ -4,6 +4,7 @@ PickupAndDeliverMode.STATE_DELIVER = 1
 PickupAndDeliverMode.STATE_PICKUP = 2
 PickupAndDeliverMode.STATE_RETURN_TO_START = 3
 PickupAndDeliverMode.STATE_FINISHED = 4
+PickupAndDeliverMode.STATE_EXIT_FIELD = 5
 
 function PickupAndDeliverMode:new(vehicle)
     local o = PickupAndDeliverMode:create()
@@ -35,9 +36,15 @@ function PickupAndDeliverMode:start()
         return
     end
 
-    self.activeTask = self:getNextTask()
-    if self.activeTask ~= nil then
+    if self.vehicle.ad.callBackFunction ~= nil then
+        self.activeTask = ExitFieldTask:new(self.vehicle)
         self.vehicle.ad.taskModule:addTask(self.activeTask)
+        self.state = self.STATE_EXIT_FIELD
+    else
+        self.activeTask = self:getNextTask()
+        if self.activeTask ~= nil then
+            self.vehicle.ad.taskModule:addTask(self.activeTask)
+        end
     end
 end
 
@@ -81,7 +88,7 @@ function PickupAndDeliverMode:getNextTask()
                 self.state = PickupAndDeliverMode.STATE_DELIVER
             end
         end
-    elseif self.state == PickupAndDeliverMode.STATE_PICKUP then
+    elseif self.state == PickupAndDeliverMode.STATE_PICKUP or self.state == PickupAndDeliverMode.STATE_EXIT_FIELD then
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         self.loopsDone = self.loopsDone + 1
         self.state = PickupAndDeliverMode.STATE_DELIVER
