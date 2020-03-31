@@ -426,6 +426,7 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
             if triggerX ~= nil then
                 local distance = MathUtil.vector2Length(triggerX - trailerX, triggerZ - trailerZ)
                 if distance <= AutoDrive.getSetting("maxTriggerDistance") then
+                    vehicle.ad.debugTrigger = trigger
                     local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
                     local fillUnits = trailer:getFillUnits()
                     if #fillUnits > 1 then
@@ -473,7 +474,7 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
 
                         local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
                         if trailerIsInRange and hasRequiredFillType and isNotFilled and hasCapacity then
-                            local pair = {trailer = trailer, trigger = trigger}
+                            local pair = {trailer = trailer, trigger = trigger, fillUnitIndex = i}
                             table.insert(trailerTriggerPairs, pair)
                         end
                     end

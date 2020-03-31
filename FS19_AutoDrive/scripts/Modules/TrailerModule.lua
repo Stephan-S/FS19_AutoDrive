@@ -95,6 +95,8 @@ function ADTrailerModule:update(dt)
         self:updateLoad()
     end
     self:handleTrailerCovers()
+    
+    self.lastFillLevel = self.fillLevel
 end
 
 function ADTrailerModule:handleTrailerCovers()
@@ -106,6 +108,9 @@ end
 function ADTrailerModule:updateStates()
     self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
+    if self.lastFillLevel == nil then
+        self.lastFillLevel = self.fillLevel
+    end
 
     --Check for already unloading trailers (e.g. when AD is started while unloading)
     if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() then
@@ -127,7 +132,8 @@ function ADTrailerModule:updateLoad()
     if not self.isLoading then
         local loadPairs = AutoDrive.getTriggerAndTrailerPairs(self.vehicle)
         for _, pair in pairs(loadPairs) do
-            self:tryLoadingAtTrigger(pair.trailer, pair.trigger)
+            --print("Try loading at trigger now - " .. _)
+            self:tryLoadingAtTrigger(pair.trailer, pair.trigger, pair.fillUnitIndex)
             self.foundSuitableTrigger = true
         end
     else
@@ -135,6 +141,7 @@ function ADTrailerModule:updateLoad()
         local _, _, fillUnitFull = AutoDrive.getIsFilled(self.vehicle, self.isLoadingToTrailer, self.isLoadingToFillUnitIndex)
         if self.trigger == nil or (not self.trigger.isLoading) then
             if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") then
+                --print("ADTrailerModule:updateLoad() - fillUnitFull ")
                 self.isLoading = false
             end
         end
@@ -173,30 +180,34 @@ function ADTrailerModule:updateUnload(dt)
             end
         end
     else
-        -- Monitor unloading
-        --local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
+        --print("Monitor unloading")
+        local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
 
-        if self:areAllTrailersClosed(dt) then --fillUnitEmpty or
+        if self:areAllTrailersClosed(dt) and (fillUnitEmpty or AutoDrive.getSetting("distributeToFolder", self.vehicle)) then
             self.isUnloading = false
             self.unloadingToBunkerSilo = false
         end
     end
 end
 
-function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger)
+function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger, fillUnitIndex)
     local fillUnits = trailer:getFillUnits()
-    for i = 1, #fillUnits do
+    --for i = 1, #fillUnits do
+    local i = fillUnitIndex
         if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
-            if trigger:getIsActivatable(trailer) and not self.isLoading then
-                if #fillUnits > 1 then
+            local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
+            if trigger:getIsActivatable(trailer) and trailerIsInRange and not self.isLoading then
+                if #fillUnits > 1 then                
+                    --print("startLoadingCorrectFillTypeAtTrigger now - " .. i)
                     self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
                 else
+                    --print("startLoadingAtTrigger now - " .. i .. " fillType: " .. self.vehicle.ad.stateModule:getFillType())
                     self:startLoadingAtTrigger(trigger, self.vehicle.ad.stateModule:getFillType(), i, trailer)
                 end
                 self.isLoading = self.isLoading or trigger.isLoading
             end
         end
-    end
+    --end
 end
 
 function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, fillUnitIndex)
@@ -293,8 +304,18 @@ function ADTrailerModule:areAllTrailersClosed(dt)
         if trailer.noDischargeTimer == nil then
             trailer.noDischargeTimer = AutoDriveTON:new()
         end
+        --print("Tipstate: " .. tipState .. " dischargeState: " .. dischargeState)
+        local senseUnloading = false
+        if self.fillLevel ~= nil then
+            if self.lastFillLevel == nil or self.lastFillLevel > self.fillLevel or (self.unloadingToBunkerSilo and self.fillLevel > 0) then
+                senseUnloading = true
+            end
+        end
+        --print("Tipstate: " .. tipState .. " dischargeState: " .. dischargeState .. " senseUnloading: " .. AutoDrive.boolToString(senseUnloading) .. " lastFillLevel: " .. self.lastFillLevel .. " current: " .. self.fillLevel)
+        senseUnloading = senseUnloading or tipState == Trailer.TIPSATE_OPENING or tipState == Trailer.TIPSTATE_CLOSING
 
-        if not trailer.noDischargeTimer:timer((tipState == Trailer.TIPSTATE_CLOSED and dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 500, dt) then
+
+        if not trailer.noDischargeTimer:timer((not senseUnloading) or (tipState == Trailer.TIPSTATE_CLOSED and dischargeState == Dischargeable.DISCHARGE_STATE_OFF), 500, dt) then
             allClosed = false
         end
     end

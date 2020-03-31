@@ -157,6 +157,7 @@ function ADStateModule:readStream(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
+    self.startCp = streamReadBool(streamId)
 end
 
 function ADStateModule:writeUpdateStream(streamId)

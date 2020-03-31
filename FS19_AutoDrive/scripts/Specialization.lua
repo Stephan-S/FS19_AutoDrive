@@ -432,6 +432,12 @@ function AutoDrive:startAutoDrive()
     else
         g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
     end
+    --[[
+    for i = 1, #g_fruitTypeManager.fruitTypes do
+        local fruitType = g_fruitTypeManager.fruitTypes[i].index
+        print("FruitType: "  .. fruitType .. ": " .. g_fillTypeManager:getFillTypeByIndex(g_fruitTypeManager:getFillTypeIndexByFruitTypeIndex(fruitType)).title)
+    end
+    --]]
 end
 
 function AutoDrive:stopAutoDrive()
@@ -511,6 +517,10 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
+
+            self.ad.callBackFunction = nil
+            self.ad.callBackObject = nil
+            self.ad.callBackArg = nil
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
