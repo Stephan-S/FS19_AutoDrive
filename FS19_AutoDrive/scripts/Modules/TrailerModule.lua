@@ -307,7 +307,7 @@ function ADTrailerModule:areAllTrailersClosed(dt)
         --print("Tipstate: " .. tipState .. " dischargeState: " .. dischargeState)
         local senseUnloading = false
         if self.fillLevel ~= nil then
-            if self.lastFillLevel == nil or self.lastFillLevel > self.fillLevel then
+            if self.lastFillLevel == nil or self.lastFillLevel > self.fillLevel or (self.isUnloadingToBunkerSilo and self.fillLevel > 0) then
                 senseUnloading = true
             end
         end
