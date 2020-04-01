@@ -16,8 +16,6 @@ For now, there is no general link for the team, so each contributer can post his
 But remember, this is absolutely not required. We value any issues and feature requests the same!  
 And to all who do donate: Thank you very much :-)
 
-# Do not fall for our first April's Joke. You don't have to pay anything!!!
-# Bitte nicht Aufgrund unseres ersten April Scherzes spenden! AutoDrive ist und bleibt natürlich völlig kostenlos!
 #### Stephan:
 <a href="https://www.buymeacoffee.com/9Di7EUSI2" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>  
 
