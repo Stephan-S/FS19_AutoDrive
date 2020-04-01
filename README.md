@@ -16,16 +16,19 @@ For now, there is no general link for the team, so each contributer can post his
 But remember, this is absolutely not required. We value any issues and feature requests the same!  
 And to all who do donate: Thank you very much :-)
 
-#### Stephan:
+#### Stephan (Founder & Modder):
 <a href="https://www.buymeacoffee.com/9Di7EUSI2" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>  
 
 https://www.paypal.me/StephanSchlosser
 
-#### TyKonKet:
+#### Iwan1803 (Community Manager & Supporter):
+https://www.tipeeestream.com/iwan1803/tip
+
+#### TyKonKet (Modder):
 https://www.paypal.me/tykonket
 
-#### Iwan1803:
-https://www.tipeeestream.com/iwan1803/tip
+and also
+#### Oliver (Modder), Axel (Co-Modder), Aletheist (Co-Modder), Willi (Tester)
 
 # Downloads
 
