@@ -143,9 +143,9 @@ function ADTrailerModule:updateLoad(dt)
             if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") then
                 --print("ADTrailerModule:updateLoad() - fillUnitFull ")
                 self.isLoading = false
-            elseif self.trigger ~= nil and self.isLoadingToTrailer ~= nil and self.isLoadingToFillUnitIndex ~= nil then
+            --elseif self.trigger ~= nil and self.isLoadingToTrailer ~= nil and self.isLoadingToFillUnitIndex ~= nil then
                 --print("ADTrailerModule:updateLoad() - tryLoadingAtTrigger ")
-                self:tryLoadingAtTrigger(self.isLoadingToTrailer,self.trigger, self.isLoadingToFillUnitIndex)
+                --self:tryLoadingAtTrigger(self.isLoadingToTrailer,self.trigger, self.isLoadingToFillUnitIndex)
             end
         end
     end
@@ -233,6 +233,7 @@ function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, 
 end
 
 function ADTrailerModule:startLoadingAtTrigger(trigger, fillType, fillUnitIndex, trailer)
+    --print("Start loading at trigger with fillType: " .. fillType .. " and fillUnit: " .. fillUnitIndex)
     trigger.autoStart = true
     trigger.selectedFillType = fillType
     trigger:onFillTypeSelection(fillType)
