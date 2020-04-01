@@ -28,14 +28,14 @@
 		<text name="input_ADSelectPreviousFillType"				text="AD: Seleccionar Filltype anterior" />
 		<text name="input_ADOpenGUI"							text="AD: Abrir Menu" />
 		<text name="input_ADCallDriver"							text="AD: Llamar a conductor" />
-		<text name="input_ADGoToVehicle"						text="AD: Ir junto al vehiculo selccionado" />
+		<text name="input_ADGoToVehicle"						text="AD: Ir junto al vehiculo seleccionado" />
 		<text name="input_ADNameDriver"							text="AD: Asignar nombre al conductor" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumentar los ciclos" />
 		<text name="input_ADParkVehicle"						text="AD: Aparcar Vehículo" />
 		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
-		<text name="hud_avoidFruit"								text="AD: Evitar destruir sosechas" />
-		<text name="hud_startCp" 								text="AD: Start CP at destination" />
-		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino deestacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
+		<text name="hud_avoidFruit"								text="AD: Evitar destruir cosechas" />
+		<text name="hud_startCp" 								text="AD: Iniciar CP en destino" />
+		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino de estacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"								text="Conductor de" />
 		<text name="AD_has_reached"								text="ha llegado" />
@@ -53,10 +53,10 @@
 		<text name="AD_MODE_LOAD"								text="Cargar" />
 		<text name="AD_MODE_BGA"								text="Descargar bunker silo" />
 		<text name="AD_synchronizing"							text="cargando información del servidor ..." />
-		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL para modo editor extendido" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL para crear" />
 		<text name="AD_lalt_for_deletion" 						text="LALT para borrar" />
-		<text name="gui_ad_Setting"								text="Configuració - AutoDrive" />
+		<text name="gui_ad_Setting"								text="Configuración - AutoDrive" />
 		<text name="gui_ad_pipe_offset"							text="Desplazamiento de tubería" />
 		<text name="gui_ad_followDistance"						text="Distancia de la cosechadora" />
 		<text name="gui_ad_followDistance_tooltip"				text="La distancia que se mantiene de la cosechadora cuando se sigue su extremo trasero" />
@@ -74,8 +74,8 @@
 		<text name="gui_ad_drive"								text="Continúe" />
 		<text name="gui_ad_yes"									text="Si" />
 		<text name="gui_ad_no"									text="No" />
-		<text name="ad_bga_init"								text="Inicialiando" />
-		<text name="ad_bga_waiting"								text="Trailer esperando ensilo" />
+		<text name="ad_bga_init"								text="Inicializando" />
+		<text name="ad_bga_waiting"								text="Trailer esperando en silo" />
 		<text name="ad_bga_active"								text="Activo" />
 		<text name="gui_ad_autoConnect_start"					text="Conexión automática (inicio)" />
 		<text name="gui_ad_autoConnect_start_tooltip"			text="Conexión automática al nodo adecuado al iniciar la grabación" />
@@ -94,13 +94,13 @@
 		<text name="gui_ad_default"								text="Por defecto" />
 		<text name="gui_ad_after_start"							text="Antes del inicio" />
 		<text name="gui_ad_closest"								text="Punto más cercano" />
-		<text name="gui_ad_showHelp"							text="Mostarr ayuda" />
+		<text name="gui_ad_showHelp"							text="Mostrar ayuda" />
 		<text name="gui_ad_showHelp_tooltip"					text="Mostrar asignación de teclado con F1" />
 		<text name="gui_ad_driverWages"							text="Salario de conductores" />
 		<text name="gui_ad_driverWages_tooltip"					text="El salario del conductor estará basado en este valor" />
 		<text name="gui_ad_showNextPath"						text="Mostrar siguiente ruta" />
-		<text name="gui_ad_showNextPath_tooltip"				text="Activar / Desacticar mostrar los siguientes waypoints" />
-		<text name="gui_ad_avoidFruit"							text="Evitar destruir sosechas" />
+		<text name="gui_ad_showNextPath_tooltip"				text="Activar / Desactivar mostrar los siguientes waypoints" />
+		<text name="gui_ad_avoidFruit"							text="Evitar destruir cosechas" />
 		<text name="gui_ad_avoidFruit_tooltip"					text="Las cosechadoras evitarán destruir cosechas al descargar" />
 		<text name="gui_ad_pathFinderTime"						text="Máximo tiempo del buscador de rutas" />
 		<text name="gui_ad_pathFinderTime_tooltip"				text="Determina cuánto tiempo se permite al algoritmo de búsqueda de rutas para buscar una ruta libre de colisiones hacia / desde la cosechadora. (Posible impacto fps)" />
@@ -108,22 +108,22 @@
 		<text name="gui_ad_lineHeight_tooltip"					text="Altura de los trazos en modo edicióm. A nivel del suelo o la altura del tractor" />
 		<text name="gui_ad_ground"								text="Nivel del suelo" />
 		<text name="gui_ad_aboveDriver"							text="Por encima del tractor" />
-		<text name="gui_ad_enableTrafficDetection"				text="Detectar Obstaculos" />
-		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Detección avanzada de Obstáculos, que incluye detección the de Asistentes, señales, vallas, etc." />
+		<text name="gui_ad_enableTrafficDetection"				text="Detectar obstáculos" />
+		<text name="gui_ad_enableTrafficDetection_tooltip"		text="Detección avanzada de obstáculos, que incluye detección de Asistentes, señales, vallas, etc." />
 		<text name="gui_ad_shovelWidth"							text="Ancho de pala (Incrementar)" />
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si el ancho de la pala detectado automáticamente es demasiado pequeño, se puede aumentar con este valor" />
-		<text name="gui_ad_preCallLevel"						text="Nivel de llenado para llamra  conductor" />
+		<text name="gui_ad_preCallLevel"						text="Nivel de llenado para llamar a conductor" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Nivel de llenado para llamar a conductor." />
 		<text name="gui_ad_distributeToFolder"					text="Destinos multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Se seleccionarán todos los destinos de la misma carpeta" />
-		<text name="gui_ad_maxTriggerDistance"					text="Distancoia máxima al trigger" />
+		<text name="gui_ad_maxTriggerDistance"					text="Distancia máxima al trigger" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Distancia a la que se reconocerán los triggers." />
-		<text name="gui_ad_useBeaconLights"						text="Luvces rotativas" />
-		<text name="gui_ad_useBeaconLights_tooltip"				text="Utilizar luces rotativas ebn al carretera" />
+		<text name="gui_ad_useBeaconLights"						text="Luces rotativas" />
+		<text name="gui_ad_useBeaconLights_tooltip"				text="Utilizar luces rotativas en la carretera" />
 		<text name="gui_ad_restrictToField"						text="Restringir conducción sólo dentro del campo" />
 		<text name="gui_ad_restrictToField_tooltip"				text="Si el descargador está aparcado en el campo, limitará el buscador de rutas a los límites del campo." />
-		<text name="gui_ad_showTooltips"						text="Mostrar ayudas de emenu" />
-		<text name="gui_ad_showTooltips_tooltip"				text="Mostrar la ayuda de los botonrd del menu." />
+		<text name="gui_ad_showTooltips"						text="Mostrar ayudas de menú" />
+		<text name="gui_ad_showTooltips_tooltip"				text="Mostrar la ayuda de los botones del menú." />
 		<text name="gui_ad_enterTargetNameTitle_add"			text="Añadir destino" />
 		<text name="gui_ad_enterTargetNameTitle_edit"			text="Editar destino" />
 		<text name="gui_ad_enterTargetNameText"					text="Asignar nombre al destino:" />
@@ -131,48 +131,48 @@
 		<text name="gui_ad_enterDriverNameTitle"				text="Renombar conductor" />
 		<text name="gui_ad_enterDriverNameText"					text="Añadir nombre al conductor: " />
 		<text name="gui_ad_enterGroupNameTitle"					text="Crear Carpeta" />
-		<text name="gui_ad_enterGroupNameText"					text="Insertar nobre de destino: " />
+		<text name="gui_ad_enterGroupNameText"					text="Insertar nombre de destino: " />
 		<text name="gui_ad_autoRefuel"							text="Repostaje automático" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Conduzca hacia el destino de repostaje (cerca del disparador de reabastecimiento) cuando el nivel de combustible sea bajo." />
 		<text name="gui_ad_filter"								text="Filtro" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Cambiar el texto del filtro de destino" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Insertar texto de filtro:" />
 		<text name="gui_ad_shovelHeight"						text="Altura de la pala" />
-		<text name="gui_ad_shovelHeight_tooltip"				text="Si la altura de la pala detectada automáticamente es incorrecta. Utilice esta utilidad para ajustar la altura del suelo" />
+		<text name="gui_ad_shovelHeight_tooltip"				text="Si la altura de la pala detectada automáticamente es incorrecta, utilice esta utilidad para ajustar la altura del suelo" />
 		<text name="gui_ad_showMarkersOnMap"					text="Mostrar marcadores" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Mostrar marcadores/destinos en el mapa del juego" />
-		<text name="gui_ad_switchToMarkersOnMap"				text="Mudar para marcadores" />
-		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Definir alvo/descarregar alvo ao clicar nos hotspots do mapa" />
+		<text name="gui_ad_switchToMarkersOnMap"				text="Cambiar a marcadores" />
+		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Establecer objetivo / descargar objetivo al hacer clic en puntos de acceso del mapa" />
 		<text name="gui_ad_cornerSpeed"							text="Velocidad de la esquina" />
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajustar la velocidad de las curvas para cada vehículo. La masa y la velocidad actual todavía impactarán en el punto de frenado" />
 		<text name="gui_ad_callSecondUnloader"					text="Llamada 2. Descargador" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Llamada 2. Descargador cuando el descargador actual alcanza el nivel de llenado previo" />
-		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
-		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
-		<text name="gui_ad_addSettingsToHUD"					text="Add settings to HUD" />
-		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Adds buttons to the HUD to change settings without opening this menu" />
-		<text name="gui_ad_iconSetToUse"						text="Logo personalization" />
-		<text name="gui_ad_iconSetToUse_tooltip"				text="Default logo or personalized logo - Selection can be expanded." />
-		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. editor mode" />
-		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. editor mode for route manipulation instead of holding down LCTRL" />
+		<text name="gui_ad_followOnlyOnField"					text="Restringir el descargador al campo" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrinja el descargador al campo mientras descarga activamente" />
+		<text name="gui_ad_addSettingsToHUD"					text="Agregar configuraciones a HUD" />
+		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Agrega botones al HUD para cambiar la configuración sin abrir este menú" />
+		<text name="gui_ad_iconSetToUse"						text="Personalización de logo" />
+		<text name="gui_ad_iconSetToUse_tooltip"				text="Logotipo predeterminado o logotipo personalizado: la selección se puede ampliar.." />
+		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. modo editor" />
+		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. modo editor para la manipulación de rutas en lugar de mantener presionada LCTRL" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configuración de descarga cosechadora - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Configuración - AutoDrive" />
-		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Configuración de características experimentales - AutoDrive" />
+		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Configuración de funciones experimentales - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Restaurar" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Todos los cambios se perderán" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="¿Está seguro de que desea cerrar la configuración sin guardar?" />
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Gerente de Rutas" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Inserte el nombre de la ruta:" />
-		<text name="gui_ad_button_export" 						text="Save" />
-		<text name="gui_ad_button_import" 						text="Load" />
+		<text name="gui_ad_button_export" 						text="Guardar" />
+		<text name="gui_ad_button_import" 						text="Cargar" />
 		<text name="gui_ad_routeExportWarn_text" 				text="¿Estás seguro de que quieres sobrescribir la ruta existente?" />
-		<text name="gui_ad_routeExportWarn_title" 				text="La ruta se sobreescribe" />
+		<text name="gui_ad_routeExportWarn_title" 				text="Sobrescribir ruta" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="¿Estás seguro de que quieres borrar la ruta '%s'?" />
-		<text name="gui_ad_routeDeleteWarn_title" 				text="Eliminación de la ruta" />
+		<text name="gui_ad_routeDeleteWarn_title" 				text="Eliminar ruta" />
 
 		<text name="statistic_driversTraveledDistance" 			text="Distancia de conducción de los conductores" />
 		<text name="statistic_driversHired" 					text="Conductores actualmente contratados" />
@@ -195,17 +195,17 @@
 		<text name="ad_helpText_01_02"							text="La columna vertebral es una red interconectada de puntos registrados y destinos definidos. Para algunos mapas, se proporciona una red inicial con el mod. En la mayoría de los mapas tendrá que grabar todo usted mismo o importar una red de otro usuario (consulte la importación/exportación a continuación)." />
 		<text name="ad_helpText_01_03"							text="Siempre que todos los destinos estén conectados correctamente a la red, AutoDrive navega de forma muy similar a su sistema de navegación típico en su coche, calculando la ruta más corta al destino. Por lo tanto, es importante asegurarse de que todos los puntos están conectados a la red. Si AutoDrive detecta un punto desconectado, se marca con una 'X' y debe ser eliminado o conectado por el reproductor." />
 		
-		<text name="ad_helpTitle_02"							text="AD modos - Sólo consucir" />
+		<text name="ad_helpTitle_02"							text="AD modos - Sólo conducir" />
 		<text name="ad_helpText_02_01"							text="En este modo, el vehículo actual tomará el punto más adecuado (por su dirección actual y distancia) o simplemente el más cercano y luego utilizará el camino más corto desde allí hasta el destino y se detendrá allí. Es el modo más simple y más adecuado para probar sus nuevas rutas." />
 		
 		<text name="ad_helpTitle_03"							text="AD modos - Entrega" />
-		<text name="ad_helpText_03_01"							text="En este modo, AutoDrive conducirá el vehículo al igual que en el modo 'Solo conducir', pero además descargará el remolque actual en el destino, si se detecta un disparador de descarga." />
-		<text name="ad_helpText_03_02"							text="El punto de destino debe crearse detrás del disparador de descarga, de modo que los vehículos con remolques largos alcancen el disparador de descarga antes de llegar al destino. " />
-		<text name="ad_helpText_03_03"							text="El conductor se detendrá en el destino independientemente de que esté vacío o no. Si observa que su punto de destino no está lo suficientemente atrás, puede eliminar fácilmente el destino y crearlo en el siguiente punto sin tener que quitar el punto. (ver BOTONEs HUD)." />
+		<text name="ad_helpText_03_01"							text="En este modo, AutoDrive conducirá el vehículo al igual que en el modo 'Solo conducir', pero además descargará el remolque actual en el destino, si se detecta punto de descarga." />
+		<text name="ad_helpText_03_02"							text="El punto de destino debe crearse detrás del punto de descarga, de modo que los vehículos con remolques largos alcancen el punto de descarga antes de llegar al destino. " />
+		<text name="ad_helpText_03_03"							text="El conductor se detendrá en el destino independientemente de que esté vacío o no. Si observa que su punto de destino no está lo suficientemente atrás, puede eliminar fácilmente el destino y crearlo en el siguiente punto sin tener que quitar el punto. (ver BOTONES HUD)." />
 		
 		<text name="ad_helpTitle_04"							text="AD modos - Recogida y entrega" />
-		<text name="ad_helpText_04_01"							text="En este modo, puede seleccionar los destinos de destino. Uno para cargar (el primero) y el segundo para el punto de descarga." />
-		<text name="ad_helpText_04_02"							text="Si AutoDrive está activado, examinará el nivel de llenado actual de los trailers/implements conectados. Si este valor es mayor que el nivel de 'Descargar en' establecido (consulte la configuración), el descargador se dirigirá directamente al destino de descarga." />
+		<text name="ad_helpText_04_01"							text="En este modo, puede seleccionar dos destinos. Uno para cargar (el primero) y el segundo para el punto de descarga." />
+		<text name="ad_helpText_04_02"							text="Si AutoDrive está activado, examinará el nivel de llenado actual de los trailers/implementos conectados. Si este valor es mayor que el nivel de 'Descargar en' establecido (consulte la configuración), el descargador se dirigirá directamente al destino de descarga." />
 		<text name="ad_helpText_04_03"							text="De lo contrario, se dirigirá primero al destino de carga. Dependiendo de la configuración seleccionada ('En silo vacío'), el descargador esperará en el destino de carga para ser llenado más allá del nivel 'Descargar en' o continuará hasta el destino de descarga." />
 		<text name="ad_helpText_04_04"							text="De cualquier manera, el descargador primero intentará cargar el tipo de relleno seleccionado en cualquier desencadenador disponible en el rango proporcionado (consulte la configuración) antes del destino de carga." />
 		<text name="ad_helpText_04_05"							text="Además, puede seleccionar un contador de repetición antes de iniciar el descargador. Si establece este contador en 2, el descargador se detendrá después de haber alcanzado el destino de descarga 2 veces. Si este ajuste (consulte HUD) se deja de forma predeterminada, el descargador siempre iniciará el siguiente ciclo." />
@@ -217,7 +217,7 @@
 		<text name="ad_helpText_05_04"							text="Este modo también se puede utilizar junto con Courseplay. Tendrá que seleccionar 'Usar AutoDrive para rellenar/descargar' en el HUD de Courseplay (no forma parte de esta documentación)." />
 		
 		<text name="ad_helpTitle_06"							text="AD modos - Descargar cosechadoras" />
-		<text name="ad_helpText_06_01"							text="En este modo, puede establecer de nuevo dos destinos. El primero debe ser un lugar de campo desde donde se puede llegar a un cosechador activo. El segundo es de nuevo un destino de descarga." />
+		<text name="ad_helpText_06_01"							text="En este modo, puede establecer de nuevo dos destinos. El primero debe ser un lugar de campo desde donde se puede llegar a una cosechadora activa. El segundo es de nuevo un destino de descarga." />
 		<text name="ad_helpText_06_02"							text="Este es el primer modo en el que los descargadores de AutoDrive pueden dejar la ruta de acceso grabada y conducir en el campo. Este modo es bastante complicado e implica muchos ajustes desde el menú de configuración." />
 		<text name="ad_helpText_06_03"							text="Por lo tanto, esta documentación describirá primero el comportamiento básico y luego agregará cómo afectan los ajustes a dicho comportamiento." />
 		
@@ -231,26 +231,26 @@
 		<text name="ad_helpTitle_08"							text="AD modos - Descargar cosechadoras - Basics - 2" />
 		<text name="ad_helpText_08_01"							text="Si un descargador es llamado a una cosechadora, comenzará a planificar un camino a la tubería extendida de la cosechadora. El planificador de rutas es una implementación completamente única y una explicación podría incluirse como apéndice de esta documentación más adelante. Los conceptos básicos son una división del mundo simulado en celdas de cuadrícula. Estas celdas de rejilla se dimensionan de acuerdo con el radio de giro de los vehículos y se comprueba que están libres de fruta (ver configuración), sin colisiones, están en el campo (ver configuración) y tienen una pendiente máxima aceptable para los conductores de IA. Después de que se ha encontrado un camino libre, también se aplica un poco de suavizado para deshacerse de la mayoría de los giros bruscos y luego el conductor es enviado a lo largo de este camino a la cosechadora." />
 		<text name="ad_helpText_08_02"							text="" />
-		<text name="ad_helpText_08_03"							text="Nota: Tan pronto como el descargador recibe el comando para conducir a la cosechadora, el mensaje de estado en la barra de información del HUD cambia de 'Esperando a cosechadora' a 'Conducir a la cosechadora. Lo que significa que el planificador de rutas ahora está buscando activamente una ruta. Dependiendo del rendimiento de la CPU y la configuración ('Tiempo de búusqueda (máximo)'), este proceso puede tardar algún tiempo y, en casos extremos, reducir los fps. Este suele ser el caso si el descargador no puede encontrar una ruta aceptable a la cosechadora. Asegúrese siempre de que el espacio delante del conductor esté libre de obstáculos (y libre de cultivos) y que el camino que conduce a la tubería de la cosechadora también esté libre de colisión (por ejemplo, no hay árboles justo detrás de la cosechadora)." />
+		<text name="ad_helpText_08_03"							text="Nota: Tan pronto como el descargador recibe el comando para conducir a la cosechadora, el mensaje de estado en la barra de información del HUD cambia de 'Esperando a cosechadora' a 'Conducir a la cosechadora. Lo que significa que el planificador de rutas ahora está buscando activamente una ruta. Dependiendo del rendimiento de la CPU y la configuración ('Tiempo de búsqueda (máximo)'), este proceso puede tardar algún tiempo y, en casos extremos, reducir los fps. Este suele ser el caso si el descargador no puede encontrar una ruta aceptable a la cosechadora. Asegúrese siempre de que el espacio delante del conductor esté libre de obstáculos (y libre de cultivos) y que el camino que conduce a la tubería de la cosechadora también esté libre de colisión (por ejemplo, no hay árboles justo detrás de la cosechadora)." />
 		<text name="ad_helpText_08_04"							text="" />
 		<text name="ad_helpText_08_05"							text="Cuando llegue a la cosechadora comprobará si el proceso de descarga está terminado o si el remolque actual está lleno. En el caso de varios remolques, el conductor conducirá hacia adelante hasta que se detecte un proceso de llenado en el siguiente remolque. Después del proceso de descarga, el conductor comenzará a conducir hacia atrás durante unos pocos metros para proporcionar a la cosechadora suficiente espacio para continuar su trabajo. A continuación, el conductor esperará unos segundos para que la cosechadora despeje el área y comience la planificación de la ruta de vuelta al punto de partida. Al llegar al punto de partida, se registrará de nuevo como descargador disponible y esperará a que se le llame de nuevo. Si el remolque ya está lleno en ese punto, se dirigirá directamente al destino de descarga antes de volver a la ubicación del campo." />
 		
-		<text name="ad_helpTitle_09"							text="AD modes - Descargar cosechadoras - Aparcar en el campo" />
-		<text name="ad_helpText_09_01"							text="Si esta opción se establece en true en la configuración de AutoDrive, el descargador comprobará si la celda de destino (posición de la tubería) ha detectado fruta (Evitar cultivos debe establecerse en true). Si no se detecta ninguna fruta y el conductor aún no ha alcanzado su 'descargar en el nivel de relleno', permanecerá en la ubicación actual del campo. " />
+		<text name="ad_helpTitle_09"							text="AD modos - Descargar cosechadoras - Aparcar en el campo" />
+		<text name="ad_helpText_09_01"							text="Si esta opción se establece en 'true' en la configuración de AutoDrive, el descargador comprobará si la celda de destino (posición de la tubería) ha detectado fruta (Evitar cultivos debe establecerse en 'true'). Si no se detecta ninguna fruta y el conductor aún no ha alcanzado su 'descargar en el nivel de relleno', permanecerá en la ubicación actual del campo. " />
 		
-		<text name="ad_helpTitle_10"							text="AD modes - Descargar cosechadoras - Restringir al límite del campo" />
-		<text name="ad_helpText_10_01"							text="Si esta opción se establece en true, el algoritmo del buscador de rutas solo aceptará celdas de cuadrícula que están en los límites campo. Esta configuración solo tiene efecto si el vehículo ya está en el campo (iniciado en el campo o aparcado en el campo). Esta opción debería ayudar a mantener al conductor en los límites del campo, especialmente durante las maniobras de giro. " />
+		<text name="ad_helpTitle_10"							text="AD modos - Descargar cosechadoras - Restringir al límite del campo" />
+		<text name="ad_helpText_10_01"							text="Si esta opción se establece en 'true', el algoritmo del buscador de rutas solo aceptará celdas de cuadrícula que están en los límites campo. Esta configuración solo tiene efecto si el vehículo ya está en el campo (iniciado en el campo o aparcado en el campo). Esta opción debería ayudar a mantener al conductor en los límites del campo, especialmente durante las maniobras de giro. " />
 		<text name="ad_helpText_10_02"							text="" />
 		<text name="ad_helpText_10_03"							text="Importante: Si no se puede calcular ninguna ruta libre de fruta en el tiempo proporcionado (ver configuración), el buscador de caminos entrará en un modo de reserva que ignora los límites de campos y los cultivos!" />
 		
-		<text name="ad_helpTitle_11"							text="AD modes - Descargar cosechadoras - Evitar cultivos" />
+		<text name="ad_helpTitle_11"							text="AD modos - Descargar cosechadoras - Evitar cultivos" />
 		<text name="ad_helpText_11_01"							text="Esta opción garantiza que el buscador de rutas solo aceptará celdas de cuadrícula que no contengan ningún cultivo o solo tengan una cantidad marginal de cosecha. Importante: Si no se puede calcular ninguna ruta libre de cultivo en el tiempo proporcionado (ver configuración), el buscador de rutas entrará en un modo de reserva que ignora los bordes del campo y la existencia de cultivos!" />
 		
-		<text name="ad_helpTitle_12"							text="AD modes - Descargar cosechadoras - Perseguir cosechadora" />
+		<text name="ad_helpTitle_12"							text="AD modos - Descargar cosechadoras - Perseguir cosechadora" />
 		<text name="ad_helpText_12_01"							text="Llamada a descargador / Perseguir cosechadora" />
 		<text name="ad_helpText_12_02"							text="" />
-		<text name="ad_helpText_12_03"							text="Estas opciones se pueden utilizar para simplemente seguir la cosechadora con cierta distancia (Conductor llamado / perseguir cosechadora Off). O para que el descargador se descargue activamente mientras la cosechadora sigue conduciendo. Cuando la cosechadora alcanza el nivel de relleno establecido (nivel de llamada previa), ya llamará al descargador a su ubicación actual. Una vez que el descargador llega a este punto, se volverá a evaluar. Si está cerca de la cosechadora (menos de 60 metros) y el ajuste de 'perseguir cosechdora' está activado, comenzará a seguirlo por la línea de visión. De lo contrario, volverá a activar un proceso de búsqueda de caminos hacia la nueva ubicación de la cosechadora. Mientras persigue, él sensor si la tubería está actualmente en cultivo o no. Si no está en cultivo, comenzará a apuntar a la ubicación de la tubería, de lo contrario seguirá a la cosechadora con cierta distancia. Cuando el descargador alcanza su nivel de 'Descargar a' comenzará inmediatamente a planificar una ruta de acceso a la salida de campo seleccionada (consulte la configuración). Por lo tanto, tiene sentido establecer el nivel a 100% en este modo. De esta manera no intentará accidentalmente cortar delante de la cosechadora o marcharse antes de estar completamente lleno." />
-		<text name="ad_helpTitle_13"							text="AD modes - Descargar Bunker silo" />
+		<text name="ad_helpText_12_03"							text="Estas opciones se pueden utilizar para simplemente seguir la cosechadora con cierta distancia (Conductor llamado / perseguir cosechadora Off). O para que el descargador se descargue activamente mientras la cosechadora sigue conduciendo. Cuando la cosechadora alcanza el nivel de relleno establecido (nivel de llamada previa), llamará al descargador a su ubicación actual. Una vez que el descargador llega a este punto, se volverá a evaluar. Si está cerca de la cosechadora (menos de 60 metros) y el ajuste de 'perseguir cosechadora' está activado, comenzará a seguirlo por la línea de visión. De lo contrario, volverá a activar un proceso de búsqueda de caminos hacia la nueva ubicación de la cosechadora. Mientras persigue, detectará si la tubería está actualmente en cultivo o no. Si no está en cultivo, comenzará a conducir a la ubicación de la tubería, de lo contrario seguirá a la cosechadora con cierta distancia. Cuando el descargador alcanza su nivel de 'Descargar a' comenzará inmediatamente a planificar una ruta de acceso a la salida de campo seleccionada (consulte la configuración). Por lo tanto, tiene sentido establecer el nivel a 100% en este modo. De esta manera no intentará accidentalmente cortar delante de la cosechadora o marcharse antes de estar completamente lleno." />
+		<text name="ad_helpTitle_13"							text="AD modos - Descargar Bunker silo" />
 		<text name="ad_helpText_13_01"							text="Este modo solo se puede utilizar con vehículos que tengan una pala conectada. La idea básica es una solución de un solo clic para vaciar un bunker. En el arranque, el vehículo comprobará las condiciones requeridas. Necesita un silo de búnker lleno en las cercanías (¿100 m?) y una pala adjunta. Si se cumplen ambas condiciones, el vehículo inicializará su eje del cargador delantero para adquirir los valores correctos para arriba/abajo, cargar/descargar y extender/retirar movimientos. Luego dividirá el ancho del silo del búnker en trozos tan anchos como su pala + adición de pala (ver ajustes) y comenzará en la primera línea. Si la primera o la última línea termina golpeando la pared del silo, debe aumentar el valor de tamaño de la pala en la configuración y reiniciar el descargador. Esto puede ocurrir si la anchura de recogida de la pala no se corresponde correctamente con las dimensiones físicas o la definición del silo bunker se encuentra dentro de la pared, lo que no es inusual ya que hace que sea más fácil desarrollar un silo bunker de buen aspecto. Después de que la pala se lanza y el vehículo se invierte desde el bunker, buscará un vehículo con un remolque adjunto (con espacio de llenado izquierdo) y comenzará a dirigirse hacia allí." />
 		<text name="ad_helpText_13_02"							text="" />
 		<text name="ad_helpText_13_03"							text="Precaución: ¡Actualmente no hay detección de colisión incluida en este modo!" />
@@ -259,13 +259,13 @@
 		
 
 		<text name="AD_task_pathfinding"						text="Ruta de planificación" />
-		<text name="AD_task_catch_up_with_combine"				text="Ponerse al día con la combinación" />
+		<text name="AD_task_catch_up_with_combine"				text="Ponerse al día con la cosechadora" />
 		<text name="AD_task_clearcrop"							text="La cosecha de limpieza" />
-		<text name="AD_task_drive_to_destination"				text="Conduciendo hacia el destino" />
-		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
-		<text name="AD_task_drive_to_combine_pipe"				text="Conduciendo hacia el vehículo objetivo" />
-		<text name="AD_task_unloading_combine"					text="Unloading combine" />
-		<text name="AD_task_reversing_from_combine"				text="Combinación de descarga" />
+		<text name="AD_task_drive_to_destination"				text="Conducir hacia el destino" />
+		<text name="AD_task_drive_to_vehicle"					text="Conducir al vehículo objetivo" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Conduciendo hacia el tubo de la cosechadora" />
+		<text name="AD_task_unloading_combine"					text="Descargando la cosechadora" />
+		<text name="AD_task_reversing_from_combine"				text="Marcha atrás de la cosechadora" />
 		<text name="AD_task_waiting_for_space"					text="Esperando la sala de maniobras" />
 		<text name="AD_task_wait_for_combine_turn"				text="Espera el turno de la cosechadora" />
 		<text name="AD_task_drive_to_load_point"				text="Conducir hasta el punto de carga" />
@@ -273,13 +273,13 @@
 		<text name="AD_task_stop_and_disable"					text="Deteniendo" />
 		<text name="AD_task_drive_to_unload_point"				text="Conducir hasta el punto de descarga" />
 		<text name="AD_task_wait_for_call"						text="Esperando la llamada" />	
-		<text name="AD_task_chasing_combine"					text="Encadenando la cosechadora" />	
-		<text name="AD_task_wait_for_combine_pass_by"			text="Dejando pasar la combinación" />	
+		<text name="AD_task_chasing_combine"					text="Persiguiendo a la cosechadora" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Dejando pasar la cosechadora" />	
 		<text name="AD_task_catching_chase_side"				text="Lado de captura" />	
 		<text name="AD_task_chase_side"							text="Lado" />	
 		<text name="AD_task_chase_side_left"					text="izquierda" />	
 		<text name="AD_task_chase_side_rear"					text="trasero" />	
-		<text name="AD_task_chase_side_right"					text="a la derecha" />	
+		<text name="AD_task_chase_side_right"					text="derecha" />	
 		<text name="AD_task_waiting_for_room"					text="Esperando habitación" />	
 		<text name="AD_task_exiting_field"						text="Campo de salida" />
 	</texts>
