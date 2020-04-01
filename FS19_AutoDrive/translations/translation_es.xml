@@ -153,6 +153,8 @@
 		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Adds buttons to the HUD to change settings without opening this menu" />
 		<text name="gui_ad_iconSetToUse"						text="Logo personalization" />
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Default logo or personalized logo - Selection can be expanded." />
+		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. editor mode" />
+		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. editor mode for route manipulation instead of holding down LCTRL" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />
