@@ -331,23 +331,23 @@ function CombineUnloaderMode:getPipeChasePosition()
     local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
     -- We gradually move the chose node forward as a function of fill level to more efftively fill
     -- buffer combines
-    local sideChaseTermZ  = (-diffZ - (self.vehicle.sizeLength / 2)) + (targetTrailer.sizeLength ^ targetTrailerFillRatio)
+    local sideChaseTermZ  = -diffZ - (targetTrailer.sizeLength / 2) + math.max(4, (targetTrailer.sizeLength - 1) ^ targetTrailerFillRatio)
     -- Put in some boundary conditions so we stay inside a trailer
-    if sideChaseTermZ > (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9 then
+    --if sideChaseTermZ > (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9 then
         -- We want to be at least 10% inside the rearmost trailer so we don't miss.
-        sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9
-    elseif sideChaseTermZ < (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2 then
+    --    sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9
+    --elseif sideChaseTermZ < (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2 then
         -- We want to preference filling the first 20% of the trailer, and also not miss the front
-        sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2
-    end
+    --    sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2
+    --end
     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition.sideChaseTermZ " .. sideChaseTermZ)
     --local sideChaseTermZ = (self.vehicle.sizeLength / 2) + (targetTrailer.sizeLength * targetTrailerFillRatio)  --AutoDrive.getTractorAndTrailersLength(self.vehicle, true) - self.vehicle.sizeLength / 2
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "" .. pipeOffset .. " " ..  followDistance .. " " .. sideChaseTermX .. " " .. sideChaseTermZ)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "Z Term Info: " .. (targetTrailer.sizeLength - 1) ^ targetTrailerFillRatio .. " " .. sideChaseTermZ)
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition - Buffer Combine")
         local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX, sideChaseTermZ)
         local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX, sideChaseTermZ)
-        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, slopeCorrection, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
@@ -400,7 +400,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         else
             sideIndex = self.CHASEPOS_REAR
             --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, slopeCorrection, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, slopeCorrection, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
         end
     end
 
