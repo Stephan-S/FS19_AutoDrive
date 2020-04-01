@@ -86,7 +86,7 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     -- Use the length of the tractor-trailer combo to determine how far to drive to straighten
     -- the trailer. Add an extra follow distance because the unloader stops well before the back
     -- of the trailer.
-    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, true) * 1.1
+    local lengthOffset = AutoDrive.getTractorAndTrailersLength(self.vehicle, true) + followDistance
     -- A bit of a sanity check, in case the vehicle is absurdly long.
     -- Using pi because the factor is an arbitrary choice any way you slice it.
     if lengthOffset > (followDistance + 1) * math.pi then
@@ -96,30 +96,46 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
         lengthOffset = followDistance + 1
     end
     g_logManager:info("Straightening offset: " .. lengthOffset)
-
-    if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
-        local appendTarget = {x = pipeChasePos.x - followDistance * rx, y = worldY, z = pipeChasePos.z - followDistance * rz}
-
-        self:startPathPlanningTo(pathFinderTarget, combineVector)
-
-        table.insert(self.appendWayPoints, appendTarget)
+    --lengthOffset = 0
+    --followDistance = 0
+    local target = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
+    if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+        --table.insert(self.appendWayPoints, appendedNode)
+        --table.insert(self.appendWayPoints, pipeChasePos)
+        local straightenNode = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
+        self:startPathPlanningTo(straightenNode, combineVector)
+        table.insert(self.appendWayPoints, target)
     else
-        local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
-        -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
-        local appendedNode = {x = pipeChasePos.x - followDistance * rx, y = worldY, z = pipeChasePos.z - followDistance * rz}
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
-            pathFinderTarget = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
-        end
-
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
-        self:startPathPlanningTo(pathFinderTarget, combineVector)
-
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
-            table.insert(self.appendWayPoints, appendedNode)
-            table.insert(self.appendWayPoints, pipeChasePos)
-        end
+        self:startPathPlanningTo(target, combineVector)
     end
+
+    
+
+    -- local appendedNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -lengthOffset)
+    --if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
+        --local pathFinderTarget = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
+        --local appendedNode = {x = pipeChasePos.x - followDistance * rx, y = worldY, z = pipeChasePos.z - followDistance * rz}
+        --table.insert(self.appendWayPoints, appendedNode)
+    --    self:startPathPlanningTo(pathFinderTarget, combineVector)
+
+        --table.insert(self.appendWayPoints, appendedNode)
+    --else
+        --local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
+        -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
+        --local appendedNode = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
+        --if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+        --    pathFinderTarget = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
+        --end
+
+     --   AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
+        --self:startPathPlanningTo(pathFinderTarget, combineVector)
+
+        --if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+            --table.insert(self.appendWayPoints, appendedNode)
+            --table.insert(self.appendWayPoints, pipeChasePos)
+        --end
+       -- self:startPathPlanningTo(pathFinderTarget, combineVector)
+    --end
 
     if combine.spec_combine ~= nil then
         if combine.spec_combine.fillUnitIndex ~= nil and combine.spec_combine.fillUnitIndex ~= 0 then

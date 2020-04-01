@@ -6,6 +6,12 @@ function AutoDrive.createWayPointRelativeToVehicle(vehicle, offsetX, offsetZ)
     return wayPoint
 end
 
+function AutoDrive.createWayPointRelativeToNode(node, offsetX, offsetZ)
+    local wayPoint = {}
+    wayPoint.x, wayPoint.y, wayPoint.z = localToWorld(node, offsetX, 0, offsetZ)
+    return wayPointend
+end
+
 function AutoDrive.isTrailerInCrop(vehicle)
     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
     local trailer = trailers[trailerCount]
