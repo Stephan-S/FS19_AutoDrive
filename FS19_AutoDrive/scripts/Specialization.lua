@@ -3,7 +3,7 @@ function AutoDrive.prerequisitesPresent(specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
-    for _, n in pairs({"onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick", "onStartAutoDrive", "onStopAutoDrive"}) do
+    for _, n in pairs({"onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPreLoad", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick", "onStartAutoDrive", "onStopAutoDrive"}) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -52,6 +52,12 @@ function AutoDrive:onRegisterActionEvents(_, isOnActiveVehicle)
                 g_inputBinding:setActionEventTextPriority(eventName, action[3])
             end
         end
+    end
+end
+
+function AutoDrive:onPreLoad(savegame)
+    if self.spec_autodrive == nil then
+        self.spec_autodrive = AutoDrive
     end
 end
 
@@ -154,10 +160,6 @@ function AutoDrive:onPostLoad(savegame)
     link(self.components[1].node, self.ad.frontNode)
     setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
     self.ad.frontNodeGizmo = DebugGizmo:new()
-
-    if self.spec_autodrive == nil then
-        self.spec_autodrive = AutoDrive
-    end
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
@@ -432,6 +434,12 @@ function AutoDrive:startAutoDrive()
     else
         g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
     end
+    --[[
+    for i = 1, #g_fruitTypeManager.fruitTypes do
+        local fruitType = g_fruitTypeManager.fruitTypes[i].index
+        print("FruitType: "  .. fruitType .. ": " .. g_fillTypeManager:getFillTypeByIndex(g_fruitTypeManager:getFillTypeIndexByFruitTypeIndex(fruitType)).title)
+    end
+    --]]
 end
 
 function AutoDrive:stopAutoDrive()
@@ -489,7 +497,6 @@ function AutoDrive:stopAutoDrive()
                         sensor:setEnabled(false)
                     end
                 end
-                
             end
 
             if self.setBeaconLightsVisibility ~= nil then
@@ -502,7 +509,7 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:reset()
 
             AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
-            
+
             if not hasCallbacks and not self.ad.isStoppingWithError then
                 if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
                     self.ad.stateModule:setStartCp(false)
@@ -511,6 +518,10 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
+
+            self.ad.callBackFunction = nil
+            self.ad.callBackObject = nil
+            self.ad.callBackArg = nil
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")

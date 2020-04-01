@@ -37,11 +37,15 @@ ADDrawingManager.sphere.tasks = {}
 ADDrawingManager.sphere.lastDrawZero = true
 
 ADDrawingManager.markers = {}
-ADDrawingManager.markers.fileName = "marker.i3d"
+ADDrawingManager.markers.fileNames = {}
+ADDrawingManager.markers.fileNames[1] = "marker.i3d"
+ADDrawingManager.markers.fileNames[2] = "marker_2.i3d"
 ADDrawingManager.markers.buffer = Buffer:new()
 ADDrawingManager.markers.objects = FlaggedTable:new()
 ADDrawingManager.markers.tasks = {}
 ADDrawingManager.markers.lastDrawZero = true
+ADDrawingManager.markers.lastDrawFileUsed = 1
+ADDrawingManager.markers.usesSelection = true
 
 ADDrawingManager.cross = {}
 ADDrawingManager.cross.fileName = "cross.i3d"
@@ -57,7 +61,9 @@ function ADDrawingManager:load()
     g_i3DManager:fillSharedI3DFileCache(self.arrows.fileName, self.i3DBaseDir)
     g_i3DManager:fillSharedI3DFileCache(self.sSphere.fileName, self.i3DBaseDir)
     g_i3DManager:fillSharedI3DFileCache(self.sphere.fileName, self.i3DBaseDir)
-    g_i3DManager:fillSharedI3DFileCache(self.markers.fileName, self.i3DBaseDir)
+    for _, filename in ipairs(self.markers.fileNames) do
+        g_i3DManager:fillSharedI3DFileCache(filename, self.i3DBaseDir)
+    end
 end
 
 function ADDrawingManager.initObject(id)
@@ -161,6 +167,25 @@ end
 function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
     local taskCount = #obj.tasks
 
+    local fileToUse
+    if obj.usesSelection then
+        if obj.lastDrawFileUsed ~= AutoDrive.getSetting("iconSetToUse") then
+            -- cleaning up not needed objects and send them back to the buffer
+            obj.objects:ResetFlags()
+            local unusedObjects = obj.objects:RemoveUnflagged()
+            for _, id in pairs(unusedObjects) do
+                -- make invisible unused items
+                setVisibility(id, false)
+                obj.buffer:Insert(id)
+            end
+            obj.buffer = Buffer:new()
+        end
+        fileToUse = obj.fileNames[AutoDrive.getSetting("iconSetToUse")]
+        obj.lastDrawFileUsed = AutoDrive.getSetting("iconSetToUse")
+    else
+        fileToUse = obj.fileName
+    end
+
     local stats = {}
     stats["Tasks"] = {Total = taskCount, Performed = 0}
     stats["Objects"] = obj.objects:Count()
@@ -198,7 +223,7 @@ function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
             local baseDir = self.i3DBaseDir
             for i = 1, remainingTaskCount - bufferCount do
                 -- loading new i3ds
-                local id = g_i3DManager:loadSharedI3DFile(obj.fileName, baseDir)
+                local id = g_i3DManager:loadSharedI3DFile(fileToUse, baseDir)
                 obj.buffer:Insert(iFunc(id))
             end
         end

@@ -50,6 +50,13 @@ function CombineUnloaderMode:start()
 end
 
 function CombineUnloaderMode:monitorTasks(dt)
+    if self.combine ~= nil and (self.state == self.STATE_LEAVE_CROP or self.state == self.STATE_DRIVE_TO_START or self.state == self.STATE_DRIVE_TO_UNLOAD or self.state == self.STATE_EXIT_FIELD) then
+        if AutoDrive.getDistanceBetween(self.vehicle, self.combine) > 25 then
+            ADHarvestManager:unregisterAsUnloader(self.vehicle)
+            self.followingUnloader = nil
+            self.combine = nil
+        end
+    end
 end
 
 function CombineUnloaderMode:handleFinishedTask()
@@ -207,9 +214,9 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
             self.state = self.STATE_DRIVE_TO_UNLOAD
         end
         
-        ADHarvestManager:unregisterAsUnloader(self.vehicle)
-        self.followingUnloader = nil
-        self.combine = nil
+        --ADHarvestManager:unregisterAsUnloader(self.vehicle)
+        --self.followingUnloader = nil
+        --self.combine = nil
     else
         -- Should we park in the field?
         if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then
@@ -280,10 +287,23 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     end
 
+    local isSugarCaneHarvester = true
+    for _, implement in pairs(self.combine:getAttachedImplements()) do
+        if implement ~= nil and implement ~= self.combine and (implement.object == nil or implement.object ~= self.combine) then
+            isSugarCaneHarvester = false
+        end
+    end
+
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 7, 4)
-        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -7, 4)
-        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle))
+        local sideOffset = 7
+        local rearOffset = 0
+        if isSugarCaneHarvester then
+            sideOffset = 5
+            rearOffset = 5
+        end
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideOffset, 4)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideOffset, 4)
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -self.combine.sizeLength / 2 - AutoDrive.getSetting("followDistance", self.vehicle) - rearOffset)
         
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)

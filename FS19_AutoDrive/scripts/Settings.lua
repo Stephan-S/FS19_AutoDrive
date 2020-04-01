@@ -338,8 +338,9 @@ AutoDrive.settings.findDriver = {
 }
 
 AutoDrive.settings.guiScale = {
-    values = {0, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4},
-    texts = {"Default", "100%", "95%", "90%", "85%", "80%", "75%", "70%", "65%", "60%", "55%", "50%", "45%", "40%"},
+    values = {0, 2, 1.95, 1.9, 1.85, 1.8, 1.75, 1.7, 1.65, 1.6, 1.55, 1.5, 1.45, 1.4, 1.35, 1.3, 1.25, 1.2, 1.15, 1.1, 1.05, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4},
+    texts = {"Default", "200%", "195%", "190%", "185%", "180%", "175%", "170%", "165%", "160%", "155%", "150%", "145%", "140%",
+    "135%", "130%", "125%", "120%", "115%", "110%", "105%", "100%", "95%", "90%", "85%", "80%", "75%", "70%", "65%", "60%", "55%", "50%", "45%", "40%"},
     default = 1,
     current = 1,
     text = "gui_ad_gui_scale",
@@ -704,6 +705,39 @@ AutoDrive.settings.followOnlyOnField = {
     tooltip = "gui_ad_followOnlyOnField_tooltip",
     translate = true,
     isVehicleSpecific = true
+}
+
+AutoDrive.settings.addSettingsToHUD = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_addSettingsToHUD",
+    tooltip = "gui_ad_addSettingsToHUD_tooltip",
+    translate = true,
+    isVehicleSpecific = false
+}
+
+AutoDrive.settings.iconSetToUse = {
+    values = {1, 2},
+    texts = {"AutoDrive", "Hirschfeld"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_iconSetToUse",
+    tooltip = "gui_ad_iconSetToUse_tooltip",
+    translate = false,
+    isVehicleSpecific = false
+}
+
+AutoDrive.settings.secondEditorModeAllowed = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_secondEditorModeAllowed",
+    tooltip = "gui_ad_secondEditorModeAllowed_tooltip",
+    translate = true,
+    isVehicleSpecific = false
 }
 
 function AutoDrive.getSetting(settingName, vehicle)
