@@ -248,7 +248,7 @@ function CombineUnloaderMode:getPipeSlopeCorrection(combineNode, dischargeNode)
     local combineX, combineY, combineZ = getWorldTranslation(combineNode)
     local dischargeX, dichargeY, dischargeZ = getWorldTranslation(dischargeNode)
     local diffX, _, _ = worldToLocal(combineNode, dischargeX, dichargeY, dischargeZ)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeSlopeCorrection diffX: " .. diffX)
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeSlopeCorrection diffX: " .. diffX)
     local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
     -- +1 means left, -1 means right. 0 means we don't know
     local pipeSide = AutoDrive.sign(diffX)
@@ -259,7 +259,7 @@ function CombineUnloaderMode:getPipeSlopeCorrection(combineNode, dischargeNode)
     local hyp = MathUtil.vector3Length(combineX - nodeX, heightUnderCombine - heightUnderPipe, combineZ - nodeZ)
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh/hyp)) - run
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeSlopeCorrection elevationCorrection: " .. elevationCorrection)
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeSlopeCorrection elevationCorrection: " .. elevationCorrection)
     return elevationCorrection * pipeSide
 end
 
@@ -329,13 +329,16 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
     local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
-    local sideChaseTermZ  = (-diffZ - (self.vehicle.sizeLength / 2)) + (targetTrailer.sizeLength * targetTrailerFillRatio)
+    -- We gradually move the chose node forward as a function of fill level to more efftively fill
+    -- buffer combines
+    local sideChaseTermZ  = (-diffZ - (self.vehicle.sizeLength / 2)) + (targetTrailer.sizeLength ^ targetTrailerFillRatio)
     -- Put in some boundary conditions so we stay inside a trailer
-    if sideChaseTermZ >= -diffZ + targetTrailer.sizeLength - (self.vehicle.sizeLength / 2) - 1 then
-        sideChaseTermZ = -diffZ + targetTrailer.sizeLength - (self.vehicle.sizeLength / 2) - 1
-    elseif sideChaseTermZ < self.vehicle.sizeLength then
-        sideChaseTermZ = self.vehicle.sizeLength
+    if sideChaseTermZ > (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9 then
+        sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9
+    elseif sideChaseTermZ < (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2 then
+        sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2
     end
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition.sideChaseTermZ " .. sideChaseTermZ)
     --local sideChaseTermZ = (self.vehicle.sizeLength / 2) + (targetTrailer.sizeLength * targetTrailerFillRatio)  --AutoDrive.getTractorAndTrailersLength(self.vehicle, true) - self.vehicle.sizeLength / 2
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "" .. pipeOffset .. " " ..  followDistance .. " " .. sideChaseTermX .. " " .. sideChaseTermZ)
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
@@ -384,7 +387,7 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 -- Subtract the vehicle length back out.
                 local totalDiff = sideChaseTermZ ---diffZ + sideChaseTermZ - (self.vehicle.sizeLength / 2)
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition:totalDiff " .. totalDiff)
+                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition:totalDiff " .. totalDiff)
                 local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z
                 --chaseNode = AutoDrive.createWayPointRelativeToNode(dischargeNode.node, pipeOffset, totalDiff)
