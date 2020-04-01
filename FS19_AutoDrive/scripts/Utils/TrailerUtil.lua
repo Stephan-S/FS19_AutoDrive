@@ -414,7 +414,7 @@ function AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger)
     return false
 end
 
-function AutoDrive.getTriggerAndTrailerPairs(vehicle)
+function AutoDrive.getTriggerAndTrailerPairs(vehicle, dt)
     local trailerTriggerPairs = {}
     local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
 
@@ -473,7 +473,19 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                         end
 
                         local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
-                        if trailerIsInRange and hasRequiredFillType and isNotFilled and hasCapacity then
+                        if trailer.inRangeTimers == nil then
+                            trailer.inRangeTimers = {}
+                        end
+                        if trailer.inRangeTimers[i] == nil then
+                            trailer.inRangeTimers[i] = {}
+                        end
+                        if trailer.inRangeTimers[i][trigger] == nil then
+                            trailer.inRangeTimers[i][trigger] = AutoDriveTON:new()
+                        end
+
+                        local timerDone = trailer.inRangeTimers[i][trigger]:timer(trailerIsInRange, 500, dt) -- vehicle.ad.stateModule:getFieldSpeedLimit()*100
+
+                        if timerDone and hasRequiredFillType and isNotFilled and hasCapacity then
                             local pair = {trailer = trailer, trigger = trigger, fillUnitIndex = i}
                             table.insert(trailerTriggerPairs, pair)
                         end
@@ -487,11 +499,21 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
 end
 
 function AutoDrive.trailerIsInTriggerList(trailer, trigger, fillUnitIndex)
+    --[[
     if trigger ~= nil and trigger.fillableObjects ~= nil then
         for _, fillableObject in pairs(trigger.fillableObjects) do
             if fillableObject == trailer or (fillableObject.object ~= nil and fillableObject.object == trailer and fillableObject.fillUnitIndex == fillUnitIndex) then
                 return true
             end
+        end
+    end
+    --]]
+    local activatable = trigger:getIsActivatable(trailer)
+    if trigger ~= nil and trigger.validFillableObject ~= nil and trigger.validFillableFillUnitIndex ~= nil then
+        --print("Activateable: " .. AutoDrive.boolToString(activatable) .. " isLoading: " .. AutoDrive.boolToString(trigger.isLoading))
+        if activatable and trigger.validFillableObject == trailer and trigger.validFillableFillUnitIndex == fillUnitIndex then
+            --print("Is trailer and correctFillUnitIndex: " .. fillUnitIndex)
+            return true
         end
     end
 

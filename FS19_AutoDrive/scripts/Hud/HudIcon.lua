@@ -75,10 +75,17 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         textToShow = textToShow .. " - " .. taskInfo
     end
 
-    if vehicle.ad.stateModule:isInExtendedEditorMode() then        
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
-    elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
+    if AutoDrive.getSetting("secondEditorModeAllowed") then
+        if vehicle.ad.stateModule:isInExtendedEditorMode() then
+            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
+            textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
+        end
+    else
+        if vehicle.ad.stateModule:isInExtendedEditorMode() then
+            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
+        elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
+            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
+        end
     end
 
     if vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then

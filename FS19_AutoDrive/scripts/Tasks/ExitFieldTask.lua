@@ -34,6 +34,7 @@ function ExitFieldTask:update(dt)
                     self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
                 else
                     self:startPathPlanning()
+                    self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
                 end
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
