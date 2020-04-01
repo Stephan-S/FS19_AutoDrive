@@ -334,8 +334,10 @@ function CombineUnloaderMode:getPipeChasePosition()
     local sideChaseTermZ  = (-diffZ - (self.vehicle.sizeLength / 2)) + (targetTrailer.sizeLength ^ targetTrailerFillRatio)
     -- Put in some boundary conditions so we stay inside a trailer
     if sideChaseTermZ > (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9 then
+        -- We want to be at least 10% inside the rearmost trailer so we don't miss.
         sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.9
     elseif sideChaseTermZ < (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2 then
+        -- We want to preference filling the first 20% of the trailer, and also not miss the front
         sideChaseTermZ = (AutoDrive.getTractorAndTrailersLength(self.vehicle, false) - self.vehicle.sizeLength)*0.2
     end
     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition.sideChaseTermZ " .. sideChaseTermZ)
@@ -345,7 +347,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition - Buffer Combine")
         local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX, sideChaseTermZ)
         local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX, sideChaseTermZ)
-        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -(self.combine.sizeLength / 2 - followDistance))
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, slopeCorrection, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
@@ -397,8 +399,8 @@ function CombineUnloaderMode:getPipeChasePosition()
             end
         else
             sideIndex = self.CHASEPOS_REAR
-            --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - self.combine.sizeLength / 2)
+            --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, slopeCorrection, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, slopeCorrection, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
         end
     end
 
