@@ -448,7 +448,38 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 						local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 						-- And just to correct for slope changes, we now set the height to the terrain height
 						y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-						ADGraphManager:createWayPoint(x, y, z)
+						
+						local screenX, screenY, depthNew = project(x, y, z)
+						local _, _, depth = project(closest.x, closest.y, closest.z)
+
+						local maxLoops = 1000
+						local minDistance = MathUtil.vector2Length(g_lastMousePosX - screenX, g_lastMousePosY - screenY)
+						local minX, minY, minZ = x, y, z
+						while minDistance > 0.002 and maxLoops > 0 do
+							maxLoops = maxLoops - 1
+							if screenY > g_lastMousePosY then
+								depth = depth - 0.0001
+							else
+								depth = depth + 0.0001
+							end
+							
+							x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
+							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+							
+							screenX, screenY, depthNew = project(x, y, z)
+
+							local distance = MathUtil.vector2Length(g_lastMousePosX - screenX, g_lastMousePosY - screenY)
+							if distance < minDistance then
+								minX = x
+								minY = y
+								minZ = z
+								minDistance = distance
+							end
+						end
+
+						ADGraphManager:createWayPoint(minX, minY, minZ)
+						screenX, screenY, depthNew = project(minX, minY, minZ)
+						--print("Looped: mouse: " .. g_lastMousePosX .. "/" .. g_lastMousePosY .. "   node: " .. screenX .. "/" .. screenY .. " minDistance: " .. minDistance .. " loopsLeft: " .. maxLoops)
 					end
 				end
 			end

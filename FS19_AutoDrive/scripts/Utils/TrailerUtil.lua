@@ -414,7 +414,7 @@ function AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger)
     return false
 end
 
-function AutoDrive.getTriggerAndTrailerPairs(vehicle)
+function AutoDrive.getTriggerAndTrailerPairs(vehicle, dt)
     local trailerTriggerPairs = {}
     local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
 
@@ -473,7 +473,21 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle)
                         end
 
                         local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
-                        if trailerIsInRange and hasRequiredFillType and isNotFilled and hasCapacity then
+                        if trailer.inRangeTimers == nil then
+                            trailer.inRangeTimers = {}
+                        end
+                        if trailer.inRangeTimers[i] == nil then
+                            trailer.inRangeTimers[i] = {}
+                        end
+                        if trailer.inRangeTimers[i][trigger] == nil then
+                            trailer.inRangeTimers[i][trigger] = AutoDriveTON:new()
+                        end
+
+                        local timerDone = trailer.inRangeTimers[i][trigger]:timer(trailerIsInRange, 250, dt)
+                        --if trailerIsInRange then
+                            --print("Timer: " .. trailer.inRangeTimers[i][trigger].elapsedTime)
+                        --end
+                        if timerDone and hasRequiredFillType and isNotFilled and hasCapacity then
                             local pair = {trailer = trailer, trigger = trigger, fillUnitIndex = i}
                             table.insert(trailerTriggerPairs, pair)
                         end

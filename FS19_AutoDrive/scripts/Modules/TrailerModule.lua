@@ -92,7 +92,7 @@ function ADTrailerModule:update(dt)
     if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() then
         self:updateUnload(dt)
     elseif self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() then
-        self:updateLoad()
+        self:updateLoad(dt)
     end
     self:handleTrailerCovers()
     
@@ -127,10 +127,10 @@ function ADTrailerModule:updateStates()
     end
 end
 
-function ADTrailerModule:updateLoad()
+function ADTrailerModule:updateLoad(dt)
     self:stopUnloading()
     if not self.isLoading then
-        local loadPairs = AutoDrive.getTriggerAndTrailerPairs(self.vehicle)
+        local loadPairs = AutoDrive.getTriggerAndTrailerPairs(self.vehicle, dt)
         for _, pair in pairs(loadPairs) do
             --print("Try loading at trigger now - " .. _)
             self:tryLoadingAtTrigger(pair.trailer, pair.trigger, pair.fillUnitIndex)
