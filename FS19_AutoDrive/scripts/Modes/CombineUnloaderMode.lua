@@ -316,22 +316,27 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     end
 
-    --local isSugarCaneHarvester = true
-    --for _, implement in pairs(self.combine:getAttachedImplements()) do
-    --    if implement ~= nil and implement ~= self.combine and (implement.object == nil or implement.object ~= self.combine) then
-    --        isSugarCaneHarvester = false
-    --    end
-    --end
-
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition - setup")
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local dischargeNode = self:getDischargeNode()
-    -- Slope correction is a very fickle thing for buffer harvesters.
+    -- Slope correction is a very fickle thing for buffer harvesters since you can't know
+    -- whether the pipe will be on the same side as the chase.
     local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
     local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
     local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
-    local sideChaseTermX = (self.vehicle.sizeWidth + self.combine.sizeWidth)/2 + math.abs(pipeOffset)
-    local sideChaseTermZ = (self.vehicle.sizeLength / 2) + (targetTrailer.sizeLength * targetTrailerFillRatio)  --AutoDrive.getTractorAndTrailersLength(self.vehicle, true) - self.vehicle.sizeLength / 2
+    -- Using the implement width would be a better heuristic on X than the combine.
+    local sideChaseTermX = (self.combine.sizeWidth/2)*3 + math.abs(pipeOffset)
+
+    local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
+    local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
+    local sideChaseTermZ  = (-diffZ - (self.vehicle.sizeLength / 2)) + (targetTrailer.sizeLength * targetTrailerFillRatio)
+    -- Put in some boundary conditions so we stay inside a trailer
+    if sideChaseTermZ >= -diffZ + targetTrailer.sizeLength - (self.vehicle.sizeLength / 2) - 1 then
+        sideChaseTermZ = -diffZ + targetTrailer.sizeLength - (self.vehicle.sizeLength / 2) - 1
+    elseif sideChaseTermZ < self.vehicle.sizeLength then
+        sideChaseTermZ = self.vehicle.sizeLength
+    end
+    --local sideChaseTermZ = (self.vehicle.sizeLength / 2) + (targetTrailer.sizeLength * targetTrailerFillRatio)  --AutoDrive.getTractorAndTrailersLength(self.vehicle, true) - self.vehicle.sizeLength / 2
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "" .. pipeOffset .. " " ..  followDistance .. " " .. sideChaseTermX .. " " .. sideChaseTermZ)
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition - Buffer Combine")
@@ -374,10 +379,11 @@ function CombineUnloaderMode:getPipeChasePosition()
 
                 --targetTrailer = self:getTargetTrailer()
 
-                local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
-                local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
+                --local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
+                --local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
 
-                local totalDiff = -diffZ + sideChaseTermZ
+                -- Subtract the vehicle length back out.
+                local totalDiff = sideChaseTermZ ---diffZ + sideChaseTermZ - (self.vehicle.sizeLength / 2)
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition:totalDiff " .. totalDiff)
                 local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode.node)
                 chaseNode.x, chaseNode.y, chaseNode.z = nodeX + totalDiff * rx - pipeOffset * combineNormalVector.x, nodeY, nodeZ + totalDiff * rz - pipeOffset * combineNormalVector.z
