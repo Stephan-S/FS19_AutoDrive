@@ -246,9 +246,12 @@ end
 
 function CombineUnloaderMode:getPipeSlopeCorrection(combineNode, dischargeNode)
     local combineX, combineY, combineZ = getWorldTranslation(combineNode)
+    local dischargeX, dichargeY, dischargeZ = getWorldTranslation(dischargeNode)
+    local diffX, _, _ = worldToLocal(combineNode, dischargeX, dichargeY, dischargeZ)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeSlopeCorrection diffX: " .. diffX)
     local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
     -- +1 means left, -1 means right. 0 means we don't know
-    local pipeSide = AutoDrive.sign(AutoDrive.getSetting("pipeOffset", self.vehicle))
+    local pipeSide = AutoDrive.sign(diffX)
     local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, combineX, combineY, combineZ)
     local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeX, nodeY, nodeZ)
     -- want this to be negative if the ground is lower under the pipe
@@ -256,6 +259,7 @@ function CombineUnloaderMode:getPipeSlopeCorrection(combineNode, dischargeNode)
     local hyp = MathUtil.vector3Length(combineX - nodeX, heightUnderCombine - heightUnderPipe, combineZ - nodeZ)
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh/hyp)) - run
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeSlopeCorrection elevationCorrection: " .. elevationCorrection)
     return elevationCorrection * pipeSide
 end
 
@@ -322,8 +326,9 @@ function CombineUnloaderMode:getPipeChasePosition()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "CombineUnloaderMode:getPipeChasePosition - setup")
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local dischargeNode = self:getDischargeNode()
+    -- Slope correction is a very fickle thing for buffer harvesters.
     local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
-    local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) --+ slopeCorrection
+    local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
     local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
     local sideChaseTermX = (self.vehicle.sizeWidth + self.combine.sizeWidth)/2 + math.abs(pipeOffset)
     local sideChaseTermZ = (self.vehicle.sizeLength / 2) + (targetTrailer.sizeLength * targetTrailerFillRatio)  --AutoDrive.getTractorAndTrailersLength(self.vehicle, true) - self.vehicle.sizeLength / 2
@@ -364,8 +369,8 @@ function CombineUnloaderMode:getPipeChasePosition()
             if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
                 local dischargeNode = self:getDischargeNode()
 
-                slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
-                pipeOffset = pipeOffset + slopeCorrection
+                --slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
+                --pipeOffset = pipeOffset + slopeCorrection
 
                 --targetTrailer = self:getTargetTrailer()
 
@@ -383,7 +388,8 @@ function CombineUnloaderMode:getPipeChasePosition()
             end
         else
             sideIndex = self.CHASEPOS_REAR
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
+            --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -PathFinderModule.PATHFINDER_FOLLOW_DISTANCE)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - self.combine.sizeLength / 2)
         end
     end
 
