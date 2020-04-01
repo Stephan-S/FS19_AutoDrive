@@ -720,12 +720,12 @@ AutoDrive.settings.addSettingsToHUD = {
 
 AutoDrive.settings.iconSetToUse = {
     values = {1, 2},
-    texts = {"gui_ad_default", "gui_ad_yes"},
+    texts = {"AutoDrive", "Hirschfeld"},
     default = 1,
     current = 1,
     text = "gui_ad_iconSetToUse",
     tooltip = "gui_ad_iconSetToUse_tooltip",
-    translate = true,
+    translate = false,
     isVehicleSpecific = false
 }
 
