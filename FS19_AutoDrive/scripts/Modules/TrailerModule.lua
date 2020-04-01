@@ -143,6 +143,9 @@ function ADTrailerModule:updateLoad(dt)
             if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") then
                 --print("ADTrailerModule:updateLoad() - fillUnitFull ")
                 self.isLoading = false
+            elseif self.trigger ~= nil and self.isLoadingToTrailer ~= nil and self.isLoadingToFillUnitIndex ~= nil then
+                --print("ADTrailerModule:updateLoad() - tryLoadingAtTrigger ")
+                self:tryLoadingAtTrigger(self.isLoadingToTrailer,self.trigger, self.isLoadingToFillUnitIndex)
             end
         end
     end
@@ -192,22 +195,21 @@ end
 
 function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger, fillUnitIndex)
     local fillUnits = trailer:getFillUnits()
-    --for i = 1, #fillUnits do
+
     local i = fillUnitIndex
-        if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
-            local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
-            if trigger:getIsActivatable(trailer) and trailerIsInRange and not self.isLoading then
-                if #fillUnits > 1 then                
-                    --print("startLoadingCorrectFillTypeAtTrigger now - " .. i)
-                    self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
-                else
-                    --print("startLoadingAtTrigger now - " .. i .. " fillType: " .. self.vehicle.ad.stateModule:getFillType())
-                    self:startLoadingAtTrigger(trigger, self.vehicle.ad.stateModule:getFillType(), i, trailer)
-                end
-                self.isLoading = self.isLoading or trigger.isLoading
+    if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
+        local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
+        if trigger:getIsActivatable(trailer) and trailerIsInRange then --and not self.isLoading then
+            if #fillUnits > 1 then
+                --print("startLoadingCorrectFillTypeAtTrigger now - " .. i)
+                self:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, i)
+            else
+                --print("startLoadingAtTrigger now - " .. i .. " fillType: " .. self.vehicle.ad.stateModule:getFillType())
+                self:startLoadingAtTrigger(trigger, self.vehicle.ad.stateModule:getFillType(), i, trailer)
             end
+            self.isLoading = self.isLoading or trigger.isLoading
         end
-    --end
+    end
 end
 
 function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, fillUnitIndex)
