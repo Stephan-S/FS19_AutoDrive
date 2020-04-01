@@ -63,7 +63,7 @@ function PickupAndDeliverMode:stop()
 end
 
 function PickupAndDeliverMode:continue()
-    if self.state == PickupAndDeliverMode.STATE_PICKUP or self.state == PickupAndDeliverMode.STATE_DELIVER then
+    if self.activeTask ~= nil and self.state == PickupAndDeliverMode.STATE_PICKUP or self.state == PickupAndDeliverMode.STATE_DELIVER then
         self.activeTask:continue()
     end
 end
