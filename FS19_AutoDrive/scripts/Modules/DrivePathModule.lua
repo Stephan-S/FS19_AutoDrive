@@ -26,6 +26,8 @@ function ADDrivePathModule:reset()
     self.minDistanceTimer:timer(false, 5000, 0)
     self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -107,13 +109,26 @@ function ADDrivePathModule:update(dt)
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
-        self:followWaypoints(dt)
-        self:checkActiveAttributesSet()
-        self:checkIfStuck(dt)
-
-        if self:isCloseToWaypoint() then
-            self:handleReachedWayPoint()
+        local reverseNext = self:checkForReverseSection()
+        if reverseNext and (self.lastReverseIndex == nil or self.lastReverseIndex < (self:getCurrentWayPointIndex() - 5)) then
+            print("Toggled driving direction")
+            self.isReversing = not self.isReversing
+            self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
+            self.lastReverseIndex = self:getCurrentWayPointIndex()
         end
+
+        if self.isReversing then
+            self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
+        else
+            self:followWaypoints(dt)
+            self:checkIfStuck(dt)
+
+            if self:isCloseToWaypoint() then
+                self:handleReachedWayPoint()
+            end
+        end
+        
+        self:checkActiveAttributesSet()
     end
 end
 
@@ -167,7 +182,7 @@ function ADDrivePathModule:followWaypoints(dt)
         self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
     end
 
-    self.distanceToTarget = self:getDistanceToLastWaypoint(10)
+    self.distanceToTarget = self:getDistanceToLastWaypoint(40)
     if self.distanceToTarget < self.distanceToLookAhead then
         self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
     end
@@ -526,4 +541,21 @@ function ADDrivePathModule:handleBeingStuck()
     if self.vehicle.isServer then
         self.vehicle.ad.taskModule:stopAndRestartAD()
     end
+end
+
+function ADDrivePathModule:checkForReverseSection()
+    if #self.wayPoints > (self:getCurrentWayPointIndex() + 1) and self:getCurrentWayPointIndex() > 1 then
+        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + 1]
+        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()+0]
+        local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
+
+        local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
+        angle = math.abs(angle)
+
+        if angle > 100 then
+            return true
+        end
+    end
+
+    return false
 end

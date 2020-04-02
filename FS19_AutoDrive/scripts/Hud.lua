@@ -392,7 +392,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 						if button == 1 and isUp then
 							if vehicle.ad.selectedNodeId ~= nil then
 								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId))
+									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), false)
 								end
 								vehicle.ad.selectedNodeId = nil
 							else
@@ -693,10 +693,12 @@ function AutoDrive.updateDestinationsMapHotspots()
 			local mh = AutoDrive.mapHotspotsBuffer[index]
 			mh:setText(marker.name)
 			local wp = ADGraphManager:getWayPointById(marker.id)
-			mh:setWorldPosition(wp.x, wp.z)
-			mh.enabled = true
-			mh.markerID = index
-			g_currentMission:addMapHotspot(mh)
+			if wp ~= nil then
+				mh:setWorldPosition(wp.x, wp.z)
+				mh.enabled = true
+				mh.markerID = index
+				g_currentMission:addMapHotspot(mh)
+			end
 		end
 	end
 end

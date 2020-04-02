@@ -256,16 +256,24 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
         return nil
     end
 
+    local x, _, z = localDirectionToWorld(trailer.components[1].node, 0, 0, 1)
+    local distanceToTarget = AutoDrive.getDistanceToUnloadPosition(self.vehicle)
+
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
-        if trigger.bunkerSiloArea == nil then
-            if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
-                if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then
-                    return trigger
+        local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
+        if triggerX ~= nil then
+            if distanceToTarget ~= nil and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < 300)) then
+                if trigger.bunkerSiloArea == nil then
+                    if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
+                        if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then
+                            return trigger
+                        end
+                    end
+                else
+                    if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
+                        return trigger
+                    end
                 end
-            end
-        else
-            if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
-                return trigger
             end
         end
     end

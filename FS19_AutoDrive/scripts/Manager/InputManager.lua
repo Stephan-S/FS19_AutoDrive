@@ -147,7 +147,7 @@ function ADInputManager:input_toggleConnection(vehicle)
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
-                ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.stateModule:getSelectedNeighbourPoint())
+                ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.stateModule:getSelectedNeighbourPoint(), false)
             end
         end
     end
@@ -158,7 +158,7 @@ function ADInputManager:input_toggleConnectionInverted(vehicle)
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
-                ADGraphManager:toggleConnectionBetween(vehicle.ad.stateModule:getSelectedNeighbourPoint(), ADGraphManager:getWayPointById(closestWayPoint))
+                ADGraphManager:toggleConnectionBetween(vehicle.ad.stateModule:getSelectedNeighbourPoint(), ADGraphManager:getWayPointById(closestWayPoint), false)
             end
         end
     end

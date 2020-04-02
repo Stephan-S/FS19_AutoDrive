@@ -381,8 +381,11 @@ function AutoDrive:onDrawEditorMode()
             end
         end
 
+        local outPointsSeen = {}
+
         if point.out ~= nil then
             for _, neighbor in pairs(point.out) do
+                table.insert(outPointsSeen, neighbor)
                 local target = ADGraphManager:getWayPointById(neighbor)
                 if target ~= nil then
                     --check if outgoing connection is a dual way connection
@@ -392,15 +395,20 @@ function AutoDrive:onDrawEditorMode()
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
-                        DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                        if table.contains(nWp.incoming, point.id) then
+                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
+                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                        else
+                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
+                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
+                        end
                     end
                 end
             end
         end
 
         --just a quick way to highlight single (forgotten) points with no connections
-        if (#point.out == 0) and (#point.incoming == 0) then
+        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) then
             y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z) + 0.5
             DrawingManager:addCrossTask(x, y, z)
         end

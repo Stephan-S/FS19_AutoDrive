@@ -12,7 +12,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 			AutoDrive.dijkstraCalc.distance[current] = 10000000
 		end
 		newdist = AutoDrive.dijkstraCalc.distance[current]
-		while #wayPoints[linked].incoming == 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
+		while #wayPoints[linked].incoming <= 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
 			distanceToAdd = 0
 			angle = 0
 			if nil == AutoDrive.dijkstraCalc.pre[current] then
@@ -26,20 +26,22 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				end
 			else
 				distanceToAdd = ADGraphManager:getDistanceBetweenNodes(current, linked)
+				--[[
 				if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 					local wp_current = wayPoints[current]
 					local wp_ahead = wayPoints[linked]
-					local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
+					local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]] --[[
 					angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
 					angle = math.abs(angle)
 				else
 					angle = 0
 				end
+				--]]
 			end
 
-			if math.abs(angle) > 90 then
-				newdist = 10000000
-			end
+			--if math.abs(angle) > 90 then
+				--newdist = 10000000
+			--end
 			newdist = newdist + distanceToAdd
 
 			AutoDrive.dijkstraCalc.pre[linked] = current

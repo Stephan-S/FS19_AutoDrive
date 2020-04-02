@@ -30,16 +30,17 @@ function ADRecordingModule:start(dual)
     self.vehicle:stopAutoDrive()
 
     local x1, y1, z1 = getWorldTranslation(self.vehicle.components[1].node)
-    self.lastWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, false)
+    local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+    self.lastWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, false, drivingReverse)
 
     if AutoDrive.getSetting("autoConnectStart") then
         local startNodeId, _ = self.vehicle:getClosestWayPoint()
         local startNode = ADGraphManager:getWayPointById(startNodeId)
         if startNode ~= nil then
             if ADGraphManager:getDistanceBetweenNodes(startNodeId, self.lastWp.id) < 12 then
-                ADGraphManager:toggleConnectionBetween(startNode, self.lastWp)
+                ADGraphManager:toggleConnectionBetween(startNode, self.lastWp, false)
                 if self.isDual then
-                    ADGraphManager:toggleConnectionBetween(self.lastWp, startNode)
+                    ADGraphManager:toggleConnectionBetween(self.lastWp, startNode, false)
                 end
             end
         end
@@ -55,9 +56,9 @@ function ADRecordingModule:stop()
             local targetId = ADGraphManager:findMatchingWayPointForVehicle(self.vehicle)
             local targetNode = ADGraphManager:getWayPointById(targetId)
             if targetNode ~= nil then
-                ADGraphManager:toggleConnectionBetween(self.lastWp, targetNode)
+                ADGraphManager:toggleConnectionBetween(self.lastWp, targetNode, false)
                 if self.isDual then
-                    ADGraphManager:toggleConnectionBetween(targetNode, self.lastWp)
+                    ADGraphManager:toggleConnectionBetween(targetNode, self.lastWp, false)
                 end
             end
         end
@@ -79,7 +80,8 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
     if self.secondLastWp == nil then
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > 3 then
             self.secondLastWp = self.lastWp
-            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual)
+            local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, drivingReverse)
         end
     else
         local angle = math.abs(AutoDrive.angleBetween({x = x - self.secondLastWp.x, z = z - self.secondLastWp.z}, {x = self.lastWp.x - self.secondLastWp.x, z = self.lastWp.z - self.secondLastWp.z}))
@@ -104,7 +106,8 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
 
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance then
             self.secondLastWp = self.lastWp
-            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual)
+            local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, drivingReverse)
         end
     end
 end
