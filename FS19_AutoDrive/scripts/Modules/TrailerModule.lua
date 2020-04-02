@@ -111,6 +111,14 @@ function ADTrailerModule:updateStates()
     if self.lastFillLevel == nil then
         self.lastFillLevel = self.fillLevel
     end
+    self.blocked = self.lastFillLevel <= self.fillLevel
+    for _, trailer in pairs(self.trailers) do
+        local tipState = Trailer.TIPSTATE_CLOSED
+        if trailer.getTipState ~= nil then
+            tipState = trailer:getTipState()
+            self.blocked = self.blocked and (not (tipState == Trailer.TIPSATE_OPENING or tipState == Trailer.TIPSTATE_CLOSING))
+        end
+    end
 
     --Check for already unloading trailers (e.g. when AD is started while unloading)
     if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() then
@@ -308,7 +316,7 @@ function ADTrailerModule:getIsBlocked(dt)
         if self.blockedTimer == nil then
             self.blockedTimer = AutoDriveTON:new()
         end
-        return self.blockedTimer:timer(self.blocked, 5000, dt)
+        return self.blockedTimer:timer(self.blocked, 1000, dt)
     end
     return false
 end
@@ -334,7 +342,6 @@ function ADTrailerModule:areAllTrailersClosed(dt)
                 senseUnloading = true
             end
         end
-        self.blocked = self.lastFillLevel <= self.fillLevel
         --print("Tipstate: " .. tipState .. " dischargeState: " .. dischargeState .. " senseUnloading: " .. AutoDrive.boolToString(senseUnloading) .. " lastFillLevel: " .. self.lastFillLevel .. " current: " .. self.fillLevel)
         senseUnloading = senseUnloading or tipState == Trailer.TIPSATE_OPENING or tipState == Trailer.TIPSTATE_CLOSING
 

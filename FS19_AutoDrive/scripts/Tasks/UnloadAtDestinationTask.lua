@@ -84,7 +84,7 @@ function UnloadAtDestinationTask:update(dt)
                 end
             end
         else
-            self.vehicle.ad.specialDrivingModule:releaseVehicle()
+            --self.vehicle.ad.specialDrivingModule:releaseVehicle()
             if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
                     self.vehicle.ad.drivePathModule:update(dt)

@@ -26,22 +26,20 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				end
 			else
 				distanceToAdd = ADGraphManager:getDistanceBetweenNodes(current, linked)
-				--[[
 				if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 					local wp_current = wayPoints[current]
 					local wp_ahead = wayPoints[linked]
-					local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]] --[[
+					local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
 					angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
 					angle = math.abs(angle)
 				else
 					angle = 0
 				end
-				--]]
 			end
 
-			--if math.abs(angle) > 90 then
-				--newdist = 10000000
-			--end
+			if math.abs(angle) > 90 and not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+				newdist = 10000000
+			end
 			newdist = newdist + distanceToAdd
 
 			AutoDrive.dijkstraCalc.pre[linked] = current
@@ -78,9 +76,9 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				angle = 0
 			end
 		end
-		--if math.abs(angle) > 90 then
-			--newdist = 10000000
-		--end
+		if math.abs(angle) > 90 and not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+			newdist = 10000000
+		end
 		newdist = newdist + distanceToAdd
 
 		if nil == AutoDrive.dijkstraCalc.distance[linked] then
@@ -196,10 +194,10 @@ function AutoDrive:dijkstraLive(start, target)
 										angle = 0
 									end
 								end
-								local alternative = shortest + distanceToAdd
-								--if math.abs(angle) > 90 then
-									--alternative = 10000000
-								--end
+								local alternative = shortest + distanceToAdd								
+								if math.abs(angle) > 90 and not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+									alternative = 10000000
+								end
 
 								if nil == AutoDrive.dijkstraCalc.distance[linkedNodeId] then
 									AutoDrive.dijkstraCalc.distance[linkedNodeId] = 10000000

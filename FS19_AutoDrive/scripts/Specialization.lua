@@ -347,7 +347,8 @@ function AutoDrive:onDrawEditorMode()
             DrawingManager:addSmallSphereTask(x1, dy, z1, 1, g, 0)
         end
     end
-
+    
+    local outPointsSeen = {}
     for _, point in pairs(self:getWayPointsInRange(0, maxDistance)) do
         local x = point.x
         local y = point.y
@@ -381,8 +382,6 @@ function AutoDrive:onDrawEditorMode()
             end
         end
 
-        local outPointsSeen = {}
-
         if point.out ~= nil then
             for _, neighbor in pairs(point.out) do
                 table.insert(outPointsSeen, neighbor)
@@ -395,7 +394,7 @@ function AutoDrive:onDrawEditorMode()
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        if table.contains(nWp.incoming, point.id) then
+                        if table.contains(nWp.incoming, point.id) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                         else

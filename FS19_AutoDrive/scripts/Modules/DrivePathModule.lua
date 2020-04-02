@@ -57,6 +57,8 @@ function ADDrivePathModule:setPathTo(waypointId)
 
         self.atTarget = false
     end
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
@@ -74,6 +76,8 @@ function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
             table.insert(self.wayPoints, wp)
         end
     end
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setWayPoints(wayPoints)
@@ -87,6 +91,8 @@ function ADDrivePathModule:setWayPoints(wayPoints)
     else
         self:setCurrentWayPointIndex(1)
     end
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setPaused()
@@ -235,7 +241,9 @@ function ADDrivePathModule:followWaypoints(dt)
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
+        if self.vehicle.spec_motorized == nil or self.vehicle.spec_motorized.isMotorStarted then
+            AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
+        end
     end
 end
 
@@ -521,7 +529,7 @@ function ADDrivePathModule:checkActiveAttributesSet()
 
         -- Only the server has to start/stop motor
         if self.vehicle.startMotor and self.vehicle.stopMotor then
-            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() then
+            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
                 self.vehicle:startMotor()
             end
         end
@@ -553,14 +561,13 @@ function ADDrivePathModule:handleBeingStuck()
 end
 
 function ADDrivePathModule:checkForReverseSection()
-    if #self.wayPoints > (self:getCurrentWayPointIndex() + 1) and self:getCurrentWayPointIndex() > 1 then
-        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + 1]
-        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()+0]
-        local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
+    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() and self:getCurrentWayPointIndex() > 3 then
+        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()-0]
+        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-1]
+        local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 2]
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
         angle = math.abs(angle)
-
         if angle > 100 then
             return true
         end

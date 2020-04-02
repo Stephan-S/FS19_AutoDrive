@@ -60,14 +60,19 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
         lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, x, y, z)
     end
 
-    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1)
-
-    if self.vehicle.lastSpeedReal < 0.0013 then
+    if self.stoppedTimer == nil then
+        self.stoppedTimer = AutoDriveTON:new()
+    end
+    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.0013 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 5000, dt)
+    
+    if self.stoppedTimer:done() then
         self.motorShouldBeStopped = true
         if self.vehicle.spec_motorized.isMotorStarted and (not g_currentMission.missionInfo.automaticMotorStartEnabled) then
             self.vehicle:stopMotor()
         end
     end
+
+    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, allowedToDrive, true, lx, lz, finalSpeed, 1)    
 end
 
 function ADSpecialDrivingModule:shouldStopMotor()
@@ -127,7 +132,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
 end
 
 function ADSpecialDrivingModule:handleReverseDriving(dt)
-    local wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
+    self.wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
     self.currentWayPointIndex = self.vehicle.ad.drivePathModule:getCurrentWayPointIndex()
     
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
@@ -141,7 +146,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
         if self.unloadingIntoBunkerSilo then
             self.vehicle.ad.drivePathModule:reachedTarget()
         else
-            if wayPoints == nil or wayPoints[self.currentWayPointIndex] == nil then
+            if self.wayPoints == nil or self.wayPoints[self.currentWayPointIndex] == nil then
                 return
             end
 
@@ -150,7 +155,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
                 return
             end
 
-            self.reverseTarget = wayPoints[self.currentWayPointIndex]
+            self.reverseTarget = self.wayPoints[self.currentWayPointIndex]
 
             self:getBasicStates()
 
@@ -189,7 +194,7 @@ end
 function ADSpecialDrivingModule:checkWayPointReached()
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
     local minDistance = 6
-    if self.reverseSolo then
+    if self.reverseSolo or self.currentWayPointIndex == #self.wayPoints then
         minDistance = 1.5
     end
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then

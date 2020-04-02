@@ -30,7 +30,7 @@ function ADRecordingModule:start(dual)
     self.vehicle:stopAutoDrive()
 
     local x1, y1, z1 = getWorldTranslation(self.vehicle.components[1].node)
-    local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+    local drivingReverse = AutoDrive.experimentalFeatures.reverseDrivingAllowed and (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
     self.lastWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, false, drivingReverse)
 
     if AutoDrive.getSetting("autoConnectStart") then
@@ -80,7 +80,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
     if self.secondLastWp == nil then
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > 3 then
             self.secondLastWp = self.lastWp
-            local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+            local drivingReverse = AutoDrive.experimentalFeatures.reverseDrivingAllowed and (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
             self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, drivingReverse)
         end
     else
@@ -104,7 +104,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
             max_distance = 0.25
         end
 
-        local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+        local drivingReverse = AutoDrive.experimentalFeatures.reverseDrivingAllowed and (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
         if drivingReverse then
             max_distance = math.min(max_distance, 2)
         end
