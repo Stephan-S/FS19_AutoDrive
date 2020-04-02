@@ -287,18 +287,30 @@ function ADTrailerModule:startUnloadingIntoTrigger(trailer, trigger)
         self.isUnloadingWithTrailer = trailer
         self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
     else
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading into bunkersilo - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
-        trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
-        if self.unloadingToBunkerSilo == false then
-            self.bunkerStartFillLevel = self.fillLevel
-        end 
-        self.isUnloading = true
-        self.unloadingToBunkerSilo = true
-        self.bunkerTrigger = trigger
-        self.bunkerTrailer = trailer
-        self.isUnloadingWithTrailer = trailer
-        self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+        if (not self.vehicle.ad.drivePathModule:getIsReversing()) or self.vehicle:getLastSpeed() < 1 then
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start unloading into bunkersilo - fillUnitIndex: " .. trailer:getCurrentDischargeNode().fillUnitIndex)
+            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
+            if self.unloadingToBunkerSilo == false then
+                self.bunkerStartFillLevel = self.fillLevel
+            end 
+            self.isUnloading = true
+            self.unloadingToBunkerSilo = true
+            self.bunkerTrigger = trigger
+            self.bunkerTrailer = trailer
+            self.isUnloadingWithTrailer = trailer
+            self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+        end
     end
+end
+
+function ADTrailerModule:getIsBlocked(dt)
+    if self.isUnloadingWithTrailer ~= nil and self.unloadingToBunkerSilo then
+        if self.blockedTimer == nil then
+            self.blockedTimer = AutoDriveTON:new()
+        end
+        return self.blockedTimer:timer(self.blocked, 5000, dt)
+    end
+    return false
 end
 
 function ADTrailerModule:areAllTrailersClosed(dt)
@@ -322,6 +334,7 @@ function ADTrailerModule:areAllTrailersClosed(dt)
                 senseUnloading = true
             end
         end
+        self.blocked = self.lastFillLevel <= self.fillLevel
         --print("Tipstate: " .. tipState .. " dischargeState: " .. dischargeState .. " senseUnloading: " .. AutoDrive.boolToString(senseUnloading) .. " lastFillLevel: " .. self.lastFillLevel .. " current: " .. self.fillLevel)
         senseUnloading = senseUnloading or tipState == Trailer.TIPSATE_OPENING or tipState == Trailer.TIPSTATE_CLOSING
 

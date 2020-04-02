@@ -189,6 +189,15 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 				end
 			end
 
+			if #wayPoint.incoming == 0 then
+				-- This is a reverse node, so we can't rely on the incoming table
+				for _, wp in pairs(self.wayPoints) do
+					if table.contains(wp.out, wayPoint.id) then
+						table.removeValue(wp.out, wayPoint.id)
+					end
+				end
+			end
+
 			-- Removing waypoint from waypoints array and invalidate it by setting id to -1
 			local wp = table.remove(self.wayPoints, wayPoint.id)
 			if wp ~= nil then

@@ -13,6 +13,7 @@ end
 
 function ADSpecialDrivingModule:reset()
     self.shouldStopOrHoldVehicle = false
+    self.unloadingIntoBunkerSilo = false
 end
 
 function ADSpecialDrivingModule:stopVehicle(lx, lz)
@@ -128,25 +129,38 @@ end
 function ADSpecialDrivingModule:handleReverseDriving(dt)
     local wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
     self.currentWayPointIndex = self.vehicle.ad.drivePathModule:getCurrentWayPointIndex()
+    
+    if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
+        if self.vehicle.ad.trailerModule:getIsBlocked(dt) then
+            self:driveForward(dt)
+        else
+            self:stopAndHoldVehicle(dt)
+        end
+        self.unloadingIntoBunkerSilo = true
+    else
+        if self.unloadingIntoBunkerSilo then
+            self.vehicle.ad.drivePathModule:reachedTarget()
+        else
+            if wayPoints == nil or wayPoints[self.currentWayPointIndex] == nil then
+                return
+            end
 
-    if wayPoints == nil or wayPoints[self.currentWayPointIndex] == nil then
-        return
+            self.reverseNode = self:getReverseNode()
+            if self.reverseNode == nil then
+                return
+            end
+
+            self.reverseTarget = wayPoints[self.currentWayPointIndex]
+
+            self:getBasicStates()
+
+            if self:checkWayPointReached() then
+                return
+            end
+            
+            self:reverseToPoint(dt)
+        end
     end
-
-    self.reverseNode = self:getReverseNode()
-    if self.reverseNode == nil then
-        return
-    end
-
-    self.reverseTarget = wayPoints[self.currentWayPointIndex]
-
-    self:getBasicStates()
-
-    if self:checkWayPointReached() then
-        return
-    end
-
-    self:reverseToPoint(dt)
 end
 
 function ADSpecialDrivingModule:getBasicStates()
@@ -165,16 +179,20 @@ function ADSpecialDrivingModule:getBasicStates()
     end
 
     self.trailerX, self.trailerY, self.trailerZ = localToWorld(self.reverseNode, 0, 0, 5)
-    ADDrawingManager:addLineTask(self.x, self.y+3, self.z, self.targetX, self.targetY+3, self.targetZ, 1, 1, 1)
-    ADDrawingManager:addLineTask(self.rNx, self.rNy + 3, self.rNz, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
-    ADDrawingManager:addLineTask(self.reverseTarget.x, self.reverseTarget.y + 1, self.reverseTarget.z, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.x, self.y+3, self.z, self.targetX, self.targetY+3, self.targetZ, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.rNx, self.rNy + 3, self.rNz, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.reverseTarget.x, self.reverseTarget.y + 1, self.reverseTarget.z, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
     
     --print("AngleToTrailer: " .. self.angleToTrailer .. " angleToPoint: " .. self.angleToPoint)
 end
 
 function ADSpecialDrivingModule:checkWayPointReached()
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
-    if distanceToTarget < 8 or math.abs(self.angleToPoint) > 80 then
+    local minDistance = 6
+    if self.reverseSolo then
+        minDistance = 1.5
+    end
+    if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
         self.vehicle.ad.drivePathModule:handleReachedWayPoint()
     end
 end
@@ -210,9 +228,9 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     self.i = self.i + (delta) * 0.05
     local d = delta - self.lastAngleToPoint
 
-    self.pFactor = self.vehicle.ad.stateModule:getSpeedLimit() --6 --self.vehicle.ad.stateModule:getSpeedLimit()
+    self.pFactor = 4--self.vehicle.ad.stateModule:getSpeedLimit()
     self.iFactor = 0.01
-    self.dFactor = self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100 --400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
+    self.dFactor = 1200 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
 
     local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
     local targetDiff = self.angleToTrailer - targetAngleToTrailer

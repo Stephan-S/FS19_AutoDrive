@@ -38,9 +38,9 @@ function ADRecordingModule:start(dual)
         local startNode = ADGraphManager:getWayPointById(startNodeId)
         if startNode ~= nil then
             if ADGraphManager:getDistanceBetweenNodes(startNodeId, self.lastWp.id) < 12 then
-                ADGraphManager:toggleConnectionBetween(startNode, self.lastWp, false)
+                ADGraphManager:toggleConnectionBetween(startNode, self.lastWp, drivingReverse)
                 if self.isDual then
-                    ADGraphManager:toggleConnectionBetween(self.lastWp, startNode, false)
+                    ADGraphManager:toggleConnectionBetween(self.lastWp, startNode, drivingReverse)
                 end
             end
         end
@@ -104,9 +104,13 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
             max_distance = 0.25
         end
 
+        local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+        if drivingReverse then
+            max_distance = math.min(max_distance, 2)
+        end
+
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance then
             self.secondLastWp = self.lastWp
-            local drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
             self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, drivingReverse)
         end
     end

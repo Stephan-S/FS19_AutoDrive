@@ -78,9 +78,9 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				angle = 0
 			end
 		end
-		if math.abs(angle) > 90 then
-			newdist = 10000000
-		end
+		--if math.abs(angle) > 90 then
+			--newdist = 10000000
+		--end
 		newdist = newdist + distanceToAdd
 
 		if nil == AutoDrive.dijkstraCalc.distance[linked] then
@@ -197,9 +197,9 @@ function AutoDrive:dijkstraLive(start, target)
 									end
 								end
 								local alternative = shortest + distanceToAdd
-								if math.abs(angle) > 90 then
-									alternative = 10000000
-								end
+								--if math.abs(angle) > 90 then
+									--alternative = 10000000
+								--end
 
 								if nil == AutoDrive.dijkstraCalc.distance[linkedNodeId] then
 									AutoDrive.dijkstraCalc.distance[linkedNodeId] = 10000000

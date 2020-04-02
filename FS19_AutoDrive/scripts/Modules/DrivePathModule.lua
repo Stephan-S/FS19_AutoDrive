@@ -111,7 +111,7 @@ function ADDrivePathModule:update(dt)
 
         local reverseNext = self:checkForReverseSection()
         if reverseNext and (self.lastReverseIndex == nil or self.lastReverseIndex < (self:getCurrentWayPointIndex() - 5)) then
-            print("Toggled driving direction")
+            --print("Toggled driving direction")
             self.isReversing = not self.isReversing
             self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
             self.lastReverseIndex = self:getCurrentWayPointIndex()
@@ -129,7 +129,16 @@ function ADDrivePathModule:update(dt)
         end
         
         self:checkActiveAttributesSet()
+    else
+        --keep calling the reverse function as it is also handling the bunkersilo unload, even after reaching the target
+        if self.isReversing then
+            self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
+        end
     end
+end
+
+function ADDrivePathModule:getIsReversing()
+    return self.isReversing
 end
 
 function ADDrivePathModule:isCloseToWaypoint()
