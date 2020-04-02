@@ -325,7 +325,7 @@ function CombineUnloaderMode:getPipeChasePosition()
     local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
     local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
     -- Using the implement width would be a better heuristic on X than the combine.
-    local sideChaseTermX = (self.combine.sizeWidth/2)*3 + math.abs(pipeOffset)
+    local sideChaseTermX = (self.combine.sizeWidth/2)*3 + pipeOffset
 
     local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
     local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
