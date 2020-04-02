@@ -16,24 +16,31 @@ For now, there is no general link for the team, so each contributer can post his
 But remember, this is absolutely not required. We value any issues and feature requests the same!  
 And to all who do donate: Thank you very much :-)
 
-#### Stephan:
+#### Stephan (Founder & Modder):
 <a href="https://www.buymeacoffee.com/9Di7EUSI2" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>  
 
 https://www.paypal.me/StephanSchlosser
 
-#### TyKonKet:
-https://www.paypal.me/tykonket
-
-#### Iwan1803:
+#### Iwan1803 (Community Manager & Supporter):
 https://www.tipeeestream.com/iwan1803/tip
 
-# Download
-![Zip Builder (Latest)](https://github.com/Stephan-S/FS19_AutoDrive/workflows/Zip%20Builder%20(Latest)/badge.svg?branch=master&event=push)
+#### TyKonKet (Modder):
+https://www.paypal.me/tykonket
+
+and also
+#### Oliver (Modder), Axel (Co-Modder), Aletheist (Co-Modder), Willi (Tester)
+
+# Downloads
+
 ### Latest Release Candidate
 [You can download the latest release candidate here](https://host-my-bits.com/cdn/files/1/FS19_AutoDrive.zip)  
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/1?v=3)  
 ### Release
-[You can download the latest release here](https://github.com/Stephan-S/FS19_AutoDrive/releases)
+![Version](https://host-my-bits.com/cdn/badges/v/2)  
+
+[You can download the latest release here](https://host-my-bits.com/cdn/files/2/FS19_AutoDrive.zip)  
+
+![Download Counter](https://host-my-bits.com/cdn/badges/dc/2)  
 ### Course Editor
 [You can download the latest version here](https://github.com/Stephan-S/FS19_AutoDrive/raw/master/AutoDrive%20Course%20Editor/AD.jar)
