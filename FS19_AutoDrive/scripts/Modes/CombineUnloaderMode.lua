@@ -311,6 +311,9 @@ function CombineUnloaderMode:getPipeChasePosition()
             rightBlocked = true
         elseif leftFrontBlocked and (not rightFrontBlocked) then
             leftBlocked = true
+        else
+            chaseNode = rearChasePos
+            sideIndex = self.CHASEPOS_REAR
         end
     end
 
