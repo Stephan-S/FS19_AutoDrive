@@ -26,6 +26,8 @@ function ADDrivePathModule:reset()
     self.minDistanceTimer:timer(false, 5000, 0)
     self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -55,6 +57,8 @@ function ADDrivePathModule:setPathTo(waypointId)
 
         self.atTarget = false
     end
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
@@ -72,6 +76,8 @@ function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
             table.insert(self.wayPoints, wp)
         end
     end
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setWayPoints(wayPoints)
@@ -85,6 +91,8 @@ function ADDrivePathModule:setWayPoints(wayPoints)
     else
         self:setCurrentWayPointIndex(1)
     end
+    self.isReversing = false
+    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setPaused()
@@ -107,14 +115,36 @@ function ADDrivePathModule:update(dt)
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
-        self:followWaypoints(dt)
-        self:checkActiveAttributesSet()
-        self:checkIfStuck(dt)
+        local reverseNext = self:checkForReverseSection()
+        if reverseNext and (self.lastReverseIndex == nil or self.lastReverseIndex < (self:getCurrentWayPointIndex() - 5)) then
+            --print("Toggled driving direction")
+            self.isReversing = not self.isReversing
+            self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
+            self.lastReverseIndex = self:getCurrentWayPointIndex()
+        end
 
-        if self:isCloseToWaypoint() then
-            self:handleReachedWayPoint()
+        if self.isReversing then
+            self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
+        else
+            self:followWaypoints(dt)
+            self:checkIfStuck(dt)
+
+            if self:isCloseToWaypoint() then
+                self:handleReachedWayPoint()
+            end
+        end
+        
+        self:checkActiveAttributesSet()
+    else
+        --keep calling the reverse function as it is also handling the bunkersilo unload, even after reaching the target
+        if self.isReversing then
+            self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
         end
     end
+end
+
+function ADDrivePathModule:getIsReversing()
+    return self.isReversing
 end
 
 function ADDrivePathModule:isCloseToWaypoint()
@@ -167,7 +197,7 @@ function ADDrivePathModule:followWaypoints(dt)
         self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
     end
 
-    self.distanceToTarget = self:getDistanceToLastWaypoint(10)
+    self.distanceToTarget = self:getDistanceToLastWaypoint(40)
     if self.distanceToTarget < self.distanceToLookAhead then
         self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
     end
@@ -211,7 +241,9 @@ function ADDrivePathModule:followWaypoints(dt)
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
+        if self.vehicle.spec_motorized == nil or self.vehicle.spec_motorized.isMotorStarted then
+            AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
+        end
     end
 end
 
@@ -497,7 +529,7 @@ function ADDrivePathModule:checkActiveAttributesSet()
 
         -- Only the server has to start/stop motor
         if self.vehicle.startMotor and self.vehicle.stopMotor then
-            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() then
+            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
                 self.vehicle:startMotor()
             end
         end
@@ -526,4 +558,20 @@ function ADDrivePathModule:handleBeingStuck()
     if self.vehicle.isServer then
         self.vehicle.ad.taskModule:stopAndRestartAD()
     end
+end
+
+function ADDrivePathModule:checkForReverseSection()
+    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() and self:getCurrentWayPointIndex() > 3 then
+        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()-0]
+        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-1]
+        local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 2]
+
+        local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
+        angle = math.abs(angle)
+        if angle > 100 then
+            return true
+        end
+    end
+
+    return false
 end

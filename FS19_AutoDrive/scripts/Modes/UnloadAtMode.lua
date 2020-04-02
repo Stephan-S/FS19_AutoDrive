@@ -52,5 +52,5 @@ function UnloadAtMode:stop()
 end
 
 function UnloadAtMode:shouldUnloadAtTrigger()
-    return (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end

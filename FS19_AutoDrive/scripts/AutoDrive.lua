@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.3-4"
+AutoDrive.version = "1.1.0.4-1"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -10,6 +10,7 @@ AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.wideHUD = false
+AutoDrive.experimentalFeatures.reverseDrivingAllowed = true
 
 AutoDrive.developmentControls = false
 

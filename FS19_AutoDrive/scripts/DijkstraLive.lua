@@ -12,7 +12,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 			AutoDrive.dijkstraCalc.distance[current] = 10000000
 		end
 		newdist = AutoDrive.dijkstraCalc.distance[current]
-		while #wayPoints[linked].incoming == 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
+		while #wayPoints[linked].incoming <= 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
 			distanceToAdd = 0
 			angle = 0
 			if nil == AutoDrive.dijkstraCalc.pre[current] then
@@ -37,7 +37,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				end
 			end
 
-			if math.abs(angle) > 90 then
+			if math.abs(angle) > 90 and not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
 				newdist = 10000000
 			end
 			newdist = newdist + distanceToAdd
@@ -76,7 +76,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				angle = 0
 			end
 		end
-		if math.abs(angle) > 90 then
+		if math.abs(angle) > 90 and not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
 			newdist = 10000000
 		end
 		newdist = newdist + distanceToAdd
@@ -194,8 +194,8 @@ function AutoDrive:dijkstraLive(start, target)
 										angle = 0
 									end
 								end
-								local alternative = shortest + distanceToAdd
-								if math.abs(angle) > 90 then
+								local alternative = shortest + distanceToAdd								
+								if math.abs(angle) > 90 and not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
 									alternative = 10000000
 								end
 

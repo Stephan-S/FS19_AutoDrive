@@ -189,6 +189,15 @@ function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 				end
 			end
 
+			if #wayPoint.incoming == 0 then
+				-- This is a reverse node, so we can't rely on the incoming table
+				for _, wp in pairs(self.wayPoints) do
+					if table.contains(wp.out, wayPoint.id) then
+						table.removeValue(wp.out, wayPoint.id)
+					end
+				end
+			end
+
 			-- Removing waypoint from waypoints array and invalidate it by setting id to -1
 			local wp = table.remove(self.wayPoints, wayPoint.id)
 			if wp ~= nil then
@@ -416,17 +425,19 @@ function ADGraphManager:removeMapMarkerByWayPoint(wayPointId, sendEvent)
 	end
 end
 
-function ADGraphManager:toggleConnectionBetween(startNode, endNode, sendEvent)
+function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirection, sendEvent)
 	if sendEvent == nil or sendEvent == true then
 		-- Propagating connection toggling all over the network
-		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode)
+		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode, reverseDirection)
 	else
 		if table.contains(startNode.out, endNode.id) or table.contains(endNode.incoming, startNode.id) then
 			table.removeValue(startNode.out, endNode.id)
 			table.removeValue(endNode.incoming, startNode.id)
 		else
 			table.insert(startNode.out, endNode.id)
-			table.insert(endNode.incoming, startNode.id)
+			if not reverseDirection then
+				table.insert(endNode.incoming, startNode.id)
+			end
 		end
 
 		self:markChanges()
@@ -468,11 +479,11 @@ function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
 	end
 end
 
-function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, sendEvent)
+function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, sendEvent)
 	if g_server ~= nil then
 		if sendEvent ~= false then
 			-- Propagating waypoint recording to clients
-			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual)
+			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse)
 		end
 	else
 		if sendEvent ~= false then
@@ -486,9 +497,9 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, sendEvent
 	local newWp = self:createNode(newId, x, y, z, {}, {})
 	self:setWayPoint(newWp)
 	if connectPrevious then
-		self:toggleConnectionBetween(prevWp, newWp, false)
+		self:toggleConnectionBetween(prevWp, newWp, isReverse, false)
 		if dual then
-			self:toggleConnectionBetween(newWp, prevWp, false)
+			self:toggleConnectionBetween(newWp, prevWp, isReverse, false)
 		end
 	end
 	self:markChanges()
