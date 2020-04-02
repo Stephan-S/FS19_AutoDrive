@@ -332,11 +332,11 @@ function CombineUnloaderMode:getPipeChasePosition()
     -- We gradually move the chose node forward as a function of fill level to more efftively fill
     -- buffer combines. We start ot at the front of the trailer +4 units. We use an exponential
     -- to increase dwell time towards the front of the trailer, since loads migrate towards the back.
-    local sideChaseTermZ  = -diffZ - (targetTrailer.sizeLength / 2) + math.max(4, (targetTrailer.sizeLength - 1) ^ targetTrailerFillRatio)
+    local sideChaseTermZ = -diffZ - (targetTrailer.sizeLength / 2) + math.max(4, (targetTrailer.sizeLength - 1) ^ targetTrailerFillRatio)
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX, sideChaseTermZ)
         local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX, sideChaseTermZ)
-        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - (self.combine.sizeLength / 2))
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
