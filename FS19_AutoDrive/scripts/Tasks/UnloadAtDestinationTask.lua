@@ -67,7 +67,7 @@ function UnloadAtDestinationTask:update(dt)
             if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
                 local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-                if fillLevel <= 1 or AutoDrive.getSetting("distributeToFolder", self.vehicle) or self.isContinued then
+                if fillLevel <= 1 or self.isContinued or (AutoDrive.getSetting("distributeToFolder", self.vehicle) and not self.vehicle.ad.drivePathModule:getIsReversing()) then
                     AutoDrive.setAugerPipeOpen(trailers, false)
                     self:finished()
                 else
