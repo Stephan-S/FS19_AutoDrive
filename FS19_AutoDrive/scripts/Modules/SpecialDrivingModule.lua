@@ -193,7 +193,7 @@ end
 
 function ADSpecialDrivingModule:checkWayPointReached()
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
-    local minDistance = 6
+    local minDistance = 9
     if self.reverseSolo then
         minDistance = AutoDrive.defineMinDistanceByVehicleType(self.vehicle)
     elseif self.currentWayPointIndex == #self.wayPoints then

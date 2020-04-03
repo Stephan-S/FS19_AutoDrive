@@ -115,14 +115,6 @@ function ADDrivePathModule:update(dt)
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
-        local reverseNext = self:checkForReverseSection()
-        if reverseNext and (self.lastReverseIndex == nil or self.lastReverseIndex < (self:getCurrentWayPointIndex() - 5)) then
-            --print("Toggled driving direction")
-            self.isReversing = not self.isReversing
-            self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
-            self.lastReverseIndex = self:getCurrentWayPointIndex()
-        end
-
         if self.isReversing then
             self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
         else
@@ -130,7 +122,15 @@ function ADDrivePathModule:update(dt)
             self:checkIfStuck(dt)
 
             if self:isCloseToWaypoint() then
-                self:handleReachedWayPoint()
+                local reverseNext = self:checkForReverseSection()
+                if reverseNext and (self.lastReverseIndex == nil or self.lastReverseIndex < (self:getCurrentWayPointIndex() - 5)) then
+                    --print("Toggled driving direction")
+                    self.isReversing = not self.isReversing
+                    self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
+                    self.lastReverseIndex = self:getCurrentWayPointIndex()
+                else
+                    self:handleReachedWayPoint()
+                end
             end
         end
         
@@ -153,19 +153,9 @@ function ADDrivePathModule:isCloseToWaypoint()
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
             local distanceToCurrentWp = MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i].z)
-            if distanceToCurrentWp < self.min_distance then
+            if distanceToCurrentWp < self.min_distance and i == 0 then
                 return true
             end
-            -- Check if vehicle is cutting corners due to the lookahead target and skip current waypoint accordingly
-            --[[ I am currently afraid this might cause him to skip sharp turns in pathfinder mode and thus cause crashes with the combine
-
-            if i > 0 then
-                local distanceToLastWp =  MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i - 1].z)
-                if distanceToCurrentWp < distanceToLastWp and distanceToCurrentWp < 8 then
-                    return true
-                end
-            end
-            --]]
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
             if i == 1 then
                 local wp_ahead = self:getNextWayPoint()
@@ -174,7 +164,8 @@ function ADDrivePathModule:isCloseToWaypoint()
                 local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - x, z = wp_current.z - z})
                 angle = math.abs(angle)
 
-                if angle >= 90 then
+                local isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+                if angle >= 90 and not isReverseStart then
                     return true
                 end
             end
@@ -351,8 +342,10 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
         maxSpeed = 17
     elseif angle < 35 then
         maxSpeed = 16
-    elseif angle >= 35 then
+    elseif angle < 100 then
         maxSpeed = 13
+    elseif angle >= 100 then
+        maxSpeed = 3
     end
 
     self.maxAngle = angle
@@ -467,7 +460,7 @@ function ADDrivePathModule:getLookAheadTarget()
         targetZ = wp_current.z
     end
 
-    if self:getNextWayPoint() ~= nil then
+    if self:getNextWayPoint() ~= nil and #self:getNextWayPoint().incoming > 0 then
         local lookAheadID = 1
         local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
         local distanceToCurrentTarget = MathUtil.vector2Length(x - wp_current.x, z - wp_current.z)
@@ -568,13 +561,14 @@ end
 
 function ADDrivePathModule:checkForReverseSection()
     if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() and self:getCurrentWayPointIndex() > 3 then
-        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()-0]
-        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-1]
-        local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 2]
+        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
+        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
+        local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
+        local isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
         angle = math.abs(angle)
-        if angle > 100 then
+        if angle > 100 and isReverseStart then
             return true
         end
     end

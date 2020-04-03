@@ -154,7 +154,9 @@
 		<text name="gui_ad_iconSetToUse"						text="Logo Personalisierug" />
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Standard Zielpunkte Logo oder personalisiertes - Auswahl kann ausgebaut werden" />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Nutze 2. Editormodus" />
-		<text name="gui_ad_secondEditorModeAllowed_tooltip"				text="Nutze 2. Editormodus statt Halten der LSTRG-Taste" />
+		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Nutze 2. Editormodus statt Halten der LSTRG-Taste" />
+		<text name="gui_ad_wideHUD"								text="Breites HUD" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Nutze breites HUD. Erlaubt dadurch auch zusätzliche Buttons." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />

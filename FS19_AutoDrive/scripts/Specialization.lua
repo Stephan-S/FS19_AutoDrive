@@ -512,7 +512,7 @@ function AutoDrive:stopAutoDrive()
                     if self.deactivateLights ~= nil then
                         self:deactivateLights()
                     end
-                    if self.stopMotor ~= nil then
+                    if self.stopMotor ~= nil and (self.getIsEntered == nil or not self:getIsEntered()) then
                         self:stopMotor()
                     end
                 end

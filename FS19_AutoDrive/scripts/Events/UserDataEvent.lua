@@ -9,11 +9,12 @@ function AutoDriveUserDataEvent:emptyNew()
     return o
 end
 
-function AutoDriveUserDataEvent:new(hudX, hudY, guiScale)
+function AutoDriveUserDataEvent:new(hudX, hudY, guiScale, wideHUD)
     local o = AutoDriveUserDataEvent:emptyNew()
     o.hudX = hudX
     o.hudY = hudY
     o.guiScale = guiScale
+    o.wideHUD = wideHUD
     return o
 end
 
@@ -21,12 +22,14 @@ function AutoDriveUserDataEvent:writeStream(streamId, connection)
     streamWriteFloat32(streamId, self.hudX)
     streamWriteFloat32(streamId, self.hudY)
     streamWriteUInt8(streamId, self.guiScale)
+    streamWriteBool(streamId, self.wideHUD)
 end
 
 function AutoDriveUserDataEvent:readStream(streamId, connection)
     self.hudX = streamReadFloat32(streamId)
     self.hudY = streamReadFloat32(streamId)
     self.guiScale = streamReadUInt8(streamId)
+    self.wideHUD = streamReadBool(streamId)
     self:run(connection)
 end
 
@@ -44,6 +47,7 @@ function AutoDriveUserDataEvent:run(connection)
         AutoDrive.usersData[uniqueId].hudX = self.hudX
         AutoDrive.usersData[uniqueId].hudY = self.hudY
         AutoDrive.usersData[uniqueId].guiScale = self.guiScale
+        AutoDrive.usersData[uniqueId].wideHUD = self.wideHUD
     else
         -- Applying data if we are on the client
         AutoDrive.Hud:createHudAt(self.hudX, self.hudY)
@@ -56,13 +60,13 @@ function AutoDriveUserDataEvent.sendToClient(connection)
     if g_server ~= nil and user ~= nil then
         local uniqueId = user.uniqueUserId
         if AutoDrive.usersData[uniqueId] ~= nil then
-            connection:sendEvent(AutoDriveUserDataEvent:new(AutoDrive.usersData[uniqueId].hudX, AutoDrive.usersData[uniqueId].hudY, AutoDrive.usersData[uniqueId].guiScale))
+            connection:sendEvent(AutoDriveUserDataEvent:new(AutoDrive.usersData[uniqueId].hudX, AutoDrive.usersData[uniqueId].hudY, AutoDrive.usersData[uniqueId].guiScale, AutoDrive.usersData[uniqueId].wideHUD))
         end
     end
 end
 
 function AutoDriveUserDataEvent.sendToServer()
     if g_server == nil then
-        g_client:getServerConnection():sendEvent(AutoDriveUserDataEvent:new(AutoDrive.HudX, AutoDrive.HudY, AutoDrive.getSettingState("guiScale")))
+        g_client:getServerConnection():sendEvent(AutoDriveUserDataEvent:new(AutoDrive.HudX, AutoDrive.HudY, AutoDrive.getSettingState("guiScale"), AutoDrive.getSetting("wideHUD")))
     end
 end

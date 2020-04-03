@@ -112,7 +112,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.buttonCollOffset = 0
 	self.pullDownRowOffset = 2
 
-	if AutoDrive.experimentalFeatures.wideHUD then
+	if AutoDrive.getSetting("wideHUD") then
 		self.buttonCollOffset = 7
 		self.pullDownRowOffset = 0
 		numButtonRows = 0
@@ -194,7 +194,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--------------------------------------------------
 
 	---------- SECOND ROW BUTTONS ---------------------
-	if AutoDrive.experimentalFeatures.wideHUD then
+	if AutoDrive.getSetting("wideHUD") then
 		if AutoDrive.getSetting("addSettingsToHUD") then
 			self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 			self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
@@ -247,7 +247,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--------------------------------------------------
 
 	---------- THIRD ROW BUTTONS ---------------------
-	if AutoDrive.experimentalFeatures.wideHUD and AutoDrive.getSetting("addSettingsToHUD") then
+	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
 		self:AddEditModeButtons()
 
 		if g_courseplay ~= nil then
@@ -265,7 +265,7 @@ function AutoDriveHud:AddEditModeButtons()
 	self:AddButton("input_createMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
 	self:AddButton("input_editMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
-	if AutoDrive.experimentalFeatures.wideHUD and AutoDrive.getSetting("addSettingsToHUD") then
+	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
 		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteWayPoint", 1, false)
 	end
 end

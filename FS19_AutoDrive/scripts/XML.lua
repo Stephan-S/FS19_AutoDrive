@@ -318,6 +318,7 @@ function AutoDrive.loadUsersData()
 					AutoDrive.usersData[uniqueId].hudX = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudX"), 0.5)
 					AutoDrive.usersData[uniqueId].hudY = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudY"), 0.5)
 					AutoDrive.usersData[uniqueId].guiScale = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#guiScale"), AutoDrive.settings.guiScale.default)
+					AutoDrive.usersData[uniqueId].wideHUD = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#wideHUD"), AutoDrive.getSetting("wideHUD"))
 				end
 				uIndex = uIndex + 1
 			end
@@ -336,6 +337,7 @@ function AutoDrive.saveUsersData()
 		setXMLFloat(xmlFile, uKey .. "#hudX", userData.hudX)
 		setXMLFloat(xmlFile, uKey .. "#hudY", userData.hudY)
 		setXMLInt(xmlFile, uKey .. "#guiScale", userData.guiScale)
+		setXMLBool(xmlFile, uKey .. "#wideHUD", userData.wideHUD)
 		uIndex = uIndex + 1
 	end
 	saveXMLFile(xmlFile)

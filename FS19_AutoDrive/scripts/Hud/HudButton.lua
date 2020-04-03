@@ -148,7 +148,7 @@ function ADHudButton:getNewState(vehicle)
         else
             newState = 1
         end
-        self.isVisible = (not vehicle.ad.stateModule:isEditorModeEnabled()) or (AutoDrive.experimentalFeatures.wideHUD and AutoDrive.getSetting("addSettingsToHUD"))
+        self.isVisible = (not vehicle.ad.stateModule:isEditorModeEnabled()) or (AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD"))
     end
 
     return newState
