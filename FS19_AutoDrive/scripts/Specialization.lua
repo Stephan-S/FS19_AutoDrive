@@ -302,6 +302,24 @@ function AutoDrive:onDraw()
         self.ad.frontNodeGizmo:createWithNode(self.ad.frontNode, getName(self.ad.frontNode), false)
         self.ad.frontNodeGizmo:draw()
     end
+
+    local x, y, z = getWorldTranslation(self.components[1].node)
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+        for _, otherVehicle in pairs(g_currentMission.vehicles) do
+            if otherVehicle ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.drivePathModule:getWayPoints() ~= nil and not otherVehicle.ad.drivePathModule:isTargetReached()  then
+                local currentIndex = otherVehicle.ad.drivePathModule:getCurrentWayPointIndex()
+
+                local lastPoint = nil
+                for index, point in ipairs(otherVehicle.ad.drivePathModule:getWayPoints()) do
+                    if index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
+                        ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1, 0.09, 0.09)
+                        ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
+                    end
+                    lastPoint = point
+                end
+            end
+        end
+    end
 end
 
 function AutoDrive:onDelete()

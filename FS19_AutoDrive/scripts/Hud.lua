@@ -537,7 +537,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			node.y = node.y - 0.1
 			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
-		node.y = math.max(safeNodeY, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
+		node.y = math.max(safeNodeY-0.2, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
 		ADGraphManager:markChanges()
 	end
 end
