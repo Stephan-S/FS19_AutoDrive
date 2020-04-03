@@ -124,8 +124,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.gapWidth, self.gapHeight = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize)
 	self.iconWidth, self.iconHeight = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize)
 	self.listItemWidth, self.listItemHeight = getNormalizedScreenValues(uiScale * listItemSize, uiScale * listItemSize)
-	self.posX = hudX
-	self.posY = hudY
+	self.posX = math.clamp(0, hudX, 1 - self.width)
+	self.posY = math.clamp(2 * self.gapHeight, hudY, 1- (self.height + 3 * self.gapHeight + self.headerHeight))
 
 	AutoDrive.HudX = self.posX
 	AutoDrive.HudY = self.posY
@@ -385,37 +385,41 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 		vehicle.ad.hoveredNodeId = nil
 		if vehicle.ad.stateModule:isInExtendedEditorMode() then
-			for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
-				if AutoDrive.mouseIsAtPos(point, 0.01) then
-					vehicle.ad.hoveredNodeId = point.id
-					if not AutoDrive.leftALTmodifierKeyPressed then
-						if button == 1 and isUp then
-							if vehicle.ad.selectedNodeId ~= nil then
-								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), false)
+			if (not AutoDrive.leftCTRLmodifierKeyPressed or not AutoDrive.getSetting("secondEditorModeAllowed")) then
+				for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
+					if AutoDrive.mouseIsAtPos(point, 0.01) then
+						vehicle.ad.hoveredNodeId = point.id
+						if not AutoDrive.leftALTmodifierKeyPressed then
+							if button == 1 and isUp then
+								if vehicle.ad.selectedNodeId ~= nil then
+									if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+										ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), false)
+										vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+									else
+										vehicle.ad.selectedNodeId = nil
+									end
+								else
+									vehicle.ad.selectedNodeId = point.id
 								end
-								vehicle.ad.selectedNodeId = nil
-							else
-								vehicle.ad.selectedNodeId = point.id
 							end
-						end
 
-						if (button == 2 or button == 3) and isDown and AutoDrive.getSettingState("lineHeight") == 1 then
-							if vehicle.ad.nodeToMoveId == nil then
-								vehicle.ad.nodeToMoveId = point.id
+							if (button == 2 or button == 3) and isDown and AutoDrive.getSettingState("lineHeight") == 1 then
+								if vehicle.ad.nodeToMoveId == nil then
+									vehicle.ad.nodeToMoveId = point.id
+								end
 							end
 						end
 					end
-				end
 
-				if AutoDrive.getSettingState("lineHeight") > 1 then
-					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
-					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
-						vehicle.ad.hoveredNodeId = point.id
-						if not AutoDrive.leftALTmodifierKeyPressed then
-							if (button == 2 or button == 3) and isDown then
-								if vehicle.ad.nodeToMoveId == nil then
-									vehicle.ad.nodeToMoveId = point.id
+					if AutoDrive.getSettingState("lineHeight") > 1 then
+						local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
+						if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
+							vehicle.ad.hoveredNodeId = point.id
+							if not AutoDrive.leftALTmodifierKeyPressed then
+								if (button == 2 or button == 3) and isDown then
+									if vehicle.ad.nodeToMoveId == nil then
+										vehicle.ad.nodeToMoveId = point.id
+									end
 								end
 							end
 						end
@@ -479,8 +483,11 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							end
 
 							ADGraphManager:createWayPoint(minX, minY, minZ)
-							screenX, screenY, depthNew = project(minX, minY, minZ)
-							--print("Looped: mouse: " .. g_lastMousePosX .. "/" .. g_lastMousePosY .. "   node: " .. screenX .. "/" .. screenY .. " minDistance: " .. minDistance .. " loopsLeft: " .. maxLoops)
+							local createdId = ADGraphManager:getWayPointsCount()
+							if vehicle.ad.selectedNodeId ~= nil then
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+								vehicle.ad.selectedNodeId = createdId
+							end
 						end
 					end
 				end

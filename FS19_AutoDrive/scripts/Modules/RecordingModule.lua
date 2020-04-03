@@ -104,10 +104,13 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
             max_distance = 0.25
         end
 
-        local drivingReverse = AutoDrive.experimentalFeatures.reverseDrivingAllowed and (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+        
+        local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.lastWp.x, y, self.lastWp.z)
+        local drivingReverse = AutoDrive.experimentalFeatures.reverseDrivingAllowed and (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0 and diffZ > 0
         if drivingReverse then
             max_distance = math.min(max_distance, 2)
         end
+
 
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance then
             self.secondLastWp = self.lastWp

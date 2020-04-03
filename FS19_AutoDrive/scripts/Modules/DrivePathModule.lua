@@ -240,6 +240,9 @@ function ADDrivePathModule:followWaypoints(dt)
         if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + maxSpeedDiff) then
             self.acceleration = -0.6
         end
+
+        --print("Speed: " .. (self.vehicle.lastSpeedReal * 3600) .. "/" .. self.speedLimit .. " acc: " .. self.acceleration .. " maxSpeedDiff: " .. maxSpeedDiff)
+        --print("LAD: " .. self.distanceToLookAhead .. " maxAngle: " .. self.maxAngle .. " maxAngleSpeed: " .. self.maxAngleSpeed)
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
         if self.vehicle.spec_motorized == nil or self.vehicle.spec_motorized.isMotorStarted then
             AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
@@ -314,7 +317,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local wp_current = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 1]
             local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 2]
 
-            local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_ref.x, z = wp_ahead.z - wp_ref.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
+            local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             angle = math.abs(angle)
 
             if MathUtil.vector2Length(self:getCurrentWayPoint().x - wp_ahead.x, self:getCurrentWayPoint().z - wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
@@ -336,23 +339,26 @@ end
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
-    if angle < 3 then
+    if angle < 10 then
         maxSpeed = math.huge
-    elseif angle < 5 then
-        maxSpeed = 38
-    elseif angle < 8 then
-        maxSpeed = 27
-    elseif angle < 12 then
-        maxSpeed = 20
     elseif angle < 15 then
-        maxSpeed = 17
+        maxSpeed = 38
     elseif angle < 20 then
+        maxSpeed = 27
+    elseif angle < 25 then
+        maxSpeed = 20
+    elseif angle < 30 then
+        maxSpeed = 17
+    elseif angle < 35 then
         maxSpeed = 16
-    elseif angle >= 20 then
+    elseif angle >= 35 then
         maxSpeed = 13
     end
 
-    return maxSpeed * 1.0 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
+    self.maxAngle = angle
+    self.maxAngleSpeed = maxSpeed * 1.0 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
+
+    return self.maxAngleSpeed
 end
 
 function ADDrivePathModule:getSpeedLimitBySteeringAngle()

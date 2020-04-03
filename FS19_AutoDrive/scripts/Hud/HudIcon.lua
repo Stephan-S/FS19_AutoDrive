@@ -106,7 +106,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
 
         local width = 0
         local textIndex = 1
-        while (width < self.size.width - 2 * AutoDrive.Hud.gapWidth) and textParts[textIndex] ~= nil do
+        while (width < self.size.width - 4 * AutoDrive.Hud.gapWidth) and textParts[textIndex] ~= nil do
             local textToAdd = ""
             if textIndex > 1 then
                 textToAdd = textToAdd .. "-"
@@ -114,7 +114,7 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
             textToAdd = textToAdd .. textParts[textIndex]
             width = getTextWidth(adFontSize, firstLineText .. textToAdd)
 
-            if (width < self.size.width - 2 * AutoDrive.Hud.gapWidth) then
+            if (width < self.size.width - 4 * AutoDrive.Hud.gapWidth) then
                 firstLineText = firstLineText .. textToAdd
                 textIndex = textIndex + 1
             end
