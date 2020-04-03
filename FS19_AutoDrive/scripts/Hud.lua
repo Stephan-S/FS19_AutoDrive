@@ -393,11 +393,9 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							if button == 1 and isUp then
 								if vehicle.ad.selectedNodeId ~= nil then
 									if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-										ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), false)
-										vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
-									else
-										vehicle.ad.selectedNodeId = nil
+										ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
 									end
+									vehicle.ad.selectedNodeId = nil
 								else
 									vehicle.ad.selectedNodeId = point.id
 								end
@@ -526,7 +524,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			maxLoops = maxLoops - 1
 			node.y = node.y + 0.1
 			safeNodeY = node.y
-			collisions = overlapBox(node.x, node.y - 0.1, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
+			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
 
 		-- Once again, try if we can't find a proper floor level here
@@ -539,7 +537,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			node.y = node.y - 0.1
 			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
-		node.y = safeNodeY
+		node.y = math.max(safeNodeY, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
 		ADGraphManager:markChanges()
 	end
 end

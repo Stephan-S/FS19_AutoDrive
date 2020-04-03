@@ -195,7 +195,7 @@ function ADSpecialDrivingModule:checkWayPointReached()
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
     local minDistance = 6
     if self.reverseSolo then
-        minDistance = 1.5
+        minDistance = AutoDrive.defineMinDistanceByVehicleType(self.vehicle)
     elseif self.currentWayPointIndex == #self.wayPoints then
         minDistance = 4
     end
@@ -209,8 +209,12 @@ function ADSpecialDrivingModule:getReverseNode()
     for _, implement in pairs(self.vehicle:getAttachedImplements()) do
         if implement ~= nil and implement.object ~= nil then
             if (implement.object ~= self.vehicle or reverseNode == nil) and implement.object.spec_wheels ~= nil then
-                reverseNode = implement.object.spec_wheels.steeringCenterNode
-                self.reverseSolo = false
+                local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+                local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, implementX, implementY, implementZ)
+                if diffZ < 0 then
+                    reverseNode = implement.object.spec_wheels.steeringCenterNode
+                    self.reverseSolo = false
+                end
             end
         end
     end
@@ -235,9 +239,9 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     self.i = self.i + (delta) * 0.05
     local d = delta - self.lastAngleToPoint
 
-    self.pFactor = 4--self.vehicle.ad.stateModule:getSpeedLimit()
+    self.pFactor = 6 --self.vehicle.ad.stateModule:getSpeedLimit()
     self.iFactor = 0.01
-    self.dFactor = 1200 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
+    self.dFactor = 1400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
 
     local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
     local targetDiff = self.angleToTrailer - targetAngleToTrailer
