@@ -312,7 +312,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
             angle = math.abs(angle)
 
             if MathUtil.vector2Length(self:getCurrentWayPoint().x - wp_ahead.x, self:getCurrentWayPoint().z - wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
-                if angle < 100 then
+                if angle < 180 then
                     highestAngle = math.max(highestAngle, angle)
                 end
             else

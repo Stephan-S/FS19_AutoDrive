@@ -503,6 +503,10 @@ function AutoDrive:stopAutoDrive()
                         callBackFunction()
                     end
                 end
+
+                self.ad.callBackFunction = nil
+                self.ad.callBackObject = nil
+                self.ad.callBackArg = nil
             else
                 AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
                 self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
@@ -543,10 +547,6 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
-
-            self.ad.callBackFunction = nil
-            self.ad.callBackObject = nil
-            self.ad.callBackArg = nil
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
