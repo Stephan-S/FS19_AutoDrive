@@ -759,3 +759,17 @@ function ADStateModule:removeCPCallback()
     self.vehicle.ad.callBackObject = nil
     self.vehicle.ad.callBackArg = nil
 end
+
+function ADStateModule:resetMarkersOnReload()
+    if self.firstMarker ~= nil and self.firstMarker.id ~= nil then
+        self.firstMarker = ADGraphManager:getMapMarkerById(self.firstMarker.id)
+    else
+        self.firstMarker = ADGraphManager:getMapMarkerById(1)
+    end
+
+    if self.secondMarker ~= nil and self.secondMarker.id ~= nil then
+        self.secondMarker = ADGraphManager:getMapMarkerById(self.secondMarker.id)
+    else
+        self.secondMarker = ADGraphManager:getMapMarkerById(1)
+    end
+end

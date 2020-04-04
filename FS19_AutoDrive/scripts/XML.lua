@@ -443,7 +443,7 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 			local group = getXMLString(xmlId, key .. "#g")
 
 			i = i + 1
-			markers[i] = {id = id, name = name, group = group}
+			markers[i] = {id = id, name = name, group = group, markerIndex = i}
 		end
 	end
 
