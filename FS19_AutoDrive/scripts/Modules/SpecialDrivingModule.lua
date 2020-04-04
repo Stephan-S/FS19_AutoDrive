@@ -202,7 +202,9 @@ function ADSpecialDrivingModule:checkWayPointReached()
     self.vehicle.ad.drivePathModule.currentWayPoint = storedIndex
     if self.reverseSolo then
         minDistance = AutoDrive.defineMinDistanceByVehicleType(self.vehicle)
-    elseif self.currentWayPointIndex == #self.wayPoints or reverseEnd then
+    elseif self.currentWayPointIndex == #self.wayPoints then 
+        minDistance = 4.5
+    elseif reverseEnd then
         minDistance = 3
     end
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
