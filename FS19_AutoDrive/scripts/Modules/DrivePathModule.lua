@@ -165,7 +165,7 @@ function ADDrivePathModule:isCloseToWaypoint()
                 local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - x, z = wp_current.z - z})
                 angle = math.abs(angle)
 
-                local isReverseStart = wp_ahead.incoming == nil or (not table.contains(wp_ahead.incoming, wp_current.id))
+                local isReverseStart = wp_ahead.incoming ~= nil and (not table.contains(wp_ahead.incoming, wp_current.id))
                 if angle >= 90 and not isReverseStart then
                     return true
                 end
@@ -565,7 +565,7 @@ function ADDrivePathModule:checkForReverseSection()
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
         local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
-        local isReverseStart = wp_ahead.incoming == nil or (not table.contains(wp_ahead.incoming, wp_current.id))
+        local isReverseStart = wp_ahead.incoming ~= nil and (not table.contains(wp_ahead.incoming, wp_current.id))
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
         angle = math.abs(angle)

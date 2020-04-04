@@ -23,6 +23,7 @@ function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "resetWayPointsDistance", AutoDrive.resetWayPointsDistance)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointsDistance", AutoDrive.getWayPointsDistance)
     SpecializationUtil.registerFunction(vehicleType, "getClosestWayPoint", AutoDrive.getClosestWayPoint)
+    SpecializationUtil.registerFunction(vehicleType, "getClosestNotReversedWayPoint", AutoDrive.getClosestNotReversedWayPoint)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointsInRange", AutoDrive.getWayPointsInRange)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointIdsInRange", AutoDrive.getWayPointIdsInRange)
     SpecializationUtil.registerFunction(vehicleType, "onDrawEditorMode", AutoDrive.onDrawEditorMode)
@@ -74,6 +75,9 @@ function AutoDrive:onLoad(savegame)
     self.ad.distances.closest = {}
     self.ad.distances.closest.wayPoint = -1
     self.ad.distances.closest.distance = 0
+    self.ad.distances.closestNotReverse = {}
+    self.ad.distances.closestNotReverse.wayPoint = -1
+    self.ad.distances.closestNotReverse.distance = 0
 
     self.ad.stateModule = ADStateModule:new(self)
     self.ad.recordingModule = ADRecordingModule:new(self)
@@ -604,6 +608,8 @@ function AutoDrive:updateWayPointsDistance()
     self.ad.distances.wayPoints = {}
     self.ad.distances.closest.wayPoint = nil
     self.ad.distances.closest.distance = math.huge
+    self.ad.distances.closestNotReverse.wayPoint = nil
+    self.ad.distances.closestNotReverse.distance = math.huge
 
     local x, _, z = getWorldTranslation(self.components[1].node)
 
@@ -620,6 +626,10 @@ function AutoDrive:updateWayPointsDistance()
         end
         if distance <= AutoDrive.drawDistance then
             table.insert(self.ad.distances.wayPoints, {distance = distance, wayPoint = wp})
+        end
+        if distance < self.ad.distances.closestNotReverse.distance and (wp.incoming == nil or #wp.incoming > 0) then
+            self.ad.distances.closestNotReverse.distance = distance
+            self.ad.distances.closestNotReverse.wayPoint = wp
         end
     end
 end
@@ -645,6 +655,17 @@ function AutoDrive:getClosestWayPoint()
     end
     return -1, math.huge
 end
+
+function AutoDrive:getClosestNotReversedWayPoint()
+    if self.ad.distances.closestNotReverse.wayPoint == -1 then
+        self:updateWayPointsDistance()
+    end
+    if self.ad.distances.closestNotReverse.wayPoint ~= nil then
+        return self.ad.distances.closestNotReverse.wayPoint.id, self.ad.distances.closestNotReverse.distance
+    end
+    return -1, math.huge
+end
+
 
 function AutoDrive:getWayPointsInRange(minDistance, maxDistance)
     if self.ad.distances.wayPoints == nil then

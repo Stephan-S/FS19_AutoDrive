@@ -264,9 +264,9 @@ function AutoDriveHud:AddEditModeButtons()
 	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
 	self:AddButton("input_createMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
-	self:AddButton("input_editMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
+	self:AddButton("input_editMapMarker", nil, "input_ADRenameMapMarker", 1, false)
 	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
-		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteWayPoint", 1, false)
+		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteDestination", 1, false)
 	end
 end
 

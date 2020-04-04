@@ -333,6 +333,9 @@ function CombineUnloaderMode:getPipeChasePosition()
                 for _, dischargeNodeIter in pairs(self.combine.spec_dischargeable.dischargeNodes) do
                     dischargeNode = dischargeNodeIter
                 end
+                if self.combine.getPipeDischargeNodeIndex ~= nil then
+                    dischargeNode = self.combine.spec_dischargeable.dischargeNodes[self.combine:getPipeDischargeNodeIndex()]
+                end
 
                 local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
                 local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle) + slopeCorrection
