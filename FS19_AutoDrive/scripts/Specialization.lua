@@ -407,12 +407,12 @@ function AutoDrive:onDrawEditorMode()
                 if target ~= nil then
                     --check if outgoing connection is a dual way connection
                     local nWp = ADGraphManager:getWayPointById(neighbor)
-                    if table.contains(point.incoming, neighbor) then
+                    if point.incoming == nil or table.contains(point.incoming, neighbor) then
                         --draw simple line
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        if table.contains(nWp.incoming, point.id) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                         else
