@@ -165,6 +165,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
             
             self:reverseToPoint(dt)
         end
+        self.unloadingIntoBunkerSilo = false
     end
 end
 

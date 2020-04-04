@@ -27,7 +27,6 @@ function ADDrivePathModule:reset()
     self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
     self.isReversing = false
-    self.lastReverseIndex = nil
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -57,8 +56,7 @@ function ADDrivePathModule:setPathTo(waypointId)
 
         self.atTarget = false
     end
-    self.isReversing = false
-    self.lastReverseIndex = nil
+    self:resetIsReversing()
 end
 
 function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
@@ -76,8 +74,7 @@ function ADDrivePathModule:appendPathTo(startWayPointId, wayPointId)
             table.insert(self.wayPoints, wp)
         end
     end
-    self.isReversing = false
-    self.lastReverseIndex = nil
+    self:resetIsReversing()
 end
 
 function ADDrivePathModule:setWayPoints(wayPoints)
@@ -91,8 +88,7 @@ function ADDrivePathModule:setWayPoints(wayPoints)
     else
         self:setCurrentWayPointIndex(1)
     end
-    self.isReversing = false
-    self.lastReverseIndex = nil
+    self:resetIsReversing()
 end
 
 function ADDrivePathModule:setPaused()
@@ -123,11 +119,11 @@ function ADDrivePathModule:update(dt)
 
             if self:isCloseToWaypoint() then
                 local reverseNext = self:checkForReverseSection()
-                if reverseNext and (self.lastReverseIndex == nil or self.lastReverseIndex < (self:getCurrentWayPointIndex() - 5)) then
+                if reverseNext then
                     --print("Toggled driving direction")
                     self.isReversing = not self.isReversing
+                    self.vehicle.ad.specialDrivingModule:reset()
                     self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
-                    self.lastReverseIndex = self:getCurrentWayPointIndex()
                 else
                     self:handleReachedWayPoint()
                 end
@@ -145,6 +141,11 @@ end
 
 function ADDrivePathModule:getIsReversing()
     return self.isReversing
+end
+
+function ADDrivePathModule:resetIsReversing()
+    self.isReversing = false
+    self.vehicle.ad.specialDrivingModule:reset()
 end
 
 function ADDrivePathModule:isCloseToWaypoint()
@@ -460,7 +461,7 @@ function ADDrivePathModule:getLookAheadTarget()
         targetZ = wp_current.z
     end
 
-    if self:getNextWayPoint() ~= nil and #self:getNextWayPoint().incoming > 0 then
+    if self:getNextWayPoint() ~= nil and (self:getNextWayPoint().incoming == nil or #self:getNextWayPoint().incoming > 0) then
         local lookAheadID = 1
         local lookAheadDistance = AutoDrive.getSetting("lookAheadTurning")
         local distanceToCurrentTarget = MathUtil.vector2Length(x - wp_current.x, z - wp_current.z)
