@@ -121,6 +121,11 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
         end
     end
 
+    local speedMatchesRecording = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) > 0
+    if self.drivingReverse then
+        speedMatchesRecording = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+    end
+
     if self.secondLastWp == nil then
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > 3 and MathUtil.vector2Length(vehicleX - self.lastWp.x, vehicleZ - self.lastWp.z) > 3 then
             self.secondLastWp = self.lastWp
@@ -153,7 +158,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
             max_distance = math.min(max_distance, 2)
         end
 
-        if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance and minDistanceToLastWayPoint then
+        if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance and minDistanceToLastWayPoint and speedMatchesRecording then
             self.secondLastWp = self.lastWp
             self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, self.drivingReverse)
             self.lastWpPosition.x, self.lastWpPosition.y, self.lastWpPosition.z = getWorldTranslation(self.vehicle.components[1].node)
