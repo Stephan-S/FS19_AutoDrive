@@ -571,7 +571,7 @@ end
 function ADDrivePathModule:checkForReverseSection()
     local reverseStart = false
     local reverseEnd = false
-    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() and self:getCurrentWayPointIndex() > 3 then
+    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
         local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
