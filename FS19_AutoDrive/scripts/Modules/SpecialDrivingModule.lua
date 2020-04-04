@@ -165,6 +165,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
             
             self:reverseToPoint(dt)
         end
+        self.unloadingIntoBunkerSilo = false
     end
 end
 
@@ -178,6 +179,7 @@ function ADSpecialDrivingModule:getBasicStates()
     self.vecToPoint = {x= self.reverseTarget.x - self.rNx, z=self.reverseTarget.z - self.rNz}
     self.angleToTrailer = AutoDrive.angleBetween({x = self.vehicleVecX, z = self.vehicleVecZ}, {x = self.trailerVecX, z = self.trailerVecZ})
     self.angleToPoint = AutoDrive.angleBetween({x = self.trailerRearVecX, z = self.trailerRearVecZ}, {x = self.vecToPoint.x, z = self.vecToPoint.z})
+    self.steeringAngle = math.deg(math.abs(self.vehicle.rotatedTime))
 
     if self.reverseSolo then
         self.angleToTrailer = -math.deg(self.vehicle.rotatedTime)
@@ -193,9 +195,11 @@ end
 
 function ADSpecialDrivingModule:checkWayPointReached()
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
-    local minDistance = 6
-    if self.reverseSolo or self.currentWayPointIndex == #self.wayPoints then
-        minDistance = 1.5
+    local minDistance = 9
+    if self.reverseSolo then
+        minDistance = AutoDrive.defineMinDistanceByVehicleType(self.vehicle)
+    elseif self.currentWayPointIndex == #self.wayPoints then
+        minDistance = 4
     end
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
         self.vehicle.ad.drivePathModule:handleReachedWayPoint()
@@ -207,8 +211,12 @@ function ADSpecialDrivingModule:getReverseNode()
     for _, implement in pairs(self.vehicle:getAttachedImplements()) do
         if implement ~= nil and implement.object ~= nil then
             if (implement.object ~= self.vehicle or reverseNode == nil) and implement.object.spec_wheels ~= nil then
-                reverseNode = implement.object.spec_wheels.steeringCenterNode
-                self.reverseSolo = false
+                local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+                local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, implementX, implementY, implementZ)
+                if diffZ < 0 then
+                    reverseNode = implement.object.spec_wheels.steeringCenterNode
+                    self.reverseSolo = false
+                end
             end
         end
     end
@@ -233,9 +241,9 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     self.i = self.i + (delta) * 0.05
     local d = delta - self.lastAngleToPoint
 
-    self.pFactor = 4--self.vehicle.ad.stateModule:getSpeedLimit()
+    self.pFactor = 6 --self.vehicle.ad.stateModule:getSpeedLimit()
     self.iFactor = 0.01
-    self.dFactor = 1200 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
+    self.dFactor = 1400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
 
     local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
     local targetDiff = self.angleToTrailer - targetAngleToTrailer
@@ -245,7 +253,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     --print("p: " .. p * self.pFactor .. " i: " .. (self.i * self.iFactor) .. " d: " .. (d * self.dFactor))
     --print("targetAngleToTrailer: " .. targetAngleToTrailer .. " targetDiff: " .. targetDiff .. "  offsetX" .. offsetX)
     
-    local speed = 5 + (6 * math.clamp(0, (5/math.abs(self.angleToTrailer)), 1))
+    local speed = 5 + (6 * math.clamp(0, (5/math.max(self.steeringAngle, math.abs(self.angleToTrailer))), 1))
     local acc = 0.4
 
     local node = self.vehicle:getAIVehicleDirectionNode()
@@ -262,7 +270,10 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
         lx = -lx
         lz = -lz
     end
+    local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
+    AutoDrive.experimentalFeatures.smootherDriving = false
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, lx, lz, speed, 1)
+    AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
 
     self.lastAngleToPoint = self.angleToPoint
 end

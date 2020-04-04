@@ -112,7 +112,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.buttonCollOffset = 0
 	self.pullDownRowOffset = 2
 
-	if AutoDrive.experimentalFeatures.wideHUD then
+	if AutoDrive.getSetting("wideHUD") then
 		self.buttonCollOffset = 7
 		self.pullDownRowOffset = 0
 		numButtonRows = 0
@@ -124,8 +124,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.gapWidth, self.gapHeight = getNormalizedScreenValues(uiScale * gapSize, uiScale * gapSize)
 	self.iconWidth, self.iconHeight = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize)
 	self.listItemWidth, self.listItemHeight = getNormalizedScreenValues(uiScale * listItemSize, uiScale * listItemSize)
-	self.posX = hudX
-	self.posY = hudY
+	self.posX = math.clamp(0, hudX, 1 - self.width)
+	self.posY = math.clamp(2 * self.gapHeight, hudY, 1- (self.height + 3 * self.gapHeight + self.headerHeight))
 
 	AutoDrive.HudX = self.posX
 	AutoDrive.HudY = self.posY
@@ -194,7 +194,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--------------------------------------------------
 
 	---------- SECOND ROW BUTTONS ---------------------
-	if AutoDrive.experimentalFeatures.wideHUD then
+	if AutoDrive.getSetting("wideHUD") then
 		if AutoDrive.getSetting("addSettingsToHUD") then
 			self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 			self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
@@ -247,7 +247,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	--------------------------------------------------
 
 	---------- THIRD ROW BUTTONS ---------------------
-	if AutoDrive.experimentalFeatures.wideHUD and AutoDrive.getSetting("addSettingsToHUD") then
+	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
 		self:AddEditModeButtons()
 
 		if g_courseplay ~= nil then
@@ -264,9 +264,9 @@ function AutoDriveHud:AddEditModeButtons()
 	self:AddButton("input_routesManager", nil, "input_AD_routes_manager", 1, false)
 	self:AddButton("input_createMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
 	self:AddButton("input_removeWaypoint", "input_removeMapMarker", "input_ADDebugDeleteWayPoint", 1, false)
-	self:AddButton("input_editMapMarker", nil, "input_ADDebugCreateMapMarker", 1, false)
-	if AutoDrive.experimentalFeatures.wideHUD and AutoDrive.getSetting("addSettingsToHUD") then
-		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteWayPoint", 1, false)
+	self:AddButton("input_editMapMarker", nil, "input_ADRenameMapMarker", 1, false)
+	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
+		self:AddButton("input_removeMapMarker", nil, "input_ADDebugDeleteDestination", 1, false)
 	end
 end
 
@@ -385,37 +385,39 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 		vehicle.ad.hoveredNodeId = nil
 		if vehicle.ad.stateModule:isInExtendedEditorMode() then
-			for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
-				if AutoDrive.mouseIsAtPos(point, 0.01) then
-					vehicle.ad.hoveredNodeId = point.id
-					if not AutoDrive.leftALTmodifierKeyPressed then
-						if button == 1 and isUp then
-							if vehicle.ad.selectedNodeId ~= nil then
-								if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), false)
+			if (not AutoDrive.leftCTRLmodifierKeyPressed or not AutoDrive.getSetting("secondEditorModeAllowed")) then
+				for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
+					if AutoDrive.mouseIsAtPos(point, 0.01) then
+						vehicle.ad.hoveredNodeId = point.id
+						if not AutoDrive.leftALTmodifierKeyPressed then
+							if button == 1 and isUp then
+								if vehicle.ad.selectedNodeId ~= nil then
+									if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+										ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+									end
+									vehicle.ad.selectedNodeId = nil
+								else
+									vehicle.ad.selectedNodeId = point.id
 								end
-								vehicle.ad.selectedNodeId = nil
-							else
-								vehicle.ad.selectedNodeId = point.id
 							end
-						end
 
-						if (button == 2 or button == 3) and isDown and AutoDrive.getSettingState("lineHeight") == 1 then
-							if vehicle.ad.nodeToMoveId == nil then
-								vehicle.ad.nodeToMoveId = point.id
+							if (button == 2 or button == 3) and isDown and AutoDrive.getSettingState("lineHeight") == 1 then
+								if vehicle.ad.nodeToMoveId == nil then
+									vehicle.ad.nodeToMoveId = point.id
+								end
 							end
 						end
 					end
-				end
 
-				if AutoDrive.getSettingState("lineHeight") > 1 then
-					local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
-					if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
-						vehicle.ad.hoveredNodeId = point.id
-						if not AutoDrive.leftALTmodifierKeyPressed then
-							if (button == 2 or button == 3) and isDown then
-								if vehicle.ad.nodeToMoveId == nil then
-									vehicle.ad.nodeToMoveId = point.id
+					if AutoDrive.getSettingState("lineHeight") > 1 then
+						local pointOnGround = {x = point.x, y = point.y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight"), z = point.z}
+						if AutoDrive.mouseIsAtPos(pointOnGround, 0.01) then
+							vehicle.ad.hoveredNodeId = point.id
+							if not AutoDrive.leftALTmodifierKeyPressed then
+								if (button == 2 or button == 3) and isDown then
+									if vehicle.ad.nodeToMoveId == nil then
+										vehicle.ad.nodeToMoveId = point.id
+									end
 								end
 							end
 						end
@@ -479,8 +481,11 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							end
 
 							ADGraphManager:createWayPoint(minX, minY, minZ)
-							screenX, screenY, depthNew = project(minX, minY, minZ)
-							--print("Looped: mouse: " .. g_lastMousePosX .. "/" .. g_lastMousePosY .. "   node: " .. screenX .. "/" .. screenY .. " minDistance: " .. minDistance .. " loopsLeft: " .. maxLoops)
+							local createdId = ADGraphManager:getWayPointsCount()
+							if vehicle.ad.selectedNodeId ~= nil then
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+								vehicle.ad.selectedNodeId = createdId
+							end
 						end
 					end
 				end
@@ -519,7 +524,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			maxLoops = maxLoops - 1
 			node.y = node.y + 0.1
 			safeNodeY = node.y
-			collisions = overlapBox(node.x, node.y - 0.1, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
+			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
 
 		-- Once again, try if we can't find a proper floor level here
@@ -532,7 +537,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			node.y = node.y - 0.1
 			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
-		node.y = safeNodeY
+		node.y = math.max(safeNodeY-0.2, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
 		ADGraphManager:markChanges()
 	end
 end

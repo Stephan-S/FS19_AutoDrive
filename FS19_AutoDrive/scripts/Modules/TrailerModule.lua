@@ -19,6 +19,7 @@ function ADTrailerModule:reset()
     self.bunkerTrigger = nil
     self.bunkerTrailer = nil
     self.startedLoadingAtTrigger = false
+    self.startedUnloadingAtTrigger = false
     self.trigger = nil
     self.isLoadingToFillUnitIndex = nil
     self.isLoadingToTrailer = nil
@@ -108,11 +109,15 @@ end
 function ADTrailerModule:updateStates()
     self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
+    self.fillUnits = 0
     if self.lastFillLevel == nil then
         self.lastFillLevel = self.fillLevel
     end
     self.blocked = self.lastFillLevel <= self.fillLevel
     for _, trailer in pairs(self.trailers) do
+        if trailer.getFillUnits ~= nil then
+            self.fillUnits = self.fillUnits + #trailer:getFillUnits()
+        end
         local tipState = Trailer.TIPSTATE_CLOSED
         if trailer.getTipState ~= nil then
             tipState = trailer:getTipState()
@@ -132,6 +137,10 @@ function ADTrailerModule:updateStates()
                 end
             end
         end
+    end
+
+    if self.isUnloading then
+        self.startedUnloadingAtTrigger = true
     end
 end
 
@@ -179,15 +188,17 @@ function ADTrailerModule:updateUnload(dt)
 
     if not self.isUnloading then
         -- Check if we can unload at some trigger
-        for _, trailer in pairs(self.trailers) do
-            local unloadTrigger = self:lookForPossibleUnloadTrigger(trailer)
-            if trailer.unloadDelayTimer == nil then
-                trailer.unloadDelayTimer = AutoDriveTON:new()
-            end
-            trailer.unloadDelayTimer:timer(unloadTrigger ~= nil, 250, dt)
-            if unloadTrigger ~= nil and trailer.unloadDelayTimer:done() then
-                self:startUnloadingIntoTrigger(trailer, unloadTrigger)
-                return
+        if not self.startedUnloadingAtTrigger or self.fillUnits > 1 then
+            for _, trailer in pairs(self.trailers) do
+                local unloadTrigger = self:lookForPossibleUnloadTrigger(trailer)
+                if trailer.unloadDelayTimer == nil then
+                    trailer.unloadDelayTimer = AutoDriveTON:new()
+                end
+                trailer.unloadDelayTimer:timer(unloadTrigger ~= nil, 250, dt)
+                if unloadTrigger ~= nil and trailer.unloadDelayTimer:done() then
+                    self:startUnloadingIntoTrigger(trailer, unloadTrigger)
+                    return
+                end
             end
         end
     else

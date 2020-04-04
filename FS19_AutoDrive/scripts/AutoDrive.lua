@@ -9,7 +9,6 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.wideHUD = false
 AutoDrive.experimentalFeatures.reverseDrivingAllowed = true
 
 AutoDrive.developmentControls = false
@@ -194,6 +193,7 @@ end
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_LCTRL) > 0
 	AutoDrive.leftALTmodifierKeyPressed = bitAND(modifier, Input.MOD_LALT) > 0
+	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
 
 	if not AutoDrive.getSetting("secondEditorModeAllowed") then
 		local vehicle = g_currentMission.controlledVehicle
@@ -207,6 +207,7 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 				if not AutoDrive.leftCTRLmodifierKeyPressed then
 					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_ON)
 					AutoDrive.toggledEditorMode = false
+					vehicle.ad.selectedNodeId = nil
 				end
 			end
 		end

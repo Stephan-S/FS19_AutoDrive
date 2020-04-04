@@ -249,6 +249,9 @@ function CombineUnloaderMode:getDischargeNode()
     for _, dischargeNodeIter in pairs(self.combine.spec_dischargeable.dischargeNodes) do
         dischargeNode = dischargeNodeIter
     end
+    if self.combine.getPipeDischargeNodeIndex ~= nil then
+        dischargeNode = self.combine.spec_dischargeable.dischargeNodes[self.combine:getPipeDischargeNodeIndex()]
+    end
     return dischargeNode.node
 end
 

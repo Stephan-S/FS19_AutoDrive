@@ -23,6 +23,7 @@ function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "resetWayPointsDistance", AutoDrive.resetWayPointsDistance)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointsDistance", AutoDrive.getWayPointsDistance)
     SpecializationUtil.registerFunction(vehicleType, "getClosestWayPoint", AutoDrive.getClosestWayPoint)
+    SpecializationUtil.registerFunction(vehicleType, "getClosestNotReversedWayPoint", AutoDrive.getClosestNotReversedWayPoint)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointsInRange", AutoDrive.getWayPointsInRange)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointIdsInRange", AutoDrive.getWayPointIdsInRange)
     SpecializationUtil.registerFunction(vehicleType, "onDrawEditorMode", AutoDrive.onDrawEditorMode)
@@ -74,11 +75,14 @@ function AutoDrive:onLoad(savegame)
     self.ad.distances.closest = {}
     self.ad.distances.closest.wayPoint = -1
     self.ad.distances.closest.distance = 0
+    self.ad.distances.closestNotReverse = {}
+    self.ad.distances.closestNotReverse.wayPoint = -1
+    self.ad.distances.closestNotReverse.distance = 0
 
     self.ad.stateModule = ADStateModule:new(self)
     self.ad.recordingModule = ADRecordingModule:new(self)
-    self.ad.taskModule = ADTaskModule:new(self)
     self.ad.trailerModule = ADTrailerModule:new(self)
+    self.ad.taskModule = ADTaskModule:new(self)
     self.ad.drivePathModule = ADDrivePathModule:new(self)
     self.ad.specialDrivingModule = ADSpecialDrivingModule:new(self)
     self.ad.collisionDetectionModule = ADCollisionDetectionModule:new(self)
@@ -302,6 +306,24 @@ function AutoDrive:onDraw()
         self.ad.frontNodeGizmo:createWithNode(self.ad.frontNode, getName(self.ad.frontNode), false)
         self.ad.frontNodeGizmo:draw()
     end
+
+    local x, y, z = getWorldTranslation(self.components[1].node)
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+        for _, otherVehicle in pairs(g_currentMission.vehicles) do
+            if otherVehicle ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.drivePathModule:getWayPoints() ~= nil and not otherVehicle.ad.drivePathModule:isTargetReached()  then
+                local currentIndex = otherVehicle.ad.drivePathModule:getCurrentWayPointIndex()
+
+                local lastPoint = nil
+                for index, point in ipairs(otherVehicle.ad.drivePathModule:getWayPoints()) do
+                    if index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
+                        ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1, 0.09, 0.09)
+                        ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
+                    end
+                    lastPoint = point
+                end
+            end
+        end
+    end
 end
 
 function AutoDrive:onDelete()
@@ -389,12 +411,12 @@ function AutoDrive:onDrawEditorMode()
                 if target ~= nil then
                     --check if outgoing connection is a dual way connection
                     local nWp = ADGraphManager:getWayPointById(neighbor)
-                    if table.contains(point.incoming, neighbor) then
+                    if point.incoming == nil or table.contains(point.incoming, neighbor) then
                         --draw simple line
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        if table.contains(nWp.incoming, point.id) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                         else
@@ -485,6 +507,10 @@ function AutoDrive:stopAutoDrive()
                         callBackFunction()
                     end
                 end
+
+                self.ad.callBackFunction = nil
+                self.ad.callBackObject = nil
+                self.ad.callBackArg = nil
             else
                 AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
                 self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
@@ -494,7 +520,7 @@ function AutoDrive:stopAutoDrive()
                     if self.deactivateLights ~= nil then
                         self:deactivateLights()
                     end
-                    if self.stopMotor ~= nil then
+                    if self.stopMotor ~= nil and (self.getIsEntered == nil or not self:getIsEntered()) then
                         self:stopMotor()
                     end
                 end
@@ -525,10 +551,6 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
-
-            self.ad.callBackFunction = nil
-            self.ad.callBackObject = nil
-            self.ad.callBackArg = nil
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
@@ -586,6 +608,8 @@ function AutoDrive:updateWayPointsDistance()
     self.ad.distances.wayPoints = {}
     self.ad.distances.closest.wayPoint = nil
     self.ad.distances.closest.distance = math.huge
+    self.ad.distances.closestNotReverse.wayPoint = nil
+    self.ad.distances.closestNotReverse.distance = math.huge
 
     local x, _, z = getWorldTranslation(self.components[1].node)
 
@@ -602,6 +626,10 @@ function AutoDrive:updateWayPointsDistance()
         end
         if distance <= AutoDrive.drawDistance then
             table.insert(self.ad.distances.wayPoints, {distance = distance, wayPoint = wp})
+        end
+        if distance < self.ad.distances.closestNotReverse.distance and (wp.incoming == nil or #wp.incoming > 0) then
+            self.ad.distances.closestNotReverse.distance = distance
+            self.ad.distances.closestNotReverse.wayPoint = wp
         end
     end
 end
@@ -627,6 +655,17 @@ function AutoDrive:getClosestWayPoint()
     end
     return -1, math.huge
 end
+
+function AutoDrive:getClosestNotReversedWayPoint()
+    if self.ad.distances.closestNotReverse.wayPoint == -1 then
+        self:updateWayPointsDistance()
+    end
+    if self.ad.distances.closestNotReverse.wayPoint ~= nil then
+        return self.ad.distances.closestNotReverse.wayPoint.id, self.ad.distances.closestNotReverse.distance
+    end
+    return -1, math.huge
+end
+
 
 function AutoDrive:getWayPointsInRange(minDistance, maxDistance)
     if self.ad.distances.wayPoints == nil then
