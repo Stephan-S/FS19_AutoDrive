@@ -118,9 +118,9 @@ function ADDrivePathModule:update(dt)
             self:checkIfStuck(dt)
 
             if self:isCloseToWaypoint() then
-                local reverseNext = self:checkForReverseSection()
-                if reverseNext then
-                    --print("Toggled driving direction")
+                local reverseStart, _ = self:checkForReverseSection()
+                if reverseStart then
+                    --print("Toggled driving direction to reverse")
                     self.isReversing = not self.isReversing
                     self.vehicle.ad.specialDrivingModule:reset()
                     self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex() + 1
@@ -445,6 +445,14 @@ end
 function ADDrivePathModule:switchToNextWayPoint()
     self:setCurrentWayPointIndex(self:getNextWayPointIndex())
     self.minDistanceToNextWp = math.huge
+
+    local _, reverseEnd = self:checkForReverseSection()
+    if reverseEnd then
+        --print("Toggled driving direction to forwards")
+        self.isReversing = not self.isReversing
+        self.vehicle.ad.specialDrivingModule:reset()
+        self.vehicle.ad.specialDrivingModule.currentWayPointIndex = self:getCurrentWayPointIndex()
+    end
 end
 
 function ADDrivePathModule:getLookAheadTarget()
@@ -561,18 +569,25 @@ function ADDrivePathModule:handleBeingStuck()
 end
 
 function ADDrivePathModule:checkForReverseSection()
+    local reverseStart = false
+    local reverseEnd = false
     if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() and self:getCurrentWayPointIndex() > 3 then
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
         local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
         local isReverseStart = wp_ahead.incoming ~= nil and (not table.contains(wp_ahead.incoming, wp_current.id))
+        local isReverseEnd = wp_ahead.incoming ~= nil and wp_current.incoming ~= nil and table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
-        angle = math.abs(angle)
+        
+        angle = math.abs(angle)        
         if angle > 100 and isReverseStart then
-            return true
+            reverseStart = true
+        end
+        if angle > 100 and isReverseEnd then
+            reverseEnd = true
         end
     end
 
-    return false
+    return reverseStart, reverseEnd
 end
