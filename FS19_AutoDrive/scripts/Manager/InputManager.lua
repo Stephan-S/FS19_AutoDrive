@@ -288,6 +288,7 @@ function ADInputManager:input_nextTarget(vehicle)
             currentTarget = 1
         end
         vehicle.ad.stateModule:setFirstMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -300,6 +301,7 @@ function ADInputManager:input_previousTarget(vehicle)
             currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setFirstMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -312,6 +314,7 @@ function ADInputManager:input_nextTarget_Unload(vehicle)
             currentTarget = 1
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -324,6 +327,7 @@ function ADInputManager:input_previousTarget_Unload(vehicle)
             currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -348,6 +352,7 @@ end
 function ADInputManager:input_parkVehicle(vehicle)
     if vehicle.ad.stateModule:hasParkDestination() then
         vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getParkDestination())
+        vehicle.ad.stateModule:removeCPCallback()
         if vehicle.ad.stateModule:isActive() then
             self:input_start_stop(vehicle) --disable if already active
         end
@@ -363,6 +368,7 @@ function ADInputManager:input_swapTargets(vehicle)
     local currentFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
     vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
     vehicle.ad.stateModule:setSecondMarker(currentFirstMarker)
+    vehicle.ad.stateModule:removeCPCallback()
 end
 
 function ADInputManager:input_startCp(vehicle)
