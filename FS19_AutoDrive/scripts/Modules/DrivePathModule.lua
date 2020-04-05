@@ -154,7 +154,7 @@ function ADDrivePathModule:isCloseToWaypoint()
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
             local distanceToCurrentWp = MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i].z)
-            if distanceToCurrentWp < self.min_distance and i == 0 then
+            if distanceToCurrentWp < self.min_distance then --and i == 0
                 return true
             end
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
@@ -580,7 +580,7 @@ function ADDrivePathModule:checkForReverseSection()
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
         
-        angle = math.abs(angle)        
+        angle = math.abs(angle)
         if angle > 100 and isReverseStart then
             reverseStart = true
         end
