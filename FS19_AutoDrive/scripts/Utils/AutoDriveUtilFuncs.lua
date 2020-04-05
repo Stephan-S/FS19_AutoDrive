@@ -9,7 +9,7 @@ end
 function AutoDrive.createWayPointRelativeToNode(node, offsetX, offsetZ)
     local wayPoint = {}
     wayPoint.x, wayPoint.y, wayPoint.z = localToWorld(node, offsetX, 0, offsetZ)
-    return wayPointend
+    return wayPoint
 end
 
 function AutoDrive.isTrailerInCrop(vehicle)
