@@ -520,7 +520,7 @@ function ADPullDownList:hit(posX, posY, layer)
 end
 
 function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
-    if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
+    if (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) and (self.type ~= ADPullDownList.TYPE_UNLOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD) then
         local hitElement, hitIndex, hitIcon = self:getElementAt(vehicle, posX, posY)
         if button == 1 and isUp then
             if vehicle.ad.stateModule:isEditorModeEnabled() and self.state == ADPullDownList.STATE_EXPANDED and AutoDrive.getSetting("useFolders") and self.dragged ~= nil and self.startedDraggingTimer > 200 and self.type ~= ADPullDownList.TYPE_FILLTYPE then

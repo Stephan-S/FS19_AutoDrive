@@ -363,7 +363,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
         refVector = {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z}
     end
     
-    print("MaxAngle: " .. maxAngle)
+    --print("MaxAngle: " .. maxAngle)
     return maxAngle
 end
 
