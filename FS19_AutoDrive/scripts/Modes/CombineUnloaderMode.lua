@@ -283,16 +283,25 @@ function CombineUnloaderMode:getPipeRoot()
             -- KNOWN ISSUE: The Panther 2 beet harvester triggers this condition
             return combineNode
         end
-        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeRoot - Build Stack " .. pipeRoot .. " " .. self:getNodeName(combineNode))
         count = count + 1
     end
 
     local translationMagnitude = 0
-    while (translationMagnitude < 0.01 and parentStack:Count() > 0) do
+    local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
+    -- Pop the first thing off the stack. This should refer to a large chunk of the harvester and it useless
+    -- for our purposes.
+    -- Another clue: The index path of our root should include a '|' character. Don't know what that means
+    -- programtically yet.
+    -- parentStack:Get()
+    while ((translationMagnitude < 0.01) or 
+            ((pipeRootY < 0) or (math.abs(pipeRootX) > self.combine.sizeLength/2) or (math.abs(pipeRootY) > self.combine.sizeWidth/2)) or
+            (AutoDrive.sign(pipeRootX) ~= self:getPipeSide()) and
+            parentStack:Count() > 0) do
         pipeRoot = parentStack:Get()
-        local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
+        pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
+
         translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
-        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(combineNode) .. " " .. translationMagnitude)
+        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot) .. " " .. translationMagnitude)
     end
 
     return pipeRoot
