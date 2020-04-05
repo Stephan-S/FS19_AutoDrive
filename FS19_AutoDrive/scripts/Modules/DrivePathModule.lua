@@ -429,7 +429,7 @@ function ADDrivePathModule:getSpeedLimitBySteeringAngle()
         end
     end
 
-    if steeringAngle > maxAngle * 0.85 then
+    if steeringAngle > maxAngle * 0.95 then
         maxSpeed = 10
     end
     return maxSpeed
