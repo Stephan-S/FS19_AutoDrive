@@ -289,6 +289,7 @@ function CombineUnloaderMode:getPipeRoot()
     local translationMagnitude = 0
     -- Pop the first thing off the stack. This should refer to a large chunk of the harvester and it useless
     -- for our purposes.
+    --parentStack:Get()
     pipeRoot = parentStack:Get()
     local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
     local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
@@ -297,7 +298,8 @@ function CombineUnloaderMode:getPipeRoot()
     AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
     AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
     while ((translationMagnitude < 0.01) or 
-            (pipeRootAgl < 0.1) and -- This may be a poor assumption
+            (not self.combine:getIsBufferCombine() and AutoDrive.sign(pipeRootX) ~= self:getPipeSide()) or
+            (pipeRootY < 0) and -- This may be a poor assumption. Depends on where the "moving parts" node is translated to, and it's inconsistent.
             parentStack:Count() > 0) do
         pipeRoot = parentStack:Get()
         pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
