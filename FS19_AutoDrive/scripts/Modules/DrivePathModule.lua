@@ -235,7 +235,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
         --print("Speed: " .. (self.vehicle.lastSpeedReal * 3600) .. "/" .. self.speedLimit .. " acc: " .. self.acceleration .. " maxSpeedDiff: " .. maxSpeedDiff)
         --print("LAD: " .. self.distanceToLookAhead .. " maxAngle: " .. self.maxAngle .. " maxAngleSpeed: " .. self.maxAngleSpeed)
-        ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
+        --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
         if self.vehicle.spec_motorized == nil or self.vehicle.spec_motorized.isMotorStarted then
             AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
         end
@@ -331,17 +331,17 @@ end
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
-    if angle < 10 then
+    if angle < 3 then
         maxSpeed = math.huge
-    elseif angle < 15 then
+    elseif angle < 5 then
         maxSpeed = 38
-    elseif angle < 20 then
+    elseif angle < 8 then
         maxSpeed = 27
-    elseif angle < 25 then
+    elseif angle < 12 then
         maxSpeed = 20
-    elseif angle < 30 then
+    elseif angle < 20 then
         maxSpeed = 17
-    elseif angle < 35 then
+    elseif angle < 25 then
         maxSpeed = 16
     elseif angle < 100 then
         maxSpeed = 13
