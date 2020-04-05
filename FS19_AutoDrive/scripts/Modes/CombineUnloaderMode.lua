@@ -287,21 +287,27 @@ function CombineUnloaderMode:getPipeRoot()
     end
 
     local translationMagnitude = 0
-    local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
     -- Pop the first thing off the stack. This should refer to a large chunk of the harvester and it useless
     -- for our purposes.
-    -- Another clue: The index path of our root should include a '|' character. Don't know what that means
-    -- programtically yet.
-    -- parentStack:Get()
+    pipeRoot = parentStack:Get()
+    local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
+    local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
+    local heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
+    local pipeRootAgl = pipeRootWorldY - heightUnderRoot
+    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
+    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
     while ((translationMagnitude < 0.01) or 
-            ((pipeRootY < 0) or (math.abs(pipeRootX) > self.combine.sizeLength/2) or (math.abs(pipeRootY) > self.combine.sizeWidth/2)) or
-            (AutoDrive.sign(pipeRootX) ~= self:getPipeSide()) and
+            (pipeRootAgl < 0.1) and -- This may be a poor assumption
             parentStack:Count() > 0) do
         pipeRoot = parentStack:Get()
         pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
-
+        pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
+        heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
+        pipeRootAgl = pipeRootWorldY - heightUnderRoot
+        
         translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
-        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot) .. " " .. translationMagnitude)
+        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
+        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
     end
 
     return pipeRoot
