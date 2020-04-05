@@ -542,7 +542,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             for groupId,_ in pairs(vehicle.ad.groups) do
-                                vehicle.ad.groups[groupId] = not vehicle.ad.groups[groupId]
+                                vehicle.ad.groups[groupId] = false
                             end
                         end
                     end
@@ -562,7 +562,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                             end
                         else
                             for groupId,_ in pairs(vehicle.ad.groups) do
-                                vehicle.ad.groups[groupId] = not vehicle.ad.groups[groupId]
+                                vehicle.ad.groups[groupId] = false
                             end
                         end
                     end
