@@ -222,7 +222,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then
             -- If we are in fruit, we should clear it
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
-                nextTask = ClearCropTask:new(self.vehicle)
+                nextTask = ClearCropTask:new(self.vehicle, self.combine)
                 self.state = self.STATE_LEAVE_CROP
             else
                 self:setToWaitForCall()
@@ -244,17 +244,6 @@ function CombineUnloaderMode:shouldUnloadAtTrigger()
     return self.state == self.STATE_DRIVE_TO_UNLOAD
 end
 
-function CombineUnloaderMode:getDischargeNode()
-    local dischargeNode = nil
-    for _, dischargeNodeIter in pairs(self.combine.spec_dischargeable.dischargeNodes) do
-        dischargeNode = dischargeNodeIter
-    end
-    if self.combine.getPipeDischargeNodeIndex ~= nil then
-        dischargeNode = self.combine.spec_dischargeable.dischargeNodes[self.combine:getPipeDischargeNodeIndex()]
-    end
-    return dischargeNode.node
-end
-
 function CombineUnloaderMode:getNodeName(node)
     if node == 0 then
         return "nil"
@@ -267,85 +256,10 @@ function CombineUnloaderMode:getNodeName(node)
     return name
 end
 
-function CombineUnloaderMode:getPipeRoot()
-    local count = 0
-    local pipeRoot = self:getDischargeNode()
-    local parentStack = Buffer:new()
-    local combineNode = self.combine.components[1].node
-    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeRoot - Combine Node " .. combineNode .. " " .. self:getNodeName(combineNode))
-    
-    while (pipeRoot ~= combineNode) and (count < 100) and (pipeRoot ~= nil) do
-        parentStack:Insert(pipeRoot)
-        pipeRoot = getParent(pipeRoot)
-        if pipeRoot == 0 or pipeRoot == nil then
-            -- Something unexpected happened, like the discharge node not belonging to self.combine.
-            -- This can happen with harvesters with multiple components
-            -- KNOWN ISSUE: The Panther 2 beet harvester triggers this condition
-            return combineNode
-        end
-        count = count + 1
-    end
-
-    local translationMagnitude = 0
-    -- Pop the first thing off the stack. This should refer to a large chunk of the harvester and it useless
-    -- for our purposes.
-    --parentStack:Get()
-    pipeRoot = parentStack:Get()
-    local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
-    local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
-    local heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
-    local pipeRootAgl = pipeRootWorldY - heightUnderRoot
-    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
-    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
-    while ((translationMagnitude < 0.01) or 
-            (not self.combine:getIsBufferCombine() and AutoDrive.sign(pipeRootX) ~= self:getPipeSide()) or
-            (pipeRootY < 0) and -- This may be a poor assumption. Depends on where the "moving parts" node is translated to, and it's inconsistent.
-            parentStack:Count() > 0) do
-        pipeRoot = parentStack:Get()
-        pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
-        pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
-        heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
-        pipeRootAgl = pipeRootWorldY - heightUnderRoot
-        
-        translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
-        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
-        AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
-    end
-
-    return pipeRoot
-end
-
-function CombineUnloaderMode:getPipeRootZOffset()
-    local combineNode = self.combine.components[1].node
-    local pipeRoot = self:getPipeRoot()
-    local pipeRootX, pipeRootY, pipeRootZ = getWorldTranslation(pipeRoot)
-    local _, _, diffZ = worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
-    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeRootZOffset - " .. diffZ )
-    return diffZ
-end
-
-function CombineUnloaderMode:getPipeSide()
-    local combineNode = self.combine.components[1].node
-    local dischargeNode = self:getDischargeNode()
-    local dischargeX, dichargeY, dischargeZ = getWorldTranslation(dischargeNode)
-    local diffX, _, _ = worldToLocal(combineNode, dischargeX, dichargeY, dischargeZ)
-    return AutoDrive.sign(diffX)
-end
-
-function CombineUnloaderMode:getPipeLength()
-    local pipeRootX, _ , pipeRootZ = getWorldTranslation(self:getPipeRoot())
-    local dischargeX, dischargeY, dischargeZ = getWorldTranslation(self:getDischargeNode())
-    local length = MathUtil.vector3Length(pipeRootX - dischargeX, 
-                                          0, 
-                                          pipeRootZ - dischargeZ)
-    AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeLength - " .. length)
-    return length
-end
-
 function CombineUnloaderMode:getPipeSlopeCorrection()
     local combineNode = self.combine.components[1].node
     local combineX, combineY, combineZ = getWorldTranslation(combineNode)
-    local nodeX, nodeY, nodeZ = getWorldTranslation(self:getDischargeNode())
+    local nodeX, nodeY, nodeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
     local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, combineX, combineY, combineZ)
     local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeX, nodeY, nodeZ)
     -- want this to be negative if the ground is lower under the pipe
@@ -353,7 +267,7 @@ function CombineUnloaderMode:getPipeSlopeCorrection()
     local hyp = MathUtil.vector3Length(combineX - nodeX, heightUnderCombine - heightUnderPipe, combineZ - nodeZ)
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh/hyp)) - run
-    return elevationCorrection * self:getPipeSide()
+    return elevationCorrection * AutoDrive.getPipeSide(self.combine)
 end
 
 function CombineUnloaderMode:getTargetTrailer()
@@ -375,16 +289,6 @@ function CombineUnloaderMode:getTargetTrailer()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getTargetTrailer - " ..
     currentTrailer .. "/" .. trailerCount .. ":" .. trailerFillLevel .. "/" .. trailerLeftCapacity)
     return targetTrailer, fillRatio
-end
-
-function CombineUnloaderMode:isSugarcaneHarvester(combine)
-    local isSugarCaneHarvester = true
-    for _, implement in pairs(combine:getAttachedImplements()) do
-        if implement ~= nil and implement ~= combine and (implement.object == nil or implement.object ~= combine) then
-            isSugarCaneHarvester = false
-        end
-    end
-    return isSugarCaneHarvester
 end
 
 function CombineUnloaderMode:getPipeChasePosition()
@@ -412,15 +316,15 @@ function CombineUnloaderMode:getPipeChasePosition()
             rightBlocked = true
         elseif leftFrontBlocked and (not rightFrontBlocked) then
             leftBlocked = true
-        elseif not self:isSugarcaneHarvester(self.combine) then
+        elseif not AutoDrive.isSugarcaneHarvester(self.combine) then
             chaseNode = rearChasePos
             sideIndex = self.CHASEPOS_REAR
         end
     end
 
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
-    local dischargeNode = self:getDischargeNode()
-    local pipeSide = self:getPipeSide()
+    local dischargeNode = AutoDrive.getDischargeNode(self.combine)
+    local pipeSide = AutoDrive.getPipeSide(self.combine)
     -- Slope correction is a very fickle thing for buffer harvesters since you can't know
     -- whether the pipe will be on the same side as the chase.
     --local slopeCorrection = self:getPipeSlopeCorrection(self.combine.components[1].node, dischargeNode.node)
@@ -430,20 +334,21 @@ function CombineUnloaderMode:getPipeChasePosition()
     -- Using the implement width would be a better heuristic on X than the combine.
     --local sideChaseTermX = (self.combine.sizeWidth/2)*3 + pipeOffset
     --local sideChaseTermX = (self.combine.sizeWidth/2) + self:getPipeLength() + pipeOffset
-    local sideChaseTermX = math.max(targetTrailer.sizeWidth/2, self.vehicle.sizeWidth/2) + self:getPipeLength() + pipeOffset
+    local sideChaseTermX = math.max(targetTrailer.sizeWidth/2, self.vehicle.sizeWidth/2) + AutoDrive.getPipeLength(self.combine) + pipeOffset
     
     local trailerX, trailerY, trailerZ = getWorldTranslation(targetTrailer.components[1].node)
     local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, trailerX, trailerY, trailerZ)
     -- We gradually move the chose node forward as a function of fill level to more efftively fill
     -- buffer combines. We start ot at the front of the trailer +4 units. We use an exponential
     -- to increase dwell time towards the front of the trailer, since loads migrate towards the back.
-    local ZConstantAdditions = self:getPipeRootZOffset() + 2 
-    local sideChaseTermZ = -diffZ - (targetTrailer.sizeLength / 2) + ZConstantAdditions --+ (targetTrailer.sizeLength - 1 - ZConstantAdditions) ^ targetTrailerFillRatio
+    local _, _, pipeRootOffsetZ= AutoDrive.getPipeRootOffset(self.combine)
+    local ZConstantAdditions = pipeRootOffsetZ + 3 
+    local sideChaseTermZ = -diffZ - (targetTrailer.sizeLength / 2) + ZConstantAdditions + (targetTrailer.sizeLength - 1 - ZConstantAdditions) ^ targetTrailerFillRatio
     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition - " .. 
     --slopeCorrection .. " " .. AutoDrive.getSetting("pipeOffset", self.vehicle) .. " " .. pipeOffset .. " " .. sideChaseTermX*pipeSide ..
     --" " .. sideChaseTermZ)
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        if not CombineUnloaderMode:isSugarcaneHarvester(self.combine) then
+        if not AutoDrive.isSugarcaneHarvester(self.combine) then
             sideChaseTermZ = sideChaseTermZ - self.combine.sizeLength/2 - followDistance
         end
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:IsBufferCombine")
@@ -488,7 +393,9 @@ function CombineUnloaderMode:getPipeChasePosition()
             --end
         else
             sideIndex = self.CHASEPOS_REAR
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, -followDistance - (self.combine.sizeLength / 2) - AutoDrive.getTractorAndTrailersLength(self.vehicle, true))
+            -- We chase off to the side to avoid collisions
+            -- We chase a little further back to avoid eating dust
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX * pipeSide, -followDistance - self.combine.sizeLength/2 - self.vehicle.sizeLength)
         end
     end
 

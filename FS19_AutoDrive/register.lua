@@ -49,6 +49,7 @@ source(Utils.getFilename("scripts/Events/Graph/RoutesUploadEvent.lua", g_current
 
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/CombineUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/UtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
