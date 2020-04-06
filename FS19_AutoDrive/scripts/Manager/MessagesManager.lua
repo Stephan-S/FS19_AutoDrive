@@ -210,7 +210,7 @@ function ADMessagesManager:update(dt)
     end
 
     -- update cp offset
-    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.cp ~= nil and g_currentMission.controlledVehicle.cp.hud.show then
+    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.cp ~= nil and g_currentMission.controlledVehicle.cp.hud ~= nil and g_currentMission.controlledVehicle.cp.hud.show then
         self.huds.cpYOffset = g_courseplay.courseplay.hud.baseHeight * 0.9
     else
         self.huds.cpYOffset = 0
