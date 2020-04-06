@@ -132,7 +132,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
         --ADDrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
         local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
         AutoDrive.experimentalFeatures.smootherDriving = false
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 0.3)
         AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
     end
 end

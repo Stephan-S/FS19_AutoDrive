@@ -302,7 +302,7 @@ function ADDrivePathModule:getHighestApproachingAngle()
     if self:getCurrentWayPointIndex() + 2 >= #self.wayPoints then
         return 0
     end
-    --[[
+
     local baseDistance = MathUtil.vector2Length(self:getCurrentWayPoint().x - x, self:getCurrentWayPoint().z - z)
 
     local highestAngle = 0
@@ -329,13 +329,14 @@ function ADDrivePathModule:getHighestApproachingAngle()
         end
         currentLookAheadPoint = currentLookAheadPoint + 1
     end
-    --]]
+
+    return highestAngle
 
     --new function. Take the angle of the current ref node and then go through x-points until the distance (not geometric but pathwise) is bigger than y-
     -- 1.) Take the angle of the current ref node and then go through x-points until the distance (not geometric but pathwise) is bigger than y
     -- 2.) Increase ref node index
     -- 3.) Repeat until either index > ADDrivePathModule.MAXLOOKAHEADPOINTS or ref node distance (geometric) > distanceToLookAhead
-
+    --[[
     local refNodeIndex = self:getCurrentWayPointIndex()
     local lookAheadIndex = 1
     local wp_ref = self.wayPoints[refNodeIndex]
@@ -362,9 +363,9 @@ function ADDrivePathModule:getHighestApproachingAngle()
         wp_current = self.wayPoints[refNodeIndex + 1]
         refVector = {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z}
     end
-    
     --print("MaxAngle: " .. maxAngle)
     return maxAngle
+    --]]
 end
 
 function ADDrivePathModule:getDistanceBetweenWayPoints(indexStart, indexTarget)
@@ -377,6 +378,25 @@ function ADDrivePathModule:getDistanceBetweenWayPoints(indexStart, indexTarget)
     end
 
     return distance
+end
+
+function ADDrivePathModule:getApproachingHeightDiff()
+    local heightDiff = 0
+    local maxLookAhead = 10
+    local maxLookAheadDistance = 20
+    local lookAhead = 1
+    for i=1, maxLookAhead do
+        if self.wayPoints ~= nil and self:getCurrentWayPointIndex() ~= nil and self:getCurrentWayPoint() ~= nil and (self:getCurrentWayPointIndex() + lookAhead) <= #self.wayPoints then
+            local p1 = self.wayPoints[self:getCurrentWayPointIndex()]
+            local p2 = self.wayPoints[self:getCurrentWayPointIndex() + lookAhead]
+            local refNodeDistance = self:getDistanceBetweenWayPoints(self:getCurrentWayPointIndex(), self:getCurrentWayPointIndex() + lookAhead)
+            if refNodeDistance <= maxLookAheadDistance then
+                heightDiff = heightDiff + (p2.y - p1.y)
+            end
+            lookAhead = lookAhead + 1
+        end
+    end
+    return heightDiff
 end
 
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
@@ -398,17 +418,17 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     elseif angle < 100 then
         maxSpeed = 13
         --]]
-    elseif angle < 110 then
+    elseif angle < 45 then
         -- < 5 max
-        -- > 5 = 68
-        -- < 90 = 8
-        maxSpeed = 8 + 60 * (1 - math.max(0, (math.min(angle, 75) - 5)) / (90 - 5))
+        -- > 5 = 60
+        -- < 30 = 12
+        maxSpeed = 12 + 48 * (1 - math.clamp(0, (angle - 5), 25) / (30 - 5))
     --elseif angle < 100 then
         --maxSpeed = 8
-    elseif angle >= 110 then
+    elseif angle >= 45 then
         maxSpeed = 3
     end
-
+    
     self.maxAngle = angle
     self.maxAngleSpeed = maxSpeed * 1.0 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
 
