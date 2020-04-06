@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Zvýšit rychlost" />
 		<text name="input_AD_Speed_down"						text="AD: Snížit rychlost" />
 		<text name="input_AD_routes_manager" 					text="AD: Open routes manager" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Pokračovat" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Následující vykládka" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Předchozí vykládka" />
@@ -89,6 +90,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Hledá nejbližší řidiče (Ignoruje vzdálenost)" />
 		<text name="gui_ad_gui_scale"							text="Měřítko HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Při volbě DEFAULT se řídí nastavením hry" />
+		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Výjezd z pole" />
 		<text name="gui_ad_exitField_tooltip"					text="Způsob napojení na trasu při výjezdu z pole" />
 		<text name="gui_ad_default"								text="Default" />
@@ -189,6 +198,9 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+		
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+		<text name="button_delete_all" 							text="Delete All" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

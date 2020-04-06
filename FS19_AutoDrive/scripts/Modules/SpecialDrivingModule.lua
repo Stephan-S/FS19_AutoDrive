@@ -96,7 +96,10 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
     local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, -20)
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
 
+    local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
+    AutoDrive.experimentalFeatures.smootherDriving = false
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
+    AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDynamicCollision, maxAcc, maxSpeed)
@@ -127,7 +130,10 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
+        local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
+        AutoDrive.experimentalFeatures.smootherDriving = false
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 0.3)
+        AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
     end
 end
 

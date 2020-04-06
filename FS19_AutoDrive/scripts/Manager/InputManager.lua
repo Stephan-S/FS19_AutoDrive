@@ -31,7 +31,8 @@ ADInputManager.actionsToInputs = {
     ADCallDriver = "input_callDriver",
     ADGoToVehicle = "input_goToVehicle",
     ADIncLoopCounter = "input_incLoopCounter",
-    ADSwapTargets = "input_swapTargets"
+    ADSwapTargets = "input_swapTargets",
+    AD_open_notification_history = "input_openNotificationHistory"
 }
 
 ADInputManager.inputsToIds = {
@@ -99,6 +100,10 @@ function ADInputManager:onInputCall(vehicle, input, sendEvent)
 end
 
 -- Sender only events
+
+function ADInputManager:input_openNotificationHistory(vehicle)
+    AutoDrive.onOpenNotificationsHistory()
+end
 
 function ADInputManager:input_editMapMarker(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
