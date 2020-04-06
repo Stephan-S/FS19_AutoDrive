@@ -36,6 +36,13 @@ function AutoDriveRoutesUploadEvent:run(connection)
 		ADGraphManager:setMapMarkers(self.mapMarkers)
 		AutoDrive:notifyDestinationListeners()
 		ADGraphManager:setGroups(self.groups)
+
+		for _, vehicle in pairs(g_currentMission.vehicles) do
+			if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+				vehicle.ad.stateModule:resetMarkersOnReload()
+			end
+		end
+		AutoDrive.Hud.lastUIScale = 0
 	end
 end
 

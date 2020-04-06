@@ -22,11 +22,13 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 			local wp_ahead
 			local wp_ref
 			local isReverseStart = false
+			local isReverseEnd = false
 			if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 				wp_current = wayPoints[current]
 				wp_ahead = wayPoints[linked]
 				wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
 				isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+				isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 			end
 			if AutoDrive.setting_useFastestRoute == true then
 				if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
@@ -43,7 +45,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 					angle = 0
 				end
 			end
-			if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or not isReverseStart) then
+			if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
 				newdist = 10000000
 			end
 			newdist = newdist + distanceToAdd
@@ -68,11 +70,13 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 		local wp_ahead
 		local wp_ref
 		local isReverseStart = false
+		local isReverseEnd = false
 		if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 			wp_current = wayPoints[current]
 			wp_ahead = wayPoints[linked]
 			wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
 			isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+			isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 		end
 		if AutoDrive.setting_useFastestRoute == true then
 			if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
@@ -89,7 +93,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 				angle = 0
 			end
 		end
-		if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or not isReverseStart) then
+		if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
 			newdist = 10000000
 		end
 		newdist = newdist + distanceToAdd
@@ -193,11 +197,13 @@ function AutoDrive:dijkstraLive(start, target)
 								local wp_ahead
 								local wp_ref
 								local isReverseStart = false
+								local isReverseEnd = false
 								if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
 									wp_current = wayPoints[shortest_id]
 									wp_ahead = wayPoints[linkedNodeId]
 									wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[shortest_id]]
 									isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+									isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 								end
 								if AutoDrive.setting_useFastestRoute == true then
 									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
@@ -215,7 +221,7 @@ function AutoDrive:dijkstraLive(start, target)
 									end
 								end
 								local alternative = shortest + distanceToAdd
-								if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or not isReverseStart) then
+								if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
 									alternative = 10000000
 								end
 

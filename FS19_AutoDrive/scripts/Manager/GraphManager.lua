@@ -641,7 +641,7 @@ function ADGraphManager:findMatchingWayPointForVehicle(vehicle)
 	local bestPoint, distance = self:findMatchingWayPoint(point, vehicleVector, vehicle:getWayPointIdsInRange(1, 20))
 
 	if bestPoint == -1 then
-		return vehicle:getClosestWayPoint()
+		return vehicle:getClosestNotReversedWayPoint()
 	end
 
 	return bestPoint, distance
@@ -669,13 +669,13 @@ function ADGraphManager:findMatchingWayPoint(point, direction, candidates)
 				local angleToNextPoint = AutoDrive.angleBetween(direction, vecToNextPoint)
 				local angleToVehicle = AutoDrive.angleBetween(direction, vecToVehicle)
 				local dis = MathUtil.vector2Length(toCheck.x - point.x, toCheck.z - point.z)
-				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
+				if closest == -1 and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) and #toCheck.incoming > 0 then
 					closest = toCheck.id
 					distance = dis
 					lastAngleToPoint = angleToNextPoint
 					lastAngleToVehicle = angleToVehicle
 				else
-					if (math.abs(angleToNextPoint) + math.abs(angleToVehicle)) < (math.abs(lastAngleToPoint) + math.abs(lastAngleToVehicle)) and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
+					if #toCheck.incoming > 0 and (math.abs(angleToNextPoint) + math.abs(angleToVehicle)) < (math.abs(lastAngleToPoint) + math.abs(lastAngleToVehicle)) and (math.abs(angleToNextPoint) < 60 and math.abs(angleToVehicle) < 30) then
 						closest = toCheck.id
 						distance = dis
 						lastAngleToPoint = angleToNextPoint

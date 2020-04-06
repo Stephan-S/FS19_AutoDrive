@@ -158,6 +158,8 @@
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Logotipo predeterminado o logotipo personalizado: la selección se puede ampliar.." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. modo editor" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. modo editor para la manipulación de rutas en lugar de mantener presionada LCTRL" />
+		<text name="gui_ad_wideHUD"								text="Wide HUD" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />

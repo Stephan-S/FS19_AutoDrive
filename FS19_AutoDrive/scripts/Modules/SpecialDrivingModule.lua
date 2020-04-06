@@ -165,6 +165,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
             
             self:reverseToPoint(dt)
         end
+        self.unloadingIntoBunkerSilo = false
     end
 end
 
@@ -178,6 +179,7 @@ function ADSpecialDrivingModule:getBasicStates()
     self.vecToPoint = {x= self.reverseTarget.x - self.rNx, z=self.reverseTarget.z - self.rNz}
     self.angleToTrailer = AutoDrive.angleBetween({x = self.vehicleVecX, z = self.vehicleVecZ}, {x = self.trailerVecX, z = self.trailerVecZ})
     self.angleToPoint = AutoDrive.angleBetween({x = self.trailerRearVecX, z = self.trailerRearVecZ}, {x = self.vecToPoint.x, z = self.vecToPoint.z})
+    self.steeringAngle = math.deg(math.abs(self.vehicle.rotatedTime))
 
     if self.reverseSolo then
         self.angleToTrailer = -math.deg(self.vehicle.rotatedTime)
@@ -193,11 +195,17 @@ end
 
 function ADSpecialDrivingModule:checkWayPointReached()
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
-    local minDistance = 6
+    local minDistance = 9
+    local storedIndex = self.vehicle.ad.drivePathModule.currentWayPoint
+    self.vehicle.ad.drivePathModule.currentWayPoint = self.vehicle.ad.drivePathModule.currentWayPoint + 1
+    local reverseStart, reverseEnd = self.vehicle.ad.drivePathModule:checkForReverseSection()
+    self.vehicle.ad.drivePathModule.currentWayPoint = storedIndex
     if self.reverseSolo then
         minDistance = AutoDrive.defineMinDistanceByVehicleType(self.vehicle)
-    elseif self.currentWayPointIndex == #self.wayPoints then
-        minDistance = 4
+    elseif self.currentWayPointIndex == #self.wayPoints then 
+        minDistance = 4.5
+    elseif reverseEnd then
+        minDistance = 3
     end
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
         self.vehicle.ad.drivePathModule:handleReachedWayPoint()
@@ -251,7 +259,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     --print("p: " .. p * self.pFactor .. " i: " .. (self.i * self.iFactor) .. " d: " .. (d * self.dFactor))
     --print("targetAngleToTrailer: " .. targetAngleToTrailer .. " targetDiff: " .. targetDiff .. "  offsetX" .. offsetX)
     
-    local speed = 5 + (6 * math.clamp(0, (5/math.abs(self.angleToTrailer)), 1))
+    local speed = 5 + (6 * math.clamp(0, (5/math.max(self.steeringAngle, math.abs(self.angleToTrailer))), 1))
     local acc = 0.4
 
     local node = self.vehicle:getAIVehicleDirectionNode()
@@ -268,7 +276,10 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
         lx = -lx
         lz = -lz
     end
+    local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
+    AutoDrive.experimentalFeatures.smootherDriving = false
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, lx, lz, speed, 1)
+    AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
 
     self.lastAngleToPoint = self.angleToPoint
 end

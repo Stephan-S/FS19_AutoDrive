@@ -29,6 +29,7 @@ function ADPullDownList:initReusableOverlaysOnlyOnce()
     ADPullDownList.ovMinus = overlayReuseOrNew(ADPullDownList.ovMinus, self.imageMinus)
     ADPullDownList.ovPlus = overlayReuseOrNew(ADPullDownList.ovPlus, self.imagePlus)
     ADPullDownList.ovFilter = overlayReuseOrNew(ADPullDownList.ovFilter, self.imageFilter)
+    ADPullDownList.ovCollapseAll = overlayReuseOrNew(ADPullDownList.ovCollapseAll, self.imageCollapseAll)
 end
 
 function ADPullDownList:new(posX, posY, width, height, type, selected)
@@ -56,6 +57,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     o.imageBGStretch = AutoDrive.directory .. "textures/4xlongBorderStretchFilled.dds"
     o.imageExpand = AutoDrive.directory .. "textures/arrowExpand.dds"
     o.imageCollapse = AutoDrive.directory .. "textures/arrowCollapse.dds"
+    o.imageCollapseAll = AutoDrive.directory .. "textures/arrowCollapseAll.dds"
     o.imageUp = AutoDrive.directory .. "textures/arrowUp.dds"
     o.imageDown = AutoDrive.directory .. "textures/arrowDown.dds"
     o.imagePlus = AutoDrive.directory .. "textures/plusSign.dds"
@@ -188,12 +190,14 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                                 renderOverlay(ADPullDownList.ovMinus.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                             end
                         else
-                            renderOverlay(ADPullDownList.ovPlus.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
-                            renderOverlay(ADPullDownList.ovFilter.overlayId, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovCollapseAll.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovPlus.overlayId, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovFilter.overlayId, self.rightIconPos4.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                         end
                     else
                         if (listEntry.displayName == "All") then
-                            renderOverlay(ADPullDownList.ovFilter.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovCollapseAll.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovFilter.overlayId, self.rightIconPos3.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                         end
                     end
                 --else
@@ -516,7 +520,7 @@ function ADPullDownList:hit(posX, posY, layer)
 end
 
 function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
-    if self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
+    if (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) and (self.type ~= ADPullDownList.TYPE_UNLOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_UNLOAD) then
         local hitElement, hitIndex, hitIcon = self:getElementAt(vehicle, posX, posY)
         if button == 1 and isUp then
             if vehicle.ad.stateModule:isEditorModeEnabled() and self.state == ADPullDownList.STATE_EXPANDED and AutoDrive.getSetting("useFolders") and self.dragged ~= nil and self.startedDraggingTimer > 200 and self.type ~= ADPullDownList.TYPE_FILLTYPE then
@@ -537,18 +541,18 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                 elseif hitIcon ~= nil and hitIcon == 2 and (not vehicle.ad.stateModule:isEditorModeEnabled()) and self.state == ADPullDownList.STATE_EXPANDED then
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
+                            for groupId,_ in pairs(vehicle.ad.groups) do
+                                vehicle.ad.groups[groupId] = false
+                            end
+                        end
+                    end
+                elseif hitIcon ~= nil and hitIcon == 3 and (not vehicle.ad.stateModule:isEditorModeEnabled()) and self.state == ADPullDownList.STATE_EXPANDED then
+                    if hitElement.isFolder then
+                        if (hitElement.displayName == "All") then
                             --self:collapse(vehicle, true)
                             ADInputManager:onInputCall(vehicle, "input_setDestinationFilter")
                         end
                     end
-                --[[
-                elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.stateModule:isEditorModeEnabled() then
-                    if hitElement.isFolder then
-                        self:moveCurrentElementToFolder(vehicle, hitElement)
-                    --else
-                    --self:moveSelectedElementUp(vehicle, hitElement);
-                    end
-                --]]
                 elseif hitIcon ~= nil and hitIcon == 2 and vehicle.ad.stateModule:isEditorModeEnabled() and self.state == ADPullDownList.STATE_EXPANDED then
                     if hitElement.isFolder then
                         if (hitElement.displayName ~= "All") then
@@ -557,11 +561,19 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                                 ADGraphManager:removeGroup(hitElement.returnValue)
                             end
                         else
+                            for groupId,_ in pairs(vehicle.ad.groups) do
+                                vehicle.ad.groups[groupId] = false
+                            end
+                        end
+                    end
+                elseif hitIcon ~= nil and hitIcon == 3 and vehicle.ad.stateModule:isEditorModeEnabled() and self.state == ADPullDownList.STATE_EXPANDED then
+                    if hitElement.isFolder then
+                        if (hitElement.displayName == "All") then
                             self:collapse(vehicle, true)
                             AutoDrive.onOpenEnterGroupName()
                         end
                     end
-                elseif hitIcon ~= nil and hitIcon == 3 and vehicle.ad.stateModule:isEditorModeEnabled() and self.state == ADPullDownList.STATE_EXPANDED then
+                elseif hitIcon ~= nil and hitIcon == 4 and vehicle.ad.stateModule:isEditorModeEnabled() and self.state == ADPullDownList.STATE_EXPANDED then
                     if hitElement.isFolder then
                         if (hitElement.displayName == "All") then
                             ADInputManager:onInputCall(vehicle, "input_setDestinationFilter")

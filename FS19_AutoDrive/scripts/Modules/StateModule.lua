@@ -336,6 +336,7 @@ function ADStateModule:nextMode()
         self.mode = AutoDrive.MODE_DRIVETO
     end
     self:raiseDirtyFlag()
+    self:removeCPCallback()
 end
 
 function ADStateModule:previousMode()
@@ -345,6 +346,7 @@ function ADStateModule:previousMode()
         self.mode = AutoDrive.MODE_UNLOAD
     end
     self:raiseDirtyFlag()
+    self:removeCPCallback()
 end
 
 function ADStateModule:setMode(newMode)
@@ -746,5 +748,25 @@ function ADStateModule:setNextTargetInFolder()
 
         self:setSecondMarker(markerToSet)
         AutoDrive.Hud.lastUIScale = 0
+    end
+end
+
+function ADStateModule:removeCPCallback()
+    self.vehicle.ad.callBackFunction = nil
+    self.vehicle.ad.callBackObject = nil
+    self.vehicle.ad.callBackArg = nil
+end
+
+function ADStateModule:resetMarkersOnReload()
+    if self.firstMarker ~= nil and self.firstMarker.id ~= nil then
+        self.firstMarker = ADGraphManager:getMapMarkerById(self.firstMarker.id)
+    else
+        self.firstMarker = ADGraphManager:getMapMarkerById(1)
+    end
+
+    if self.secondMarker ~= nil and self.secondMarker.id ~= nil then
+        self.secondMarker = ADGraphManager:getMapMarkerById(self.secondMarker.id)
+    else
+        self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
 end
