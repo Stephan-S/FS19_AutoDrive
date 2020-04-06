@@ -1,6 +1,6 @@
 ADDrivePathModule = {}
 
-ADDrivePathModule.LOOKAHEADDISTANCE = 20
+ADDrivePathModule.LOOKAHEADDISTANCE = 12
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
@@ -154,7 +154,7 @@ function ADDrivePathModule:isCloseToWaypoint()
     for i = 0, maxSkipWayPoints do
         if self.wayPoints[self:getCurrentWayPointIndex() + i] ~= nil then
             local distanceToCurrentWp = MathUtil.vector2Length(x - self.wayPoints[self:getCurrentWayPointIndex() + i].x, z - self.wayPoints[self:getCurrentWayPointIndex() + i].z)
-            if distanceToCurrentWp < self.min_distance and i == 0 then
+            if distanceToCurrentWp < self.min_distance then --and i == 0
                 return true
             end
             -- Check if the angle between vehicle and current wp and current wp to next wp is over 90° - then we should already make the switch
@@ -287,9 +287,9 @@ end
 function ADDrivePathModule:getCurrentLookAheadDistance()
     local totalMass = self.vehicle:getTotalMass(false)
     local massFactor = math.max(1, math.min(3, (totalMass + 20) / 30))
-    local speedFactor = math.max(0.5, math.min(4, (((self.vehicle.lastSpeedReal * 3600) + 10) / 20.0)))
+    local speedFactor = math.max(0.25, math.min(4, (((self.vehicle.lastSpeedReal * 3600) + 10) / 20.0)))
     if speedFactor <= 1 then
-        massFactor = 1
+        massFactor = math.min(speedFactor, massFactor)
     end
     return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 100)
 end
@@ -298,6 +298,11 @@ function ADDrivePathModule:getHighestApproachingAngle()
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+
+    if self:getCurrentWayPointIndex() + 2 >= #self.wayPoints then
+        return 0
+    end
+    --[[
     local baseDistance = MathUtil.vector2Length(self:getCurrentWayPoint().x - x, self:getCurrentWayPoint().z - z)
 
     local highestAngle = 0
@@ -324,28 +329,83 @@ function ADDrivePathModule:getHighestApproachingAngle()
         end
         currentLookAheadPoint = currentLookAheadPoint + 1
     end
+    --]]
 
-    return highestAngle
+    --new function. Take the angle of the current ref node and then go through x-points until the distance (not geometric but pathwise) is bigger than y-
+    -- 1.) Take the angle of the current ref node and then go through x-points until the distance (not geometric but pathwise) is bigger than y
+    -- 2.) Increase ref node index
+    -- 3.) Repeat until either index > ADDrivePathModule.MAXLOOKAHEADPOINTS or ref node distance (geometric) > distanceToLookAhead
+
+    local refNodeIndex = self:getCurrentWayPointIndex()
+    local lookAheadIndex = 1
+    local wp_ref = self.wayPoints[refNodeIndex]
+    local refNodeDistance = MathUtil.vector2Length(wp_ref.x - x, wp_ref.z - z)
+    local wp_current = self.wayPoints[refNodeIndex + lookAheadIndex]
+    local wp_ahead = self.wayPoints[refNodeIndex + lookAheadIndex + 1]
+    local refVector = {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z}
+    local nextVector = {x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}
+    local maxAngle = math.abs(AutoDrive.angleBetween(nextVector, refVector))
+
+    while refNodeIndex < (self:getCurrentWayPointIndex() + self.MAXLOOKAHEADPOINTS) and refNodeDistance < self.distanceToLookAhead and (refNodeIndex + 1) < #self.wayPoints do
+        lookAheadIndex = 1
+        while self:getDistanceBetweenWayPoints(refNodeIndex, refNodeIndex + lookAheadIndex) < 15 and (refNodeIndex + lookAheadIndex + 1) < #self.wayPoints do
+            wp_current = self.wayPoints[refNodeIndex + lookAheadIndex]
+            wp_ahead = self.wayPoints[refNodeIndex + lookAheadIndex + 1]
+            nextVector = {x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}
+            maxAngle = math.max(maxAngle, math.abs(AutoDrive.angleBetween(nextVector, refVector)))
+            
+            lookAheadIndex = lookAheadIndex + 1
+        end
+        refNodeIndex = refNodeIndex + 1
+        wp_ref = self.wayPoints[refNodeIndex]
+        refNodeDistance = self:getDistanceBetweenWayPoints(self:getCurrentWayPointIndex(), refNodeIndex)
+        wp_current = self.wayPoints[refNodeIndex + 1]
+        refVector = {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z}
+    end
+    
+    --print("MaxAngle: " .. maxAngle)
+    return maxAngle
+end
+
+function ADDrivePathModule:getDistanceBetweenWayPoints(indexStart, indexTarget)
+    local distance = 0
+    while indexStart < indexTarget do
+        local wpStart = self.wayPoints[indexStart]
+        local wpNext = self.wayPoints[indexStart+1]
+        distance = distance + MathUtil.vector2Length(wpStart.x - wpNext.x, wpStart.z - wpNext.z)
+        indexStart = indexStart + 1
+    end
+
+    return distance
 end
 
 function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
-    if angle < 10 then
+    if angle < 5 then
         maxSpeed = math.huge
-    elseif angle < 15 then
+    --[[
+    elseif angle < 5 then
         maxSpeed = 38
-    elseif angle < 20 then
+    elseif angle < 8 then
         maxSpeed = 27
-    elseif angle < 25 then
+    elseif angle < 12 then
         maxSpeed = 20
-    elseif angle < 30 then
+    elseif angle < 20 then
         maxSpeed = 17
-    elseif angle < 35 then
+    elseif angle < 25 then
         maxSpeed = 16
     elseif angle < 100 then
         maxSpeed = 13
-    elseif angle >= 100 then
+        --]]
+    elseif angle < 110 then
+        -- < 5 max
+        -- > 5 = 68
+        -- < 90 = 8
+        maxSpeed = 8 + 60 * (1 - math.max(0, (math.min(angle, 75) - 5)) / (90 - 5))
+    --elseif angle < 100 then
+        --maxSpeed = 8
+    elseif angle >= 110 then
         maxSpeed = 3
     end
 
@@ -369,7 +429,7 @@ function ADDrivePathModule:getSpeedLimitBySteeringAngle()
         end
     end
 
-    if steeringAngle > maxAngle * 0.85 then
+    if steeringAngle > maxAngle * 0.95 then
         maxSpeed = 10
     end
     return maxSpeed
@@ -571,7 +631,7 @@ end
 function ADDrivePathModule:checkForReverseSection()
     local reverseStart = false
     local reverseEnd = false
-    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() and self:getCurrentWayPointIndex() > 3 then
+    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
         local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
@@ -580,7 +640,7 @@ function ADDrivePathModule:checkForReverseSection()
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
         
-        angle = math.abs(angle)        
+        angle = math.abs(angle)
         if angle > 100 and isReverseStart then
             reverseStart = true
         end

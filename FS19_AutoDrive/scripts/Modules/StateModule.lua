@@ -353,7 +353,6 @@ function ADStateModule:setMode(newMode)
     if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_UNLOAD and newMode ~= self.mode then
         self.mode = newMode
         self:raiseDirtyFlag()
-        self:removeCPCallback()
     end
 end
 
@@ -500,7 +499,6 @@ end
 function ADStateModule:setFirstMarker(markerId)
     self.firstMarker = ADGraphManager:getMapMarkerById(markerId)
     self:raiseDirtyFlag()
-    self:removeCPCallback()
 end
 
 function ADStateModule:setFirstMarkerByWayPointId(wayPointId)
@@ -552,7 +550,6 @@ end
 function ADStateModule:setSecondMarker(markerId)
     self.secondMarker = ADGraphManager:getMapMarkerById(markerId)
     self:raiseDirtyFlag()
-    self:removeCPCallback()
 end
 
 function ADStateModule:setSecondMarkerByWayPointId(wayPointId)

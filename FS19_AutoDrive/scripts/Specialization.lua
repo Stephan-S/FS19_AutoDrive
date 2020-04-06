@@ -541,14 +541,12 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:abortAllTasks()
             self.ad.taskModule:reset()
 
-            AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks)
+            AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks or (not self.ad.isStoppingWithError and (g_courseplay ~= nil and self.ad.stateModule:getStartCp())))
 
             if not hasCallbacks and not self.ad.isStoppingWithError then
                 if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
                     self.ad.stateModule:setStartCp(false)
-                    if not self.ad.isStoppingWithError then
-                        g_courseplay.courseplay:startStop(self)
-                    end
+                    g_courseplay.courseplay:startStop(self)
                 end
             end
         end
