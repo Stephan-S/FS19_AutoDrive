@@ -70,7 +70,7 @@ function ExitFieldTask:startPathPlanning()
             local vecToNextPoint = {x = wayPoints[2].x - closestNode.x, z = wayPoints[2].z - closestNode.z}
             self.vehicle.ad.pathFinderModule:startPathPlanningTo(closestNode, vecToNextPoint)
         else
-            AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
+            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
             self.vehicle.ad.taskModule:abortAllTasks()
             self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
         end
@@ -85,7 +85,7 @@ function ExitFieldTask:startPathPlanning()
             end
             self.vehicle.ad.pathFinderModule:startPathPlanningTo(targetNode, vecToNextPoint)
         else
-            AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
+            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
             self.vehicle.ad.taskModule:abortAllTasks()
             self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
         end

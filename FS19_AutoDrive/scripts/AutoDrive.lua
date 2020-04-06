@@ -70,7 +70,8 @@ AutoDrive.actions = {
 	{"ADGoToVehicle", false, 3},
 	{"ADNameDriver", false, 0},
 	{"ADRenameMapMarker", false, 0},
-	{"ADSwapTargets", false, 0}
+	{"ADSwapTargets", false, 0},
+	{"AD_open_notification_history", false, 0}
 }
 
 function AutoDrive:loadMap(name)

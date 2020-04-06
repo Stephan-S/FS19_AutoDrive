@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Geschwindigkeit erhöhen" />
 		<text name="input_AD_Speed_down"						text="AD: Geschwindigkeit verringern" />
 		<text name="input_AD_routes_manager"					text="AD: Open routes manager" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Weiterfahren" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Nächster Abladepunkt" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Voriger Abladepunkt" />
@@ -89,6 +90,8 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)" />
 		<text name="gui_ad_gui_scale"							text="GUI Skalierung des AutoDrive HUDs" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Auf Standard (Default) lassen um die spielinterne Skalierungseinstellung zu nutzen" />
+		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Feldausfahrt" />
 		<text name="gui_ad_exitField_tooltip"					text="Feldausfahrt Strategie nach Abladen - Start, kurz hinter Startpunkt, Nähester Punkt" />
 		<text name="gui_ad_default"								text="Standard" />
@@ -187,6 +190,9 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Externe Schnittstelle" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Alles" />
+		
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+		<text name="button_delete_all" 							text="Delete All" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

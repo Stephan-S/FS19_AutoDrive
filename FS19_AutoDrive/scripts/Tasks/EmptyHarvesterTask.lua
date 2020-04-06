@@ -39,7 +39,7 @@ function EmptyHarvesterTask:update(dt)
                 if self.vehicle.ad.pathFinderModule:isTargetBlocked() then
                     self:finished(ADTaskModule.DONT_PROPAGATE)
                     self.vehicle:stopAutoDrive()
-                    AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
+                    AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
                 else
                     self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
                     self.vehicle.ad.pathFinderModule:addDelayTimer(10000)

@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Aumentar velocidad" />
 		<text name="input_AD_Speed_down"						text="AD: Disminuir velocidad" />
 		<text name="input_AD_routes_manager" 					text="AD: Open routes manager" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Continuar" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Seleccionar Siguiente Descarga" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Seleccione Descarga previa" />
@@ -89,6 +90,8 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Buscar conductores cerca (Ignorar destino)" />
 		<text name="gui_ad_gui_scale"							text="Escala del gui para AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Dejar la escala por defecto de la configuración del juego" />
+		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Ruta de salida del campo" />
 		<text name="gui_ad_exitField_tooltip"					text="Estrategia de la ruta de salida del campo cuando vaya a descargar" />
 		<text name="gui_ad_default"								text="Por defecto" />
@@ -187,6 +190,9 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfaz externa" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Todo" />
+		
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+		<text name="button_delete_all" 							text="Delete All" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

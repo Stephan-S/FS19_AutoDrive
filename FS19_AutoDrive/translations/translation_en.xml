@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Increase Speed" />
 		<text name="input_AD_Speed_down"						text="AD: Decrease Speed" />
 		<text name="input_AD_routes_manager" 					text="AD: Open routes manager" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Continue" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Select Next Unload" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Select Previous Unload" />
@@ -89,6 +90,8 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Search for close by drivers (Ignore destination)" />
 		<text name="gui_ad_gui_scale"							text="Gui scale for AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Leave default to use in game scaling settings" />
+		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Field exit" />
 		<text name="gui_ad_exitField_tooltip"					text="Field exit strategy for unloader" />
 		<text name="gui_ad_default"								text="Default" />
@@ -191,6 +194,9 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+		<text name="button_delete_all" 							text="Delete All" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

@@ -127,6 +127,7 @@ Changelog 1.1.0.0:
 		<action name="ADIncLoopCounter" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADRenameMapMarker" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSwapTargets" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
 	</actions>
 
 	<inputBinding>
@@ -184,10 +185,13 @@ Changelog 1.1.0.0:
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 BUTTON_3" axisComponent="+" neutralInput="0" index="1" />
 		</actionBinding>
 		<actionBinding action="AD_routes_manager">
-			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_lctrl KEY_KP_1" axisComponent="+" neutralInput="0" index="1" />
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_KP_1" axisComponent="+" neutralInput="0" index="1" />
 		</actionBinding>
 		<actionBinding action="ADSilomode">
 			<binding device="0_XINPUT_GAMEPAD" input="BUTTON_5 BUTTON_6 AXIS_4+" axisComponent="+" neutralInput="0" index="1" />
+		</actionBinding>
+		<actionBinding action="AD_open_notification_history">
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_m" axisComponent="+" neutralInput="0" index="1" />
 		</actionBinding>
 	</inputBinding>
 </modDesc>
