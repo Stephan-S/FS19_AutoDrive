@@ -15,7 +15,7 @@ function AutoDrive.loadStoredXML()
 
 		local versionString = getXMLString(AutoDrive.adXml, "AutoDrive.version")
 		if versionString ~= nil then
-			AutoDrive.savedVersion = AutoDrive.semanticVersionToValue(versionString)			
+			AutoDrive.savedVersion = AutoDrive.semanticVersionToValue(versionString)
 
 			if AutoDrive.savedVersion < AutoDrive.currentVersion then
 				AutoDrive.versionUpdate = true
@@ -94,7 +94,7 @@ function AutoDrive.readFromXML(xmlFile)
 	AutoDrive.showingHud = getXMLBool(xmlFile, "AutoDrive.HudShow")
 
 	AutoDrive.currentDebugChannelMask = getXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask") or 0
-	
+
 	if not AutoDrive.versionUpdateCancelsSettingsLoad then
 		for settingName, _ in pairs(AutoDrive.settings) do
 			local value = getXMLFloat(xmlFile, "AutoDrive." .. settingName)
@@ -318,7 +318,8 @@ function AutoDrive.loadUsersData()
 					AutoDrive.usersData[uniqueId].hudX = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudX"), 0.5)
 					AutoDrive.usersData[uniqueId].hudY = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudY"), 0.5)
 					AutoDrive.usersData[uniqueId].guiScale = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#guiScale"), AutoDrive.settings.guiScale.default)
-					AutoDrive.usersData[uniqueId].wideHUD = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#wideHUD"), AutoDrive.getSetting("wideHUD"))
+					AutoDrive.usersData[uniqueId].wideHUD = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#wideHUD"), AutoDrive.settings.wideHUD.default)
+					AutoDrive.usersData[uniqueId].notifications = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#notifications"), AutoDrive.settings.notifications.default)
 				end
 				uIndex = uIndex + 1
 			end
@@ -337,7 +338,8 @@ function AutoDrive.saveUsersData()
 		setXMLFloat(xmlFile, uKey .. "#hudX", userData.hudX)
 		setXMLFloat(xmlFile, uKey .. "#hudY", userData.hudY)
 		setXMLInt(xmlFile, uKey .. "#guiScale", userData.guiScale)
-		setXMLBool(xmlFile, uKey .. "#wideHUD", userData.wideHUD)
+		setXMLInt(xmlFile, uKey .. "#wideHUD", userData.wideHUD)
+		setXMLInt(xmlFile, uKey .. "#notifications", userData.notifications)
 		uIndex = uIndex + 1
 	end
 	saveXMLFile(xmlFile)

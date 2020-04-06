@@ -783,7 +783,8 @@ AutoDrive.settings.secondEditorModeAllowed = {
     text = "gui_ad_secondEditorModeAllowed",
     tooltip = "gui_ad_secondEditorModeAllowed_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isSynchronized = false
 }
 
 AutoDrive.settings.wideHUD = {
