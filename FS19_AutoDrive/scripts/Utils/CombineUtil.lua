@@ -1,3 +1,7 @@
+AutoDrive.CHASEPOS_LEFT = 1
+AutoDrive.CHASEPOS_RIGHT = -1
+AutoDrive.CHASEPOS_REAR = 3
+
 function AutoDrive.getDischargeNode(combine)
     local dischargeNode = nil
     for _, dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
@@ -86,9 +90,11 @@ end
 
 function AutoDrive.isSugarcaneHarvester(combine)
     local isSugarCaneHarvester = true
-    for _, implement in pairs(combine:getAttachedImplements()) do
-        if implement ~= nil and implement ~= combine and (implement.object == nil or implement.object ~= combine) then
-            isSugarCaneHarvester = false
+    if combine.getAttachedImplements ~= nil then
+        for _, implement in pairs(combine:getAttachedImplements()) do
+            if implement ~= nil and implement ~= combine and (implement.object == nil or implement.object ~= combine) then
+                isSugarCaneHarvester = false
+            end
         end
     end
     return isSugarCaneHarvester
