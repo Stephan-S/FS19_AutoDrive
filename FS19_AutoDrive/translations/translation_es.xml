@@ -91,6 +91,12 @@
 		<text name="gui_ad_gui_scale"							text="Escala del gui para AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Dejar la escala por defecto de la configuración del juego" />
 		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
 		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Ruta de salida del campo" />
 		<text name="gui_ad_exitField_tooltip"					text="Estrategia de la ruta de salida del campo cuando vaya a descargar" />

@@ -385,13 +385,13 @@ AutoDrive.settings.guiScale = {
 }
 
 AutoDrive.settings.notifications = {
-    values = {0, 0.5, 1, 1.5, 2, 3, 5, math.huge},
-    texts = {"Disabled", "50%", "Default", "150%", "200%", "300%", "500%", "Endless"},
+    values = {0, 0.5, 1, 2, 5, math.huge},
+    texts = {"gui_ad_notifications_text_1", "gui_ad_notifications_text_2", "gui_ad_notifications_text_3", "gui_ad_notifications_text_4", "gui_ad_notifications_text_5", "gui_ad_notifications_text_6"},
     default = 3,
     current = 3,
     text = "gui_ad_notifications",
     tooltip = "gui_ad_notifications_tooltip",
-    translate = false,
+    translate = true,
     isVehicleSpecific = false,
     isSynchronized = false
 }

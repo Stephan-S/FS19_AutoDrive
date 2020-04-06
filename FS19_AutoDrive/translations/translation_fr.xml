@@ -91,6 +91,12 @@
 		<text name="gui_ad_gui_scale"							text="Taille du HUD AutoDrive" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu." />
 		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
 		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Sortie de champ" />
 		<text name="gui_ad_exitField_tooltip"					text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche." />

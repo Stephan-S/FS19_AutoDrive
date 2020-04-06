@@ -91,6 +91,12 @@
 		<text name="gui_ad_gui_scale"							text="Масштаб HUD AutoDrive " />
 		<text name="gui_ad_gui_scale_tooltip"					text="Оставьте значение по умолчанию и будут использования настройки масштаба в игре." />
 		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
 		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Выезд с поля" />
 		<text name="gui_ad_exitField_tooltip"					text="Способ выезда с поля при разгрузке." />

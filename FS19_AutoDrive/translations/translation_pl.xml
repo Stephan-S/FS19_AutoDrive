@@ -91,6 +91,12 @@
 		<text name="gui_ad_gui_scale"							text="Skalowanie interfejsu AutoDrive" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Ustaw na Domyślny, aby użyć ustawienia skalowania gry" />
 		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
 		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Wyjazd z pola" />
 		<text name="gui_ad_exitField_tooltip"					text="Strategia wyjazdu z pola do rozładunku" />
