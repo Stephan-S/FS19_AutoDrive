@@ -2,6 +2,8 @@ ClearCropTask = ADInheritsFrom(AbstractTask)
 
 ClearCropTask.TARGET_DISTANCE_SIDE = 10
 ClearCropTask.TARGET_DISTANCE_FRONT_STEP = 10
+ClearCropTask.STATE_CLEARING = 1
+ClearCropTask.STATE_REVERSING = 2
 
 function ClearCropTask:new(vehicle, combine)
     local o = ClearCropTask:create()
@@ -9,6 +11,9 @@ function ClearCropTask:new(vehicle, combine)
     if combine ~= nil then
         o.combine = combine
     end
+    o.stuckTimer = AutoDriveTON:new()
+    o.state= ClearCropTask.STATE_CLEARING
+    o.reverseStartLocation = nil
     return o
 end
 
@@ -29,14 +34,32 @@ function ClearCropTask:setUp()
 end
 
 function ClearCropTask:update(dt)
-    -- Check if the driver and trailers have left the crop yet
-    if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
-        self:finished()
-    else
-        if self.vehicle.ad.drivePathModule:isTargetReached() then
+    if self.state == ClearCropTask.STATE_CLEARING then
+        -- Check if the driver and trailers have left the crop yet
+        if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
             self:finished()
         else
-            self.vehicle.ad.drivePathModule:update(dt)
+            if self.vehicle.ad.drivePathModule:isTargetReached() then
+                self:finished()
+            elseif self.stuckTimer:done() then
+                local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+                self.reverseStartLocation = {x = x, y = y, z = z}
+                self.state = ClearCropTask.STATE_REVERSING
+            else
+                self.stuckTimer:timer(true, 30000, dt)
+                self.vehicle.ad.drivePathModule:update(dt)
+            end
+        end
+    elseif self.state == ClearCropTask.STATE_REVERSING then
+        local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+        self.stuckTimer:timer(false)
+        local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
+        if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+            self:finished()
+        elseif distanceToReversStart > 10 then
+            self.state = ClearCropTask.STATE_CLEARING
+        else
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
         end
     end
 end
