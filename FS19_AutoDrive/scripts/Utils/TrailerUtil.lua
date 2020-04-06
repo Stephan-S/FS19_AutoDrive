@@ -366,7 +366,7 @@ function AutoDrive.setAugerPipeOpen(trailers, open)
     for _, trailer in pairs(trailers) do
         if trailer.spec_pipe ~= nil then
             if trailer.spec_pipe.currentState ~= targetState and trailer:getIsPipeStateChangeAllowed(targetState) then
-                trailer:setPipeState(targetState, true)
+                trailer:setPipeState(targetState, false)
             end
         end
     end
