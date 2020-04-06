@@ -58,7 +58,7 @@ function ADRecordingModule:start(dual)
         end
     end
     self.isRecording = true
-    self.isRecordingReverse = drivingReverse
+    self.isRecordingReverse = self.drivingReverse
 end
 
 function ADRecordingModule:stop()
