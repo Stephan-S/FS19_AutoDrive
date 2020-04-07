@@ -336,6 +336,7 @@ function ADStateModule:nextMode()
         self.mode = AutoDrive.MODE_DRIVETO
     end
     self:raiseDirtyFlag()
+    self:removeCPCallback()
 end
 
 function ADStateModule:previousMode()
@@ -345,6 +346,7 @@ function ADStateModule:previousMode()
         self.mode = AutoDrive.MODE_UNLOAD
     end
     self:raiseDirtyFlag()
+    self:removeCPCallback()
 end
 
 function ADStateModule:setMode(newMode)
@@ -397,6 +399,7 @@ function ADStateModule:cycleEditMode()
         self.editorMode = ADStateModule.EDITOR_EXTENDED
     elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or ((not AutoDrive.getSetting("secondEditorModeAllowed")) and self.editorMode == ADStateModule.EDITOR_ON) then
         self.editorMode = ADStateModule.EDITOR_OFF
+        self.vehicle.ad.selectedNodeId = nil
     end
     self:raiseDirtyFlag()
 end
@@ -717,9 +720,9 @@ end
 function ADStateModule:setNextTargetInFolder()
     local group = self.secondMarker.group
     if group ~= "All" then
-        local firstMarkerInGroup = nil
         local nextMarkerInGroup = nil
         local markerSeen = false
+        local firstMarkerInGroup = nil
         for markerID, marker in pairs(ADGraphManager:getMapMarkers()) do
             if marker.group == group then
                 if firstMarkerInGroup == nil then
@@ -745,5 +748,25 @@ function ADStateModule:setNextTargetInFolder()
 
         self:setSecondMarker(markerToSet)
         AutoDrive.Hud.lastUIScale = 0
+    end
+end
+
+function ADStateModule:removeCPCallback()
+    self.vehicle.ad.callBackFunction = nil
+    self.vehicle.ad.callBackObject = nil
+    self.vehicle.ad.callBackArg = nil
+end
+
+function ADStateModule:resetMarkersOnReload()
+    if self.firstMarker ~= nil and self.firstMarker.id ~= nil then
+        self.firstMarker = ADGraphManager:getMapMarkerById(self.firstMarker.id)
+    else
+        self.firstMarker = ADGraphManager:getMapMarkerById(1)
+    end
+
+    if self.secondMarker ~= nil and self.secondMarker.id ~= nil then
+        self.secondMarker = ADGraphManager:getMapMarkerById(self.secondMarker.id)
+    else
+        self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
 end

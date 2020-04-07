@@ -78,7 +78,7 @@ function LoadAtDestinationTask:update(dt)
             end
         else
             self.vehicle.ad.trailerModule:update(dt)
-            self.vehicle.ad.specialDrivingModule:releaseVehicle()
+            --self.vehicle.ad.specialDrivingModule:releaseVehicle()
             if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 self.vehicle.ad.specialDrivingModule:stopVehicle()
                 self.vehicle.ad.specialDrivingModule:update(dt)

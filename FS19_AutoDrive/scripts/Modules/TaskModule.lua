@@ -122,6 +122,7 @@ function ADTaskModule:onTaskChange()
     if self.lastTaskInfo ~= taskInfo then
         self:onTaskInfoChange(taskInfo)
     end
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function ADTaskModule:onTaskInfoChange(taskInfo)

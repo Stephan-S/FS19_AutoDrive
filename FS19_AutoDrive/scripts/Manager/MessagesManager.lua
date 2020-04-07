@@ -12,6 +12,8 @@ ADMessagesManager.notifications = {}
 ADMessagesManager.currentNotification = nil
 ADMessagesManager.currentNotificationTimer = 0
 
+ADMessagesManager.history = {}
+
 ADMessagesManager.lastNotificationVehicle = nil
 
 ADMessagesManager.huds = {}
@@ -19,7 +21,7 @@ ADMessagesManager.huds.message = {}
 ADMessagesManager.huds.message.text = ""
 ADMessagesManager.huds.message.textSize = 0.0135
 ADMessagesManager.huds.message.posX = 0.5
-ADMessagesManager.huds.message.posY = 0.08
+ADMessagesManager.huds.message.posY = 0.09
 ADMessagesManager.huds.message.headerOverlay = 0
 ADMessagesManager.huds.message.headerOverlayHeight = 0.01
 ADMessagesManager.huds.message.backgroundOverlay = 0
@@ -43,6 +45,8 @@ ADMessagesManager.huds.notification.goToOverlay = 0
 ADMessagesManager.huds.message.infoIconOverlay = 0
 ADMessagesManager.huds.message.errorIconOverlay = 0
 ADMessagesManager.huds.message.warnIconOverlay = 0
+
+ADMessagesManager.huds.cpYOffset = 0
 
 function ADMessagesManager:load()
     self.messages = Queue:new()
@@ -84,21 +88,80 @@ function ADMessagesManager:addErrorMessage(text, duration)
 end
 
 function ADMessagesManager:addMessage(messageType, text, duration)
-    self.messages:Enqueue({messageType = messageType, text = text, duration = duration})
+    local exists = false
+    if self.currentMessage ~= nil and self.currentMessage.messageType == messageType and self.currentMessage.text == text then
+        exists = true
+    end
+    exists =
+        exists or
+        table.f_contains(
+            self.messages:GetItems(),
+            function(i)
+                return i.messageType == messageType and i.text == text
+            end
+        )
+    if not exists then
+        self.messages:Enqueue({vehicle = g_currentMission.controlledVehicle, messageType = messageType, text = text, duration = duration})
+    end
 end
 
 function ADMessagesManager:addNotification(vehicle, messageType, text, duration)
-    self.notifications:Enqueue({vehicle = vehicle, messageType = messageType, text = text, duration = duration})
+    if g_currentMission.controlledVehicle == vehicle then
+        self:addMessage(messageType, text, duration)
+    else
+        local exists = false
+        if self.currentNotification ~= nil and self.currentNotification.messageType == messageType and self.currentNotification.text == text and self.currentNotification.vehicle == vehicle then
+            exists = true
+        end
+        exists =
+            exists or
+            table.f_contains(
+                self.notifications:GetItems(),
+                function(i)
+                    return i.messageType == messageType and i.text == text and i.vehicle == vehicle
+                end
+            )
+        if not exists then
+            self.notifications:Enqueue({vehicle = vehicle, messageType = messageType, text = text, duration = duration})
+        end
+    end
 end
 
 function ADMessagesManager:removeCurrentMessage()
+    self:addToHistory(self.currentMessage)
     self.currentMessage = nil
     self.currentMessageTimer = 0
 end
 
 function ADMessagesManager:removeCurrentNotification()
+    self:addToHistory(self.currentNotification)
     self.currentNotification = nil
     self.currentNotificationTimer = 0
+end
+
+function ADMessagesManager:addToHistory(item)
+    table.insert(self.history, 1, item)
+    if AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
+        AutoDrive.gui.ADNotificationsHistoryGui:refreshItems()
+    end
+end
+
+function ADMessagesManager:removeFromHistory(index)
+    table.remove(self.history, index)
+    if AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
+        AutoDrive.gui.ADNotificationsHistoryGui:refreshItems()
+    end
+end
+
+function ADMessagesManager:clearHistory()
+    self.history = {}
+    if AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
+        AutoDrive.gui.ADNotificationsHistoryGui:refreshItems()
+    end
+end
+
+function ADMessagesManager:getHistory()
+    return self.history
 end
 
 function ADMessagesManager:update(dt)
@@ -106,7 +169,13 @@ function ADMessagesManager:update(dt)
     if self.currentMessage == nil then
         self.currentMessage = self.messages:Dequeue()
         if self.currentMessage ~= nil then
-            self:updateHud(self.huds.message, self.currentMessage.text, self.currentMessage.messageType)
+            local nd = AutoDrive.getSetting("notifications")
+            if nd ~= 0 then
+                self.currentMessage.duration = self.currentMessage.duration * nd
+                self:updateHud(self.huds.message, self.currentMessage.text, self.currentMessage.messageType)
+            else
+                self:removeCurrentMessage()
+            end
         end
     else
         self.currentMessageTimer = self.currentMessageTimer + dt
@@ -125,13 +194,26 @@ function ADMessagesManager:update(dt)
         self.currentNotification = self.notifications:Dequeue()
         if self.currentNotification ~= nil then
             self.lastNotificationVehicle = self.currentNotification.vehicle
-            self:updateHud(self.huds.notification, self.currentNotification.text, self.currentNotification.messageType)
+            local nd = AutoDrive.getSetting("notifications")
+            if nd ~= 0 then
+                self.currentNotification.duration = self.currentNotification.duration * nd
+                self:updateHud(self.huds.notification, self.currentNotification.text, self.currentNotification.messageType)
+            else
+                self:removeCurrentNotification()
+            end
         end
     else
         self.currentNotificationTimer = self.currentNotificationTimer + dt
         if self.currentNotificationTimer >= self.currentNotification.duration then
             self:removeCurrentNotification()
         end
+    end
+
+    -- update cp offset
+    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.cp ~= nil and g_currentMission.controlledVehicle.cp.hud ~= nil and g_currentMission.controlledVehicle.cp.hud.show then
+        self.huds.cpYOffset = g_courseplay.courseplay.hud.baseHeight * 0.9
+    else
+        self.huds.cpYOffset = 0
     end
 end
 
@@ -174,16 +256,30 @@ function ADMessagesManager:drawHud(hud)
     setTextAlignment(RenderText.ALIGN_CENTER)
     setTextBold(false)
     setTextColor(1, 1, 1, 1)
-    renderText(hud.posX, hud.posY, getCorrectTextSize(hud.textSize), hud.text)
+    renderText(hud.posX, hud.posY + self.huds.cpYOffset, getCorrectTextSize(hud.textSize), hud.text)
+    hud.backgroundOverlay.y = hud.backgroundOverlay.y + self.huds.cpYOffset
     hud.backgroundOverlay:render()
+    hud.backgroundOverlay.y = hud.backgroundOverlay.y - self.huds.cpYOffset
+    hud.headerOverlay.y = hud.headerOverlay.y + self.huds.cpYOffset
     hud.headerOverlay:render()
+    hud.headerOverlay.y = hud.headerOverlay.y - self.huds.cpYOffset
+    hud.dismissOverlay.y = hud.dismissOverlay.y + self.huds.cpYOffset
     hud.dismissOverlay:render()
+    hud.dismissOverlay.y = hud.dismissOverlay.y - self.huds.cpYOffset
     if hud.goToOverlay ~= nil then
+        hud.goToOverlay.y = hud.goToOverlay.y + self.huds.cpYOffset
         hud.goToOverlay:render()
+        hud.goToOverlay.y = hud.goToOverlay.y - self.huds.cpYOffset
     end
+    hud.infoIconOverlay.y = hud.infoIconOverlay.y + self.huds.cpYOffset
     hud.infoIconOverlay:render()
+    hud.infoIconOverlay.y = hud.infoIconOverlay.y - self.huds.cpYOffset
+    hud.warnIconOverlay.y = hud.warnIconOverlay.y + self.huds.cpYOffset
     hud.warnIconOverlay:render()
+    hud.warnIconOverlay.y = hud.warnIconOverlay.y - self.huds.cpYOffset
+    hud.errorIconOverlay.y = hud.errorIconOverlay.y + self.huds.cpYOffset
     hud.errorIconOverlay:render()
+    hud.errorIconOverlay.y = hud.errorIconOverlay.y - self.huds.cpYOffset
 end
 
 function ADMessagesManager:updateHud(hud, text, mType)

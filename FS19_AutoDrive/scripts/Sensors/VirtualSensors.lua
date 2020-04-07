@@ -126,8 +126,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_CENTER
     sensorParameters.dynamicLength = false
     sensorParameters.dynamicRotation = false
-    sensorParameters.width = vehicle.sizeWidth * 1.3
-    sensorParameters.length = vehicle.sizeLength * 1.3
+    sensorParameters.width = vehicle.sizeWidth * 0.95
+    sensorParameters.length = vehicle.sizeLength * 1.4
     local centerSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     vehicle.ad.sensors["centerSensorFruit"] = centerSensorFruit
 end
@@ -301,7 +301,15 @@ function ADSensor:getBoxShape()
     box.dirX, box.dirY, box.dirZ = localDirectionToWorld(vehicle.components[1].node, 0, 0, 1)
     box.zx, box.zy, box.zz = localDirectionToWorld(vehicle.components[1].node, vecZ.x, 0, vecZ.z)
     box.ry = math.atan2(box.zx, box.zz)
-    box.rx = -MathUtil.getYRotationFromDirection(box.dirY, 1) * self.frontFactor - math.rad(4)
+    local angleOffset = 4
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule:isActive() then
+        local heightDiff = self.vehicle.ad.drivePathModule:getApproachingHeightDiff()
+        if heightDiff < 1.5 and heightDiff > -1 then
+            angleOffset = 0
+        end
+    end
+    box.rx = -MathUtil.getYRotationFromDirection(box.dirY, 1) * self.frontFactor - math.rad(angleOffset)
     box.x, box.y, box.z = localToWorld(vehicle.components[1].node, box.center[1], box.center[2], box.center[3])
 
     box.topLeft.x, box.topLeft.y, box.topLeft.z = localToWorld(vehicle.components[1].node, box.topLeft[1], box.topLeft[2], box.topLeft[3])

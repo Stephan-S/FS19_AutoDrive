@@ -140,6 +140,14 @@ function ADSettings:applySettings()
             AutoDrive.settings.guiScale.current = AutoDrive.settings.guiScale.new
             AutoDriveUserDataEvent.sendToServer()
         end
+        if AutoDrive.settings.wideHUD.new ~= nil and AutoDrive.settings.wideHUD.new ~= AutoDrive.settings.wideHUD.current then
+            AutoDrive.settings.wideHUD.current = AutoDrive.settings.wideHUD.new
+            AutoDriveUserDataEvent.sendToServer()
+        end
+        if AutoDrive.settings.notifications.new ~= nil and AutoDrive.settings.notifications.new ~= AutoDrive.settings.notifications.current then
+            AutoDrive.settings.notifications.current = AutoDrive.settings.notifications.new
+            AutoDriveUserDataEvent.sendToServer()
+        end
 
         for settingName, setting in pairs(AutoDrive.settings) do
             if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then

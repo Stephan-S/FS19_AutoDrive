@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
 		<text name="input_AD_Speed_down"						text="AD: Réduire la vitesse" />
 		<text name="input_AD_routes_manager"					text="AD: Ouvrir le gestionnaire d'itinéraires" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
@@ -89,6 +90,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Recherche du chauffeur le plus proche (Ignore la destination)." />
 		<text name="gui_ad_gui_scale"							text="Taille du HUD AutoDrive" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu." />
+		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Sortie de champ" />
 		<text name="gui_ad_exitField_tooltip"					text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche." />
 		<text name="gui_ad_default"								text="Par défaut" />
@@ -153,6 +162,8 @@
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Default logo or personalized logo - Selection can be expanded." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. editor mode" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. editor mode for route manipulation instead of holding down LCTRL" />
+		<text name="gui_ad_wideHUD"								text="Wide HUD" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
 
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
@@ -187,6 +198,9 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interface externe" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Tous" />
+		
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+		<text name="button_delete_all" 							text="Delete All" />
 		
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

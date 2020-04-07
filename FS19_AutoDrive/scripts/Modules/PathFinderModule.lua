@@ -3,7 +3,7 @@ PathFinderModule = {}
 PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 20
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
-PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 35
+PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 45
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 16
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE = 6
@@ -1176,7 +1176,9 @@ function PathFinderModule.checkSlopeAngle(x1, z1, x2, z2)
     local angleBetween = math.atan(math.abs(terrain1 - terrain2) / length)
     local angleBetweenCenter = math.atan(math.abs(terrain3 - terrain2) / lengthMiddle)
 
-    if (angleBetween * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+    local belowGroundLevel = terrain1 < g_currentMission.waterY-0.5 or terrain2 < g_currentMission.waterY-0.5 or terrain3 < g_currentMission.waterY-0.5
+
+    if belowGroundLevel or (angleBetween * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
         return true
     end
     return false

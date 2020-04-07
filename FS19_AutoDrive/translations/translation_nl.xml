@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Verhoog Snelheid" />
 		<text name="input_AD_Speed_down"						text="AD: Verlaag Snelheid" />
 		<text name="input_AD_routes_manager" 					text="AD: Open routes manager" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Doorrijden" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Selecteer Volgende Losplaats" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Selecteer Vorige Losplaats" />
@@ -89,6 +90,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Zoeken naar dichtbijzijnste Chauffeur (Negeer Bestemming)" />
 		<text name="gui_ad_gui_scale"							text="Gui grootte voor AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Laat op standaard staan (default) om de in-game schaalinstelling te gebruiken" />
+		<text name="gui_ad_notifications"						text="Notifications" />
+		<text name="gui_ad_notifications_text_1"				text="Disabled" />
+		<text name="gui_ad_notifications_text_2"				text="Short" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Long" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
+		<text name="gui_ad_notifications_text_6"				text="Endless" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
 		<text name="gui_ad_exitField"							text="Veld Exit" />
 		<text name="gui_ad_exitField_tooltip"					text="Veld Exit strategie na het lossen. Start(standaard) / Achter StartPunt / Dichtstbijzijnde Punt" />
 		<text name="gui_ad_default"								text="Standaard" />
@@ -155,6 +164,8 @@
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Default logo or personalized logo - Selection can be expanded." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. editor mode" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. editor mode for route manipulation instead of holding down LCTRL" />
+		<text name="gui_ad_wideHUD"								text="Wide HUD" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Instellingen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Voertuiginstellingen - AutoDrive" />
@@ -187,6 +198,9 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Externe interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelAll" 					text="Alles" />
+		
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+		<text name="button_delete_all" 							text="Delete All" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
