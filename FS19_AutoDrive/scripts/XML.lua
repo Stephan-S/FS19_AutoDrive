@@ -5,14 +5,14 @@ function AutoDrive.loadStoredXML()
 
 	local xmlFile = AutoDrive.getXMLFile()
 
-	AutoDrive.currentVersion = AutoDrive.semanticVersionToValue(AutoDrive.version)
-	AutoDrive.versionUpdate = false
+	--AutoDrive.currentVersion = AutoDrive.semanticVersionToValue(AutoDrive.version)
+	--AutoDrive.versionUpdate = false
 	AutoDrive.versionUpdateCancelsSettingsLoad = false
 
 	if fileExists(xmlFile) then
 		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. xmlFile)
 		AutoDrive.adXml = loadXMLFile("AutoDrive_XML", xmlFile)
-
+		--[[
 		local versionString = getXMLString(AutoDrive.adXml, "AutoDrive.version")
 		if versionString ~= nil then
 			AutoDrive.savedVersion = AutoDrive.semanticVersionToValue(versionString)
@@ -26,8 +26,9 @@ function AutoDrive.loadStoredXML()
 				AutoDrive.versionUpdateCancelsSettingsLoad = true
 			end
 		end
+		--]]
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
-		if versionString == nil or MapCheck == false then
+		if MapCheck == false then --versionString == nil or 
 			g_logManager:devWarning("[AutoDrive] Version Check (%s) or Map Check (%s) failed", versionString == nil, MapCheck == false)
 			AutoDrive.loadInitConfig(xmlFile, false)
 		else

@@ -259,12 +259,12 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
 
     local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
     local targetDiff = self.angleToTrailer - targetAngleToTrailer
-    local offsetX = -targetDiff * 100
+    local offsetX = -targetDiff * 5
 
     --print("p: " .. p .. " i: " .. self.i .. " d: " .. d)
     --print("p: " .. p * self.pFactor .. " i: " .. (self.i * self.iFactor) .. " d: " .. (d * self.dFactor))
     --print("targetAngleToTrailer: " .. targetAngleToTrailer .. " targetDiff: " .. targetDiff .. "  offsetX" .. offsetX)
-    
+
     local speed = 5 + (6 * math.clamp(0, (5/math.max(self.steeringAngle, math.abs(self.angleToTrailer))), 1))
     local acc = 0.4
 
@@ -273,6 +273,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     local rx, _, rz = localDirectionToWorld(node, offsetX, 0, offsetZ)
     local targetX = self.x + rx
     local targetZ = self.z + rz
+
     if self.reverseSolo then
         targetX = self.reverseTarget.x
         targetZ = self.reverseTarget.z
