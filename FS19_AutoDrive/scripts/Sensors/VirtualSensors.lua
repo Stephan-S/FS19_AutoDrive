@@ -303,7 +303,7 @@ function ADSensor:getBoxShape()
     box.ry = math.atan2(box.zx, box.zz)
     local angleOffset = 4
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-    if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.ad.stateModule:isActive() then
+    if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule:isActive() then
         local heightDiff = self.vehicle.ad.drivePathModule:getApproachingHeightDiff()
         if heightDiff < 1.5 and heightDiff > -1 then
             angleOffset = 0
