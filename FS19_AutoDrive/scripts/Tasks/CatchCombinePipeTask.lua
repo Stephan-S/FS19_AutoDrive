@@ -69,7 +69,7 @@ function CatchCombinePipeTask:update(dt)
         -- do this by distance of the combine to the last location pathfinder started at
         local x, y, z = getWorldTranslation(self.combine.components[1].node)
         local combineTravelDistance = MathUtil.vector2Length(x - self.combinesStartLocation.x, z - self.combinesStartLocation.z)
-        self.stuckTimer:timer(true, 30000, dt)
+        self.stuckTimer:timer(true, 60000, dt)
         if self.vehicle.ad.drivePathModule:isTargetReached() or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MIN_COMBINE_DISTANCE then
             self.stuckTimer:timer(false)
         elseif self.stuckTimer:done() then
