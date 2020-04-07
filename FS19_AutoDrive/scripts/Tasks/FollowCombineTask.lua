@@ -62,7 +62,7 @@ function FollowCombineTask:update(dt)
         self.chaseTimer:timer(true, 4000, dt)
         self.stuckTimer:timer(true, 30000, dt)
 
-        if self.caughtCurrentChaseSide or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MAX_REVERSE_DISTANCE then
+        if self:isCaughtCurrentChaseSide() or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MAX_REVERSE_DISTANCE then
             self.stuckTimer:timer(false)
         elseif self.stuckTimer:done() then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
@@ -82,8 +82,8 @@ function FollowCombineTask:update(dt)
         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
         AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == FollowCombineTask.STATE_WAIT_FOR_TURN then
-        self.waitForTurnTimer:timer(true, 30000, dt)
-        self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide(dt)
+        self.waitForTurnTimer:timer(true, 60000, dt)
+        self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide()
         if self.waitForTurnTimer:done() then
             self.waitForTurnTimer:timer(false)
             self:finished()
@@ -111,7 +111,7 @@ function FollowCombineTask:update(dt)
         self.waitForPassByTimer:timer(true, 2200, dt)
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
-        self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide(dt)
+        self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide()
         if self.waitForPassByTimer:done() then
             self.waitForPassByTimer:timer(false)
             self.chaseTimer:timer(false)
@@ -186,7 +186,7 @@ function FollowCombineTask:followChasePoint(dt)
         local acc = 1
         local totalSpeedLimit = 40
         -- Let's start driving a little slower when we are switching sides
-        if not self.chaseTimer:done() or not self.caughtCurrentChaseSide then
+        if not self.chaseTimer:done() or not self:isCaughtCurrentChaseSide() then
             acc = 1
             totalSpeedLimit = math.max(combineSpeed + 6, 10)
         end
@@ -197,14 +197,14 @@ end
 function FollowCombineTask:shouldWaitForChasePos(dt)
     local angle = self:getAngleToChasePos(dt)
     self.angleWrongTimer:timer(angle > 50, 3000, dt)
-    self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide(dt)
+    self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide()
     local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.chasePos.x, self.chasePos.y, self.chasePos.z)
     return self.angleWrongTimer:done() or  diffZ <= -1 --or (not self.combine.ad.sensors.frontSensorFruit:pollInfo())
 end
 
-function FollowCombineTask:isCaughtCurrentChaseSide(dt)
+function FollowCombineTask:isCaughtCurrentChaseSide()
     local caught = false
-    local angle = self:getAngleToChasePos(dt)
+    local angle = self:getAngleToChasePos()
     local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
     local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
 
@@ -216,12 +216,12 @@ function FollowCombineTask:isCaughtCurrentChaseSide(dt)
     return caught
 end
 
-function FollowCombineTask:getAngleToChasePos(dt)
+function FollowCombineTask:getAngleToChasePos()
     local worldX, _, worldZ = getWorldTranslation(self.vehicle.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
     local angle = math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = self.chasePos.x - worldX, z = self.chasePos.z - worldZ}))
     --self.angleWrongTimer:timer(angle > 50, 3000, dt)
-    --self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide(dt)
+    --self.caughtCurrentChaseSide = self:isCaughtCurrentChaseSide()
     --if angle < 15 and self.angleToCombineHeading < 15 then
     --    self.caughtCurrentChaseSide = true
     --end
