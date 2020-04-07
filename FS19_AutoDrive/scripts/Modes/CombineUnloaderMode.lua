@@ -401,7 +401,7 @@ function CombineUnloaderMode:getPipeChasePosition()
             -- We chase a little further back to avoid eating dust
             chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 
                                                                     -pipeSide*(self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)/2)+1,
-                                                                    -self.combine.sizeLength/2 - AutoDrive.getTractorTrainLength(self.vehicle, false, true) * 2)
+                                                                    -self.combine.sizeLength/2 - AutoDrive.getTractorTrainLength(self.vehicle, false, true) * math.sqrt(2))
         end
     end
 
