@@ -273,6 +273,20 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     local rx, _, rz = localDirectionToWorld(node, offsetX, 0, offsetZ)
     local targetX = self.x + rx
     local targetZ = self.z + rz
+
+    if self.lastTargetX ~= nil and self.lastTargetZ ~= nil then
+        --Prevent to steep changes / oscillations when angle is not very high
+        if delta < 3 and self.angleToTrailer < 6 then
+            targetX = self.lastTargetX + math.clamp(-3, (targetX - self.lastTargetX), 3)
+            targetZ = self.lastTargetZ + math.clamp(-3, (targetZ - self.lastTargetZ), 3)
+        else
+            targetX = self.lastTargetX + math.clamp(-7, (targetX - self.lastTargetX), 7)
+            targetZ = self.lastTargetZ + math.clamp(-7, (targetZ - self.lastTargetZ), 7)
+        end
+    end
+
+    self.lastTargetX = targetX
+    self.lastTargetZ = targetZ
     if self.reverseSolo then
         targetX = self.reverseTarget.x
         targetZ = self.reverseTarget.z
