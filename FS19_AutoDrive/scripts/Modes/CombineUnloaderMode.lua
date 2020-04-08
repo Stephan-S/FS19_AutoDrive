@@ -301,18 +301,19 @@ function CombineUnloaderMode:getSideChaseOffsetX()
     -- NB: We cannot apply slope correction until after we have chosen which side
     -- we are chasing on! This function only finds the base X offset "to the left".
     -- Slope and side correction MUST be applied in CombineUnloaderMode:getPipeChasePosition
-    -- AFTER dertmining the chase side. Or this function needs to be rewritten.
-    -- local dischargeNode = AutoDrive.getDischargeNode(self.combine)
+    -- AFTER determining the chase side. Or this function needs to be rewritten.
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
     local pipeRootOffsetX, _, _= AutoDrive.getPipeRootOffset(self.combine)
-    local unloaderWidest = math.max(self.vehicle.sizeWidth/2, targetTrailer.sizeWidth/2)
+    local unloaderWidest = math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)
     local headerExtra = math.max((AutoDrive.getFrontToolWidth(self.combine) - self.combine.sizeWidth)/2, 
                                 0)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getSideChaseOffsetX - " ..
+    pipeRootOffsetX .. "/" .. unloaderWidest .. "/" .. headerExtra .. "/" .. AutoDrive.getPipeLength(self.combine) .. "//" )
 
     local sideChaseTermPipeIn = self.combine.sizeWidth/2 + 
                                 unloaderWidest + 
-                                headerExtra + 1
+                                headerExtra
     local sideChaseTermPipeOut = self.combine.sizeWidth/2 + 
                                     (AutoDrive.getPipeLength(self.combine) + pipeOffset)
     -- Some combines fold up their pipe so tight that targeting it could cause a collision.
@@ -320,11 +321,15 @@ function CombineUnloaderMode:getSideChaseOffsetX()
     local sideChaseTermX = math.max(sideChaseTermPipeIn, sideChaseTermPipeOut)
 
     local spec = self.combine.spec_pipe
-    if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
+    if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
+        -- If it is a buffer combine, use the pipe in offset regardless
+        sideChaseTermX = sideChaseTermPipeIn
+    elseif spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
         -- If the pipe is extended, though, target it regardless
         sideChaseTermX = sideChaseTermPipeOut
     end
-
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getSideChaseOffsetX - " ..
+    sideChaseTermX )
     return sideChaseTermX
 end
 
