@@ -469,7 +469,11 @@ function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
 		if vehicle ~= nil then
-			printText = vehicle.ad.stateModule:getName() .. ": "
+			if vehicle.ad ~= nil then
+				printText = vehicle.ad.stateModule:getName() .. ": "
+			else
+				printText = vehicle:getName() .. ": "
+			end
 		end
 
 		g_logManager:info(printText .. debugText, ...)
@@ -815,32 +819,32 @@ function AIVehicle:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
 end
 
 function AutoDrive.sign(x)
-    if x<0 then
-        return -1
-    elseif x>0 then
-        return 1
-    else
-        return 0
-    end
+	if x < 0 then
+		return -1
+	elseif x > 0 then
+		return 1
+	else
+		return 0
+	end
 end
 
 function AutoDrive.segmentIntersects(x1, y1, x2, y2, x3, y3, x4, y4)
-    local d = (y4-y3)*(x2-x1)-(x4-x3)*(y2-y1)
-    local Ua_n = ((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3))
-    local Ub_n = ((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))
-	
+	local d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
+	local Ua_n = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3))
+	local Ub_n = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3))
+
 	local Ua = Ua_n / d
 	local Ub = Ub_n / d
-	
-    if d ~= 0 then
-        local x = x1 + Ua * (x2 - x1)
+
+	if d ~= 0 then
+		local x = x1 + Ua * (x2 - x1)
 		local y = y1 + Ua * (y2 - y1)
 		local insideSector = Ua > 0
 		local insideSecondSector = d > 0
-        return x,y, insideSector, insideSecondSector
-    else
-        return 0, 0, false, false
-    end
+		return x, y, insideSector, insideSecondSector
+	else
+		return 0, 0, false, false
+	end
 end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server
