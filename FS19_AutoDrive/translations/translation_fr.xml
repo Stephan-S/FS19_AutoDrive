@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
 		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
 		<text name="hud_avoidFruit"								text="AD: Éviter les cultures" />
-		<text name="hud_startCp"								text="AD: Start CP at destination" />
+		<text name="hud_startCp"								text="AD: Start CP à la destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />
@@ -54,7 +54,7 @@
 		<text name="AD_MODE_LOAD"								text="Chargement" />
 		<text name="AD_MODE_BGA"								text="Vider silo (bunker)" />
 		<text name="AD_synchronizing"							text="Chargement des routes du serveur .." />
-		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pour le mode éditeur étendu" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL pour créer" />
 		<text name="AD_lalt_for_deletion" 						text="LALT pour effacer" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
@@ -91,13 +91,13 @@
 		<text name="gui_ad_gui_scale"							text="Taille du HUD AutoDrive" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Définit (par défaut) le paramètre de l'échelle de l'interface graphique utilisé en jeu." />
 		<text name="gui_ad_notifications"						text="Notifications" />
-		<text name="gui_ad_notifications_text_1"				text="Disabled" />
-		<text name="gui_ad_notifications_text_2"				text="Short" />
-		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_1"				text="Désactivé" />
+		<text name="gui_ad_notifications_text_2"				text="Court" />
+		<text name="gui_ad_notifications_text_3"				text="Par défaut" />
 		<text name="gui_ad_notifications_text_4"				text="Long" />
-		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
-		<text name="gui_ad_notifications_text_6"				text="Endless" />
-		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
+		<text name="gui_ad_notifications_text_5"				text="Extra long" />
+		<text name="gui_ad_notifications_text_6"				text="Perpétuel" />
+		<text name="gui_ad_notifications_tooltip"				text="Temps d'affichage des notifications" />
 		<text name="gui_ad_exitField"							text="Sortie de champ" />
 		<text name="gui_ad_exitField_tooltip"					text="Stratégie de sortie au champ après le déchargement - Commencer, peu après le point de départ, le point le plus proche." />
 		<text name="gui_ad_default"								text="Par défaut" />
@@ -154,16 +154,16 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajuster la vitesse de virage pour chaque véhicule. La masse et la vitesse actuelle auront toujours un impact sur le point de freinage" />
 		<text name="gui_ad_callSecondUnloader"					text="Appelez le 2. Déchargeur" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Appelez le 2. Déchargeur lorsque le déchargeur actuel atteint le niveau de remplissage préappel" />
-		<text name="gui_ad_followOnlyOnField"					text="Restrict unloader to field" />
-		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restrict unloader to field while actively unloading" />
-		<text name="gui_ad_addSettingsToHUD"					text="Add settings to HUD" />
-		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Adds buttons to the HUD to change settings without opening this menu" />
-		<text name="gui_ad_iconSetToUse"						text="Logo personalization" />
-		<text name="gui_ad_iconSetToUse_tooltip"				text="Default logo or personalized logo - Selection can be expanded." />
-		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. editor mode" />
-		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. editor mode for route manipulation instead of holding down LCTRL" />
-		<text name="gui_ad_wideHUD"								text="Wide HUD" />
-		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
+		<text name="gui_ad_followOnlyOnField"					text="Restreindre le déchargement au champ" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
+		<text name="gui_ad_addSettingsToHUD"					text="Ajouter des paramètres au HUD" />
+		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Ajoute des boutons au HUD pour modifier les paramètres sans ouvrir ce menu" />
+		<text name="gui_ad_iconSetToUse"						text="Personnalisation du logo" />
+		<text name="gui_ad_iconSetToUse_tooltip"				text="Logo par défaut ou logo personnalisé - La sélection peut être étendue." />
+		<text name="gui_ad_secondEditorModeAllowed"				text="Utiliser 2. le mode éditeur" />
+		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Utilisez le mode 2. éditeur pour la manipulation d'itinéraire au lieu de maintenir LCTRL enfoncé" />
+		<text name="gui_ad_wideHUD"								text="HUD large" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Utilisez le mode HUD large, qui permet également quelques boutons de réglage supplémentaires dans le HUD" />
 
 		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
@@ -178,8 +178,8 @@
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Gestionnaire d'itinéraires" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Entrez le nom de l'itinéraire:" />
-		<text name="gui_ad_button_export" 						text="Save" />
-		<text name="gui_ad_button_import" 						text="Load" />
+		<text name="gui_ad_button_export" 						text="Sauvegarder" />
+		<text name="gui_ad_button_import" 						text="Charger" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Voulez-vous vraiment remplacer les itinéraires existant ?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Ecrasement des itinéraires" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Voulez-vous vraiment supprimer l'itinéraire '%s'?" />
@@ -196,11 +196,11 @@
 		<text name="gui_ad_debugChannelSensor" 					text="Capteurs" />
 		<text name="gui_ad_debugChannelNetwork" 				text="Réseau" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interface externe" />
-		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRender" 					text="Rendu" />
 		<text name="gui_ad_debugChannelAll" 					text="Tous" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
-		<text name="button_delete_all" 							text="Delete All" />
+		<text name="button_delete_all" 							text="Effacer tout" />
 		
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
@@ -276,8 +276,8 @@
 		<text name="AD_task_catch_up_with_combine"				text="Rattraper le temps perdu avec la moissonneuse-batteuse" />
 		<text name="AD_task_clearcrop"							text="Culture de défrichement" />
 		<text name="AD_task_drive_to_destination"				text="Conduire jusqu'à destination" />
-		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
-		<text name="AD_task_drive_to_combine_pipe"				text="Conduite vers le véhicule cible" />
+		<text name="AD_task_drive_to_vehicle"					text="Conduire vers le véhicule cible" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Conduit vers le véhicule cible" />
 		<text name="AD_task_unloading_combine"					text="Déchargement de la moissonneuse-batteuse" />
 		<text name="AD_task_reversing_from_combine"				text="Inversion de la combinaison" />
 		<text name="AD_task_waiting_for_space"					text="En attente d'une marge de manœuvre" />
