@@ -1,5 +1,5 @@
-AutoDrive.CHASEPOS_LEFT = -1
-AutoDrive.CHASEPOS_RIGHT = 1
+AutoDrive.CHASEPOS_LEFT = 1
+AutoDrive.CHASEPOS_RIGHT = -1
 AutoDrive.CHASEPOS_REAR = 3
 
 function AutoDrive.getDischargeNode(combine)
