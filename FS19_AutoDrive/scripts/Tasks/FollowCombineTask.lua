@@ -208,9 +208,9 @@ function FollowCombineTask:isCaughtCurrentChaseSide()
     local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
     local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
 
-    local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
-    --local diffX, _, _ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
-    if (angle < 15) and (self.angleToCombineHeading < 15) and (AutoDrive.sign(diffX) == self.chaseSide) then
+    --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
+    local diffX, _, _ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
+    if (angle < 15) and (self.angleToCombineHeading < 15) and (AutoDrive.sign(diffX) == self.chaseSide or self.chaseSide == AutoDrive.CHASEPOS_REAR) then
         caught = true
     end
     return caught
