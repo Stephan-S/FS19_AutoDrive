@@ -12,8 +12,24 @@ function ADHarvestManager:load()
 end
 
 function ADHarvestManager:registerHarvester(harvester)
+    AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:registerHarvester")
     if not table.contains(self.idleHarvesters, harvester) and not table.contains(self.harvesters, harvester) then
+        AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:registerHarvester - inserted")
         table.insert(self.idleHarvesters, harvester)
+    end
+end
+
+function ADHarvestManager:unregisterHarvester(harvester)
+    AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester")
+    if table.contains(self.idleHarvesters, harvester) then
+        local index = table.indexOf(self.idleHarvesters, harvester)
+        table.remove(self.idleHarvesters, index)
+        AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - idleHarvesters")
+    end
+    if table.contains(self.harvesters, harvester) then
+        local index = table.indexOf(self.harvesters, harvester)
+        table.remove(self.harvesters, index)
+        AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - harvesters")
     end
 end
 
@@ -34,7 +50,7 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
             --promote following unloader to current unloader
             followingUnloder.ad.modes[AutoDrive.MODE_UNLOAD].combine = vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine
         end
-    end    
+    end
     if table.contains(self.idleUnloaders, vehicle) then
         table.removeValue(self.idleUnloaders, vehicle)
     end
@@ -67,18 +83,27 @@ end
 function ADHarvestManager:update(dt)
     self.assignmentDelayTimer:timer(true, 10000, dt)
     for _, idleHarvester in pairs(self.idleHarvesters) do
-        if (idleHarvester.spec_aiVehicle ~= nil and idleHarvester.spec_aiVehicle.isActive) or (idleHarvester.getIsEntered ~= nil and idleHarvester:getIsEntered()) then
+        local vehicle = idleHarvester
+        if vehicle.isTrailedHarvester then
+            vehicle = vehicle.trailingVehicle
+        end
+        if (vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or (vehicle.getIsEntered ~= nil and vehicle:getIsEntered()) then
             table.insert(self.harvesters, idleHarvester)
             table.removeValue(self.idleHarvesters, idleHarvester)
         end
     end
     for _, harvester in pairs(self.harvesters) do
-        if not ((harvester.spec_aiVehicle ~= nil and harvester.spec_aiVehicle.isActive) or (harvester.getIsEntered ~= nil and harvester:getIsEntered())) then
+        local vehicle = harvester
+        if vehicle.isTrailedHarvester then
+            vehicle = vehicle.trailingVehicle
+        end
+        if not ((vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or (vehicle.getIsEntered ~= nil and vehicle:getIsEntered())) then
             table.insert(self.idleHarvesters, harvester)
             table.removeValue(self.harvesters, harvester)
 
-            if self:getAssignedUnloader(harvester) ~= nil then
-                self:fireUnloader(self:getAssignedUnloader(harvester))
+            local unloader = self:getAssignedUnloader(harvester)
+            if unloader ~= nil then
+                self:fireUnloader(unloader)
             end
         end
     end
@@ -93,7 +118,7 @@ function ADHarvestManager:update(dt)
                 else
                     if AutoDrive.getSetting("callSecondUnloader", harvester) then
                         local unloader = self:getAssignedUnloader(harvester)
-                        if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then     
+                        if unloader.ad.modes[AutoDrive.MODE_UNLOAD]:getFollowingUnloader() == nil then
                             local trailers, _ = AutoDrive.getTrailersOf(unloader, false)
                             local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                             local maxCapacity = fillLevel + leftCapacity
@@ -110,7 +135,7 @@ function ADHarvestManager:update(dt)
 
             if (harvester.ad ~= nil and harvester.ad.noMovementTimer ~= nil and harvester.lastSpeedReal ~= nil) then
                 harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0010), 3000, dt)
-    
+
                 local vehicleSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 10)
                 if (not vehicleSteering) and ((harvester.lastSpeedReal * harvester.movingDirection) >= 0.0008) then
                     harvester.ad.driveForwardTimer:timer(true, 20000, dt)
@@ -118,7 +143,7 @@ function ADHarvestManager:update(dt)
                     harvester.ad.driveForwardTimer:timer(false)
                 end
             end
-    
+
             if (harvester.ad ~= nil and harvester.ad.noTurningTimer ~= nil) then
                 local cpIsTurning = harvester.cp ~= nil and (harvester.cp.isTurning or (harvester.cp.turnStage ~= nil and harvester.cp.turnStage > 0))
                 local cpIsTurningTwo = harvester.cp ~= nil and harvester.cp.driver and (harvester.cp.driver.turnIsDriving or (harvester.cp.driver.fieldworkState ~= nil and harvester.cp.driver.fieldworkState == harvester.cp.driver.states.TURNING))

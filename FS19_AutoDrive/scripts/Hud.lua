@@ -441,7 +441,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			if AutoDrive.leftCTRLmodifierKeyPressed then
 				--If no node is hovered / moved - check for creation of new node
 				if vehicle.ad.nodeToMoveId == nil and vehicle.ad.hoveredNodeId == nil then
-					if button == 1 and isDown then
+					if button == 1 and isUp then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
 						local closest = vehicle:getClosestWayPoint()
 						closest = ADGraphManager:getWayPointById(closest)
@@ -484,8 +484,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							local createdId = ADGraphManager:getWayPointsCount()
 							if vehicle.ad.selectedNodeId ~= nil then
 								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)
-								vehicle.ad.selectedNodeId = createdId
 							end
+							vehicle.ad.selectedNodeId = createdId
 						end
 					end
 				end
