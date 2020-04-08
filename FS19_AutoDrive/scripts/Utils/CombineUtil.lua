@@ -101,3 +101,23 @@ function AutoDrive.isSugarcaneHarvester(combine)
     end
     return isSugarCaneHarvester
 end
+
+function AutoDrive.getFrontToolWidth(vehicle)
+    local widthOfFrontTool = 0
+
+    if vehicle.getAttachedImplements ~= nil then
+        for _, impl in pairs(vehicle:getAttachedImplements()) do
+            local tool = impl.object
+            if tool ~= nil and tool.sizeWidth ~= nil then
+                --Check if tool is in front of vehicle
+                local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
+                local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
+                if offsetZ > 0 then
+                    widthOfFrontTool = math.max(widthOfFrontTool, tool.sizeLength)
+                end
+            end
+        end
+    end
+
+    return widthOfFrontTool
+end
