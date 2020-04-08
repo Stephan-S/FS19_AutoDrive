@@ -42,7 +42,7 @@ end
 function AutoDriveRecordWayPointEvent:run(connection)
 	if connection:getIsServer() then
 		-- If the event is coming from the server, clients have to record the way point
-		ADGraphManager:recordWayPoint(self.x, self.y, self.z, self.connectPrevious, self.dual, self.isReverse)
+		ADGraphManager:recordWayPoint(self.x, self.y, self.z, self.connectPrevious, self.dual, self.isReverse, false)
 	end
 end
 
