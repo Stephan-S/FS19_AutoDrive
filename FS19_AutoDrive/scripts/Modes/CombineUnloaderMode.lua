@@ -336,14 +336,14 @@ end
 function CombineUnloaderMode:getSideChaseOffsetZ()
     -- The default maximum will place the front of the unloader at the back of the header
     --local maxOffset = self.combine.sizeLength/2 - self.vehicle.sizeLength / 2
-    local maxOffset =AutoDrive.getTractorTrainLength(self.vehicle, true, false)
+    local maxOffset = 10000--AutoDrive.getTractorTrainLength(self.vehicle, true, false)
     local spec = self.combine.spec_pipe
-    if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
+    --if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
         -- If the pipe is extended, go as far forward as we like. This is a first approximation
         -- assuming the user isn't using a header which is wider than the pipe extends
         -- If the X direction collision avoidance is working, we might not need this guard?
-        maxOffset = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
-    end
+        --maxOffset = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
+    --end
 
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local _, _, pipeRootOffsetZ= AutoDrive.getPipeRootOffset(self.combine)
@@ -356,11 +356,13 @@ function CombineUnloaderMode:getSideChaseOffsetZ()
     
     -- The constant additions should put at precisely at the joint of the vehicle and trailer, then a little futher
     -- back so non-semis don't miss
-    local constantAdditionsZ = diffZ + pipeRootOffsetZ + (self.vehicle.sizeLength/2) - (targetTrailer.sizeLength / 2) + 2
+    local constantAdditionsZ = diffZ + pipeRootOffsetZ + self.vehicle.sizeLength/2 + 2  --+ (self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2) + 2
+    --local constantAdditionsZ = diffZ + pipeRootOffsetZ  + (self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2) + 2
     -- We then gradually move back, but don't use the last two meters of trailer for cosmetic reasons
     local dynamicAdditionsZ = math.max((targetTrailer.sizeLength - constantAdditionsZ - 2) ^ targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ --- (targetTrailer.sizeLength / 2)
-
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getSideChaseOffsetZ - " ..
+    maxOffset .. "/" .. sideChaseTermZ .. "/" ..math.min(maxOffset, sideChaseTermZ) .. "//" )
     return math.min(maxOffset, sideChaseTermZ)
 end
 
