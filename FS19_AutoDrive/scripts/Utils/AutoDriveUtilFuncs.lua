@@ -164,7 +164,18 @@ function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
             local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz
             local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz
             local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz
-            return MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z)
+            if MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z) then
+                return true
+            end
+        end
+
+        local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+        if trailerCount > 0 then
+            for _, trailer in pairs(trailers) do
+                if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
+                    return true
+                end
+            end
         end
     end
 

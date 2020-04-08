@@ -23,7 +23,7 @@ PathFinderModule.PP_CELL_X = 9
 PathFinderModule.PP_CELL_Z = 9
 
 PathFinderModule.GRID_SIZE_FACTOR = 0.5
-PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1
+PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1.25
 
 function PathFinderModule:new(vehicle)
     local o = {}
@@ -466,7 +466,7 @@ function PathFinderModule:checkGridCell(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
     local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
     if self.isSecondChasingVehicle then
-        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
+        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER * 1.7
     end   
     local worldPos = self:gridLocationToWorldLocation(cell)
     if cell.incoming ~= nil then
@@ -650,7 +650,7 @@ end
 
 function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, corners)
     local fruitValue = 0
-    if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 then
+    if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 or fruitType == 15 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true)
     else
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
@@ -857,7 +857,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
     local worldPos = self:gridLocationToWorldLocation(cell)
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-    shapeDefinition.height = 2.6
+    shapeDefinition.height = 2.8
 
     if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT or cell.direction == -1 then
         --default size:
@@ -1119,16 +1119,16 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 if self.fruitToCheck ~= nil and self.avoidFruitSetting and not self.fallBackMode then
                     local fruitValue = 0
                     if self.isSecondChasingVehicle then
-                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 2
-                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 2
+                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 4
+                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 4
 
-                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 2
-                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 2
+                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 4
+                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 4
 
-                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 2
-                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 2
+                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 4
+                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 4
 
-                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 then
+                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 or fruitType == 15 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, true, true)
                             fruitValue = fruitValueResult
                         else
@@ -1136,7 +1136,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                             fruitValue = fruitValueResult
                         end
                     else
-                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 then
+                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 or fruitType == 15 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
                             fruitValue = fruitValueResult
                         else

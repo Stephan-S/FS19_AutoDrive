@@ -68,9 +68,13 @@ function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors["frontSensorField"] = frontSensorField
 
     sensorParameters = {}
+    sensorParameters.dynamicLength = true
+    sensorParameters.width = vehicle.sizeWidth * 0.75
     sensorParameters.position = ADSensor.POS_REAR
     local rearSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rearSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    rearSensor.drawDebug = true --test
+    rearSensor.enabled = true --test
     vehicle.ad.sensors["rearSensor"] = rearSensor
     vehicle.ad.sensors["rearSensorFruit"] = rearSensorFruit
 
@@ -213,7 +217,7 @@ function ADSensor:getLocationByPosition()
             location = {x = 0, z = vehicle.sizeLength / 2}
         end
     elseif self.position == ADSensor.POS_REAR then
-        location.z = -vehicle.sizeLength / 2 - 1
+        location.z = - vehicle.sizeLength / 2
         self.frontFactor = -1
     elseif self.position == ADSensor.POS_RIGHT then
         location.x = -vehicle.sizeWidth / 2 - 1 - self.width / 2
@@ -243,6 +247,9 @@ function ADSensor:getBoxShape()
     local lookAheadDistance = self.length
     if self.dynamicLength then
         lookAheadDistance = math.clamp(0.13, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
+        if self.position == ADSensor.POS_REAR then
+            lookAheadDistance = math.clamp(0.02, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
+        end
     end
 
     local vecZ = {x = 0, z = 1}

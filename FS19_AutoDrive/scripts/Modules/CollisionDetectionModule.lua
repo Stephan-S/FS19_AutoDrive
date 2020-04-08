@@ -121,3 +121,20 @@ end
 function ADCollisionDetectionModule:getDetectedVehicle()
 	return self.trafficVehicle
 end
+
+function ADCollisionDetectionModule:checkReverseCollision()
+    local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle)
+    if trailerCount > 0 then
+        local trailer = trailers[trailerCount]
+        if trailer ~= nil then
+            if trailer.ad == nil then
+                trailer.ad = {}
+            end
+            ADSensor:handleSensors(trailer, 0)
+            trailer.ad.sensors.rearSensor.drawDebug = true
+            trailer.ad.sensors.rearSensor.enabled = true
+            return trailer.ad.sensors.rearSensor:pollInfo()
+        end
+	end
+	return self.vehicle.ad.sensors.rearSensor:pollInfo()
+end

@@ -292,8 +292,8 @@ function CombineUnloaderMode:getTargetTrailer()
             targetTrailer = trailer
         end
     end
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getTargetTrailer - " ..
-    currentTrailer .. "/" .. trailerCount .. ":" .. trailerFillLevel .. "/" .. trailerLeftCapacity)
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getTargetTrailer - " ..
+    --currentTrailer .. "/" .. trailerCount .. ":" .. trailerFillLevel .. "/" .. trailerLeftCapacity)
     return targetTrailer, fillRatio
 end
 
