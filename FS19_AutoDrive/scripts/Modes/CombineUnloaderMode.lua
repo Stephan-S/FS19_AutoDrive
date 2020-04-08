@@ -350,7 +350,7 @@ function CombineUnloaderMode:getPipeChasePosition()
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
         if not AutoDrive.isSugarcaneHarvester(self.combine) then
-            sideChaseTermZ = -followDistance - (self.combine.sizeLength / 2)
+            sideChaseTermZ = -followDistance + (self.combine.sizeLength / 2)
         end
         local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX  + slopeCorrection, sideChaseTermZ)
         local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX  + slopeCorrection, sideChaseTermZ)
