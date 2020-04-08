@@ -1,5 +1,5 @@
-AutoDrive.CHASEPOS_LEFT = 1
-AutoDrive.CHASEPOS_RIGHT = -1
+AutoDrive.CHASEPOS_LEFT = -1
+AutoDrive.CHASEPOS_RIGHT = 1
 AutoDrive.CHASEPOS_REAR = 3
 
 function AutoDrive.getDischargeNode(combine)
@@ -66,7 +66,7 @@ function AutoDrive.getPipeRootOffset(combine)
     local pipeRoot = AutoDrive.getPipeRoot(combine)
     local pipeRootX, pipeRootY, pipeRootZ = getWorldTranslation(pipeRoot)
     local diffX, diffY, diffZ = worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
-    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRootZOffset - " .. diffZ )
+    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRootZOffset - " .. diffZ )
     return worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
 end
 
@@ -84,7 +84,7 @@ function AutoDrive.getPipeLength(combine)
     local length = MathUtil.vector3Length(pipeRootX - dischargeX, 
                                           0, 
                                           pipeRootZ - dischargeZ)
-    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
+    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
     return length
 end
 
