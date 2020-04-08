@@ -203,10 +203,10 @@ function ADSpecialDrivingModule:getBasicStates()
     end
 
     self.trailerX, self.trailerY, self.trailerZ = localToWorld(self.reverseNode, 0, 0, 5)
-    ADDrawingManager:addLineTask(self.x, self.y+3, self.z, self.targetX, self.targetY+3, self.targetZ, 1, 1, 1)
-    ADDrawingManager:addLineTask(self.rNx, self.rNy + 3, self.rNz, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
-    ADDrawingManager:addLineTask(self.reverseTarget.x, self.reverseTarget.y + 1, self.reverseTarget.z, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
-    ADDrawingManager:addLineTask(self.rNx, self.rNy + 3, self.rNz, self.rNx, self.rNy + 5, self.rNz, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.x, self.y+3, self.z, self.targetX, self.targetY+3, self.targetZ, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.rNx, self.rNy + 3, self.rNz, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.reverseTarget.x, self.reverseTarget.y + 1, self.reverseTarget.z, self.trailerX, self.trailerY + 3, self.trailerZ, 1, 1, 1)
+    --ADDrawingManager:addLineTask(self.rNx, self.rNy + 3, self.rNz, self.rNx, self.rNy + 5, self.rNz, 1, 1, 1)
     
     --print("AngleToTrailer: " .. self.angleToTrailer .. " angleToPoint: " .. self.angleToPoint)
 end
@@ -274,10 +274,9 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     self.dFactor = 1400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
 
     if self.vehicle.typeDesc == "truck" then
-        --print("Reducing coefficients")
-        self.pFactor = self.vehicle.ad.stateModule:getSpeedLimit() * 0.1 --0.1 -- --0.1
-        self.iFactor = 0--0.00001
-        self.dFactor = 0--10 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 0.1 --10
+        self.pFactor = 1 --self.vehicle.ad.stateModule:getSpeedLimit() * 0.05 --0.1 -- --0.1
+        self.iFactor = 0.00001
+        self.dFactor = 6.7 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 0.1 --10
     end
 
     local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
@@ -298,7 +297,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     local acc = 0.4
 
     if self.vehicle.typeDesc == "truck" then
-        speed = 5
+        speed = 4
     end
 
     local node = self.vehicle:getAIVehicleDirectionNode()
@@ -316,9 +315,19 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
         lx = -lx
         lz = -lz
     end
+    
+    local maxAngle = 60
+    if self.vehicle.maxRotation then
+        if self.vehicle.maxRotation > (2 * math.pi) then
+            maxAngle = self.vehicle.maxRotation
+        else
+            maxAngle = math.deg(self.vehicle.maxRotation)
+        end
+    end
+
     local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
     AutoDrive.experimentalFeatures.smootherDriving = false
-    AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, lx, lz, speed, 1)
+    AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, acc, 0.2, 20, true, false, lx, lz, speed, 1)
     AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
 
     self.lastAngleToPoint = self.angleToPoint
