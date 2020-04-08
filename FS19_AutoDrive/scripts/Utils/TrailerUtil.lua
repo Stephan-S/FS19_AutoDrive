@@ -526,3 +526,20 @@ function AutoDrive.trailerIsInTriggerList(trailer, trigger, fillUnitIndex)
 
     return false
 end
+
+function AutoDrive.getTractorTrainLength(vehicle, includeTractor, onlyFirstTrailer)
+    local totalLength = 0
+    if includeTractor then
+        totalLength = totalLength + vehicle.sizeLength
+    end
+
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
+
+    for _, trailer in ipairs(trailers) do
+        totalLength = totalLength + trailer.sizeLength
+        if onlyFirstTrailer then
+            break
+        end
+    end
+    return totalLength
+end

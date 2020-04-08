@@ -23,7 +23,7 @@ PathFinderModule.PP_CELL_X = 9
 PathFinderModule.PP_CELL_Z = 9
 
 PathFinderModule.GRID_SIZE_FACTOR = 0.5
-PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1
+PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1.25
 
 function PathFinderModule:new(vehicle)
     local o = {}
@@ -80,10 +80,35 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local combineVector = {x = rx, z = rz}
 
     local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
-
+    -- We use the follow distance as a proxy measure for "what works" for the size of the
+    -- field being worked.
+    local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
+    -- Use the length of the tractor-trailer combo to determine how far to drive to straighten
+    -- the trailer. Add an extra follow distance because the unloader stops well before the back
+    -- of the trailer.
+    --local lengthOffset = combine.sizeLength/2 + AutoDrive.getTractorTrainLength(self.vehicle, false, true) * math.sqrt(2)
+    local lengthOffset = combine.sizeLength/2 + AutoDrive.getTractorTrainLength(self.vehicle, false, true) * (2*math.sin(math.pi/8))
+    -- A bit of a sanity check, in case the vehicle is absurdly long.
+    --if lengthOffset > self.PATHFINDER_FOLLOW_DISTANCE then
+    --    lengthOffset = self.PATHFINDER_FOLLOW_DISTANCE 
+    --elseif
+    if lengthOffset <= self.PATHFINDER_TARGET_DISTANCE then
+        lengthOffset = self.PATHFINDER_TARGET_DISTANCE
+    end
+    
+    --local target = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
+    -- The sugarcane harvester needs extra room or it collides
+    --if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR or CombineUnloaderMode:isSugarcaneHarvester(combine) then
+    --    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe?lengthOffset " .. lengthOffset)
+    --    local straightenNode = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
+    --    self:startPathPlanningTo(straightenNode, combineVector)
+    --    table.insert(self.appendWayPoints, target)
+    --else
+    --    self:startPathPlanningTo(target, combineVector)
+    --end
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * 2 * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * 2 * rz}
-        local appendTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
+        local pathFinderTarget = {x = pipeChasePos.x - (lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset) * rz}
+        local appendTarget = {x = pipeChasePos.x - (combine.sizeLength/2 * rx), y = worldY, z = pipeChasePos.z - (combine.sizeLength/2 * rz)}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
@@ -91,15 +116,15 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     else
         local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
-        local appendedNode = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
-            pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
+        if pipeChaseSide ~= AutoDrive.CHASEPOS_REAR then
+            pathFinderTarget = {x = pipeChasePos.x - (lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset) * rz}
         end
+        local appendedNode = {x = pipeChasePos.x - (combine.sizeLength/2 * rx), y = worldY, z = pipeChasePos.z - (combine.sizeLength/2 * rz)}
 
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+        if pipeChaseSide ~= AutoDrive.CHASEPOS_REAR then
             table.insert(self.appendWayPoints, appendedNode)
             table.insert(self.appendWayPoints, pipeChasePos)
         end
@@ -441,7 +466,7 @@ function PathFinderModule:checkGridCell(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
     local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
     if self.isSecondChasingVehicle then
-        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
+        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER * 1.7
     end   
     local worldPos = self:gridLocationToWorldLocation(cell)
     if cell.incoming ~= nil then
@@ -625,7 +650,7 @@ end
 
 function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, corners)
     local fruitValue = 0
-    if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 then
+    if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 or fruitType == 15 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true)
     else
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
@@ -832,7 +857,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
     local worldPos = self:gridLocationToWorldLocation(cell)
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-    shapeDefinition.height = 2.6
+    shapeDefinition.height = 2.8
 
     if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT or cell.direction == -1 then
         --default size:
@@ -1094,16 +1119,16 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 if self.fruitToCheck ~= nil and self.avoidFruitSetting and not self.fallBackMode then
                     local fruitValue = 0
                     if self.isSecondChasingVehicle then
-                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 2
-                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 2
+                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 4
+                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 4
 
-                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 2
-                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 2
+                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 4
+                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 4
 
-                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 2
-                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 2
+                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 4
+                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 4
 
-                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 then
+                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 or fruitType == 15 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, true, true)
                             fruitValue = fruitValueResult
                         else
@@ -1111,7 +1136,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                             fruitValue = fruitValueResult
                         end
                     else
-                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 then
+                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 or fruitType == 15 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
                             fruitValue = fruitValueResult
                         else

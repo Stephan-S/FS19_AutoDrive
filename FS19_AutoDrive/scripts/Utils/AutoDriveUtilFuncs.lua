@@ -6,6 +6,12 @@ function AutoDrive.createWayPointRelativeToVehicle(vehicle, offsetX, offsetZ)
     return wayPoint
 end
 
+function AutoDrive.createWayPointRelativeToNode(node, offsetX, offsetZ)
+    local wayPoint = {}
+    wayPoint.x, wayPoint.y, wayPoint.z = localToWorld(node, offsetX, 0, offsetZ)
+    return wayPoint
+end
+
 function AutoDrive.isTrailerInCrop(vehicle)
     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
     local trailer = trailers[trailerCount]
@@ -158,7 +164,18 @@ function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
             local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz
             local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz
             local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz
-            return MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z)
+            if MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z) then
+                return true
+            end
+        end
+
+        local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+        if trailerCount > 0 then
+            for _, trailer in pairs(trailers) do
+                if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
+                    return true
+                end
+            end
         end
     end
 
