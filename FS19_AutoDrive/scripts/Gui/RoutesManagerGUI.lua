@@ -67,6 +67,7 @@ end
 function ADRoutesManagerGui:onClickCancel()
     if #self.routes > 0 then
         ADRoutesManager:import(self.routes[self.autoDriveRoutesManagerList:getSelectedElementIndex()].name)
+        self:onClickBack()
     end
     ADRoutesManagerGui:superClass().onClickCancel(self)
 end
