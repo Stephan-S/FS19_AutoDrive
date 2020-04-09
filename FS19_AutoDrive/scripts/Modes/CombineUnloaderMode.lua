@@ -313,10 +313,9 @@ function CombineUnloaderMode:getSideChaseOffsetX()
 
     local sideChaseTermPipeIn = self.combine.sizeWidth/2 + 
                                 unloaderWidest + 
-                                headerExtra
+                                headerExtra + pipeOffset
     local sideChaseTermPipeOut = self.combine.sizeWidth/2 + 
-                                    (AutoDrive.getPipeLength(self.combine) + pipeOffset)
-    -- Some combines fold up their pipe so tight that targeting it could cause a collision.
+                                    (AutoDrive.getPipeLength(self.combine) + pipeOffset) + unloaderWidest/4    -- Some combines fold up their pipe so tight that targeting it could cause a collision.
     -- So, choose the max between the two to avoid a collison
     local sideChaseTermX = math.max(sideChaseTermPipeIn, sideChaseTermPipeOut)
 
