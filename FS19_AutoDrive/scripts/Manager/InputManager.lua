@@ -31,7 +31,8 @@ ADInputManager.actionsToInputs = {
     ADCallDriver = "input_callDriver",
     ADGoToVehicle = "input_goToVehicle",
     ADIncLoopCounter = "input_incLoopCounter",
-    ADSwapTargets = "input_swapTargets"
+    ADSwapTargets = "input_swapTargets",
+    AD_open_notification_history = "input_openNotificationHistory"
 }
 
 ADInputManager.inputsToIds = {
@@ -100,6 +101,10 @@ end
 
 -- Sender only events
 
+function ADInputManager:input_openNotificationHistory(vehicle)
+    AutoDrive.onOpenNotificationsHistory()
+end
+
 function ADInputManager:input_editMapMarker(vehicle)
     if vehicle.ad.stateModule:isEditorModeEnabled() then
         -- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
@@ -147,7 +152,7 @@ function ADInputManager:input_toggleConnection(vehicle)
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
-                ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.stateModule:getSelectedNeighbourPoint())
+                ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(closestWayPoint), vehicle.ad.stateModule:getSelectedNeighbourPoint(), false)
             end
         end
     end
@@ -158,7 +163,7 @@ function ADInputManager:input_toggleConnectionInverted(vehicle)
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
-                ADGraphManager:toggleConnectionBetween(vehicle.ad.stateModule:getSelectedNeighbourPoint(), ADGraphManager:getWayPointById(closestWayPoint))
+                ADGraphManager:toggleConnectionBetween(vehicle.ad.stateModule:getSelectedNeighbourPoint(), ADGraphManager:getWayPointById(closestWayPoint), false)
             end
         end
     end
@@ -288,6 +293,7 @@ function ADInputManager:input_nextTarget(vehicle)
             currentTarget = 1
         end
         vehicle.ad.stateModule:setFirstMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -300,6 +306,7 @@ function ADInputManager:input_previousTarget(vehicle)
             currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setFirstMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -312,6 +319,7 @@ function ADInputManager:input_nextTarget_Unload(vehicle)
             currentTarget = 1
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -324,6 +332,7 @@ function ADInputManager:input_previousTarget_Unload(vehicle)
             currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
+        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -348,6 +357,7 @@ end
 function ADInputManager:input_parkVehicle(vehicle)
     if vehicle.ad.stateModule:hasParkDestination() then
         vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getParkDestination())
+        vehicle.ad.stateModule:removeCPCallback()
         if vehicle.ad.stateModule:isActive() then
             self:input_start_stop(vehicle) --disable if already active
         end
@@ -363,6 +373,7 @@ function ADInputManager:input_swapTargets(vehicle)
     local currentFirstMarker = vehicle.ad.stateModule:getFirstMarkerId()
     vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
     vehicle.ad.stateModule:setSecondMarker(currentFirstMarker)
+    vehicle.ad.stateModule:removeCPCallback()
 end
 
 function ADInputManager:input_startCp(vehicle)

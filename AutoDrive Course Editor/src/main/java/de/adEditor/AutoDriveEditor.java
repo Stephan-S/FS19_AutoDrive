@@ -213,9 +213,6 @@ public class AutoDriveEditor extends JFrame {
 
     private void mapBoxSetEnabled(boolean enabled) {
         loadImageButton.setEnabled(enabled);
-        oneTimesMap.setEnabled(enabled);
-        fourTimesMap.setEnabled(enabled);
-        sixteenTimesMap.setEnabled(enabled);
     }
 
     public void updateButtons() {

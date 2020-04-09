@@ -5,17 +5,17 @@ function AutoDrive.loadStoredXML()
 
 	local xmlFile = AutoDrive.getXMLFile()
 
-	AutoDrive.currentVersion = AutoDrive.semanticVersionToValue(AutoDrive.version)
-	AutoDrive.versionUpdate = false
+	--AutoDrive.currentVersion = AutoDrive.semanticVersionToValue(AutoDrive.version)
+	--AutoDrive.versionUpdate = false
 	AutoDrive.versionUpdateCancelsSettingsLoad = false
 
 	if fileExists(xmlFile) then
 		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. xmlFile)
 		AutoDrive.adXml = loadXMLFile("AutoDrive_XML", xmlFile)
-
+		--[[
 		local versionString = getXMLString(AutoDrive.adXml, "AutoDrive.version")
 		if versionString ~= nil then
-			AutoDrive.savedVersion = AutoDrive.semanticVersionToValue(versionString)			
+			AutoDrive.savedVersion = AutoDrive.semanticVersionToValue(versionString)
 
 			if AutoDrive.savedVersion < AutoDrive.currentVersion then
 				AutoDrive.versionUpdate = true
@@ -26,8 +26,9 @@ function AutoDrive.loadStoredXML()
 				AutoDrive.versionUpdateCancelsSettingsLoad = true
 			end
 		end
+		--]]
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
-		if versionString == nil or MapCheck == false then
+		if MapCheck == false then --versionString == nil or 
 			g_logManager:devWarning("[AutoDrive] Version Check (%s) or Map Check (%s) failed", versionString == nil, MapCheck == false)
 			AutoDrive.loadInitConfig(xmlFile, false)
 		else
@@ -94,7 +95,7 @@ function AutoDrive.readFromXML(xmlFile)
 	AutoDrive.showingHud = getXMLBool(xmlFile, "AutoDrive.HudShow")
 
 	AutoDrive.currentDebugChannelMask = getXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask") or 0
-	
+
 	if not AutoDrive.versionUpdateCancelsSettingsLoad then
 		for settingName, _ in pairs(AutoDrive.settings) do
 			local value = getXMLFloat(xmlFile, "AutoDrive." .. settingName)
@@ -318,6 +319,8 @@ function AutoDrive.loadUsersData()
 					AutoDrive.usersData[uniqueId].hudX = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudX"), 0.5)
 					AutoDrive.usersData[uniqueId].hudY = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudY"), 0.5)
 					AutoDrive.usersData[uniqueId].guiScale = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#guiScale"), AutoDrive.settings.guiScale.default)
+					AutoDrive.usersData[uniqueId].wideHUD = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#wideHUD"), AutoDrive.settings.wideHUD.default)
+					AutoDrive.usersData[uniqueId].notifications = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#notifications"), AutoDrive.settings.notifications.default)
 				end
 				uIndex = uIndex + 1
 			end
@@ -336,6 +339,8 @@ function AutoDrive.saveUsersData()
 		setXMLFloat(xmlFile, uKey .. "#hudX", userData.hudX)
 		setXMLFloat(xmlFile, uKey .. "#hudY", userData.hudY)
 		setXMLInt(xmlFile, uKey .. "#guiScale", userData.guiScale)
+		setXMLInt(xmlFile, uKey .. "#wideHUD", userData.wideHUD)
+		setXMLInt(xmlFile, uKey .. "#notifications", userData.notifications)
 		uIndex = uIndex + 1
 	end
 	saveXMLFile(xmlFile)
@@ -441,7 +446,7 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 			local group = getXMLString(xmlId, key .. "#g")
 
 			i = i + 1
-			markers[i] = {id = id, name = name, group = group}
+			markers[i] = {id = id, name = name, group = group, markerIndex = i}
 		end
 	end
 

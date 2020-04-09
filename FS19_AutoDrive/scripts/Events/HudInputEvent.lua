@@ -47,6 +47,7 @@ function AutoDriveHudInputEventEvent:run(connection)
         if self.eventType == self.TYPE_FILLTYPE then
             self.vehicle.ad.stateModule:setFillType(self.value)
         end
+        self.vehicle.ad.stateModule:removeCPCallback()
     end
 end
 

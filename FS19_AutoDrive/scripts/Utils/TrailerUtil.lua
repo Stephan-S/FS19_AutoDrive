@@ -191,6 +191,9 @@ function AutoDrive.getDistanceToUnloadPosition(vehicle)
     end
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
+    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+    end
     if destination == nil then
         return math.huge
     end
@@ -345,7 +348,7 @@ function AutoDrive.setTrailerCoverOpen(vehicle, trailers, open)
         if trailer.spec_cover ~= nil then
             targetState = targetState * #trailer.spec_cover.covers
             if trailer.spec_cover.state ~= targetState and trailer:getIsNextCoverStateAllowed(targetState) then
-                trailer:setCoverState(targetState, true)
+                trailer:setCoverState(targetState, false)
             end
         end
     end
@@ -363,7 +366,7 @@ function AutoDrive.setAugerPipeOpen(trailers, open)
     for _, trailer in pairs(trailers) do
         if trailer.spec_pipe ~= nil then
             if trailer.spec_pipe.currentState ~= targetState and trailer:getIsPipeStateChangeAllowed(targetState) then
-                trailer:setPipeState(targetState, true)
+                trailer:setPipeState(targetState, false)
             end
         end
     end
@@ -508,8 +511,12 @@ function AutoDrive.trailerIsInTriggerList(trailer, trigger, fillUnitIndex)
         end
     end
     --]]
-    local activatable = trigger:getIsActivatable(trailer)
-    if trigger ~= nil and trigger.validFillableObject ~= nil and trigger.validFillableFillUnitIndex ~= nil then
+    local activatable = true
+    if trigger.getIsActivatable ~= nil then
+        activatable = trigger:getIsActivatable(trailer)
+    end
+
+    if trigger ~= nil and trigger.validFillableObject ~= nil and trigger.validFillableFillUnitIndex ~= nil and activatable then
         --print("Activateable: " .. AutoDrive.boolToString(activatable) .. " isLoading: " .. AutoDrive.boolToString(trigger.isLoading))
         if activatable and trigger.validFillableObject == trailer and trigger.validFillableFillUnitIndex == fillUnitIndex then
             --print("Is trailer and correctFillUnitIndex: " .. fillUnitIndex)

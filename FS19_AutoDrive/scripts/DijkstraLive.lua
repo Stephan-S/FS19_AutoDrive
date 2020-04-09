@@ -12,11 +12,23 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 			AutoDrive.dijkstraCalc.distance[current] = 10000000
 		end
 		newdist = AutoDrive.dijkstraCalc.distance[current]
-		while #wayPoints[linked].incoming == 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
+		while #wayPoints[linked].incoming <= 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
 			distanceToAdd = 0
 			angle = 0
 			if nil == AutoDrive.dijkstraCalc.pre[current] then
 				AutoDrive.dijkstraCalc.pre[current] = -1
+			end
+			local wp_current
+			local wp_ahead
+			local wp_ref
+			local isReverseStart = false
+			local isReverseEnd = false
+			if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
+				wp_current = wayPoints[current]
+				wp_ahead = wayPoints[linked]
+				wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
+				isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+				isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 			end
 			if AutoDrive.setting_useFastestRoute == true then
 				if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
@@ -27,17 +39,13 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 			else
 				distanceToAdd = ADGraphManager:getDistanceBetweenNodes(current, linked)
 				if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
-					local wp_current = wayPoints[current]
-					local wp_ahead = wayPoints[linked]
-					local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
 					angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
 					angle = math.abs(angle)
 				else
 					angle = 0
 				end
 			end
-
-			if math.abs(angle) > 90 then
+			if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
 				newdist = 10000000
 			end
 			newdist = newdist + distanceToAdd
@@ -58,6 +66,18 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 		if nil == AutoDrive.dijkstraCalc.pre[current] then
 			AutoDrive.dijkstraCalc.pre[current] = -1
 		end
+		local wp_current
+		local wp_ahead
+		local wp_ref
+		local isReverseStart = false
+		local isReverseEnd = false
+		if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
+			wp_current = wayPoints[current]
+			wp_ahead = wayPoints[linked]
+			wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
+			isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+			isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
+		end
 		if AutoDrive.setting_useFastestRoute == true then
 			if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
 				distanceToAdd, angle = ADGraphManager:getDriveTimeBetweenNodes(current, linked, AutoDrive.dijkstraCalc.pre[current], nil, false)
@@ -67,16 +87,13 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 		else
 			distanceToAdd = ADGraphManager:getDistanceBetweenNodes(current, linked)
 			if AutoDrive.dijkstraCalc.pre[current] ~= nil and AutoDrive.dijkstraCalc.pre[current] ~= -1 then
-				local wp_current = wayPoints[current]
-				local wp_ahead = wayPoints[linked]
-				local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[current]]
 				angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
 				angle = math.abs(angle)
 			else
 				angle = 0
 			end
 		end
-		if math.abs(angle) > 90 then
+		if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
 			newdist = 10000000
 		end
 		newdist = newdist + distanceToAdd
@@ -176,6 +193,18 @@ function AutoDrive:dijkstraLive(start, target)
 								if nil == AutoDrive.dijkstraCalc.pre[shortest_id] then
 									AutoDrive.dijkstraCalc.pre[shortest_id] = -1
 								end
+								local wp_current
+								local wp_ahead
+								local wp_ref
+								local isReverseStart = false
+								local isReverseEnd = false
+								if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
+									wp_current = wayPoints[shortest_id]
+									wp_ahead = wayPoints[linkedNodeId]
+									wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[shortest_id]]
+									isReverseStart = not table.contains(wp_ahead.incoming, wp_current.id)
+									isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
+								end
 								if AutoDrive.setting_useFastestRoute == true then
 									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
 										distanceToAdd, angle = ADGraphManager:getDriveTimeBetweenNodes(shortest_id, linkedNodeId, AutoDrive.dijkstraCalc.pre[shortest_id], nil, false)
@@ -185,9 +214,6 @@ function AutoDrive:dijkstraLive(start, target)
 								else
 									distanceToAdd = ADGraphManager:getDistanceBetweenNodes(shortest_id, linkedNodeId)
 									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
-										local wp_current = wayPoints[shortest_id]
-										local wp_ahead = wayPoints[linkedNodeId]
-										local wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[shortest_id]]
 										angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
 										angle = math.abs(angle)
 									else
@@ -195,7 +221,7 @@ function AutoDrive:dijkstraLive(start, target)
 									end
 								end
 								local alternative = shortest + distanceToAdd
-								if math.abs(angle) > 90 then
+								if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
 									alternative = 10000000
 								end
 

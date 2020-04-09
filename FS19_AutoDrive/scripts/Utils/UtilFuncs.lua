@@ -692,12 +692,14 @@ end
 
 function AutoDrive:onFillTypeSelection(superFunc, fillType)
 	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
-		--for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
-			--if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
-				--self.validFillableObject = fillableObject.object
-				--self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
-			--end
-		--end
+		if self.validFillableObject == nil then
+			for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
+				if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
+					self.validFillableObject = fillableObject.object
+					self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
+				end
+			end
+		end
 		local validFillableObject = self.validFillableObject
 		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
 			local fillUnitIndex = self.validFillableFillUnitIndex

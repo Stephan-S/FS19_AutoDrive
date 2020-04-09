@@ -8,12 +8,14 @@ function AutoDrive:loadGUI()
 	AutoDrive.gui.ADEnterGroupNameGui = ADEnterGroupNameGui:new()
 	AutoDrive.gui.ADEnterDestinationFilterGui = ADEnterDestinationFilterGui:new()
 	AutoDrive.gui.ADRoutesManagerGui = ADRoutesManagerGui:new()
+	AutoDrive.gui.ADNotificationsHistoryGui = ADNotificationsHistoryGui:new()
 
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "ADEnterTargetNameGui", AutoDrive.gui.ADEnterTargetNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterGroupNameGUI.xml", "ADEnterGroupNameGui", AutoDrive.gui.ADEnterGroupNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/routesManagerGUI.xml", "ADRoutesManagerGui", AutoDrive.gui.ADRoutesManagerGui)
+	g_gui:loadGui(AutoDrive.directory .. "gui/notificationsHistoryGUI.xml", "ADNotificationsHistoryGui", AutoDrive.gui.ADNotificationsHistoryGui)
 
 	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
 	AutoDrive.gui.ADVehicleSettingsPage = ADSettingsPage:new()
@@ -80,5 +82,11 @@ end
 function AutoDrive.onOpenRoutesManager()
 	if not AutoDrive.gui.ADRoutesManagerGui.isOpen then
 		g_gui:showGui("ADRoutesManagerGui")
+	end
+end
+
+function AutoDrive.onOpenNotificationsHistory()
+	if not AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
+		g_gui:showGui("ADNotificationsHistoryGui")
 	end
 end
