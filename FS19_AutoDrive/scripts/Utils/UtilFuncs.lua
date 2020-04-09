@@ -469,7 +469,7 @@ function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
 		if vehicle ~= nil then
-			if vehicle.ad ~= nil then
+			if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
 				printText = vehicle.ad.stateModule:getName() .. ": "
 			else
 				printText = vehicle:getName() .. ": "
@@ -617,7 +617,7 @@ Sprayer.registerOverwrittenFunctions =
 			"getIsAIActive",
 			function(self, superFunc)
 				local rootVehicle = self:getRootVehicle()
-				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
+				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
 					return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
 				end
 				return superFunc(self)
