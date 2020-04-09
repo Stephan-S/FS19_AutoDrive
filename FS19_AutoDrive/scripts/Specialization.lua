@@ -360,20 +360,6 @@ function AutoDrive:onDraw()
             end
         end
     end
-
-    local trailers, trailerCount = AutoDrive.getTrailersOf(self)
-    if trailerCount > 0 then
-        local trailer = trailers[trailerCount]
-        if trailer ~= nil then
-            if trailer.ad == nil then
-                trailer.ad = {}
-            end
-            ADSensor:handleSensors(trailer, 0)
-            trailer.ad.sensors.rearSensor.drawDebug = true
-            trailer.ad.sensors.rearSensor.enabled = true
-            trailer.ad.sensors.rearSensor:pollInfo()
-        end
-    end
 end
 
 function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointDescIndex)
