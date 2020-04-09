@@ -392,15 +392,19 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 	removeXMLProperty(xmlId, rootNode .. ".groups")
 	do
 		local i = 0
-		for name, _ in pairs(groups) do
+		for name, id in pairs(groups) do
 			local key = string.format("%s.groups.g(%d)", rootNode, i)
 			setXMLString(xmlId, key .. "#n", name)
+			setXMLInt(xmlId, key .. "#i", id)
 			i = i + 1
 		end
 	end
 end
 
-function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
+function AutoDrive.readGraphFromXml(xmlId, rootNode)
+	local wayPoints = {}
+	local mapMarkers = {}
+	local groups = {}
 	-- reading waypoints
 	do
 		local key = string.format("%s.waypoints", rootNode)
@@ -428,7 +432,7 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 					tbin(wp.incoming, tnum(incoming))
 				end
 			end
-			waypoints[i] = wp
+			wayPoints[i] = wp
 			i = i + 1
 		end
 	end
@@ -446,7 +450,7 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 			local group = getXMLString(xmlId, key .. "#g")
 
 			i = i + 1
-			markers[i] = {id = id, name = name, group = group, markerIndex = i}
+			mapMarkers[i] = {id = id, name = name, group = group, markerIndex = i}
 		end
 	end
 
@@ -459,8 +463,24 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 				break
 			end
 			local groupName = getXMLString(xmlId, key .. "#n")
+			local groupNameId = Utils.getNoNil(getXMLInt(xmlId, key .. "#i"), i + 1)
+			groups[groupName] = groupNameId
 			i = i + 1
-			groups[groupName] = i
 		end
 	end
+
+	-- fix group 'All' index (make sure it's always 1)
+	if groups["All"] ~= 1 then
+		groups["All"] = nil
+		local newGroups = {}
+		newGroups["All"] = 1
+		local index = 2
+		for name, _ in pairs(groups) do
+			newGroups[name] = index
+			index = index + 1
+		end
+		groups = newGroups
+	end
+
+	return wayPoints, mapMarkers, groups
 end
