@@ -12,7 +12,7 @@ function ClearCropTask:new(vehicle, combine)
         o.combine = combine
     end
     o.stuckTimer = AutoDriveTON:new()
-    o.state= ClearCropTask.STATE_CLEARING
+    o.state = ClearCropTask.STATE_CLEARING
     o.reverseStartLocation = nil
     return o
 end
@@ -20,7 +20,7 @@ end
 function ClearCropTask:setUp()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Setting up ClearCropTask")
     local pipeSide = 1
-    if combine ~= nil then
+    if self.combine ~= nil then
         pipeSide = AutoDrive.getPipeSide(self.combine)
     end
     self.wayPoints = {}
