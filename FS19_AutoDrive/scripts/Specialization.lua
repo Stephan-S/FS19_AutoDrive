@@ -338,7 +338,7 @@ function AutoDrive:onDraw()
                     if point.isPathFinderPoint and index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
                         ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1, 0.09, 0.09)
                         ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
-                        
+
                         if AutoDrive.getSettingState("lineHeight") == 1 then
                             local gy = point.y - AutoDrive.drawHeight + 4
                             local ty = lastPoint.y - AutoDrive.drawHeight + 4
@@ -353,31 +353,23 @@ function AutoDrive:onDraw()
                             ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1, 0.09, 0.09, 0.15)
                             ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1, 0.09, 0.09)
                             ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
-                        end                    
+                        end
                     end
                     lastPoint = point
                 end
             end
         end
     end
-
-    local trailers, trailerCount = AutoDrive.getTrailersOf(self)
-    if trailerCount > 0 then
-        local trailer = trailers[trailerCount]
-        if trailer ~= nil then
-            if trailer.ad == nil then
-                trailer.ad = {}
-            end
-            ADSensor:handleSensors(trailer, 0)
-            trailer.ad.sensors.rearSensor.drawDebug = true
-            trailer.ad.sensors.rearSensor.enabled = true
-            trailer.ad.sensors.rearSensor:pollInfo()
-        end
-    end
 end
 
 function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointDescIndex)
-    if attachable.spec_pipe ~= nil and attachable.getIsBufferCombine ~= nil then
+    if attachable["spec_FS19_addon_strawHarvest.strawHarvestPelletizer"] ~= nil then
+        attachable.isPremos = true
+        attachable.getIsBufferCombine = function()
+            return false
+        end
+    end
+    if (attachable.spec_pipe ~= nil and attachable.getIsBufferCombine ~= nil) or attachable.isPremos then
         attachable.isTrailedHarvester = true
         attachable.trailingVehicle = self
         ADHarvestManager:registerHarvester(attachable)
@@ -392,6 +384,9 @@ function AutoDrive:onPreDetachImplement(implement)
         ADHarvestManager:unregisterHarvester(attachable)
         attachable.isTrailedHarvester = false
         attachable.trailingVehicle = nil
+        if attachable.isPremos then
+            attachable.getIsBufferCombine = nil
+        end
     end
 end
 
@@ -589,7 +584,7 @@ function AutoDrive:stopAutoDrive()
                     if self.deactivateLights ~= nil then
                         self:deactivateLights()
                     end
-                    if self.stopMotor ~= nil and (self.getIsEntered == nil or not self:getIsEntered()) then
+                    if self.stopMotor ~= nil then
                         self:stopMotor()
                     end
                 end

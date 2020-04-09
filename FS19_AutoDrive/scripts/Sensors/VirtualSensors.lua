@@ -51,8 +51,6 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.width = vehicle.sizeWidth * 0.65
     sensorParameters.length = 0.1
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
-    --frontSensor.drawDebug = true --test
-    --frontSensor.enabled = true --test
     vehicle.ad.sensors["frontSensor"] = frontSensor
 
     sensorParameters.dynamicLength = false
@@ -73,8 +71,6 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.position = ADSensor.POS_REAR
     local rearSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rearSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
-    rearSensor.drawDebug = true --test
-    rearSensor.enabled = true --test
     vehicle.ad.sensors["rearSensor"] = rearSensor
     vehicle.ad.sensors["rearSensorFruit"] = rearSensorFruit
 
@@ -88,8 +84,6 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     sensorParameters.width = 6.5
     local leftSensorField = ADFieldSensor:new(vehicle, sensorParameters)
-    --leftSensorField.drawDebug = true --test
-    --leftSensorField.enabled = true --test
     vehicle.ad.sensors["leftSensor"] = leftSensor
     vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit
     vehicle.ad.sensors["leftSensorField"] = leftSensorField

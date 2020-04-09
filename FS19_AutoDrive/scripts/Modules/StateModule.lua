@@ -758,15 +758,24 @@ function ADStateModule:removeCPCallback()
 end
 
 function ADStateModule:resetMarkersOnReload()
+    local newFirstMarker = nil
     if self.firstMarker ~= nil and self.firstMarker.id ~= nil then
-        self.firstMarker = ADGraphManager:getMapMarkerById(self.firstMarker.id)
+        newFirstMarker = ADGraphManager:getMapMarkerByWayPointId(self.firstMarker.id)
+    end
+    if newFirstMarker ~= nil then
+        self.firstMarker = newFirstMarker
     else
         self.firstMarker = ADGraphManager:getMapMarkerById(1)
     end
 
+    local newSecondMarker = nil
     if self.secondMarker ~= nil and self.secondMarker.id ~= nil then
-        self.secondMarker = ADGraphManager:getMapMarkerById(self.secondMarker.id)
+        newSecondMarker = ADGraphManager:getMapMarkerByWayPointId(self.secondMarker.id)
+    end
+    if newSecondMarker ~= nil then
+        self.secondMarker = newSecondMarker
     else
         self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
+    self:raiseDirtyFlag()
 end

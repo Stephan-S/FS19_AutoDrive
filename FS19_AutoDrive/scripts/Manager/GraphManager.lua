@@ -361,8 +361,22 @@ function ADGraphManager:getGroups()
 	return self.groups
 end
 
-function ADGraphManager:setGroups(groups)
+function ADGraphManager:setGroups(groups, updateVehicles)
 	self.groups = groups
+	if updateVehicles then
+		for _, vehicle in pairs(g_currentMission.vehicles) do
+			if vehicle.ad ~= nil then
+				if vehicle.ad.groups == nil then
+					vehicle.ad.groups = {}
+				end
+				local newGroups = {}
+				for groupName, _ in pairs(ADGraphManager:getGroups()) do
+					newGroups[groupName] = vehicle.ad.groups[groupName] or false
+				end
+				vehicle.ad.groups = newGroups
+			end
+		end
+	end
 end
 
 function ADGraphManager:getGroupByName(groupName)

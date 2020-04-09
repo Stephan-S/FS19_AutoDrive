@@ -795,7 +795,8 @@ AutoDrive.settings.wideHUD = {
     text = "gui_ad_wideHUD",
     tooltip = "gui_ad_wideHUD_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isSynchronized = false
 }
 
 function AutoDrive.getSetting(settingName, vehicle)
