@@ -49,21 +49,19 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 		if wayPoints[currentWayPoint - 1] ~= nil and wayPoints[currentWayPoint] ~= nil then
 			alreadyOnDualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
 		end
-
+		
 		if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil and not alreadyOnDualRoute then
 			local dualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
 
 			local dualRoutePoints = {}
-			local counter = 0
 			idToCheck = 0
-			while (dualRoute == true) or (idToCheck < 5) do
+			while (dualRoute == true) or (idToCheck < 8) do
 				local startNode = wayPoints[currentWayPoint + idToCheck]
 				local targetNode = wayPoints[currentWayPoint + idToCheck + 1]
 				if (startNode ~= nil) and (targetNode ~= nil) then
 					local testDual = ADGraphManager:isDualRoad(startNode, targetNode)
 					if testDual == true then
-						counter = counter + 1
-						dualRoutePoints[counter] = startNode.id
+						table.insert(dualRoutePoints, startNode.id)
 						dualRoute = true
 					else
 						dualRoute = false
@@ -75,10 +73,9 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 			end
 
 			self.trafficVehicle = nil
-			if counter > 0 then
+			if #dualRoutePoints > 0 then
 				for _, other in pairs(g_currentMission.vehicles) do
-					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
-						local onSameRoute = false
+					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						local onSameRoute = false
 						local sameDirection = false
 						local window = 4
 						local i = -window

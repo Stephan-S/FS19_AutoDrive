@@ -13,6 +13,7 @@ CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER = 10
 CombineUnloaderMode.STATE_EXIT_FIELD = 11
 
 CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 90
+CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER = 2.7
 
 function CombineUnloaderMode:new(vehicle)
     local o = CombineUnloaderMode:create()
@@ -310,8 +311,9 @@ function CombineUnloaderMode:getSideChaseOffsetX()
                                 0)
 
     local sideChaseTermPipeIn = self.combine.sizeWidth/2 +
-                                unloaderWidest * 2 +
-                                headerExtra
+                                unloaderWidest +
+                                headerExtra +
+                                CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER
     local sideChaseTermPipeOut = self.combine.sizeWidth/2 +
                                     (AutoDrive.getPipeLength(self.combine) + pipeOffset)
     -- Some combines fold up their pipe so tight that targeting it could cause a collision.
