@@ -357,7 +357,10 @@ function CombineUnloaderMode:getSideChaseOffsetZ()
     -- only moving the midpoint of the tractor
     local constantAdditionsZ = 1 + self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
-    local dynamicAdditionsZ = diffZ + pipeRootOffsetZ + math.max((targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ targetTrailerFillRatio, 0)
+    local dynamicAdditionsZ = diffZ + pipeRootOffsetZ 
+    if dynamic then
+        dynamicAdditionsZ = dynamicAdditionsZ + math.max((targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ targetTrailerFillRatio, 0)
+    end
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getSideChaseOffsetZ - " ..
     --maxOffset .. "/" .. sideChaseTermZ .. "/" ..math.min(maxOffset, sideChaseTermZ) .. "//" )
@@ -426,7 +429,7 @@ function CombineUnloaderMode:getPipeChasePosition()
     local slopeCorrection = self:getPipeSlopeCorrection()
 
     local sideChaseTermX = self:getSideChaseOffsetX()
-    local sideChaseTermZ = self:getSideChaseOffsetZ()
+    local sideChaseTermZ = self:getSideChaseOffsetZ(false)
     local rearChaseTermX = self:getRearChaseOffsetX()
     local rearChaseTermZ = self:getRearChaseOffsetZ()
     
