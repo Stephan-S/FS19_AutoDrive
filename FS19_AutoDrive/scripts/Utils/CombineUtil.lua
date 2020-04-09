@@ -121,3 +121,23 @@ function AutoDrive.getFrontToolWidth(vehicle)
 
     return widthOfFrontTool
 end
+
+function AutoDrive.getFrontToolLength(vehicle)
+    local lengthOfFrontTool = 0
+
+    if vehicle.getAttachedImplements ~= nil then
+        for _, impl in pairs(vehicle:getAttachedImplements()) do
+            local tool = impl.object
+            if tool ~= nil and tool.sizeWidth ~= nil then
+                --Check if tool is in front of vehicle
+                local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
+                local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
+                if offsetZ > 0 then
+                    lengthOfFrontTool = math.abs(tool.sizeLength)
+                end
+            end
+        end
+    end
+
+    return lengthOfFrontTool
+end

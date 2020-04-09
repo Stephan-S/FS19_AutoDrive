@@ -10,6 +10,7 @@ AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.reverseDrivingAllowed = true
+AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 
 AutoDrive.developmentControls = false
 
