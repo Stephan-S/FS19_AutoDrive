@@ -387,7 +387,7 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
         -- back than the pathfinder (straightening) target in PathFinderModule:startPathPlanningToPipe
         -- math.sqrt(2) gives the hypotenuse of an isosceles right trangle with side length equal to the length
         -- of the trailer 
-        rearChaseOffset = -self.combine.sizeLength/2 - AutoDrive.getTractorTrainLength(self.vehicle, false, true) * math.sqrt(2)
+        rearChaseOffset = -self.combine.sizeLength/2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
     end
 
     return rearChaseOffset
