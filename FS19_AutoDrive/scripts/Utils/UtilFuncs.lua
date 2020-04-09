@@ -617,7 +617,7 @@ Sprayer.registerOverwrittenFunctions =
 			"getIsAIActive",
 			function(self, superFunc)
 				local rootVehicle = self:getRootVehicle()
-				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
+				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
 					return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
 				end
 				return superFunc(self)

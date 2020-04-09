@@ -57,13 +57,12 @@ function EmptyHarvesterTask:update(dt)
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 1")
             self.state = EmptyHarvesterTask.STATE_UNLOADING
-        else
-            if self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF then
+        elseif (AutoDrive.getSetting("preCallLevel", self.combine) > 50 and
+                self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF) then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 2")
                 self.state = EmptyHarvesterTask.STATE_UNLOADING
-            else
-                self.vehicle.ad.drivePathModule:update(dt)
-            end
+        else
+            self.vehicle.ad.drivePathModule:update(dt)
         end
         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
         AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)

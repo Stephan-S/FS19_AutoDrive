@@ -2,6 +2,14 @@ AutoDrive.CHASEPOS_LEFT = 1
 AutoDrive.CHASEPOS_RIGHT = -1
 AutoDrive.CHASEPOS_REAR = 3
 
+function AutoDrive.getNodeName(node)
+    if node == nil then
+        return "nil"
+    else
+        return getName(node)
+    end
+end
+
 function AutoDrive.getDischargeNode(combine)
     local dischargeNode = nil
     for _, dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
@@ -14,48 +22,42 @@ function AutoDrive.getDischargeNode(combine)
 end
 
 function AutoDrive.getPipeRoot(combine)
-    local count = 0
     local pipeRoot = AutoDrive.getDischargeNode(combine)
     local parentStack = Buffer:new()
     local combineNode = combine.components[1].node
-    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Combine Node " .. combineNode .. " " .. self:getNodeName(combineNode))
-    
-    while (pipeRoot ~= combineNode) and (count < 100) and (pipeRoot ~= nil) do
+
+    repeat
         parentStack:Insert(pipeRoot)
         pipeRoot = getParent(pipeRoot)
-        if pipeRoot == 0 or pipeRoot == nil then
-            -- Something unexpected happened, like the discharge node not belonging to self.combine.
-            -- This can happen with harvesters with multiple components
-            -- KNOWN ISSUE: The Panther 2 beet harvester triggers this condition
-            return combineNode
-        end
-        count = count + 1
-    end
+    until ((pipeRoot == combineNode) or (pipeRoot == 0) or (pipeRoot == nil) or parentStack:Count() == 100)
 
     local translationMagnitude = 0
-    -- Pop the first thing off the stack. This should refer to a large chunk of the harvester and it useless
-    -- for our purposes.
-    --parentStack:Get()
-    pipeRoot = parentStack:Get()
-    local pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
-    local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
-    local heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
-    local pipeRootAgl = pipeRootWorldY - heightUnderRoot
-    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
-    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
-    while ((translationMagnitude < 0.01) or 
-            (not combine:getIsBufferCombine() and AutoDrive.sign(pipeRootX) ~= AutoDrive.getPipeSide(combine)) or
-            (pipeRootY < 0) and -- This may be a poor assumption. Depends on where the "moving parts" node is translated to, and it's inconsistent.
-            parentStack:Count() > 0) do
+    local pipeRootX, pipeRootY, pipeRootZ
+    local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ
+    local heightUnderRoot, pipeRootAgl
+    local lastPipeRoot = pipeRoot
+
+    repeat
         pipeRoot = parentStack:Get()
-        pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
-        pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
-        heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
-        pipeRootAgl = pipeRootWorldY - heightUnderRoot
-        
-        translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
-        --AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeTranslationRoot - Search Stack " .. pipeRoot .. " " .. self:getNodeName(pipeRoot))
-        --AutoDrive.debugPrint(self.combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeTranslationRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX))
+        if pipeRoot ~= nil and pipeRoot ~= 0 then
+            pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
+            pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
+            heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
+            pipeRootAgl = pipeRootWorldY - heightUnderRoot
+            translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
+        end
+        --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Search Stack " .. pipeRoot .. " " .. AutoDrive.getNodeName(pipeRoot))
+        --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX) .. " " .. AutoDrive.getPipeSide(combine))
+    until ((translationMagnitude > 0.01 and translationMagnitude < 100) and
+           (combine:getIsBufferCombine() or AutoDrive.sign(pipeRootX) == AutoDrive.getPipeSide(combine)) and
+           (pipeRootY > 0) or
+           parentStack:Count() == 0
+          )
+    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Pipe Root " .. pipeRoot .. " " .. AutoDrive.getNodeName(pipeRoot))
+    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Pipe Root " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX)  .. " ".. AutoDrive.getPipeSide(combine))
+     
+    if pipeRoot == nil or pipeRoot == 0 then
+        pipeRoot = combine.components[1].node
     end
 
     return pipeRoot
@@ -98,4 +100,24 @@ function AutoDrive.isSugarcaneHarvester(combine)
         end
     end
     return isSugarCaneHarvester
+end
+
+function AutoDrive.getFrontToolWidth(vehicle)
+    local widthOfFrontTool = 0
+
+    if vehicle.getAttachedImplements ~= nil then
+        for _, impl in pairs(vehicle:getAttachedImplements()) do
+            local tool = impl.object
+            if tool ~= nil and tool.sizeWidth ~= nil then
+                --Check if tool is in front of vehicle
+                local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
+                local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
+                if offsetZ > 0 then
+                    widthOfFrontTool = math.abs(tool.sizeWidth)
+                end
+            end
+        end
+    end
+
+    return widthOfFrontTool
 end
