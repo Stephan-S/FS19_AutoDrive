@@ -354,15 +354,14 @@ function CombineUnloaderMode:getSideChaseOffsetZ()
     -- helps the sugarcane harvester. We start at at the front of the trailer. We use an exponential
     -- to increase dwell time towards the front of the trailer, since loads migrate towards the back.
     
-    -- The constant additions should put at precisely at the joint of the vehicle and trailer, then a little futher
-    -- back so non-semis don't miss
-    local constantAdditionsZ = diffZ + pipeRootOffsetZ + self.vehicle.sizeLength/2 + 2  --+ (self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2) + 2
-    --local constantAdditionsZ = diffZ + pipeRootOffsetZ  + (self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2) + 2
-    -- We then gradually move back, but don't use the last two meters of trailer for cosmetic reasons
-    local dynamicAdditionsZ = math.max((targetTrailer.sizeLength - constantAdditionsZ - 2) ^ targetTrailerFillRatio, 0)
-    local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ --- (targetTrailer.sizeLength / 2)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getSideChaseOffsetZ - " ..
-    maxOffset .. "/" .. sideChaseTermZ .. "/" ..math.min(maxOffset, sideChaseTermZ) .. "//" )
+    -- The constant additions should put at precisely at the joint of the vehicle and trailer, then correct for
+    -- only moving the midpoint of the tractor
+    local constantAdditionsZ = 1 + self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2
+    -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
+    local dynamicAdditionsZ = diffZ + pipeRootOffsetZ + math.max((targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ targetTrailerFillRatio, 0)
+    local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getSideChaseOffsetZ - " ..
+    --maxOffset .. "/" .. sideChaseTermZ .. "/" ..math.min(maxOffset, sideChaseTermZ) .. "//" )
     return math.min(maxOffset, sideChaseTermZ)
 end
 
