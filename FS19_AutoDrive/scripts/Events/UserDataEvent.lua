@@ -9,70 +9,53 @@ function AutoDriveUserDataEvent:emptyNew()
     return o
 end
 
-function AutoDriveUserDataEvent:new(hudX, hudY, guiScale, wideHUD, notifications)
+function AutoDriveUserDataEvent:new(hudX, hudY, settings)
     local o = AutoDriveUserDataEvent:emptyNew()
     o.hudX = hudX
     o.hudY = hudY
-    o.guiScale = guiScale
-    o.wideHUD = wideHUD
-    o.notifications = notifications
+    o.settings = settings
     return o
 end
 
 function AutoDriveUserDataEvent:writeStream(streamId, connection)
     streamWriteFloat32(streamId, self.hudX)
     streamWriteFloat32(streamId, self.hudY)
-    streamWriteUInt8(streamId, self.guiScale)
-    streamWriteUInt8(streamId, self.wideHUD)
-    streamWriteUInt8(streamId, self.notifications)
+    streamWriteUInt8(streamId, table.count(self.settings))
+    for sn, sv in pairs(self.settings) do
+        streamWriteString(streamId, sn)
+        streamWriteUInt8(streamId, sv)
+    end
 end
 
 function AutoDriveUserDataEvent:readStream(streamId, connection)
     self.hudX = streamReadFloat32(streamId)
     self.hudY = streamReadFloat32(streamId)
-    self.guiScale = streamReadUInt8(streamId)
-    self.wideHUD = streamReadUInt8(streamId)
-    self.notifications = streamReadUInt8(streamId)
+    local settingsCount = streamReadUInt8(streamId)
+    self.settings = {}
+    for _ = 1, settingsCount do
+        local sn = streamReadString(streamId)
+        local sv = streamReadUInt8(streamId)
+        self.settings[sn] = sv
+    end
     self:run(connection)
 end
 
 function AutoDriveUserDataEvent:run(connection)
     if g_server ~= nil then
         -- Saving data if we are on the server
-        local user = g_currentMission.userManager:getUserByConnection(connection)
-        if user == nil then
-            return
-        end
-        local uniqueId = user.uniqueUserId
-        if AutoDrive.usersData[uniqueId] == nil then
-            AutoDrive.usersData[uniqueId] = {}
-        end
-        AutoDrive.usersData[uniqueId].hudX = self.hudX
-        AutoDrive.usersData[uniqueId].hudY = self.hudY
-        AutoDrive.usersData[uniqueId].guiScale = self.guiScale
-        AutoDrive.usersData[uniqueId].wideHUD = self.wideHUD
-        AutoDrive.usersData[uniqueId].notifications = self.notifications
+        ADUserDataManager:updateUserSettings(connection, self.hudX, self.hudY, self.settings)
     else
         -- Applying data if we are on the client
-        AutoDrive.Hud:createHudAt(self.hudX, self.hudY)
-        AutoDrive.setSettingState("guiScale", self.guiScale)
-        AutoDrive.setSettingState("wideHUD", self.wideHUD)
-        AutoDrive.setSettingState("notifications", self.notifications)
+        ADUserDataManager:applyUserSettings(self.hudX, self.hudY, self.settings)
     end
 end
 
-function AutoDriveUserDataEvent.sendToClient(connection)
-    local user = g_currentMission.userManager:getUserByConnection(connection)
-    if g_server ~= nil and user ~= nil then
-        local uniqueId = user.uniqueUserId
-        if AutoDrive.usersData[uniqueId] ~= nil then
-            connection:sendEvent(AutoDriveUserDataEvent:new(AutoDrive.usersData[uniqueId].hudX, AutoDrive.usersData[uniqueId].hudY, AutoDrive.usersData[uniqueId].guiScale, AutoDrive.usersData[uniqueId].wideHUD, AutoDrive.usersData[uniqueId].notifications))
-        end
-    end
+function AutoDriveUserDataEvent.sendToClient(connection, hudX, hudY, settings)
+    connection:sendEvent(AutoDriveUserDataEvent:new(hudX, hudY, settings))
 end
 
-function AutoDriveUserDataEvent.sendToServer()
+function AutoDriveUserDataEvent.sendToServer(hudX, hudY, settings)
     if g_server == nil then
-        g_client:getServerConnection():sendEvent(AutoDriveUserDataEvent:new(AutoDrive.HudX, AutoDrive.HudY, AutoDrive.getSettingState("guiScale"), AutoDrive.getSettingState("wideHUD"), AutoDrive.getSettingState("notifications")))
+        g_client:getServerConnection():sendEvent(AutoDriveUserDataEvent:new(hudX, hudY, settings))
     end
 end

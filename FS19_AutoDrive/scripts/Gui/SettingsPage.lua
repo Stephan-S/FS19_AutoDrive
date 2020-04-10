@@ -50,7 +50,9 @@ function ADSettingsPage:onCreateAutoDriveSetting(element)
 
     local iconElem = element.elements[6]
     if iconElem ~= nil then
-        if setting.isVehicleSpecific then
+        if setting.isUserSpecific then
+            iconElem:setImageUVs(nil, unpack(getNormalizedUVs(ADSettings.ICON_UV.USER)))
+        elseif setting.isVehicleSpecific then
             iconElem:setImageUVs(nil, unpack(getNormalizedUVs(ADSettings.ICON_UV.VEHICLE)))
         else
             iconElem:setImageUVs(nil, unpack(getNormalizedUVs(ADSettings.ICON_UV.GLOBAL)))
