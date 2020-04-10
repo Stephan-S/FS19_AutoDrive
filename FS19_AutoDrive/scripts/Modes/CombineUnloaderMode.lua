@@ -150,10 +150,17 @@ function CombineUnloaderMode:getNextTask()
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_COMBINE")
         -- we finished the precall to combine route
         -- check if we should wait / pull up to combines pipe
-        nextTask = FollowCombineTask:new(self.vehicle, self.combine)
-        self.state = self.STATE_ACTIVE_UNLOAD_COMBINE
-        self.breadCrumbs = Queue:new()
-        self.lastBreadCrumb = nil
+        _, sideIndex = self:getPipeChasePosition()
+        -- If we're not on the wrong side of the combine we're likely to crash
+        local leftRight, frontBack = self:getUnloaderOnSide() 
+        if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or frontBack == sideIndex then
+            nextTask = FollowCombineTask:new(self.vehicle, self.combine)
+            self.state = self.STATE_ACTIVE_UNLOAD_COMBINE
+            self.breadCrumbs = Queue:new()
+            self.lastBreadCrumb = nil
+        else
+            nextTask = CatchCombinePipeTask:new(self.vehicle, self.combine)
+        end
     elseif self.state == self.STATE_DRIVE_TO_PIPE then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_PIPE")
         --Drive to pipe can be finished when combine is emptied or when vehicle has reached 'old' pipe position and should switch to active mode
@@ -312,8 +319,14 @@ function CombineUnloaderMode:getUnloaderOnSide()
     local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
 
     --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
-    local diffX, _, _ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
-    return AutoDrive.sign(diffX)
+    local diffX, _, diffZ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
+    local leftright = AutoDrive.sign(diffX)
+    local frontback = AutoDrive.CHASEPOS_FRONT
+    if AutoDrive.sign(diffZ) < 0 then
+        frontback = AutoDrive.CHASEPOS_REAR
+    end
+
+    return leftright, frontback
 end
 
 function CombineUnloaderMode:getTargetTrailer()
