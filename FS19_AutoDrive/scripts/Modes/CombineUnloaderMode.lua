@@ -303,7 +303,7 @@ function CombineUnloaderMode:getUnloaderOnSide()
     local frontback = AutoDrive.CHASEPOS_FRONT
     -- If we're not clearly on one side or the other of the combine, we don't
     -- give a clear answer
-    if math.abs(diffX) > self.combine.sizeWidth then
+    if math.abs(diffX) > self.combine.sizeWidth/2 then
         leftright = AutoDrive.sign(diffX)
     end
 
