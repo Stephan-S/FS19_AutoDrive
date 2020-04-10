@@ -36,10 +36,10 @@ function PickupAndDeliverMode:start()
         return
     end
 
-    if self.vehicle.ad.callBackFunction ~= nil then
+    if self.vehicle.ad.callBackFunction ~= nil and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.activeTask = ExitFieldTask:new(self.vehicle)
         self.vehicle.ad.taskModule:addTask(self.activeTask)
-        self.state = self.STATE_EXIT_FIELD
+        self.state = self.STATE_EXIT_FIELD       
     else
         self.activeTask = self:getNextTask()
         if self.activeTask ~= nil then

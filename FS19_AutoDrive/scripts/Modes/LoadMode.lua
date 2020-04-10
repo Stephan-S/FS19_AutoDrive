@@ -28,7 +28,7 @@ function LoadMode:start()
         return
     end
 
-    if self.vehicle.ad.callBackFunction ~= nil then
+    if self.vehicle.ad.callBackFunction ~= nil and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30 then
         self.vehicle.ad.taskModule:addTask(ExitFieldTask:new(self.vehicle))
         self.state = self.STATE_EXIT_FIELD
     else

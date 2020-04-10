@@ -46,16 +46,12 @@ function AutoDrive.getPipeRoot(combine)
             pipeRootAgl = pipeRootWorldY - heightUnderRoot
             translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
         end
-        --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Search Stack " .. pipeRoot .. " " .. AutoDrive.getNodeName(pipeRoot))
-        --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Search Stack " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX) .. " " .. AutoDrive.getPipeSide(combine))
     until ((translationMagnitude > 0.01 and translationMagnitude < 100) and
            (combine:getIsBufferCombine() or AutoDrive.sign(pipeRootX) == AutoDrive.getPipeSide(combine)) and
            (pipeRootY > 0) or
            parentStack:Count() == 0
           )
-    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Pipe Root " .. pipeRoot .. " " .. AutoDrive.getNodeName(pipeRoot))
-    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRoot - Pipe Root " .. translationMagnitude .. " " .. pipeRootAgl .. " " .. " " .. AutoDrive.sign(pipeRootX)  .. " ".. AutoDrive.getPipeSide(combine))
-     
+          
     if pipeRoot == nil or pipeRoot == 0 then
         pipeRoot = combine.components[1].node
     end

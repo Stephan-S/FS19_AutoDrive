@@ -335,7 +335,7 @@ function AutoDrive:onDraw()
 
                 local lastPoint = nil
                 for index, point in ipairs(otherVehicle.ad.drivePathModule:getWayPoints()) do
-                    if point.isPathFinderPoint and index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
+                    if point.isPathFinderPoint and index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 160 then
                         ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1, 0.09, 0.09)
                         ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
 
@@ -353,6 +353,35 @@ function AutoDrive:onDraw()
                             ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1, 0.09, 0.09, 0.15)
                             ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1, 0.09, 0.09)
                             ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
+                        end
+                    end
+                    lastPoint = point
+                end
+            end
+        end
+
+        for _, otherVehicle in pairs(g_currentMission.vehicles) do
+            if otherVehicle ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs() ~= nil then
+                local lastPoint = nil
+                for index, point in ipairs(otherVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs().items) do
+                    if lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
+                        ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
+                        ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
+    
+                        if AutoDrive.getSettingState("lineHeight") == 1 then
+                            local gy = point.y - AutoDrive.drawHeight + 4
+                            local ty = lastPoint.y - AutoDrive.drawHeight + 4
+                            ADDrawingManager:addLineTask(point.x, gy, point.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1.0, 0.769, 0.051, 0.15)
+                            ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
+                        else
+                            local gy = point.y - AutoDrive.drawHeight - 4
+                            local ty = lastPoint.y - AutoDrive.drawHeight - 4
+                            ADDrawingManager:addLineTask(point.x, gy, point.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1.0, 0.769, 0.051, 0.15)
+                            ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
                         end
                     end
                     lastPoint = point

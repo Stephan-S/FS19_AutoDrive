@@ -28,6 +28,8 @@ function CombineUnloaderMode:reset()
     ADHarvestManager:unregisterAsUnloader(self.vehicle)
     self.combine = nil
     self.followingUnloader = nil
+    self.breadCrumbs = Queue:new()
+    self.lastBreadCrumb = nil
 end
 
 function CombineUnloaderMode:start()
@@ -54,7 +56,42 @@ function CombineUnloaderMode:monitorTasks(dt)
             self.combine = nil
         end
     end
+    if self.combine ~= nil and self.state == self.STATE_ACTIVE_UNLOAD_COMBINE then
+        self:leaveBreadCrumbs()
+    end
 end
+
+function CombineUnloaderMode:leaveBreadCrumbs()
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+
+    if self.lastBreadCrumb == nil then
+        self.lastBreadCrumb = {x=x, y=y, z=z, dirX=rx, dirZ=rz}
+        self.breadCrumbs:Enqueue(self.lastBreadCrumb)
+    else
+        if (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) > 0 then
+            local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.lastBreadCrumb.x, self.lastBreadCrumb.y, self.lastBreadCrumb.z)
+            local vec1 = {x = x - self.lastBreadCrumb.x, z=z - self.lastBreadCrumb.z}
+            local angleToNewPoint = AutoDrive.angleBetween({x=self.lastBreadCrumb.dirX, z=self.lastBreadCrumb.dirZ}, vec1)
+            if diffZ < -1 and MathUtil.vector2Length(x - self.lastBreadCrumb.x, z - self.lastBreadCrumb.z) > 2.5 and math.abs(angleToNewPoint) < 90 then
+                self.lastBreadCrumb = {x=x, y=y, z=z, dirX=vec1.x, dirZ=vec1.z}
+                self.breadCrumbs:Enqueue(self.lastBreadCrumb)
+            end
+        end
+    end
+end
+
+function CombineUnloaderMode:getBreadCrumbs()
+    return self.breadCrumbs
+end
+
+function CombineUnloaderMode:promoteFollowingUnloader(combine)
+    self.combine = combine
+    if self.vehicle.ad.taskModule.activeTask ~= nil and self.vehicle.ad.taskModule.activeTask.signalPromotion ~= nil then
+        self.vehicle.ad.taskModule.activeTask:signalPromotion()
+    end
+end
+
 
 function CombineUnloaderMode:handleFinishedTask()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:handleFinishedTask")
@@ -115,6 +152,8 @@ function CombineUnloaderMode:getNextTask()
         -- check if we should wait / pull up to combines pipe
         nextTask = FollowCombineTask:new(self.vehicle, self.combine)
         self.state = self.STATE_ACTIVE_UNLOAD_COMBINE
+        self.breadCrumbs = Queue:new()
+        self.lastBreadCrumb = nil
     elseif self.state == self.STATE_DRIVE_TO_PIPE then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_PIPE")
         --Drive to pipe can be finished when combine is emptied or when vehicle has reached 'old' pipe position and should switch to active mode
@@ -437,7 +476,7 @@ function CombineUnloaderMode:getPipeChasePosition()
     local rearChaseTermZ = self:getRearChaseOffsetZ()
     
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
+        --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
         local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX  + slopeCorrection, sideChaseTermZ)
         local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX  + slopeCorrection, sideChaseTermZ)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, rearChaseTermZ)
@@ -462,13 +501,13 @@ function CombineUnloaderMode:getPipeChasePosition()
             sideIndex = AutoDrive.CHASEPOS_REAR
         end
     else
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:IsNormalCombine")
+        --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:IsNormalCombine")
         local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
-        if (((pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or 
-             (pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and 
+        if (((pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or
+             (pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and
              combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
             chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, (sideChaseTermX * pipeSide) + slopeCorrection, sideChaseTermZ)
             -- Take into account a right sided harvester, e.g. potato harvester.
