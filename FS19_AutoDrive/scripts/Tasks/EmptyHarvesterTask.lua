@@ -74,7 +74,11 @@ function EmptyHarvesterTask:update(dt)
 
         --Check if the combine is moving / has already moved away and we are supposed to actively unload
         if self.combine.ad.noMovementTimer.elapsedTime == 0 then
-            self:finished()
+            self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].state = self.STATE_ACTIVE_UNLOAD_COMBINE
+            self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].breadCrumbs = Queue:new()
+            self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].lastBreadCrumb = nil
+            self.vehicle.ad.taskModule:addTask(FollowCombineTask:new(self.vehicle, self.combine))
+            self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
         end
 
         local combineFillLevel, _ = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)

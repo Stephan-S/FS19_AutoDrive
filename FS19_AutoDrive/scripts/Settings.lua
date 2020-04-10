@@ -765,8 +765,8 @@ AutoDrive.settings.addSettingsToHUD = {
 }
 
 AutoDrive.settings.iconSetToUse = {
-    values = {1, 2},
-    texts = {"AutoDrive", "Hirschfeld"},
+    values = {1, 2, 3},
+    texts = {"AutoDrive", "Hirschfeld", "Holger"},
     default = 1,
     current = 1,
     text = "gui_ad_iconSetToUse",
