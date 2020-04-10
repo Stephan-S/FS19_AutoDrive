@@ -12,7 +12,7 @@ CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 9
 CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER = 10
 CombineUnloaderMode.STATE_EXIT_FIELD = 11
 
-CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 90
+CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 101
 CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER = 2.7
 
 function CombineUnloaderMode:new(vehicle)
@@ -360,7 +360,8 @@ function CombineUnloaderMode:getSideChaseOffsetX()
     local spec = self.combine.spec_pipe
     if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
         sideChaseTermX = sideChaseTermPipeIn + CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER
-    elseif spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
+    elseif (self.combine.ad ~= nil and self.combine.ad.storedPipeLength ~= nil) or
+    (spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer")) then
         -- If the pipe is extended, though, target it regardless
         sideChaseTermX = sideChaseTermPipeOut
     end
@@ -410,7 +411,7 @@ end
 function CombineUnloaderMode:getRearChaseOffsetX()
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local rearChaseOffset = 0
-    if self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine() or AutoDrive.isSugarcaneHarvester(self.combine) then
+    if AutoDrive.isSugarcaneHarvester(self.combine) then --self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine() or 
         local pipeSide = AutoDrive.getPipeSide(self.combine)
         rearChaseOffset = -pipeSide*(self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)/2)+1
     end
