@@ -15,6 +15,9 @@ function ADHarvestManager:registerHarvester(harvester)
     AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:registerHarvester")
     if not table.contains(self.idleHarvesters, harvester) and not table.contains(self.harvesters, harvester) then
         AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:registerHarvester - inserted")
+        if harvester ~= nil and harvester.ad ~= nil then
+            harvester.ad.isCombine = true
+        end
         table.insert(self.idleHarvesters, harvester)
     end
 end
@@ -23,12 +26,18 @@ function ADHarvestManager:unregisterHarvester(harvester)
     AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester")
     if table.contains(self.idleHarvesters, harvester) then
         local index = table.indexOf(self.idleHarvesters, harvester)
-        table.remove(self.idleHarvesters, index)
+        local harvester = table.remove(self.idleHarvesters, index)
+        if harvester ~= nil and harvester.ad ~= nil then
+            harvester.ad.isCombine = false
+        end
         AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - idleHarvesters")
     end
     if table.contains(self.harvesters, harvester) then
         local index = table.indexOf(self.harvesters, harvester)
-        table.remove(self.harvesters, index)
+        local harvester = table.remove(self.harvesters, index)
+        if harvester ~= nil and harvester.ad ~= nil then
+            harvester.ad.isCombine = false
+        end
         AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - harvesters")
     end
 end

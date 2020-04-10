@@ -168,6 +168,7 @@
 		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configuración de descarga cosechadora - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Configuración - AutoDrive" />

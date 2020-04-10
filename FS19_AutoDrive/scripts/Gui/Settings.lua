@@ -9,12 +9,13 @@ ADSettings = {}
 
 local ADSettings_mt = Class(ADSettings, TabbedMenu)
 
-ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings"}
+ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveUserSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings"}
 
 --- Page tab UV coordinates for display elements.
 ADSettings.TAB_UV = {
     SETTINGS_GENERAL = {385, 0, 128, 128},
     SETTINGS_VEHICLE = {0, 209, 65, 65},
+    SETTINGS_USER = {457, 210, 60, 60},
     SETTINGS_UNLOAD = {0, 0, 128, 128},
     SETTINGS_LOAD = {0, 129, 128, 128},
     SETTINGS_NAVIGATION = {0, 257, 128, 128},
@@ -54,10 +55,25 @@ function ADSettings:setupPages()
         return AutoDrive.developmentControls
     end
 
+    local vehicleEnabled = function()
+        if g_currentMission ~= nil and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+            return true
+        end
+        return false
+    end
+
+    local combineEnabled = function()
+        if vehicleEnabled() and g_currentMission.controlledVehicle.ad.isCombine then
+            return true
+        end
+        return false
+    end
+
     local orderedPages = {
         {self.autoDriveSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_GENERAL, false},
-        {self.autoDriveVehicleSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
-        {self.autoDriveCombineUnloadSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
+        {self.autoDriveUserSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_USER, false},
+        {self.autoDriveVehicleSettings, vehicleEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
+        {self.autoDriveCombineUnloadSettings, combineEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
         {self.autoDriveDebugSettings, developmentControlsEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_DEBUG, true},
         {self.autoDriveExperimentalFeaturesSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_EXPFEAT, true}
     }

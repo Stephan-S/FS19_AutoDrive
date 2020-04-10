@@ -367,7 +367,7 @@ function AutoDrive:onDraw()
                     if lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
                         ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
                         ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
-    
+
                         if AutoDrive.getSettingState("lineHeight") == 1 then
                             local gy = point.y - AutoDrive.drawHeight + 4
                             local ty = lastPoint.y - AutoDrive.drawHeight + 4
@@ -402,6 +402,7 @@ function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointD
         attachable.isTrailedHarvester = true
         attachable.trailingVehicle = self
         ADHarvestManager:registerHarvester(attachable)
+        self.ad.isCombine = true
         attachable.ad = self.ad
     end
 end
@@ -410,6 +411,7 @@ function AutoDrive:onPreDetachImplement(implement)
     local attachable = implement.object
     if attachable.isTrailedHarvester and attachable.trailingVehicle == self then
         attachable.ad = nil
+        self.ad.isCombine = false
         ADHarvestManager:unregisterHarvester(attachable)
         attachable.isTrailedHarvester = false
         attachable.trailingVehicle = nil

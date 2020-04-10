@@ -161,6 +161,7 @@
 		
 		
 		<text name="gui_ad_settingsPage_title"					text="Configurações - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configurações do veículo - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configurações de descarga da ceifeira - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Configurações de depuração - AutoDrive" />
