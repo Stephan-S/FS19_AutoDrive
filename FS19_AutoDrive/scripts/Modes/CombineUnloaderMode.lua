@@ -361,23 +361,22 @@ function CombineUnloaderMode:getSideChaseOffsetX()
     -- AFTER determining the chase side. Or this function needs to be rewritten.
     local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
-    local pipeRootOffsetX, _, _= AutoDrive.getPipeRootOffset(self.combine)
     local unloaderWidest = math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)
     local headerExtra = math.max((AutoDrive.getFrontToolWidth(self.combine) - self.combine.sizeWidth)/2,
                                 0)
 
     local sideChaseTermPipeIn = self.combine.sizeWidth/2 +
                                 unloaderWidest +
-                                headerExtra + CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER
+                                headerExtra
     local sideChaseTermPipeOut = self.combine.sizeWidth/2 +
-                                    (AutoDrive.getPipeLength(self.combine) + pipeOffset)
+                                    (AutoDrive.getPipeLength(self.combine))
     -- Some combines fold up their pipe so tight that targeting it could cause a collision.
     -- So, choose the max between the two to avoid a collison
     local sideChaseTermX = math.max(sideChaseTermPipeIn, sideChaseTermPipeOut)
 
     local spec = self.combine.spec_pipe
     if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
-        sideChaseTermX = sideChaseTermPipeIn
+        sideChaseTermX = sideChaseTermPipeIn + CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER
     elseif spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
         -- If the pipe is extended, though, target it regardless
         sideChaseTermX = sideChaseTermPipeOut
@@ -487,7 +486,7 @@ function CombineUnloaderMode:getPipeChasePosition()
     local slopeCorrection = self:getPipeSlopeCorrection()
 
     local sideChaseTermX = self:getSideChaseOffsetX()
-    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance)
+    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
     local rearChaseTermX = self:getRearChaseOffsetX()
     local rearChaseTermZ = self:getRearChaseOffsetZ()
     

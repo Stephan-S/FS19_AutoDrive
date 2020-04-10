@@ -65,6 +65,7 @@ source(Utils.getFilename("scripts/Manager/GraphManager.lua", g_currentModDirecto
 source(Utils.getFilename("scripts/Manager/TriggerManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/HarvestManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/InputManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/UserDataManager.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Tasks/AbstractTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/DriveToDestinationTask.lua", g_currentModDirectory))

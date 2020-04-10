@@ -87,7 +87,7 @@ function AutoDrive.getPipeLength(combine)
     local length = MathUtil.vector3Length(pipeRootX - dischargeX,
                                         0, 
                                         pipeRootZ - dischargeZ)
-    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
+    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
     if AutoDrive.isPipeOut(combine) and not combine:getIsBufferCombine() then
         local combineNode = combine.components[1].node
         local dischargeX, dichargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(combine))

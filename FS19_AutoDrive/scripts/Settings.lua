@@ -381,7 +381,7 @@ AutoDrive.settings.guiScale = {
     tooltip = "gui_ad_gui_scale_tooltip",
     translate = false,
     isVehicleSpecific = false,
-    isSynchronized = false
+    isUserSpecific = true
 }
 
 AutoDrive.settings.notifications = {
@@ -393,7 +393,7 @@ AutoDrive.settings.notifications = {
     tooltip = "gui_ad_notifications_tooltip",
     translate = true,
     isVehicleSpecific = false,
-    isSynchronized = false
+    isUserSpecific = true
 }
 
 AutoDrive.settings.exitField = {
@@ -415,7 +415,8 @@ AutoDrive.settings.showHelp = {
     text = "gui_ad_showHelp",
     tooltip = "gui_ad_showHelp_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.driverWages = {
@@ -437,7 +438,8 @@ AutoDrive.settings.showNextPath = {
     text = "gui_ad_showNextPath",
     tooltip = "gui_ad_showNextPath_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.avoidFruit = {
@@ -470,7 +472,8 @@ AutoDrive.settings.lineHeight = {
     text = "gui_ad_lineHeight",
     tooltip = "gui_ad_lineHeight_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.enableTrafficDetection = {
@@ -684,7 +687,8 @@ AutoDrive.settings.showTooltips = {
     text = "gui_ad_showTooltips",
     tooltip = "gui_ad_showTooltips_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.autoRefuel = {
@@ -706,7 +710,8 @@ AutoDrive.settings.showMarkersOnMap = {
     text = "gui_ad_showMarkersOnMap",
     tooltip = "gui_ad_showMarkersOnMap_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.switchToMarkersOnMap = {
@@ -717,7 +722,8 @@ AutoDrive.settings.switchToMarkersOnMap = {
     text = "gui_ad_switchToMarkersOnMap",
     tooltip = "gui_ad_switchToMarkersOnMap_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.cornerSpeed = {
@@ -761,18 +767,20 @@ AutoDrive.settings.addSettingsToHUD = {
     text = "gui_ad_addSettingsToHUD",
     tooltip = "gui_ad_addSettingsToHUD_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.iconSetToUse = {
-    values = {1, 2},
-    texts = {"AutoDrive", "Hirschfeld"},
+    values = {1, 2, 3},
+    texts = {"AutoDrive", "Hirschfeld", "Holger"},
     default = 1,
     current = 1,
     text = "gui_ad_iconSetToUse",
     tooltip = "gui_ad_iconSetToUse_tooltip",
     translate = false,
-    isVehicleSpecific = false
+    isVehicleSpecific = false,
+    isUserSpecific = true
 }
 
 AutoDrive.settings.secondEditorModeAllowed = {
@@ -784,7 +792,7 @@ AutoDrive.settings.secondEditorModeAllowed = {
     tooltip = "gui_ad_secondEditorModeAllowed_tooltip",
     translate = true,
     isVehicleSpecific = false,
-    isSynchronized = false
+    isUserSpecific = true
 }
 
 AutoDrive.settings.wideHUD = {
@@ -796,7 +804,7 @@ AutoDrive.settings.wideHUD = {
     tooltip = "gui_ad_wideHUD_tooltip",
     translate = true,
     isVehicleSpecific = false,
-    isSynchronized = false
+    isUserSpecific = true
 }
 
 function AutoDrive.getSetting(settingName, vehicle)
@@ -838,6 +846,7 @@ function AutoDrive.setSettingState(settingName, value, vehicle)
             end
         end
         setting.current = value
+        setting.new = value
     end
 end
 

@@ -30,7 +30,7 @@ function FollowVehicleTask:setUp()
                 break
             end
         end
-        if closeToBreadCrumbs then            
+        if closeToBreadCrumbs then
             --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:setUp() - removing items from Queue: " .. indexToAttachTo)
             for i=1,(indexToAttachTo-1) do
                 breadCrumbs:Dequeue()
