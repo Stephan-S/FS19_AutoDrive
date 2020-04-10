@@ -192,7 +192,7 @@ function FollowCombineTask:followChasePoint(dt)
         -- Let's start driving a little slower when we are switching sides
         if not self.chaseTimer:done() or not self:isCaughtCurrentChaseSide() then
             acc = 1
-            totalSpeedLimit = math.max(combineSpeed + 6, 10)
+            totalSpeedLimit = math.max(combineSpeed + 20, 10)
         end
         self.vehicle.ad.specialDrivingModule:driveToPoint(dt, self.chasePos, combineSpeed, false, acc, totalSpeedLimit)
     end

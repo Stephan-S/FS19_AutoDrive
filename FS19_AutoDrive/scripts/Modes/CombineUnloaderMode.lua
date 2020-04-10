@@ -328,17 +328,17 @@ function CombineUnloaderMode:isUnloaderOnCorrectSide()
 end
 
 function CombineUnloaderMode:getPipeSlopeCorrection()
-    local combineNode = self.combine.components[1].node
-    local combineX, combineY, combineZ = getWorldTranslation(combineNode)
+    self.combineNode = self.combine.components[1].node
+    self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
     local nodeX, nodeY, nodeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
-    local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, combineX, combineY, combineZ)
+    local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, self.combineX, self.combineY, self.combineZ)
     local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeX, nodeY, nodeZ)
     -- want this to be negative if the ground is lower under the pipe
     local dh = heightUnderPipe - heightUnderCombine
-    local hyp = MathUtil.vector3Length(combineX - nodeX, heightUnderCombine - heightUnderPipe, combineZ - nodeZ)
+    local hyp = MathUtil.vector3Length(self.combineX - nodeX, heightUnderCombine - heightUnderPipe, self.combineZ - nodeZ)
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh/hyp)) - run
-    return elevationCorrection * AutoDrive.getPipeSide(self.combine)
+    return elevationCorrection * self.pipeSide
 end
 
 function CombineUnloaderMode:getTargetTrailer()
@@ -367,9 +367,8 @@ function CombineUnloaderMode:getSideChaseOffsetX()
     -- we are chasing on! This function only finds the base X offset "to the left".
     -- Slope and side correction MUST be applied in CombineUnloaderMode:getPipeChasePosition
     -- AFTER determining the chase side. Or this function needs to be rewritten.
-    local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
-    local unloaderWidest = math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)
+    local unloaderWidest = math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth)
     local headerExtra = math.max((AutoDrive.getFrontToolWidth(self.combine) - self.combine.sizeWidth)/2,
                                 0)
 
@@ -396,20 +395,9 @@ end
 
 function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     -- The default maximum will place the front of the unloader at the back of the header
-    --local maxOffset = self.combine.sizeLength/2 - self.vehicle.sizeLength / 2
-    local maxOffset = 10000--AutoDrive.getTractorTrainLength(self.vehicle, true, false)
-    local spec = self.combine.spec_pipe
-    --if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
-        -- If the pipe is extended, go as far forward as we like. This is a first approximation
-        -- assuming the user isn't using a header which is wider than the pipe extends
-        -- If the X direction collision avoidance is working, we might not need this guard?
-        --maxOffset = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
-    --end
-
-    local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
-    local _, _, pipeRootOffsetZ= AutoDrive.getPipeRootOffset(self.combine)
-    vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
-    local _, _, diffZ = worldToLocal(targetTrailer.components[1].node, vehicleX, vehicleY, vehicleZ)
+    local _, _, pipeRootOffsetZ = AutoDrive.getPipeRootOffset(self.combine)
+    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local _, _, diffZ = worldToLocal(self.targetTrailer.components[1].node, vehicleX, vehicleY, vehicleZ)
     
     -- We gradually move the chase node forward as a function of fill level because it's pretty and
     -- helps the sugarcane harvester. We start at at the front of the trailer. We use an exponential
@@ -417,12 +405,12 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     
     -- The constant additions should put at precisely at the joint of the vehicle and trailer, then correct for
     -- only moving the midpoint of the tractor
-    local constantAdditionsZ = 1 + self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2
+    local constantAdditionsZ = 1 + self.vehicle.sizeLength/2 - self.targetTrailer.sizeLength/2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
     local dynamicAdditionsZ = diffZ + pipeRootOffsetZ 
-    dynamicAdditionsZ = dynamicAdditionsZ + math.max((targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ targetTrailerFillRatio, 0)
+    dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ self.targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
-    return math.min(maxOffset, sideChaseTermZ)
+    return sideChaseTermZ
 end
 
 function CombineUnloaderMode:getSideChaseOffsetZ(dynamic)
@@ -434,11 +422,9 @@ function CombineUnloaderMode:getSideChaseOffsetZ(dynamic)
 end
 
 function CombineUnloaderMode:getRearChaseOffsetX()
-    local targetTrailer, targetTrailerFillRatio = self:getTargetTrailer()
     local rearChaseOffset = 0
     if AutoDrive.isSugarcaneHarvester(self.combine) then --self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine() or 
-        local pipeSide = AutoDrive.getPipeSide(self.combine)
-        rearChaseOffset = -pipeSide*(self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)/2)+1
+        rearChaseOffset = -self.pipeSide*(self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth)/2)+1
     end
 
     return rearChaseOffset
@@ -461,46 +447,41 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
 end
 
 function CombineUnloaderMode:getPipeChasePosition()
-    local worldX, worldY, worldZ = getWorldTranslation(self.combine.components[1].node)
-    local vehicleX, _, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
-    local rx, _, rz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
-    local combineVector = {x = rx, z = rz}
-    local combineNormalVector = {x = -combineVector.z, z = combineVector.x}
+    self.combineNode = self.combine.components[1].node
+    self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
 
-    local chaseNode = {x = worldX, y = worldY, z = worldZ}
+    local chaseNode
     local sideIndex = AutoDrive.CHASEPOS_REAR
 
-    local leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.leftSensorField:pollInfo()))
-    local rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.rightSensorField:pollInfo()))
-
+    local leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.leftSensorField:pollInfo())) 
     local leftFrontBlocked = self.combine.ad.sensors.leftFrontSensorFruit:pollInfo() or self.combine.ad.sensors.leftFrontSensor:pollInfo()
-    local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo() or self.combine.ad.sensors.rightFrontSensor:pollInfo()
-
     leftBlocked = leftBlocked or leftFrontBlocked
-    rightBlocked = rightBlocked or rightFrontBlocked
 
-    -- prefer side where front is also free
-    if (not leftBlocked) and (not rightBlocked) then
-        if (not leftFrontBlocked) and rightFrontBlocked then
-            rightBlocked = true
-        elseif leftFrontBlocked and (not rightFrontBlocked) then
-            leftBlocked = true
-        end
-    end
-
-    local dischargeNode = AutoDrive.getDischargeNode(self.combine)
-    local pipeSide = AutoDrive.getPipeSide(self.combine)
+    self.pipeSide = AutoDrive.getPipeSide(self.combine)
     -- Slope correction is a very fickle thing for buffer harvesters since you can't know
     -- whether the pipe will be on the same side as the chase.
     local slopeCorrection = self:getPipeSlopeCorrection()
 
+    self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
     local sideChaseTermX = self:getSideChaseOffsetX()
     local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
-    local rearChaseTermX = self:getRearChaseOffsetX()
     local rearChaseTermZ = self:getRearChaseOffsetZ()
     
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
+        local rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.rightSensorField:pollInfo()))
+        local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo() or self.combine.ad.sensors.rightFrontSensor:pollInfo()
+        rightBlocked = rightBlocked or rightFrontBlocked
+        
+        -- prefer side where front is also free
+        if (not leftBlocked) and (not rightBlocked) then
+            if (not leftFrontBlocked) and rightFrontBlocked then
+                rightBlocked = true
+            elseif leftFrontBlocked and (not rightFrontBlocked) then
+                leftBlocked = true
+            end
+        end
+        
         local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX  + slopeCorrection, sideChaseTermZ)
         local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX  + slopeCorrection, sideChaseTermZ)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, rearChaseTermZ)
@@ -527,31 +508,20 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     else
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:IsNormalCombine")
+        local rearChaseTermX = self:getRearChaseOffsetX()
+
         local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
-        if (((pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or
-             (pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and
+        if (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or
+             (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and
              combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, (sideChaseTermX * pipeSide) + slopeCorrection, sideChaseTermZ)
+            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, (sideChaseTermX * self.pipeSide) + slopeCorrection, sideChaseTermZ)
             -- Take into account a right sided harvester, e.g. potato harvester.
-            sideIndex = pipeSide
-
-            --local spec = self.combine.spec_pipe
-            --if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
-             --   AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:PipeOut")
-                --local dischargeNode = self:getDischargeNode()
-             --   local nodeX, nodeY, nodeZ = getWorldTranslation(dischargeNode)
-             --   chaseNode.x, chaseNode.y, chaseNode.z = chaseNode.x + sideChaseTermZ * rx, nodeY, chaseNode.z + sideChaseTermZ * rz
-            --end
+            sideIndex = self.pipeSide
         else
             sideIndex = AutoDrive.CHASEPOS_REAR
-            -- We chase off to the side to avoid collisions
-            -- We chase a little further back to avoid eating dust
-            --chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, 
-            --                                                        -pipeSide*(self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, targetTrailer.sizeWidth)/2)+1,
-            --                                                        -self.combine.sizeLength/2 - AutoDrive.getTractorTrainLength(self.vehicle, false, true) * math.sqrt(2))
             chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, rearChaseTermX, rearChaseTermZ)
         end
     end
@@ -575,8 +545,8 @@ function CombineUnloaderMode:getAngleToCombine()
         return math.huge
     end
     
-    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
-    local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
+    local vehicleX, _, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local combineX, _, combineZ = getWorldTranslation(self.combine.components[1].node)
     local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
 
     return math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineX - vehicleX, z = combineZ - vehicleZ}))

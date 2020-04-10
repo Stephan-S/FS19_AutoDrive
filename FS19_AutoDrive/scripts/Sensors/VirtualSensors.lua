@@ -19,6 +19,8 @@ ADSensor.POS_CENTER = 10
 
 ADSensor.WIDTH_FACTOR = 0.7
 
+ADSensor.EXECUTION_DELAY = 10
+
 --
 --          <x>
 --       ^  o-o
@@ -141,6 +143,7 @@ function ADSensor:init(vehicle, sensorType, sensorParameters)
     self.triggered = false
     self.initialized = false
     self.drawDebug = false
+    self.executionDelay = 0
 
     self:loadBaseParameters()
     self:loadDynamicParameters(sensorParameters)
@@ -383,13 +386,19 @@ function ADSensor:onDrawDebug(box)
     end
 end
 
-function ADSensor:pollInfo()
-    local wasEnabled = self.enabled
-    self:setEnabled(true)
-    if not wasEnabled then
-        self:setEnabled(false)
+function ADSensor:pollInfo(forced)
+    self.executionDelay = self.executionDelay -1
+    if self.executionDelay <= 0 or forced then
+        local wasEnabled = self.enabled
+        self:setEnabled(true)
+        if not wasEnabled then
+            self:setEnabled(false)
+        end
+        self.lastTriggered = self:isTriggered()
+        self.executionDelay = ADSensor.EXECUTION_DELAY
     end
-    return self:isTriggered()
+
+    return self.lastTriggered
 end
 
 function ADSensor:setEnabled(enabled)
