@@ -82,8 +82,24 @@ function AutoDrive.getPipeLength(combine)
     local length = MathUtil.vector3Length(pipeRootX - dischargeX, 
                                           0, 
                                           pipeRootZ - dischargeZ)
-    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
+    AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
+    if AutoDrive.isPipeOut(combine) and not combine:getIsBufferCombine() then
+        local combineNode = combine.components[1].node
+        local dischargeX, dichargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(combine))
+        diffX, _, _ = worldToLocal(combineNode, dischargeX, dichargeY, dischargeZ)
+        length = math.abs(diffX) - combine.sizeWidth /2
+    end
+
     return length
+end
+
+function AutoDrive.isPipeOut(combine)
+    local spec = combine.spec_pipe
+    if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
+        return true
+    else
+        return false
+    end
 end
 
 function AutoDrive.isSugarcaneHarvester(combine)

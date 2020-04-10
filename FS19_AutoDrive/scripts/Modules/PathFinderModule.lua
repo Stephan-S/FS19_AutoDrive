@@ -84,10 +84,11 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     -- field being worked.
     local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
     -- Use the length of the tractor-trailer combo to determine how far to drive to straighten
-    -- the trailer. Add an extra follow distance because the unloader stops well before the back
-    -- of the trailer.
-    --local lengthOffset = combine.sizeLength/2 + AutoDrive.getTractorTrainLength(self.vehicle, false, true) * math.sqrt(2)
-    local lengthOffset = combine.sizeLength / 2 + AutoDrive.getTractorTrainLength(self.vehicle, true, false) * (2 * math.sin(math.pi / 8))
+    -- the trailer.
+    -- 2*math.sin(math.pi/8)) is the third side of a 45-67.5-67.5 isosceles triangle with the
+    -- equal sides being the length of the tractor train
+    local lengthOffset = combine.sizeLength / 2 + 
+                            AutoDrive.getTractorTrainLength(self.vehicle, true, false) * (2 * math.sin(math.pi / 8))
     -- A bit of a sanity check, in case the vehicle is absurdly long.
     --if lengthOffset > self.PATHFINDER_FOLLOW_DISTANCE then
     --    lengthOffset = self.PATHFINDER_FOLLOW_DISTANCE
@@ -108,7 +109,7 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     --end
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
         local pathFinderTarget = {x = pipeChasePos.x - (lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset) * rz}
-        local appendTarget = {x = pipeChasePos.x - (combine.sizeLength / 2 * rx), y = worldY, z = pipeChasePos.z - (combine.sizeLength / 2 * rz)}
+        local appendTarget = {x = pipeChasePos.x - (lengthOffset/2) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset/2) * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 

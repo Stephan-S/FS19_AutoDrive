@@ -361,14 +361,17 @@ function CombineUnloaderMode:getSideChaseOffsetX()
 
     local spec = self.combine.spec_pipe
     if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
-        -- If it is a buffer combine, use the pipe in offset regardless
-        sideChaseTermX = sideChaseTermPipeIn
+        -- If it is a buffer combine, keep well away to allow for turns.
+        local turningRadius = AutoDrive.getDriverRadius(self.combine)
+        -- self.combine.sizeLength/2 there as a proxy for turningRadius if it turns out to be
+        -- some silly value.
+        sideChaseTermX = math.max(turningRadius, sideChaseTermPipeIn, self.combine.sizeLength/2 + headerExtra)
     elseif spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
         -- If the pipe is extended, though, target it regardless
         sideChaseTermX = sideChaseTermPipeOut
     end
 
-    return sideChaseTermX
+    return sideChaseTermX + pipeOffset
 end
 
 function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
@@ -396,7 +399,8 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     -- only moving the midpoint of the tractor
     local constantAdditionsZ = 1 + self.vehicle.sizeLength/2 - targetTrailer.sizeLength/2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
-    local dynamicAdditionsZ = diffZ + pipeRootOffsetZ + math.max((targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ targetTrailerFillRatio, 0)
+    local dynamicAdditionsZ = diffZ + pipeRootOffsetZ 
+    dynamicAdditionsZ = dynamicAdditionsZ + math.max((targetTrailer.sizeLength - self.vehicle.sizeLength/2 - 2) ^ targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
     return math.min(maxOffset, sideChaseTermZ)
 end
