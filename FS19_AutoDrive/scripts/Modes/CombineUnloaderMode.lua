@@ -299,8 +299,14 @@ function CombineUnloaderMode:getUnloaderOnSide()
 
     --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
     local diffX, _, diffZ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
-    local leftright = AutoDrive.sign(diffX)
+    local leftright = AutoDrive.CHASEPOS_UNKNOWN
     local frontback = AutoDrive.CHASEPOS_FRONT
+    -- If we're not clearly on one side or the other of the combine, we don't
+    -- give a clear answer
+    if math.abs(diffX) > self.combine.sizeWidth then
+        leftright = AutoDrive.sign(diffX)
+    end
+
     local maxZ = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
     if diffZ < maxZ then
         frontback = AutoDrive.CHASEPOS_REAR
@@ -311,8 +317,10 @@ end
 
 function CombineUnloaderMode:isUnloaderOnCorrectSide()
     _, sideIndex = self:getPipeChasePosition()
-    local leftRight, frontBack = self:getUnloaderOnSide(self.combine, self.vehicle) 
-    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or frontBack == sideIndex then
+    local leftRight, frontBack = self:getUnloaderOnSide() 
+    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or 
+         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or 
+         frontBack == sideIndex then
         return true
     else
         return false
@@ -500,7 +508,8 @@ function CombineUnloaderMode:getPipeChasePosition()
         
         chaseNode = leftChasePos
         sideIndex = AutoDrive.CHASEPOS_LEFT
-        if self:getUnloaderOnSide() == AutoDrive.CHASEPOS_RIGHT then
+        local unloaderPos, _ = self:getUnloaderOnSide()
+        if unloaderPos == AutoDrive.CHASEPOS_RIGHT then
             chaseNode = rightChasePos
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         end
