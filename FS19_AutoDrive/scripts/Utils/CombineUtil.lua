@@ -22,6 +22,9 @@ function AutoDrive.getDischargeNode(combine)
 end
 
 function AutoDrive.getPipeRoot(combine)
+    if combine.ad ~= nil and combine.ad.pipeRoot ~= nil then
+        return combine.ad.pipeRoot
+    end
     local pipeRoot = AutoDrive.getDischargeNode(combine)
     local parentStack = Buffer:new()
     local combineNode = combine.components[1].node
@@ -56,15 +59,26 @@ function AutoDrive.getPipeRoot(combine)
         pipeRoot = combine.components[1].node
     end
 
+    if combine.ad ~= nil then
+        combine.ad.pipeRoot = pipeRoot
+    end
+
     return pipeRoot
 end
 
 function AutoDrive.getPipeRootOffset(combine)
+    if combine.ad ~= nil and combine.ad.pipeRootOffsetX ~= nil then
+        return combine.ad.pipeRootOffsetX, combine.ad.pipeRootOffsetY, combine.ad.pipeRootOffsetZ
+    end
+
     local combineNode = combine.components[1].node
     local pipeRoot = AutoDrive.getPipeRoot(combine)
     local pipeRootX, pipeRootY, pipeRootZ = getWorldTranslation(pipeRoot)
-    local diffX, diffY, diffZ = worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
-    --AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeRootZOffset - " .. diffZ )
+
+    if combine.ad ~= nil then
+        combine.ad.pipeRootOffsetX, combine.ad.pipeRootOffsetY, combine.ad.pipeRootOffsetZ =  worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
+    end
+
     return worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
 end
 
@@ -126,6 +140,9 @@ function AutoDrive.isSugarcaneHarvester(combine)
 end
 
 function AutoDrive.getFrontToolWidth(vehicle)
+    if vehicle.ad ~= nil and vehicle.ad.frontToolWidth ~= nil then
+        return vehicle.ad.frontToolWidth
+    end
     local widthOfFrontTool = 0
 
     if vehicle.getAttachedImplements ~= nil then
@@ -142,10 +159,17 @@ function AutoDrive.getFrontToolWidth(vehicle)
         end
     end
 
+    if vehicle.ad ~= nil then
+        vehicle.ad.frontToolWidth = widthOfFrontTool
+    end
+
     return widthOfFrontTool
 end
 
 function AutoDrive.getFrontToolLength(vehicle)
+    if vehicle.ad ~= nil and vehicle.ad.frontToolLength ~= nil then
+        return vehicle.ad.frontToolLength
+    end
     local lengthOfFrontTool = 0
 
     if vehicle.getAttachedImplements ~= nil then
@@ -160,6 +184,10 @@ function AutoDrive.getFrontToolLength(vehicle)
                 end
             end
         end
+    end
+
+    if vehicle.ad ~= nil then
+        vehicle.ad.frontToolLength = lengthOfFrontTool
     end
 
     return lengthOfFrontTool

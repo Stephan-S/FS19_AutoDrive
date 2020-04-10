@@ -417,6 +417,10 @@ function AutoDrive:onPreDetachImplement(implement)
             attachable.getIsBufferCombine = nil
         end
     end
+    if self.ad ~= nil then
+        self.ad.frontToolWidth = nil
+        self.ad.frontToolLength = nil
+    end
 end
 
 function AutoDrive:onDelete()

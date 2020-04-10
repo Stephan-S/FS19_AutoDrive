@@ -215,7 +215,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     self.goingToCombine = false
 
-    local startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo()
+    local startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo(true)
     local endIsOnField = AutoDrive.checkIsOnField(targetX, vehicleWorldY, targetZ)
 
     self.restrictToField = endIsOnField and AutoDrive.getSetting("restrictToField", self.vehicle) --and startIsOnField
