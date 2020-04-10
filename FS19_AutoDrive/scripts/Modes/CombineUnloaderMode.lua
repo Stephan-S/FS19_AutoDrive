@@ -361,11 +361,7 @@ function CombineUnloaderMode:getSideChaseOffsetX()
 
     local spec = self.combine.spec_pipe
     if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
-        -- If it is a buffer combine, keep well away to allow for turns.
-        local turningRadius = AutoDrive.getDriverRadius(self.combine)
-        -- self.combine.sizeLength/2 there as a proxy for turningRadius if it turns out to be
-        -- some silly value.
-        sideChaseTermX = math.max(turningRadius, sideChaseTermPipeIn, self.combine.sizeLength/2 + headerExtra)
+        sideChaseTermX = sideChaseTermPipeIn
     elseif spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
         -- If the pipe is extended, though, target it regardless
         sideChaseTermX = sideChaseTermPipeOut

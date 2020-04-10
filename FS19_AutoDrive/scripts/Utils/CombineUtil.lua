@@ -77,17 +77,28 @@ function AutoDrive.getPipeSide(combine)
 end
 
 function AutoDrive.getPipeLength(combine)
+    if combine.ad ~= nil and combine.ad.storedPipeLength ~= nil then
+        return combine.ad.storedPipeLength
+    end
+
     local pipeRootX, _ , pipeRootZ = getWorldTranslation(AutoDrive.getPipeRoot(combine))
     local dischargeX, dischargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(combine))
-    local length = MathUtil.vector3Length(pipeRootX - dischargeX, 
-                                          0, 
-                                          pipeRootZ - dischargeZ)
+    local length = MathUtil.vector3Length(pipeRootX - dischargeX,
+                                        0, 
+                                        pipeRootZ - dischargeZ)
     AutoDrive.debugPrint(combine, AutoDrive.DC_COMBINEINFO, "AutoDrive.getPipeLength - " .. length)
     if AutoDrive.isPipeOut(combine) and not combine:getIsBufferCombine() then
         local combineNode = combine.components[1].node
         local dischargeX, dichargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(combine))
         diffX, _, _ = worldToLocal(combineNode, dischargeX, dichargeY, dischargeZ)
         length = math.abs(diffX) - combine.sizeWidth /2
+
+        -- Store pipe length for 'normal' harvesters
+        if not combine:getIsBufferCombine() and (not combine.typeName == "combineCutterFruitPreparer") then
+            if combine.ad ~= nil then
+                combine.ad.storedPipeLength = length
+            end
+        end
     end
 
     return length
