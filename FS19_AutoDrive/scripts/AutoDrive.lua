@@ -108,9 +108,9 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.loadStoredXML()
 
+	ADUserDataManager:load()
 	if g_server ~= nil then
-		AutoDrive.usersData = {}
-		AutoDrive.loadUsersData()
+		ADUserDataManager:loadFromXml()
 	end
 
 	AutoDrive.Hud = AutoDriveHud:new()
@@ -168,7 +168,7 @@ function AutoDrive:saveSavegame()
 				saveXMLFile(AutoDrive.adXml)
 			end
 		end
-		AutoDrive.saveUsersData()
+		ADUserDataManager:saveToXml()
 	end
 end
 

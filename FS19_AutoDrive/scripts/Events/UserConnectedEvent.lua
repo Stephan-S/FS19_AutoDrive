@@ -22,9 +22,10 @@ end
 
 function AutoDriveUserConnectedEvent:run(connection)
 	if g_server ~= nil then
+		ADUserDataManager:userConnected(connection)
 		connection:sendEvent(AutoDriveUpdateSettingsEvent:new())
 		-- Here we can add other sync for newly connected players
-		AutoDriveUserDataEvent.sendToClient(connection)
+		ADUserDataManager:sendToClient(connection)
 		for feature, state in pairs(AutoDrive.experimentalFeatures) do
 			AutoDriveExperimentalFeaturesEvent.sendToClient(connection, feature, state)
 		end

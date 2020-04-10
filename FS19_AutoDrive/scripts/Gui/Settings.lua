@@ -24,7 +24,8 @@ ADSettings.TAB_UV = {
 
 ADSettings.ICON_UV = {
     GLOBAL = {12, 157, 40, 40},
-    VEHICLE = {136, 151, 51, 51}
+    VEHICLE = {136, 151, 51, 51},
+    USER = {462, 215, 50, 50}
 }
 
 ADSettings.ICON_COLOR = {
@@ -135,31 +136,24 @@ end
 
 function ADSettings:applySettings()
     if self:pagesHasChanges() then
-        -- If the 'guiScale' setting have been changed send the new state to server
-        if AutoDrive.settings.guiScale.new ~= nil and AutoDrive.settings.guiScale.new ~= AutoDrive.settings.guiScale.current then
-            AutoDrive.settings.guiScale.current = AutoDrive.settings.guiScale.new
-            AutoDriveUserDataEvent.sendToServer()
-        end
-        if AutoDrive.settings.wideHUD.new ~= nil and AutoDrive.settings.wideHUD.new ~= AutoDrive.settings.wideHUD.current then
-            AutoDrive.settings.wideHUD.current = AutoDrive.settings.wideHUD.new
-            AutoDriveUserDataEvent.sendToServer()
-        end
-        if AutoDrive.settings.notifications.new ~= nil and AutoDrive.settings.notifications.new ~= AutoDrive.settings.notifications.current then
-            AutoDrive.settings.notifications.current = AutoDrive.settings.notifications.new
-            AutoDriveUserDataEvent.sendToServer()
-        end
+        local userSpecificHasChanges = false
 
         for settingName, setting in pairs(AutoDrive.settings) do
             if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
                 setting = g_currentMission.controlledVehicle.ad.settings[settingName]
             end
-            if setting.new ~= setting.current then
-                if setting.new ~= nil then
-                    -- We could even print this with our debug system, but since GIANTS itself prints every changed config, for the moment we will do the same
-                    g_logManager:devInfo('Setting \'%s\' changed from "%s" to "%s"', settingName, setting.values[setting.current], setting.values[setting.new])
-                    setting.current = setting.new
+            if setting.new ~= nil and setting.new ~= setting.current then
+                -- We could even print this with our debug system, but since GIANTS itself prints every changed config, for the moment we will do the same
+                g_logManager:devInfo('Setting \'%s\' changed from "%s" to "%s"', settingName, setting.values[setting.current], setting.values[setting.new])
+                setting.current = setting.new
+                if setting.isUserSpecific then
+                    userSpecificHasChanges = true
                 end
             end
+        end
+
+        if userSpecificHasChanges then
+            ADUserDataManager:sendToServer()
         end
 
         AutoDriveUpdateSettingsEvent.sendEvent(g_currentMission.controlledVehicle)
