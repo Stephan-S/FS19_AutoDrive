@@ -150,17 +150,11 @@ function CombineUnloaderMode:getNextTask()
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_COMBINE")
         -- we finished the precall to combine route
         -- check if we should wait / pull up to combines pipe
-        _, sideIndex = self:getPipeChasePosition()
-        -- If we're not on the wrong side of the combine we're likely to crash
-        local leftRight, frontBack = self:getUnloaderOnSide() 
-        if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or frontBack == sideIndex then
-            nextTask = FollowCombineTask:new(self.vehicle, self.combine)
-            self.state = self.STATE_ACTIVE_UNLOAD_COMBINE
-            self.breadCrumbs = Queue:new()
-            self.lastBreadCrumb = nil
-        else
-            nextTask = CatchCombinePipeTask:new(self.vehicle, self.combine)
-        end
+        nextTask = FollowCombineTask:new(self.vehicle, self.combine)
+        self.state = self.STATE_ACTIVE_UNLOAD_COMBINE
+        self.breadCrumbs = Queue:new()
+        self.lastBreadCrumb = nil
+
     elseif self.state == self.STATE_DRIVE_TO_PIPE then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_PIPE")
         --Drive to pipe can be finished when combine is emptied or when vehicle has reached 'old' pipe position and should switch to active mode
@@ -299,6 +293,32 @@ function CombineUnloaderMode:getNodeName(node)
     return name
 end
 
+function CombineUnloaderMode:getUnloaderOnSide()
+    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
+
+    --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
+    local diffX, _, diffZ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
+    local leftright = AutoDrive.sign(diffX)
+    local frontback = AutoDrive.CHASEPOS_FRONT
+    local maxZ = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
+    if diffZ < maxZ then
+        frontback = AutoDrive.CHASEPOS_REAR
+    end
+
+    return leftright, frontback
+end
+
+function CombineUnloaderMode:isUnloaderOnCorrectSide()
+    _, sideIndex = self:getPipeChasePosition()
+    local leftRight, frontBack = self:getUnloaderOnSide(self.combine, self.vehicle) 
+    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or frontBack == sideIndex then
+        return true
+    else
+        return false
+    end
+end
+
 function CombineUnloaderMode:getPipeSlopeCorrection()
     local combineNode = self.combine.components[1].node
     local combineX, combineY, combineZ = getWorldTranslation(combineNode)
@@ -311,22 +331,6 @@ function CombineUnloaderMode:getPipeSlopeCorrection()
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh/hyp)) - run
     return elevationCorrection * AutoDrive.getPipeSide(self.combine)
-end
-
-function CombineUnloaderMode:getUnloaderOnSide()
-    local sameSide = false
-    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
-    local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
-
-    --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
-    local diffX, _, diffZ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
-    local leftright = AutoDrive.sign(diffX)
-    local frontback = AutoDrive.CHASEPOS_FRONT
-    if AutoDrive.sign(diffZ) < 0 then
-        frontback = AutoDrive.CHASEPOS_REAR
-    end
-
-    return leftright, frontback
 end
 
 function CombineUnloaderMode:getTargetTrailer()

@@ -5,9 +5,9 @@ FollowCombineTask.STATE_WAIT_FOR_TURN = 2
 FollowCombineTask.STATE_REVERSING = 3
 FollowCombineTask.STATE_WAIT_FOR_PASS_BY = 4
 
-FollowCombineTask.MAX_REVERSE_DISTANCE = 18
+FollowCombineTask.MAX_REVERSE_DISTANCE = 25
 FollowCombineTask.MIN_COMBINE_DISTANCE = 25
-FollowCombineTask.MAX_REVERSE_TIME = 10000
+FollowCombineTask.MAX_REVERSE_TIME = 8000
 
 function FollowCombineTask:new(vehicle, combine)
     local o = FollowCombineTask:create()
@@ -76,7 +76,7 @@ function FollowCombineTask:update(dt)
         if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombineHeading > 60 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
             self.angleWrongTimer:timer(false)
-            self.stuckTimer:timer(false)
+            --self.stuckTimer:timer(false)
         elseif ((self.combine.lastSpeedReal * self.combine.movingDirection) <= -0.00005) then
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, self.combine.lastSpeedReal * 3600 * 1.3, 1)
         else
@@ -98,7 +98,8 @@ function FollowCombineTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
         if not AutoDrive.combineIsTurning(self.combine) and (self.combine.ad.sensors.frontSensorFruit:pollInfo() or self.waitForTurnTimer.elapsedTime > 30000) then
-            if (self.angleToCombineHeading + self.angleToCombine) < 180 then
+            if (self.angleToCombineHeading + self.angleToCombine) < 180 and
+                  self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide() then
                 self.state = FollowCombineTask.STATE_CHASING
                 self.waitForTurnTimer:timer(false)
                 self.chaseTimer:timer(false)

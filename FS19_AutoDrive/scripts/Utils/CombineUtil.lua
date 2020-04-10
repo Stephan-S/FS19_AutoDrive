@@ -1,6 +1,7 @@
 AutoDrive.CHASEPOS_LEFT = 1
 AutoDrive.CHASEPOS_RIGHT = -1
 AutoDrive.CHASEPOS_REAR = 3
+AutoDrive.CHASEPOS_FRONT = 4
 
 function AutoDrive.getNodeName(node)
     if node == nil then

@@ -87,8 +87,10 @@ function CatchCombinePipeTask:update(dt)
                 -- check if we have actually reached the target or not
                 -- accept current location if we are in a good position to start chasing: distance and angle are important here
                 local angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
+                local isCorrectSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide()
 
-                if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60 then
+                if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60
+                   and isCorrectSide then
                     self:finished()
                 else
                     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - angle or distance to combine too high - recalculate path now")
