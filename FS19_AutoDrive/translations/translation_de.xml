@@ -168,6 +168,7 @@
 		<text name="gui_ad_wideHUD_tooltip"						text="Nutze breites HUD. Erlaubt dadurch auch zusätzliche Buttons." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />

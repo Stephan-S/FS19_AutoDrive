@@ -96,7 +96,7 @@ function AutoDrive.getPipeLength(combine)
         length = math.abs(diffX) - combine.sizeWidth /2
 
         -- Store pipe length for 'normal' harvesters
-        if not combine:getIsBufferCombine() and (not combine.typeName == "combineCutterFruitPreparer") then
+        if not (combine.typeName == "combineCutterFruitPreparer") then
             if combine.ad ~= nil then
                 combine.ad.storedPipeLength = length
             end

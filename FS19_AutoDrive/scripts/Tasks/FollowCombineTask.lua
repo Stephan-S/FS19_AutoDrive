@@ -55,10 +55,10 @@ function FollowCombineTask:update(dt)
         end
     end
 
-    if self.combineFillPercent >= CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING then
-        self.stayOnField = true
-        self:finished()
-    end
+    --if self.combineFillPercent >= CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING then
+       -- self.stayOnField = true
+        --self:finished()
+    --end
 
     if self.state == FollowCombineTask.STATE_CHASING then
         self.chaseTimer:timer(true, 4000, dt)

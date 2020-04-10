@@ -20,6 +20,7 @@
     <GuiElement type="bitmap" profile="uiElementContainerFullScreenSpanning">
         <GuiElement type="paging" profile="uiInGameMenuPaging" onPageChange="onPageChange" onPageUpdate="onPageUpdate" id="pagingElement">
             <GuiElement type="frameReference" ref="autoDriveSettings" name="autoDriveSettings" id="autoDriveSettings" />
+            <GuiElement type="frameReference" ref="autoDriveUserSettings" name="autoDriveUserSettings" id="autoDriveUserSettings" />
             <GuiElement type="frameReference" ref="autoDriveVehicleSettings" name="autoDriveVehicleSettings" id="autoDriveVehicleSettings" />
             <GuiElement type="frameReference" ref="autoDriveCombineUnloadSettings" name="autoDriveCombineUnloadSettings" id="autoDriveCombineUnloadSettings" />
             <GuiElement type="frameReference" ref="autoDriveDebugSettings" name="autoDriveDebugSettings" id="autoDriveDebugSettings" />
