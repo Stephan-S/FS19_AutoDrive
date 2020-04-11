@@ -287,5 +287,6 @@
 		<text name="AD_task_chase_side_right"					text="direita" />		
 		<text name="AD_task_waiting_for_room"					text="À espera de espaço" />
 		<text name="AD_task_exiting_field"						text="Saindo do campo" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

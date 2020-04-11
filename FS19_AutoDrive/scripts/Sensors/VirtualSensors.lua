@@ -56,6 +56,18 @@ function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors["frontSensor"] = frontSensor
 
     sensorParameters.dynamicLength = false
+    sensorParameters.width = vehicle.sizeWidth * 1.3
+    sensorParameters.length = vehicle.sizeLength * 2
+    local frontSensorLong = ADCollSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["frontSensorLong"] = frontSensorLong
+
+    sensorParameters.dynamicLength = false
+    sensorParameters.width = vehicle.sizeWidth * 1.3
+    sensorParameters.length = vehicle.sizeLength * 2
+    local frontSensorLongFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["frontSensorLongFruit"] = frontSensorLongFruit
+
+    sensorParameters.dynamicLength = false
     sensorParameters.length = vehicle.sizeLength
     sensorParameters.width = vehicle.sizeWidth * 2
     local frontSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
@@ -388,7 +400,7 @@ end
 
 function ADSensor:pollInfo(forced)
     self.executionDelay = self.executionDelay -1
-    if self.executionDelay <= 0 or forced then
+    if self.executionDelay <= 0 or forced or AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) then
         local wasEnabled = self.enabled
         self:setEnabled(true)
         if not wasEnabled then

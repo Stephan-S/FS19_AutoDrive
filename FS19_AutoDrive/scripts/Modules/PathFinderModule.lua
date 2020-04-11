@@ -309,7 +309,7 @@ function PathFinderModule:update(dt)
     end
 
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-        if self.isFinished and self.smoothDone and self.wayPoints ~= nil and #self.chainStartToTarget > 0 and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
+        if self.isFinished and self.smoothDone and self.wayPoints ~= nil and self.chainStartToTarget ~= nil and #self.chainStartToTarget > 0 and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
             self:drawDebugForCreatedRoute()
         else
             self:drawDebugForPF()

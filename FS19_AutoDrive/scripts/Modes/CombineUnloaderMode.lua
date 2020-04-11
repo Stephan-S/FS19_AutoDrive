@@ -11,6 +11,7 @@ CombineUnloaderMode.STATE_FOLLOW_COMBINE = 8
 CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE = 9
 CombineUnloaderMode.STATE_FOLLOW_CURRENT_UNLOADER = 10
 CombineUnloaderMode.STATE_EXIT_FIELD = 11
+CombineUnloaderMode.STATE_REVERSE_FROM_BAD_LOCATION = 12
 
 CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 101
 CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER = 2.7
@@ -58,6 +59,15 @@ function CombineUnloaderMode:monitorTasks(dt)
     end
     if self.combine ~= nil and self.state == self.STATE_ACTIVE_UNLOAD_COMBINE then
         self:leaveBreadCrumbs()
+    end
+    --We are stuck
+    if self.vehicle.ad.specialDrivingModule:shouldStopMotor() and self.vehicle.ad.specialDrivingModule.isBlocked then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:monitorTasks() - detected stuck vehicle - try reversing out of it now")
+        self.vehicle.ad.specialDrivingModule:releaseVehicle()
+        self.vehicle.ad.taskModule:abortAllTasks()
+        self.activeTask = ReverseFromBadLocationTask:new(self.vehicle)
+        self.state = self.STATE_REVERSE_FROM_BAD_LOCATION
+        self.vehicle.ad.taskModule:addTask(self.activeTask)
     end
 end
 
@@ -154,7 +164,7 @@ function CombineUnloaderMode:getNextTask()
         self.state = self.STATE_ACTIVE_UNLOAD_COMBINE
         self.breadCrumbs = Queue:new()
         self.lastBreadCrumb = nil
-    elseif self.state == self.STATE_DRIVE_TO_PIPE then
+    elseif self.state == self.STATE_DRIVE_TO_PIPE or self.state == self.STATE_REVERSE_FROM_BAD_LOCATION then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_PIPE")
         --Drive to pipe can be finished when combine is emptied or when vehicle has reached 'old' pipe position and should switch to active mode
         nextTask = self:getTaskAfterUnload(filledToUnload)
