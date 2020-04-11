@@ -16,8 +16,9 @@ function ADSpecialDrivingModule:reset()
     self.unloadingIntoBunkerSilo = false
 end
 
-function ADSpecialDrivingModule:stopVehicle(lx, lz)
+function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
     self.shouldStopOrHoldVehicle = true
+    self.isBlocked = isBlocked
     self.targetLX = lx
     self.targetLZ = lz
 end
@@ -25,6 +26,7 @@ end
 function ADSpecialDrivingModule:releaseVehicle()
     self.shouldStopOrHoldVehicle = false
     self.motorShouldBeStopped = false
+    self.isBlocked = false
 end
 
 function ADSpecialDrivingModule:update(dt)
@@ -128,7 +130,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
 
     if (checkDynamicCollision and self.vehicle.ad.collisionDetectionModule:hasDetectedObstable()) or self.vehicle.ad.sensors.frontSensor:pollInfo() then
-        self:stopVehicle(lx, lz)
+        self:stopVehicle(true, lx, lz)
         self:update(dt)
     else
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
@@ -172,6 +174,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
             self:getBasicStates()
 
             if self:checkWayPointReached() then
+                self.vehicle.ad.drivePathModule:handleReachedWayPoint()
                 return
             end
 
@@ -228,8 +231,10 @@ function ADSpecialDrivingModule:checkWayPointReached()
         minDistance = 3
     end
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
-        self.vehicle.ad.drivePathModule:handleReachedWayPoint()
+       return true
     end
+
+    return false
 end
 
 function ADSpecialDrivingModule:getReverseNode()
@@ -333,4 +338,29 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
 
     self.lastAngleToPoint = self.angleToPoint
+end
+
+function ADSpecialDrivingModule:reverseToTargetLocation(dt, location)
+    self.reverseNode = self:getReverseNode()
+    if self.reverseNode == nil then
+        return true
+    end
+
+    self.reverseTarget = location
+    self.currentWayPointIndex = 0
+    self.wayPoints = {}
+
+    self:getBasicStates()
+
+    if self:checkWayPointReached() then
+        return true
+    end
+
+    if self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
+        self:stopAndHoldVehicle(dt)
+    else
+        self:reverseToPoint(dt)
+    end
+
+    return false
 end

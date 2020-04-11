@@ -64,6 +64,12 @@ function FollowCombineTask:update(dt)
         self.chaseTimer:timer(true, 4000, dt)
         self.stuckTimer:timer(true, 30000, dt)
 
+        if self.combineFillPercent <= 0.1 then
+            if AutoDrive.getSetting("preCallLevel", self.combine) > 0 then
+                self:finished()
+            end
+        end
+
         if self:isCaughtCurrentChaseSide() or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MAX_REVERSE_DISTANCE then
             self.stuckTimer:timer(false)
         elseif self.stuckTimer:done() then
@@ -74,6 +80,7 @@ function FollowCombineTask:update(dt)
         end
 
         if (AutoDrive.combineIsTurning(self.combine) and (self.angleToCombineHeading > 60 or not self.combine:getIsBufferCombine() or not self.combine.ad.sensors.frontSensorFruit:pollInfo())) or self.angleWrongTimer.elapsedTime > 10000 then
+            --print("Waiting for turn now - 1- t:" ..  AutoDrive.boolToString(AutoDrive.combineIsTurning(self.combine)) .. " anglewrongtimer: " .. AutoDrive.boolToString(self.angleWrongTimer.elapsedTime > 10000))
             self.state = FollowCombineTask.STATE_WAIT_FOR_TURN
             self.angleWrongTimer:timer(false)
             --self.stuckTimer:timer(false)

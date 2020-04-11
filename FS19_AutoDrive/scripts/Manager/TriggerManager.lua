@@ -87,6 +87,8 @@ end
 
 function ADTriggerManager.loadAllTriggers()
     ADTriggerManager.searchedForTriggers = true
+    ADTriggerManager.tipTriggers = {}
+    ADTriggerManager.siloTriggers = {}
     for _, ownedItem in pairs(g_currentMission.ownedItems) do
         if ownedItem.storeItem ~= nil then
             if ownedItem.storeItem.categoryName == "SILOS" then
@@ -324,3 +326,8 @@ function ADTriggerManager:loadTriggerDelete(superFunc)
     end
     superFunc(self)
 end
+
+function ADTriggerManager:onPlaceableBuy()
+    ADTriggerManager.searchedForTriggers = false
+end
+

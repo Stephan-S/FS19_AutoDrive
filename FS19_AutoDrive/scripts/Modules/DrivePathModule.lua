@@ -224,7 +224,7 @@ function ADDrivePathModule:followWaypoints(dt)
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, self.targetX, y, self.targetZ)
 
     if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() then
-        self.vehicle.ad.specialDrivingModule:stopVehicle(lx, lz)
+        self.vehicle.ad.specialDrivingModule:stopVehicle((not self:isOnRoadNetwork()), lx, lz)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
@@ -262,7 +262,7 @@ end
 
 -- To differentiate between waypoints on the road and ones created from pathfinder
 function ADDrivePathModule:isOnRoadNetwork()
-    return self.onRoadNetwork
+    return (self.wayPoints ~= nil and self:getNextWayPoint() ~= nil and not self:getNextWayPoint().isPathFinderPoint)
 end
 
 function ADDrivePathModule:getWayPoints()
