@@ -143,10 +143,10 @@ function ADHarvestManager:update(dt)
             end
 
             if (harvester.ad ~= nil and harvester.ad.noMovementTimer ~= nil and harvester.lastSpeedReal ~= nil) then
-                harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0010), 3000, dt)
+                harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0004), 3000, dt)
 
-                local vehicleSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 10)
-                if (not vehicleSteering) and ((harvester.lastSpeedReal * harvester.movingDirection) >= 0.0008) then
+                --local vehicleSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 10)
+                if (not vehicleSteering) and ((harvester.lastSpeedReal * harvester.movingDirection) >= 0.0004) then
                     harvester.ad.driveForwardTimer:timer(true, 4000, dt)
                 else
                     harvester.ad.driveForwardTimer:timer(false)

@@ -73,12 +73,16 @@ function EmptyHarvesterTask:update(dt)
         end
 
         --Check if the combine is moving / has already moved away and we are supposed to actively unload
-        if self.combine.ad.noMovementTimer.elapsedTime == 0 then
-            self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].state = CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE
-            self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].breadCrumbs = Queue:new()
-            self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].lastBreadCrumb = nil
-            self.vehicle.ad.taskModule:addTask(FollowCombineTask:new(self.vehicle, self.combine))
-            self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
+        if self.combine.ad.driveForwardTimer.elapsedTime > 100 then
+            if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+                self:finished()
+            elseif self.combine.ad.driveForwardTimer.elapsedTime > 4000 then
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].state = CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].breadCrumbs = Queue:new()
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].lastBreadCrumb = nil
+                self.vehicle.ad.taskModule:addTask(FollowCombineTask:new(self.vehicle, self.combine))
+                self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
+            end
         end
 
         local combineFillLevel, _ = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
