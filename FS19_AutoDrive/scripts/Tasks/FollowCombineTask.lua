@@ -64,6 +64,12 @@ function FollowCombineTask:update(dt)
         self.chaseTimer:timer(true, 4000, dt)
         self.stuckTimer:timer(true, 30000, dt)
 
+        if self.combineFillPercent <= 0.1 then
+            if AutoDrive.getSetting("preCallLevel", self.combine) > 0 then
+                self:finished()
+            end
+        end
+
         if self:isCaughtCurrentChaseSide() or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MAX_REVERSE_DISTANCE then
             self.stuckTimer:timer(false)
         elseif self.stuckTimer:done() then

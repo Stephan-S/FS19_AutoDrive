@@ -488,15 +488,20 @@ function CombineUnloaderMode:getPipeChasePosition()
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
+        local sideChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, (sideChaseTermX * self.pipeSide) + slopeCorrection, sideChaseTermZ)        
+        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, rearChaseTermX, rearChaseTermZ)
+        local angleToSideChaseSide = self:getAngleToChasePos(sideChasePos)
+        local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
+
         if (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or
              (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and
-             combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, (sideChaseTermX * self.pipeSide) + slopeCorrection, sideChaseTermZ)
+             combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and angleToSideChaseSide < angleToRearChaseSide) or self.combine.ad.noMovementTimer.elapsedTime > 1000 then
             -- Take into account a right sided harvester, e.g. potato harvester.
+            chaseNode = sideChasePos
             sideIndex = self.pipeSide
         else
             sideIndex = AutoDrive.CHASEPOS_REAR
-            chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, rearChaseTermX, rearChaseTermZ)
+            chaseNode = rearChasePos
         end
     end
 
