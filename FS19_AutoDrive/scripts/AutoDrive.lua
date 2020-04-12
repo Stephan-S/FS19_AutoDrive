@@ -144,6 +144,7 @@ function AutoDrive:loadMap(name)
 	ADMessagesManager:load()
 	ADHarvestManager:load()
 	ADInputManager:load()
+	ADMultipleTargetsManager:load()
 end
 
 function AutoDrive:init()

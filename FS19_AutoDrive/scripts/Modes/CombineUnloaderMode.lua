@@ -121,6 +121,16 @@ function CombineUnloaderMode:continue()
         self.activeTask:continue()
     else
         self.vehicle.ad.taskModule:abortCurrentTask()
+
+        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            if AutoDrive.getSetting("syncMultiTargets") then
+                local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
+                if nextTarget ~= nil then
+                    self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+                end
+            end
+        end
+
         self.activeTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         self.state = self.STATE_DRIVE_TO_UNLOAD
         ADHarvestManager:unregisterAsUnloader(self.vehicle)
@@ -142,6 +152,15 @@ function CombineUnloaderMode:getNextTask()
     if self.state == self.STATE_INIT then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_INIT")
         if filledToUnload then
+            if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+                if AutoDrive.getSetting("syncMultiTargets") then
+                    local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
+                    if nextTarget ~= nil then
+                        self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+                    end
+                end
+            end
+
             nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
             self.state = self.STATE_DRIVE_TO_UNLOAD
             ADHarvestManager:unregisterAsUnloader(self.vehicle)
@@ -173,9 +192,16 @@ function CombineUnloaderMode:getNextTask()
         self:setToWaitForCall()
     elseif self.state == self.STATE_DRIVE_TO_UNLOAD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_DRIVE_TO_UNLOAD")
-        nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
+        nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)        
         if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
-            self.vehicle.ad.stateModule:setNextTargetInFolder()
+            if AutoDrive.getSetting("syncMultiTargets") then
+                local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, true)
+                if nextTarget ~= nil then
+                    self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+                end
+            else
+                self.vehicle.ad.stateModule:setNextTargetInFolder()
+            end
         end
         self.state = self.STATE_DRIVE_TO_START
     elseif self.state == self.STATE_DRIVE_TO_START then
@@ -191,6 +217,14 @@ function CombineUnloaderMode:getNextTask()
         self:setToWaitForCall()
     elseif self.state == self.STATE_EXIT_FIELD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_EXIT_FIELD")
+        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            if AutoDrive.getSetting("syncMultiTargets") then
+                local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
+                if nextTarget ~= nil then
+                    self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+                end
+            end
+        end
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         self.state = self.STATE_DRIVE_TO_UNLOAD
     end
@@ -327,7 +361,7 @@ function CombineUnloaderMode:getUnloaderOnSide()
 end
 
 function CombineUnloaderMode:getTargetTrailer()
-    local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, true)
+    local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     local currentTrailer = 1
     local targetTrailer = trailers[1]
     local fillRatio = 0

@@ -723,17 +723,17 @@ function ADStateModule:setNextTargetInFolder()
         local nextMarkerInGroup = nil
         local markerSeen = false
         local firstMarkerInGroup = nil
-        for markerID, marker in pairs(ADGraphManager:getMapMarkers()) do
+        for _, marker in ipairs(ADGraphManager:getMapMarkersInGroup(group)) do
             if marker.group == group then
                 if firstMarkerInGroup == nil then
-                    firstMarkerInGroup = markerID
+                    firstMarkerInGroup = marker.markerIndex
                 end
 
                 if markerSeen and nextMarkerInGroup == nil then
-                    nextMarkerInGroup = markerID
+                    nextMarkerInGroup = marker.markerIndex
                 end
 
-                if markerID == self.secondMarker.markerIndex then
+                if marker.markerIndex == self.secondMarker.markerIndex then
                     markerSeen = true
                 end
             end

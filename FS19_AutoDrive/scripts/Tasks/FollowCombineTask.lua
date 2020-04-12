@@ -41,7 +41,7 @@ function FollowCombineTask:update(dt)
     end
 
     self:updateStates()
-    local combineStopped = self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
+    local combineStopped = false --self.combine.ad.noMovementTimer.elapsedTime > 5000 and not self.combine:getIsBufferCombine()
     local reachedFieldBorder = false
     if self.filled and self.combine:getIsBufferCombine() and self.chaseSide ~= nil and self.chaseSide ~= AutoDrive.CHASEPOS_REAR then
         --skip reversing

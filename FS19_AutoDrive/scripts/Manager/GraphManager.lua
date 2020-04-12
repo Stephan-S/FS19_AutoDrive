@@ -71,6 +71,32 @@ function ADGraphManager:getMapMarkerByName(mapMarkerName)
 	return nil
 end
 
+function ADGraphManager:getMapMarkersInGroup(groupName)
+	local markersInGroup = {}
+
+	for _, mapMarker in pairs(self.mapMarkers) do
+		if mapMarker.group == groupName then
+			table.insert(markersInGroup, mapMarker)
+		end
+	end
+
+	local sort_func = function(a, b)
+        a = tostring(a.name):lower()
+        b = tostring(b.name):lower()
+        local patt = "^(.-)%s*(%d+)$"
+        local _, _, col1, num1 = a:find(patt)
+        local _, _, col2, num2 = b:find(patt)
+        if (col1 and col2) and col1 == col2 then
+            return tonumber(num1) < tonumber(num2)
+        end
+        return a < b
+    end
+
+    table.sort(markersInGroup, sort_func)
+
+	return markersInGroup
+end
+
 function ADGraphManager:resetMapMarkers()
 	self.mapMarkers = {}
 end
