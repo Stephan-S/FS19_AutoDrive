@@ -431,7 +431,12 @@ end
 
 function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     -- The default maximum will place the front of the unloader at the back of the header
-    local _, _, pipeRootOffsetZ = AutoDrive.getPipeRootOffset(self.combine)
+    local pipeZOffsetToCombine = 0
+    if AutoDrive.isPipeOut(self.combine) then
+        local nodeX, nodeY, nodeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
+        local _, _, diffZ = worldToLocal(self.combine.components[1].node, nodeX, nodeY, nodeZ)
+        pipeZOffsetToCombine = diffZ
+    end
     local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
     local _, _, diffZ = worldToLocal(self.targetTrailer.components[1].node, vehicleX, vehicleY, vehicleZ)
 
@@ -443,7 +448,7 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     -- only moving the midpoint of the tractor
     local constantAdditionsZ = 1 + self.vehicle.sizeLength / 2 - self.targetTrailer.sizeLength / 2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
-    local dynamicAdditionsZ = diffZ + pipeRootOffsetZ
+    local dynamicAdditionsZ = diffZ + pipeZOffsetToCombine
     dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength - self.vehicle.sizeLength / 2 - 2) ^ self.targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
     return sideChaseTermZ

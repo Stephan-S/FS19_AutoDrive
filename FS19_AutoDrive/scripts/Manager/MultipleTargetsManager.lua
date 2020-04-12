@@ -13,6 +13,12 @@ function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
     local target = driver.ad.stateModule:getSecondMarker().markerIndex
     local groupName = driver.ad.stateModule:getSecondMarker().group
 
+    if self.groups[groupName] == nil then
+        self.groups[groupName] = {}
+        self.groups[groupName].lastTarget = nil
+        self.groups[groupName].lastVehicle = nil
+    end
+
     if self.groups[groupName].lastVehicle == nil or (driver ~= self.groups[groupName].lastVehicle or forcedSkip) then
         if groupName ~= "All" then
             if self.groups[groupName] ~= nil then

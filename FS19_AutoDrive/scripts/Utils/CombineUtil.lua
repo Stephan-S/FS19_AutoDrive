@@ -68,22 +68,6 @@ function AutoDrive.getPipeRoot(combine)
     return pipeRoot
 end
 
-function AutoDrive.getPipeRootOffset(combine)
-    if combine.ad ~= nil and combine.ad.pipeRootOffsetX ~= nil then
-        return combine.ad.pipeRootOffsetX, combine.ad.pipeRootOffsetY, combine.ad.pipeRootOffsetZ
-    end
-
-    local combineNode = combine.components[1].node
-    local pipeRoot = AutoDrive.getPipeRoot(combine)
-    local pipeRootX, pipeRootY, pipeRootZ = getWorldTranslation(pipeRoot)
-
-    if combine.ad ~= nil then
-        combine.ad.pipeRootOffsetX, combine.ad.pipeRootOffsetY, combine.ad.pipeRootOffsetZ =  worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
-    end
-
-    return worldToLocal(combineNode, pipeRootX, pipeRootY, pipeRootZ)
-end
-
 function AutoDrive.getPipeSide(combine)
     local combineNode = combine.components[1].node
     local dischargeNode = AutoDrive.getDischargeNode(combine)
