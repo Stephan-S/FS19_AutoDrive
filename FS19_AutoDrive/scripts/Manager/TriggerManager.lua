@@ -301,7 +301,7 @@ function ADTriggerManager.getTriggerPos(trigger)
         x, y, z = getWorldTranslation(trigger.triggerNode)
     --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
-    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil and entityExists(trigger.exactFillRootNode)  then
+    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil and entityExists(trigger.exactFillRootNode) then
         x, y, z = getWorldTranslation(trigger.exactFillRootNode)
     --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
@@ -330,4 +330,3 @@ end
 function ADTriggerManager:onPlaceableBuy()
     ADTriggerManager.searchedForTriggers = false
 end
-

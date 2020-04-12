@@ -18,27 +18,28 @@ function ADHarvestManager:registerHarvester(harvester)
         if harvester ~= nil and harvester.ad ~= nil then
             harvester.ad.isCombine = true
         end
-        table.insert(self.idleHarvesters, harvester)
+        if g_server ~= nil then
+            table.insert(self.idleHarvesters, harvester)
+        end
     end
 end
 
 function ADHarvestManager:unregisterHarvester(harvester)
     AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester")
-    if table.contains(self.idleHarvesters, harvester) then
-        local index = table.indexOf(self.idleHarvesters, harvester)
-        local harvester = table.remove(self.idleHarvesters, index)
-        if harvester ~= nil and harvester.ad ~= nil then
-            harvester.ad.isCombine = false
-        end
-        AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - idleHarvesters")
+    if harvester ~= nil and harvester.ad ~= nil then
+        harvester.ad.isCombine = false
     end
-    if table.contains(self.harvesters, harvester) then
-        local index = table.indexOf(self.harvesters, harvester)
-        local harvester = table.remove(self.harvesters, index)
-        if harvester ~= nil and harvester.ad ~= nil then
-            harvester.ad.isCombine = false
+    if g_server ~= nil then
+        if table.contains(self.idleHarvesters, harvester) then
+            local index = table.indexOf(self.idleHarvesters, harvester)
+            local harvester = table.remove(self.idleHarvesters, index)
+            AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - idleHarvesters")
         end
-        AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - harvesters")
+        if table.contains(self.harvesters, harvester) then
+            local index = table.indexOf(self.harvesters, harvester)
+            local harvester = table.remove(self.harvesters, index)
+            AutoDrive.debugPrint(harvester, AutoDrive.DC_COMBINEINFO, "ADHarvestManager:unregisterHarvester - removed - harvesters")
+        end
     end
 end
 
@@ -145,7 +146,7 @@ function ADHarvestManager:update(dt)
             if (harvester.ad ~= nil and harvester.ad.noMovementTimer ~= nil and harvester.lastSpeedReal ~= nil) then
                 harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0004), 3000, dt)
 
-                --local vehicleSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 10)
+                local vehicleSteering = false --harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 10)
                 if (not vehicleSteering) and ((harvester.lastSpeedReal * harvester.movingDirection) >= 0.0004) then
                     harvester.ad.driveForwardTimer:timer(true, 4000, dt)
                 else

@@ -256,7 +256,10 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	ADHarvestManager:update(dt)
+	if g_server ~= nil then
+		ADHarvestManager:update(dt)
+	end
+
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
 	ADRoutesManager:update(dt)
