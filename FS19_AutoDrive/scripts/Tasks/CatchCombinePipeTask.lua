@@ -36,9 +36,9 @@ end
 function CatchCombinePipeTask:update(dt)
     --abort if the combine is nearing it's fill level and we should take care of 'real' approaches when it's in stand still
     local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
-    if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 2000 or cleftCapacity < 1.0) then
-        self:finished()
-    end
+    --if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 2000 or cleftCapacity < 1.0) then
+        --self:finished()
+    --end
 
     if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
         self:finished()
@@ -101,7 +101,7 @@ function CatchCombinePipeTask:update(dt)
                 self.vehicle.ad.drivePathModule:update(dt)
             end
         end
-    elseif self.state == FollowCombineTask.STATE_REVERSING then
+    elseif self.state == CatchCombinePipeTask.STATE_REVERSING then
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReverseStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
         self.reverseTimer:timer(true, self.MAX_REVERSE_TIME, dt)
@@ -119,7 +119,7 @@ function CatchCombinePipeTask:abort()
 end
 
 function CatchCombinePipeTask:finished()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - finished")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:finished()")
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end
 
