@@ -334,6 +334,40 @@ function CombineUnloaderMode:getNodeName(node)
     return name
 end
 
+function CombineUnloaderMode:getUnloaderOnSide()
+    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
+    local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
+
+    --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
+    local diffX, _, diffZ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
+    local leftright = AutoDrive.CHASEPOS_UNKNOWN
+    local frontback = AutoDrive.CHASEPOS_FRONT
+    -- If we're not clearly on one side or the other of the combine, we don't
+    -- give a clear answer
+    if math.abs(diffX) > self.combine.sizeWidth/2 then
+        leftright = AutoDrive.sign(diffX)
+    end
+
+    local maxZ = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
+    if diffZ < maxZ then
+        frontback = AutoDrive.CHASEPOS_REAR
+    end
+
+    return leftright, frontback
+end
+
+function CombineUnloaderMode:isUnloaderOnCorrectSide()
+    _, sideIndex = self:getPipeChasePosition()
+    local leftRight, frontBack = self:getUnloaderOnSide() 
+    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or 
+         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or 
+         frontBack == sideIndex then
+        return true
+    else
+        return false
+    end
+end
+
 function CombineUnloaderMode:getPipeSlopeCorrection()
     self.combineNode = self.combine.components[1].node
     self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
@@ -346,16 +380,6 @@ function CombineUnloaderMode:getPipeSlopeCorrection()
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh / hyp)) - run
     return elevationCorrection * self.pipeSide
-end
-
-function CombineUnloaderMode:getUnloaderOnSide()
-    local sameSide = false
-    local vehicleX, vehicleY, vehicleZ = getWorldTranslation(self.vehicle.components[1].node)
-    local combineX, combineY, combineZ = getWorldTranslation(self.combine.components[1].node)
-
-    --local diffX, _, _ = worldToLocal(self.vehicle.components[1].node, combineX, combineY, combineZ)
-    local diffX, _, _ = worldToLocal(self.combine.components[1].node, vehicleX, vehicleY, vehicleZ)
-    return AutoDrive.sign(diffX)
 end
 
 function CombineUnloaderMode:getTargetTrailer()
@@ -502,7 +526,8 @@ function CombineUnloaderMode:getPipeChasePosition()
 
         chaseNode = leftChasePos
         sideIndex = AutoDrive.CHASEPOS_LEFT
-        if self:getUnloaderOnSide() == AutoDrive.CHASEPOS_RIGHT then
+        local unloaderPos, _ = self:getUnloaderOnSide()
+        if unloaderPos == AutoDrive.CHASEPOS_RIGHT then
             chaseNode = rightChasePos
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         end
