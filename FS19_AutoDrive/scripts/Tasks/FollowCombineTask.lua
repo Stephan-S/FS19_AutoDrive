@@ -64,6 +64,10 @@ function FollowCombineTask:update(dt)
         self.chaseTimer:timer(true, 4000, dt)
         self.stuckTimer:timer(true, 30000, dt)
 
+        if not self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide() then
+            self:finished()
+        end
+
         if self.combineFillPercent <= 0.1 and not self.combine:getIsBufferCombine() then
             if AutoDrive.getSetting("preCallLevel", self.combine) > 0 then
                 self:finished()
@@ -155,9 +159,9 @@ function FollowCombineTask:updateStates()
     self.angleToCombineHeading = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
     self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombine()
 
-    if self.chaseSide ~= self.lastChaseSide then
-        if AutoDrive.isSugarcaneHarvester(self.combine) then
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "switching chase side behind sugarcane harvester -> reversing now")
+    if self.chaseSide ~= AutoDrive.CHASEPOS_REAR and self.chaseSide ~= self.lastChaseSide then
+        if self.combine:getIsBufferCombine() then
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "switching chase side next to a forage harvester -> reversing now")
             self.reverseStartLocation = {x = x, y = y, z = z}
             self.state = FollowCombineTask.STATE_REVERSING
         else
