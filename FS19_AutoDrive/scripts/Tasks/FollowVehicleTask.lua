@@ -19,20 +19,18 @@ function FollowVehicleTask:setUp()
     if self.targetVehicle ~= nil and self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs() ~= nil then
         local breadCrumbs = self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs()
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
-        local closeToBreadCrumbs = false
-        local indexToAttachTo = index
+        local indexToAttachTo = nil
         for index, breadCrumb in ipairs(breadCrumbs.items) do
             local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, breadCrumb.x, breadCrumb.y, breadCrumb.z)
             if diffZ > 1 and MathUtil.vector2Length(x - breadCrumb.x, z - breadCrumb.z) < 5 then
-                closeToBreadCrumbs = true
                 indexToAttachTo = index
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:setUp() Found breadcrumb to attach to during setup! Index: " .. index)
                 break
             end
         end
-        if closeToBreadCrumbs then
+        if indexToAttachTo ~= nil then
             --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:setUp() - removing items from Queue: " .. indexToAttachTo)
-            for i=1,(indexToAttachTo-1) do
+            for i = 1, (indexToAttachTo - 1) do
                 breadCrumbs:Dequeue()
             end
             self.vehicle.ad.drivePathModule:setWayPoints(self:getBreadCrumbsUntilFollowDistance())
@@ -49,7 +47,7 @@ function FollowVehicleTask:getBreadCrumbsUntilFollowDistance()
             table.insert(toFollow, breadCrumbs:Dequeue())
         end
     end
-    
+
     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:getBreadCrumbsUntilFollowDistance() - #toFollow: " .. #toFollow)
 
     return toFollow
@@ -59,10 +57,10 @@ function FollowVehicleTask:getBreadCrumbDistanceToEnd(index)
     local distance = 0
     if self.targetVehicle ~= nil and self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs() ~= nil then
         local breadCrumbs = self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs()
-    
+
         while index < #breadCrumbs.items do
             local wpStart = breadCrumbs.items[index]
-            local wpNext = breadCrumbs.items[index+1]
+            local wpNext = breadCrumbs.items[index + 1]
             distance = distance + MathUtil.vector2Length(wpStart.x - wpNext.x, wpStart.z - wpNext.z)
             index = index + 1
         end
