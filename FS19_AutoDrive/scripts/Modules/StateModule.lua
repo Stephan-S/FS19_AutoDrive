@@ -20,6 +20,8 @@ end
 
 function ADStateModule:reset()
     self.active = false
+    self.activeBeforeSave = false
+    self.AIVEActiveBeforeSave = false
     self.mode = AutoDrive.MODE_DRIVETO
     self.firstMarker = ADGraphManager:getMapMarkerById(1)
     self.secondMarker = ADGraphManager:getMapMarkerById(1)
@@ -103,6 +105,16 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
     if parkDestination ~= nil then
         self.parkDestination = parkDestination
     end
+
+    local lastActive = getXMLBool(xmlFile, key .. "#lastActive")
+    if lastActive ~= nil then
+        self.activeBeforeSave = lastActive
+    end
+
+    local AIVElastActive = getXMLBool(xmlFile, key .. "#AIVElastActive")
+    if AIVElastActive ~= nil then
+        self.AIVEActiveBeforeSave = AIVElastActive
+    end
 end
 
 function ADStateModule:saveToXMLFile(xmlFile, key)
@@ -119,6 +131,8 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
     setXMLInt(xmlFile, key .. "#loopCounter", self.loopCounter)
     setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
+    setXMLBool(xmlFile, key .. "#lastActive", self.active)
+    setXMLBool(xmlFile, key .. "#AIVElastActive", (self.vehicle.acParameters ~= nil and self.vehicle.acParameters.enabled and self.vehicle.spec_aiVehicle.isActive))
 end
 
 function ADStateModule:writeStream(streamId)
