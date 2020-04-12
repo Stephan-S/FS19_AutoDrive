@@ -159,7 +159,7 @@ function FollowCombineTask:updateStates()
     self.angleToCombineHeading = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
     self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombine()
 
-    if (self.lastChaseSide ~= AutoDrive.CHASEPOS_REAR) and self.chaseSide ~= self.lastChaseSide then
+    if not self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide() then
         if self.combine:getIsBufferCombine() then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "switching chase side next to a forage harvester -> reversing now")
             self.reverseStartLocation = {x = x, y = y, z = z}
