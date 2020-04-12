@@ -79,7 +79,7 @@ function FollowVehicleTask:update(dt)
         else
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
-            if self.vehicle.lastSpeedReal <= 0.0008 and self.setFinishedNext then
+            if self.vehicle.lastSpeedReal <= 0.0008 and (self.setFinishedNext or self.vehicle.ad.combine ~= nil) then
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:update() - stopped and received promotion -> finished")
                 self:finished()
             end
