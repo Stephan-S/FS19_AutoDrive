@@ -223,7 +223,7 @@ function ADDrivePathModule:followWaypoints(dt)
     self.targetX, self.targetZ = self:getLookAheadTarget()
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, self.targetX, y, self.targetZ)
 
-    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() then
+    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable(dt) then
         self.vehicle.ad.specialDrivingModule:stopVehicle((not self:isOnRoadNetwork()), lx, lz)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else

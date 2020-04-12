@@ -64,7 +64,7 @@ function FollowCombineTask:update(dt)
         self.chaseTimer:timer(true, 4000, dt)
         self.stuckTimer:timer(true, 30000, dt)
 
-        if self.combineFillPercent <= 0.1 then
+        if self.combineFillPercent <= 0.1 and not self.combine:getIsBufferCombine() then
             if AutoDrive.getSetting("preCallLevel", self.combine) > 0 then
                 self:finished()
             end

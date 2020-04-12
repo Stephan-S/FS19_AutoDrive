@@ -558,6 +558,13 @@ function ADGraphManager:isDualRoad(start, target)
 	return false
 end
 
+function ADGraphManager:isReverseRoad(start, target)
+	if start == nil or target == nil or start.incoming == nil or target.id == nil then
+		return false
+	end
+	return not table.contains(target.incoming, start.id)
+end
+
 function ADGraphManager:getDistanceBetweenNodes(start, target)
 	local euclidianDistance = MathUtil.vector2Length(self.wayPoints[start].x - self.wayPoints[target].x, self.wayPoints[start].z - self.wayPoints[target].z)
 

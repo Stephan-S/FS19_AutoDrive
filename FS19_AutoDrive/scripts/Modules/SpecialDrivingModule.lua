@@ -129,7 +129,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
 
-    if (checkDynamicCollision and self.vehicle.ad.collisionDetectionModule:hasDetectedObstable()) or self.vehicle.ad.sensors.frontSensor:pollInfo() then
+    if (checkDynamicCollision and self.vehicle.ad.collisionDetectionModule:hasDetectedObstable(dt)) or self.vehicle.ad.sensors.frontSensor:pollInfo() then
         self:stopVehicle(true, lx, lz)
         self:update(dt)
     else

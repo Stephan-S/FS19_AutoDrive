@@ -72,7 +72,7 @@ function FollowVehicleTask:getBreadCrumbDistanceToEnd(index)
 end
 
 function FollowVehicleTask:update(dt)
-    if self.vehicle.ad.drivePathModule:isTargetReached() then
+    if self.vehicle.ad.drivePathModule:isTargetReached() or self.vehicle.ad.drivePathModule:getWayPoints() == nil or #self.vehicle.ad.drivePathModule:getWayPoints() == 0 then
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:FollowVehicleTask:update() - drivePathModule signals target reached")
         local newPath = self:getBreadCrumbsUntilFollowDistance()
         if newPath ~= nil and #newPath > 0 then
