@@ -208,6 +208,8 @@ function ADTrailerModule:updateUnload(dt)
         if self:areAllTrailersClosed(dt) and (fillUnitEmpty or AutoDrive.getSetting("distributeToFolder", self.vehicle)) then
             self.isUnloading = false
             self.unloadingToBunkerSilo = false
+        elseif fillUnitEmpty then
+            self.unloadingToBunkerSilo = false
         end
     end
 end

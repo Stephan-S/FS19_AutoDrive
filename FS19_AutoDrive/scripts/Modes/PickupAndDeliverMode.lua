@@ -30,6 +30,14 @@ function PickupAndDeliverMode:start()
 
     if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
         self.state = PickupAndDeliverMode.STATE_PICKUP
+        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            if AutoDrive.getSetting("syncMultiTargets") then
+                local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
+                if nextTarget ~= nil then
+                    self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+                end
+            end
+        end
     end
 
     if self.vehicle.ad.stateModule:getFirstMarker() == nil or self.vehicle.ad.stateModule:getSecondMarker() == nil then
@@ -41,7 +49,7 @@ function PickupAndDeliverMode:start()
         self.vehicle.ad.taskModule:addTask(self.activeTask)
         self.state = self.STATE_EXIT_FIELD
     else
-        self.activeTask = self:getNextTask()
+        self.activeTask = self:getNextTask(false)
         if self.activeTask ~= nil then
             self.vehicle.ad.taskModule:addTask(self.activeTask)
         end
@@ -53,7 +61,7 @@ end
 
 function PickupAndDeliverMode:handleFinishedTask()
     self.vehicle.ad.trailerModule:reset()
-    self.activeTask = self:getNextTask()
+    self.activeTask = self:getNextTask(true)
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
     end
@@ -68,7 +76,7 @@ function PickupAndDeliverMode:continue()
     end
 end
 
-function PickupAndDeliverMode:getNextTask()
+function PickupAndDeliverMode:getNextTask(forced)
     local nextTask
     if self.state == PickupAndDeliverMode.STATE_DELIVER then
         if self.vehicle.ad.stateModule:getLoopCounter() == 0 or self.loopsDone < self.vehicle.ad.stateModule:getLoopCounter() then
@@ -76,7 +84,17 @@ function PickupAndDeliverMode:getNextTask()
             self.state = PickupAndDeliverMode.STATE_PICKUP
 
             if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
-                self.vehicle.ad.stateModule:setNextTargetInFolder()
+                if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+                    if AutoDrive.getSetting("syncMultiTargets") then
+                        local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, forced)
+                        if nextTarget ~= nil then
+                            self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+                        end
+                    end
+                elseif forced then
+                    self.vehicle.ad.stateModule:setNextTargetInFolder()
+                end
+
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
                 local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                 if fillLevel > 1 then

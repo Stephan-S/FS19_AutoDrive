@@ -154,11 +154,10 @@ function AutoDrive:onPostLoad(savegame)
         self.ad.noTurningTimer = AutoDriveTON:new()
         self.ad.turningTimer = AutoDriveTON:new()
         self.ad.driveForwardTimer = AutoDriveTON:new()
+    end
 
-        if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
-            --print("Running post load for vehicle: " .. self:getName() .. " registerHarvester")
-            ADHarvestManager:registerHarvester(self)
-        end
+    if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
+        ADHarvestManager:registerHarvester(self)
     end
 
     if self.ad.settings == nil then

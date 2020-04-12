@@ -220,6 +220,22 @@ function ADInputManager:input_start_stop(vehicle)
         vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:getCurrentMode():start()
+        if AutoDrive.leftLSHIFTmodifierKeyPressed then
+            for _, otherVehicle in pairs(g_currentMission.vehicles) do
+                if otherVehicle ~= nil and otherVehicle ~= vehicle and otherVehicle.ad ~= nil and otherVehicle.ad.stateModule ~= nil then
+                    --Doesn't work yet, if vehicle hasn't been entered before apparently. So we need to check what to call before, to setup all required variables.
+                    --[[
+                    if otherVehicle.ad.stateModule.activeBeforeSave then
+                        otherVehicle.ad.stateModule:getCurrentMode():start()
+                    end
+                    --if otherVehicle.ad.stateModule.AIVEActiveBeforeSave and otherVehicle.acParameters ~= nil then
+                        --otherVehicle.acParameters.enabled = true
+                        --otherVehicle:startAIVehicle(nil, false, g_currentMission.player.farmId)
+                    --end
+                    --]]
+				end
+			end
+        end
     end
 end
 

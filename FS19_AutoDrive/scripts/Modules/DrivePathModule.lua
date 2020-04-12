@@ -223,7 +223,7 @@ function ADDrivePathModule:followWaypoints(dt)
     self.targetX, self.targetZ = self:getLookAheadTarget()
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, self.targetX, y, self.targetZ)
 
-    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() then
+    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable(dt) then
         self.vehicle.ad.specialDrivingModule:stopVehicle((not self:isOnRoadNetwork()), lx, lz)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
@@ -651,7 +651,7 @@ end
 function ADDrivePathModule:checkForReverseSection()
     local reverseStart = false
     local reverseEnd = false
-    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
+    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and self.wayPoints ~= nil and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
         local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]

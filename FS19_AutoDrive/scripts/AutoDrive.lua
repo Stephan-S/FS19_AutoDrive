@@ -144,6 +144,7 @@ function AutoDrive:loadMap(name)
 	ADMessagesManager:load()
 	ADHarvestManager:load()
 	ADInputManager:load()
+	ADMultipleTargetsManager:load()
 end
 
 function AutoDrive:init()
@@ -255,7 +256,10 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	ADHarvestManager:update(dt)
+	if g_server ~= nil then
+		ADHarvestManager:update(dt)
+	end
+
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
 	ADRoutesManager:update(dt)

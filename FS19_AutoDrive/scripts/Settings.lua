@@ -807,6 +807,18 @@ AutoDrive.settings.wideHUD = {
     isUserSpecific = true
 }
 
+AutoDrive.settings.syncMultiTargets = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_syncMultiTargets",
+    tooltip = "gui_ad_syncMultiTargets_tooltip",
+    translate = true,
+    isVehicleSpecific = false,
+    isUserSpecific = false
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
