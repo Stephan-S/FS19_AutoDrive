@@ -72,7 +72,7 @@ function ADHarvestManager:unregisterAsUnloader(vehicle)
         else
             --Only short delay for AI controlled unloader being removed
             self.assignmentDelayTimer:timer(false)
-            self.assignmentDelayTimer.elapsedTime = 4000
+            self.assignmentDelayTimer.elapsedTime = 10000
         end
     end
 end

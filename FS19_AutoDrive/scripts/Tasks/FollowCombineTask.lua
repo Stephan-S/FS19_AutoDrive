@@ -110,7 +110,7 @@ function FollowCombineTask:update(dt)
         end
         if not AutoDrive.combineIsTurning(self.combine) and (self.combine.ad.sensors.frontSensorFruit:pollInfo() or self.waitForTurnTimer.elapsedTime > 30000) then
             if (self.angleToCombineHeading + self.angleToCombine) < 180 and
-                  self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide() then
+                  self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide(self.chaseSide) then
                 self.state = FollowCombineTask.STATE_CHASING
                 self.waitForTurnTimer:timer(false)
                 self.chaseTimer:timer(false)
@@ -159,17 +159,18 @@ function FollowCombineTask:updateStates()
     self.angleToCombineHeading = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
     self.angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombine()
 
-    if not self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide() then
-        if self.combine:getIsBufferCombine() then
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "switching chase side next to a forage harvester -> reversing now")
-            self.reverseStartLocation = {x = x, y = y, z = z}
-            self.state = FollowCombineTask.STATE_REVERSING
-        else
-        --if self.lastChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+    if (not self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide(self.chaseSide)) and (not AutoDrive.combineIsTurning(self.combine)) then
+        --if self.combine:getIsBufferCombine() then
+            --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "switching chase side next to a forage harvester -> reversing now")
+            --self.reverseStartLocation = {x = x, y = y, z = z}
+            --self.state = FollowCombineTask.STATE_REVERSING
+        --else
+        if self.lastChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
             self.state = FollowCombineTask.STATE_WAIT_FOR_PASS_BY
         end
-        self.lastChaseSide = self.chaseSide
     end
+    self.lastChaseSide = self.chaseSide
+
     -- If we haven't caught up with the current chaseSide, we put the target ahead of it, so the unloader will get much closer to the combine for these changes and won't cause the combine to stop due to the pipe distance
     --if self.chaseSide == CombineUnloaderMode.CHASEPOS_REAR and not self.caughtCurrentChaseSide then
         --self.chasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, 1)

@@ -22,7 +22,7 @@ function FollowVehicleTask:setUp()
         local indexToAttachTo = nil
         for index, breadCrumb in ipairs(breadCrumbs.items) do
             local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, breadCrumb.x, breadCrumb.y, breadCrumb.z)
-            if diffZ > 1 and MathUtil.vector2Length(x - breadCrumb.x, z - breadCrumb.z) < 5 then
+            if diffZ > 1 and MathUtil.vector2Length(x - breadCrumb.x, z - breadCrumb.z) < 15 then
                 indexToAttachTo = index
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:setUp() Found breadcrumb to attach to during setup! Index: " .. index)
                 break
@@ -79,7 +79,7 @@ function FollowVehicleTask:update(dt)
         else
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
-            if self.vehicle.lastSpeedReal <= 0.0008 and (self.setFinishedNext or self.vehicle.ad.combine ~= nil) then
+            if self.vehicle.lastSpeedReal <= 0.0008 and (self.setFinishedNext or self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil) then
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "FollowVehicleTask:update() - stopped and received promotion -> finished")
                 self:finished()
             end

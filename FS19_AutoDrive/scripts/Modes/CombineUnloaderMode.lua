@@ -61,7 +61,7 @@ function CombineUnloaderMode:monitorTasks(dt)
         self:leaveBreadCrumbs()
     end
     --We are stuck
-    if self.vehicle.ad.specialDrivingModule:shouldStopMotor() and self.vehicle.ad.specialDrivingModule.isBlocked then
+    if (self.vehicle.ad.specialDrivingModule:shouldStopMotor() or self.vehicle.ad.specialDrivingModule.stoppedTimer:done()) and self.vehicle.ad.specialDrivingModule.isBlocked then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:monitorTasks() - detected stuck vehicle - try reversing out of it now")
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
         self.vehicle.ad.taskModule:abortAllTasks()
@@ -83,7 +83,11 @@ function CombineUnloaderMode:leaveBreadCrumbs()
             local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.lastBreadCrumb.x, self.lastBreadCrumb.y, self.lastBreadCrumb.z)
             local vec1 = {x = x - self.lastBreadCrumb.x, z = z - self.lastBreadCrumb.z}
             local angleToNewPoint = AutoDrive.angleBetween({x = self.lastBreadCrumb.dirX, z = self.lastBreadCrumb.dirZ}, vec1)
-            if diffZ < -1 and MathUtil.vector2Length(x - self.lastBreadCrumb.x, z - self.lastBreadCrumb.z) > 2.5 and math.abs(angleToNewPoint) < 90 then
+            local minDistance = 2.5
+            if math.abs(angleToNewPoint) > 40 then
+                minDistance = 15
+            end
+            if diffZ < -1 and MathUtil.vector2Length(x - self.lastBreadCrumb.x, z - self.lastBreadCrumb.z) > minDistance and math.abs(angleToNewPoint) < 90 then
                 self.lastBreadCrumb = {x = x, y = y, z = z, dirX = vec1.x, dirZ = vec1.z}
                 self.breadCrumbs:Enqueue(self.lastBreadCrumb)
             end
@@ -356,11 +360,16 @@ function CombineUnloaderMode:getUnloaderOnSide()
     return leftright, frontback
 end
 
-function CombineUnloaderMode:isUnloaderOnCorrectSide()
-    _, sideIndex = self:getPipeChasePosition()
-    local leftRight, frontBack = self:getUnloaderOnSide() 
-    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or 
-         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or 
+function CombineUnloaderMode:isUnloaderOnCorrectSide(chaseSide)
+    local sideIndex = chaseSide
+    if sideIndex == nil then
+        local _, index = self:getPipeChasePosition()
+        sideIndex = index
+    end
+
+    local leftRight, frontBack = self:getUnloaderOnSide()
+    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or
+         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or
          frontBack == sideIndex then
         return true
     else
@@ -537,10 +546,10 @@ function CombineUnloaderMode:getPipeChasePosition()
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         end
 
-        if (not leftBlocked) and angleToLeftChaseSide < angleToRearChaseSide then
+        if (not leftBlocked) and self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_LEFT) and angleToLeftChaseSide < angleToRearChaseSide then
             chaseNode = leftChasePos
             sideIndex = AutoDrive.CHASEPOS_LEFT
-        elseif (not rightBlocked) then
+        elseif (not rightBlocked) and self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_RIGHT) then
             chaseNode = rightChasePos
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         elseif not AutoDrive.isSugarcaneHarvester(self.combine) then
@@ -563,7 +572,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         local rightBlocked = false
 
         if
-            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and angleToSideChaseSide < angleToRearChaseSide) or
+            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and self:isUnloaderOnCorrectSide(self.pipeSide) and angleToSideChaseSide < angleToRearChaseSide) or
                 self.combine.ad.noMovementTimer.elapsedTime > 1000
          then
             -- Take into account a right sided harvester, e.g. potato harvester.

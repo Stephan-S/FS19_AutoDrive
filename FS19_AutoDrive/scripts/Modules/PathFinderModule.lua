@@ -23,7 +23,7 @@ PathFinderModule.PP_CELL_X = 9
 PathFinderModule.PP_CELL_Z = 9
 
 PathFinderModule.GRID_SIZE_FACTOR = 0.5
-PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1.25
+PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1.1
 
 function PathFinderModule:new(vehicle)
     local o = {}
@@ -108,12 +108,12 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     --    self:startPathPlanningTo(target, combineVector)
     --end
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - (lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset) * rz}
-        local appendTarget = {x = pipeChasePos.x - (lengthOffset/2) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset/2) * rz}
+        local pathFinderTarget = {x = pipeChasePos.x - (self.PATHFINDER_TARGET_DISTANCE) * rx, y = worldY, z = pipeChasePos.z - (self.PATHFINDER_TARGET_DISTANCE) * rz}
+        --local appendTarget = {x = pipeChasePos.x - (lengthOffset/2) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset/2) * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        table.insert(self.appendWayPoints, appendTarget)
+        --table.insert(self.appendWayPoints, appendTarget)
     else
         local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
@@ -466,7 +466,7 @@ function PathFinderModule:checkGridCell(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
     local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
     if self.isSecondChasingVehicle then
-        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER * 1.7
+        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER * 1.6
     end
     local worldPos = self:gridLocationToWorldLocation(cell)
     if cell.incoming ~= nil then

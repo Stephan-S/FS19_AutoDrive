@@ -89,6 +89,9 @@ function ADDrivePathModule:setWayPoints(wayPoints)
         self:setCurrentWayPointIndex(1)
     end
     self:resetIsReversing()
+    if self.wayPoints == nil or #self.wayPoints < 0 then
+        self.atTarget = true
+    end
 end
 
 function ADDrivePathModule:setPaused()

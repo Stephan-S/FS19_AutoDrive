@@ -14,6 +14,7 @@ end
 function ADSpecialDrivingModule:reset()
     self.shouldStopOrHoldVehicle = false
     self.unloadingIntoBunkerSilo = false
+    self.stoppedTimer = AutoDriveTON:new()
 end
 
 function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
@@ -27,6 +28,7 @@ function ADSpecialDrivingModule:releaseVehicle()
     self.shouldStopOrHoldVehicle = false
     self.motorShouldBeStopped = false
     self.isBlocked = false
+    self.stoppedTimer:timer(false)
 end
 
 function ADSpecialDrivingModule:update(dt)
@@ -62,10 +64,7 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
         lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, x, y, z)
     end
 
-    if self.stoppedTimer == nil then
-        self.stoppedTimer = AutoDriveTON:new()
-    end
-    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.0013 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 5000, dt)
+    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 15000, dt)
 
     if self.stoppedTimer:done() then
         self.motorShouldBeStopped = true
@@ -133,6 +132,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
         self:stopVehicle(true, lx, lz)
         self:update(dt)
     else
+        self.isBlocked = self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028, 15000, dt)
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
         if (self.vehicle.lastSpeedReal * 3600) > (speed + ADSpecialDrivingModule.MAX_SPEED_DEVIATION) then
             self.acceleration = -0.6
