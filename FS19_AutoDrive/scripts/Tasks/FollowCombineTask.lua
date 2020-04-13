@@ -130,7 +130,8 @@ function FollowCombineTask:update(dt)
         if self.waitForPassByTimer:done() then
             self.waitForPassByTimer:timer(false)
             self.chaseTimer:timer(false)
-            if (self.angleToCombineHeading + self.angleToCombine) < 180 then
+            if (self.angleToCombineHeading + self.angleToCombine) < 180 and
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide() then
                 self.state = FollowCombineTask.STATE_CHASING
             else
                 self.stayOnField = true
