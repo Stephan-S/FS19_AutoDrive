@@ -20,7 +20,7 @@ function DriveToDestinationTask:setUp()
     end
 end
 
-function DriveToDestinationTask:update(dt)    
+function DriveToDestinationTask:update(dt)
     if self.state == DriveToDestinationTask.STATE_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()

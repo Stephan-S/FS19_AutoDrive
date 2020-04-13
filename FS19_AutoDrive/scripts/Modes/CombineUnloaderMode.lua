@@ -31,6 +31,7 @@ function CombineUnloaderMode:reset()
     self.followingUnloader = nil
     self.breadCrumbs = Queue:new()
     self.lastBreadCrumb = nil
+    self.failedPathFinder = 0
 end
 
 function CombineUnloaderMode:start()
@@ -61,13 +62,26 @@ function CombineUnloaderMode:monitorTasks(dt)
         self:leaveBreadCrumbs()
     end
     --We are stuck
-    if (self.vehicle.ad.specialDrivingModule:shouldStopMotor() or self.vehicle.ad.specialDrivingModule.stoppedTimer:done()) and self.vehicle.ad.specialDrivingModule.isBlocked then
+    if self.failedPathFinder >= 5 or ((self.vehicle.ad.specialDrivingModule:shouldStopMotor() or self.vehicle.ad.specialDrivingModule.stoppedTimer:done()) and self.vehicle.ad.specialDrivingModule.isBlocked) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:monitorTasks() - detected stuck vehicle - try reversing out of it now")
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
         self.vehicle.ad.taskModule:abortAllTasks()
         self.activeTask = ReverseFromBadLocationTask:new(self.vehicle)
         self.state = self.STATE_REVERSE_FROM_BAD_LOCATION
         self.vehicle.ad.taskModule:addTask(self.activeTask)
+        self.failedPathFinder = 0
+    end
+
+    if self.vehicle.lastSpeedReal > 0.0013 then
+        self.failedPathFinder = 0
+    end
+end
+
+function CombineUnloaderMode:notifyAboutFailedPathfinder()
+    --print("CombineUnloaderMode:notifyAboutFailedPathfinder() - blocked: " .. AutoDrive.boolToString(self.vehicle.ad.pathFinderModule.completelyBlocked) .. " distance: " .. ADGraphManager:getDistanceFromNetwork(self.vehicle))
+    if self.vehicle.ad.pathFinderModule.completelyBlocked and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 20 then
+        self.failedPathFinder = self.failedPathFinder + 1
+        --print("Increased Failed pathfinder count to: " .. self.failedPathFinder)
     end
 end
 

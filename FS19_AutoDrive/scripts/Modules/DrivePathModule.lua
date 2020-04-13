@@ -421,14 +421,14 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     elseif angle < 100 then
         maxSpeed = 13
         --]]
-    elseif angle < 45 then
+    elseif angle < 50 then
         -- < 5 max
         -- > 5 = 60
         -- < 30 = 12
         maxSpeed = 12 + 48 * (1 - math.clamp(0, (angle - 5), 25) / (30 - 5))
     --elseif angle < 100 then
         --maxSpeed = 8
-    elseif angle >= 45 then
+    elseif angle >= 50 then
         maxSpeed = 3
     end
     

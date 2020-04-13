@@ -25,6 +25,7 @@ function DriveToVehicleTask:update(dt)
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
                 --Don't just restart pathfinder here. We might not even have to go to the vehicle anymore.
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:notifyAboutFailedPathfinder()
                 if self.delayRestartTimer <= 0 then
                     self:finished()
                 else
