@@ -368,6 +368,77 @@ function CombineUnloaderMode:isUnloaderOnCorrectSide()
     end
 end
 
+function CombineUnloaderMode:getPipeSlopeCorrection2()
+    self.combineNode = self.combine.components[1].node
+    self.unloaderNode = self.vehicle.components[1].node
+    local combineRx, _, combineRz = localDirectionToWorld(self.combine.components[1].node, 0, 0, 1)
+    local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
+    self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
+    if self.pipeSide == nil then
+        self.pipeSide = MathUtil.sign(AutoDrive.getPipeSide(self.combine))
+    end
+
+    local unloaderX, unloaderY, unloaderZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
+    local diffX, diffY, _ = worldToLocal(self.combineNode, unloaderX, unloaderY, unloaderZ)
+    
+    --local heightUnderCombine = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, self.combineX, self.combineY, self.combineZ)
+    --local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, nodeX, nodeY, nodeZ)
+    --local ux, uy, _ = localDirectionToWorld(self.combineNode, 0, 1, 0)
+    --local ux, uy, _ = localDirectionToWorld(self.combineNode, 0, MathUtil.sign(self.pipeSide), 0)
+    local wux, wuy, wuz = getTerrainNormalAtWorldPos(g_currentMission.terrainRootNode, self.combineX, self.combineY, self.combineZ)
+    local ux, uy, uz = worldDirectionToLocal(self.unloaderNode, wux, wuy, wuz)
+    local angleBetween = math.abs(AutoDrive.angleBetween({x = rx, z = rz}, {x = combineRx, z = combineRz}))
+    if angleBetween > 10 then
+        local dischargeX, dichargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
+        -- This will result in corrections close to, but not quite, zero
+        ux, uy, uz = worldDirectionToLocal(self.combineNode, wux, wuy, wuz)
+        diffX, diffY, _ = worldToLocal(self.combineNode, dischargeX, dichargeY, dischargeZ)
+    end
+
+    if math.abs(diffX) < self.combine.sizeWidth/2 then
+        -- Some pipes curl up so tight they cause a collisions.
+        -- We just don't try to correct in this case.
+        return 0
+    end
+    --uy = uy * MathUtil.sign(self.pipeSide)
+    --local dx, dy, _ = localDirectionToWorld(self.combineNode, 0, 0, 1)
+    --local theta = math.atan2(uy, ux) - math.pi/2
+    -- This is backwards from the usual order of these variables, but I need deviation from 0 and pi, not 
+    -- pi/2 and 3pi/4, so I adjust the coordinate system
+    local theta = math.atan(ux/uy)
+    --local theta = math.atan2(ux, uy)
+    --local pipeDisplacement = (AutoDrive.getPipeLength(self.combine) + self.combine.sizeWidth / 2) * self.pipeSide
+
+    local pipePosition = diffX * math.cos(theta) + diffY * math.sin(theta)
+    --local pipePosition = diffX * uy + diffY * ux
+    --local pipePosition = diffX * ux + diffY * uy
+    --local pipePosition = -pipeDisplacement * math.sin(theta) + (nodeY - self.combineY) * math.cos(theta)
+    local currentElevationCorrection = pipePosition - diffX
+    local message= 
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeSlopeCorrection2:Normal   " ..
+    ux .. "/" ..
+    uy .. "/" .. 
+    uz .. "/" ..
+    "//")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeSlopeCorrection2 - " ..
+    math.deg(theta) .. "/" ..
+    diffX  .. "/" ..
+    pipePosition  .. "/" ..
+    currentElevationCorrection  .. 
+    "//")
+    if math.abs(currentElevationCorrection) > 1 then
+        -- Assume something has gone very wrong if the correction gets too large.
+        return 0
+    end
+    local elevationCorrection = currentElevationCorrection
+    --if self.lastSlopeCorrection ~= nil then
+    --    elevationCorrection = (self.lastSlopeCorrection + currentElevationCorrection)/2
+    --end
+
+    self.lastSlopeCorrection = currentElevationCorrection
+    return elevationCorrection
+end
+
 function CombineUnloaderMode:getPipeSlopeCorrection()
     self.combineNode = self.combine.components[1].node
     self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
