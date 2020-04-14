@@ -1,6 +1,6 @@
 ADDrivePathModule = {}
 
-ADDrivePathModule.LOOKAHEADDISTANCE = 12
+ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
@@ -294,7 +294,7 @@ function ADDrivePathModule:getCurrentLookAheadDistance()
     if speedFactor <= 1 then
         massFactor = math.min(speedFactor, massFactor)
     end
-    return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 100)
+    return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 150)
 end
 
 function ADDrivePathModule:getHighestApproachingAngle()

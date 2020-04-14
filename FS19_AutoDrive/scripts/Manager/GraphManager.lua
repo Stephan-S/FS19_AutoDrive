@@ -6,10 +6,12 @@ function ADGraphManager:load()
 	self.groups = {}
 	self.groups["All"] = 1
 	self.changes = false
+	self.preparedWayPoints = false
 end
 
 function ADGraphManager:markChanges()
 	self.changes = true
+	self.preparedWayPoints = false
 end
 
 function ADGraphManager:resetChanges()
@@ -18,6 +20,10 @@ end
 
 function ADGraphManager:hasChanges()
 	return self.changes
+end
+
+function ADGraphManager:areWayPointsPrepared()
+	return self.preparedWayPoints
 end
 
 -- Calling functions expect a linear, continuous array
@@ -125,7 +131,8 @@ function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId)
 		if startWaypointId == targetWaypointId then
 			table.insert(wp, self.wayPoints[targetWaypointId])
 		else
-			wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetWaypointId)
+			--wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetWaypointId)
+			wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId)
 		end
 	end
 	return wp
@@ -139,7 +146,8 @@ function ADGraphManager:pathFromToMarker(startWaypointId, markerId)
 			table.insert(wp, 1, self.wayPoints[targetId])
 			return wp
 		else
-			wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetId)
+			--wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetId)
+			wp = ADPathCalculator:GetPath(startWaypointId, targetId)
 		end
 	end
 	return wp
@@ -170,7 +178,8 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 		return wp
 	end
 
-	wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, start_id, target_id)
+	--wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, start_id, target_id)
+	wp = ADPathCalculator:GetPath(start_id, target_id)
 
 	return wp
 end
@@ -765,4 +774,41 @@ function ADGraphManager:createNode(id, x, y, z, out, incoming)
 		out = out,
 		incoming = incoming
 	}
+end
+
+function ADGraphManager:prepareWayPoints()
+    local network = self:getWayPoints()
+    for id, wp in ipairs(network) do
+        wp.transitMapping = {}
+        wp.inverseTransitMapping = {}
+        if #wp.incoming > 0 then --and #wp.out > 0
+            for outIndex, outId in ipairs(wp.out) do
+                wp.inverseTransitMapping[outId] = {}
+            end
+
+            for inIndex, inId in ipairs(wp.incoming) do
+                local inPoint = network[inId]
+                wp.transitMapping[inId] = {}
+                for outIndex, outId in ipairs(wp.out) do
+                    local outPoint = network[outId]
+                    local angle = math.abs(AutoDrive.angleBetween({x = outPoint.x - wp.x, z = outPoint.z - wp.z}, {x = wp.x - inPoint.x, z = wp.z - inPoint.z}))
+					--print("prep4: " .. outId .. " angle: " .. angle)
+					
+                    if angle <= 90 then
+                        table.insert(wp.transitMapping[inId], outId)
+						table.insert(wp.inverseTransitMapping[outId], inId)
+					else
+						--Also for reverse routes - but only checked on demand, if angle check fails
+						local isReverseStart = not table.contains(outPoint.incoming, wp.id)
+						local isReverseEnd = table.contains(outPoint.incoming, wp.id) and not table.contains(wp.incoming, inPoint.id)
+						if isReverseStart or isReverseEnd then
+							table.insert(wp.transitMapping[inId], outId)
+							table.insert(wp.inverseTransitMapping[outId], inId)
+						end
+                    end
+                end
+            end
+        end
+	end
+	self.preparedWayPoints = true
 end

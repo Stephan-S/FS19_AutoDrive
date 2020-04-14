@@ -17,6 +17,7 @@ source(Utils.getFilename("scripts/Gui.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/DijkstraLive.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/ExternalInterface.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/PathCalculation.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Hud/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud/HudButton.lua", g_currentModDirectory))
@@ -57,6 +58,7 @@ source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/SortedQueue.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))

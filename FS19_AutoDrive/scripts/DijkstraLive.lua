@@ -151,15 +151,15 @@ function AutoDrive:dijkstraLive(start, target)
 		local shortest_id = -1
 		local shortest_index = nil
 		for i, element_wp in ipairs(AutoDrive.dijkstraCalc.Q) do
-			if nil == AutoDrive.dijkstraCalc.distance[AutoDrive.dijkstraCalc.Q[i]] then
-				AutoDrive.dijkstraCalc.distance[AutoDrive.dijkstraCalc.Q[i]] = 10000000
+			if nil == AutoDrive.dijkstraCalc.distance[element_wp] then
+				AutoDrive.dijkstraCalc.distance[element_wp] = 10000000
 			end
-			if AutoDrive.dijkstraCalc.distance[AutoDrive.dijkstraCalc.Q[i]] < shortest then
-				shortest = AutoDrive.dijkstraCalc.distance[AutoDrive.dijkstraCalc.Q[i]]
-				shortest_id = AutoDrive.dijkstraCalc.Q[i]
+			if AutoDrive.dijkstraCalc.distance[element_wp] < shortest then
+				shortest = AutoDrive.dijkstraCalc.distance[element_wp]
+				shortest_id = element_wp
 				shortest_index = i
 			end
-			if AutoDrive.dijkstraCalc.distance[AutoDrive.dijkstraCalc.Q[i]] >= 10000000 then
+			if AutoDrive.dijkstraCalc.distance[element_wp] >= 10000000 then
 				break
 			end
 		end
@@ -198,7 +198,7 @@ function AutoDrive:dijkstraLive(start, target)
 								local wp_ref
 								local isReverseStart = false
 								local isReverseEnd = false
-								if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
+								if AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
 									wp_current = wayPoints[shortest_id]
 									wp_ahead = wayPoints[linkedNodeId]
 									wp_ref = wayPoints[AutoDrive.dijkstraCalc.pre[shortest_id]]
@@ -206,14 +206,14 @@ function AutoDrive:dijkstraLive(start, target)
 									isReverseEnd = table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 								end
 								if AutoDrive.setting_useFastestRoute == true then
-									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
+									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
 										distanceToAdd, angle = ADGraphManager:getDriveTimeBetweenNodes(shortest_id, linkedNodeId, AutoDrive.dijkstraCalc.pre[shortest_id], nil, false)
 									else
 										distanceToAdd, angle = ADGraphManager:getDriveTimeBetweenNodes(shortest_id, linkedNodeId, nil, nil, false)
 									end
 								else
 									distanceToAdd = ADGraphManager:getDistanceBetweenNodes(shortest_id, linkedNodeId)
-									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= nil and AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
+									if AutoDrive.dijkstraCalc.pre[shortest_id] ~= -1 then
 										angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
 										angle = math.abs(angle)
 									else

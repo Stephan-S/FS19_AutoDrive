@@ -1204,7 +1204,7 @@ function PathFinderModule.checkSlopeAngle(x1, z1, x2, z2)
 
     local belowGroundLevel = terrain1 < g_currentMission.waterY - 0.5 or terrain2 < g_currentMission.waterY - 0.5 or terrain3 < g_currentMission.waterY - 0.5
 
-    if belowGroundLevel or (angleBetween * 0.7) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 0.7) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+    if belowGroundLevel or (angleBetween * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
         return true
     end
     return false
