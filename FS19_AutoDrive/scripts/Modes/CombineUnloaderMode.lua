@@ -504,7 +504,13 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
         -- back than the pathfinder (straightening) target in PathFinderModule:startPathPlanningToPipe
         -- math.sqrt(2) gives the hypotenuse of an isosceles right trangle with side length equal to the length
         -- of the trailer
-        rearChaseOffset = -self.combine.sizeLength / 2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
+        if AutoDrive.isSugarcaneHarvester(self.combine) then
+            rearChaseOffset = -self.combine.sizeLength / 2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
+        else
+            --there is no need to be close to the rear of the harvester here. We can make it hard on the pathfinder since we have no strong desire to chase there anyway for normal harvesters
+            --Especially when they are CP driven, we have to be prepared for that massive reverse maneuver when the combine is filled and wants to avoid the crop.
+            rearChaseOffset = -45
+        end
     end
 
     return rearChaseOffset

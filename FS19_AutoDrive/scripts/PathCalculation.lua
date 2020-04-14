@@ -118,7 +118,9 @@ function ADPathCalculator:GetPath(startID, targetID)
     --print("Now we just have to reverse engineer the path:")
     local inversePath = {}
     local point = network[targetID]
+    local counter = 0
     while point ~= nil do
+        counter = counter + 1
         --print("Point: " .. point.id .. " lastPre: " .. lastPredecessor)
         local previousPoint = network[lastPredecessor]
         lastPredecessor = results[lastPredecessor][point.id].pre
@@ -128,6 +130,10 @@ function ADPathCalculator:GetPath(startID, targetID)
 
         if lastPredecessor == -1 then
             point = nil
+        end
+        --emergency stop - we have some loop in the graph that went through till here
+        if counter >= 500000 then
+            return {}
         end
     end
 
