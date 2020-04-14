@@ -476,7 +476,7 @@ function PathFinderModule:checkGridCell(cell)
 
     if not cell.hasCollision then
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
-        local shapes = overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 224, true, true, true)
+        local shapes = overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 239, true, true, true)
         cell.hasCollision = (shapes > 0)
     end
 
@@ -1104,7 +1104,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 local corner4X = node.x - math.cos(rightAngle) * sideLength
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength
 
-                local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, 224, true, true, true)
+                local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, 239, true, true, true)
                 hasCollision = hasCollision or (shapes > 0)
 
                 if (self.smoothIndex > 1) then
