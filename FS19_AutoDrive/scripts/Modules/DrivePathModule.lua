@@ -1,6 +1,6 @@
 ADDrivePathModule = {}
 
-ADDrivePathModule.LOOKAHEADDISTANCE = 12
+ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
@@ -89,6 +89,9 @@ function ADDrivePathModule:setWayPoints(wayPoints)
         self:setCurrentWayPointIndex(1)
     end
     self:resetIsReversing()
+    if self.wayPoints == nil or #self.wayPoints < 0 then
+        self.atTarget = true
+    end
 end
 
 function ADDrivePathModule:setPaused()
@@ -291,7 +294,7 @@ function ADDrivePathModule:getCurrentLookAheadDistance()
     if speedFactor <= 1 then
         massFactor = math.min(speedFactor, massFactor)
     end
-    return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 100)
+    return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 150)
 end
 
 function ADDrivePathModule:getHighestApproachingAngle()
@@ -418,14 +421,14 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     elseif angle < 100 then
         maxSpeed = 13
         --]]
-    elseif angle < 45 then
+    elseif angle < 50 then
         -- < 5 max
         -- > 5 = 60
         -- < 30 = 12
         maxSpeed = 12 + 48 * (1 - math.clamp(0, (angle - 5), 25) / (30 - 5))
     --elseif angle < 100 then
         --maxSpeed = 8
-    elseif angle >= 45 then
+    elseif angle >= 50 then
         maxSpeed = 3
     end
     

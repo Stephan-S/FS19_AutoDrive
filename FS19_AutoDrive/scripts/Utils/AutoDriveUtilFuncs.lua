@@ -113,7 +113,7 @@ function AutoDrive.combineIsTurning(combine)
 
     --local b = AutoDrive.boolToString
     --print("cpIsTurning: " .. b(cpIsTurning) .. " cpIsTurningTwo: " .. b(cpIsTurningTwo) .. " aiIsTurning: " .. b(aiIsTurning) .. " combineIsTurning: " .. b(combineIsTurning) .. " driveForwardDone: " .. b(combine.ad.driveForwardTimer:done()))
-    if ((combine:getIsBufferCombine() and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not combine:getIsBufferCombine()))) and (not combineIsTurning) then
+    if not combineIsTurning then --(combine.ad.driveForwardTimer:done() and (not combine:getIsBufferCombine()))
         return false
     end
     if combine.ad.noMovementTimer.elapsedTime > 3000 then

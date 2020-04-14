@@ -31,6 +31,7 @@ function CombineUnloaderMode:reset()
     self.followingUnloader = nil
     self.breadCrumbs = Queue:new()
     self.lastBreadCrumb = nil
+    self.failedPathFinder = 0
 end
 
 function CombineUnloaderMode:start()
@@ -61,13 +62,26 @@ function CombineUnloaderMode:monitorTasks(dt)
         self:leaveBreadCrumbs()
     end
     --We are stuck
-    if self.vehicle.ad.specialDrivingModule:shouldStopMotor() and self.vehicle.ad.specialDrivingModule.isBlocked then
+    if self.failedPathFinder >= 5 or ((self.vehicle.ad.specialDrivingModule:shouldStopMotor() or self.vehicle.ad.specialDrivingModule.stoppedTimer:done()) and self.vehicle.ad.specialDrivingModule.isBlocked) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:monitorTasks() - detected stuck vehicle - try reversing out of it now")
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
         self.vehicle.ad.taskModule:abortAllTasks()
         self.activeTask = ReverseFromBadLocationTask:new(self.vehicle)
         self.state = self.STATE_REVERSE_FROM_BAD_LOCATION
         self.vehicle.ad.taskModule:addTask(self.activeTask)
+        self.failedPathFinder = 0
+    end
+
+    if self.vehicle.lastSpeedReal > 0.0013 then
+        self.failedPathFinder = 0
+    end
+end
+
+function CombineUnloaderMode:notifyAboutFailedPathfinder()
+    --print("CombineUnloaderMode:notifyAboutFailedPathfinder() - blocked: " .. AutoDrive.boolToString(self.vehicle.ad.pathFinderModule.completelyBlocked) .. " distance: " .. ADGraphManager:getDistanceFromNetwork(self.vehicle))
+    if self.vehicle.ad.pathFinderModule.completelyBlocked and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 20 then
+        self.failedPathFinder = self.failedPathFinder + 1
+        --print("Increased Failed pathfinder count to: " .. self.failedPathFinder)
     end
 end
 
@@ -83,7 +97,11 @@ function CombineUnloaderMode:leaveBreadCrumbs()
             local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, self.lastBreadCrumb.x, self.lastBreadCrumb.y, self.lastBreadCrumb.z)
             local vec1 = {x = x - self.lastBreadCrumb.x, z = z - self.lastBreadCrumb.z}
             local angleToNewPoint = AutoDrive.angleBetween({x = self.lastBreadCrumb.dirX, z = self.lastBreadCrumb.dirZ}, vec1)
-            if diffZ < -1 and MathUtil.vector2Length(x - self.lastBreadCrumb.x, z - self.lastBreadCrumb.z) > 2.5 and math.abs(angleToNewPoint) < 90 then
+            local minDistance = 2.5
+            if math.abs(angleToNewPoint) > 40 then
+                minDistance = 15
+            end
+            if diffZ < -1 and MathUtil.vector2Length(x - self.lastBreadCrumb.x, z - self.lastBreadCrumb.z) > minDistance and math.abs(angleToNewPoint) < 90 then
                 self.lastBreadCrumb = {x = x, y = y, z = z, dirX = vec1.x, dirZ = vec1.z}
                 self.breadCrumbs:Enqueue(self.lastBreadCrumb)
             end
@@ -356,11 +374,16 @@ function CombineUnloaderMode:getUnloaderOnSide()
     return leftright, frontback
 end
 
-function CombineUnloaderMode:isUnloaderOnCorrectSide()
-    _, sideIndex = self:getPipeChasePosition()
-    local leftRight, frontBack = self:getUnloaderOnSide() 
-    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or 
-         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or 
+function CombineUnloaderMode:isUnloaderOnCorrectSide(chaseSide)
+    local sideIndex = chaseSide
+    if sideIndex == nil then
+        local _, index = self:getPipeChasePosition()
+        sideIndex = index
+    end
+
+    local leftRight, frontBack = self:getUnloaderOnSide()
+    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or
+         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or
          frontBack == sideIndex then
         return true
     else
@@ -516,7 +539,13 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
         -- back than the pathfinder (straightening) target in PathFinderModule:startPathPlanningToPipe
         -- math.sqrt(2) gives the hypotenuse of an isosceles right trangle with side length equal to the length
         -- of the trailer
-        rearChaseOffset = -self.combine.sizeLength / 2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
+        if AutoDrive.isSugarcaneHarvester(self.combine) then
+            rearChaseOffset = -self.combine.sizeLength / 2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
+        else
+            --there is no need to be close to the rear of the harvester here. We can make it hard on the pathfinder since we have no strong desire to chase there anyway for normal harvesters
+            --Especially when they are CP driven, we have to be prepared for that massive reverse maneuver when the combine is filled and wants to avoid the crop.
+            rearChaseOffset = -45
+        end
     end
 
     return rearChaseOffset
@@ -572,10 +601,10 @@ function CombineUnloaderMode:getPipeChasePosition()
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         end
 
-        if (not leftBlocked) and angleToLeftChaseSide < angleToRearChaseSide then
+        if (not leftBlocked) and self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_LEFT) and angleToLeftChaseSide < angleToRearChaseSide then
             chaseNode = leftChasePos
             sideIndex = AutoDrive.CHASEPOS_LEFT
-        elseif (not rightBlocked) then
+        elseif (not rightBlocked) and self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_RIGHT) then
             chaseNode = rightChasePos
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         elseif not AutoDrive.isSugarcaneHarvester(self.combine) then
@@ -598,7 +627,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         local rightBlocked = false
 
         if
-            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and angleToSideChaseSide < angleToRearChaseSide) or
+            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and self:isUnloaderOnCorrectSide(self.pipeSide) and angleToSideChaseSide < angleToRearChaseSide) or
                 self.combine.ad.noMovementTimer.elapsedTime > 1000
          then
             -- Take into account a right sided harvester, e.g. potato harvester.

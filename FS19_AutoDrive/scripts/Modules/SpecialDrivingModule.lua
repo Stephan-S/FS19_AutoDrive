@@ -14,6 +14,7 @@ end
 function ADSpecialDrivingModule:reset()
     self.shouldStopOrHoldVehicle = false
     self.unloadingIntoBunkerSilo = false
+    self.stoppedTimer = AutoDriveTON:new()
 end
 
 function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
@@ -27,6 +28,7 @@ function ADSpecialDrivingModule:releaseVehicle()
     self.shouldStopOrHoldVehicle = false
     self.motorShouldBeStopped = false
     self.isBlocked = false
+    self.stoppedTimer:timer(false)
 end
 
 function ADSpecialDrivingModule:update(dt)
@@ -62,10 +64,7 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
         lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, x, y, z)
     end
 
-    if self.stoppedTimer == nil then
-        self.stoppedTimer = AutoDriveTON:new()
-    end
-    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.0013 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 5000, dt)
+    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 15000, dt)
 
     if self.stoppedTimer:done() then
         self.motorShouldBeStopped = true
@@ -133,6 +132,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
         self:stopVehicle(true, lx, lz)
         self:update(dt)
     else
+        self.isBlocked = self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028, 15000, dt)
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
         if (self.vehicle.lastSpeedReal * 3600) > (speed + ADSpecialDrivingModule.MAX_SPEED_DEVIATION) then
             self.acceleration = -0.6
@@ -197,7 +197,6 @@ function ADSpecialDrivingModule:getBasicStates()
     self.targetX, self.targetY, self.targetZ = localToWorld(self.vehicle:getAIVehicleDirectionNode(), 0, 0, 5)
     self.trailerVecX, _, self.trailerVecZ = localDirectionToWorld(self.reverseNode, 0, 0, 1)
     self.trailerRearVecX, _, self.trailerRearVecZ = localDirectionToWorld(self.reverseNode, 0, 0, -1)
-    --self.rNx, self.rNy, self.rNz = localToWorld(self.reverseNode, self.trailerRearToNode, 0, self.trailerRearToNode)
     self.vecToPoint = {x = self.reverseTarget.x - self.rNx, z = self.reverseTarget.z - self.rNz}
     self.angleToTrailer = AutoDrive.angleBetween({x = self.vehicleVecX, z = self.vehicleVecZ}, {x = self.trailerVecX, z = self.trailerVecZ})
     self.angleToPoint = AutoDrive.angleBetween({x = self.trailerRearVecX, z = self.trailerRearVecZ}, {x = self.vecToPoint.x, z = self.vecToPoint.z})
@@ -245,13 +244,15 @@ function ADSpecialDrivingModule:getReverseNode()
                 local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
                 local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, implementX, implementY, implementZ)
                 if diffZ < 0 then
-                    reverseNode = implement.object.spec_wheels.steeringCenterNode
-                    self.reverseSolo = false
-                    self.trailer = implement.object
-                    local trailerRearX, trailerRearY, trailerRearZ = localToWorld(self.trailer.components[1].node, 0, 0, -self.trailer.sizeLength / 2)
-                    local _, _, trailerRearToNode = worldToLocal(reverseNode, trailerRearX, trailerRearY, trailerRearZ)
-                    self.trailerRearToNode = trailerRearToNode
-                --print("trailerRearToNode: " .. self.trailerRearToNode)
+                    local hasSynchronizedWheels = false
+                    for _, wheel in pairs(implement.object.spec_wheels.wheels) do
+                        hasSynchronizedWheels = hasSynchronizedWheels or wheel.isSynchronized
+                    end
+                    if hasSynchronizedWheels then
+                        reverseNode = implement.object.spec_wheels.steeringCenterNode
+                        self.reverseSolo = false
+                        self.trailer = implement.object
+                    end
                 end
             end
         end

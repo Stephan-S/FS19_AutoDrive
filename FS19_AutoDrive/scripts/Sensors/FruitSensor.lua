@@ -46,12 +46,13 @@ end
 
 function ADFruitSensor:checkForFruitTypeInArea(fruitType, corners)
     local fruitValue = 0
-    -- We also need '8' to detect green maize ( it can be chopped at this state )
-    if fruitType == 9 or fruitType == 8 or fruitType == 22 or fruitType == 17 or fruitType == 15 then
+    --if fruitType == 9 or fruitType == 8 or fruitType == 22 or fruitType == 17 or fruitType == 15 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true)
-    else
-        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
-    end
+    --else
+        --fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
+    --end
+
+    --print(fruitType .. ": " .. fruitValue)
 
     return (fruitValue > 10)
 end

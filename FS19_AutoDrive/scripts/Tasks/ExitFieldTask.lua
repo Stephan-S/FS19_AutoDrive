@@ -24,6 +24,7 @@ function ExitFieldTask:update(dt)
         if self.vehicle.ad.pathFinderModule:hasFinished() then
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:notifyAboutFailedPathfinder()
                 self:selectNextStrategy()
                 if self.vehicle.ad.pathFinderModule:isTargetBlocked() then
                     -- If the selected field exit isn't reachable, try the next strategy and restart without delay

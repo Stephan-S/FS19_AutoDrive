@@ -180,6 +180,7 @@ function ADTrailerModule:stopUnloading()
             trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF)
         end
     end
+    self.startedUnloadingAtTrigger = false
 end
 
 function ADTrailerModule:updateUnload(dt)

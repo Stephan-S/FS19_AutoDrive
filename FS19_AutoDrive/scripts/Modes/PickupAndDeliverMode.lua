@@ -84,12 +84,10 @@ function PickupAndDeliverMode:getNextTask(forced)
             self.state = PickupAndDeliverMode.STATE_PICKUP
 
             if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
-                if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
-                    if AutoDrive.getSetting("syncMultiTargets") then
-                        local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, forced)
-                        if nextTarget ~= nil then
-                            self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
-                        end
+                if AutoDrive.getSetting("syncMultiTargets") then
+                    local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, forced)
+                    if nextTarget ~= nil then
+                        self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
                     end
                 elseif forced then
                     self.vehicle.ad.stateModule:setNextTargetInFolder()
