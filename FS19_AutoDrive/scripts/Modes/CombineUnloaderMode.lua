@@ -487,13 +487,19 @@ function CombineUnloaderMode:getSideChaseOffsetZ(dynamic)
     end
 end
 
-function CombineUnloaderMode:getRearChaseOffsetX()
-    local rearChaseOffset = 0
-    if AutoDrive.isSugarcaneHarvester(self.combine) then --self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine() or
-        rearChaseOffset = -self.pipeSide * (self.combine.sizeWidth / 2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth) / 2) + 1
+function CombineUnloaderMode:getRearChaseOffsetX(leftBlocked, rightBlocked)
+    local rearChaseOffset = (self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth)/2)+1
+
+    if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
+        return 0
+    elseif rightBlocked and leftBlocked then
+        return 0
+    elseif leftBlocked then
+        return -rearChaseOffset
+    else
+        return rearChaseOffset
     end
 
-    return rearChaseOffset
 end
 
 function CombineUnloaderMode:getRearChaseOffsetZ()
