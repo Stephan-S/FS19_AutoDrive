@@ -58,16 +58,16 @@ function EmptyHarvesterTask:update(dt)
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 1")
             self.state = EmptyHarvesterTask.STATE_UNLOADING
-        elseif (AutoDrive.getSetting("preCallLevel", self.combine) > 50 and
-                self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF) then
-                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 2")
-                self.state = EmptyHarvesterTask.STATE_UNLOADING
+        elseif (AutoDrive.getSetting("preCallLevel", self.combine) > 50 and self.combine.getDischargeState ~= nil and self.combine:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF) then
+            --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING 2")
+            self.state = EmptyHarvesterTask.STATE_UNLOADING
         else
             self.vehicle.ad.drivePathModule:update(dt)
         end
         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
         AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
+        self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = true
         -- Stopping CP drivers for now
         if self.combine.cp and self.combine.cp.driver and self.combine.cp.driver.holdForUnloadOrRefill then
             self.combine.cp.driver:holdForUnloadOrRefill()
@@ -111,6 +111,7 @@ function EmptyHarvesterTask:update(dt)
             end
         end
     elseif self.state == EmptyHarvesterTask.STATE_REVERSING then
+        self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
         if distanceToReversStart > 10 then
@@ -135,6 +136,7 @@ end
 
 function EmptyHarvesterTask:finished(propagate)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:finished()")
+    self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
     self.vehicle.ad.taskModule:setCurrentTaskFinished(propagate)
 end
 
