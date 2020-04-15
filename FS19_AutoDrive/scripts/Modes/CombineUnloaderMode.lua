@@ -376,9 +376,11 @@ end
 
 function CombineUnloaderMode:isUnloaderOnCorrectSide(chaseSide)
     local sideIndex = chaseSide
-    if sideIndex == nil then
-        local _, index = self:getPipeChasePosition()
-        sideIndex = index
+
+    if sideIndex == nil and self.chasePosIndex == nil then
+        return false
+    elseif sideIndex == nil then
+        sideIndex = self.chasePosIndex
     end
 
     local leftRight, frontBack = self:getUnloaderOnSide()
@@ -604,7 +606,8 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     end
 
-    return chaseNode, sideIndex
+    self.chasePosIndex = sideIndex
+    return chaseNode, self.chasePosIndex
 end
 
 function CombineUnloaderMode:getAngleToCombineHeading()
