@@ -586,7 +586,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     else
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:IsNormalCombine")
-        local rearChaseTermX = self:getRearChaseOffsetX()
+        local rearChaseTermX = self:getRearChaseOffsetX(leftBlocked, rightBlocked)
 
         local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
