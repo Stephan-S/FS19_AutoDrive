@@ -563,10 +563,6 @@ function CombineUnloaderMode:getPipeChasePosition()
     leftBlocked = leftBlocked or leftFrontBlocked
 
     self.pipeSide = AutoDrive.getPipeSide(self.combine)
-    -- Slope correction is a very fickle thing for buffer harvesters since you can't know
-    -- whether the pipe will be on the same side as the chase.
-    local slopeCorrection = self:getPipeSlopeCorrection()
-
     self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
     local sideChaseTermX = self:getSideChaseOffsetX()
     local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
