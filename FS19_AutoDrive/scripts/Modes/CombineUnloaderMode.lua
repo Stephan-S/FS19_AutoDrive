@@ -568,7 +568,19 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     local leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.leftSensorField:pollInfo()))
     local leftFrontBlocked = self.combine.ad.sensors.leftFrontSensorFruit:pollInfo() or self.combine.ad.sensors.leftFrontSensor:pollInfo()
+    local rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.rightSensorField:pollInfo()))
+    local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo() or self.combine.ad.sensors.rightFrontSensor:pollInfo()
+    rightBlocked = rightBlocked or rightFrontBlocked
     leftBlocked = leftBlocked or leftFrontBlocked
+    
+    -- prefer side where front is also free
+    if (not leftBlocked) and (not rightBlocked) then
+        if (not leftFrontBlocked) and rightFrontBlocked then
+            rightBlocked = true
+        elseif leftFrontBlocked and (not rightFrontBlocked) then
+            leftBlocked = true
+        end
+    end
 
     self.pipeSide = AutoDrive.getPipeSide(self.combine)
     self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
@@ -578,25 +590,8 @@ function CombineUnloaderMode:getPipeChasePosition()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
-        local rightBlocked = self.combine.ad.sensors.rightSensorFruit:pollInfo() or self.combine.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.rightSensorField:pollInfo()))
-        local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo() or self.combine.ad.sensors.rightFrontSensor:pollInfo()
-        rightBlocked = rightBlocked or rightFrontBlocked
-
-        -- prefer side where front is also free
-        if (not leftBlocked) and (not rightBlocked) then
-            if (not leftFrontBlocked) and rightFrontBlocked then
-                rightBlocked = true
-            elseif leftFrontBlocked and (not rightFrontBlocked) then
-                leftBlocked = true
-            end
-        end
-
-        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 
-                                                                        sideChaseTermX + self:getPipeSlopeCorrection() , 
-                                                                        sideChaseTermZ)
-        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 
-                                                                        -(sideChaseTermX + self:getPipeSlopeCorrection()),
-                                                                        sideChaseTermZ)
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX + self:getPipeSlopeCorrection(), sideChaseTermZ)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -(sideChaseTermX + self:getPipeSlopeCorrection()), sideChaseTermZ)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, rearChaseTermZ)
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
@@ -634,11 +629,13 @@ function CombineUnloaderMode:getPipeChasePosition()
         local angleToSideChaseSide = self:getAngleToChasePos(sideChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
-        local rightBlocked = false
-
         if
-            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and self:isUnloaderOnCorrectSide(self.pipeSide) and angleToSideChaseSide < angleToRearChaseSide) or
-                self.combine.ad.noMovementTimer.elapsedTime > 1000
+            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or 
+              (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and 
+            combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and 
+            self:isUnloaderOnCorrectSide(self.pipeSide) and 
+            math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide)) or            
+            self.combine.ad.noMovementTimer.elapsedTime > 1000
          then
             -- Take into account a right sided harvester, e.g. potato harvester.
             chaseNode = sideChasePos
