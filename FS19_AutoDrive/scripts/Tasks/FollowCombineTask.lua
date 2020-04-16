@@ -67,9 +67,16 @@ function FollowCombineTask:update(dt)
 
         if self.combineFillPercent <= 0.1 and not self.combine:getIsBufferCombine() then
             if AutoDrive.getSetting("preCallLevel", self.combine) > 0 then
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "I am not on the correct side - set finished now")
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Combine is emptied - set finished now")
                 self:finished()
             end
+        end
+
+        --ToDo: How does this conform with Sugarcane harvest @aletheist? Can you exclude this here if needed?
+        if (not self.combine:getIsBufferCombine()) and self.combineFillPercent > 70 and self.chaseSide == AutoDrive.CHASEPOS_REAR then
+            -- Only chase the rear on low fill levels of the combine. This should prevent getting into unneccessarily tight spots for the final approach to the pipe.
+            -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
+            self:finished()
         end
 
         if self:isCaughtCurrentChaseSide() or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MAX_REVERSE_DISTANCE then
