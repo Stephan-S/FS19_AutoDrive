@@ -13,6 +13,8 @@ end
 
 function ADSpecialDrivingModule:reset()
     self.shouldStopOrHoldVehicle = false
+    self.motorShouldNotBeStopped = false
+    self.motorShouldBeStopped = false
     self.unloadingIntoBunkerSilo = false
     self.stoppedTimer = AutoDriveTON:new()
 end
@@ -34,6 +36,15 @@ end
 function ADSpecialDrivingModule:update(dt)
     if self.shouldStopOrHoldVehicle then
         self:stopAndHoldVehicle(dt)
+    end
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) and self.vehicle.getIsEntered ~= nil and self.vehicle:getIsEntered() then
+        local dbg = {}
+        dbg.isStoppingVehicle = self:isStoppingVehicle()
+        dbg.unloadingIntoBunkerSilo = self.unloadingIntoBunkerSilo
+        dbg.shouldStopMotor = self:shouldStopMotor()
+        dbg.shouldNotStopMotor = self:shouldNotStopMotor()
+        dbg.stoppedTimer = self.stoppedTimer.elapsedTime
+        AutoDrive.renderTable(0.6, 0.7, 0.009, dbg)
     end
 end
 
@@ -64,14 +75,12 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
         lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, x, y, z)
     end
 
-    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 15000, dt)
+    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 10000, dt)
 
     if self.stoppedTimer:done() then
         self.motorShouldBeStopped = true
-        if self.vehicle.spec_motorized.isMotorStarted and (not g_currentMission.missionInfo.automaticMotorStartEnabled) then
-            if self.vehicle.getIsControlled == nil or self.vehicle:getIsControlled() then
-                self.vehicle:stopMotor()
-            end
+        if self:shouldStopMotor() and self.vehicle.spec_motorized.isMotorStarted and (not g_currentMission.missionInfo.automaticMotorStartEnabled) then
+            self.vehicle:stopMotor()
         end
     end
 
@@ -79,7 +88,11 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
 end
 
 function ADSpecialDrivingModule:shouldStopMotor()
-    return self.motorShouldBeStopped
+    return self.motorShouldBeStopped and (not self:shouldNotStopMotor())
+end
+
+function ADSpecialDrivingModule:shouldNotStopMotor()
+    return self.motorShouldNotBeStopped
 end
 
 function ADSpecialDrivingModule:driveForward(dt)
@@ -230,7 +243,7 @@ function ADSpecialDrivingModule:checkWayPointReached()
         minDistance = 3
     end
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
-       return true
+        return true
     end
 
     return false

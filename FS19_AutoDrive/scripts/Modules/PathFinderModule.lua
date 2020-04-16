@@ -464,7 +464,7 @@ end
 
 function PathFinderModule:checkGridCell(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
-    local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
+    local gridFactor = PathFinderModule.GRID_SIZE_FACTOR * 1.3
     if self.isSecondChasingVehicle then
         gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER * 1.6
     end
@@ -896,7 +896,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
         shapeDefinition.widthZ = self.minTurnRadius / 2 + math.abs(offsetZ)
     end
 
-    local increaseCellFactor = 1.0
+    local increaseCellFactor = 1.15
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
 

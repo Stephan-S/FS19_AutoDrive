@@ -376,9 +376,11 @@ end
 
 function CombineUnloaderMode:isUnloaderOnCorrectSide(chaseSide)
     local sideIndex = chaseSide
-    if sideIndex == nil then
-        local _, index = self:getPipeChasePosition()
-        sideIndex = index
+
+    if sideIndex == nil and self.chasePosIndex == nil then
+        return false
+    elseif sideIndex == nil then
+        sideIndex = self.chasePosIndex
     end
 
     local leftRight, frontBack = self:getUnloaderOnSide()
@@ -520,13 +522,19 @@ function CombineUnloaderMode:getSideChaseOffsetZ(dynamic)
     end
 end
 
-function CombineUnloaderMode:getRearChaseOffsetX()
-    local rearChaseOffset = 0
-    if AutoDrive.isSugarcaneHarvester(self.combine) then --self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine() or
-        rearChaseOffset = -self.pipeSide * (self.combine.sizeWidth / 2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth) / 2) + 1
+function CombineUnloaderMode:getRearChaseOffsetX(leftBlocked, rightBlocked)
+    local rearChaseOffset = (self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth)/2)+1
+
+    if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
+        return 0
+    elseif rightBlocked and leftBlocked then
+        return 0
+    elseif leftBlocked then
+        return -rearChaseOffset
+    else
+        return rearChaseOffset
     end
 
-    return rearChaseOffset
 end
 
 function CombineUnloaderMode:getRearChaseOffsetZ()
@@ -615,7 +623,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     else
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition:IsNormalCombine")
-        local rearChaseTermX = self:getRearChaseOffsetX()
+        local rearChaseTermX = self:getRearChaseOffsetX(leftBlocked, rightBlocked)
 
         local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
@@ -641,7 +649,8 @@ function CombineUnloaderMode:getPipeChasePosition()
         end
     end
 
-    return chaseNode, sideIndex
+    self.chasePosIndex = sideIndex
+    return chaseNode, self.chasePosIndex
 end
 
 function CombineUnloaderMode:getAngleToCombineHeading()

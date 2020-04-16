@@ -5,12 +5,12 @@ ClearCropTask.TARGET_DISTANCE_FRONT_STEP = 10
 ClearCropTask.STATE_CLEARING = 1
 ClearCropTask.STATE_REVERSING = 2
 
-function ClearCropTask:new(vehicle, combine)
+ClearCropTask.LEFT = 1
+ClearCropTask.RIGHT = -1
+
+function ClearCropTask:new(vehicle)
     local o = ClearCropTask:create()
     o.vehicle = vehicle
-    if combine ~= nil then
-        o.combine = combine
-    end
     o.stuckTimer = AutoDriveTON:new()
     o.state = ClearCropTask.STATE_CLEARING
     o.reverseStartLocation = nil
@@ -19,16 +19,39 @@ end
 
 function ClearCropTask:setUp()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Setting up ClearCropTask")
-    local pipeSide = 1
-    if self.combine ~= nil then
-        pipeSide = AutoDrive.getPipeSide(self.combine)
+    local leftBlocked = self.vehicle.ad.sensors.leftSensorFruit:pollInfo() or self.vehicle.ad.sensors.leftSensor:pollInfo()
+    local rightBlocked = self.vehicle.ad.sensors.rightSensorFruit:pollInfo() or self.vehicle.ad.sensors.rightSensor:pollInfo()
+
+    local leftFrontBlocked = self.vehicle.ad.sensors.leftFrontSensorFruit:pollInfo() or self.vehicle.ad.sensors.leftFrontSensor:pollInfo()
+    local rightFrontBlocked = self.vehicle.ad.sensors.rightFrontSensorFruit:pollInfo() or self.vehicle.ad.sensors.rightFrontSensor:pollInfo()
+
+    leftBlocked = leftBlocked or leftFrontBlocked
+    rightBlocked = rightBlocked or rightFrontBlocked
+
+    -- prefer side where front is also free
+    if (not leftBlocked) and (not rightBlocked) then
+        if (not leftFrontBlocked) and rightFrontBlocked then
+            rightBlocked = true
+        elseif leftFrontBlocked and (not rightFrontBlocked) then
+            leftBlocked = true
+        end
     end
+
+    local cleartowards = ClearCropTask.RIGHT
+    if leftBlocked and rightBlocked then
+        cleartowards = ClearCropTask.RIGHT
+    elseif leftBlocked then
+        cleartowards = ClearCropTask.RIGHT
+    elseif rightBlocked then
+        cleartowards = ClearCropTask.LEFT
+    end
+
     self.wayPoints = {}
-    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, (-ClearCropTask.TARGET_DISTANCE_SIDE / 2) * pipeSide, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 0.5))
-    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE * pipeSide, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 1))
-    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE * pipeSide, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 2))
-    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE * pipeSide, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 3))
-    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, -ClearCropTask.TARGET_DISTANCE_SIDE * pipeSide, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 4))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, (ClearCropTask.TARGET_DISTANCE_SIDE / 2) * cleartowards, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 0.5))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, ClearCropTask.TARGET_DISTANCE_SIDE * cleartowards, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 1))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, ClearCropTask.TARGET_DISTANCE_SIDE * cleartowards, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 2))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, ClearCropTask.TARGET_DISTANCE_SIDE * cleartowards, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 3))
+    table.insert(self.wayPoints, AutoDrive.createWayPointRelativeToVehicle(self.vehicle, ClearCropTask.TARGET_DISTANCE_SIDE * cleartowards, ClearCropTask.TARGET_DISTANCE_FRONT_STEP * 4))
 
     self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
 end
