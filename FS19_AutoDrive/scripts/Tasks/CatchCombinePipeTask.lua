@@ -5,6 +5,7 @@ CatchCombinePipeTask.TARGET_DISTANCE = 15
 CatchCombinePipeTask.STATE_PATHPLANNING = 1
 CatchCombinePipeTask.STATE_DRIVING = 2
 CatchCombinePipeTask.STATE_REVERSING = 3
+CatchCombinePipeTask.STATE_DELAY_PATHPLANNING = 4
 
 CatchCombinePipeTask.MAX_REVERSE_DISTANCE = 18
 CatchCombinePipeTask.MIN_COMBINE_DISTANCE = 25
@@ -14,10 +15,12 @@ function CatchCombinePipeTask:new(vehicle, combine)
     local o = CatchCombinePipeTask:create()
     o.vehicle = vehicle
     o.combine = combine
-    o.state = CatchCombinePipeTask.STATE_PATHPLANNING
+    o.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
     o.wayPoints = nil
     o.stuckTimer = AutoDriveTON:new()
     o.reverseTimer = AutoDriveTON:new()
+    o.waitForCheckTimer = AutoDriveTON:new()
+    o.waitForCheckTimer.elapsedTime = 4000
     return o
 end
 
@@ -28,17 +31,12 @@ function CatchCombinePipeTask:setUp()
 
     if angleToCombineHeading < 35 and angleToCombine < 90 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60 then
         self:finished()
-    else
-        self:startNewPathFinding()
     end
 end
 
 function CatchCombinePipeTask:update(dt)
     --abort if the combine is nearing it's fill level and we should take care of 'real' approaches when it's in stand still
     local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
-    --if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 2000 or cleftCapacity < 1.0) then
-        --self:finished()
-    --end
 
     if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
         self:finished()
@@ -54,8 +52,7 @@ function CatchCombinePipeTask:update(dt)
                 self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:notifyAboutFailedPathfinder()
                 AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING restarting path finder - with delay 10000")
-                self:startNewPathFinding()
-                self.vehicle.ad.pathFinderModule:addDelayTimer(10000)
+                self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
                 self.state = CatchCombinePipeTask.STATE_DRIVING
@@ -64,6 +61,13 @@ function CatchCombinePipeTask:update(dt)
             self.vehicle.ad.pathFinderModule:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
+        end
+    elseif self.state == CatchCombinePipeTask.STATE_DELAY_PATHPLANNING then
+        if self.waitForCheckTimer:timer(true, 4000, dt) then
+            if self:startNewPathFinding() then
+                self.vehicle.ad.pathFinderModule:addDelayTimer(6000)
+                self.state = CatchCombinePipeTask.STATE_PATHPLANNING
+            end
         end
     elseif self.state == CatchCombinePipeTask.STATE_DRIVING then
         -- check if this is still a clever path to follow
@@ -81,8 +85,8 @@ function CatchCombinePipeTask:update(dt)
         end
         if combineTravelDistance > 65 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - combine travelled - recalculate path")
-            self:startNewPathFinding()
-            self.state = CatchCombinePipeTask.STATE_PATHPLANNING
+            self.waitForCheckTimer.elapsedTime = 4000
+            self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
         else
             if self.vehicle.ad.drivePathModule:isTargetReached() then
                 -- check if we have actually reached the target or not
@@ -95,8 +99,7 @@ function CatchCombinePipeTask:update(dt)
                     self:finished()
                 else
                     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - angle or distance to combine too high - recalculate path now")
-                    self:startNewPathFinding()
-                    self.state = CatchCombinePipeTask.STATE_PATHPLANNING
+                    self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
                 end
             else
                 self.vehicle.ad.drivePathModule:update(dt)
@@ -108,8 +111,7 @@ function CatchCombinePipeTask:update(dt)
         self.reverseTimer:timer(true, self.MAX_REVERSE_TIME, dt)
         if distanceToReverseStart > self.MAX_REVERSE_DISTANCE or self.reverseTimer:done() then
             self.reverseTimer:timer(false)
-            self:startNewPathFinding()
-            self.state = CatchCombinePipeTask.STATE_PATHPLANNING
+            self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
         else
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
         end
@@ -125,9 +127,20 @@ function CatchCombinePipeTask:finished()
 end
 
 function CatchCombinePipeTask:startNewPathFinding()
-    self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))
-    self.combinesStartLocation = {}
-    self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)
+    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
+    local x, _, z = getWorldTranslation(self.combine.components[1].node)
+    local targetFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(pipeChasePos.x, pipeChasePos.z)
+    local combineFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(x, z)
+    if pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or targetFieldId == combineFieldId then
+        self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))
+        self.combinesStartLocation = {}
+        self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)
+        return true
+    else
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:startNewPathFinding() - chase pos is not on the same field - aborting for now")
+        self.waitForCheckTimer:timer(false)
+    end
+    return false
 end
 
 function CatchCombinePipeTask:getInfoText()
