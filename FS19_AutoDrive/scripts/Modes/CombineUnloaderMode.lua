@@ -396,7 +396,38 @@ function CombineUnloaderMode:isUnloaderOnCorrectSide(chaseSide)
     end
 end
 
-function CombineUnloaderMode:getPipeSlopeCorrection()
+function CombineUnloaderMode:getPipeSlopeCorrection2()
+    self.combineNode = self.combine.components[1].node
+    local dischargeX, dichargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
+    local diffX, diffY, _ = worldToLocal(self.combineNode, dischargeX, dichargeY, dischargeZ)
+    if math.abs(diffX) < self.combine.sizeWidth/2 then
+        -- Some pipes curl up so tight they cause a collisions.
+        -- We just don't try to correct in this case.
+        return 0
+    end
+
+    local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, dischargeX, dichargeY, dischargeZ)
+    -- It would be nice if we could use the discharge node direction and the terrain under the harveser, 
+    -- but discharge node rotations are untrustworthy.
+    wux, wuy, wuz = getTerrainNormalAtWorldPos(g_currentMission.terrainRootNode, dischargeX, dichargeY-heightUnderPipe, dischargeZ)
+    ux, uy, uz = worldDirectionToLocal(self.combineNode, wux, wuy, wuz)
+
+    -- This is backwards from the usual order of these variables, but I need deviation from 0 and pi, not 
+    -- pi/2 and 3pi/4, so we adjust the coordinate system
+    local theta = math.atan(ux/uy)
+
+    local pipePosition = diffX * math.cos(theta) + diffY * math.sin(theta)
+    local currentElevationCorrection = pipePosition - diffX
+
+    if math.abs(currentElevationCorrection) > 1 then
+        -- Assume something has gone very wrong if the correction gets too large.
+        return 0
+    end
+
+    return currentElevationCorrection
+end
+
+function CombineUnloaderMode:getPipeSlopeCorrection1()
     self.combineNode = self.combine.components[1].node
     self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
     local nodeX, nodeY, nodeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
@@ -408,6 +439,10 @@ function CombineUnloaderMode:getPipeSlopeCorrection()
     local run = math.sqrt(hyp * hyp - dh * dh)
     local elevationCorrection = (hyp + (nodeY - heightUnderPipe) * (dh / hyp)) - run
     return elevationCorrection * self.pipeSide
+end
+
+function CombineUnloaderMode:getPipeSlopeCorrection()
+    return self:getPipeSlopeCorrection2()
 end
 
 function CombineUnloaderMode:getTargetTrailer()
@@ -533,10 +568,6 @@ function CombineUnloaderMode:getPipeChasePosition()
     leftBlocked = leftBlocked or leftFrontBlocked
 
     self.pipeSide = AutoDrive.getPipeSide(self.combine)
-    -- Slope correction is a very fickle thing for buffer harvesters since you can't know
-    -- whether the pipe will be on the same side as the chase.
-    local slopeCorrection = self:getPipeSlopeCorrection()
-
     self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
     local sideChaseTermX = self:getSideChaseOffsetX()
     local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
@@ -557,12 +588,18 @@ function CombineUnloaderMode:getPipeChasePosition()
             end
         end
 
-        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX + slopeCorrection, sideChaseTermZ)
-        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -sideChaseTermX + slopeCorrection, sideChaseTermZ)
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 
+                                                                        sideChaseTermX + self:getPipeSlopeCorrection() , 
+                                                                        sideChaseTermZ)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 
+                                                                        -(sideChaseTermX + self:getPipeSlopeCorrection()),
+                                                                        sideChaseTermZ)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, rearChaseTermZ)
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
+        -- Default to the side of the harvester the unloader is already on
+        -- then check if there is a better side
         chaseNode = leftChasePos
         sideIndex = AutoDrive.CHASEPOS_LEFT
         local unloaderPos, _ = self:getUnloaderOnSide()
@@ -589,7 +626,7 @@ function CombineUnloaderMode:getPipeChasePosition()
         local combineMaxCapacity = combineFillLevel + combineLeftCapacity
         local combineFillPercent = (combineFillLevel / combineMaxCapacity) * 100
 
-        local sideChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, (sideChaseTermX * self.pipeSide) + slopeCorrection, sideChaseTermZ)
+        local sideChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, self.pipeSide * (sideChaseTermX + self:getPipeSlopeCorrection()), sideChaseTermZ)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, rearChaseTermX, rearChaseTermZ)
         local angleToSideChaseSide = self:getAngleToChasePos(sideChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
