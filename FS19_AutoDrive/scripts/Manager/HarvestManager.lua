@@ -231,8 +231,29 @@ function ADHarvestManager.isHarvesterActive(harvester)
         local fillPercent = (fillLevel / maxCapacity)
         local reachedPreCallLevel = fillPercent >= AutoDrive.getSetting("preCallLevel", harvester)
         local isAlmostFull = fillPercent >= ADHarvestManager.MAX_PREDRIVE_LEVEL
+               
+        -- Only chase the rear on low fill levels of the combine. This should prevent getting into unneccessarily tight spots for the final approach to the pipe.
+        -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
+        local allowedToChase = true        
+        if not AutoDrive.isSugarcaneHarvester(harvester) then
+            local chasingRear = false
+            local pipeSide = AutoDrive.getPipeSide(harvester)
+            if pipeSide == AutoDrive.CHASEPOS_LEFT then
+                local leftBlocked = harvester.ad.sensors.leftSensorFruit:pollInfo() or harvester.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField") and (not harvester.ad.sensors.leftSensorField:pollInfo()))
+                local leftFrontBlocked = harvester.ad.sensors.leftFrontSensorFruit:pollInfo() or harvester.ad.sensors.leftFrontSensor:pollInfo()
+                chasingRear = leftBlocked or leftFrontBlocked
+            else
+                local rightBlocked = harvester.ad.sensors.rightSensorFruit:pollInfo() or harvester.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField") and (not harvester.ad.sensors.rightSensorField:pollInfo()))
+                local rightBlockedBlocked = harvester.ad.sensors.rightFrontSensorFruit:pollInfo() or harvester.ad.sensors.rightFrontSensor:pollInfo()
+                chasingRear = rightBlocked or rightBlockedBlocked
+            end
 
-        return reachedPreCallLevel and (not isAlmostFull)
+            if fillPercent > 0.7 and chasingRear then
+                allowedToChase = false
+            end
+        end
+
+        return reachedPreCallLevel and (not isAlmostFull) and allowedToChase
     end
 
     return false
