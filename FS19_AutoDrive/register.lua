@@ -209,8 +209,23 @@ function AutoDriveLoadedMission(mission, superFunc, node)
 end
 
 function AutoDriveOnMissionLoaded(mission)
-	--print("On mission loaded called for AutoDrive")
 	g_helpLineManager:loadFromXML(Utils.getFilename("helpLine.xml", AutoDrive.directory))
+	local category =
+		table.f_find(
+		g_helpLineManager.categories,
+		function(item)
+			return item.title == "$l10n_ad_helpCategory_1"
+		end
+	)
+	if category ~= nil then
+		for _, page in pairs(category.pages) do
+			for _, item in pairs(page.items) do
+				if item.type == "image" then
+					item.value = AutoDrive.parsePath(item.value)
+				end
+			end
+		end
+	end
 end
 
 Mission00.loadMission00Finished = Utils.overwrittenFunction(Mission00.loadMission00Finished, AutoDriveLoadedMission)

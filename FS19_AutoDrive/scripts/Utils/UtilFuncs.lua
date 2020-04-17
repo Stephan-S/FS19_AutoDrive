@@ -282,6 +282,12 @@ function AutoDrive.localize(text)
 	return text
 end
 
+function AutoDrive.parsePath(path)
+	path = path:gsub("$adDir/", AutoDrive.directory)
+	path = path:gsub("$adDir", AutoDrive.directory)
+	return path
+end
+
 function AutoDrive.boolToString(value)
 	if value == true then
 		return "true"
