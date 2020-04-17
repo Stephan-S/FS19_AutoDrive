@@ -131,7 +131,6 @@ function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId)
 		if startWaypointId == targetWaypointId then
 			table.insert(wp, self.wayPoints[targetWaypointId])
 		else
-			--wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetWaypointId)
 			wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId)
 		end
 	end
@@ -146,7 +145,6 @@ function ADGraphManager:pathFromToMarker(startWaypointId, markerId)
 			table.insert(wp, 1, self.wayPoints[targetId])
 			return wp
 		else
-			--wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetId)
 			wp = ADPathCalculator:GetPath(startWaypointId, targetId)
 		end
 	end
@@ -178,7 +176,6 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 		return wp
 	end
 
-	--wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, start_id, target_id)
 	wp = ADPathCalculator:GetPath(start_id, target_id)
 
 	return wp

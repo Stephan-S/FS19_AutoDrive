@@ -231,7 +231,7 @@ function CombineUnloaderMode:getNextTask()
         if self.targetUnloader ~= nil then
             self.targetUnloader.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
         end
-        self:setToWaitForCall()
+        nextTask = self:getTaskAfterUnload(filledToUnload)
     elseif self.state == self.STATE_EXIT_FIELD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - STATE_EXIT_FIELD")
         if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
@@ -270,8 +270,13 @@ function CombineUnloaderMode:assignToHarvester(harvester)
         local spec = self.combine.spec_pipe
         if spec.currentState == spec.targetState and (spec.currentState == 2 or self.combine.typeName == "combineCutterFruitPreparer") then
             local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
+            local cFillRatio = cfillLevel / (cfillLevel + cleftCapacity)
+            local cpIsCalling = false
+            if harvester.cp and harvester.cp.driver and harvester.cp.driver.isWaitingForUnload then
+                cpIsCalling = harvester.cp.driver:isWaitingForUnload()
+            end
 
-            if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 2000 or cleftCapacity < 1.0) then
+            if (self.combine.getIsBufferCombine == nil or not self.combine:getIsBufferCombine()) and (self.combine.ad.noMovementTimer.elapsedTime > 500 or cleftCapacity < 1.0 or cpIsCalling or cFillRatio > 0.945) then
                 -- default unloading - no movement
                 self.state = self.STATE_DRIVE_TO_PIPE
                 self.vehicle.ad.taskModule:addTask(EmptyHarvesterTask:new(self.vehicle, self.combine))
@@ -509,7 +514,7 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     local constantAdditionsZ = 1 + self.vehicle.sizeLength / 2 - self.targetTrailer.sizeLength / 2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
     local dynamicAdditionsZ = diffZ + pipeZOffsetToCombine
-    dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength - self.vehicle.sizeLength / 2 - 2) ^ self.targetTrailerFillRatio, 0)
+    dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength*0.5 - 2) ^ self.targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
     return sideChaseTermZ
 end

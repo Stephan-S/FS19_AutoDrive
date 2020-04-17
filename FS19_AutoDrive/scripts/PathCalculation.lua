@@ -1,31 +1,21 @@
 ADPathCalculator = {}
 
-function ADPathCalculator:GetPath_Bench(startID, targetID)
-    local time = netGetTime()
-    for i=1, 1000 do
-        AutoDrive:dijkstraLiveShortestPath(ADGraphManager:getWayPoints(), startID, targetID)
-    end
-    print("Old time: " .. (netGetTime()-time))
-    
-    local time = netGetTime()
-    for i=1, 1000 do
-        self:GetPathTest(startID, targetID)
-    end
-    print("New time: " .. (netGetTime()-time))
-
-    return self:GetPathTest(startID, targetID)
-end
-
 function ADPathCalculator:GetPath(startID, targetID)
-    --print("ADPathCalculator:GetPath: " .. startID .. " -> " .. targetID)
     if not ADGraphManager:areWayPointsPrepared() then
-        --print("Preparing Waypoints")
         ADGraphManager:prepareWayPoints()
-        --print("Done - preparing Waypoints")
     end
 
     local network = ADGraphManager:getWayPoints()
     local addedWeights = self:getDetourWeights()
+
+    
+    if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil or startID == targetID then
+        return {}
+    end
+
+    if startID == targetID then
+        return {network[startID]}
+    end
 
     local candidates = SortedQueue:new("distance")
     candidates:enqueue({p=network[startID], distance=0, pre=-1})
@@ -42,9 +32,7 @@ function ADPathCalculator:GetPath(startID, targetID)
     while not candidates:empty() and not foundTarget do
         local next = candidates:dequeue()
         local point, distance, previousPoint = next.p, next.distance, next.pre
-        --print("Loop - 1 - Point: " .. point.id .. " distance: " .. distance .. " pre: " .. previousPoint)
         while point ~= nil do
-            --print("Loop - 2 - Point: " .. point.id .. " distance: " .. distance .. " pre: " .. previousPoint)
             if results[point.id] == nil then
                 results[point.id] = {}
             end
@@ -109,19 +97,16 @@ function ADPathCalculator:GetPath(startID, targetID)
         end
     end
     
-    --print("Big steps: " .. bigSteps .. " small steps: " .. steps .. " totalWaypoints: " .. #network)
-
     if not foundTarget then
         return {}
     end
 
-    --print("Now we just have to reverse engineer the path:")
+    --Now we just have to reverse engineer the path
     local inversePath = {}
     local point = network[targetID]
     local counter = 0
     while point ~= nil do
         counter = counter + 1
-        --print("Point: " .. point.id .. " lastPre: " .. lastPredecessor)
         local previousPoint = network[lastPredecessor]
         lastPredecessor = results[lastPredecessor][point.id].pre
 

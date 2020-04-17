@@ -35,9 +35,6 @@ function CatchCombinePipeTask:setUp()
 end
 
 function CatchCombinePipeTask:update(dt)
-    --abort if the combine is nearing it's fill level and we should take care of 'real' approaches when it's in stand still
-    local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
-
     if self.combine ~= nil and g_currentMission.nodeToObject[self.combine.components[1].node] == nil then
         self:finished()
         return
@@ -68,7 +65,9 @@ function CatchCombinePipeTask:update(dt)
                 self.vehicle.ad.pathFinderModule:addDelayTimer(6000)
                 self.state = CatchCombinePipeTask.STATE_PATHPLANNING
             end
-        end
+        end        
+        self.vehicle.ad.specialDrivingModule:stopVehicle()
+        self.vehicle.ad.specialDrivingModule:update(dt)
     elseif self.state == CatchCombinePipeTask.STATE_DRIVING then
         -- check if this is still a clever path to follow
         -- do this by distance of the combine to the last location pathfinder started at
@@ -131,20 +130,26 @@ function CatchCombinePipeTask:startNewPathFinding()
     local x, _, z = getWorldTranslation(self.combine.components[1].node)
     local targetFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(pipeChasePos.x, pipeChasePos.z)
     local combineFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(x, z)
-    if pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or targetFieldId == combineFieldId then
+
+    -- Only chase the rear on low fill levels of the combine. This should prevent getting into unneccessarily tight spots for the final approach to the pipe.
+    -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
+    local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
+    local cFillRatio = cfillLevel / (cfillLevel + cleftCapacity)
+
+    if self.combine:getIsBufferCombine() or (pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or (targetFieldId == combineFieldId and cFillRatio <= 0.7)) then
         self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))
         self.combinesStartLocation = {}
         self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)
         return true
     else
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:startNewPathFinding() - chase pos is not on the same field - aborting for now")
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:startNewPathFinding() - chase pos is not on the same field or combine's fill level is approaching limit - aborting for now")
         self.waitForCheckTimer:timer(false)
     end
     return false
 end
 
 function CatchCombinePipeTask:getInfoText()
-    if self.state == CatchCombinePipeTask.STATE_PATHPLANNING then
+    if self.state == CatchCombinePipeTask.STATE_PATHPLANNING or self.state == CatchCombinePipeTask.STATE_DELAY_PATHPLANNING then
         return g_i18n:getText("AD_task_pathfinding")
     else
         return g_i18n:getText("AD_task_catch_up_with_combine")
@@ -152,7 +157,7 @@ function CatchCombinePipeTask:getInfoText()
 end
 
 function CatchCombinePipeTask:getI18nInfo()
-    if self.state == CatchCombinePipeTask.STATE_PATHPLANNING then
+    if self.state == CatchCombinePipeTask.STATE_PATHPLANNING or self.state == CatchCombinePipeTask.STATE_DELAY_PATHPLANNING then
         return "$l10n_AD_task_pathfinding;"
     else
         return "$l10n_AD_task_catch_up_with_combine;"
