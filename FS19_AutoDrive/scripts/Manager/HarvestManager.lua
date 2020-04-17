@@ -1,6 +1,6 @@
 ADHarvestManager = {}
 
-ADHarvestManager.MAX_PREDRIVE_LEVEL = 0.96
+ADHarvestManager.MAX_PREDRIVE_LEVEL = 0.85
 ADHarvestManager.MAX_SEARCH_RANGE = 300
 
 function ADHarvestManager:load()
@@ -122,7 +122,7 @@ function ADHarvestManager:update(dt)
         if harvester ~= nil and g_currentMission.nodeToObject[harvester.components[1].node] ~= nil and entityExists(harvester.components[1].node) then
             if self.assignmentDelayTimer:done() then
                 if not self:alreadyAssignedUnloader(harvester) then
-                    if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or (not AutoDrive.combineIsTurning(harvester) and ADHarvestManager.isHarvesterActive(harvester)) then
+                    if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ((not AutoDrive.combineIsTurning(harvester)) and ADHarvestManager.isHarvesterActive(harvester)) then
                         self:assignUnloaderToHarvester(harvester)
                     end
                 else
@@ -211,7 +211,7 @@ function ADHarvestManager:update(dt)
     end
 end
 
-function ADHarvestManager.doesHarvesterNeedUnloading(harvester)
+function ADHarvestManager.doesHarvesterNeedUnloading(harvester, ignorePipe)
     local fillLevel, leftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(harvester)
     local maxCapacity = fillLevel + leftCapacity
 
@@ -219,7 +219,9 @@ function ADHarvestManager.doesHarvesterNeedUnloading(harvester)
     if harvester.cp and harvester.cp.driver and harvester.cp.driver.isWaitingForUnload then
         cpIsCalling = harvester.cp.driver:isWaitingForUnload()
     end
-    return (((maxCapacity > 0 and leftCapacity < 1.0) or cpIsCalling) and harvester.ad.noMovementTimer.elapsedTime > 5000)
+
+    local pipeOut = AutoDrive.isPipeOut(harvester)
+    return (((maxCapacity > 0 and leftCapacity < 1.0) or cpIsCalling) and (pipeOut or ignorePipe) and harvester.ad.noMovementTimer.elapsedTime > 5000)
 end
 
 function ADHarvestManager.isHarvesterActive(harvester)
@@ -234,7 +236,7 @@ function ADHarvestManager.isHarvesterActive(harvester)
                
         -- Only chase the rear on low fill levels of the combine. This should prevent getting into unneccessarily tight spots for the final approach to the pipe.
         -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
-        local allowedToChase = true        
+        local allowedToChase = true
         if not AutoDrive.isSugarcaneHarvester(harvester) then
             local chasingRear = false
             local pipeSide = AutoDrive.getPipeSide(harvester)
@@ -248,7 +250,7 @@ function ADHarvestManager.isHarvesterActive(harvester)
                 chasingRear = rightBlocked or rightBlockedBlocked
             end
 
-            if fillPercent > 0.7 and chasingRear then
+            if fillPercent > 0.9 or (fillPercent > 0.7 and chasingRear) then
                 allowedToChase = false
             end
         end

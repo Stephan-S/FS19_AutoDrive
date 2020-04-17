@@ -249,17 +249,6 @@ AutoDrive.settings.lookAheadTurning = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.useFastestRoute = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 1,
-    current = 1,
-    text = "gui_ad_useFastestRoute",
-    tooltip = "gui_ad_useFastestRoute_tooltip",
-    translate = true,
-    isVehicleSpecific = false
-}
-
 AutoDrive.settings.mapMarkerDetour = {
     values = {0, 10, 50, 100, 200, 300, 500, 1000, 10000},
     texts = {"0m", "10m", "50m", "100m", "200m", "500m", "1000m", "10000m"},

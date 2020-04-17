@@ -75,7 +75,7 @@ function EmptyHarvesterTask:update(dt)
 
         --Check if the combine is moving / has already moved away and we are supposed to actively unload
         if self.combine.ad.driveForwardTimer.elapsedTime > 100 then
-            if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+            if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
                 self:finished()
             elseif self.combine.ad.driveForwardTimer.elapsedTime > 4000 then
                 self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].state = CombineUnloaderMode.STATE_ACTIVE_UNLOAD_COMBINE

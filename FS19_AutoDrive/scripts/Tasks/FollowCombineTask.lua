@@ -78,6 +78,10 @@ function FollowCombineTask:update(dt)
             -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
             self:finished()
         end
+        if (not self.combine:getIsBufferCombine()) and self.combineFillPercent > 90 then
+            -- Stop chasing and wait for a normal unload call while standing
+            self:finished()
+        end
 
         if self:isCaughtCurrentChaseSide() or AutoDrive.getDistanceBetween(self.vehicle, self.combine) > self.MAX_REVERSE_DISTANCE then
             self.stuckTimer:timer(false)

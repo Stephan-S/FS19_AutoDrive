@@ -36,7 +36,7 @@ end
 function ClearCropTask:update(dt)
     if self.state == ClearCropTask.STATE_CLEARING then
         -- Check if the driver and trailers have left the crop yet
-        if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+        if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
             self:finished()
         else
             if self.vehicle.ad.drivePathModule:isTargetReached() then
@@ -54,7 +54,7 @@ function ClearCropTask:update(dt)
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         self.stuckTimer:timer(false)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
-        if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+        if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
             self:finished()
         elseif distanceToReversStart > 10 then
             self.state = ClearCropTask.STATE_CLEARING

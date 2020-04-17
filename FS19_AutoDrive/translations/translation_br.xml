@@ -290,7 +290,7 @@
 		<text name="AD_task_stop_and_disable"					text="Stopping" />
 		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
 		<text name="AD_task_wait_for_call"						text="Waiting for call" />	
-		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
+		<text name="AD_task_chasing_combine"					text="Chasing combine" />	
 		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
 		<text name="AD_task_catching_chase_side"				text="Catching side" />	
 		<text name="AD_task_chase_side"							text="Side" />	
