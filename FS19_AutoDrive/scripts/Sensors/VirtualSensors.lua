@@ -398,9 +398,13 @@ function ADSensor:onDrawDebug(box)
     end
 end
 
-function ADSensor:pollInfo(forced)
+function ADSensor:pollInfo(forced, widthFactor)
     self.executionDelay = self.executionDelay -1
     if self.executionDelay <= 0 or forced or AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) then
+        local storedWidth = self.width
+        if widthFactor ~= nil then
+            self.width = self.width * widthFactor
+        end
         local wasEnabled = self.enabled
         self:setEnabled(true)
         if not wasEnabled then
@@ -408,6 +412,7 @@ function ADSensor:pollInfo(forced)
         end
         self.lastTriggered = self:isTriggered()
         self.executionDelay = ADSensor.EXECUTION_DELAY
+        self.width = storedWidth
     end
 
     return self.lastTriggered

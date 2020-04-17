@@ -12,7 +12,12 @@ function AutoDrive.createWayPointRelativeToNode(node, offsetX, offsetZ)
     return wayPoint
 end
 
-function AutoDrive.isTrailerInCrop(vehicle)
+function AutoDrive.isTrailerInCrop(vehicle, enlargeDetectionArea)
+    local widthFactor = 1
+    if enlargeDetectionArea then
+        widthFactor = 1.5
+    end
+
     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
     local trailer = trailers[trailerCount]
     local inCrop = false
@@ -21,13 +26,18 @@ function AutoDrive.isTrailerInCrop(vehicle)
             trailer.ad = {}
         end
         ADSensor:handleSensors(trailer, 0)
-        inCrop = trailer.ad.sensors.centerSensorFruit:pollInfo()
+        inCrop = trailer.ad.sensors.centerSensorFruit:pollInfo(true, widthFactor)
     end
     return inCrop
 end
 
-function AutoDrive.isVehicleOrTrailerInCrop(vehicle)
-    return AutoDrive.isTrailerInCrop(vehicle) or vehicle.ad.sensors.centerSensorFruit:pollInfo()
+function AutoDrive.isVehicleOrTrailerInCrop(vehicle, enlargeDetectionArea)
+    local widthFactor = 1
+    if enlargeDetectionArea then
+        widthFactor = 1.5
+    end
+
+    return AutoDrive.isTrailerInCrop(vehicle, enlargeDetectionArea) or vehicle.ad.sensors.centerSensorFruit:pollInfo(true, widthFactor)
 end
 
 function AutoDrive:checkIsConnected(toCheck, other)

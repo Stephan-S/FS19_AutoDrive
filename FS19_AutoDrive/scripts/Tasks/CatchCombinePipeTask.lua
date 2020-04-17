@@ -120,9 +120,9 @@ end
 function CatchCombinePipeTask:abort()
 end
 
-function CatchCombinePipeTask:finished()
+function CatchCombinePipeTask:finished(propagate)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:finished()")
-    self.vehicle.ad.taskModule:setCurrentTaskFinished()
+    self.vehicle.ad.taskModule:setCurrentTaskFinished(propagate)
 end
 
 function CatchCombinePipeTask:startNewPathFinding()
@@ -135,6 +135,13 @@ function CatchCombinePipeTask:startNewPathFinding()
     -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
     local cfillLevel, cleftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
     local cFillRatio = cfillLevel / (cfillLevel + cleftCapacity)
+
+    if cFillRatio > 0.91 then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:startNewPathFinding() - Combine is almost full - dont chase for active unloading anymore")
+        self:finished(ADTaskModule.DONT_PROPAGATE)
+        self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:setToWaitForCall()
+        return false
+    end
 
     if self.combine:getIsBufferCombine() or (pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or (targetFieldId == combineFieldId and cFillRatio <= 0.7)) then
         self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))

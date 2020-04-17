@@ -290,7 +290,7 @@
 		<text name="AD_task_stop_and_disable"					text="Stoppen" />
 		<text name="AD_task_drive_to_unload_point"				text="Aandrijving naar lospunt" />
 		<text name="AD_task_wait_for_call"						text="Wachten op gesprek" />	
-		<text name="AD_task_chasing_combine"					text="Chaising combineer" />	
+		<text name="AD_task_chasing_combine"					text="Chasing combineer" />	
 		<text name="AD_task_wait_for_combine_pass_by"			text="Laat de combinatie voorbijgaan" />	
 		<text name="AD_task_catching_chase_side"				text="Vangkant" />	
 		<text name="AD_task_chase_side"							text="Kant" />	

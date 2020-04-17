@@ -21,7 +21,8 @@ function AutoDrive.registerEventListeners(vehicleType)
             "onStartAutoDrive",
             "onStopAutoDrive",
             "onPostAttachImplement",
-            "onPreDetachImplement"
+            "onPreDetachImplement",
+            "onEnterVehicle"
         }
     ) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
@@ -404,6 +405,27 @@ function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointD
         self.ad.isCombine = true
         attachable.ad = self.ad
     end
+
+    local supportedFillTypes = {}
+    for _, trailer in pairs(AutoDrive.getTrailersOf(self, false)) do
+        if trailer.getFillUnits ~= nil then
+            for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
+                if trailer.getFillUnitSupportedFillTypes ~= nil then
+                    for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                        if supported then
+                            table.insert(supportedFillTypes, fillType)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local storedSelectedFillType = self.ad.stateModule:getFillType()
+    if #supportedFillTypes > 0 and not table.contains(supportedFillTypes, storedSelectedFillType) then
+        self.ad.stateModule:setFillType(supportedFillTypes[1])
+        AutoDrive.Hud.lastUIScale = 0
+    end
 end
 
 function AutoDrive:onPreDetachImplement(implement)
@@ -422,6 +444,10 @@ function AutoDrive:onPreDetachImplement(implement)
         self.ad.frontToolWidth = nil
         self.ad.frontToolLength = nil
     end
+end
+
+function AutoDrive:onEnterVehicle()
+    AutoDrive.Hud.lastUIScale = 0
 end
 
 function AutoDrive:onDelete()

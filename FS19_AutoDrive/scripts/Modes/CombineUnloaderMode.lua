@@ -250,7 +250,7 @@ function CombineUnloaderMode:getNextTask()
 end
 
 function CombineUnloaderMode:setToWaitForCall()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getNextTask() - CombineUnloaderMode:setToWaitForCall()")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:setToWaitForCall()")
     -- We just have to wait to be wait to be called (again)
     self.state = self.STATE_WAIT_TO_BE_CALLED
     self.vehicle.ad.taskModule:addTask(WaitForCallTask:new(self.vehicle))
@@ -322,7 +322,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         -- Should we park in the field?
         if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then
             -- If we are in fruit, we should clear it
-            if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle) then
+            if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
                 nextTask = ClearCropTask:new(self.vehicle, self.combine)
                 self.state = self.STATE_LEAVE_CROP
             else

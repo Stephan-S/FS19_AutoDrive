@@ -19,9 +19,6 @@ function ADFruitSensor:onUpdate(dt)
 
     local foundFruit = false
     if self.fruitType == nil or self.fruitType == 0 then
-        --if foundFruit then
-        -- self.fruitType = foundFruitType;
-        --end;
         foundFruit, _ = self:checkForFruitInArea(corners)
     else
         foundFruit = self:checkForFruitTypeInArea(self.fruitType, corners)
@@ -46,13 +43,7 @@ end
 
 function ADFruitSensor:checkForFruitTypeInArea(fruitType, corners)
     local fruitValue = 0
-    --if fruitType == 9 or fruitType == 8 or fruitType == 22 or fruitType == 17 or fruitType == 15 then
-        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true)
-    --else
-        --fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
-    --end
-
-    --print(fruitType .. ": " .. fruitValue)
+    fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true)
 
     return (fruitValue > 10)
 end
