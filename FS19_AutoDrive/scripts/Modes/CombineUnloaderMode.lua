@@ -659,20 +659,11 @@ function CombineUnloaderMode:getPipeChasePosition()
     if sideIndex ~= AutoDrive.CHASEPOS_REAR then
         sideChaseTermX = self:getSideChaseOffsetX()
         sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
+        chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideIndex * sideChaseTermX, sideChaseTermZ)
     else
         rearChaseTermX = self:getRearChaseOffsetX(leftBlocked, rightBlocked)
         rearChaseTermZ = self:getRearChaseOffsetZ()
-    end
-
-    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
-    -- Default to the side of the harvester the unloader is already on
-    -- then check if there is a better side
-    if sideIndex ~= AutoDrive.CHASEPOS_REAR then
-        local sideChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideIndex * sideChaseTermX, sideChaseTermZ)
-        chaseNode = sideChasePos
-    else
-        local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, rearChaseTermX, rearChaseTermZ)
-        chaseNode = rearChasePos
+        chaseNode = AutoDrive.createWayPointRelativeToVehicle(self.combine, rearChaseTermX, rearChaseTermZ)
     end
 
     return chaseNode, sideIndex
