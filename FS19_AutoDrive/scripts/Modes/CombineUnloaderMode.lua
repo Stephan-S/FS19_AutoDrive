@@ -320,7 +320,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         end
     else
         -- Should we park in the field?
-        if AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField) then
+        if self.combine:getIsBufferCombine() or (AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField)) then
             -- If we are in fruit, we should clear it
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
                 nextTask = ClearCropTask:new(self.vehicle, self.combine)
@@ -556,7 +556,7 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
     return rearChaseOffset
 end
 
-function CombineUnloaderMode:getPipeChasePosition()
+function CombineUnloaderMode:getPipeChasePosition(planningPhase)
     self.combineNode = self.combine.components[1].node
     self.combineX, self.combineY, self.combineZ = getWorldTranslation(self.combineNode)
 
@@ -608,10 +608,10 @@ function CombineUnloaderMode:getPipeChasePosition()
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         end
 
-        if (not leftBlocked) and self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_LEFT) and angleToLeftChaseSide < angleToRearChaseSide then
+        if (not leftBlocked) and ((self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_LEFT) and angleToLeftChaseSide < angleToRearChaseSide) or planningPhase) then
             chaseNode = leftChasePos
             sideIndex = AutoDrive.CHASEPOS_LEFT
-        elseif (not rightBlocked) and self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_RIGHT) then
+        elseif (not rightBlocked) and (self:isUnloaderOnCorrectSide(AutoDrive.CHASEPOS_RIGHT) or planningPhase) then
             chaseNode = rightChasePos
             sideIndex = AutoDrive.CHASEPOS_RIGHT
         elseif not AutoDrive.isSugarcaneHarvester(self.combine) then

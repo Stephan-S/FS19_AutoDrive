@@ -79,7 +79,7 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
 
-    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
+    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition(true)
     -- We use the follow distance as a proxy measure for "what works" for the size of the
     -- field being worked.
     local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)

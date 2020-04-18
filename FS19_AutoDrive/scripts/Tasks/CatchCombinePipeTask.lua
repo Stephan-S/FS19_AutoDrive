@@ -126,7 +126,7 @@ function CatchCombinePipeTask:finished(propagate)
 end
 
 function CatchCombinePipeTask:startNewPathFinding()
-    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
+    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition(true)
     local x, _, z = getWorldTranslation(self.combine.components[1].node)
     local targetFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(pipeChasePos.x, pipeChasePos.z)
     local combineFieldId = g_farmlandManager:getFarmlandIdAtWorldPosition(x, z)
