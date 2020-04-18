@@ -113,7 +113,7 @@ function FollowCombineTask:update(dt)
             self.waitForTurnTimer:timer(false)
             self:finished()
         end
-        if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength) / 2 + 4) then
+        if self.distanceToCombine < ((self.vehicle.sizeLength + self.combine.sizeLength) / 2 + 8) then
             self:reverse(dt)
         else
             self.vehicle.ad.specialDrivingModule:stopVehicle()
