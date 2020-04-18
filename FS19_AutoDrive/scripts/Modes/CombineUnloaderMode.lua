@@ -75,6 +75,10 @@ function CombineUnloaderMode:monitorTasks(dt)
     if self.vehicle.lastSpeedReal > 0.0013 then
         self.failedPathFinder = 0
     end
+
+    if self.combine ~= nil and self.combine.getIsBufferCombine ~= nil then
+        self.combineIsBufferCombine = self.combine:getIsBufferCombine()
+    end
 end
 
 function CombineUnloaderMode:notifyAboutFailedPathfinder()
@@ -320,7 +324,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         end
     else
         -- Should we park in the field?
-        if self.combine:getIsBufferCombine() or (AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField)) then
+        if self.combineIsBufferCombine or (AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField)) then
             -- If we are in fruit, we should clear it
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
                 nextTask = ClearCropTask:new(self.vehicle, self.combine)
