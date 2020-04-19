@@ -271,6 +271,17 @@ AutoDrive.settings.mapMarkerDetour = {
     isVehicleSpecific = false
 }
 
+AutoDrive.settings.coverOpen = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_coverOpen",
+    tooltip = "gui_ad_coverOpen_tooltip",
+    translate = true,
+    isVehicleSpecific = false
+}
+
 AutoDrive.settings.continueOnEmptySilo = {
     values = {false, true},
     texts = {"gui_ad_wait", "gui_ad_drive"},

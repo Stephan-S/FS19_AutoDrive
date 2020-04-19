@@ -103,7 +103,7 @@ end
 function ADTrailerModule:handleTrailerCovers()
     local inTriggerProximity = ADTriggerManager.checkForTriggerProximity(self.vehicle, self.vehicle.ad.drivePathModule.distanceToTarget)
 
-    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, inTriggerProximity)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, inTriggerProximity or AutoDrive.getSetting("coverOpen"))
 end
 
 function ADTrailerModule:updateStates()
