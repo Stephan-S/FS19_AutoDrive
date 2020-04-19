@@ -611,7 +611,6 @@ function CombineUnloaderMode:getChaseSide()
     end
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
-        sideIndex = AutoDrive.CHASEPOS_REAR
         local unloaderPos, _ = self:getUnloaderOnSide()
         if AutoDrive.isSugarcaneHarvester(self.combine) then
             sideIndex = MathUtil.sign(unloaderPos)
@@ -621,8 +620,6 @@ function CombineUnloaderMode:getChaseSide()
             sideIndex = AutoDrive.CHASEPOS_LEFT
         elseif (not rightBlocked and unloaderPos ~= AutoDrive.CHASEPOS_LEFT) then
             sideIndex = AutoDrive.CHASEPOS_RIGHT
-        elseif not AutoDrive.isSugarcaneHarvester(self.combine) then
-            sideIndex = AutoDrive.CHASEPOS_REAR
         end
     else
         local combineFillLevel, combineLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(self.combine)
@@ -636,8 +633,6 @@ function CombineUnloaderMode:getChaseSide()
             self.combine.ad.noMovementTimer.elapsedTime > 1000
          then
             sideIndex = self.pipeSide
-         else
-            sideIndex = AutoDrive.CHASEPOS_REAR
          end
     end
     
