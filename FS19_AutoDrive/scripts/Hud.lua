@@ -495,6 +495,18 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			if vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.nodeToMoveId == nil then
 				if AutoDrive.leftALTmodifierKeyPressed then
 					if button == 1 and isUp then
+						if AutoDrive.leftLSHIFTmodifierKeyPressed then
+							local waypoint = ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId)
+							AutoDrive.dumpTable(waypoint)
+							if #waypoint.incoming > 0 and #waypoint.out > 0 then
+								local from = ADGraphManager:getWayPointById(waypoint.incoming[1])
+								local to = ADGraphManager:getWayPointById(waypoint.out[1])
+								AutoDrive.dumpTable({ from = from, to = to })
+								if from ~= nil and to ~= nil then
+									ADGraphManager:toggleConnectionBetween(from, to)
+								end
+							end
+						end
 						ADGraphManager:removeWayPoint(vehicle.ad.hoveredNodeId)
 					end
 				end
