@@ -41,7 +41,7 @@ function DriveToDestinationTask:update(dt)
         end
     else
         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
+        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, AutoDrive.getSetting("coverOpen"))
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             self:finished()
         else
