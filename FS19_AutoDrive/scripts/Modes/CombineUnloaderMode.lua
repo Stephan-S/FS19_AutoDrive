@@ -477,7 +477,6 @@ function CombineUnloaderMode:getSideChaseOffsetX()
     -- we are chasing on! This function only finds the base X offset "to the left".
     -- Slope and side correction MUST be applied in CombineUnloaderMode:getPipeChasePosition
     -- AFTER determining the chase side. Or this function needs to be rewritten.
-    local pipeOffset = AutoDrive.getSetting("pipeOffset", self.vehicle)
     local unloaderWidest = math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth)
     local headerExtra = math.max((AutoDrive.getFrontToolWidth(self.combine) - self.combine.sizeWidth) / 2, 0)
 
@@ -495,7 +494,9 @@ function CombineUnloaderMode:getSideChaseOffsetX()
         sideChaseTermX = sideChaseTermPipeOut
     end
 
-    return sideChaseTermX + pipeOffset + self:getPipeSlopeCorrection()
+    return sideChaseTermX + 
+        AutoDrive.getSetting("pipeOffset", self.vehicle) + 
+        self:getPipeSlopeCorrection()
 end
 
 function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
