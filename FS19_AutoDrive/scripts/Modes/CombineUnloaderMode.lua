@@ -590,8 +590,8 @@ function CombineUnloaderMode:getChaseSide()
     local sideIndex = AutoDrive.CHASEPOS_REAR
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() or self.pipeSide == AutoDrive.CHASEPOS_LEFT then
-        local leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.leftSensorField:pollInfo()))
         local leftFrontBlocked = self.combine.ad.sensors.leftFrontSensorFruit:pollInfo() or self.combine.ad.sensors.leftFrontSensor:pollInfo()
+        leftBlocked = self.combine.ad.sensors.leftSensorFruit:pollInfo() or self.combine.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", self.vehicle) and (not self.combine.ad.sensors.leftSensorField:pollInfo()))
         leftBlocked = leftBlocked or leftFrontBlocked
     end
     
