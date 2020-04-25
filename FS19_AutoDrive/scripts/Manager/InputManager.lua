@@ -339,7 +339,6 @@ function ADInputManager:input_nextTarget_Unload(vehicle)
             currentTarget = 1
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
-        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
@@ -352,7 +351,6 @@ function ADInputManager:input_previousTarget_Unload(vehicle)
             currentTarget = #ADGraphManager:getMapMarkers()
         end
         vehicle.ad.stateModule:setSecondMarker(currentTarget)
-        vehicle.ad.stateModule:removeCPCallback()
     end
 end
 
