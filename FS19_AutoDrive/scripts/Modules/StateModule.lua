@@ -365,7 +365,6 @@ function ADStateModule:nextMode()
         self.mode = AutoDrive.MODE_DRIVETO
     end
     self:raiseDirtyFlag()
-    self:removeCPCallback()
 end
 
 function ADStateModule:previousMode()
@@ -375,7 +374,6 @@ function ADStateModule:previousMode()
         self.mode = AutoDrive.MODE_UNLOAD
     end
     self:raiseDirtyFlag()
-    self:removeCPCallback()
 end
 
 function ADStateModule:setMode(newMode)
@@ -784,6 +782,9 @@ function ADStateModule:removeCPCallback()
     self.vehicle.ad.callBackFunction = nil
     self.vehicle.ad.callBackObject = nil
     self.vehicle.ad.callBackArg = nil
+	if self:isActive() then			-- if AD active and CP callbacks are cleared CP to be stopped
+		AutoDrive:StopCP(self.vehicle)
+	end
 end
 
 function ADStateModule:resetMarkersOnReload()
