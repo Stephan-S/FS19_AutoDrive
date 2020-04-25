@@ -205,7 +205,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 			self:AddEditModeButtons()
 			if g_courseplay ~= nil then
 				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+				self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
 			end
 		end
 
@@ -221,7 +221,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 			self.buttonCounter = self.buttonCounter - 5
 
 			if g_courseplay ~= nil then
-				self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+				self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
 			else
 				self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 			end
@@ -233,7 +233,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		else
 			if g_courseplay ~= nil then
 				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+				self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
 			end
 		end
 
@@ -251,7 +251,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self:AddEditModeButtons()
 
 		if g_courseplay ~= nil then
-			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+			self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
 		end
 	end
 

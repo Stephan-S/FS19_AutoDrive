@@ -60,7 +60,8 @@ ADInputManager.inputsToIds = {
     input_swapTargets = 22,
     input_nextTarget = 23,
     input_previousTarget = 24,
-    input_startCp = 25
+    input_startCp = 25,
+    input_useCP = 26
 }
 
 ADInputManager.idsToInputs = {}
@@ -224,17 +225,20 @@ function ADInputManager:input_start_stop(vehicle)
             for _, otherVehicle in pairs(g_currentMission.vehicles) do
                 if otherVehicle ~= nil and otherVehicle ~= vehicle and otherVehicle.ad ~= nil and otherVehicle.ad.stateModule ~= nil then
                     --Doesn't work yet, if vehicle hasn't been entered before apparently. So we need to check what to call before, to setup all required variables.
-                    --[[
+                    
                     if otherVehicle.ad.stateModule.activeBeforeSave then
+                        g_currentMission:requestToEnterVehicle(otherVehicle)
                         otherVehicle.ad.stateModule:getCurrentMode():start()
                     end
-                    --if otherVehicle.ad.stateModule.AIVEActiveBeforeSave and otherVehicle.acParameters ~= nil then
-                        --otherVehicle.acParameters.enabled = true
-                        --otherVehicle:startAIVehicle(nil, false, g_currentMission.player.farmId)
-                    --end
-                    --]]
+                    if otherVehicle.ad.stateModule.AIVEActiveBeforeSave and otherVehicle.acParameters ~= nil then
+                        g_currentMission:requestToEnterVehicle(otherVehicle)
+                        otherVehicle.acParameters.enabled = true
+                        otherVehicle:startAIVehicle(nil, false, g_currentMission.player.farmId)
+                    end
+                    
 				end
 			end
+            g_currentMission:requestToEnterVehicle(vehicle)
         end
     end
 end
@@ -393,5 +397,9 @@ function ADInputManager:input_swapTargets(vehicle)
 end
 
 function ADInputManager:input_startCp(vehicle)
-    vehicle.ad.stateModule:toggleStartCp()
+    vehicle.ad.stateModule:toggleStartAI()
+end
+
+function ADInputManager:input_useCP(vehicle)
+    vehicle.ad.stateModule:toggleUseCP()
 end

@@ -243,7 +243,7 @@ function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
     end
 end
 
-function AutoDrive:onUpdate(dt)
+function AutoDrive:onUpdate(dt) 
     if self.isServer and self.ad.stateModule:isActive() then
         self.ad.recordingModule:update(dt)
         self.ad.taskModule:update(dt)
@@ -665,12 +665,21 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:abortAllTasks()
             self.ad.taskModule:reset()
 
-            AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks or (not self.ad.isStoppingWithError and (g_courseplay ~= nil and self.ad.stateModule:getStartCp())))
+            local isStartingAIVE = (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and not self.ad.stateModule:getUseCP())
+            local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and self.ad.stateModule:getUseCP())
+            AutoDriveStartStopEvent:sendStopEvent(self, isPassingToCP, isStartingAIVE)
 
             if not hasCallbacks and not self.ad.isStoppingWithError then
-                if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
-                    self.ad.stateModule:setStartCp(false)
-                    g_courseplay.courseplay:startStop(self)
+                if self.ad.stateModule:getStartAI() then
+                    self.ad.stateModule:setStartAI(false)
+                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP() then
+                        g_courseplay.courseplay:startStop(self)
+                    else
+                        if self.acParameters ~= nil then
+                            self.acParameters.enabled = true
+                            self:startAIVehicle(nil, false, self.spec_aiVehicle.startedFarmId)
+                        end
+                    end
                 end
             end
         end
@@ -700,9 +709,9 @@ function AutoDrive:onStartAutoDrive()
     AutoDriveHud:createMapHotspot(self)
 end
 
-function AutoDrive:onStopAutoDrive(hasCallbacks)
+function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
     if not hasCallbacks then
-        if self.raiseAIEvent ~= nil then
+        if self.raiseAIEvent ~= nil and not isStartingAIVE then
             self:raiseAIEvent("onAIEnd", "onAIImplementEnd")
         end
 
