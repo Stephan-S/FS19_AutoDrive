@@ -673,7 +673,7 @@ function AutoDrive:stopAutoDrive()
                 if self.ad.stateModule:getStartAI() then
                     self.ad.stateModule:setStartAI(false)
                     if  g_courseplay ~= nil and self.ad.stateModule:getUseCP() then
-                        g_courseplay.courseplay:startStop(self)
+                        g_courseplay.courseplay:start(self)
                     else
                         if self.acParameters ~= nil then
                             self.acParameters.enabled = true
