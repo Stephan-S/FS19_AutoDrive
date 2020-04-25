@@ -189,3 +189,15 @@ end
 function AutoDrive:combineIsCallingDriver(combine)
     return ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
 end
+
+-- stop CP if it is active
+function AutoDrive:StopCP(vehicle)
+	if vehicle == nil then 
+		return 
+	end
+
+	if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
+		vehicle.ad.stateModule:setStartCp(false)
+		g_courseplay.courseplay:stop(vehicle)
+	end
+end
