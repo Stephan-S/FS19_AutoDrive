@@ -779,12 +779,12 @@ function ADStateModule:setNextTargetInFolder()
 end
 
 function ADStateModule:removeCPCallback()
+   if self.vehicle.ad.callBackFunction ~= nil then			-- if CP callback is set, CP has to be stopped
+	AutoDrive:StopCP(self.vehicle)
+    end
     self.vehicle.ad.callBackFunction = nil
     self.vehicle.ad.callBackObject = nil
     self.vehicle.ad.callBackArg = nil
-	if self:isActive() then			-- if AD active and CP callbacks are cleared CP to be stopped
-		AutoDrive:StopCP(self.vehicle)
-	end
 end
 
 function ADStateModule:resetMarkersOnReload()
