@@ -278,6 +278,8 @@ function ADSpecialDrivingModule:getReverseNode()
 end
 
 function ADSpecialDrivingModule:reverseToPoint(dt)
+	local vehicleIsTruck = self:isTruck(self.vehicle)
+
     if self.lastAngleToPoint == nil then
         self.lastAngleToPoint = self.angleToPoint
     end
@@ -294,7 +296,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     self.iFactor = 0.01
     self.dFactor = 1400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
 
-    if self.vehicle.typeDesc == "truck" then
+    if vehicleIsTruck then
         self.pFactor = 1 --self.vehicle.ad.stateModule:getSpeedLimit() * 0.05 --0.1 -- --0.1
         self.iFactor = 0.00001
         self.dFactor = 6.7 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 0.1 --10
@@ -305,7 +307,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     local offsetX = -targetDiff * 5
     local offsetZ = -20
 
-    if self.vehicle.typeDesc == "truck" then
+    if vehicleIsTruck then
         offsetX = -targetDiff * 0.1
         offsetZ = -100
     end
@@ -317,8 +319,8 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
     local speed = 5 + (6 * math.clamp(0, (5 / math.max(self.steeringAngle, math.abs(self.angleToTrailer))), 1))
     local acc = 0.4
 
-    if self.vehicle.typeDesc == "truck" then
-        speed = 4
+    if vehicleIsTruck then
+        speed = 3
     end
 
     local node = self.vehicle:getAIVehicleDirectionNode()
@@ -377,4 +379,26 @@ function ADSpecialDrivingModule:reverseToTargetLocation(dt, location)
     end
 
     return false
+end
+
+function ADSpecialDrivingModule:isTruck(vehicle)
+	local ret = false
+
+	if vehicle == nil then
+		return false
+	end
+	
+	for _,joint in pairs(vehicle.spec_attacherJoints.attacherJoints) do
+		if AttacherJoints.jointTypeNameToInt["semitrailer"] and joint.jointType == AttacherJoints.jointTypeNameToInt["semitrailer"] then
+			ret = true
+			break
+		elseif AttacherJoints.jointTypeNameToInt["hookLift"] and joint.jointType == AttacherJoints.jointTypeNameToInt["hookLift"] then
+			ret = true
+			break
+		elseif AttacherJoints.jointTypeNameToInt["terraVariant"] and joint.jointType == AttacherJoints.jointTypeNameToInt["terraVariant"] then
+			ret = true
+			break
+		end
+	end
+	return ret
 end
