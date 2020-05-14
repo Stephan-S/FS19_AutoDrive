@@ -1,7 +1,11 @@
 ADPathCalculator = {}
 
 function ADPathCalculator:GetPath(startID, targetID)
+	local count = 0
+
     if not ADGraphManager:areWayPointsPrepared() then
+		AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
+		AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
         ADGraphManager:prepareWayPoints()
     end
 
@@ -9,7 +13,7 @@ function ADPathCalculator:GetPath(startID, targetID)
     local addedWeights = self:getDetourWeights()
 
     
-    if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil or startID == targetID then
+    if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil then
         return {}
     end
 
@@ -29,7 +33,7 @@ function ADPathCalculator:GetPath(startID, targetID)
     end
 
     local lastPredecessor = nil
-    while not candidates:empty() and not foundTarget do
+    while not candidates:empty() and not foundTarget and count < 200000 do
         local next = candidates:dequeue()
         local point, distance, previousPoint = next.p, next.distance, next.pre
         while point ~= nil do
@@ -50,30 +54,33 @@ function ADPathCalculator:GetPath(startID, targetID)
                     for _, outId in pairs(outMap) do
                         local outPoint = network[outId]
                         
-                        -- First check if this point needs to be added to the candidate list or if it has already been tested
-                        local toBeAdded = true
-                        if results[outId] ~= nil then
-                            local allOutsTested = true
-                            if outPoint.transitMapping[point.id] ~= nil then
-                                for _, nextOutId in pairs(outPoint.transitMapping[point.id]) do
-                                    allOutsTested = allOutsTested and results[outId][nextOutId] ~= nil
-                                end
-                            end
-                            if allOutsTested then
-                                toBeAdded = false
-                            end
-                        end
-                        if toBeAdded then
-                            candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)), pre=point.id})
-                        end
+-- axel  TODO implement automatic network check for such issue: waypoint linked to itself -> DONE with AutoDrive.checkWaypointsLinkedtothemselve(true)
+                        if point.id ~= outPoint.id then
+							-- First check if this point needs to be added to the candidate list or if it has already been tested
+							local toBeAdded = true
+							if results[outId] ~= nil then
+								local allOutsTested = true
+								if outPoint.transitMapping[point.id] ~= nil then
+									for _, nextOutId in pairs(outPoint.transitMapping[point.id]) do
+										allOutsTested = allOutsTested and results[outId][nextOutId] ~= nil
+									end
+								end
+								if allOutsTested then
+									toBeAdded = false
+								end
+							end
+							if toBeAdded or (#point.incoming > 1) then
+								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)), pre=point.id})
+							end
 
-                        if results[point.id][outId] == nil then
-                            results[point.id][outId] = {distance=distance, pre=previousPoint}
-                        else
-                            if results[point.id][outId].distance > distance then
-                                results[point.id][outId] = {distance=distance, pre=previousPoint}
-                            end
-                        end
+							if results[point.id][outId] == nil then
+								results[point.id][outId] = {distance=distance, pre=previousPoint}
+							else
+								if results[point.id][outId].distance > distance then
+									results[point.id][outId] = {distance=distance, pre=previousPoint}
+								end
+							end
+						end
                     end
                     point = nil
                 else
@@ -95,7 +102,8 @@ function ADPathCalculator:GetPath(startID, targetID)
                 end
             end
         end
-    end
+    		count = count + 1
+end
     
     if not foundTarget then
         return {}
