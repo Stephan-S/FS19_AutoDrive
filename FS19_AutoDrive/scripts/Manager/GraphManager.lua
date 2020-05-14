@@ -809,3 +809,96 @@ function ADGraphManager:prepareWayPoints()
 	end
 	self.preparedWayPoints = true
 end
+
+-- create map markers for waypoints without out connection
+function ADGraphManager:createMarkersAtOpenEnds()
+
+	local network = self:getWayPoints()
+	local overallnumberWP = self:getWayPointsCount()
+	local debugGroupName = "AD_Debug"
+
+	if overallnumberWP < 3 then return end
+
+	-- Removing all old map hotspots
+	for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+		g_currentMission:removeMapHotspot(mh)
+		mh:delete()
+	end
+	AutoDrive.mapHotspotsBuffer = {}
+
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then
+		-- create markers for open ends
+		local count = 1
+		local mapMarkerCounter = #self:getMapMarkers() + 1
+		for i, wp in pairs(network) do
+			if #wp.out == 0 then
+				if wp ~= nil then
+					local debugMapMarkerName = tostring(count)
+
+					if self:getGroupByName(debugGroupName) == nil then
+						self:addGroup(debugGroupName)
+					end
+
+					-- create the mapMarker
+					if self:getMapMarkerById(mapMarkerCounter) == nil then
+						local mapMarker = {}
+						mapMarker.name = debugMapMarkerName
+						mapMarker.group = debugGroupName
+						mapMarker.markerIndex = mapMarkerCounter
+						mapMarker.id = wp.id
+						mapMarker.isADDebug = true
+						self:setMapMarker(mapMarker)
+					end
+
+					count = count + 1
+					mapMarkerCounter = mapMarkerCounter + 1
+				end
+			end
+		end
+	else
+		-- remove debug markers from AD list
+		local debugGroupMarkers = self:getMapMarkersInGroup(debugGroupName)	-- use a copy of the debug marker list as removeMapMarker will reorder all marker index
+		for _, marker in pairs(debugGroupMarkers) do
+			-- remove the markers
+			if marker.isADDebug == true then
+				self:removeMapMarker(marker.markerIndex)			
+			end
+		end
+		
+		-- remove the debug group
+		if self:getGroupByName(debugGroupName) ~= nil then
+			self:removeGroup(debugGroupName)
+		end
+	end
+
+	-- adding hotspots
+	for index, marker in ipairs(self:getMapMarkers()) do
+		if (marker.isADDebug == nil) or (marker.isADDebug == true and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO)) then
+			-- create hotspots for AD all map markers, but Debug markers only if setting is active
+			local width, height = getNormalizedScreenValues(9, 9)
+			local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+			
+			if marker.isADDebug == true then
+				mh:delete()
+				mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_MISSION)
+				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({780, 780, 234, 234}))
+			else
+				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
+			end
+
+			mh:setSize(width, height)
+			mh:setTextOptions(0)
+			mh.isADMarker = true
+			table.insert(AutoDrive.mapHotspotsBuffer, mh)
+
+			mh:setText(marker.name)
+			local wp = self:getWayPointById(marker.id)
+			if wp ~= nil then
+				mh:setWorldPosition(wp.x, wp.z)
+				mh.enabled = true
+				mh.markerID = index
+				g_currentMission:addMapHotspot(mh)
+			end
+		end
+	end
+end
