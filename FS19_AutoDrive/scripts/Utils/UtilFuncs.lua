@@ -465,6 +465,7 @@ function AutoDrive:setDebugChannel(newDebugChannel)
 		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL
 	end
 	AutoDrive.showNetworkEvents()
+	ADGraphManager:createMarkersAtOpenEnds()
 end
 
 function AutoDrive.getDebugChannelIsSet(debugChannel)
@@ -850,6 +851,72 @@ function AutoDrive.segmentIntersects(x1, y1, x2, y2, x3, y3, x4, y4)
 		return x, y, insideSector, insideSecondSector
 	else
 		return 0, 0, false, false
+	end
+end
+
+-- find WP linked to themselve - fatal error, parm: true for direct data correction in mapWayPoints{}
+function AutoDrive.checkWaypointsLinkedtothemselve(correctit)
+    local network = ADGraphManager:getWayPoints()
+	local overallnumberWP = ADGraphManager:getWayPointsCount()
+	local count = 0
+	
+	if overallnumberWP < 3 then return end
+	
+	for i, point in pairs(network) do
+		if #point.out > 0 then
+			for j, linkedNodeId_1 in ipairs(point.out) do
+				local wp_2 = network[linkedNodeId_1]
+				if wp_2 ~= nil then
+					if (i == linkedNodeId_1) then
+						if correctit then
+							table.remove(network[i].out,j)
+							count = count + 1
+						end
+					end
+				end
+			end
+		end
+	end
+	if count > 0 then
+		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "[AD] removed %s waypoint links to themselve", tostring(count))
+	end
+end
+
+-- find WP with multiple same out ID - parm: true for direct data correction in mapWayPoints{}
+function AutoDrive.checkWaypointsMultipleSameOut(correctit)
+    local network = ADGraphManager:getWayPoints()
+	local overallnumberWP = ADGraphManager:getWayPointsCount()
+	local count = 0
+
+	if overallnumberWP < 3 then return end
+
+	for i, point in pairs(network) do
+		if #point.out > 1 then
+			for j, linkedNodeId_1 in ipairs(network[i].out) do
+				local wp_2 = network[linkedNodeId_1]
+				if wp_2 ~= nil then
+					found = false
+					for k, linkedNodeId_2 in ipairs(network[i].out) do
+						if k>j then
+							local wp_3 = network[linkedNodeId_2]
+							if wp_3 ~= nil then
+								if j < #network[i].out then
+									if (network[i].out[j] == network[i].out[k]) then
+										if correctit then
+											table.remove(network[i].out,k)
+											count = count + 1
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	if count > 0 then
+		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "[AD] removed %s waypoint with multiple same out links", tostring(count))
 	end
 end
 
