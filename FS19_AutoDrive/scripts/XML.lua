@@ -228,6 +228,11 @@ function AutoDrive.readFromXML(xmlFile)
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
+
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then
+		-- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
+		ADGraphManager:createMarkersAtOpenEnds()
+	end
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -293,12 +298,15 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming", table.concat(incomingTable, ";"))
 	end
 
+	local markerIndex = 1		-- used for clean index in saved config xml
 	for i in pairs(ADGraphManager:getMapMarkers()) do
-		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", ADGraphManager:getMapMarkerById(i).id)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", ADGraphManager:getMapMarkerById(i).name)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", ADGraphManager:getMapMarkerById(i).group)
+		if not ADGraphManager:getMapMarkerById(i).isADDebug then		-- do not save debug map marker
+			setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. tostring(markerIndex) .. ".id", ADGraphManager:getMapMarkerById(i).id)
+			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. tostring(markerIndex) .. ".name", ADGraphManager:getMapMarkerById(i).name)
+			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. tostring(markerIndex) .. ".group", ADGraphManager:getMapMarkerById(i).group)
+			markerIndex = markerIndex + 1
+		end
 	end
-
 	saveXMLFile(xmlFile)
 end
 
