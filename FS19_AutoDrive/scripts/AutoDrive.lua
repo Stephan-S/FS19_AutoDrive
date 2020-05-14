@@ -41,6 +41,7 @@ AutoDrive.DC_SENSORINFO = 32
 AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
+AutoDrive.DC_ROADNETWORKINFO = 512
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
