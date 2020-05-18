@@ -200,6 +200,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Rete" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfaccia esterna" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Tutto" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifiche" />

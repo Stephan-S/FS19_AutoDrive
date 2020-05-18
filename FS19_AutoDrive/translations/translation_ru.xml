@@ -200,6 +200,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Сеть" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Внешний интерфейс" />
 		<text name="gui_ad_debugChannelRender" 					text="Рендеринг" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Все" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
