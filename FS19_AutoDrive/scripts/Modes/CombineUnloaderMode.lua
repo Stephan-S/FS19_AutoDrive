@@ -318,14 +318,26 @@ end
 
 function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local nextTask
-	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload start filledToUnload %s", tostring(filledToUnload))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload start filledToUnload %s", tostring(filledToUnload))
+
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    local point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
+    local distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
 
     if filledToUnload then
         --ADHarvestManager:unregisterAsUnloader(self.vehicle)
         --self.followingUnloader = nil
         --self.combine = nil
+        if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
+            -- is activated on a field - use ExitFieldTask to leave field according to setting
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask ExitFieldTask...")
             nextTask = ExitFieldTask:new(self.vehicle)
             self.state = self.STATE_EXIT_FIELD
+        else
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask UnloadAtDestinationTask...")
+            nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+            self.state = self.STATE_DRIVE_TO_UNLOAD
+        end
     else
         -- Should we park in the field?
         if self.combineIsBufferCombine or (AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField)) then
