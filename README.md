@@ -32,7 +32,7 @@ and also
 
 # Downloads
 
-### Latest Release Candidate: 1.1.0.5-RC2
+### Latest Release Candidate: 1.1.0.5-RC3
 [You can download the latest release candidate here](https://host-my-bits.com/cdn/files/1/FS19_AutoDrive.zip)  
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/1?v=3)  
