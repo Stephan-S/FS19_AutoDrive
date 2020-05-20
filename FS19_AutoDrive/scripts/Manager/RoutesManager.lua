@@ -78,10 +78,7 @@ function ADRoutesManager:import(name)
     if route ~= nil then
         if fileExists(self.routesFolder .. route.fileName) then
             local loadXml = loadXMLFile("routeImport_xml", self.routesFolder .. route.fileName)
-            local wayPoints = {}
-            local mapMarkers = {}
-            local groups = {}
-            AutoDrive.readGraphFromXml(loadXml, "routeExport", wayPoints, mapMarkers, groups)
+            local wayPoints, mapMarkers, groups = AutoDrive.readGraphFromXml(loadXml, "routeExport")
             delete(loadXml)
             AutoDriveRoutesUploadEvent.sendEvent(wayPoints, mapMarkers, groups)
         end

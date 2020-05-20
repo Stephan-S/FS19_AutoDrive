@@ -6,10 +6,12 @@ function ADGraphManager:load()
 	self.groups = {}
 	self.groups["All"] = 1
 	self.changes = false
+	self.preparedWayPoints = false
 end
 
 function ADGraphManager:markChanges()
 	self.changes = true
+	self.preparedWayPoints = false
 end
 
 function ADGraphManager:resetChanges()
@@ -18,6 +20,10 @@ end
 
 function ADGraphManager:hasChanges()
 	return self.changes
+end
+
+function ADGraphManager:areWayPointsPrepared()
+	return self.preparedWayPoints
 end
 
 -- Calling functions expect a linear, continuous array
@@ -71,6 +77,32 @@ function ADGraphManager:getMapMarkerByName(mapMarkerName)
 	return nil
 end
 
+function ADGraphManager:getMapMarkersInGroup(groupName)
+	local markersInGroup = {}
+
+	for _, mapMarker in pairs(self.mapMarkers) do
+		if mapMarker.group == groupName then
+			table.insert(markersInGroup, mapMarker)
+		end
+	end
+
+	local sort_func = function(a, b)
+        a = tostring(a.name):lower()
+        b = tostring(b.name):lower()
+        local patt = "^(.-)%s*(%d+)$"
+        local _, _, col1, num1 = a:find(patt)
+        local _, _, col2, num2 = b:find(patt)
+        if (col1 and col2) and col1 == col2 then
+            return tonumber(num1) < tonumber(num2)
+        end
+        return a < b
+    end
+
+    table.sort(markersInGroup, sort_func)
+
+	return markersInGroup
+end
+
 function ADGraphManager:resetMapMarkers()
 	self.mapMarkers = {}
 end
@@ -99,7 +131,7 @@ function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId)
 		if startWaypointId == targetWaypointId then
 			table.insert(wp, self.wayPoints[targetWaypointId])
 		else
-			wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetWaypointId)
+			wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId)
 		end
 	end
 	return wp
@@ -113,7 +145,7 @@ function ADGraphManager:pathFromToMarker(startWaypointId, markerId)
 			table.insert(wp, 1, self.wayPoints[targetId])
 			return wp
 		else
-			wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, startWaypointId, targetId)
+			wp = ADPathCalculator:GetPath(startWaypointId, targetId)
 		end
 	end
 	return wp
@@ -144,7 +176,7 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 		return wp
 	end
 
-	wp = AutoDrive:dijkstraLiveShortestPath(self.wayPoints, start_id, target_id)
+	wp = ADPathCalculator:GetPath(start_id, target_id)
 
 	return wp
 end
@@ -361,8 +393,22 @@ function ADGraphManager:getGroups()
 	return self.groups
 end
 
-function ADGraphManager:setGroups(groups)
+function ADGraphManager:setGroups(groups, updateVehicles)
 	self.groups = groups
+	if updateVehicles then
+		for _, vehicle in pairs(g_currentMission.vehicles) do
+			if vehicle.ad ~= nil then
+				if vehicle.ad.groups == nil then
+					vehicle.ad.groups = {}
+				end
+				local newGroups = {}
+				for groupName, _ in pairs(ADGraphManager:getGroups()) do
+					newGroups[groupName] = vehicle.ad.groups[groupName] or false
+				end
+				vehicle.ad.groups = newGroups
+			end
+		end
+	end
 end
 
 function ADGraphManager:getGroupByName(groupName)
@@ -516,6 +562,13 @@ function ADGraphManager:isDualRoad(start, target)
 		end
 	end
 	return false
+end
+
+function ADGraphManager:isReverseRoad(start, target)
+	if start == nil or target == nil or start.incoming == nil or target.id == nil then
+		return false
+	end
+	return not table.contains(target.incoming, start.id)
 end
 
 function ADGraphManager:getDistanceBetweenNodes(start, target)
@@ -718,4 +771,134 @@ function ADGraphManager:createNode(id, x, y, z, out, incoming)
 		out = out,
 		incoming = incoming
 	}
+end
+
+function ADGraphManager:prepareWayPoints()
+    local network = self:getWayPoints()
+    for id, wp in ipairs(network) do
+        wp.transitMapping = {}
+        wp.inverseTransitMapping = {}
+        if #wp.incoming > 0 then --and #wp.out > 0
+            for outIndex, outId in ipairs(wp.out) do
+                wp.inverseTransitMapping[outId] = {}
+            end
+
+            for inIndex, inId in ipairs(wp.incoming) do
+                local inPoint = network[inId]
+                wp.transitMapping[inId] = {}
+                for outIndex, outId in ipairs(wp.out) do
+                    local outPoint = network[outId]
+                    local angle = math.abs(AutoDrive.angleBetween({x = outPoint.x - wp.x, z = outPoint.z - wp.z}, {x = wp.x - inPoint.x, z = wp.z - inPoint.z}))
+					--print("prep4: " .. outId .. " angle: " .. angle)
+					
+                    if angle <= 90 then
+                        table.insert(wp.transitMapping[inId], outId)
+						table.insert(wp.inverseTransitMapping[outId], inId)
+					else
+						--Also for reverse routes - but only checked on demand, if angle check fails
+						local isReverseStart = not table.contains(outPoint.incoming, wp.id)
+						local isReverseEnd = table.contains(outPoint.incoming, wp.id) and not table.contains(wp.incoming, inPoint.id)
+						if isReverseStart or isReverseEnd then
+							table.insert(wp.transitMapping[inId], outId)
+							table.insert(wp.inverseTransitMapping[outId], inId)
+						end
+                    end
+                end
+            end
+        end
+	end
+	self.preparedWayPoints = true
+end
+
+-- create map markers for waypoints without out connection
+function ADGraphManager:createMarkersAtOpenEnds()
+
+	local network = self:getWayPoints()
+	local overallnumberWP = self:getWayPointsCount()
+	local debugGroupName = "AD_Debug"
+
+	if overallnumberWP < 3 then return end
+
+	-- Removing all old map hotspots
+	for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+		g_currentMission:removeMapHotspot(mh)
+		mh:delete()
+	end
+	AutoDrive.mapHotspotsBuffer = {}
+
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then
+		-- create markers for open ends
+		local count = 1
+		local mapMarkerCounter = #self:getMapMarkers() + 1
+		for i, wp in pairs(network) do
+			if #wp.out == 0 then
+				if wp ~= nil then
+					local debugMapMarkerName = tostring(count)
+
+					if self:getGroupByName(debugGroupName) == nil then
+						self:addGroup(debugGroupName)
+					end
+
+					-- create the mapMarker
+					if self:getMapMarkerById(mapMarkerCounter) == nil then
+						local mapMarker = {}
+						mapMarker.name = debugMapMarkerName
+						mapMarker.group = debugGroupName
+						mapMarker.markerIndex = mapMarkerCounter
+						mapMarker.id = wp.id
+						mapMarker.isADDebug = true
+						self:setMapMarker(mapMarker)
+					end
+
+					count = count + 1
+					mapMarkerCounter = mapMarkerCounter + 1
+				end
+			end
+		end
+	else
+		-- remove debug markers from AD list
+		local debugGroupMarkers = self:getMapMarkersInGroup(debugGroupName)	-- use a copy of the debug marker list as removeMapMarker will reorder all marker index
+		for _, marker in pairs(debugGroupMarkers) do
+			-- remove the markers
+			if marker.isADDebug == true then
+				self:removeMapMarker(marker.markerIndex)			
+			end
+		end
+		
+		-- remove the debug group
+		if self:getGroupByName(debugGroupName) ~= nil then
+			self:removeGroup(debugGroupName)
+		end
+	end
+
+	-- adding hotspots
+	for index, marker in ipairs(self:getMapMarkers()) do
+		if (marker.isADDebug == nil) or (marker.isADDebug == true and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO)) then
+			-- create hotspots for AD all map markers, but Debug markers only if setting is active
+			local width, height = getNormalizedScreenValues(9, 9)
+			local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+			
+			if marker.isADDebug == true then
+				mh:delete()
+				mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_MISSION)
+				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({780, 780, 234, 234}))
+			else
+				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
+			end
+
+			mh:setSize(width, height)
+			mh:setTextOptions(0)
+			mh.isADMarker = true
+			table.insert(AutoDrive.mapHotspotsBuffer, mh)
+
+			mh:setText(marker.name)
+			local wp = self:getWayPointById(marker.id)
+			if wp ~= nil then
+				mh:setWorldPosition(wp.x, wp.z)
+				mh.enabled = true
+				mh.markerID = index
+				g_currentMission:addMapHotspot(mh)
+			end
+		end
+	end
 end

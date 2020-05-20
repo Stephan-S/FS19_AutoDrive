@@ -164,10 +164,14 @@
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Логотип по умолчанию или свой персональный. - Выбор может быть расширен." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="2-й режим редактора" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Использовать 2-й режим редактора для манипуляции точками вместо удержания LCTRL." />
+
 		<text name="gui_ad_wideHUD"								text="Широкий HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Использовать режим широкого HUD, который также позволяет использовать еще несколько кнопок настройки в HUD" />
+		<text name="gui_ad_syncMultiTargets"					text="Синхронизация нескольких целей" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Несколько драйверов, использующих одну и ту же папку для нескольких целей, синхронизируют следующие цели" />
 
-		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
+    <text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Настройки разгрузки комбайна - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Настройки отладки - AutoDrive" />
@@ -197,6 +201,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Сеть" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Внешний интерфейс" />
 		<text name="gui_ad_debugChannelRender" 					text="Рендеринг" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Все" />
 
 		<text name="gui_ad_notificationHistoryTitle" 			text="Уведомления" />
@@ -287,7 +292,7 @@
 		<text name="AD_task_stop_and_disable"					text="Stopping" />
 		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
 		<text name="AD_task_wait_for_call"						text="Waiting for call" />
-		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
+		<text name="AD_task_chasing_combine"					text="Chasing combine" />	
 		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
 		<text name="AD_task_catching_chase_side"				text="Catching side" />	
 		<text name="AD_task_chase_side"							text="Side" />	
@@ -296,5 +301,6 @@
 		<text name="AD_task_chase_side_right"					text="right" />		
 		<text name="AD_task_waiting_for_room"					text="Waiting for room" />
 		<text name="AD_task_exiting_field"						text="Exiting field" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

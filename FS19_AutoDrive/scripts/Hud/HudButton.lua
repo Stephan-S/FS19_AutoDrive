@@ -143,10 +143,18 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_startCp" then
-        if vehicle.ad.stateModule:getStartCp() then
-            newState = 2
+        if vehicle.ad.stateModule:getStartAI() then
+            if vehicle.ad.stateModule:getUseCP() then
+                newState = 2
+            else
+                newState = 4
+            end
         else
-            newState = 1
+            if vehicle.ad.stateModule:getUseCP() then
+                newState = 1
+            else
+                newState = 3
+            end
         end
         self.isVisible = (not vehicle.ad.stateModule:isEditorModeEnabled()) or (AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD"))
     end
@@ -167,7 +175,6 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
                 vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(vehicle.ad.stateModule:getParkDestination()).name
             end
         end
-
         if button == 1 and isUp then
             ADInputManager:onInputCall(vehicle, self.primaryAction)
             return true

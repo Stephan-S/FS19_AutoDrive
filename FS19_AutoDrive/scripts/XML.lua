@@ -28,8 +28,8 @@ function AutoDrive.loadStoredXML()
 		end
 		--]]
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
-		if MapCheck == false then --versionString == nil or 
-			g_logManager:devWarning("[AutoDrive] Version Check (%s) or Map Check (%s) failed", versionString == nil, MapCheck == false)
+		if MapCheck == false then --versionString == nil or
+			g_logManager:devWarning("[AutoDrive] Map Check (%s) failed", MapCheck == false)
 			AutoDrive.loadInitConfig(xmlFile, false)
 		else
 			AutoDrive.readFromXML(AutoDrive.adXml)
@@ -228,6 +228,11 @@ function AutoDrive.readFromXML(xmlFile)
 			g_logManager:devInfo("[AutoDrive] mapMarker[" .. markerIndex .. "] : " .. marker.name .. " points to a non existing waypoint! Please repair your config file!")
 		end
 	end
+
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then
+		-- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
+		ADGraphManager:createMarkersAtOpenEnds()
+	end
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -293,58 +298,16 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming", table.concat(incomingTable, ";"))
 	end
 
+	local markerIndex = 1		-- used for clean index in saved config xml
 	for i in pairs(ADGraphManager:getMapMarkers()) do
-		setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".id", ADGraphManager:getMapMarkerById(i).id)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".name", ADGraphManager:getMapMarkerById(i).name)
-		setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. i .. ".group", ADGraphManager:getMapMarkerById(i).group)
-	end
-
-	saveXMLFile(xmlFile)
-end
-
-function AutoDrive.loadUsersData()
-	local file = tostring(g_currentMission.missionInfo.savegameDirectory) .. "/AutoDriveUsersData.xml"
-	if fileExists(file) then
-		local xmlFile = loadXMLFile("AutoDriveUsersData_XML_temp", file)
-		if xmlFile ~= nil then
-			local uIndex = 0
-			while true do
-				local uKey = string.format("AutoDriveUsersData.users.user(%d)", uIndex)
-				if not hasXMLProperty(xmlFile, uKey) then
-					break
-				end
-				local uniqueId = getXMLString(xmlFile, uKey .. "#uniqueId")
-				if uniqueId ~= nil and uniqueId ~= "" then
-					AutoDrive.usersData[uniqueId] = {}
-					AutoDrive.usersData[uniqueId].hudX = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudX"), 0.5)
-					AutoDrive.usersData[uniqueId].hudY = Utils.getNoNil(getXMLFloat(xmlFile, uKey .. "#hudY"), 0.5)
-					AutoDrive.usersData[uniqueId].guiScale = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#guiScale"), AutoDrive.settings.guiScale.default)
-					AutoDrive.usersData[uniqueId].wideHUD = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#wideHUD"), AutoDrive.settings.wideHUD.default)
-					AutoDrive.usersData[uniqueId].notifications = Utils.getNoNil(getXMLInt(xmlFile, uKey .. "#notifications"), AutoDrive.settings.notifications.default)
-				end
-				uIndex = uIndex + 1
-			end
+		if not ADGraphManager:getMapMarkerById(i).isADDebug then		-- do not save debug map marker
+			setXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. tostring(markerIndex) .. ".id", ADGraphManager:getMapMarkerById(i).id)
+			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. tostring(markerIndex) .. ".name", ADGraphManager:getMapMarkerById(i).name)
+			setXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. tostring(markerIndex) .. ".group", ADGraphManager:getMapMarkerById(i).group)
+			markerIndex = markerIndex + 1
 		end
-		delete(xmlFile)
-	end
-end
-
-function AutoDrive.saveUsersData()
-	local file = g_currentMission.missionInfo.savegameDirectory .. "/AutoDriveUsersData.xml"
-	local xmlFile = createXMLFile("AutoDriveUsersData_XML_temp", file, "AutoDriveUsersData")
-	local uIndex = 0
-	for uniqueId, userData in pairs(AutoDrive.usersData) do
-		local uKey = string.format("AutoDriveUsersData.users.user(%d)", uIndex)
-		setXMLString(xmlFile, uKey .. "#uniqueId", uniqueId)
-		setXMLFloat(xmlFile, uKey .. "#hudX", userData.hudX)
-		setXMLFloat(xmlFile, uKey .. "#hudY", userData.hudY)
-		setXMLInt(xmlFile, uKey .. "#guiScale", userData.guiScale)
-		setXMLInt(xmlFile, uKey .. "#wideHUD", userData.wideHUD)
-		setXMLInt(xmlFile, uKey .. "#notifications", userData.notifications)
-		uIndex = uIndex + 1
 	end
 	saveXMLFile(xmlFile)
-	delete(xmlFile)
 end
 
 function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
@@ -392,15 +355,19 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 	removeXMLProperty(xmlId, rootNode .. ".groups")
 	do
 		local i = 0
-		for name, _ in pairs(groups) do
+		for name, id in pairs(groups) do
 			local key = string.format("%s.groups.g(%d)", rootNode, i)
 			setXMLString(xmlId, key .. "#n", name)
+			setXMLInt(xmlId, key .. "#i", id)
 			i = i + 1
 		end
 	end
 end
 
-function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
+function AutoDrive.readGraphFromXml(xmlId, rootNode)
+	local wayPoints = {}
+	local mapMarkers = {}
+	local groups = {}
 	-- reading waypoints
 	do
 		local key = string.format("%s.waypoints", rootNode)
@@ -428,7 +395,7 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 					tbin(wp.incoming, tnum(incoming))
 				end
 			end
-			waypoints[i] = wp
+			wayPoints[i] = wp
 			i = i + 1
 		end
 	end
@@ -446,7 +413,7 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 			local group = getXMLString(xmlId, key .. "#g")
 
 			i = i + 1
-			markers[i] = {id = id, name = name, group = group, markerIndex = i}
+			mapMarkers[i] = {id = id, name = name, group = group, markerIndex = i}
 		end
 	end
 
@@ -459,8 +426,24 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode, waypoints, markers, groups)
 				break
 			end
 			local groupName = getXMLString(xmlId, key .. "#n")
+			local groupNameId = Utils.getNoNil(getXMLInt(xmlId, key .. "#i"), i + 1)
+			groups[groupName] = groupNameId
 			i = i + 1
-			groups[groupName] = i
 		end
 	end
+
+	-- fix group 'All' index (make sure it's always 1)
+	if groups["All"] ~= 1 then
+		groups["All"] = nil
+		local newGroups = {}
+		newGroups["All"] = 1
+		local index = 2
+		for name, _ in pairs(groups) do
+			newGroups[name] = index
+			index = index + 1
+		end
+		groups = newGroups
+	end
+
+	return wayPoints, mapMarkers, groups
 end

@@ -9,12 +9,13 @@ ADSettings = {}
 
 local ADSettings_mt = Class(ADSettings, TabbedMenu)
 
-ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings"}
+ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveUserSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings"}
 
 --- Page tab UV coordinates for display elements.
 ADSettings.TAB_UV = {
     SETTINGS_GENERAL = {385, 0, 128, 128},
     SETTINGS_VEHICLE = {0, 209, 65, 65},
+    SETTINGS_USER = {457, 210, 60, 60},
     SETTINGS_UNLOAD = {0, 0, 128, 128},
     SETTINGS_LOAD = {0, 129, 128, 128},
     SETTINGS_NAVIGATION = {0, 257, 128, 128},
@@ -24,7 +25,8 @@ ADSettings.TAB_UV = {
 
 ADSettings.ICON_UV = {
     GLOBAL = {12, 157, 40, 40},
-    VEHICLE = {136, 151, 51, 51}
+    VEHICLE = {136, 151, 51, 51},
+    USER = {462, 215, 50, 50}
 }
 
 ADSettings.ICON_COLOR = {
@@ -53,10 +55,25 @@ function ADSettings:setupPages()
         return AutoDrive.developmentControls
     end
 
+    local vehicleEnabled = function()
+        if g_currentMission ~= nil and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
+            return true
+        end
+        return false
+    end
+
+    local combineEnabled = function()
+        if vehicleEnabled() and g_currentMission.controlledVehicle.ad.isCombine then
+            return true
+        end
+        return false
+    end
+
     local orderedPages = {
         {self.autoDriveSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_GENERAL, false},
-        {self.autoDriveVehicleSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
-        {self.autoDriveCombineUnloadSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
+        {self.autoDriveUserSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_USER, false},
+        {self.autoDriveVehicleSettings, vehicleEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
+        {self.autoDriveCombineUnloadSettings, combineEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
         {self.autoDriveDebugSettings, developmentControlsEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_DEBUG, true},
         {self.autoDriveExperimentalFeaturesSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_EXPFEAT, true}
     }
@@ -135,31 +152,24 @@ end
 
 function ADSettings:applySettings()
     if self:pagesHasChanges() then
-        -- If the 'guiScale' setting have been changed send the new state to server
-        if AutoDrive.settings.guiScale.new ~= nil and AutoDrive.settings.guiScale.new ~= AutoDrive.settings.guiScale.current then
-            AutoDrive.settings.guiScale.current = AutoDrive.settings.guiScale.new
-            AutoDriveUserDataEvent.sendToServer()
-        end
-        if AutoDrive.settings.wideHUD.new ~= nil and AutoDrive.settings.wideHUD.new ~= AutoDrive.settings.wideHUD.current then
-            AutoDrive.settings.wideHUD.current = AutoDrive.settings.wideHUD.new
-            AutoDriveUserDataEvent.sendToServer()
-        end
-        if AutoDrive.settings.notifications.new ~= nil and AutoDrive.settings.notifications.new ~= AutoDrive.settings.notifications.current then
-            AutoDrive.settings.notifications.current = AutoDrive.settings.notifications.new
-            AutoDriveUserDataEvent.sendToServer()
-        end
+        local userSpecificHasChanges = false
 
         for settingName, setting in pairs(AutoDrive.settings) do
             if setting.isVehicleSpecific and g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle.ad.settings[settingName] ~= nil then
                 setting = g_currentMission.controlledVehicle.ad.settings[settingName]
             end
-            if setting.new ~= setting.current then
-                if setting.new ~= nil then
-                    -- We could even print this with our debug system, but since GIANTS itself prints every changed config, for the moment we will do the same
-                    g_logManager:devInfo('Setting \'%s\' changed from "%s" to "%s"', settingName, setting.values[setting.current], setting.values[setting.new])
-                    setting.current = setting.new
+            if setting.new ~= nil and setting.new ~= setting.current then
+                -- We could even print this with our debug system, but since GIANTS itself prints every changed config, for the moment we will do the same
+                g_logManager:devInfo('Setting \'%s\' changed from "%s" to "%s"', settingName, setting.values[setting.current], setting.values[setting.new])
+                setting.current = setting.new
+                if setting.isUserSpecific then
+                    userSpecificHasChanges = true
                 end
             end
+        end
+
+        if userSpecificHasChanges then
+            ADUserDataManager:sendToServer()
         end
 
         AutoDriveUpdateSettingsEvent.sendEvent(g_currentMission.controlledVehicle)

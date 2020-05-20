@@ -166,8 +166,11 @@
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. modo editor para la manipulación de rutas en lugar de mantener presionada LCTRL" />
 		<text name="gui_ad_wideHUD"								text="Wide HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
+		<text name="gui_ad_syncMultiTargets"					text="Sync multiple targets" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Multiple drivers using the same folder for multiple targets will synchronize next targets" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configuración de descarga cosechadora - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Configuración - AutoDrive" />
@@ -197,6 +200,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Red" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfaz externa" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Todo" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -296,5 +300,6 @@
 		<text name="AD_task_chase_side_right"					text="derecha" />	
 		<text name="AD_task_waiting_for_room"					text="Esperando habitación" />	
 		<text name="AD_task_exiting_field"						text="Campo de salida" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

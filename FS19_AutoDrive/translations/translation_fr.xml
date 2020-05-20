@@ -154,6 +154,7 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajuster la vitesse de virage pour chaque véhicule. La masse et la vitesse actuelle auront toujours un impact sur le point de freinage" />
 		<text name="gui_ad_callSecondUnloader"					text="Appelez le 2. Déchargeur" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Appelez le 2. Déchargeur lorsque le déchargeur actuel atteint le niveau de remplissage préappel" />
+
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre le déchargement au champ" />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
 		<text name="gui_ad_addSettingsToHUD"					text="Ajouter des paramètres au HUD" />
@@ -164,8 +165,11 @@
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Utilisez le mode 2. éditeur pour la manipulation d'itinéraire au lieu de maintenir LCTRL enfoncé" />
 		<text name="gui_ad_wideHUD"								text="HUD large" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Utilisez le mode HUD large, qui permet également quelques boutons de réglage supplémentaires dans le HUD" />
+		<text name="gui_ad_syncMultiTargets"					text="Synchroniser plusieurs cibles" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Plusieurs conducteurs utilisant le même dossier pour plusieurs cibles synchroniseront les cibles suivantes" />
 
-		<text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
+    <text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Paramètres de déchargements moissonneuses - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Paramètres de débogage - AutoDrive" />
@@ -196,7 +200,9 @@
 		<text name="gui_ad_debugChannelSensor" 					text="Capteurs" />
 		<text name="gui_ad_debugChannelNetwork" 				text="Réseau" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interface externe" />
+
 		<text name="gui_ad_debugChannelRender" 					text="Rendu" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Réseau routier" />
 		<text name="gui_ad_debugChannelAll" 					text="Tous" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -296,5 +302,6 @@
 		<text name="AD_task_chase_side_right"					text="droite" />	
 		<text name="AD_task_waiting_for_room"					text="En attente d'une chambre" />	
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

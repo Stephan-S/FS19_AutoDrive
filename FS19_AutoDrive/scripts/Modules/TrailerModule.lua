@@ -180,6 +180,7 @@ function ADTrailerModule:stopUnloading()
             trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF)
         end
     end
+    self.startedUnloadingAtTrigger = false
 end
 
 function ADTrailerModule:updateUnload(dt)
@@ -207,6 +208,8 @@ function ADTrailerModule:updateUnload(dt)
 
         if self:areAllTrailersClosed(dt) and (fillUnitEmpty or AutoDrive.getSetting("distributeToFolder", self.vehicle)) then
             self.isUnloading = false
+            self.unloadingToBunkerSilo = false
+        elseif fillUnitEmpty then
             self.unloadingToBunkerSilo = false
         end
     end

@@ -166,8 +166,11 @@
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Nutze 2. Editormodus statt Halten der LSTRG-Taste" />
 		<text name="gui_ad_wideHUD"								text="Breites HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Nutze breites HUD. Erlaubt dadurch auch zusätzliche Buttons." />
+		<text name="gui_ad_syncMultiTargets"					text="Synchronisiere 'Mehrere Ziele'" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Wenn mehrere Fahrer die selben Ziele anfahren, wird die Zielauswahl synchronisiert." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
@@ -197,6 +200,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Netzwerk" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Externe Schnittstelle" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"				text="Streckennetz" />
 		<text name="gui_ad_debugChannelAll" 					text="Alles" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -296,5 +300,6 @@
 		<text name="AD_task_chase_side_right"					text="rechts" />
 		<text name="AD_task_waiting_for_room"					text="Warte auf Platz" />		
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
+		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
 	</texts>
 </l10n>

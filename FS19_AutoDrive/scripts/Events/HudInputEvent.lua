@@ -37,6 +37,10 @@ end
 function AutoDriveHudInputEventEvent:run(connection)
     if g_server ~= nil then
         if self.eventType == self.TYPE_FIRST_MARKER then
+			local currentFirstMarker = self.vehicle.ad.stateModule:getFirstMarkerId()
+			if currentFirstMarker > 0 and currentFirstMarker ~= self.value then
+				self.vehicle.ad.stateModule:removeCPCallback()
+			end
             self.vehicle.ad.stateModule:setFirstMarker(self.value)
         end
 
@@ -47,7 +51,6 @@ function AutoDriveHudInputEventEvent:run(connection)
         if self.eventType == self.TYPE_FILLTYPE then
             self.vehicle.ad.stateModule:setFillType(self.value)
         end
-        self.vehicle.ad.stateModule:removeCPCallback()
     end
 end
 

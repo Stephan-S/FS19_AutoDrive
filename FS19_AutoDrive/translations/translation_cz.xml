@@ -166,8 +166,11 @@
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. editor mode for route manipulation instead of holding down LCTRL" />
 		<text name="gui_ad_wideHUD"								text="Wide HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
+		<text name="gui_ad_syncMultiTargets"					text="Sync multiple targets" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Multiple drivers using the same folder for multiple targets will synchronize next targets" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
@@ -197,6 +200,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -287,7 +291,7 @@
 		<text name="AD_task_stop_and_disable"					text="Stopping" />
 		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
 		<text name="AD_task_wait_for_call"						text="Waiting for call" />	
-		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
+		<text name="AD_task_chasing_combine"					text="Chasing combine" />	
 		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
 		<text name="AD_task_catching_chase_side"				text="Catching side" />	
 		<text name="AD_task_chase_side"							text="Side" />	
@@ -296,5 +300,6 @@
 		<text name="AD_task_chase_side_right"					text="right" />	
 		<text name="AD_task_waiting_for_room"					text="Waiting for room" />	
 		<text name="AD_task_exiting_field"						text="Exiting field" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

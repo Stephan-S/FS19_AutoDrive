@@ -15,8 +15,8 @@ source(Utils.getFilename("scripts/XML.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Settings.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
-source(Utils.getFilename("scripts/DijkstraLive.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/ExternalInterface.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/PathCalculation.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Hud/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud/HudButton.lua", g_currentModDirectory))
@@ -49,6 +49,7 @@ source(Utils.getFilename("scripts/Events/Graph/RoutesUploadEvent.lua", g_current
 
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/CombineUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/UtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
@@ -56,6 +57,7 @@ source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/SortedQueue.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
@@ -64,6 +66,8 @@ source(Utils.getFilename("scripts/Manager/GraphManager.lua", g_currentModDirecto
 source(Utils.getFilename("scripts/Manager/TriggerManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/HarvestManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/InputManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/UserDataManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/MultipleTargetsManager.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Tasks/AbstractTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/DriveToDestinationTask.lua", g_currentModDirectory))
@@ -80,6 +84,8 @@ source(Utils.getFilename("scripts/Tasks/CatchCombinePipeTask.lua", g_currentModD
 source(Utils.getFilename("scripts/Tasks/FollowCombineTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/RefuelTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/ExitFieldTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/FollowVehicleTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/ReverseFromBadLocationTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))
@@ -203,8 +209,23 @@ function AutoDriveLoadedMission(mission, superFunc, node)
 end
 
 function AutoDriveOnMissionLoaded(mission)
-	--print("On mission loaded called for AutoDrive")
 	g_helpLineManager:loadFromXML(Utils.getFilename("helpLine.xml", AutoDrive.directory))
+	local category =
+		table.f_find(
+		g_helpLineManager.categories,
+		function(item)
+			return item.title == "$l10n_ad_helpCategory_1"
+		end
+	)
+	if category ~= nil then
+		for _, page in pairs(category.pages) do
+			for _, item in pairs(page.items) do
+				if item.type == "image" then
+					item.value = AutoDrive.parsePath(item.value)
+				end
+			end
+		end
+	end
 end
 
 Mission00.loadMission00Finished = Utils.overwrittenFunction(Mission00.loadMission00Finished, AutoDriveLoadedMission)

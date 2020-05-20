@@ -3,7 +3,28 @@ function AutoDrive.prerequisitesPresent(specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
-    for _, n in pairs({"onUpdate", "onRegisterActionEvents", "onDelete", "onDraw", "onPreLoad", "onPostLoad", "onLoad", "saveToXMLFile", "onReadStream", "onWriteStream", "onReadUpdateStream", "onWriteUpdateStream", "onUpdateTick", "onStartAutoDrive", "onStopAutoDrive"}) do
+    for _, n in pairs(
+        {
+            "onUpdate",
+            "onRegisterActionEvents",
+            "onDelete",
+            "onDraw",
+            "onPreLoad",
+            "onPostLoad",
+            "onLoad",
+            "saveToXMLFile",
+            "onReadStream",
+            "onWriteStream",
+            "onReadUpdateStream",
+            "onWriteUpdateStream",
+            "onUpdateTick",
+            "onStartAutoDrive",
+            "onStopAutoDrive",
+            "onPostAttachImplement",
+            "onPreDetachImplement",
+            "onEnterVehicle"
+        }
+    ) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
     end
 end
@@ -134,11 +155,10 @@ function AutoDrive:onPostLoad(savegame)
         self.ad.noTurningTimer = AutoDriveTON:new()
         self.ad.turningTimer = AutoDriveTON:new()
         self.ad.driveForwardTimer = AutoDriveTON:new()
+    end
 
-        if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
-            --print("Running post load for vehicle: " .. self:getName() .. " registerHarvester")
-            ADHarvestManager:registerHarvester(self)
-        end
+    if self.spec_pipe ~= nil and self.spec_enterable ~= nil and self.getIsBufferCombine ~= nil then
+        ADHarvestManager:registerHarvester(self)
     end
 
     if self.ad.settings == nil then
@@ -223,7 +243,7 @@ function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
     end
 end
 
-function AutoDrive:onUpdate(dt)
+function AutoDrive:onUpdate(dt) 
     if self.isServer and self.ad.stateModule:isActive() then
         self.ad.recordingModule:update(dt)
         self.ad.taskModule:update(dt)
@@ -310,20 +330,124 @@ function AutoDrive:onDraw()
     local x, y, z = getWorldTranslation(self.components[1].node)
     if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
         for _, otherVehicle in pairs(g_currentMission.vehicles) do
-            if otherVehicle ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.drivePathModule:getWayPoints() ~= nil and not otherVehicle.ad.drivePathModule:isTargetReached()  then
+            if otherVehicle ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.drivePathModule:getWayPoints() ~= nil and not otherVehicle.ad.drivePathModule:isTargetReached() then
                 local currentIndex = otherVehicle.ad.drivePathModule:getCurrentWayPointIndex()
 
                 local lastPoint = nil
                 for index, point in ipairs(otherVehicle.ad.drivePathModule:getWayPoints()) do
-                    if index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
+                    if point.isPathFinderPoint and index >= currentIndex and lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 160 then
                         ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1, 0.09, 0.09)
                         ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
+
+                        if AutoDrive.getSettingState("lineHeight") == 1 then
+                            local gy = point.y - AutoDrive.drawHeight + 4
+                            local ty = lastPoint.y - AutoDrive.drawHeight + 4
+                            ADDrawingManager:addLineTask(point.x, gy, point.z, point.x, point.y, point.z, 1, 0.09, 0.09)
+                            ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1, 0.09, 0.09, 0.15)
+                            ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1, 0.09, 0.09)
+                            ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
+                        else
+                            local gy = point.y - AutoDrive.drawHeight - 4
+                            local ty = lastPoint.y - AutoDrive.drawHeight - 4
+                            ADDrawingManager:addLineTask(point.x, gy, point.z, point.x, point.y, point.z, 1, 0.09, 0.09)
+                            ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1, 0.09, 0.09, 0.15)
+                            ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1, 0.09, 0.09)
+                            ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1, 0.09, 0.09)
+                        end
+                    end
+                    lastPoint = point
+                end
+            end
+        end
+
+        for _, otherVehicle in pairs(g_currentMission.vehicles) do
+            if otherVehicle ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs() ~= nil then
+                local lastPoint = nil
+                for index, point in ipairs(otherVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs().items) do
+                    if lastPoint ~= nil and MathUtil.vector2Length(x - point.x, z - point.z) < 80 then
+                        ADDrawingManager:addLineTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
+                        ADDrawingManager:addArrowTask(lastPoint.x, lastPoint.y, lastPoint.z, point.x, point.y, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
+
+                        if AutoDrive.getSettingState("lineHeight") == 1 then
+                            local gy = point.y - AutoDrive.drawHeight + 4
+                            local ty = lastPoint.y - AutoDrive.drawHeight + 4
+                            ADDrawingManager:addLineTask(point.x, gy, point.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1.0, 0.769, 0.051, 0.15)
+                            ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
+                        else
+                            local gy = point.y - AutoDrive.drawHeight - 4
+                            local ty = lastPoint.y - AutoDrive.drawHeight - 4
+                            ADDrawingManager:addLineTask(point.x, gy, point.z, point.x, point.y, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addSphereTask(point.x, gy, point.z, 3, 1.0, 0.769, 0.051, 0.15)
+                            ADDrawingManager:addLineTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, 1.0, 0.769, 0.051)
+                            ADDrawingManager:addArrowTask(lastPoint.x, ty, lastPoint.z, point.x, gy, point.z, ADDrawingManager.arrows.position.start, 1.0, 0.769, 0.051)
+                        end
                     end
                     lastPoint = point
                 end
             end
         end
     end
+end
+
+function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointDescIndex)
+    if attachable["spec_FS19_addon_strawHarvest.strawHarvestPelletizer"] ~= nil then
+        attachable.isPremos = true
+        attachable.getIsBufferCombine = function()
+            return false
+        end
+    end
+    if (attachable.spec_pipe ~= nil and attachable.getIsBufferCombine ~= nil) or attachable.isPremos then
+        attachable.isTrailedHarvester = true
+        attachable.trailingVehicle = self
+        ADHarvestManager:registerHarvester(attachable)
+        self.ad.isCombine = true
+        attachable.ad = self.ad
+    end
+
+    local supportedFillTypes = {}
+    for _, trailer in pairs(AutoDrive.getTrailersOf(self, false)) do
+        if trailer.getFillUnits ~= nil then
+            for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
+                if trailer.getFillUnitSupportedFillTypes ~= nil then
+                    for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                        if supported then
+                            table.insert(supportedFillTypes, fillType)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local storedSelectedFillType = self.ad.stateModule:getFillType()
+    if #supportedFillTypes > 0 and not table.contains(supportedFillTypes, storedSelectedFillType) then
+        self.ad.stateModule:setFillType(supportedFillTypes[1])
+        AutoDrive.Hud.lastUIScale = 0
+    end
+end
+
+function AutoDrive:onPreDetachImplement(implement)
+    local attachable = implement.object
+    if attachable.isTrailedHarvester and attachable.trailingVehicle == self then
+        attachable.ad = nil
+        self.ad.isCombine = false
+        ADHarvestManager:unregisterHarvester(attachable)
+        attachable.isTrailedHarvester = false
+        attachable.trailingVehicle = nil
+        if attachable.isPremos then
+            attachable.getIsBufferCombine = nil
+        end
+    end
+    if self.ad ~= nil then
+        self.ad.frontToolWidth = nil
+        self.ad.frontToolLength = nil
+    end
+end
+
+function AutoDrive:onEnterVehicle()
+    AutoDrive.Hud.lastUIScale = 0
 end
 
 function AutoDrive:onDelete()
@@ -369,7 +493,7 @@ function AutoDrive:onDrawEditorMode()
             DrawingManager:addSmallSphereTask(x1, dy, z1, 1, g, 0)
         end
     end
-    
+
     local outPointsSeen = {}
     for _, point in pairs(self:getWayPointsInRange(0, maxDistance)) do
         local x = point.x
@@ -520,7 +644,7 @@ function AutoDrive:stopAutoDrive()
                     if self.deactivateLights ~= nil then
                         self:deactivateLights()
                     end
-                    if self.stopMotor ~= nil and (self.getIsEntered == nil or not self:getIsEntered()) then
+                    if self.stopMotor ~= nil then
                         self:stopMotor()
                     end
                 end
@@ -541,12 +665,21 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:abortAllTasks()
             self.ad.taskModule:reset()
 
-            AutoDriveStartStopEvent:sendStopEvent(self, hasCallbacks or (not self.ad.isStoppingWithError and (g_courseplay ~= nil and self.ad.stateModule:getStartCp())))
+            local isStartingAIVE = (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and not self.ad.stateModule:getUseCP())
+            local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and self.ad.stateModule:getUseCP())
+            AutoDriveStartStopEvent:sendStopEvent(self, isPassingToCP, isStartingAIVE)
 
             if not hasCallbacks and not self.ad.isStoppingWithError then
-                if g_courseplay ~= nil and self.ad.stateModule:getStartCp() then
-                    self.ad.stateModule:setStartCp(false)
-                    g_courseplay.courseplay:startStop(self)
+                if self.ad.stateModule:getStartAI() then
+                    self.ad.stateModule:setStartAI(false)
+                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP() then
+                        g_courseplay.courseplay:start(self)
+                    else
+                        if self.acParameters ~= nil then
+                            self.acParameters.enabled = true
+                            self:startAIVehicle(nil, false, self.spec_aiVehicle.startedFarmId)
+                        end
+                    end
                 end
             end
         end
@@ -576,9 +709,9 @@ function AutoDrive:onStartAutoDrive()
     AutoDriveHud:createMapHotspot(self)
 end
 
-function AutoDrive:onStopAutoDrive(hasCallbacks)
+function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
     if not hasCallbacks then
-        if self.raiseAIEvent ~= nil then
+        if self.raiseAIEvent ~= nil and not isStartingAIVE then
             self:raiseAIEvent("onAIEnd", "onAIImplementEnd")
         end
 
@@ -663,7 +796,6 @@ function AutoDrive:getClosestNotReversedWayPoint()
     end
     return -1, math.huge
 end
-
 
 function AutoDrive:getWayPointsInRange(minDistance, maxDistance)
     if self.ad.distances.wayPoints == nil then

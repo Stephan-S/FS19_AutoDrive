@@ -161,6 +161,7 @@
 		
 		
 		<text name="gui_ad_settingsPage_title"					text="Configurações - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configurações do veículo - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configurações de descarga da ceifeira - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Configurações de depuração - AutoDrive" />
@@ -190,6 +191,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
@@ -286,5 +288,6 @@
 		<text name="AD_task_chase_side_right"					text="direita" />		
 		<text name="AD_task_waiting_for_room"					text="À espera de espaço" />
 		<text name="AD_task_exiting_field"						text="Saindo do campo" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

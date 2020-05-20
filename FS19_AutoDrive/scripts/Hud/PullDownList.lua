@@ -439,6 +439,24 @@ function ADPullDownList:sortGroups()
 end
 
 function ADPullDownList:createSelection_FillType()
+    local supportedFillTypes = nil
+    if g_currentMission.controlledVehicle ~= nil then
+        for _, trailer in pairs(AutoDrive.getTrailersOf(g_currentMission.controlledVehicle, false)) do
+            supportedFillTypes = {}
+            if trailer.getFillUnits ~= nil then
+                for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
+                    if trailer.getFillUnitSupportedFillTypes ~= nil then
+                        for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                            if supported then
+                                table.insert(supportedFillTypes, fillType)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     self.options = {}
     self.options[1] = {}
     local fillTypeIndex = 1
@@ -446,7 +464,7 @@ function ADPullDownList:createSelection_FillType()
     local lastIndexReached = false
     while not lastIndexReached do
         if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
-            if not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex) then
+            if (not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex)) and (supportedFillTypes == nil or table.contains(supportedFillTypes, fillTypeIndex)) then
                 self.options[1][itemListIndex] = {displayName = g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue = fillTypeIndex}
                 itemListIndex = itemListIndex + 1
             end

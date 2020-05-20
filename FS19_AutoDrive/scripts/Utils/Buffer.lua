@@ -28,6 +28,12 @@ function Buffer:Get()
     end
 end
 
+function Buffer:Peek()
+    if self:Count() > 0 then
+        return self.items[table.maxn(self.items)]
+    end
+end
+
 function Buffer:Clear()
     self.items = {}
     self.itemsCount = 0

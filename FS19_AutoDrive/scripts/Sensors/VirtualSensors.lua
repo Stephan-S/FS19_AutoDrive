@@ -19,6 +19,8 @@ ADSensor.POS_CENTER = 10
 
 ADSensor.WIDTH_FACTOR = 0.7
 
+ADSensor.EXECUTION_DELAY = 10
+
 --
 --          <x>
 --       ^  o-o
@@ -51,9 +53,19 @@ function ADSensor:addSensorsToVehicle(vehicle)
     sensorParameters.width = vehicle.sizeWidth * 0.65
     sensorParameters.length = 0.1
     local frontSensor = ADCollSensor:new(vehicle, sensorParameters)
-    --frontSensor.drawDebug = true --test
-    --frontSensor.enabled = true --test
     vehicle.ad.sensors["frontSensor"] = frontSensor
+
+    sensorParameters.dynamicLength = false
+    sensorParameters.width = vehicle.sizeWidth * 1.3
+    sensorParameters.length = vehicle.sizeLength * 2
+    local frontSensorLong = ADCollSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["frontSensorLong"] = frontSensorLong
+
+    sensorParameters.dynamicLength = false
+    sensorParameters.width = vehicle.sizeWidth * 1.3
+    sensorParameters.length = vehicle.sizeLength * 2
+    local frontSensorLongFruit = ADFruitSensor:new(vehicle, sensorParameters)
+    vehicle.ad.sensors["frontSensorLongFruit"] = frontSensorLongFruit
 
     sensorParameters.dynamicLength = false
     sensorParameters.length = vehicle.sizeLength
@@ -68,6 +80,8 @@ function ADSensor:addSensorsToVehicle(vehicle)
     vehicle.ad.sensors["frontSensorField"] = frontSensorField
 
     sensorParameters = {}
+    sensorParameters.dynamicLength = true
+    sensorParameters.width = vehicle.sizeWidth * 0.75
     sensorParameters.position = ADSensor.POS_REAR
     local rearSensor = ADCollSensor:new(vehicle, sensorParameters)
     local rearSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
@@ -84,8 +98,6 @@ function ADSensor:addSensorsToVehicle(vehicle)
     local leftSensorFruit = ADFruitSensor:new(vehicle, sensorParameters)
     sensorParameters.width = 6.5
     local leftSensorField = ADFieldSensor:new(vehicle, sensorParameters)
-    --leftSensorField.drawDebug = true --test
-    --leftSensorField.enabled = true --test
     vehicle.ad.sensors["leftSensor"] = leftSensor
     vehicle.ad.sensors["leftSensorFruit"] = leftSensorFruit
     vehicle.ad.sensors["leftSensorField"] = leftSensorField
@@ -143,6 +155,7 @@ function ADSensor:init(vehicle, sensorType, sensorParameters)
     self.triggered = false
     self.initialized = false
     self.drawDebug = false
+    self.executionDelay = 0
 
     self:loadBaseParameters()
     self:loadDynamicParameters(sensorParameters)
@@ -213,7 +226,7 @@ function ADSensor:getLocationByPosition()
             location = {x = 0, z = vehicle.sizeLength / 2}
         end
     elseif self.position == ADSensor.POS_REAR then
-        location.z = -vehicle.sizeLength / 2 - 1
+        location.z = - vehicle.sizeLength / 2
         self.frontFactor = -1
     elseif self.position == ADSensor.POS_RIGHT then
         location.x = -vehicle.sizeWidth / 2 - 1 - self.width / 2
@@ -243,6 +256,9 @@ function ADSensor:getBoxShape()
     local lookAheadDistance = self.length
     if self.dynamicLength then
         lookAheadDistance = math.clamp(0.13, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
+        if self.position == ADSensor.POS_REAR then
+            lookAheadDistance = math.clamp(0.02, vehicle.lastSpeedReal * 3600 / 40, 1) * 11.5
+        end
     end
 
     local vecZ = {x = 0, z = 1}
@@ -382,13 +398,24 @@ function ADSensor:onDrawDebug(box)
     end
 end
 
-function ADSensor:pollInfo()
-    local wasEnabled = self.enabled
-    self:setEnabled(true)
-    if not wasEnabled then
-        self:setEnabled(false)
+function ADSensor:pollInfo(forced, widthFactor)
+    self.executionDelay = self.executionDelay -1
+    if self.executionDelay <= 0 or forced or AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) then
+        local storedWidth = self.width
+        if widthFactor ~= nil then
+            self.width = self.width * widthFactor
+        end
+        local wasEnabled = self.enabled
+        self:setEnabled(true)
+        if not wasEnabled then
+            self:setEnabled(false)
+        end
+        self.lastTriggered = self:isTriggered()
+        self.executionDelay = ADSensor.EXECUTION_DELAY
+        self.width = storedWidth
     end
-    return self:isTriggered()
+
+    return self.lastTriggered
 end
 
 function ADSensor:setEnabled(enabled)

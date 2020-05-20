@@ -52,7 +52,7 @@ function LoadAtDestinationTask:update(dt)
             --Check if we have actually loaded / tried to load
             local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
             AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
-            if (self.vehicle.ad.callBackFunction ~= nil or (g_courseplay ~= nil and self.vehicle.ad.stateModule:getStartCp())) and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
+            if (self.vehicle.ad.callBackFunction ~= nil or (g_courseplay ~= nil and self.vehicle.ad.stateModule:getStartAI())) and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
                 self.vehicle:stopAutoDrive()
             else
                 if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
