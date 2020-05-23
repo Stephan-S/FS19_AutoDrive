@@ -37,10 +37,12 @@ end
 
 function ADGraphManager:resetWayPoints()
 	self.wayPoints = {}
+	self:markChanges()
 end
 
 function ADGraphManager:setWayPoints(wayPoints)
 	self.wayPoints = wayPoints
+	self:markChanges()
 end
 
 function ADGraphManager:getWayPointsCount()
@@ -49,6 +51,7 @@ end
 
 function ADGraphManager:setWayPoint(newPoint)
 	self.wayPoints[newPoint.id] = newPoint
+	self:markChanges()
 end
 
 function ADGraphManager:getMapMarkers()
