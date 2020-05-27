@@ -28,7 +28,7 @@ https://www.tipeeestream.com/iwan1803/tip
 https://www.paypal.me/tykonket
 
 and also
-#### Oliver (Modder), Axel (Co-Modder), Aletheist (Co-Modder), Willi (Tester)
+#### Oliver (Modder), Axel (Co-Modder), Aletheist (Co-Modder), Willi (Supporter & Tester)
 
 # Downloads
 
