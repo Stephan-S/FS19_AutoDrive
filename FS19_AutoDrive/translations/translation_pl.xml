@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Zaparkuj pojazd" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="hud_avoidFruit"								text="AD: Unikaj upraw" />
-		<text name="hud_startCp"								text="AD: Start CP at destination" />
+		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nie przydzielono parkingu. Przypisz wybrany cel trasy za pomocą prawego kliku." />
 		<text name="AD_parkVehicle_selected"					text="Obecnie wybrany parking: " />
 		<text name="AD_Driver_of"								text="Kierowca" />
