@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
 		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
 		<text name="hud_avoidFruit"								text="AD: Éviter les cultures" />
-		<text name="hud_startCp"								text="AD: Start CP à la destination" />
+		<text name="hud_startCp"								text="AD: Start CP / AIVE à la destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />
