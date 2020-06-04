@@ -139,22 +139,43 @@ function CombineUnloaderMode:stop()
 end
 
 function CombineUnloaderMode:continue()
+	local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+	local point = nil
+	local distanceToStart = 0
+	if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+		point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
+		if point ~= nil then
+			distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+		end
+	end
+
     if self.state == self.STATE_DRIVE_TO_UNLOAD then
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:continue self.STATE_DRIVE_TO_UNLOAD")
         self.activeTask:continue()
     else
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:continue self.state" .. tostring(self.state))
         self.vehicle.ad.taskModule:abortCurrentTask()
 
-        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
-            if AutoDrive.getSetting("syncMultiTargets") then
-                local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
-                if nextTarget ~= nil then
-                    self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
-                end
-            end
+
+        if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
+            -- is activated on a field - use ExitFieldTask to leave field according to setting
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:continue ExitFieldTask...")
+            self.activeTask = ExitFieldTask:new(self.vehicle)
+            self.state = self.STATE_EXIT_FIELD
+        else
+			if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+				if AutoDrive.getSetting("syncMultiTargets") then
+					local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
+					if nextTarget ~= nil then
+						self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
+					end
+				end
+			end
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:continue UnloadAtDestinationTask...")
+            self.activeTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+            self.state = self.STATE_DRIVE_TO_UNLOAD
         end
 
-        self.activeTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-        self.state = self.STATE_DRIVE_TO_UNLOAD
         ADHarvestManager:unregisterAsUnloader(self.vehicle)
         self.followingUnloader = nil
         self.combine = nil
@@ -167,8 +188,14 @@ function CombineUnloaderMode:getNextTask()
     local nextTask
 
 	local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-	local point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
-	local distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+	local point = nil
+	local distanceToStart = 0
+	if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+		point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
+		if point ~= nil then
+			distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+		end
+	end
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
@@ -177,7 +204,7 @@ function CombineUnloaderMode:getNextTask()
 
     if self.state == self.STATE_INIT then
 		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "[AD] CombineUnloaderMode:getNextTask STATE_INIT filledToUnload %s", tostring(filledToUnload))
-        if filledToUnload then
+        if filledToUnload then	-- fill level above setting unload level
             if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
                 if AutoDrive.getSetting("syncMultiTargets") then
                     local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
@@ -321,8 +348,14 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload start filledToUnload %s", tostring(filledToUnload))
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-    local point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
-    local distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+	local point = nil
+	local distanceToStart = 0
+	if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+		point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
+		if point ~= nil then
+			distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+		end
+	end
 
     if filledToUnload then
         --ADHarvestManager:unregisterAsUnloader(self.vehicle)
@@ -330,11 +363,11 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         --self.combine = nil
         if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
             -- is activated on a field - use ExitFieldTask to leave field according to setting
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask ExitFieldTask...")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload ExitFieldTask...")
             nextTask = ExitFieldTask:new(self.vehicle)
             self.state = self.STATE_EXIT_FIELD
         else
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask UnloadAtDestinationTask...")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload UnloadAtDestinationTask...")
             nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
             self.state = self.STATE_DRIVE_TO_UNLOAD
         end
@@ -343,6 +376,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         if self.combineIsBufferCombine or (AutoDrive.getSetting("parkInField", self.vehicle) or (self.lastTask ~= nil and self.lastTask.stayOnField)) then
             -- If we are in fruit, we should clear it
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
+				AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload ClearCropTask...")
                 nextTask = ClearCropTask:new(self.vehicle, self.combine)
                 self.state = self.STATE_LEAVE_CROP
             else
@@ -354,7 +388,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
             self.state = self.STATE_DRIVE_TO_START
         end
     end
-	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload end filledToUnload %s", tostring(filledToUnload))
+	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload end")
     return nextTask
 end
 
