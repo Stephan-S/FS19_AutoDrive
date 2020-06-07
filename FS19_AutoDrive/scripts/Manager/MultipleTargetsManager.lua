@@ -24,36 +24,35 @@ function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
             if self.groups[groupName] ~= nil then
                 if self.groups[groupName].lastTarget == nil then
                     self.groups[groupName].lastTarget = driver.ad.stateModule:getSecondMarker().markerIndex
-                else
-                    local nextMarkerInGroup = nil
-                    local markerSeen = false
-                    local firstMarkerInGroup = nil
-                    for _, marker in ipairs(ADGraphManager:getMapMarkersInGroup(groupName)) do
-                        if marker.group == groupName then
-                            if firstMarkerInGroup == nil then
-                                firstMarkerInGroup = marker.markerIndex
-                            end
-
-                            if markerSeen and nextMarkerInGroup == nil then
-                                nextMarkerInGroup = marker.markerIndex
-                            end
-
-                            if marker.markerIndex == self.groups[groupName].lastTarget then
-                                markerSeen = true
-                            end
-                        end
-                    end
-
-                    if nextMarkerInGroup ~= nil then
-                        target = nextMarkerInGroup
-                    elseif firstMarkerInGroup ~= nil then
-                        target = firstMarkerInGroup
-                    end
-                    self.groups[groupName].lastTarget = target
-                    self.groups[groupName].lastVehicle = driver
-
-                    AutoDrive.Hud.lastUIScale = 0
                 end
+				local nextMarkerInGroup = nil
+				local markerSeen = false
+				local firstMarkerInGroup = nil
+				for _, marker in ipairs(ADGraphManager:getMapMarkersInGroup(groupName)) do
+					if marker.group == groupName then
+						if firstMarkerInGroup == nil then
+							firstMarkerInGroup = marker.markerIndex
+						end
+
+						if markerSeen and nextMarkerInGroup == nil then
+							nextMarkerInGroup = marker.markerIndex
+						end
+
+						if marker.markerIndex == self.groups[groupName].lastTarget then
+							markerSeen = true
+						end
+					end
+				end
+
+				if nextMarkerInGroup ~= nil then
+					target = nextMarkerInGroup
+				elseif firstMarkerInGroup ~= nil then
+					target = firstMarkerInGroup
+				end
+				self.groups[groupName].lastTarget = target
+				self.groups[groupName].lastVehicle = driver
+
+				AutoDrive.Hud.lastUIScale = 0
             end
         end
     end
