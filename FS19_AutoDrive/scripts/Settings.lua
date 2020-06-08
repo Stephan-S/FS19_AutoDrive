@@ -624,6 +624,17 @@ AutoDrive.settings.preCallLevel = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.pickupFromFolder = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_pickupFromFolder",
+    tooltip = "gui_ad_pickupFromFolder_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
 AutoDrive.settings.distributeToFolder = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},
@@ -794,18 +805,6 @@ AutoDrive.settings.wideHUD = {
     translate = true,
     isVehicleSpecific = false,
     isUserSpecific = true
-}
-
-AutoDrive.settings.syncMultiTargets = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_syncMultiTargets",
-    tooltip = "gui_ad_syncMultiTargets_tooltip",
-    translate = true,
-    isVehicleSpecific = false,
-    isUserSpecific = false
 }
 
 function AutoDrive.getSetting(settingName, vehicle)
