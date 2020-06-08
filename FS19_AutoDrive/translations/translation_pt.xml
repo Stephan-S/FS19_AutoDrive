@@ -114,6 +114,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Se a largura da pá detectada automaticamente for muito pequena, ela poderá ser aumentada com esse valor" />
 		<text name="gui_ad_preCallLevel"						text="Nível de pré-chamada" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Pre chama um descarregador ao nivel de enchimento definido." />
+		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
 		<text name="gui_ad_distributeToFolder"					text="Múltiplos alvos" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Todos os destinos na mesma pasta serão girados como destinos de descarregamento." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximum trigger distance" />

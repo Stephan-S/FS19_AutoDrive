@@ -123,6 +123,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />
 		<text name="gui_ad_preCallLevel"						text="Früher rufen ab" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />
+		<text name="gui_ad_pickupFromFolder"					text="Mehrere Einladen" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="Alle Ziele im selben Ordner werden als Einladeziel durchrotiert." />
 		<text name="gui_ad_distributeToFolder"					text="Mehrere Ziele" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Alle Ziele im selben Ordner werden als Abladeziel durchrotiert." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximaler Siloabstand" />

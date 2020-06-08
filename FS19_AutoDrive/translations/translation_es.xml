@@ -123,6 +123,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si el ancho de la pala detectado automáticamente es demasiado pequeño, se puede aumentar con este valor" />
 		<text name="gui_ad_preCallLevel"						text="Nivel de llenado para llamar a conductor" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Nivel de llenado para llamar a conductor." />
+		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
 		<text name="gui_ad_distributeToFolder"					text="Destinos multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Se seleccionarán todos los destinos de la misma carpeta" />
 		<text name="gui_ad_maxTriggerDistance"					text="Distancia máxima al trigger" />

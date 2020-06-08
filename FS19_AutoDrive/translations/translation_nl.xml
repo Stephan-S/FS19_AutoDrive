@@ -123,6 +123,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Als de automatisch gedetecteerde shovel te klein is, kan dat met deze waarde worden verhoogd" />
 		<text name="gui_ad_preCallLevel"						text="Vulniveau eerder oproepen" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Bestuurder eerder oproepen op het ingestelde vulniveau." />
+		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
 		<text name="gui_ad_distributeToFolder"					text="Meerdere bestemmingen" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Alle bestemmingen in dezelfde folder worden geroteerd als los bestemming." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximale trigger afstand" />

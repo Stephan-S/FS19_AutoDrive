@@ -123,6 +123,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée." />
 		<text name="gui_ad_preCallLevel"						text="Appel anticipé pour décharger" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur au niveau de déchargement défini." />
+		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
 		<text name="gui_ad_distributeToFolder"					text="Objectifs multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Toutes les cibles d'un même dossier deviendront des cibles de déchargement les unes après les autres." />
 		<text name="gui_ad_maxTriggerDistance"					text="Zone maxi du silo" />

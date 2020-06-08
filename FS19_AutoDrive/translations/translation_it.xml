@@ -123,6 +123,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Se la larghezza della pala rilevata automaticamente è troppo piccola, può essere aumentata con questo valore" />
 		<text name="gui_ad_preCallLevel"						text="Anticipa chiamata per scarico" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Anticipa chiamata per scarico al livello impostato" />
+		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
 		<text name="gui_ad_distributeToFolder"					text="Obiettivi multipli" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Tutte le destinazioni nella stessa cartella verranno ruotate come destinazioni di scarico." />
 		<text name="gui_ad_maxTriggerDistance"					text="Distanza massima dal trigger" />

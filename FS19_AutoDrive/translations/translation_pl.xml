@@ -123,6 +123,8 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Jeżeli automatycznie wykryta szerokość łychy jest zbyt mała, można ją zwiększyć o tą wartość" />
 		<text name="gui_ad_preCallLevel"						text="Poziom wcześniejszego przywołania kierowcy" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Poziom napełnienia, przy którym przywoływany jest kierowca." />
+		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
+		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
 		<text name="gui_ad_distributeToFolder"					text="Wiele celów" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Wszystkie cele w jednym folderze będą używane jedne pod drugim jak miejsca wyładunku." />
 		<text name="gui_ad_maxTriggerDistance"					text="Maksymalna odległość do triggerów" />
