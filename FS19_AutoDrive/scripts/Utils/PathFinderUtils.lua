@@ -39,3 +39,30 @@ function AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
 
     return boundingBox
 end
+
+AutoDrive.implementsAllowedForReverseDriving = {
+"trailer", 
+"trailerlow",
+"semitrailer",
+"implement"
+}
+
+
+function AutoDrive.isImplementAllowedForReverseDriving(implement)
+-- return true for implements allowed move reverse
+    local ret = false
+
+    if implement ~= nil and implement.object ~= nil and implement.object.spec_attachable ~= nil and implement.object.spec_attachable.attacherJoint ~= nil and implement.object.spec_attachable.attacherJoint.jointType ~= nil then
+        -- g_logManager:info("[AD] isImplementAllowedForReverseDriving implement.object.spec_attachable.attacherJoint.jointType %s ", tostring(implement.object.spec_attachable.attacherJoint.jointType))
+        for i, name in ipairs(AutoDrive.implementsAllowedForReverseDriving) do
+            local key = "JOINTTYPE_"..string.upper(name)
+            
+            if AttacherJoints[key] ~= nil and AttacherJoints[key] == implement.object.spec_attachable.attacherJoint.jointType then
+                -- g_logManager:info("[AD] isImplementAllowedForReverseDriving implement allowed %s ", tostring(key))
+                return true
+            end
+        end
+    end
+    return ret
+end
+
