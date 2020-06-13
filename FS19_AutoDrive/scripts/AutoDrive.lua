@@ -46,6 +46,12 @@ AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
 
+-- rotate target modes
+AutoDrive.RT_NONE = 1
+AutoDrive.RT_ONLYPICKUP = 2
+AutoDrive.RT_ONLYDELIVER = 3
+AutoDrive.RT_PICKUPANDDELIVER = 4
+
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
 	{"ADToggleHud", true, 1},
@@ -91,6 +97,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ",", "_")
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ":", "_")
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ";", "_")
+	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, "'", "_")
 
 	g_logManager:devInfo("[AutoDrive] Parsed map title: %s", AutoDrive.loadedMap)
 
