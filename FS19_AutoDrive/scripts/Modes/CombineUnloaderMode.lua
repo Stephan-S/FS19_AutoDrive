@@ -159,17 +159,17 @@ function CombineUnloaderMode:continue()
 
         if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
             -- is activated on a field - use ExitFieldTask to leave field according to setting
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:continue ExitFieldTask...")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:continue ExitFieldTask...")
             self.activeTask = ExitFieldTask:new(self.vehicle)
             self.state = self.STATE_EXIT_FIELD
         else
-            if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            if (AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders") then
                 local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
                 if nextTarget ~= nil then
                     self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
                 end
             end
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:continue UnloadAtDestinationTask...")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:continue UnloadAtDestinationTask...")
             self.activeTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
             self.state = self.STATE_DRIVE_TO_UNLOAD
         end
@@ -203,7 +203,7 @@ function CombineUnloaderMode:getNextTask()
     if self.state == self.STATE_INIT then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "[AD] CombineUnloaderMode:getNextTask STATE_INIT filledToUnload %s", tostring(filledToUnload))
         if filledToUnload then    -- fill level above setting unload level
-            if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+            if (AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders") then
                 local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
                 if nextTarget ~= nil then
                     self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
@@ -242,7 +242,7 @@ function CombineUnloaderMode:getNextTask()
     elseif self.state == self.STATE_DRIVE_TO_UNLOAD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "[AD] CombineUnloaderMode:getNextTask - STATE_DRIVE_TO_UNLOAD")
         nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
-        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+        if (AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders") then
             local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, true)
             if nextTarget ~= nil then
                 self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
@@ -263,7 +263,7 @@ function CombineUnloaderMode:getNextTask()
         nextTask = self:getTaskAfterUnload(filledToUnload)
     elseif self.state == self.STATE_EXIT_FIELD then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "[AD] CombineUnloaderMode:getNextTask - STATE_EXIT_FIELD")
-        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+        if (AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders") then
             local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
             if nextTarget ~= nil then
                 self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
