@@ -59,12 +59,13 @@ end
 
 function PickupAndDeliverMode:continue()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:continue")
-    if self.activeTask ~= nil and self.state == PickupAndDeliverMode.STATE_DELIVER or self.state == PickupAndDeliverMode.STATE_PICKUP or self.state == PickupAndDeliverMode.STATE_EXIT_FIELD then
+    if self.activeTask ~= nil and (self.state == PickupAndDeliverMode.STATE_DELIVER or self.state == PickupAndDeliverMode.STATE_DELIVER_TO_NEXT_TARGET or self.state == PickupAndDeliverMode.STATE_PICKUP or self.state == PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET or self.state == PickupAndDeliverMode.STATE_EXIT_FIELD) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:continue activeTask:continue")
         -- self.activeTask:continue()
         if self.activeTask ~= nil then
             self.vehicle.ad.taskModule:abortCurrentTask()
         end
+        self.vehicle.ad.trailerModule:reset()
         self.activeTask = self:getNextTask(true)
         if self.activeTask ~= nil then
             self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -92,11 +93,11 @@ function PickupAndDeliverMode:getNextTask(forced)
     local filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
 
     local setPickupTarget = function()
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setPickupTarget start %s", tostring(self.vehicle))
-        if AutoDrive.getSetting("pickupFromFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setPickupTarget")
+        if ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             -- multiple targets to handle
             -- get the next target to pickup from
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setPickupTarget -> getNextTarget")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setPickupTarget")
             local nextTarget = ADMultipleTargetsManager:getNextPickup(self.vehicle, forced)
             if nextTarget ~= nil then
                 self.vehicle.ad.stateModule:setFirstMarker(nextTarget)
@@ -107,10 +108,11 @@ function PickupAndDeliverMode:getNextTask(forced)
     end
 
     local setDeliverTarget = function()
-        if AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders") then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setDeliverTarget")
+        if ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             -- multiple targets to handle
             -- get the next target to deliver to
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setDeliverTarget -> getNextTarget")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:setDeliverTarget")
             local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, forced)
             if nextTarget ~= nil then
                 self.vehicle.ad.stateModule:setSecondMarker(nextTarget)
@@ -129,12 +131,10 @@ function PickupAndDeliverMode:getNextTask(forced)
         elseif filledToUnload then
             -- fill level above setting unload level
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_PICKUP")
-            setDeliverTarget()
             self.state = PickupAndDeliverMode.STATE_PICKUP
         else
             -- fill capacity left - go to pickup
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_DELIVER")
-            setPickupTarget()
             self.state = PickupAndDeliverMode.STATE_DELIVER
         end
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_INIT end self.state %s", tostring(self.state))
@@ -143,7 +143,6 @@ function PickupAndDeliverMode:getNextTask(forced)
     if self.state == PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET then
         -- STATE_PICKUP_FROM_NEXT_TARGET - load at multiple targets
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_PICKUP_FROM_NEXT_TARGET")
-        setPickupTarget()
         -- by default - go to unload
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_PICKUP")
         self.state = PickupAndDeliverMode.STATE_PICKUP
@@ -153,15 +152,13 @@ function PickupAndDeliverMode:getNextTask(forced)
     if self.state == PickupAndDeliverMode.STATE_DELIVER_TO_NEXT_TARGET then
         -- STATE_DELIVER_TO_NEXT_TARGET - unload at multiple targets
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_DELIVER_TO_NEXT_TARGET")
-        setDeliverTarget()
-        if fillLevel > 1 and (AutoDrive.getSetting("distributeToFolder", self.vehicle) and AutoDrive.getSetting("useFolders")) then
+        if fillLevel > 1 and ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             -- if fill material left and multiple unload active - go to unload
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_PICKUP")
             self.state = PickupAndDeliverMode.STATE_PICKUP
         else
             -- no fill material - go to load
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_DELIVER")
-            setPickupTarget()
             self.state = PickupAndDeliverMode.STATE_DELIVER
         end
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_DELIVER_TO_NEXT_TARGET end")
@@ -170,8 +167,9 @@ function PickupAndDeliverMode:getNextTask(forced)
     if self.state == PickupAndDeliverMode.STATE_DELIVER then
         -- STATE_DELIVER - drive to load destination
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_DELIVER self.loopsDone %s", tostring(self.loopsDone))
-        if self.vehicle.ad.stateModule:getLoopCounter() == 0 or self.loopsDone < self.vehicle.ad.stateModule:getLoopCounter() or (AutoDrive.getSetting("pickupFromFolder", self.vehicle) and AutoDrive.getSetting("useFolders")) then
+        if self.vehicle.ad.stateModule:getLoopCounter() == 0 or self.loopsDone < self.vehicle.ad.stateModule:getLoopCounter() or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             -- until loops not finished or 0 - drive to load destination
+            setPickupTarget()   -- if rotateTargets is set, set the next pickup target
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask LoadAtDestinationTask... getFirstMarkerName() %s", tostring(self.vehicle.ad.stateModule:getFirstMarkerName()))
             nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_PICKUP_FROM_NEXT_TARGET")
@@ -187,6 +185,7 @@ function PickupAndDeliverMode:getNextTask(forced)
         end
     elseif self.state == PickupAndDeliverMode.STATE_PICKUP then
         -- STATE_PICKUP - drive to unload destination
+        setDeliverTarget()      -- if rotateTargets is set, set the next deliver target
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_PICKUP UnloadAtDestinationTask... getSecondMarkerName() %s", tostring(self.vehicle.ad.stateModule:getSecondMarkerName()))
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
         -- self.loopsDone = self.loopsDone + 1
@@ -196,11 +195,9 @@ function PickupAndDeliverMode:getNextTask(forced)
         -- is activated on a field - use ExitFieldTask to leave field according to setting
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_EXIT_FIELD ExitFieldTask...")
         nextTask = ExitFieldTask:new(self.vehicle)
-
         if filledToUnload then
             -- fill level above setting unload level - drive to unload destination
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_PICKUP")
-            setDeliverTarget()
             self.state = PickupAndDeliverMode.STATE_PICKUP
         else
             -- fill capacity left - go to pickup
