@@ -123,10 +123,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />
 		<text name="gui_ad_preCallLevel"						text="Früher rufen ab" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />
-		<text name="gui_ad_pickupFromFolder"					text="Mehrere Einladen" />
-		<text name="gui_ad_pickupFromFolder_tooltip"			text="Alle Ziele im selben Ordner werden als Einladeziel durchrotiert." />
-		<text name="gui_ad_distributeToFolder"					text="Mehrere Ziele" />
-		<text name="gui_ad_distributeToFolder_tooltip"			text="Alle Ziele im selben Ordner werden als Abladeziel durchrotiert." />
+		<text name="gui_ad_none"					            text="keine" />
+		<text name="gui_ad_onlyPickup"					        text="nur Beladen" />
+		<text name="gui_ad_onlyDeliver"					        text="nur Entladen" />
+		<text name="gui_ad_PickupandDeliver"					text="Be- und Entladen" />
+		<text name="gui_ad_rotateTargets"					    text="Rotierend Be- und Entladen" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modi: kein Wechsel der Ziele / nur Beladeziele / nur Entladeziele / Be- und Entladeziele im Ordner rotierend wechseln (nicht für Standard-Ordner) (und nur wenn Ordner verwenden aktiv)" />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximaler Siloabstand" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Bis zu dieser Entfernung zum Zielpunkt wird beladen/entladen bei erkanntem Trigger." />
 		<text name="gui_ad_useBeaconLights"						text="Rundumleuchten" />

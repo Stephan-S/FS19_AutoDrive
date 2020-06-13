@@ -123,10 +123,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="If automatically detected shovel width is too small, it can be increased with this value" />
 		<text name="gui_ad_preCallLevel"						text="Pre call level" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Pre call unloader at the set fill level." />
-		<text name="gui_ad_pickupFromFolder"					text="Multiple pickup" />
-		<text name="gui_ad_pickupFromFolder_tooltip"			text="All targets in same folder will be rotated as pickup targets." />
-		<text name="gui_ad_distributeToFolder"					text="Multiple targets" />
-		<text name="gui_ad_distributeToFolder_tooltip"			text="All targets in same folder will be rotated as unload targets." />
+		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
+		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
+		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximum trigger distance" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Distance to target at which triggers are detected and activated." />
 		<text name="gui_ad_useBeaconLights"						text="Beacon lights" />
