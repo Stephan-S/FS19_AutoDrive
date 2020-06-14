@@ -275,6 +275,9 @@ function ADSensor:getBoxShape()
     if self.position == ADSensor.POS_FRONT_LEFT or self.position == ADSensor.POS_FRONT_RIGHT then
         boxYPos = 2.25
     end
+    if self.position == ADSensor.POS_FRONT and self.dynamicLength == true then
+        boxYPos = AutoDrive.getSetting("collisionHeigth", self.vehicle) or 2
+    end
 
     local box = {}
     box.offset = {}
