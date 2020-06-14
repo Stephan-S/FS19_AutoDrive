@@ -1,5 +1,51 @@
 AutoDrive.settings = {}
 
+AutoDrive.settings.collisionHeigth = {
+    values = {
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0
+    },
+    texts = {
+        "0.25 m",
+        "0.5 m",
+        "0.75 m",
+        "1.0 m",
+        "1.25 m",
+        "1.5 m",
+        "1.75 m",
+        "2.0 m",
+        "2.25 m",
+        "2.5 m",
+        "2.75 m",
+        "3.0 m",
+        "3.25 m",
+        "3.5 m",
+        "3.75 m",
+        "4.0 m"
+    },
+    default = 8,
+    current = 8,
+    text = "gui_ad_collisionHeigth",
+    tooltip = "gui_ad_collisionHeigth_tooltip",
+    translate = false,
+    isVehicleSpecific = false
+}
+
+
 AutoDrive.settings.pipeOffset = {
     values = {
         -5.0,
