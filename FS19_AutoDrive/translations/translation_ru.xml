@@ -58,6 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="L-CTRL создать" />
 		<text name="AD_lalt_for_deletion" 						text="L-ALT удалить" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_followDistance"						text="Расстояние до комбайна" />
 		<text name="gui_ad_followDistance_tooltip"				text="Расстояние до комбайна при следовании за ним сзади." />

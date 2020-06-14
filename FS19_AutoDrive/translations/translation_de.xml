@@ -58,6 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="LSTRG zum Erstellen" />
 		<text name="AD_lalt_for_deletion" 						text="LALT zum Löschen" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Einstellungen" />
+		<text name="gui_ad_collisionHeigth"						text="Kollisionshöhe über Grund" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Einstellung der Kollisionserkennung vor dem Fahrzeug. Wenn andere Fahrzeuge während des Fahrens nicht erkannt werden, verringern. (Standard 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Abstand Rohr" />
 		<text name="gui_ad_followDistance"						text="Abstand Häcksler" />
 		<text name="gui_ad_followDistance_tooltip"				text="Abstand vom Häcksler, wenn von hinten abgefahren/gefolgt wird" />

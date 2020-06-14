@@ -57,6 +57,8 @@
 		<text name="AD_lctrl_for_creation" 						text="LCTRL para criar" />
 		<text name="AD_lalt_for_deletion" 						text="LALT para apagar" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Definições" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Offset do tubo" />
 		<text name="gui_ad_followDistance"						text="Distância da ceifeira" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distância a manter da ceifeira quando seguindo atrás dela" />
