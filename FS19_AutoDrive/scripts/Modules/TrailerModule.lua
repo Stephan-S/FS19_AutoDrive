@@ -176,7 +176,7 @@ function ADTrailerModule:updateLoad(dt)
     end
 
     if (self.trigger == nil or (self.trigger ~= nil and self.trigger.stoppedTimer:done())) then
-        if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") or (AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) then
+        if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             self.isLoading = false
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad isLoading %s", tostring(self.isLoading))
         end
