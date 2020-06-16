@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
 		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />
-		<text name="hud_startCp"								text="AD: Start CP at destination" />
+		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -58,6 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
 		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="Impostazioni Autodrive" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Distanza dal tubo" />
 		<text name="gui_ad_followDistance"						text="Distance combine" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
@@ -123,6 +125,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Se la larghezza della pala rilevata automaticamente è troppo piccola, può essere aumentata con questo valore" />
 		<text name="gui_ad_preCallLevel"						text="Anticipa chiamata per scarico" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Anticipa chiamata per scarico al livello impostato" />
+		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
+		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
+		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
 		<text name="gui_ad_distributeToFolder"					text="Obiettivi multipli" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Tutte le destinazioni nella stessa cartella verranno ruotate come destinazioni di scarico." />
 		<text name="gui_ad_maxTriggerDistance"					text="Distanza massima dal trigger" />

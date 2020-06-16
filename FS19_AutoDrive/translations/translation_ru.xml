@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Припарковать технику" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
-		<text name="hud_startCp"								text="AD: Запустить CP в пункте назначения" />
+		<text name="hud_startCp"								text="AD: Запустить CP / AIVE в пункте назначения" />
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Нажмите правой кнопкой мыши на этой же кнопке, чтобы назначить выбранную локацию, как место парковки." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"								text="Водитель на" />
@@ -58,6 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="L-CTRL создать" />
 		<text name="AD_lalt_for_deletion" 						text="L-ALT удалить" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_followDistance"						text="Расстояние до комбайна" />
 		<text name="gui_ad_followDistance_tooltip"				text="Расстояние до комбайна при следовании за ним сзади." />
@@ -123,6 +125,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Если автоматически определенная ширина ковша слишком мала, ее можно увеличить с помощью этого значения." />
 		<text name="gui_ad_preCallLevel"						text="Уровень предварительного вызова" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Предварительный вызов разгружающего при заданном уровне заполнения." />
+		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
+		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
+		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
 		<text name="gui_ad_distributeToFolder"					text="Несколько локаций" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации из одной папки станут числиться, как места выгрузки." />
 		<text name="gui_ad_maxTriggerDistance"					text="Макс. расстояние триггера" />

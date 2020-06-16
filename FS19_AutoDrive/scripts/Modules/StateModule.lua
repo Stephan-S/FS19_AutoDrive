@@ -426,6 +426,7 @@ function ADStateModule:cycleEditMode()
         self.editorMode = ADStateModule.EDITOR_EXTENDED
     elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or ((not AutoDrive.getSetting("secondEditorModeAllowed")) and self.editorMode == ADStateModule.EDITOR_ON) then
         self.editorMode = ADStateModule.EDITOR_OFF
+	self:disableCreationMode()
         self.vehicle.ad.selectedNodeId = nil
     end
     self:raiseDirtyFlag()
@@ -436,6 +437,7 @@ function ADStateModule:cycleEditorShowMode()
         self.editorMode = ADStateModule.EDITOR_SHOW
     else
         self.editorMode = ADStateModule.EDITOR_OFF
+	self:disableCreationMode()
     end
     self:raiseDirtyFlag()
 end

@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Aparcar Vehículo" />
 		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
 		<text name="hud_avoidFruit"								text="AD: Evitar destruir cosechas" />
-		<text name="hud_startCp" 								text="AD: Iniciar CP en destino" />
+		<text name="hud_startCp" 								text="AD: Iniciar CP / AIVE en destino" />
 		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino de estacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"								text="Conductor de" />
@@ -58,6 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="LCTRL para crear" />
 		<text name="AD_lalt_for_deletion" 						text="LALT para borrar" />
 		<text name="gui_ad_Setting"								text="Configuración - AutoDrive" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Desplazamiento de tubería" />
 		<text name="gui_ad_followDistance"						text="Distancia de la cosechadora" />
 		<text name="gui_ad_followDistance_tooltip"				text="La distancia que se mantiene de la cosechadora cuando se sigue su extremo trasero" />
@@ -123,6 +125,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si el ancho de la pala detectado automáticamente es demasiado pequeño, se puede aumentar con este valor" />
 		<text name="gui_ad_preCallLevel"						text="Nivel de llenado para llamar a conductor" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Nivel de llenado para llamar a conductor." />
+		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
+		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
+		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
 		<text name="gui_ad_distributeToFolder"					text="Destinos multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Se seleccionarán todos los destinos de la misma carpeta" />
 		<text name="gui_ad_maxTriggerDistance"					text="Distancia máxima al trigger" />

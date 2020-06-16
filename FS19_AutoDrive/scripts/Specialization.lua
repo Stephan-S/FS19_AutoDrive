@@ -596,6 +596,17 @@ function AutoDrive:startAutoDrive()
 end
 
 function AutoDrive:stopAutoDrive()
+	local x, y, z = getWorldTranslation(self.components[1].node)
+
+	local point = nil
+	local distanceToStart = 0
+	if self.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.ad.stateModule ~= nil and self.ad.stateModule.getFirstMarker ~= nil and self.ad.stateModule:getFirstMarker() ~= nil and self.ad.stateModule:getFirstMarker() ~= 0 and self.ad.stateModule:getFirstMarker().id ~= nil then
+		point = ADGraphManager:getWayPointById(self.ad.stateModule:getFirstMarker().id)
+		if point ~= nil then
+			distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+		end
+	end
+
     if self.isServer then
         if self.ad.stateModule:isActive() then
             g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
@@ -618,19 +629,21 @@ function AutoDrive:stopAutoDrive()
                 self.ad.callBackObject = nil
                 self.ad.callBackArg = nil
 
-                if callBackObject ~= nil then
-                    if callBackArg ~= nil then
-                        callBackFunction(callBackObject, callBackArg)
-                    else
-                        callBackFunction(callBackObject)
-                    end
-                else
-                    if callBackArg ~= nil then
-                        callBackFunction(callBackArg)
-                    else
-                        callBackFunction()
-                    end
-                end
+				if distanceToStart < 30 then 			-- pass control to external mod only when near to field point
+					if callBackObject ~= nil then
+						if callBackArg ~= nil then
+							callBackFunction(callBackObject, callBackArg)
+						else
+							callBackFunction(callBackObject)
+						end
+					else
+						if callBackArg ~= nil then
+							callBackFunction(callBackArg)
+						else
+							callBackFunction()
+						end
+					end
+				end
 
                 self.ad.callBackFunction = nil
                 self.ad.callBackObject = nil

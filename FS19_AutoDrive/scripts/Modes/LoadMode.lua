@@ -1,8 +1,8 @@
 LoadMode = ADInheritsFrom(AbstractMode)
 
 LoadMode.STATE_INIT = 1
-LoadMode.STATE_LOAD = 2
-LoadMode.STATE_TO_TARGET = 3
+LoadMode.STATE_TO_TARGET = 2
+LoadMode.STATE_LOAD = 3
 LoadMode.STATE_EXIT_FIELD = 4
 LoadMode.STATE_FINISHED = 5
 
@@ -54,8 +54,14 @@ function LoadMode:getNextTask()
     local nextTask
 
 	local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-	local point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
-	local distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+	local point = nil
+	local distanceToStart = 0
+	if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+		point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
+		if point ~= nil then
+			distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+		end
+	end
 
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
@@ -64,49 +70,51 @@ function LoadMode:getNextTask()
 
 	if self.state == LoadMode.STATE_INIT then
 		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_INIT self.state %s distanceToStart %s", tostring(self.state), tostring(distanceToStart))
-
-		if not filledToUnload then	-- empty
-			if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
-				-- is activated on a field - use ExitFieldTask to leave field according to setting
-				AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_EXIT_FIELD")
-				self.state = self.STATE_EXIT_FIELD
-			else
-				-- not on a field - start with deliver
-				AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_LOAD")
-				self.state = LoadMode.STATE_LOAD
-			end
-		else -- loaded
+		if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
+			-- is activated on a field - use ExitFieldTask to leave field according to setting
+			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_EXIT_FIELD")
+			self.state = LoadMode.STATE_EXIT_FIELD
+		elseif filledToUnload then	-- fill level above setting unload level
+			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_LOAD")
+			self.state = LoadMode.STATE_LOAD
+		else
+			-- fill capacity left - go to pickup
 			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_TO_TARGET")
 			self.state = LoadMode.STATE_TO_TARGET
 		end
 		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_INIT end self.state %s", tostring(self.state))
 	end
 
-	if self.state == LoadMode.STATE_FINISHED then
-		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_FINISHED StopAndDisableADTask...")
-		nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
-    elseif self.state == LoadMode.STATE_LOAD or self.state == self.STATE_EXIT_FIELD then
-
-		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_LOAD | STATE_EXIT_FIELD self.state %s distanceToStart %s", tostring(self.state), tostring(distanceToStart))
-		if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 and self.state == LoadMode.STATE_EXIT_FIELD then
-			-- is activated on a field - use ExitFieldTask to leave field according to setting
-			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask ExitFieldTask...")
-			nextTask = ExitFieldTask:new(self.vehicle)
-			self.state = LoadMode.STATE_LOAD
-		else
-			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask LoadAtDestinationTask...")
-            nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-			self.state = LoadMode.STATE_TO_TARGET
-		end
-
-    else	-- STATE_TO_TARGET
-		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_TO_TARGET DriveToDestinationTask...")
+	if self.state == LoadMode.STATE_TO_TARGET then
+		-- STATE_TO_TARGET - drive to load destination
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_TO_TARGET LoadAtDestinationTask...")
+		nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
+		self.state = LoadMode.STATE_LOAD
+    elseif self.state == LoadMode.STATE_LOAD then
+		-- STATE_LOAD - drive to field
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_LOAD DriveToDestinationTask...")
         nextTask = DriveToDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
         self.state = LoadMode.STATE_FINISHED
+    elseif self.state == self.STATE_EXIT_FIELD then
+		-- is activated on a field - use ExitFieldTask to leave field according to setting
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_EXIT_FIELD ExitFieldTask...")
+		nextTask = ExitFieldTask:new(self.vehicle)
+		if filledToUnload then	-- fill level above setting unload level
+			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_LOAD")
+			self.state = LoadMode.STATE_LOAD
+		else
+			-- fill capacity left - go to pickup
+			AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask set STATE_TO_TARGET")
+			self.state = LoadMode.STATE_TO_TARGET
+		end
+	else
+		-- self.state == LoadMode.STATE_FINISHED then
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] LoadMode:getNextTask STATE_FINISHED StopAndDisableADTask...")
+		nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
     end
     return nextTask
 end
 
 function LoadMode:shouldLoadOnTrigger()
-    return (self.state == LoadMode.STATE_TO_TARGET or self.state == LoadMode.STATE_EXIT_FIELD) and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return (self.state == LoadMode.STATE_LOAD) and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
 end

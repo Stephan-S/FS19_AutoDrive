@@ -161,16 +161,21 @@ end
 function ADSpecialDrivingModule:handleReverseDriving(dt)
     self.wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
     self.currentWayPointIndex = self.vehicle.ad.drivePathModule:getCurrentWayPointIndex()
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving start self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
 
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving isUnloadingToBunkerSilo self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
         if self.vehicle.ad.trailerModule:getIsBlocked(dt) then
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving isUnloadingToBunkerSilo driveForward self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
             self:driveForward(dt)
         else
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving isUnloadingToBunkerSilo stopAndHoldVehicle self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
             self:stopAndHoldVehicle(dt)
         end
         self.unloadingIntoBunkerSilo = true
     else
         if self.unloadingIntoBunkerSilo then
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving unloadingIntoBunkerSilo self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
             self.vehicle.ad.drivePathModule:reachedTarget()
         else
             if self.wayPoints == nil or self.wayPoints[self.currentWayPointIndex] == nil then
@@ -179,6 +184,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
 
             self.reverseNode = self:getReverseNode()
             if self.reverseNode == nil then
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving self.reverseNode == nil -> return self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
                 return
             end
 
@@ -187,6 +193,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
             self:getBasicStates()
 
             if self:checkWayPointReached() then
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving self:checkWayPointReached -> handleReachedWayPoint / return self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
                 self.vehicle.ad.drivePathModule:handleReachedWayPoint()
                 return
             end
@@ -194,9 +201,16 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
             local inBunkerSilo = AutoDrive.isVehicleInBunkerSiloArea(self.vehicle)
 
             if not inBunkerSilo and self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving self:stopAndHoldVehicle inBunkerSilo %s self.vehicle.ad.collisionDetectionModule:checkReverseCollision() %s self.currentWayPointIndex %s ", tostring(inBunkerSilo), tostring(self.vehicle.ad.collisionDetectionModule:checkReverseCollision()), tostring(self.currentWayPointIndex))
                 self:stopAndHoldVehicle(dt)
             else
-                self:reverseToPoint(dt)
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving reverseToPoint self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
+                -- open trailer cover if trigger is reachable
+                local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+                local inTriggerProximity = ADTriggerManager.checkForTriggerProximity(self.vehicle, AutoDrive.getSetting("maxTriggerDistance")-1)
+                AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, inTriggerProximity)
+
+		self:reverseToPoint(dt)
             end
         end
         self.unloadingIntoBunkerSilo = false
@@ -229,6 +243,7 @@ function ADSpecialDrivingModule:getBasicStates()
 end
 
 function ADSpecialDrivingModule:checkWayPointReached()
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:checkWayPointReached start self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
     local distanceToTarget = MathUtil.vector2Length(self.reverseTarget.x - self.rNx, self.reverseTarget.z - self.rNz)
     local minDistance = 9
     local storedIndex = self.vehicle.ad.drivePathModule.currentWayPoint
@@ -242,37 +257,53 @@ function ADSpecialDrivingModule:checkWayPointReached()
     elseif reverseEnd then
         minDistance = 3
     end
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:checkWayPointReached distanceToTarget %s minDistance %s angleToPoint %s self.currentWayPointIndex %s ", tostring(distanceToTarget), tostring(minDistance), tostring(math.abs(self.angleToPoint)), tostring(self.currentWayPointIndex))
     if distanceToTarget < minDistance or math.abs(self.angleToPoint) > 80 then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:checkWayPointReached return true self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
         return true
     end
 
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:checkWayPointReached end self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
     return false
 end
 
 function ADSpecialDrivingModule:getReverseNode()
     local reverseNode
+    local count = 1
     for _, implement in pairs(self.vehicle:getAttachedImplements()) do
         if implement ~= nil and implement.object ~= nil then
-            if (implement.object ~= self.vehicle or reverseNode == nil) and implement.object.spec_wheels ~= nil then
+            -- g_logManager:info("[AD] ADSpecialDrivingModule:getReverseNode count %s ", tostring(count))
+            
+            if (implement.object ~= self.vehicle or reverseNode == nil) and 
+                implement.object.spec_wheels ~= nil and
+                AutoDrive.isImplementAllowedForReverseDriving(implement)                    -- whitelist of implements allowed as reverse node
+            then
                 local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
                 local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, implementX, implementY, implementZ)
-                if diffZ < 0 then
+                -- g_logManager:info("[AD] ADSpecialDrivingModule:getReverseNode diffZ %s ", tostring(diffZ))
+                -- if diffZ < 0 then
+                if diffZ < 0 and math.abs(diffZ) >= (self.vehicle.sizeLength / 2) then
+                
                     local hasSynchronizedWheels = false
                     for _, wheel in pairs(implement.object.spec_wheels.wheels) do
                         hasSynchronizedWheels = hasSynchronizedWheels or wheel.isSynchronized
                     end
+                    -- g_logManager:info("[AD] ADSpecialDrivingModule:getReverseNode hasSynchronizedWheels %s ", tostring(hasSynchronizedWheels))
                     if hasSynchronizedWheels then
                         reverseNode = implement.object.spec_wheels.steeringCenterNode
                         self.reverseSolo = false
                         self.trailer = implement.object
                     end
+                    break
                 end
             end
         end
+        count = count + 1
     end
     if reverseNode == nil then
         reverseNode = self.vehicle.spec_wheels.steeringCenterNode
         self.reverseSolo = true
+        -- g_logManager:info("[AD] ADSpecialDrivingModule:getReverseNode end reverseNode == nil ")
     end
     return reverseNode
 end

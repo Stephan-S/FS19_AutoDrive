@@ -148,7 +148,9 @@ function ADCollisionDetectionModule:detectTrafficOnUpcomingReverseSection()
 			if #reverseSectionPoints > 0 then
 				--print(self.vehicle.ad.stateModule:getName() .. " - detected reverse section ahead")
 				for _, other in pairs(g_currentMission.vehicles) do
-					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						
+					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() and
+                        not (other.ad ~= nil and other.ad == self.vehicle.ad)       -- some trailed harvester get assigned AD from the trailing vehicle, see "attachable.ad = self.ad" in Specialisation
+                    then
 						local onSameRoute = false
 						local i = -10
 						local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()

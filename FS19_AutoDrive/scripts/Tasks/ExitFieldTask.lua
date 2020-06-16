@@ -97,6 +97,9 @@ function ExitFieldTask:selectNextStrategy()
     self.nextExitStrategy = (self.nextExitStrategy + 1) % (ExitFieldTask.STRATEGY_CLOSEST + 1)
 end
 
+function ExitFieldTask:continue()
+end
+
 function ExitFieldTask:getInfoText()
     if self.state == ExitFieldTask.STATE_PATHPLANNING then
         return g_i18n:getText("AD_task_pathfinding")

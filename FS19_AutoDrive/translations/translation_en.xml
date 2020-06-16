@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Park vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="hud_avoidFruit"								text="AD: Avoid fruit" />
-		<text name="hud_startCp"								text="AD: Start CP at destination" />
+		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
 		<text name="AD_Driver_of"								text="Driver of" />
@@ -58,6 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
 		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Settings" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_pipe_offset"							text="Pipe Offset" />
 		<text name="gui_ad_followDistance"						text="Distance combine" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
@@ -123,8 +125,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="If automatically detected shovel width is too small, it can be increased with this value" />
 		<text name="gui_ad_preCallLevel"						text="Pre call level" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Pre call unloader at the set fill level." />
-		<text name="gui_ad_distributeToFolder"					text="Multiple targets" />
-		<text name="gui_ad_distributeToFolder_tooltip"			text="All targets in same folder will be rotated as unload targets." />
+		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
+		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
+		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximum trigger distance" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Distance to target at which triggers are detected and activated." />
 		<text name="gui_ad_useBeaconLights"						text="Beacon lights" />
