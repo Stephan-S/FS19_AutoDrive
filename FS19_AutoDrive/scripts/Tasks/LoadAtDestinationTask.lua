@@ -77,7 +77,7 @@ function LoadAtDestinationTask:update(dt)
                         local maxCapacity = fillLevel + leftCapacity
                         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update leftCapacity %s maxCapacity %s", tostring(leftCapacity), tostring(maxCapacity))
 
-                        if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) then
+                        if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
                             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update leftCapacity <= -> self:finished")
                             self:finished()
                         end
