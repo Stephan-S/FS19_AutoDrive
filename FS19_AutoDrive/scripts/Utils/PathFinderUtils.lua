@@ -43,8 +43,8 @@ end
 AutoDrive.implementsAllowedForReverseDriving = {
 "trailer", 
 "trailerlow",
-"semitrailer",
-"implement"
+"semitrailer"
+--"implement"
 }
 
 
@@ -61,6 +61,16 @@ function AutoDrive.isImplementAllowedForReverseDriving(implement)
                 -- g_logManager:info("[AD] isImplementAllowedForReverseDriving implement allowed %s ", tostring(key))
                 return true
             end
+        end
+    end
+
+    if implement ~= nil and implement.object ~= nil and implement.object.spec_attachable ~= nil 
+        and AttacherJoints.JOINTTYPE_IMPLEMENT == implement.object.spec_attachable.attacherJoint.jointType 
+    then
+        local breakforce = implement.object.spec_attachable:getBrakeForce()
+        -- g_logManager:info("[AD] isImplementAllowedForReverseDriving implement breakforce %s ", tostring(breakforce))
+        if breakforce ~= nil and breakforce > 0 then
+            return true
         end
     end
     return ret
