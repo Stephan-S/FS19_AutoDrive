@@ -44,7 +44,6 @@ AutoDrive.implementsAllowedForReverseDriving = {
 "trailer", 
 "trailerlow",
 "semitrailer"
---"implement"
 }
 
 
@@ -69,7 +68,9 @@ function AutoDrive.isImplementAllowedForReverseDriving(implement)
     then
         local breakforce = implement.object.spec_attachable:getBrakeForce()
         -- g_logManager:info("[AD] isImplementAllowedForReverseDriving implement breakforce %s ", tostring(breakforce))
-        if breakforce ~= nil and breakforce > 0 then
+        if breakforce ~= nil and breakforce > 0.07 
+            and not(implement.object ~= nil and implement.object.getName ~= nil and implement.object:getName() == "GL 420")     -- Grimme GL 420 needs special handling, as it has breakforce >0.07, but no trailed wheel
+        then
             return true
         end
     end
