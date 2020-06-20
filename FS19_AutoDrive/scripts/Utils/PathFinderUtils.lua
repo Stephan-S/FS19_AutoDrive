@@ -41,13 +41,12 @@ function AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
 end
 
 AutoDrive.implementsAllowedForReverseDriving = {
-"trailer", 
-"trailerlow",
-"semitrailer"
+"trailer"
+,"trailerlow"
 }
 
 
-function AutoDrive.isImplementAllowedForReverseDriving(implement)
+function AutoDrive.isImplementAllowedForReverseDriving(vehicle,implement)
 -- return true for implements allowed move reverse
     local ret = false
 
@@ -74,6 +73,17 @@ function AutoDrive.isImplementAllowedForReverseDriving(implement)
             return true
         end
     end
+
+    if implement ~= nil and implement.object ~= nil and implement.object.spec_attachable ~= nil 
+        and AttacherJoints.JOINTTYPE_SEMITRAILER == implement.object.spec_attachable.attacherJoint.jointType 
+    then
+        local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+        local _, _, diffZ = worldToLocal(vehicle.components[1].node, implementX, implementY, implementZ)
+        if diffZ < -3 then
+            return true
+        end
+    end
+
     return ret
 end
 
