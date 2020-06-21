@@ -133,7 +133,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.stateModule:getCurrentMode():start()
                 vehicle.ad.onRouteToPark = true
             else --unloadDestinationID == -2 refuel
-                vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+                -- vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO) -- should fix #1477
                 vehicle.ad.stateModule:getCurrentMode():start()
             end
         end
