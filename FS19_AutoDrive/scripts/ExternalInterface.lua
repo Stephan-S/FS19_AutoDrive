@@ -203,3 +203,10 @@ function AutoDrive:StopCP(vehicle)
 		g_courseplay.courseplay:stop(vehicle)
 	end
 end
+
+function AutoDrive:HoldDriving(vehicle)
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule:isActive() then
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:HoldDriving should set setPaused")
+        vehicle.ad.drivePathModule:setPaused()
+    end
+end
