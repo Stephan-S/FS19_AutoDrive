@@ -4,6 +4,7 @@ ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
+ADDrivePathModule.PAUSE_TIMEOUT = 3000
 
 function ADDrivePathModule:new(vehicle)
     local o = {}
@@ -12,6 +13,7 @@ function ADDrivePathModule:new(vehicle)
     o.vehicle = vehicle
     o.min_distance = AutoDrive.defineMinDistanceByVehicleType(vehicle)
     o.minDistanceTimer = AutoDriveTON:new()
+    o.waitTimer = AutoDriveTON:new()
     ADDrivePathModule.reset(o)
     return o
 end
@@ -24,6 +26,7 @@ function ADDrivePathModule:reset()
     self.onRoadNetwork = true
     self.minDistanceToNextWp = math.huge
     self.minDistanceTimer:timer(false, 5000, 0)
+    self.waitTimer:timer(false, ADDrivePathModule.PAUSE_TIMEOUT, 0)
     self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
     self.isReversing = false
@@ -96,6 +99,7 @@ end
 
 function ADDrivePathModule:setPaused()
     self.isPaused = true
+    self.waitTimer:timer(false)
 end
 
 function ADDrivePathModule:setUnPaused()
@@ -111,6 +115,15 @@ function ADDrivePathModule:resetDirtyFlag()
 end
 
 function ADDrivePathModule:update(dt)
+    if self.waitTimer:timer(self.isPaused, ADDrivePathModule.PAUSE_TIMEOUT, dt) then        -- used to wait for the CP silo compacter
+        self:setUnPaused()
+    end
+    if self.isPaused then
+        self.vehicle.ad.specialDrivingModule:stopVehicle()
+        self.vehicle.ad.specialDrivingModule:update(dt)
+        return
+    end
+
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
