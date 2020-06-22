@@ -1,8 +1,8 @@
 ---
-name: Feature requestQuestion
-about: Ask a question
-title: "[Question]"
-labels: question
+name: Feature request
+about: Request a feature
+title: "[Feature Request]"
+labels: feature-request
 assignees: ''
 
 ---
