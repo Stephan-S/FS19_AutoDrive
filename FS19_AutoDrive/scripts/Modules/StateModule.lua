@@ -48,8 +48,9 @@ function ADStateModule:reset()
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
 
-    self.startAI = false
-    self.useCP = true
+    self.startCP_AIVE = false
+
+    self.useCP = (g_courseplay ~= nil)
 
     self.driverName = g_i18n:getText("UNKNOWN")
     if self.vehicle.getName ~= nil then
@@ -152,7 +153,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
-    streamWriteBool(streamId, self.startAI)
+    streamWriteBool(streamId, self.startCP_AIVE)
     streamWriteBool(streamId, self.useCP)
 end
 
@@ -173,7 +174,7 @@ function ADStateModule:readStream(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
-    self.startAI = streamReadBool(streamId)
+    self.startCP_AIVE = streamReadBool(streamId)
     self.useCP = streamReadBool(streamId)
 end
 
@@ -193,7 +194,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
-    streamWriteBool(streamId, self.startAI)
+    streamWriteBool(streamId, self.startCP_AIVE)
     streamWriteBool(streamId, self.useCP)
 end
 
@@ -214,7 +215,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
-    self.startAI = streamReadBool(streamId)
+    self.startCP_AIVE = streamReadBool(streamId)
     self.useCP = streamReadBool(streamId)
 end
 
@@ -239,7 +240,7 @@ function ADStateModule:update(dt)
         debug.currentLocalizedTaskInfo = self.currentLocalizedTaskInfo
         debug.currentWayPointId = self.currentWayPointId
         debug.nextWayPointId = self.nextWayPointId
-        debug.startAI = self.startAI
+        debug.startCP_AIVE = self.startCP_AIVE
         debug.useCP = self.useCP
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
@@ -260,28 +261,28 @@ function ADStateModule:update(dt)
     end
 end
 
-function ADStateModule:toggleStartAI()
-    self.startAI = not self.startAI
+function ADStateModule:toggleStartCP_AIVE()
+    self.startCP_AIVE = not self.startCP_AIVE
     self:raiseDirtyFlag()
 end
 
-function ADStateModule:setStartAI(enabled)
-    if enabled ~= self.startAI then
-        self.startAI = enabled
+function ADStateModule:setStartCP_AIVE(enabled)
+    if enabled ~= self.startCP_AIVE then
+        self.startCP_AIVE = enabled
         self:raiseDirtyFlag()
     end
 end
 
-function ADStateModule:getStartAI()
-    return self.startAI
+function ADStateModule:getStartCP_AIVE()
+    return self.startCP_AIVE
 end
 
-function ADStateModule:toggleUseCP()
+function ADStateModule:toggleUseCP_AIVE()
     self.useCP = not self.useCP
     self:raiseDirtyFlag()
 end
 
-function ADStateModule:getUseCP()
+function ADStateModule:getUseCP_AIVE()
     return self.useCP
 end
 
