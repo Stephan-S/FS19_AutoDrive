@@ -143,17 +143,19 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_startCp" then
-        if vehicle.ad.stateModule:getStartAI() then
-            if vehicle.ad.stateModule:getUseCP() then
-                newState = 2
+        if (g_courseplay ~= nil or vehicle.acParameters ~= nil) then
+            if vehicle.ad.stateModule:getStartCP_AIVE() then
+                if vehicle.ad.stateModule:getUseCP_AIVE() then
+                    newState = 2
+                else
+                    newState = 4
+                end
             else
-                newState = 4
-            end
-        else
-            if vehicle.ad.stateModule:getUseCP() then
-                newState = 1
-            else
-                newState = 3
+                if vehicle.ad.stateModule:getUseCP_AIVE() then
+                    newState = 1
+                else
+                    newState = 3
+                end
             end
         end
         self.isVisible = (not vehicle.ad.stateModule:isEditorModeEnabled()) or (AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD"))
