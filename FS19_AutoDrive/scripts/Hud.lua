@@ -93,6 +93,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive.getSetting("guiScale") ~= 0 then
 		uiScale = AutoDrive.getSetting("guiScale")
 	end
+    local vehicle = g_currentMission.controlledVehicle
 	local numButtons = 7
 	local numButtonRows = 2
 	local buttonSize = 32
@@ -203,10 +204,13 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 			self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 		else
 			self:AddEditModeButtons()
-			if g_courseplay ~= nil then
-				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
-			end
+            if g_courseplay ~= nil then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+            elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
+            end
 		end
 
 		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
@@ -220,8 +224,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		if AutoDrive.getSetting("addSettingsToHUD") then
 			self.buttonCounter = self.buttonCounter - 5
 
-			if g_courseplay ~= nil then
-				self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
+            if g_courseplay ~= nil then
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+            elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
 			else
 				self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 			end
@@ -231,10 +237,13 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 			self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 			self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 		else
-			if g_courseplay ~= nil then
-				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
-			end
+            if g_courseplay ~= nil then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+            elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
+            end
 		end
 
 		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
@@ -250,9 +259,11 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
 		self:AddEditModeButtons()
 
-		if g_courseplay ~= nil then
-			self:AddButton("input_startCp", "input_useCP", "hud_startCp", 1, true)
-		end
+        if g_courseplay ~= nil then
+            self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+        elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+            self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
+        end
 	end
 
 	-- Refreshing layer sequence must be called, after all elements have been added

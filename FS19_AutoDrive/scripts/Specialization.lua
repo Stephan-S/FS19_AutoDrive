@@ -678,14 +678,14 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:abortAllTasks()
             self.ad.taskModule:reset()
 
-            local isStartingAIVE = (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and not self.ad.stateModule:getUseCP())
-            local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and self.ad.stateModule:getUseCP())
+            local isStartingAIVE = (not self.ad.isStoppingWithError and self.ad.stateModule:getStartCP_AIVE() and not self.ad.stateModule:getUseCP_AIVE())
+            local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartCP_AIVE() and self.ad.stateModule:getUseCP_AIVE())
             AutoDriveStartStopEvent:sendStopEvent(self, isPassingToCP, isStartingAIVE)
 
             if not hasCallbacks and not self.ad.isStoppingWithError then
-                if self.ad.stateModule:getStartAI() then
-                    self.ad.stateModule:setStartAI(false)
-                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP() then
+                if self.ad.stateModule:getStartCP_AIVE() then
+                    self.ad.stateModule:setStartCP_AIVE(false)
+                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
                         g_courseplay.courseplay:start(self)
                     else
                         if self.acParameters ~= nil then
