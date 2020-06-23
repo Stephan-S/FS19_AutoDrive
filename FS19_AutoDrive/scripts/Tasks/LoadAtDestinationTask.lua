@@ -57,7 +57,7 @@ function LoadAtDestinationTask:update(dt)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update isTargetReached")
             local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
             AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
-            if (self.vehicle.ad.callBackFunction ~= nil or (g_courseplay ~= nil and self.vehicle.ad.stateModule:getStartAI())) and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
+            if (self.vehicle.ad.callBackFunction ~= nil or (g_courseplay ~= nil and self.vehicle.ad.stateModule:getStartCP_AIVE())) and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update ERROR stopAutoDrive")
                 self.vehicle:stopAutoDrive()
             else
