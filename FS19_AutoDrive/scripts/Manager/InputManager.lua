@@ -61,7 +61,7 @@ ADInputManager.inputsToIds = {
     input_nextTarget = 23,
     input_previousTarget = 24,
     input_startCp = 25,
-    input_useCP = 26
+    input_toggleCP_AIVE = 26
 }
 
 ADInputManager.idsToInputs = {}
@@ -394,10 +394,15 @@ function ADInputManager:input_swapTargets(vehicle)
     vehicle.ad.stateModule:removeCPCallback()
 end
 
-function ADInputManager:input_startCp(vehicle)
-    vehicle.ad.stateModule:toggleStartAI()
+function ADInputManager:input_startCp(vehicle)  -- enable / disable CP or AIVE
+    if g_courseplay ~= nil or vehicle.acParameters ~= nil then
+        vehicle.ad.stateModule:toggleStartCP_AIVE()
+    end
 end
 
-function ADInputManager:input_useCP(vehicle)
-    vehicle.ad.stateModule:toggleUseCP()
+function ADInputManager:input_toggleCP_AIVE(vehicle)    -- select CP or AIVE
+    if g_courseplay ~= nil and vehicle.acParameters ~= nil then
+        vehicle.ad.stateModule:toggleUseCP_AIVE()
+        vehicle.ad.stateModule:setStartCP_AIVE(false)   -- disable if changed between CP and AIVE
+    end
 end
