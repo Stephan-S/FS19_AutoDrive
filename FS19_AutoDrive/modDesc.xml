@@ -128,6 +128,7 @@ Changelog 1.1.0.0:
 		<action name="ADRenameMapMarker" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSwapTargets" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 	</actions>
 
 	<inputBinding>
