@@ -32,7 +32,8 @@ ADInputManager.actionsToInputs = {
     ADGoToVehicle = "input_goToVehicle",
     ADIncLoopCounter = "input_incLoopCounter",
     ADSwapTargets = "input_swapTargets",
-    AD_open_notification_history = "input_openNotificationHistory"
+    AD_open_notification_history = "input_openNotificationHistory",
+    ADParkVehicle = "input_parkVehicle"
 }
 
 ADInputManager.inputsToIds = {
