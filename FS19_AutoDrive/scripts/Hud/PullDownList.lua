@@ -212,6 +212,9 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 if self.hovered == self.selected + (i - 1) and listEntry.isFolder == false then
                     setTextBold(false)
                     setTextColor(0, 1, 0, 1)
+                elseif self.hovered == self.selected + (i - 1) and listEntry.isFolder == true then  -- folders mouse over
+                    setTextBold(true)
+                    setTextColor(0.5, 0.8, 0, 1)
                 else
                     if listEntry.isFolder == false then
                         setTextBold(false)
