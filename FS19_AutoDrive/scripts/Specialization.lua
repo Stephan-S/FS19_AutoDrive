@@ -710,6 +710,9 @@ function AutoDrive:onStartAutoDrive()
 
     if self.currentHelper == nil then
         self.currentHelper = g_helperManager:getRandomHelper()
+        if self.currentHelper ~= nil then
+            g_helperManager:useHelper(self.currentHelper)
+        end
         if self.setRandomVehicleCharacter ~= nil then
             self:setRandomVehicleCharacter()
             self.ad.vehicleCharacter = self.spec_enterable.vehicleCharacter
@@ -732,6 +735,9 @@ function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
         self.forceIsActive = false
         self.spec_motorized.stopMotorOnLeave = true
         self.spec_enterable.disableCharacterOnLeave = true
+        if self.currentHelper ~= nil then
+            g_helperManager:releaseHelper(self.currentHelper)
+        end
         self.currentHelper = nil
 
         if self.restoreVehicleCharacter ~= nil then
