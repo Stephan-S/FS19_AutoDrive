@@ -54,7 +54,7 @@
 		<text name="AD_MODE_LOAD"								text="Nakládka" />
 		<text name="AD_MODE_BGA"								text="Vykládka silážní jámy" />
 		<text name="AD_synchronizing"							text="načítání sítě ze serweru.." />
-		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořít" />
 		<text name="AD_lalt_for_deletion" 						text="LALT smazat" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
