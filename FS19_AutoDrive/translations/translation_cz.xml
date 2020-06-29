@@ -13,8 +13,8 @@
 		<text name="input_AD_Speed_up"							text="AD: Zvýšit rychlost" />
 		<text name="input_AD_Speed_down"						text="AD: Snížit rychlost" />
 		<text name="input_AD_routes_manager" 					text="AD: Otevřít managera tras" />
-		<text name="input_AD_open_notification_history" 		text="AD: Otevřít hystorii notifikací" />
 		<text name="input_AD_continue"							text="AD: Pokračovat" />
+		<text name="input_AD_open_notification_history" 		text="AD: Otevřít hystorii notifikací" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Následující vykládka" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Předchozí vykládka" />
 		<text name="input_ADActivateDebug"						text="AD: Editovat trasu" />
@@ -54,8 +54,8 @@
 		<text name="AD_MODE_LOAD"								text="Nakládka" />
 		<text name="AD_MODE_BGA"								text="Vykládka silážní jámy" />
 		<text name="AD_synchronizing"							text="načítání sítě ze serweru.." />
-		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořít" />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru" />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořit" />
 		<text name="AD_lalt_for_deletion" 						text="LALT smazat" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
 		<text name="gui_ad_collisionHeigth"						text="Kolizní výška nad zemí" />
@@ -91,7 +91,7 @@
 		<text name="gui_ad_findDriver"							text="Najít volné řidiče" />
 		<text name="gui_ad_findDriver_tooltip"					text="Hledá nejbližší řidiče (Ignoruje vzdálenost)" />
 		<text name="gui_ad_gui_scale"							text="Měřítko HUD" />
-		<text name="gui_ad_gui_scale_tooltip"					text="Při volbě DEFAULT se řídí nastavením hry" />
+		<text name="gui_ad_gui_scale_tooltip"					text="Při volbě VÝCHOZÍ se řídí nastavením hry" />
 		<text name="gui_ad_notifications"						text="Oznámení" />
 		<text name="gui_ad_notifications_text_1"				text="Zakázáno" />
 		<text name="gui_ad_notifications_text_2"				text="Krátky" />
@@ -150,7 +150,7 @@
 		<text name="gui_ad_enterGroupNameTitle"					text="Vytvořit adresář" />
 		<text name="gui_ad_enterGroupNameText"					text="Vytvořit název adresáře:" />
 		<text name="gui_ad_autoRefuel"							text="Automatické dotankování" />
-		<text name="gui_ad_autoRefuel_tooltip"					text="Při nízké hladině paliva jeď k benzince (pokud je v blízkosti trigger benzinky)" />
+		<text name="gui_ad_autoRefuel_tooltip"					text="Při nízké hladině paliva jeď k benzince (pokud je v blízkosti trigger benzinky)." />
 		<text name="gui_ad_filter"								text="Filtr" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Změna cíle filtrovat text" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Vložte text filtru:" />
@@ -167,10 +167,10 @@
 		<text name="gui_ad_followOnlyOnField"					text="Omezit odvozce na pole" />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Omezit odvozce na pole pokud aktivně odváží" />
 		<text name="gui_ad_addSettingsToHUD"					text="Přidat nastavení do HUD" />
-		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Přidat tlačítka do HOD pro změnu nastavení bez nutnosti oteření tohoto menu" />
+		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Přidat tlačítka do HUD pro změnu nastavení bez nutnosti oteření tohoto menu" />
 		<text name="gui_ad_iconSetToUse"						text="Perzonalizace loga" />
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Základní logo nebo vlastní logo - Výběr lze rozšířit." />
-		<text name="gui_ad_secondEditorModeAllowed"				text="Použijte 2. rižim editoru" />
+		<text name="gui_ad_secondEditorModeAllowed"				text="Použijte 2. režim editoru" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Použijte 2. režim editoru pro manipulaci s trasou namísto přidržení LCTRL" />
 		<text name="gui_ad_wideHUD"								text="Široký HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Použijte široký režim HUD, který také umožňuje několik dalších tlačítek pro nastavení v HUD" />
@@ -222,7 +222,7 @@
 		<text name="ad_helpText_01_03"							text="Pokud jsou všechny cíle správně připojeny k síti, AutoDrive naviguje podobně jako váš obvyklý navigační systém ve vašem autu výpočtem nejkratší trasy k cíli. Proto je důležité zajistit, aby všechny body byly připojeny k síti. Pokud AutoDrive detekuje odpojený bod, je označen „X“ a měl by jej hráč odstranit nebo připojit." />
 		
 		<text name="ad_helpTitle_02"							text="AD mod - Pouze jízda" />
-		<text name="ad_helpText_02_01"							text="V tomto režimu vezme aktuální vozidlo nejvhodnější bod (podle aktuálního směru a vzdálenosti) nebo jednoduše nejbližší a poté použije nejkratší cestu odtamtud do cíle a zastaví se tam. Je to nejjednodušší režim a je nejvhodnější pro vyzkoušení vašich nových tras." >
+		<text name="ad_helpText_02_01"							text="V tomto režimu vezme aktuální vozidlo nejvhodnější bod (podle aktuálního směru a vzdálenosti) nebo jednoduše nejbližší a poté použije nejkratší cestu odtamtud do cíle a zastaví se tam. Je to nejjednodušší režim a je nejvhodnější pro vyzkoušení vašich nových tras." />
 		
 		<text name="ad_helpTitle_03"							text="AD mod - Doručení" />
 		<text name="ad_helpText_03_01"							text="V tomto režimu bude AutoDrive řídit vozidlo stejně jako v režimu „Pouze řídit“, ale v případě zjištění triggeru pro vykládku navíc vyloží aktuální přívěs v cíli." />
@@ -286,7 +286,7 @@
 
 		<text name="AD_task_pathfinding"						text="Plánování trasy" />
 		<text name="AD_task_catch_up_with_combine"				text="Párování s kombajnem" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" />
+		<text name="AD_task_clearcrop"							text="Odstranění plodin" />
 		<text name="AD_task_drive_to_destination"				text="Jedu do místa určení" />
 		<text name="AD_task_drive_to_vehicle"					text="Jedu k vybranímu vozidlu" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Jedu ke komínu kombajnu" />
