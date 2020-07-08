@@ -135,7 +135,45 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_parkVehicle" then
-        if vehicle.ad.stateModule:hasParkDestination() then
+
+        local hasParkDestination = false
+        if vehicle:getIsSelected() then
+            hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
+        elseif g_dedicatedServerInfo == nil then
+            -- TODO: at the moment I found no way to detect if the vehicle or a worktool is selected on dedi server - so deactivate worktool parking on dedi
+            if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
+
+                local SelectedWorkTool = nil
+                local allImp = {}
+                -- Credits to Tardis from FS17
+                local function addAllAttached(obj)
+                    for _, imp in pairs(obj:getAttachedImplements()) do
+                        addAllAttached(imp.object)
+                        table.insert(allImp, imp)
+                    end
+                end
+                    
+                addAllAttached(vehicle)
+
+                if allImp ~= nil then
+                    for i = 1, #allImp do
+                        local imp = allImp[i]
+                        if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
+                            SelectedWorkTool = imp.object
+                            break
+                        end
+                    end
+                end
+
+                if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle then
+                    if SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.hasWorkToolParkDestination ~= nil then
+                        hasParkDestination = SelectedWorkTool.advd:hasWorkToolParkDestination()
+                    end
+                end
+            end
+        end
+
+        if hasParkDestination then
             newState = 1
         else
             newState = 2
@@ -172,10 +210,56 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
         vehicle.ad.toolTipIsSetting = false
 
         if self.primaryAction == "input_parkVehicle" then
-            if vehicle.ad.stateModule:hasParkDestination() then
-                vehicle.ad.sToolTip = vehicle.ad.sToolTip
-                vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(vehicle.ad.stateModule:getParkDestination()).name
+
+            local hasParkDestination = false
+            local actualParkDestination = -1
+
+            if vehicle:getIsSelected() then
+                hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
+                if hasParkDestination then
+                    actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+                end
+            elseif g_dedicatedServerInfo == nil then
+                -- TODO: at the moment I found no way to detect if the vehicle or a worktool is selected on dedi server - so deactivate worktool parking on dedi
+                if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
+
+                    local SelectedWorkTool = nil
+                    local allImp = {}
+                    -- Credits to Tardis from FS17
+                    local function addAllAttached(obj)
+                        for _, imp in pairs(obj:getAttachedImplements()) do
+                            addAllAttached(imp.object)
+                            table.insert(allImp, imp)
+                        end
+                    end
+                        
+                    addAllAttached(vehicle)
+
+                    if allImp ~= nil then
+                        for i = 1, #allImp do
+                            local imp = allImp[i]
+                            if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
+                                SelectedWorkTool = imp.object
+                                break
+                            end
+                        end
+                    end
+
+                    if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle then
+                        if SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.hasWorkToolParkDestination ~= nil then
+                            hasParkDestination = SelectedWorkTool.advd:hasWorkToolParkDestination()
+                            if hasParkDestination then
+                                actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
+                            end
+                        end
+                    end
+                end
             end
+
+            if hasParkDestination and actualParkDestination >= 1 then
+                vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(actualParkDestination).name
+            end
+
         end
         if button == 1 and isUp then
             ADInputManager:onInputCall(vehicle, self.primaryAction)
