@@ -254,8 +254,46 @@ end
 
 function ADInputManager:input_setParkDestination(vehicle)
     if vehicle.ad.stateModule:getFirstMarker() ~= nil then
-        vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
-        AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+
+        -- g_logManager:info("[AD] ADInputManager:input_setParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
+
+        if vehicle:getIsSelected() then
+            vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+            AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+        elseif g_dedicatedServerInfo == nil then
+            -- TODO: at the moment I found no way to detect if the vehicle or a worktool is selected on dedi server - so deactivate worktool parking on dedi
+            local SelectedWorkTool = nil
+            if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
+                local allImp = {}
+                -- Credits to Tardis from FS17
+                local function addAllAttached(obj)
+                    for _, imp in pairs(obj:getAttachedImplements()) do
+                        addAllAttached(imp.object)
+                        table.insert(allImp, imp)
+                    end
+                end
+                    
+                addAllAttached(vehicle)
+
+                if allImp ~= nil then
+                    for i = 1, #allImp do
+                        local imp = allImp[i]
+                        if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
+                            SelectedWorkTool = imp.object
+                            break
+                        end
+                    end
+                end
+            end
+
+            if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle then
+                if SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.setWorkToolParkDestination ~= nil then
+                    SelectedWorkTool.advd:setWorkToolParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+                end
+            end
+        end
+
     end
 end
 
@@ -374,8 +412,53 @@ function ADInputManager:input_callDriver(vehicle)
 end
 
 function ADInputManager:input_parkVehicle(vehicle)
-    if vehicle.ad.stateModule:hasParkDestination() then
-        vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getParkDestination())
+    local hasParkDestination = false
+    local actualParkDestination = -1
+    if vehicle:getIsSelected() then
+        -- g_logManager:info("[AD] ADInputManager:input_parkVehicle vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
+        hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
+        if hasParkDestination then
+            actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+        end
+    elseif g_dedicatedServerInfo == nil then
+        -- TODO: at the moment I found no way to detect if the vehicle or a worktool is selected on dedi server - so deactivate worktool parking on dedi
+        local SelectedWorkTool = nil
+        if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
+            local allImp = {}
+            -- Credits to Tardis from FS17
+            local function addAllAttached(obj)
+                for _, imp in pairs(obj:getAttachedImplements()) do
+                    addAllAttached(imp.object)
+                    table.insert(allImp, imp)
+                end
+            end
+                
+            addAllAttached(vehicle)
+
+            if allImp ~= nil then
+                for i = 1, #allImp do
+                    local imp = allImp[i]
+                    if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
+                        SelectedWorkTool = imp.object
+                        break
+                    end
+                end
+            end
+        end
+
+        if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle then
+            if SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.hasWorkToolParkDestination ~= nil then
+                hasParkDestination = SelectedWorkTool.advd:hasWorkToolParkDestination()
+                if hasParkDestination then
+                    actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
+                end
+            end
+        end
+
+    end
+
+    if hasParkDestination and actualParkDestination >= 1 then
+        vehicle.ad.stateModule:setFirstMarker(actualParkDestination)
         vehicle.ad.stateModule:removeCPCallback()
         if vehicle.ad.stateModule:isActive() then
             self:input_start_stop(vehicle) --disable if already active
