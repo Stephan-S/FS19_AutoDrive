@@ -9,6 +9,7 @@
 -- #############################################################################
 
 source(Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/AutoDriveVehicleData.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Specialization.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Sync.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/XML.lua", g_currentModDirectory))
@@ -141,6 +142,28 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 				if typeDef.specializationsByName["AutoDrive"] == nil then
 					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
 					typeDef.hasADSpec = true
+				end
+			end
+		end
+	end
+end
+
+if g_specializationManager:getSpecializationByName("AutoDriveVehicleData") == nil then
+	g_specializationManager:addSpecialization("AutoDriveVehicleData", "AutoDriveVehicleData", Utils.getFilename("scripts/Utils/AutoDriveVehicleData.lua", g_currentModDirectory), nil)
+
+	if AutoDriveVehicleData == nil then
+		g_logManager:error("[AutoDriveVehicleData] Unable to add specialization 'AutoDriveVehicleData'")
+		return
+	end
+
+	local ADSpecName = g_currentModName .. ".AutoDriveVehicleData"
+
+	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
+		if typeDef ~= nil and vehicleType ~= "locomotive" then
+			if AutoDriveVehicleData.prerequisitesPresent(typeDef.specializations) then
+				if typeDef.specializationsByName["AutoDriveVehicleData"] == nil then
+					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
+					-- typeDef.hasADSpec = true
 				end
 			end
 		end
