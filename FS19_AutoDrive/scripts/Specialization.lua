@@ -85,7 +85,9 @@ end
 
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
-    self.ad = {}
+    if self.ad == nil then
+        self.ad = {}
+    end
     self.ad.dirtyFlag = self:getNextDirtyFlag()
     self.ad.smootherDriving = {}
     self.ad.smootherDriving.lastMaxSpeed = 0
@@ -587,12 +589,6 @@ function AutoDrive:startAutoDrive()
     else
         g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
     end
-    --[[
-    for i = 1, #g_fruitTypeManager.fruitTypes do
-        local fruitType = g_fruitTypeManager.fruitTypes[i].index
-        print("FruitType: "  .. fruitType .. ": " .. g_fillTypeManager:getFillTypeByIndex(g_fruitTypeManager:getFillTypeIndexByFruitTypeIndex(fruitType)).title)
-    end
-    --]]
 end
 
 function AutoDrive:stopAutoDrive()
