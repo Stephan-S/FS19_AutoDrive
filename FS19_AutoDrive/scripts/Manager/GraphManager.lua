@@ -447,6 +447,19 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 							end
 						end
 					end
+                    -- handle all vehicles and tools park destination
+					for _, vehicle in pairs(g_currentMission.vehicles) do
+                        if vehicle.advd ~= nil and vehicle.advd.hasWorkToolParkDestination ~= nil and vehicle.advd:hasWorkToolParkDestination() then
+							local WorkToolParkDestination = vehicle.advd:getWorkToolParkDestination()
+							if WorkToolParkDestination ~= nil and WorkToolParkDestination >= markerId then
+								if WorkToolParkDestination == markerId then
+									vehicle.advd:setWorkToolParkDestination(-1)
+								else
+									vehicle.advd:setWorkToolParkDestination(math.max(WorkToolParkDestination - 1, 1))
+								end
+							end
+						end
+					end
 					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarkers + 1))
 				end
 			end
