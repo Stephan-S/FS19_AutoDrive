@@ -257,7 +257,13 @@ function ADInputManager:input_setParkDestination(vehicle)
 
         -- g_logManager:info("[AD] ADInputManager:input_setParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
 
-        if vehicle:getIsSelected() then
+        if (g_dedicatedServerInfo ~= nil) then
+            -- on dedi server always use park destination for vehicle
+            if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.hasParkDestination ~= nil then
+                vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+            end
+        elseif vehicle:getIsSelected() then
             vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
             AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
         elseif g_dedicatedServerInfo == nil then
@@ -414,7 +420,17 @@ end
 function ADInputManager:input_parkVehicle(vehicle)
     local hasParkDestination = false
     local actualParkDestination = -1
-    if vehicle:getIsSelected() then
+
+
+    if (g_dedicatedServerInfo ~= nil) then
+        -- on dedi server always use park destination for vehicle
+        if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.hasParkDestination ~= nil then
+            hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
+            if hasParkDestination then
+                actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+            end
+        end
+    elseif vehicle:getIsSelected() then
         -- g_logManager:info("[AD] ADInputManager:input_parkVehicle vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
         hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
         if hasParkDestination then
