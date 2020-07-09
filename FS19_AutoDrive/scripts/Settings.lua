@@ -1,5 +1,52 @@
 AutoDrive.settings = {}
 
+AutoDrive.settings.blinkValue = {
+    values = {
+        0,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160
+    },
+    texts = {
+        "0",
+        "10",
+        "20",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70",
+        "80",
+        "90",
+        "100",
+        "110",
+        "120",
+        "130",
+        "140",
+        "150",
+        "160"
+    },
+    default = 0,
+    current = 0,
+    text = "gui_ad_blinkValue",
+    tooltip = "gui_ad_blinkValue_tooltip",
+    translate = false,
+    isVehicleSpecific = false
+}
+
 AutoDrive.settings.collisionHeigth = {
     values = {
         0.25,
