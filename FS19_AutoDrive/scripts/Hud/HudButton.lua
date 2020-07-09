@@ -137,7 +137,13 @@ function ADHudButton:getNewState(vehicle)
     if self.primaryAction == "input_parkVehicle" then
 
         local hasParkDestination = false
-        if vehicle:getIsSelected() then
+
+        if (g_dedicatedServerInfo ~= nil) then
+            -- on dedi server always use park destination for vehicle
+            if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.hasParkDestination ~= nil then
+                hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
+            end
+        elseif vehicle:getIsSelected() then
             hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
         elseif g_dedicatedServerInfo == nil then
             -- TODO: at the moment I found no way to detect if the vehicle or a worktool is selected on dedi server - so deactivate worktool parking on dedi
@@ -214,7 +220,15 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             local hasParkDestination = false
             local actualParkDestination = -1
 
-            if vehicle:getIsSelected() then
+            if (g_dedicatedServerInfo ~= nil) then
+                -- on dedi server always use park destination for vehicle
+                if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.hasParkDestination ~= nil then
+                    hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
+                    if hasParkDestination then
+                        actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+                    end
+                end
+            elseif vehicle:getIsSelected() then
                 hasParkDestination = vehicle.ad.stateModule:hasParkDestination()
                 if hasParkDestination then
                     actualParkDestination = vehicle.ad.stateModule:getParkDestination()
