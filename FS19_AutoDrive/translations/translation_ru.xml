@@ -60,6 +60,8 @@
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
 		<text name="gui_ad_collisionHeigth"						text="Высота преграды над землей" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Настройка для обнаружения столкновений/преград перед автомобилем. Если во время движения другие транспортные средства не обнаруживаются, постепенно уменьшайте параметр. (По умолчанию 2 м)" />
+		<text name="gui_ad_blinkValue"						    text="Turnlight Automatic" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Steering angle to enable turn lights automatically. (0 = turn light automatic deactivated)" />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_followDistance"						text="Расстояние до комбайна" />
 		<text name="gui_ad_followDistance_tooltip"				text="Расстояние до комбайна при следовании за ним сзади." />
