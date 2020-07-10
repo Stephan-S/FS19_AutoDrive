@@ -597,7 +597,7 @@ function AutoDrive.renderColoredTextAtWorldPosition(x, y, z, text, textSize, col
 	end
 end
 
-function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
+function AutoDrive.checkIsOnField_old(worldX, worldY, worldZ)	-- kept only for reference in case the new detection causes issues
 	local densityBits = 0
 
 	if worldY == 0 then
@@ -611,6 +611,24 @@ function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
 	end
 
 	return false
+end
+
+function AutoDrive.checkIsOnField(startWorldX, worldY, startWorldZ)
+    local data = g_currentMission.densityMapModifiers.getAIDensityHeightArea
+    local modifier = data.modifier
+    local filter = data.filter
+    local widthWorldX = startWorldX - 0.1
+    local widthWorldZ = startWorldZ - 0.1
+    local heightWorldX = startWorldX + 0.1
+    local heightWorldZ = startWorldZ + 0.1
+    modifier:setParallelogramWorldCoords(startWorldX, startWorldZ, widthWorldX, widthWorldZ, heightWorldX, heightWorldZ, "ppp")
+    filter:setValueCompareParams("greater", 0)
+    local _, detailArea, _ = modifier:executeGet(filter)
+    if detailArea == 0 then
+        return false
+    else
+        return true
+    end
 end
 
 Sprayer.registerOverwrittenFunctions =

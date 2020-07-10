@@ -170,7 +170,7 @@ end
 
 function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
     if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
-        if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == "frontloaderTool") then --avoid trying to fill shovels and levellers atached
+        if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == g_i18n:getText("typeDesc_frontloaderTool") or attachedImplement.typeDesc == g_i18n:getText("typeDesc_wheelLoaderTool")) then --avoid trying to fill shovels and levellers atached
             local trailer = attachedImplement
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
             AutoDrive.tempTrailers[AutoDrive.tempTrailerCount] = trailer
@@ -184,6 +184,27 @@ function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
 
     return
 end
+
+function AutoDrive.getBackImplementsOf(vehicle, onlyDischargeable)
+    AutoDrive.tempBackImplements = {}
+    AutoDrive.tempBackImplementsCount = 0
+
+    if vehicle.getAttachedImplements ~= nil then
+        for _, implement in pairs(vehicle:getAttachedImplements()) do
+            if implement ~= nil and implement.object ~= nil and implement.object ~= vehicle then
+                local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+                local _, _, diffZ = worldToLocal(vehicle.components[1].node, implementX, implementY, implementZ)
+                if diffZ < 0 then
+                    AutoDrive.tempBackImplementsCount = AutoDrive.tempBackImplementsCount + 1
+                    AutoDrive.tempBackImplements[AutoDrive.tempBackImplementsCount] = implement.object
+                end
+            end
+        end
+    end
+
+    return AutoDrive.tempBackImplements, AutoDrive.tempBackImplementsCount
+end
+
 
 function AutoDrive.getDistanceToUnloadPosition(vehicle)
     if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then

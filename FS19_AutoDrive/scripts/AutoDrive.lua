@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.5-RC4"
+AutoDrive.version = "1.1.0.5-RC5"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -78,7 +78,8 @@ AutoDrive.actions = {
 	{"ADNameDriver", false, 0},
 	{"ADRenameMapMarker", false, 0},
 	{"ADSwapTargets", false, 0},
-	{"AD_open_notification_history", false, 0}
+	{"AD_open_notification_history", false, 0},
+	{"ADParkVehicle", false, 0}
 }
 
 function AutoDrive:loadMap(name)

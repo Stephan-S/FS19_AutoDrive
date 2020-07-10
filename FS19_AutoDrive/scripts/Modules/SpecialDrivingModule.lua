@@ -17,6 +17,7 @@ function ADSpecialDrivingModule:reset()
     self.motorShouldBeStopped = false
     self.unloadingIntoBunkerSilo = false
     self.stoppedTimer = AutoDriveTON:new()
+    self.vehicle.trailer = {}
 end
 
 function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
@@ -24,6 +25,7 @@ function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
     self.isBlocked = isBlocked
     self.targetLX = lx
     self.targetLZ = lz
+    self.vehicle.trailer = {}
 end
 
 function ADSpecialDrivingModule:releaseVehicle()
@@ -270,19 +272,24 @@ end
 function ADSpecialDrivingModule:getReverseNode()
     local reverseNode
     local count = 1
+    if self.vehicle.trailer == nil then
+        self.vehicle.trailer = {}
+    end
+    self.vehicle.trailer = nil
+
     for _, implement in pairs(self.vehicle:getAttachedImplements()) do
         if implement ~= nil and implement.object ~= nil then
             -- g_logManager:info("[AD] ADSpecialDrivingModule:getReverseNode count %s ", tostring(count))
             
             if (implement.object ~= self.vehicle or reverseNode == nil) and 
                 implement.object.spec_wheels ~= nil and
-                AutoDrive.isImplementAllowedForReverseDriving(implement)                    -- whitelist of implements allowed as reverse node
+                AutoDrive.isImplementAllowedForReverseDriving(self.vehicle,implement)                    -- whitelist of implements allowed as reverse node
             then
                 local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
                 local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, implementX, implementY, implementZ)
                 -- g_logManager:info("[AD] ADSpecialDrivingModule:getReverseNode diffZ %s ", tostring(diffZ))
-                -- if diffZ < 0 then
-                if diffZ < 0 and math.abs(diffZ) >= (self.vehicle.sizeLength / 2) then
+                if diffZ < 0 then
+                -- if diffZ < 0 and math.abs(diffZ) >= (self.vehicle.sizeLength / 2) then
                 
                     local hasSynchronizedWheels = false
                     for _, wheel in pairs(implement.object.spec_wheels.wheels) do
@@ -292,7 +299,7 @@ function ADSpecialDrivingModule:getReverseNode()
                     if hasSynchronizedWheels then
                         reverseNode = implement.object.spec_wheels.steeringCenterNode
                         self.reverseSolo = false
-                        self.trailer = implement.object
+                        self.vehicle.trailer = implement.object
                     end
                     break
                 end

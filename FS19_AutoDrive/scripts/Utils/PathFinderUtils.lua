@@ -41,14 +41,12 @@ function AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, 
 end
 
 AutoDrive.implementsAllowedForReverseDriving = {
-"trailer", 
-"trailerlow",
-"semitrailer",
-"implement"
+"trailer"
+,"trailerlow"
 }
 
 
-function AutoDrive.isImplementAllowedForReverseDriving(implement)
+function AutoDrive.isImplementAllowedForReverseDriving(vehicle,implement)
 -- return true for implements allowed move reverse
     local ret = false
 
@@ -63,6 +61,29 @@ function AutoDrive.isImplementAllowedForReverseDriving(implement)
             end
         end
     end
+
+    if implement ~= nil and implement.object ~= nil and implement.object.spec_attachable ~= nil 
+        and AttacherJoints.JOINTTYPE_IMPLEMENT == implement.object.spec_attachable.attacherJoint.jointType 
+    then
+        local breakforce = implement.object.spec_attachable:getBrakeForce()
+        -- g_logManager:info("[AD] isImplementAllowedForReverseDriving implement breakforce %s ", tostring(breakforce))
+        if breakforce ~= nil and breakforce > 0.07 * 10
+            and not(implement.object ~= nil and implement.object.getName ~= nil and implement.object:getName() == "GL 420")     -- Grimme GL 420 needs special handling, as it has breakforce >0.07, but no trailed wheel
+        then
+            return true
+        end
+    end
+
+    if implement ~= nil and implement.object ~= nil and implement.object.spec_attachable ~= nil 
+        and AttacherJoints.JOINTTYPE_SEMITRAILER == implement.object.spec_attachable.attacherJoint.jointType 
+    then
+        local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+        local _, _, diffZ = worldToLocal(vehicle.components[1].node, implementX, implementY, implementZ)
+        if diffZ < -3 then
+            return true
+        end
+    end
+
     return ret
 end
 

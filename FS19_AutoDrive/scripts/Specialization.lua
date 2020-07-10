@@ -85,7 +85,9 @@ end
 
 function AutoDrive:onLoad(savegame)
     -- This will run before initial MP sync
-    self.ad = {}
+    if self.ad == nil then
+        self.ad = {}
+    end
     self.ad.dirtyFlag = self:getNextDirtyFlag()
     self.ad.smootherDriving = {}
     self.ad.smootherDriving.lastMaxSpeed = 0
@@ -587,12 +589,6 @@ function AutoDrive:startAutoDrive()
     else
         g_logManager:devError("AutoDrive:startAutoDrive() must be called only on the server.")
     end
-    --[[
-    for i = 1, #g_fruitTypeManager.fruitTypes do
-        local fruitType = g_fruitTypeManager.fruitTypes[i].index
-        print("FruitType: "  .. fruitType .. ": " .. g_fillTypeManager:getFillTypeByIndex(g_fruitTypeManager:getFillTypeIndexByFruitTypeIndex(fruitType)).title)
-    end
-    --]]
 end
 
 function AutoDrive:stopAutoDrive()
@@ -678,14 +674,14 @@ function AutoDrive:stopAutoDrive()
             self.ad.taskModule:abortAllTasks()
             self.ad.taskModule:reset()
 
-            local isStartingAIVE = (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and not self.ad.stateModule:getUseCP())
-            local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartAI() and self.ad.stateModule:getUseCP())
+            local isStartingAIVE = (not self.ad.isStoppingWithError and self.ad.stateModule:getStartCP_AIVE() and not self.ad.stateModule:getUseCP_AIVE())
+            local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartCP_AIVE() and self.ad.stateModule:getUseCP_AIVE())
             AutoDriveStartStopEvent:sendStopEvent(self, isPassingToCP, isStartingAIVE)
 
             if not hasCallbacks and not self.ad.isStoppingWithError then
-                if self.ad.stateModule:getStartAI() then
-                    self.ad.stateModule:setStartAI(false)
-                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP() then
+                if self.ad.stateModule:getStartCP_AIVE() then
+                    self.ad.stateModule:setStartCP_AIVE(false)
+                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
                         g_courseplay.courseplay:start(self)
                     else
                         if self.acParameters ~= nil then
@@ -710,6 +706,9 @@ function AutoDrive:onStartAutoDrive()
 
     if self.currentHelper == nil then
         self.currentHelper = g_helperManager:getRandomHelper()
+        if self.currentHelper ~= nil then
+            g_helperManager:useHelper(self.currentHelper)
+        end
         if self.setRandomVehicleCharacter ~= nil then
             self:setRandomVehicleCharacter()
             self.ad.vehicleCharacter = self.spec_enterable.vehicleCharacter
@@ -732,6 +731,9 @@ function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
         self.forceIsActive = false
         self.spec_motorized.stopMotorOnLeave = true
         self.spec_enterable.disableCharacterOnLeave = true
+        if self.currentHelper ~= nil then
+            g_helperManager:releaseHelper(self.currentHelper)
+        end
         self.currentHelper = nil
 
         if self.restoreVehicleCharacter ~= nil then

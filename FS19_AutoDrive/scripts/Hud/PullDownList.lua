@@ -212,6 +212,9 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 if self.hovered == self.selected + (i - 1) and listEntry.isFolder == false then
                     setTextBold(false)
                     setTextColor(0, 1, 0, 1)
+                elseif self.hovered == self.selected + (i - 1) and listEntry.isFolder == true then  -- folders mouse over
+                    setTextBold(true)
+                    setTextColor(0.5, 0.8, 0, 1)
                 else
                     if listEntry.isFolder == false then
                         setTextBold(false)
@@ -614,9 +617,9 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive.mouseWheelActive = true
             return true
         elseif button == 5 and isUp then
-            if self:getListElementByIndex(vehicle, self.selected + 1) ~= nil then
+            if self:getListElementByIndex(vehicle, self.selected + 1 + ADPullDownList.MAX_SHOWN - 2) ~= nil then
                 self.selected = self.selected + 1
-                if self:getListElementByIndex(vehicle, self.hovered + 1) ~= nil then
+                if self:getListElementByIndex(vehicle, self.hovered + 1 + ADPullDownList.MAX_SHOWN - 2) ~= nil then
                     self.hovered = self.hovered + 1
                 end
             end

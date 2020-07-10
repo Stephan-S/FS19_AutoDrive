@@ -27,6 +27,7 @@ function UnloadAtDestinationTask:setUp()
         self.state = UnloadAtDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function UnloadAtDestinationTask:update(dt)
@@ -68,11 +69,13 @@ function UnloadAtDestinationTask:update(dt)
             if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
                 local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
-                if fillLevel <= 1 or self.isContinued or (((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) and not self.vehicle.ad.drivePathModule:getIsReversing()) then
+                if fillLevel <= 1 or self.isContinued or (((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) and (not ((self.vehicle.ad.drivePathModule:getIsReversing() and self.vehicle.ad.trailerModule:getBunkerTrigger() ~= nil)))) then
+                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update fillLevel <= 1")
                     AutoDrive.setAugerPipeOpen(trailers, false)
                     self:finished()
                 else
                     -- Wait at unload point until unloaded somehow
+                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update Wait at unload point until unloaded somehow")
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
                 end
@@ -85,7 +88,6 @@ function UnloadAtDestinationTask:update(dt)
                 end
             end
         else
-            --self.vehicle.ad.specialDrivingModule:releaseVehicle()
             if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
                     self.vehicle.ad.drivePathModule:update(dt)

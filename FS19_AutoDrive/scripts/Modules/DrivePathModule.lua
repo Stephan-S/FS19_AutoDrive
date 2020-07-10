@@ -4,6 +4,8 @@ ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
+ADDrivePathModule.PAUSE_TIMEOUT = 3000
+ADDrivePathModule.BLINK_TIMEOUT = 1000
 
 function ADDrivePathModule:new(vehicle)
     local o = {}
@@ -12,11 +14,14 @@ function ADDrivePathModule:new(vehicle)
     o.vehicle = vehicle
     o.min_distance = AutoDrive.defineMinDistanceByVehicleType(vehicle)
     o.minDistanceTimer = AutoDriveTON:new()
+    o.waitTimer = AutoDriveTON:new()
+    o.blinkTimer = AutoDriveTON:new()
     ADDrivePathModule.reset(o)
     return o
 end
 
 function ADDrivePathModule:reset()
+    self.turnAngle = 0
     self.isPaused = false
     self.atTarget = false
     self.wayPoints = nil
@@ -24,9 +29,12 @@ function ADDrivePathModule:reset()
     self.onRoadNetwork = true
     self.minDistanceToNextWp = math.huge
     self.minDistanceTimer:timer(false, 5000, 0)
+    self.waitTimer:timer(false, ADDrivePathModule.PAUSE_TIMEOUT, 0)
+    self.blinkTimer:timer(false, ADDrivePathModule.BLINK_TIMEOUT, 0)
     self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
     self.isReversing = false
+    self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -96,6 +104,7 @@ end
 
 function ADDrivePathModule:setPaused()
     self.isPaused = true
+    self.waitTimer:timer(false)
 end
 
 function ADDrivePathModule:setUnPaused()
@@ -111,6 +120,15 @@ function ADDrivePathModule:resetDirtyFlag()
 end
 
 function ADDrivePathModule:update(dt)
+    if self.waitTimer:timer(self.isPaused, ADDrivePathModule.PAUSE_TIMEOUT, dt) then        -- used to wait for the CP silo compacter
+        self:setUnPaused()
+    end
+    if self.isPaused then
+        self.vehicle.ad.specialDrivingModule:stopVehicle()
+        self.vehicle.ad.specialDrivingModule:update(dt)
+        return
+    end
+
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -133,7 +151,7 @@ function ADDrivePathModule:update(dt)
             end
         end
 
-        self:checkActiveAttributesSet()
+        self:checkActiveAttributesSet(dt)
     else
         --keep calling the reverse function as it is also handling the bunkersilo unload, even after reaching the target
         if self.isReversing then
@@ -298,6 +316,7 @@ function ADDrivePathModule:getCurrentLookAheadDistance()
 end
 
 function ADDrivePathModule:getHighestApproachingAngle()
+    self.turnAngle = 0
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
@@ -318,6 +337,9 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 2]
 
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
+
+            self.turnAngle = self.turnAngle + math.clamp(-90, angle, 90)
+
             angle = math.abs(angle)
 
             if MathUtil.vector2Length(self:getCurrentWayPoint().x - wp_ahead.x, self:getCurrentWayPoint().z - wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
@@ -598,7 +620,7 @@ function ADDrivePathModule:getLookAheadTarget()
     return targetX, targetZ
 end
 
-function ADDrivePathModule:checkActiveAttributesSet()
+function ADDrivePathModule:checkActiveAttributesSet(dt)
     if self.vehicle.isServer then
         self.vehicle.forceIsActive = true
         self.vehicle.spec_motorized.stopMotorOnLeave = false
@@ -615,6 +637,19 @@ function ADDrivePathModule:checkActiveAttributesSet()
                 self.vehicle:setBeaconLightsVisibility(true)
             else
                 self.vehicle:setBeaconLightsVisibility(false)
+            end
+        end
+        local blinkangle = AutoDrive.getSetting("blinkValue") or 0
+
+        if blinkangle > 0 then
+            if self.blinkTimer:timer(math.abs(self.turnAngle) < blinkangle, ADDrivePathModule.BLINK_TIMEOUT, dt) then
+                self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
+            else
+                if self.turnAngle > blinkangle and self:isOnRoadNetwork() then
+                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_LEFT)
+                elseif self.turnAngle < - blinkangle and self:isOnRoadNetwork() then
+                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_RIGHT)
+                end
             end
         end
 
