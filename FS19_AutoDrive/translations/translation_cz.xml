@@ -58,8 +58,8 @@
 		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořit" />
 		<text name="AD_lalt_for_deletion" 						text="LALT smazat" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
-		<text name="gui_ad_blinkValue"						    text="Turnlight Automatic" />
-		<text name="gui_ad_blinkValue_tooltip"					text="Steering angle to enable turn lights automatically. (0 = turn light automatic deactivated)" />
+		<text name="gui_ad_blinkValue"						    text="Blinkry automaticky" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Úhel řízení pro automatické zapnutí blinkrů. (0 = automatická deaktivace směrových světel)" />
 		<text name="gui_ad_collisionHeigth"						text="Kolizní výška nad zemí" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Nastavení pro detekci kolizí před vozidlem. Pokud během jízdy nejsou detekována jiná vozidla, snižte krok za krokem. (Výchozí 2 m)" />
 		<text name="gui_ad_pipe_offset"							text="Odstup od kombajnu" />
