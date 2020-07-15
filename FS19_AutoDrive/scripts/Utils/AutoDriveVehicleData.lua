@@ -41,7 +41,6 @@ end
 function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "getWorkToolParkDestination", AutoDriveVehicleData.getWorkToolParkDestination)
     SpecializationUtil.registerFunction(vehicleType, "setWorkToolParkDestination", AutoDriveVehicleData.setWorkToolParkDestination)
-    SpecializationUtil.registerFunction(vehicleType, "hasWorkToolParkDestination", AutoDriveVehicleData.hasWorkToolParkDestination)
 end
 
 function AutoDriveVehicleData:onPreLoad(savegame)
@@ -119,13 +118,6 @@ function AutoDriveVehicleData:onWriteUpdateStream(streamId, connection, dirtyMas
             streamWriteUIntN(streamId, self.vehicle.advd.WorkToolParkDestination + 1, 20)
         end
     end
-end
-
-function AutoDriveVehicleData:hasWorkToolParkDestination()
-    if self~= nil and self.vehicle ~= nil then
-        -- AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData:hasWorkToolParkDestination vehicle %s", tostring(self.vehicle:getName()))
-    end
-    return self.vehicle.advd.WorkToolParkDestination >= 1
 end
 
 function AutoDriveVehicleData:getWorkToolParkDestination()
