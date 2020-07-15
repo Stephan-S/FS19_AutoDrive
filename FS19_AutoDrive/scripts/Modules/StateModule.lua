@@ -673,10 +673,6 @@ function ADStateModule:setParkDestination(parkDestination)
     self:raiseDirtyFlag()
 end
 
-function ADStateModule:hasParkDestination(parkDestination)
-    return self.parkDestination ~= nil and self.parkDestination >= 1 and ADGraphManager:getMapMarkerById(self.parkDestination) ~= nil
-end
-
 function ADStateModule:getSelectedNeighbourPoint()
     if not self.pointToNeighbour then
         return nil
