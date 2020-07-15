@@ -436,7 +436,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 				if g_server ~= nil then
 					-- Removing references to it on all vehicles
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
 							local parkDestination = vehicle.ad.stateModule:getParkDestination()
 							if parkDestination ~= nil and parkDestination >= markerId then
 								if parkDestination == markerId then
@@ -449,7 +449,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 					end
                     -- handle all vehicles and tools park destination
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-                        if vehicle.advd ~= nil and vehicle.advd.hasWorkToolParkDestination ~= nil and vehicle.advd:hasWorkToolParkDestination() then
+                        if vehicle.advd ~= nil and vehicle.advd.getWorkToolParkDestination ~= nil and vehicle.advd:getWorkToolParkDestination() >= 1 then
 							local WorkToolParkDestination = vehicle.advd:getWorkToolParkDestination()
 							if WorkToolParkDestination ~= nil and WorkToolParkDestination >= markerId then
 								if WorkToolParkDestination == markerId then
