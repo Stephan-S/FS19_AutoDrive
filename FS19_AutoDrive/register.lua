@@ -136,7 +136,7 @@ if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
 	local ADSpecName = g_currentModName .. ".AutoDrive"
 
 	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-		if typeDef ~= nil and vehicleType ~= "locomotive" then
+		if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" then
 			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
 				g_logManager:info('[AutoDrive] Attached to vehicleType "%s"', vehicleType)
 				if typeDef.specializationsByName["AutoDrive"] == nil then
@@ -159,7 +159,7 @@ if g_specializationManager:getSpecializationByName("AutoDriveVehicleData") == ni
 	local ADSpecName = g_currentModName .. ".AutoDriveVehicleData"
 
 	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-		if typeDef ~= nil and vehicleType ~= "locomotive" then
+		if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" then
 			if AutoDriveVehicleData.prerequisitesPresent(typeDef.specializations) then
 				if typeDef.specializationsByName["AutoDriveVehicleData"] == nil then
 					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
