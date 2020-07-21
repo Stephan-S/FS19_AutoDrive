@@ -222,6 +222,7 @@ function ADInputManager:input_start_stop(vehicle)
         vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:getCurrentMode():start()
+--[[
         if AutoDrive.leftLSHIFTmodifierKeyPressed then
             for _, otherVehicle in pairs(g_currentMission.vehicles) do
                 if otherVehicle ~= nil and otherVehicle ~= vehicle and otherVehicle.ad ~= nil and otherVehicle.ad.stateModule ~= nil then
@@ -241,6 +242,7 @@ function ADInputManager:input_start_stop(vehicle)
 			end
             g_currentMission:requestToEnterVehicle(vehicle)
         end
+]]
     end
 end
 
