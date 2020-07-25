@@ -217,7 +217,8 @@ function ADTrailerModule:updateUnload(dt)
         -- if not self.startedUnloadingAtTrigger or self.fillUnits > 1 then
             for _, trailer in pairs(self.trailers) do
                 local unloadTrigger = self:lookForPossibleUnloadTrigger(trailer)
-                if unloadTrigger ~= nil then
+                self.unloadDelayTimer:timer(unloadTrigger ~= nil, 150, dt)
+                if unloadTrigger ~= nil and self.unloadDelayTimer:done() then
                     self:startUnloadingIntoTrigger(trailer, unloadTrigger)
                     return
                 end
