@@ -197,8 +197,8 @@ function AutoDrive:StopCP(vehicle)
 	end
 
 	if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
-		if vehicle.ad.stateModule:getUseCP_AIVE() then
-			vehicle.ad.stateModule:toggleUseCP_AIVE()
+		if vehicle.ad.stateModule:getStartCP_AIVE() then
+			vehicle.ad.stateModule:toggleStartCP_AIVE()
 		end
 		g_courseplay.courseplay:stop(vehicle)
 	end
