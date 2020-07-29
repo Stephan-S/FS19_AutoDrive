@@ -129,3 +129,7 @@ function ADTaskModule:onTaskInfoChange(taskInfo)
     self.vehicle.ad.stateModule:setCurrentTaskInfo(taskInfo)
     self.lastTaskInfo = taskInfo
 end
+
+function ADTaskModule:getNumberOfTasks()
+    return self.tasks:Count()
+end
