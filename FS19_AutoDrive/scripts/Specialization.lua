@@ -260,7 +260,7 @@ function AutoDrive:onUpdate(dt)
 
     ADSensor:handleSensors(self, dt)
 
-    if not self.ad.stateModule:isActive() then
+    if not self.ad.stateModule:isActive() and self.ad.taskModule:getNumberOfTasks() > 0 then
         self.ad.taskModule:abortAllTasks()
     end
 
