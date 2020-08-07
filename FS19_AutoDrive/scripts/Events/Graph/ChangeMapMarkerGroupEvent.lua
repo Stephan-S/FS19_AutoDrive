@@ -18,12 +18,12 @@ end
 
 function AutoDriveChangeMapMarkerGroupEvent:writeStream(streamId, connection)
 	AutoDrive.streamWriteStringOrEmpty(streamId, self.groupName)
-	streamWriteUInt8(streamId, self.markerId)
+	streamWriteUInt16(streamId, self.markerId)
 end
 
 function AutoDriveChangeMapMarkerGroupEvent:readStream(streamId, connection)
 	self.groupName = AutoDrive.streamReadStringOrEmpty(streamId)
-	self.markerId = streamReadUInt8(streamId)
+	self.markerId = streamReadUInt16(streamId)
 	self:run(connection)
 end
 
