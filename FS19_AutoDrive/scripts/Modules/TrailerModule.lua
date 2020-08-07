@@ -121,8 +121,9 @@ end
 
 function ADTrailerModule:handleTrailerCovers()
     local inTriggerProximity = ADTriggerManager.checkForTriggerProximity(self.vehicle, self.vehicle.ad.drivePathModule.distanceToTarget)
-
-    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, inTriggerProximity)
+    if inTriggerProximity then
+        AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
+    end
 end
 
 function ADTrailerModule:updateStates()
@@ -170,11 +171,16 @@ function ADTrailerModule:updateLoad(dt)
     --Monitor load process
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad self.trigger %s fillUnitFull %s", tostring(self.trigger), tostring(fillUnitFull))
     if self.trigger ~= nil and self.trigger.stoppedTimer:timer(not self.trigger.isLoading,1000,dt) then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad self.trigger %s not self.trigger.isLoading", tostring(self.trigger))
         -- started loading at a trigger, wait 1000ms to end animations and effects
         self.trigger = nil      -- no longer loading -> reset trigger reference
     end
 
     if (self.trigger == nil or (self.trigger ~= nil and self.trigger.stoppedTimer:done())) then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad trigger == nil or stoppedTimer:done isLoading %s", tostring(self.isLoading))
+        if self.trigger ~= nil and self.trigger.stoppedTimer ~= nil then
+            self.trigger.stoppedTimer:timer(false)      -- clear timer
+        end
         if fillUnitFull or AutoDrive.getSetting("continueOnEmptySilo") or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             self.isLoading = false
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad isLoading %s", tostring(self.isLoading))
@@ -218,7 +224,7 @@ function ADTrailerModule:updateUnload(dt)
                     if trailer.unloadDelayTimer == nil then
                         trailer.unloadDelayTimer = AutoDriveTON:new()
                     end
-                    trailer.unloadDelayTimer:timer(unloadTrigger ~= nil, 100, dt)
+                    trailer.unloadDelayTimer:timer(unloadTrigger ~= nil, 500, dt)
                     if unloadTrigger ~= nil and trailer.unloadDelayTimer:done() then
                         trailer.unloadDelayTimer:timer(false)       -- clear timer
                         self:startUnloadingIntoTrigger(trailer, unloadTrigger)
@@ -231,7 +237,7 @@ function ADTrailerModule:updateUnload(dt)
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload Monitor unloading")
         --print("Monitor unloading")
         local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
-        self.unloadDelayTimer:timer(self.isUnloading, 100, dt)
+        self.unloadDelayTimer:timer(self.isUnloading, 250, dt)
         if self.unloadDelayTimer:done() then
             self.unloadDelayTimer:timer(false)      -- clear timer
             if self:areAllTrailersClosed(dt) and (fillUnitEmpty or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders"))) then
@@ -245,12 +251,14 @@ function ADTrailerModule:updateUnload(dt)
 end
 
 function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger, fillUnitIndex)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:tryLoadingAtTrigger start")
     local fillUnits = trailer:getFillUnits()
 
     local i = fillUnitIndex
     if trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", self.vehicle) * 0.999 and (not trigger.isLoading) then
         -- activate load trigger
         local trailerIsInRange = AutoDrive.trailerIsInTriggerList(trailer, trigger, i)
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:tryLoadingAtTrigger trailerIsInRange %s", tostring(trailerIsInRange))
         if trigger:getIsActivatable(trailer) and trailerIsInRange then --and not self.isLoading then
             if #fillUnits > 1 then
                 --print("startLoadingCorrectFillTypeAtTrigger now - " .. i)
@@ -262,9 +270,11 @@ function ADTrailerModule:tryLoadingAtTrigger(trailer, trigger, fillUnitIndex)
             self.isLoading = self.isLoading or trigger.isLoading
         end
     end
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:tryLoadingAtTrigger end")
 end
 
 function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, fillUnitIndex)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingCorrectFillTypeAtTrigger start")
     if not AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer) then
         local storedFillType = self.vehicle.ad.stateModule:getFillType()
         local toCheck = {13, 43, 44}
@@ -274,6 +284,7 @@ function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, 
             if AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer, nil, fillUnitIndex) then
                 self:startLoadingAtTrigger(trigger, fillType, fillUnitIndex, trailer)
                 self.vehicle.ad.stateModule:setFillType(storedFillType)
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingCorrectFillTypeAtTrigger found fillType 13, 43, 44 - return")
                 return
             end
         end
@@ -282,9 +293,11 @@ function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, 
     else
         self:startLoadingAtTrigger(trigger, self.vehicle.ad.stateModule:getFillType(), fillUnitIndex, trailer)
     end
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingCorrectFillTypeAtTrigger end")
 end
 
 function ADTrailerModule:startLoadingAtTrigger(trigger, fillType, fillUnitIndex, trailer)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingAtTrigger start")
     --print("Start loading at trigger with fillType: " .. fillType .. " and fillUnit: " .. fillUnitIndex)
     trigger.autoStart = true
     trigger.selectedFillType = fillType
@@ -298,6 +311,7 @@ function ADTrailerModule:startLoadingAtTrigger(trigger, fillType, fillUnitIndex,
     self.trigger = trigger
     self.isLoadingToFillUnitIndex = fillUnitIndex
     self.isLoadingToTrailer = trailer
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingAtTrigger start")
 end
 
 function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
