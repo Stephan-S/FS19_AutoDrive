@@ -36,6 +36,7 @@ source(Utils.getFilename("scripts/Events/ExperimentalFeaturesEvent.lua", g_curre
 source(Utils.getFilename("scripts/Events/MessageEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/InputEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/HudInputEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/DebugSettingsEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/StartStopEvent.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Events/Graph/CreateMapMarkerEvent.lua", g_currentModDirectory))
