@@ -23,7 +23,7 @@ end
 function AutoDriveMessageEvent:writeStream(streamId, connection)
     streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
     streamWriteBool(streamId, self.isNotification)
-    streamWriteUIntN(streamId, self.messageType, 2)
+    streamWriteUIntN(streamId, self.messageType, 4)
     streamWriteString(streamId, self.text or "")
     streamWriteUIntN(streamId, self.duration, 16)
     local argsCount = #self.args
@@ -36,7 +36,7 @@ end
 function AutoDriveMessageEvent:readStream(streamId, connection)
     self.vehicle = NetworkUtil.getObject(streamReadInt32(streamId))
     self.isNotification = streamReadBool(streamId)
-    self.messageType = streamReadUIntN(streamId, 2)
+    self.messageType = streamReadUIntN(streamId, 4)
     self.text = streamReadString(streamId)
     self.duration = streamReadUIntN(streamId, 16)
     self.args = {}

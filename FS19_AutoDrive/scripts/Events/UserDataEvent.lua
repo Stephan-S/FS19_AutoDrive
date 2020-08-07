@@ -20,21 +20,21 @@ end
 function AutoDriveUserDataEvent:writeStream(streamId, connection)
     streamWriteFloat32(streamId, self.hudX)
     streamWriteFloat32(streamId, self.hudY)
-    streamWriteUInt8(streamId, table.count(self.settings))
+    streamWriteUInt16(streamId, table.count(self.settings))
     for sn, sv in pairs(self.settings) do
         streamWriteString(streamId, sn)
-        streamWriteUInt8(streamId, sv)
+        streamWriteUInt16(streamId, sv)
     end
 end
 
 function AutoDriveUserDataEvent:readStream(streamId, connection)
     self.hudX = streamReadFloat32(streamId)
     self.hudY = streamReadFloat32(streamId)
-    local settingsCount = streamReadUInt8(streamId)
+    local settingsCount = streamReadUInt16(streamId)
     self.settings = {}
     for _ = 1, settingsCount do
         local sn = streamReadString(streamId)
-        local sv = streamReadUInt8(streamId)
+        local sv = streamReadUInt16(streamId)
         self.settings[sn] = sv
     end
     self:run(connection)

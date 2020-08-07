@@ -19,7 +19,7 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 	-- Writing global confings
 	for _, setting in pairs(AutoDrive.settings) do
 		if setting ~= nil and not setting.isVehicleSpecific and not setting.isUserSpecific then
-			streamWriteInt16(streamId, setting.current)
+			streamWriteUInt16(streamId, setting.current)
 		end
 	end
 
@@ -30,7 +30,7 @@ function AutoDriveUpdateSettingsEvent:writeStream(streamId, connection)
 		streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
 		for settingName, setting in pairs(AutoDrive.settings) do
 			if setting ~= nil and setting.isVehicleSpecific and not setting.isUserSpecific then
-				streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self.vehicle))
+				streamWriteUInt16(streamId, AutoDrive.getSettingState(settingName, self.vehicle))
 			end
 		end
 	end
@@ -40,7 +40,7 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 	-- Reading global confings
 	for _, setting in pairs(AutoDrive.settings) do
 		if setting ~= nil and not setting.isVehicleSpecific and not setting.isUserSpecific then
-			setting.current = streamReadInt16(streamId)
+			setting.current = streamReadUInt16(streamId)
 		end
 	end
 
@@ -52,7 +52,7 @@ function AutoDriveUpdateSettingsEvent:readStream(streamId, connection)
 			-- Reading vehicle confings
 			for settingName, setting in pairs(AutoDrive.settings) do
 				if setting ~= nil and setting.isVehicleSpecific and not setting.isUserSpecific then
-					local newSettingsValue = streamReadInt16(streamId)
+					local newSettingsValue = streamReadUInt16(streamId)
 					vehicle.ad.settings[settingName].current = newSettingsValue
 					vehicle.ad.settings[settingName].new = newSettingsValue -- Also update 'new' field to prevent a following incoerence state of 'hasChanges()' function on settings pages
 				end
