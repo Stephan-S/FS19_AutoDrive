@@ -191,7 +191,7 @@ end
 function AutoDrive:onWriteStream(streamId, connection)
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting ~= nil and setting.isVehicleSpecific then
-            streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self))
+            streamWriteUInt16(streamId, AutoDrive.getSettingState(settingName, self))
         end
     end
     self.ad.stateModule:writeStream(streamId)
@@ -200,7 +200,7 @@ end
 function AutoDrive:onReadStream(streamId, connection)
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting ~= nil and setting.isVehicleSpecific then
-            self.ad.settings[settingName].current = streamReadInt16(streamId)
+            self.ad.settings[settingName].current = streamReadUInt16(streamId)
         end
     end
     self.ad.stateModule:readStream(streamId)
@@ -667,6 +667,10 @@ function AutoDrive:stopAutoDrive()
 
             if self.setBeaconLightsVisibility ~= nil then
                 self:setBeaconLightsVisibility(false)
+            end
+
+            if self.setTurnLightState ~= nil then
+                self:setTurnLightState(Lights.TURNLIGHT_OFF)
             end
 
             self.ad.stateModule:setActive(false)
