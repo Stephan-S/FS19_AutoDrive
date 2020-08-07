@@ -464,6 +464,8 @@ function AutoDrive:setDebugChannel(newDebugChannel)
 	else
 		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL
 	end
+    AutoDriveDebugSettingsEvent.sendEvent(AutoDrive.currentDebugChannelMask)
+
 	AutoDrive.showNetworkEvents()
 	ADGraphManager:createMarkersAtOpenEnds()
 end
