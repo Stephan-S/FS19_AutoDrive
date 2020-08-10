@@ -70,7 +70,7 @@ function UnloadAtDestinationTask:update(dt)
             if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached isActiveAtTrigger")
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-                AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
+                AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
                 local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                 if fillLevel <= 1 or self.isContinued or (((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) and (not ((self.vehicle.ad.drivePathModule:getIsReversing() and self.vehicle.ad.trailerModule:getBunkerTrigger() ~= nil)))) then
                     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update fillLevel <= 1")
@@ -79,7 +79,6 @@ function UnloadAtDestinationTask:update(dt)
                 else
                     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update Wait at unload point until unloaded somehow")
                     -- Wait at unload point until unloaded somehow
-                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update Wait at unload point until unloaded somehow")
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
                 end
