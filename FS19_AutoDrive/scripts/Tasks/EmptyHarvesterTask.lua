@@ -22,6 +22,7 @@ end
 function EmptyHarvesterTask:setUp()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Setting up EmptyHarvesterTask")
     self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function EmptyHarvesterTask:update(dt)
