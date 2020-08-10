@@ -30,6 +30,8 @@ function ADTrailerModule:reset()
         self.unloadDelayTimer:timer(false)      -- clear timer
     end
     self:clearTrailerUnloadTimers()
+    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
 end
 
 function ADTrailerModule:isActiveAtTrigger()
