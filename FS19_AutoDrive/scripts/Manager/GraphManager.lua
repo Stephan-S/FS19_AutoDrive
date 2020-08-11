@@ -343,6 +343,7 @@ function ADGraphManager:addGroup(groupName, sendEvent)
 			if AutoDrive.Hud ~= nil then
 				AutoDrive.Hud.lastUIScale = 0
 			end
+			self:markChanges()
 		end
 	end
 end
@@ -378,6 +379,7 @@ function ADGraphManager:removeGroup(groupName, sendEvent)
 			end
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
+			self:markChanges()
 		end
 	end
 end
@@ -390,6 +392,7 @@ function ADGraphManager:changeMapMarkerGroup(groupName, markerId, sendEvent)
 		else
 			-- Changing the group name of the marker
 			self.mapMarkers[markerId].group = groupName
+			self:markChanges()
 		end
 	end
 end
