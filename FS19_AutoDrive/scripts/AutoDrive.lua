@@ -172,6 +172,7 @@ function AutoDrive:saveSavegame()
     g_logManager:info("[AD] AutoDrive:saveSavegame start")
 	if g_server ~= nil then
         g_logManager:info("[AD] AutoDrive:saveSavegame g_server ~= nil start")
+--[[
 		if ADGraphManager:hasChanges() or AutoDrive.HudChanged then
             g_logManager:info("[AD] AutoDrive:saveSavegame hasChanges or HudChanged")
 			AutoDrive.saveToXML(AutoDrive.adXml)
@@ -184,6 +185,8 @@ function AutoDrive:saveSavegame()
 				saveXMLFile(AutoDrive.adXml)
 			end
 		end
+]]
+        AutoDrive.saveToXML(AutoDrive.adXml)
 		ADUserDataManager:saveToXml()
         g_logManager:info("[AD] AutoDrive:saveSavegame g_server ~= nil end")
 	end

@@ -235,7 +235,7 @@ function AutoDrive.readFromXML(xmlFile)
 	end
     g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
     g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
-    g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(#ADGraphManager:getGroups()))
+    g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -313,7 +313,7 @@ function AutoDrive.saveToXML(xmlFile)
 	saveXMLFile(xmlFile)
     g_logManager:info("[AD] AutoDrive.saveToXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
     g_logManager:info("[AD] AutoDrive.saveToXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
-    g_logManager:info("[AD] AutoDrive.saveToXML groups: %s", tostring(#ADGraphManager:getGroups()))
+    g_logManager:info("[AD] AutoDrive.saveToXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
 end
 
 function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
