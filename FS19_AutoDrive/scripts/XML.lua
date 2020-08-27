@@ -26,7 +26,6 @@ function AutoDrive.loadStoredXML()
 				AutoDrive.versionUpdateCancelsSettingsLoad = true
 			end
 		end
-		--]]
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
 		if MapCheck == false then --versionString == nil or
 			g_logManager:devWarning("[AutoDrive] Map Check (%s) failed", MapCheck == false)
@@ -34,6 +33,8 @@ function AutoDrive.loadStoredXML()
 		else
 			AutoDrive.readFromXML(AutoDrive.adXml)
 		end
+		--]]
+		AutoDrive.readFromXML(AutoDrive.adXml)
 	else
 		AutoDrive.loadInitConfig(xmlFile)
 	end
