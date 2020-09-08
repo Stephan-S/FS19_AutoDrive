@@ -22,7 +22,8 @@ function AutoDrive.registerEventListeners(vehicleType)
             "onStopAutoDrive",
             "onPostAttachImplement",
             "onPreDetachImplement",
-            "onEnterVehicle"
+            "onEnterVehicle",
+            "onLeaveVehicle"
         }
     ) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
@@ -320,7 +321,7 @@ function AutoDrive:onDraw()
         end
     end
 
-    if (self.ad.stateModule:isEditorModeEnabled() or self.ad.stateModule:isEditorShowEnabled()) then
+    if (AutoDrive.isEditorModeEnabled() or AutoDrive.isEditorShowEnabled()) then
         self:onDrawEditorMode()
     end
 
@@ -452,6 +453,12 @@ function AutoDrive:onEnterVehicle()
     AutoDrive.Hud.lastUIScale = 0
 end
 
+function AutoDrive:onLeaveVehicle()
+    if self.ad ~= nil and self.ad.recordingModule ~= nil then
+        self.ad.recordingModule:stop()
+    end
+end
+
 function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
 end
@@ -478,7 +485,8 @@ function AutoDrive:onDrawEditorMode()
         end
     end
 
-    if ADGraphManager:getWayPointById(1) ~= nil and not self.ad.stateModule:isEditorShowEnabled() then
+    if ADGraphManager:getWayPointById(1) ~= nil and not AutoDrive.isEditorShowEnabled() then
+
         local g = 0
         --Draw line to selected neighbor point
         local neighbour = self.ad.stateModule:getSelectedNeighbourPoint()
@@ -501,7 +509,7 @@ function AutoDrive:onDrawEditorMode()
         local x = point.x
         local y = point.y
         local z = point.z
-        if self.ad.stateModule:isInExtendedEditorMode() then
+        if AutoDrive.isInExtendedEditorMode() then
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.mouseIsAtPos(point, 0.01) then
                 DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)

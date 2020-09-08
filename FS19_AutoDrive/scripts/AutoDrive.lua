@@ -52,6 +52,11 @@ AutoDrive.RT_ONLYPICKUP = 2
 AutoDrive.RT_ONLYDELIVER = 3
 AutoDrive.RT_PICKUPANDDELIVER = 4
 
+AutoDrive.EDITOR_OFF = 1
+AutoDrive.EDITOR_ON = 2
+AutoDrive.EDITOR_EXTENDED = 3
+AutoDrive.EDITOR_SHOW = 4
+
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
 	{"ADToggleHud", true, 1},
@@ -219,16 +224,17 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
 
 	if not AutoDrive.getSetting("secondEditorModeAllowed") then
+        -- handle the LCTRL key if in 1st Editor Mode
 		local vehicle = g_currentMission.controlledVehicle
-		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
-			if vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
+		if vehicle ~= nil and vehicle.ad ~= nil then
+			if AutoDrive.getEditorMode() == AutoDrive.EDITOR_ON then
 				if AutoDrive.leftCTRLmodifierKeyPressed then
-					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_EXTENDED)
+                    AutoDrive.setEditorMode(AutoDrive.EDITOR_EXTENDED)
 					AutoDrive.toggledEditorMode = true
 				end
-			elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_EXTENDED and AutoDrive.toggledEditorMode then
+			elseif AutoDrive.getEditorMode() == AutoDrive.EDITOR_EXTENDED and AutoDrive.toggledEditorMode then
 				if not AutoDrive.leftCTRLmodifierKeyPressed then
-					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_ON)
+                    AutoDrive.setEditorMode(AutoDrive.EDITOR_ON)
 					AutoDrive.toggledEditorMode = false
 					vehicle.ad.selectedNodeId = nil
 				end

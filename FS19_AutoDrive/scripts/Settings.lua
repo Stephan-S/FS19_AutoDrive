@@ -889,6 +889,18 @@ AutoDrive.settings.wideHUD = {
     isUserSpecific = true
 }
 
+AutoDrive.settings.EditorMode = {
+    values = {1, 2, 3, 4},
+    texts = {"EDITOR_OFF", "EDITOR_ON", "EDITOR_EXTENDED", "EDITOR_SHOW"},
+    default = 1,
+    current = 1,
+    text = "",
+    tooltip = "",
+    translate = false,
+    isVehicleSpecific = false,
+    isUserSpecific = true
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
