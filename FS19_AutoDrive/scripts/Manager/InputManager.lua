@@ -108,7 +108,7 @@ function ADInputManager:input_openNotificationHistory(vehicle)
 end
 
 function ADInputManager:input_editMapMarker(vehicle)
-    if vehicle.ad.stateModule:isEditorModeEnabled() then
+    if AutoDrive.isEditorModeEnabled() then
         -- This can be triggered both from 'Edit Target' keyboard shortcut and right click on 'Create Target' hud button
         if ADGraphManager:getWayPointById(1) == nil or vehicle.ad.stateModule:getFirstMarker() == nil then
             return
@@ -119,7 +119,7 @@ function ADInputManager:input_editMapMarker(vehicle)
 end
 
 function ADInputManager:input_removeWaypoint(vehicle)
-    if vehicle.ad.stateModule:isEditorModeEnabled() then
+    if AutoDrive.isEditorModeEnabled() then
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             -- This can be triggered both from 'Remove Waypoint' keyboard shortcut and left click on 'Remove Waypoint' hud button
@@ -129,7 +129,7 @@ function ADInputManager:input_removeWaypoint(vehicle)
 end
 
 function ADInputManager:input_removeMapMarker(vehicle)
-    if vehicle.ad.stateModule:isEditorModeEnabled() then
+    if AutoDrive.isEditorModeEnabled() then
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             -- This can be triggered both from 'Remove Target' keyboard shortcut and right click on 'Remove Waypoint' hud button
@@ -139,7 +139,7 @@ function ADInputManager:input_removeMapMarker(vehicle)
 end
 
 function ADInputManager:input_createMapMarker(vehicle)
-    if vehicle.ad.stateModule:isEditorModeEnabled() then
+    if AutoDrive.isEditorModeEnabled() then
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             -- This can be triggered both from 'Create Target' keyboard shortcut and left click on 'Create Target' hud button
@@ -150,7 +150,7 @@ function ADInputManager:input_createMapMarker(vehicle)
 end
 
 function ADInputManager:input_toggleConnection(vehicle)
-    if vehicle.ad.stateModule:isEditorModeEnabled() then
+    if AutoDrive.isEditorModeEnabled() then
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
@@ -161,7 +161,7 @@ function ADInputManager:input_toggleConnection(vehicle)
 end
 
 function ADInputManager:input_toggleConnectionInverted(vehicle)
-    if vehicle.ad.stateModule:isEditorModeEnabled() then
+    if AutoDrive.isEditorModeEnabled() then
         local closestWayPoint, _ = vehicle:getClosestWayPoint()
         if ADGraphManager:getWayPointById(closestWayPoint) ~= nil then
             if vehicle.ad.stateModule:getSelectedNeighbourPoint() ~= nil then
@@ -303,25 +303,25 @@ function ADInputManager:input_previousMode(vehicle)
 end
 
 function ADInputManager:input_record(vehicle)
-    if not vehicle.ad.stateModule:isEditorModeEnabled() then
+    if not AutoDrive.isEditorModeEnabled() then
         return
     end
     vehicle.ad.recordingModule:toggle(false)
 end
 
 function ADInputManager:input_record_dual(vehicle)
-    if not vehicle.ad.stateModule:isEditorModeEnabled() then
+    if not AutoDrive.isEditorModeEnabled() then
         return
     end
     vehicle.ad.recordingModule:toggle(true)
 end
 
 function ADInputManager:input_debug(vehicle)
-    vehicle.ad.stateModule:cycleEditMode()
+    AutoDrive.cycleEditMode()
 end
 
 function ADInputManager:input_displayMapPoints(vehicle)
-    vehicle.ad.stateModule:cycleEditorShowMode()
+    AutoDrive.cycleEditorShowMode()
 end
 
 function ADInputManager:input_increaseSpeed(vehicle)
