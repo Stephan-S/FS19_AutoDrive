@@ -193,3 +193,58 @@ function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
 
     return false
 end
+
+function AutoDrive.isEditorModeEnabled()
+    return (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_ON) or (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_EXTENDED)
+end
+
+function AutoDrive.isEditorShowEnabled()
+    return (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_SHOW)
+end
+
+function AutoDrive.isInExtendedEditorMode()
+    return (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_EXTENDED)
+end
+
+function AutoDrive.getEditorMode()
+    return (AutoDrive.getSetting("EditorMode"))
+end
+
+function AutoDrive.setEditorMode(editorMode)
+    AutoDrive.setSettingState("EditorMode", editorMode)
+end
+
+function AutoDrive.cycleEditMode()
+    local vehicle = g_currentMission.controlledVehicle
+    if g_client ~= nil then
+
+        if vehicle ~= nil and vehicle.ad ~= nil then
+            vehicle.ad.selectedNodeId = nil
+            vehicle.ad.nodeToMoveId = nil
+            vehicle.ad.hoveredNodeId = nil
+        end
+        if (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) and not AutoDrive.getSetting("secondEditorModeAllowed") then
+            AutoDrive.setEditorMode(AutoDrive.EDITOR_ON)
+        elseif (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) and AutoDrive.getSetting("secondEditorModeAllowed") then
+            AutoDrive.setEditorMode(AutoDrive.EDITOR_EXTENDED)
+        else
+            AutoDrive.setEditorMode(AutoDrive.EDITOR_OFF)
+            if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+                vehicle.ad.stateModule:disableCreationMode()
+            end
+        end
+    end
+end
+
+function AutoDrive.cycleEditorShowMode()
+    local vehicle = g_currentMission.controlledVehicle
+
+    if (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) then
+        AutoDrive.setEditorMode(AutoDrive.EDITOR_SHOW)
+    else
+        AutoDrive.setEditorMode(AutoDrive.EDITOR_OFF)
+		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+            vehicle.ad.stateModule:disableCreationMode()
+        end
+    end
+end
