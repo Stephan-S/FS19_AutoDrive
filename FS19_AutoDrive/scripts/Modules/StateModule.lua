@@ -400,49 +400,6 @@ function ADStateModule:setActive(active)
     end
 end
 
-function ADStateModule:isEditorModeEnabled()
-    return self.editorMode ~= ADStateModule.EDITOR_OFF and self.editorMode ~= ADStateModule.EDITOR_SHOW
-end
-
-function ADStateModule:isEditorShowEnabled()
-    return self.editorMode == ADStateModule.EDITOR_SHOW
-end
-
-function ADStateModule:isInExtendedEditorMode()
-    return self.editorMode == ADStateModule.EDITOR_EXTENDED
-end
-
-function ADStateModule:getEditorMode()
-    return self.editorMode
-end
-
-function ADStateModule:setEditorMode(editorMode)
-    self.editorMode = editorMode
-end
-
-function ADStateModule:cycleEditMode()
-    if self.editorMode == ADStateModule.EDITOR_OFF then
-        self.editorMode = ADStateModule.EDITOR_ON
-    elseif self.editorMode == ADStateModule.EDITOR_ON and AutoDrive.getSetting("secondEditorModeAllowed") then
-        self.editorMode = ADStateModule.EDITOR_EXTENDED
-    elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or ((not AutoDrive.getSetting("secondEditorModeAllowed")) and self.editorMode == ADStateModule.EDITOR_ON) then
-        self.editorMode = ADStateModule.EDITOR_OFF
-	self:disableCreationMode()
-        self.vehicle.ad.selectedNodeId = nil
-    end
-    self:raiseDirtyFlag()
-end
-
-function ADStateModule:cycleEditorShowMode()
-    if self.editorMode == ADStateModule.EDITOR_OFF then
-        self.editorMode = ADStateModule.EDITOR_SHOW
-    else
-        self.editorMode = ADStateModule.EDITOR_OFF
-	self:disableCreationMode()
-    end
-    self:raiseDirtyFlag()
-end
-
 function ADStateModule:isInCreationMode()
     return self.creationMode ~= ADStateModule.CREATE_OFF
 end
