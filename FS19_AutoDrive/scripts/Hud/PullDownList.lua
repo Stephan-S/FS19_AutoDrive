@@ -628,7 +628,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
         --elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_COLLAPSED then
             --ADInputManager:onInputCall(vehicle, "input_setDestinationFilter")
         elseif (button == 2 or button == 3) and isUp and self.state == ADPullDownList.STATE_EXPANDED then
-            if hitIcon ~= nil and ((hitIcon == 2 and (not AutoDrive.isEditorModeEnabled())) or (hitIcon == 4 and vehicle.ad.stateModule:isEditorModeEnabled())) then
+            if hitIcon ~= nil and ((hitIcon == 2 and (not AutoDrive.isEditorModeEnabled())) or (hitIcon == 4 and AutoDrive.isEditorModeEnabled())) then
                 if hitElement.isFolder then
                     if (hitElement.displayName == "All") then
                         vehicle.ad.destinationFilterText = ""
