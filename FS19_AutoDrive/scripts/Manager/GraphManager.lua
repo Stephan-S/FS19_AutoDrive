@@ -493,6 +493,9 @@ function ADGraphManager:removeMapMarkerByWayPoint(wayPointId, sendEvent)
 end
 
 function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirection, sendEvent)
+    if startNode == nil or endNode == nil then
+        return
+    end
 	if sendEvent == nil or sendEvent == true then
 		-- Propagating connection toggling all over the network
 		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode, reverseDirection)
