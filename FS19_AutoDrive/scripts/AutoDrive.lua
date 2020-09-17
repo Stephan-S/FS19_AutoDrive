@@ -57,6 +57,9 @@ AutoDrive.EDITOR_ON = 2
 AutoDrive.EDITOR_EXTENDED = 3
 AutoDrive.EDITOR_SHOW = 4
 
+AutoDrive.toggleSphrere = true
+AutoDrive.enableSphrere = true
+
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
 	{"ADToggleHud", true, 1},
@@ -222,25 +225,20 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_LCTRL) > 0
 	AutoDrive.leftALTmodifierKeyPressed = bitAND(modifier, Input.MOD_LALT) > 0
 	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
+	AutoDrive.isCAPSKeyActive = bitAND(modifier, Input.MOD_CAPS) > 0
+	AutoDrive.rightCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_RCTRL) > 0
 
-	if not AutoDrive.getSetting("secondEditorModeAllowed") then
-        -- handle the LCTRL key if in 1st Editor Mode
-		local vehicle = g_currentMission.controlledVehicle
-		if vehicle ~= nil and vehicle.ad ~= nil then
-			if AutoDrive.getEditorMode() == AutoDrive.EDITOR_ON then
-				if AutoDrive.leftCTRLmodifierKeyPressed then
-                    AutoDrive.setEditorMode(AutoDrive.EDITOR_EXTENDED)
-					AutoDrive.toggledEditorMode = true
-				end
-			elseif AutoDrive.getEditorMode() == AutoDrive.EDITOR_EXTENDED and AutoDrive.toggledEditorMode then
-				if not AutoDrive.leftCTRLmodifierKeyPressed then
-                    AutoDrive.setEditorMode(AutoDrive.EDITOR_ON)
-					AutoDrive.toggledEditorMode = false
-					vehicle.ad.selectedNodeId = nil
-				end
-			end
-		end
-	end
+    if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
+        AutoDrive.toggleSphrere = false
+    elseif (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == false) then
+        AutoDrive.toggleSphrere = true
+    end
+
+    if (AutoDrive.leftCTRLmodifierKeyPressed or AutoDrive.leftALTmodifierKeyPressed) then
+        AutoDrive.enableSphrere = true
+    else
+        AutoDrive.enableSphrere = AutoDrive.toggleSphrere
+    end
 end
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
@@ -296,8 +294,11 @@ function AutoDrive:draw()
 end
 
 function AutoDrive:preRemoveVehicle(vehicle)
-	if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:isActive() then
-		vehicle:stopAutoDrive()
+	if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+        if vehicle.ad.stateModule:isActive() then
+            vehicle:stopAutoDrive()
+        end
+        vehicle.ad.stateModule:disableCreationMode()
 	end
 end
 

@@ -865,18 +865,6 @@ AutoDrive.settings.iconSetToUse = {
     isUserSpecific = true
 }
 
-AutoDrive.settings.secondEditorModeAllowed = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 1,
-    current = 1,
-    text = "gui_ad_secondEditorModeAllowed",
-    tooltip = "gui_ad_secondEditorModeAllowed_tooltip",
-    translate = true,
-    isVehicleSpecific = false,
-    isUserSpecific = true
-}
-
 AutoDrive.settings.wideHUD = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},
