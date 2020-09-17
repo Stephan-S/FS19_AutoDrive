@@ -223,9 +223,7 @@ function AutoDrive.cycleEditMode()
             vehicle.ad.nodeToMoveId = nil
             vehicle.ad.hoveredNodeId = nil
         end
-        if (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) and not AutoDrive.getSetting("secondEditorModeAllowed") then
-            AutoDrive.setEditorMode(AutoDrive.EDITOR_ON)
-        elseif (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) and AutoDrive.getSetting("secondEditorModeAllowed") then
+        if (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) then
             AutoDrive.setEditorMode(AutoDrive.EDITOR_EXTENDED)
         else
             AutoDrive.setEditorMode(AutoDrive.EDITOR_OFF)
