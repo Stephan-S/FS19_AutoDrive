@@ -222,27 +222,6 @@ function ADInputManager:input_start_stop(vehicle)
         vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:getCurrentMode():start()
---[[
-        if AutoDrive.leftLSHIFTmodifierKeyPressed then
-            for _, otherVehicle in pairs(g_currentMission.vehicles) do
-                if otherVehicle ~= nil and otherVehicle ~= vehicle and otherVehicle.ad ~= nil and otherVehicle.ad.stateModule ~= nil then
-                    --Doesn't work yet, if vehicle hasn't been entered before apparently. So we need to check what to call before, to setup all required variables.
-                    
-                    if otherVehicle.ad.stateModule.activeBeforeSave then
-                        g_currentMission:requestToEnterVehicle(otherVehicle)
-                        otherVehicle.ad.stateModule:getCurrentMode():start()
-                    end
-                    if otherVehicle.ad.stateModule.AIVEActiveBeforeSave and otherVehicle.acParameters ~= nil then
-                        g_currentMission:requestToEnterVehicle(otherVehicle)
-                        otherVehicle.acParameters.enabled = true
-                        otherVehicle:startAIVehicle(nil, false, g_currentMission.player.farmId)
-                    end
-                    
-				end
-			end
-            g_currentMission:requestToEnterVehicle(vehicle)
-        end
-]]
     end
 end
 
@@ -303,17 +282,19 @@ function ADInputManager:input_previousMode(vehicle)
 end
 
 function ADInputManager:input_record(vehicle)
-    if not AutoDrive.isEditorModeEnabled() then
-        return
-    end
-    vehicle.ad.recordingModule:toggle(false)
+	if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+		vehicle.ad.stateModule:startNormalCreationMode()
+	else
+		vehicle.ad.stateModule:disableCreationMode()
+	end
 end
 
 function ADInputManager:input_record_dual(vehicle)
-    if not AutoDrive.isEditorModeEnabled() then
-        return
-    end
-    vehicle.ad.recordingModule:toggle(true)
+	if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+		vehicle.ad.stateModule:startDualCreationMode()
+	else
+		vehicle.ad.stateModule:disableCreationMode()
+	end
 end
 
 function ADInputManager:input_debug(vehicle)
