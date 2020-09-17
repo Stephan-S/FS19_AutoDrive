@@ -157,13 +157,13 @@ if g_specializationManager:getSpecializationByName("AutoDriveVehicleData") == ni
 		return
 	end
 
-	local ADSpecName = g_currentModName .. ".AutoDriveVehicleData"
+	local ADVDSpecName = g_currentModName .. ".AutoDriveVehicleData"
 
 	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
 		if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" then
 			if AutoDriveVehicleData.prerequisitesPresent(typeDef.specializations) then
 				if typeDef.specializationsByName["AutoDriveVehicleData"] == nil then
-					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
+					g_vehicleTypeManager:addSpecialization(vehicleType, ADVDSpecName)
 					-- typeDef.hasADSpec = true
 				end
 			end
