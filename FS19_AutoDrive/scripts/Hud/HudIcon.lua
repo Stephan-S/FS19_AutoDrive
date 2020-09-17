@@ -78,8 +78,6 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     if AutoDrive.isInExtendedEditorMode() then
         textToShow = textToShow .. " - " .. g_i18n:getText("AD_lshift_for_reverse")
         textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
-    elseif AutoDrive.getEditorMode() == AutoDrive.EDITOR_ON and not AutoDrive.getSetting("secondEditorModeAllowed") then
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
     end
 
     if AutoDrive.isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
