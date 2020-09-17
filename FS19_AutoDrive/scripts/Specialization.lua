@@ -454,8 +454,8 @@ function AutoDrive:onEnterVehicle()
 end
 
 function AutoDrive:onLeaveVehicle()
-    if self.ad ~= nil and self.ad.recordingModule ~= nil then
-        self.ad.recordingModule:stop()
+    if self.ad ~= nil and self.ad.stateModule ~= nil then
+        self.ad.stateModule:disableCreationMode()
     end
 end
 
@@ -511,28 +511,32 @@ function AutoDrive:onDrawEditorMode()
         local z = point.z
         if AutoDrive.isInExtendedEditorMode() then
             arrowPosition = DrawingManager.arrows.position.middle
-            if AutoDrive.mouseIsAtPos(point, 0.01) then
-                DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
-            else
-                if point.id == self.ad.selectedNodeId then
-                    DrawingManager:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
+            if AutoDrive.enableSphrere == true then
+                if AutoDrive.mouseIsAtPos(point, 0.01) then
+                    DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
                 else
-                    DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
+                    if point.id == self.ad.selectedNodeId then
+                        DrawingManager:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
+                    else
+                        DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
+                    end
                 end
             end
 
             -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
-            if AutoDrive.getSettingState("lineHeight") > 1 then
-                local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
-                DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
+            if AutoDrive.enableSphrere == true then
+                if AutoDrive.getSettingState("lineHeight") > 1 then
+                    local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
+                    DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
 
-                if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
-                    DrawingManager:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
-                else
-                    if point.id == self.ad.selectedNodeId then
-                        DrawingManager:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
+                    if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
+                        DrawingManager:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
                     else
-                        DrawingManager:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
+                        if point.id == self.ad.selectedNodeId then
+                            DrawingManager:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
+                        else
+                            DrawingManager:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
+                        end
                     end
                 end
             end
