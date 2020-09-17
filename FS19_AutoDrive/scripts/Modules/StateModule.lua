@@ -401,7 +401,7 @@ function ADStateModule:setActive(active)
 end
 
 function ADStateModule:isInCreationMode()
-    return self.creationMode ~= ADStateModule.CREATE_OFF
+    return (self.creationMode == ADStateModule.CREATE_NORMAL) or (self.creationMode == ADStateModule.CREATE_DUAL)
 end
 
 function ADStateModule:isInNormalCreationMode()
@@ -415,18 +415,25 @@ end
 function ADStateModule:disableCreationMode()
     self.creationMode = ADStateModule.CREATE_OFF
     self:raiseDirtyFlag()
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:stop()
+	end
 end
 
 function ADStateModule:startNormalCreationMode()
     self.creationMode = ADStateModule.CREATE_NORMAL
     self:raiseDirtyFlag()
-    self:setActive(false)
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(false)
+	end
 end
 
 function ADStateModule:startDualCreationMode()
     self.creationMode = ADStateModule.CREATE_DUAL
     self:raiseDirtyFlag()
-    self:setActive(false)
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(true)
+	end
 end
 
 function ADStateModule:getLoopCounter()

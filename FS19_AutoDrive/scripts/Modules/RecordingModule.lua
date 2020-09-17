@@ -13,21 +13,8 @@ function ADRecordingModule:new(vehicle)
     return o
 end
 
-function ADRecordingModule:toggle(dual)
-    if self.isRecording then
-        self:stop()
-    else
-        self:start(dual)
-    end
-end
-
 function ADRecordingModule:start(dual)
     self.isDual = dual
-    if self.isDual then
-        self.vehicle.ad.stateModule:startDualCreationMode()
-    else
-        self.vehicle.ad.stateModule:startNormalCreationMode()
-    end
     self.vehicle:stopAutoDrive()
     
     local rearOffset = 0
@@ -62,7 +49,6 @@ function ADRecordingModule:start(dual)
 end
 
 function ADRecordingModule:stop()
-    self.vehicle.ad.stateModule:disableCreationMode()
 
     if AutoDrive.getSetting("autoConnectEnd") then
         if self.lastWp ~= nil then
