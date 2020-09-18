@@ -356,7 +356,7 @@ function AutoDrive.setTrailerCoverOpen(vehicle, trailers, open)
     end
 
     for _, trailer in pairs(trailers) do
-        if trailer.spec_cover ~= nil then
+        if trailer.spec_cover ~= nil and trailer.spec_cover.state ~= nil then
             if trailer.spec_cover.covers ~= nil then
                 targetState = targetState * #trailer.spec_cover.covers
             end
