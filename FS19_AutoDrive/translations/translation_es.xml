@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Aparcar Vehículo" />
 		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
 		<text name="hud_avoidFruit"								text="AD: Evitar destruir cosechas" />
-		<text name="hud_startCp" 								text="AD: Iniciar CP en destino" />
+		<text name="hud_startCp" 								text="AD: Iniciar CP / AIVE en destino" />
 		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino de estacionamiento. Asigne el destino seleccionado actualmente con el botón derecho del ratón. " />
 		<text name="AD_parkVehicle_selected"					text="Destino de estacionamiento elegido: " />
 		<text name="AD_Driver_of"								text="Conductor de" />
@@ -58,6 +58,10 @@
 		<text name="AD_lctrl_for_creation" 						text="LCTRL para crear" />
 		<text name="AD_lalt_for_deletion" 						text="LALT para borrar" />
 		<text name="gui_ad_Setting"								text="Configuración - AutoDrive" />
+		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
+		<text name="gui_ad_blinkValue"						    text="Turnlight Automatic" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Steering angle to enable turn lights automatically. (0 = turn light automatic deactivated)" />
 		<text name="gui_ad_pipe_offset"							text="Desplazamiento de tubería" />
 		<text name="gui_ad_followDistance"						text="Distancia de la cosechadora" />
 		<text name="gui_ad_followDistance_tooltip"				text="La distancia que se mantiene de la cosechadora cuando se sigue su extremo trasero" />
@@ -123,6 +127,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si el ancho de la pala detectado automáticamente es demasiado pequeño, se puede aumentar con este valor" />
 		<text name="gui_ad_preCallLevel"						text="Nivel de llenado para llamar a conductor" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Nivel de llenado para llamar a conductor." />
+		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
+		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
+		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
 		<text name="gui_ad_distributeToFolder"					text="Destinos multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Se seleccionarán todos los destinos de la misma carpeta" />
 		<text name="gui_ad_maxTriggerDistance"					text="Distancia máxima al trigger" />
@@ -166,8 +176,11 @@
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. modo editor para la manipulación de rutas en lugar de mantener presionada LCTRL" />
 		<text name="gui_ad_wideHUD"								text="Wide HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
+		<text name="gui_ad_syncMultiTargets"					text="Sync multiple targets" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Multiple drivers using the same folder for multiple targets will synchronize next targets" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Configuración - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Configuración del vehículo - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configuración de descarga cosechadora - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Configuración - AutoDrive" />
@@ -197,6 +210,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Red" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfaz externa" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Todo" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -296,5 +310,6 @@
 		<text name="AD_task_chase_side_right"					text="derecha" />	
 		<text name="AD_task_waiting_for_room"					text="Esperando habitación" />	
 		<text name="AD_task_exiting_field"						text="Campo de salida" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

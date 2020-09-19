@@ -25,6 +25,7 @@ function DriveToVehicleTask:update(dt)
             self.wayPoints = self.vehicle.ad.pathFinderModule:getPath()
             if self.wayPoints == nil or #self.wayPoints == 0 then
                 --Don't just restart pathfinder here. We might not even have to go to the vehicle anymore.
+                self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:notifyAboutFailedPathfinder()
                 if self.delayRestartTimer <= 0 then
                     self:finished()
                 else
@@ -55,8 +56,26 @@ function DriveToVehicleTask:abort()
 end
 
 function DriveToVehicleTask:finished(propagate)
-    self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
-    self.vehicle.ad.taskModule:setCurrentTaskFinished(propagate)
+    --Todo: Check for distance to breadcrumbs of active unloader and attach to them
+    local closeToBreadCrumbs = false
+    if self.targetVehicle ~= nil and self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs() ~= nil then
+        local breadCrumbs = self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getBreadCrumbs()
+        local x, _, z = getWorldTranslation(self.vehicle.components[1].node)        
+        for _, breadCrumb in ipairs(breadCrumbs.items) do
+            local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, breadCrumb.x, breadCrumb.y, breadCrumb.z)
+            if diffZ > 1 and MathUtil.vector2Length(x - breadCrumb.x, z - breadCrumb.z) < 5 then
+                closeToBreadCrumbs = true
+                break
+            end
+        end
+    end
+    if closeToBreadCrumbs then
+        self.vehicle.ad.taskModule:addTask(FollowVehicleTask:new(self.vehicle, self.targetVehicle))
+        self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
+    else
+        self.targetVehicle.ad.modes[AutoDrive.MODE_UNLOAD]:unregisterFollowingUnloader()
+        self.vehicle.ad.taskModule:setCurrentTaskFinished(propagate)
+    end
 end
 
 function DriveToVehicleTask:getInfoText()

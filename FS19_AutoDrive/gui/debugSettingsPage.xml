@@ -81,6 +81,14 @@
 						<GuiElement type="text" profile="autoDriveDebugSettingsCheckboxToggleText" text="$l10n_gui_ad_debugChannelRender" />
 					</GuiElement>
 				</GuiElement>
+				<GuiElement type="bitmap" profile="autoDriveDebugSettingsCheckbox" onCreate="onCreateCheckbox" onCreateArgs="512">
+					<GuiElement type="toggleButton" profile="autoDriveDebugSettingsCheckboxToggle" onClick="onClickToggle">
+						<GuiElement type="button" profile="autoDriveDebugSettingsCheckboxToggleTick" />
+						<GuiElement type="button" profile="autoDriveDebugSettingsCheckboxToggleUntick" />
+						<GuiElement type="bitmap" profile="autoDriveDebugSettingsCheckboxToggleIcon" imageUVs="256px 128px 128px 128px" />
+						<GuiElement type="text" profile="autoDriveDebugSettingsCheckboxToggleText" text="$l10n_gui_ad_debugChannelRoadNetwork" />
+					</GuiElement>
+				</GuiElement>
 				<GuiElement type="bitmap" profile="autoDriveDebugSettingsCheckbox" onCreate="onCreateCheckbox" onCreateArgs="65535">
 					<GuiElement type="toggleButton" profile="autoDriveDebugSettingsCheckboxToggle" onClick="onClickToggle">
 						<GuiElement type="button" profile="autoDriveDebugSettingsCheckboxToggleTick" />

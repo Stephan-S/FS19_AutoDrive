@@ -282,6 +282,12 @@ function AutoDrive.localize(text)
 	return text
 end
 
+function AutoDrive.parsePath(path)
+	path = path:gsub("$adDir/", AutoDrive.directory)
+	path = path:gsub("$adDir", AutoDrive.directory)
+	return path
+end
+
 function AutoDrive.boolToString(value)
 	if value == true then
 		return "true"
@@ -459,6 +465,7 @@ function AutoDrive:setDebugChannel(newDebugChannel)
 		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL
 	end
 	AutoDrive.showNetworkEvents()
+	ADGraphManager:createMarkersAtOpenEnds()
 end
 
 function AutoDrive.getDebugChannelIsSet(debugChannel)
@@ -469,7 +476,11 @@ function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
 		local printText = ""
 		if vehicle ~= nil then
-			printText = vehicle.ad.stateModule:getName() .. ": "
+			if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+				printText = vehicle.ad.stateModule:getName() .. ": "
+			else
+				printText = vehicle:getName() .. ": "
+			end
 		end
 
 		g_logManager:info(printText .. debugText, ...)
@@ -586,7 +597,7 @@ function AutoDrive.renderColoredTextAtWorldPosition(x, y, z, text, textSize, col
 	end
 end
 
-function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
+function AutoDrive.checkIsOnField_old(worldX, worldY, worldZ)	-- kept only for reference in case the new detection causes issues
 	local densityBits = 0
 
 	if worldY == 0 then
@@ -602,6 +613,24 @@ function AutoDrive.checkIsOnField(worldX, worldY, worldZ)
 	return false
 end
 
+function AutoDrive.checkIsOnField(startWorldX, worldY, startWorldZ)
+    local data = g_currentMission.densityMapModifiers.getAIDensityHeightArea
+    local modifier = data.modifier
+    local filter = data.filter
+    local widthWorldX = startWorldX - 0.1
+    local widthWorldZ = startWorldZ - 0.1
+    local heightWorldX = startWorldX + 0.1
+    local heightWorldZ = startWorldZ + 0.1
+    modifier:setParallelogramWorldCoords(startWorldX, startWorldZ, widthWorldX, widthWorldZ, heightWorldX, heightWorldZ, "ppp")
+    filter:setValueCompareParams("greater", 0)
+    local _, detailArea, _ = modifier:executeGet(filter)
+    if detailArea == 0 then
+        return false
+    else
+        return true
+    end
+end
+
 Sprayer.registerOverwrittenFunctions =
 	Utils.appendedFunction(
 	Sprayer.registerOverwrittenFunctions,
@@ -613,7 +642,7 @@ Sprayer.registerOverwrittenFunctions =
 			"getIsAIActive",
 			function(self, superFunc)
 				local rootVehicle = self:getRootVehicle()
-				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
+				if nil ~= rootVehicle and rootVehicle.ad ~= nil and rootVehicle.ad.stateModule ~= nil and rootVehicle.ad.stateModule:isActive() and self ~= rootVehicle then
 					return false -- "Hackish" work-around, in attempt at convincing Sprayer.LUA to NOT turn on
 				end
 				return superFunc(self)
@@ -815,32 +844,98 @@ function AIVehicle:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
 end
 
 function AutoDrive.sign(x)
-    if x<0 then
-        return -1
-    elseif x>0 then
-        return 1
-    else
-        return 0
-    end
+	if x < 0 then
+		return -1
+	elseif x > 0 then
+		return 1
+	else
+		return 0
+	end
 end
 
 function AutoDrive.segmentIntersects(x1, y1, x2, y2, x3, y3, x4, y4)
-    local d = (y4-y3)*(x2-x1)-(x4-x3)*(y2-y1)
-    local Ua_n = ((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3))
-    local Ub_n = ((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))
-	
+	local d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
+	local Ua_n = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3))
+	local Ub_n = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3))
+
 	local Ua = Ua_n / d
 	local Ub = Ub_n / d
-	
-    if d ~= 0 then
-        local x = x1 + Ua * (x2 - x1)
+
+	if d ~= 0 then
+		local x = x1 + Ua * (x2 - x1)
 		local y = y1 + Ua * (y2 - y1)
 		local insideSector = Ua > 0
 		local insideSecondSector = d > 0
-        return x,y, insideSector, insideSecondSector
-    else
-        return 0, 0, false, false
-    end
+		return x, y, insideSector, insideSecondSector
+	else
+		return 0, 0, false, false
+	end
+end
+
+-- find WP linked to themselve - fatal error, parm: true for direct data correction in mapWayPoints{}
+function AutoDrive.checkWaypointsLinkedtothemselve(correctit)
+    local network = ADGraphManager:getWayPoints()
+	local overallnumberWP = ADGraphManager:getWayPointsCount()
+	local count = 0
+	
+	if overallnumberWP < 3 then return end
+	
+	for i, point in pairs(network) do
+		if #point.out > 0 then
+			for j, linkedNodeId_1 in ipairs(point.out) do
+				local wp_2 = network[linkedNodeId_1]
+				if wp_2 ~= nil then
+					if (i == linkedNodeId_1) then
+						if correctit then
+							table.remove(network[i].out,j)
+							count = count + 1
+						end
+					end
+				end
+			end
+		end
+	end
+	if count > 0 then
+		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "[AD] removed %s waypoint links to themselve", tostring(count))
+	end
+end
+
+-- find WP with multiple same out ID - parm: true for direct data correction in mapWayPoints{}
+function AutoDrive.checkWaypointsMultipleSameOut(correctit)
+    local network = ADGraphManager:getWayPoints()
+	local overallnumberWP = ADGraphManager:getWayPointsCount()
+	local count = 0
+
+	if overallnumberWP < 3 then return end
+
+	for i, point in pairs(network) do
+		if #point.out > 1 then
+			for j, linkedNodeId_1 in ipairs(network[i].out) do
+				local wp_2 = network[linkedNodeId_1]
+				if wp_2 ~= nil then
+					found = false
+					for k, linkedNodeId_2 in ipairs(network[i].out) do
+						if k>j then
+							local wp_3 = network[linkedNodeId_2]
+							if wp_3 ~= nil then
+								if j < #network[i].out then
+									if (network[i].out[j] == network[i].out[k]) then
+										if correctit then
+											table.remove(network[i].out,k)
+											count = count + 1
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	if count > 0 then
+		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "[AD] removed %s waypoint with multiple same out links", tostring(count))
+	end
 end
 
 -- TODO: Maybe we should add a console command that allows to run console commands to server

@@ -13,7 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Увеличить скорость" />
 		<text name="input_AD_Speed_down"						text="AD: Уменьшить скорость" />
 		<text name="input_AD_routes_manager" 					text="AD: Менеджер маршрутов" />
-		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
+		<text name="input_AD_open_notification_history" 		text="AD: Открыть историю уведомлений" />
 		<text name="input_AD_continue"							text="AD: Продолжить" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Следующая точка разгрузки" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Предыдущая точка разгрузки" />
@@ -35,14 +35,14 @@
 		<text name="input_ADParkVehicle"						text="AD: Припарковать технику" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
-		<text name="hud_startCp"								text="AD: Запустить CP в пункте назначения" />
+		<text name="hud_startCp"								text="AD: Запустить CP/AIVE в пункте назначения" />
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Нажмите правой кнопкой мыши на этой же кнопке, чтобы назначить выбранную локацию, как место парковки." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"								text="Водитель на" />
 		<text name="AD_has_reached"								text="прибыл к" />
 		<text name="AD_got_stuck"								text="застрял" />
 		<text name="AD_cannot_reach"							text="не может доехать до локации " />
-		<text name="AD_cannot_find_path"						text="не может рассчитать маршрут" />
+		<text name="AD_cannot_find_path"						text="не может рассчитать маршрут к" />
 		<text name="AD_new_marker"								text="Новая локация:" />
 		<text name="AD_No_Trailer"								text="не могу найти прицеп" />
 		<text name="AD_No_Bunker"								text="не могу найти силосную яму" />
@@ -58,6 +58,10 @@
 		<text name="AD_lctrl_for_creation" 						text="L-CTRL создать" />
 		<text name="AD_lalt_for_deletion" 						text="L-ALT удалить" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
+		<text name="gui_ad_collisionHeigth"						text="Высота преград над землёй" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Настройка для обнаружения столкновений/преград перед автомобилем. Если во время движения другие транспортные средства не обнаруживаются, постепенно уменьшайте параметр. (По умолчанию 2 м)" />
+		<text name="gui_ad_blinkValue"							text="Указатели поворотов" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Угол поворота рулевого колеса для автовключения сигналов поворота (0 = автовключение поворотников отключено)." />
 		<text name="gui_ad_pipe_offset"							text="Смещение трубы" />
 		<text name="gui_ad_followDistance"						text="Расстояние до комбайна" />
 		<text name="gui_ad_followDistance_tooltip"				text="Расстояние до комбайна при следовании за ним сзади." />
@@ -90,14 +94,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Поиск ближайших водителей (игнорируя пункт назначения)." />
 		<text name="gui_ad_gui_scale"							text="Масштаб HUD AutoDrive " />
 		<text name="gui_ad_gui_scale_tooltip"					text="Оставьте значение по умолчанию и будут использования настройки масштаба в игре." />
-		<text name="gui_ad_notifications"						text="Notifications" />
-		<text name="gui_ad_notifications_text_1"				text="Disabled" />
-		<text name="gui_ad_notifications_text_2"				text="Short" />
-		<text name="gui_ad_notifications_text_3"				text="Default" />
-		<text name="gui_ad_notifications_text_4"				text="Long" />
-		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
-		<text name="gui_ad_notifications_text_6"				text="Endless" />
-		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
+		<text name="gui_ad_notifications"						text="Уведомления" />
+		<text name="gui_ad_notifications_text_1"				text="Отключить" />
+		<text name="gui_ad_notifications_text_2"				text="Не долго" />
+		<text name="gui_ad_notifications_text_3"				text="По умолчанию" />
+		<text name="gui_ad_notifications_text_4"				text="Долго" />
+		<text name="gui_ad_notifications_text_5"				text="Очень долго" />
+		<text name="gui_ad_notifications_text_6"				text="Бесконечно" />
+		<text name="gui_ad_notifications_tooltip"				text="Время отображения уведомлений" />
 		<text name="gui_ad_exitField"							text="Выезд с поля" />
 		<text name="gui_ad_exitField_tooltip"					text="Способ выезда с поля при разгрузке." />
 		<text name="gui_ad_default"								text="Обычный" />
@@ -123,6 +127,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Если автоматически определенная ширина ковша слишком мала, ее можно увеличить с помощью этого значения." />
 		<text name="gui_ad_preCallLevel"						text="Уровень предварительного вызова" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Предварительный вызов разгружающего при заданном уровне заполнения." />
+		<text name="gui_ad_none"					            text="не менять" />
+		<text name="gui_ad_onlyPickup"					        text="только Загрузки" />
+		<text name="gui_ad_onlyDeliver"					        text="только Доставки" />
+		<text name="gui_ad_PickupandDeliver"					text="Загрузки и Доставки" />
+		<text name="gui_ad_rotateTargets"					    text="Менять Загрузки и Доставки" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 режима: не менять локации/ только локации Загрузок/ только локации Доставок/ менять циклически в папке локации Загрузок и Доставок (не для стандартных папок) (учитывается только активировано 'Использовать папки')." />
 		<text name="gui_ad_distributeToFolder"					text="Несколько локаций" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации из одной папки станут числиться, как места выгрузки." />
 		<text name="gui_ad_maxTriggerDistance"					text="Макс. расстояние триггера" />
@@ -130,7 +140,7 @@
 		<text name="gui_ad_useBeaconLights"						text="Маячок" />
 		<text name="gui_ad_useBeaconLights_tooltip"				text="Включать маячок при движении по дороге." />
 		<text name="gui_ad_restrictToField"						text="Поиск маршрута ограничен полем" />
-		<text name="gui_ad_restrictToField_tooltip"				text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск маршруты границами поля." />
+		<text name="gui_ad_restrictToField_tooltip"				text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск маршрута границами поля." />
 		<text name="gui_ad_showTooltips"						text="Отображать подсказки" />
 		<text name="gui_ad_showTooltips_tooltip"				text="Показывать подсказки к кнопкам в HUD AutoDrive." />
 		<text name="gui_ad_enterTargetNameTitle_add"			text="Добавление локации" />
@@ -153,21 +163,24 @@
 		<text name="gui_ad_switchToMarkersOnMap"				text="Переключение через маркеры" />
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Устанавливать локацию/точку разгрузки при нажатии на горячие точки на карте." />
 		<text name="gui_ad_cornerSpeed"							text="Скорость в повороте" />
-		<text name="gui_ad_cornerSpeed_tooltip"					text="Отрегулируйте скорость поворота для отдельного автомобиля. Масса и текущая скорость все равно будут влиять на точку торможения" />
+		<text name="gui_ad_cornerSpeed_tooltip"					text="Отрегулируйте скорость поворота для отдельного автомобиля. Масса и текущая скорость все равно будут влиять на точку торможения." />
 		<text name="gui_ad_callSecondUnloader"					text="Вызов 2-го разгрузчика" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Вызов 2-го разгрузчика, когда текущий разгрузчик достигнет уровня предварительного заполнения." />
 		<text name="gui_ad_followOnlyOnField"					text="Ограничить разгрузчика полем" />
-		<text name="gui_ad_followOnlyOnField_tooltip"			text="Ограничить разгрузчика полем при активной выгрузке" />
+		<text name="gui_ad_followOnlyOnField_tooltip"			text="Ограничить разгрузчика полем при активной выгрузке." />
 		<text name="gui_ad_addSettingsToHUD"					text="Вынести настройки в HUD" />
 		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Добавление кнопок настройки в HUD для их изменения без открытия этого окна." />
 		<text name="gui_ad_iconSetToUse"						text="Персонализация логотипа" />
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Логотип по умолчанию или свой персональный. - Выбор может быть расширен." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="2-й режим редактора" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Использовать 2-й режим редактора для манипуляции точками вместо удержания LCTRL." />
-		<text name="gui_ad_wideHUD"								text="Wide HUD" />
-		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
+		<text name="gui_ad_wideHUD"								text="Широкий HUD" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Использовать режим широкого HUD, который также позволяет использовать еще несколько кнопок настройки в HUD." />
+		<text name="gui_ad_syncMultiTargets"					text="Синхронизация нескольких локаций" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Если несколько водителей едут в одно и то же место, выбор места назначения синхронизируется." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Настройки техники - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Настройки разгрузки комбайна - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Настройки отладки - AutoDrive" />
@@ -177,7 +190,7 @@
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Вы уверены, что хотите закрыть окно настроек без сохранения?" />
 		
 		<text name="gui_ad_routesManagerTitle" 					text="Менеджер маршрутов" />
-		<text name="gui_ad_routesManagerTextTitle" 				text="Назначить название маршрута:" />
+		<text name="gui_ad_routesManagerTextTitle" 				text="Присвоить название маршруту:" />
 		<text name="gui_ad_button_export" 						text="Сохранить" />
 		<text name="gui_ad_button_import" 						text="Загрузить" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Вы уверены, что хотите перезаписать существующий маршрут?" />
@@ -185,8 +198,8 @@
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Вы уверены, что хотите удалить маршрут '%s'?" />
 		<text name="gui_ad_routeDeleteWarn_title" 				text="Удаление маршрута" />
 
-		<text name="statistic_driversTraveledDistance" 			text="Расстояние от водителей" />
-		<text name="statistic_driversHired" 					text="Водители в настоящее время наняты" />
+		<text name="statistic_driversTraveledDistance" 			text="Пройденное расстояние водителями AD" />
+		<text name="statistic_driversHired" 					text="Текущее число нанятых водителей AD" />
 
 		<text name="gui_ad_debugChannelVehicle" 				text="Автомобили" />
 		<text name="gui_ad_debugChannelCombine" 				text="Комбайны" />
@@ -197,11 +210,11 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Сеть" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Внешний интерфейс" />
 		<text name="gui_ad_debugChannelRender" 					text="Рендеринг" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Дорожная сеть" />
 		<text name="gui_ad_debugChannelAll" 					text="Все" />
-		
-		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
-		<text name="button_delete_all" 							text="Delete All" />
 
+		<text name="gui_ad_notificationHistoryTitle" 			text="Уведомления" />
+		<text name="button_delete_all" 							text="Удалить все" />
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 
 		<text name="ad_helpTitle_01"							text="AD - Введение" />
@@ -231,21 +244,21 @@
 		<text name="ad_helpText_05_04"							text="Этот режим также можно использовать в сочетании с Courseplay. Вам нужно будет выбрать «AutoDrive: Для разгрузки/наполнения» в HUD Courseplay (не является частью этой документации)." />
 
 		<text name="ad_helpTitle_06"							text="Режим AD - Разгрузка комбайна" />
-		<text name="ad_helpText_06_01"							text="В этом режиме вы можете также установить два пункта назначения. Первый должен быть локацией на поле, откуда может быть достигнут активный комбайн. Второй также является местом разгрузки." />
+		<text name="ad_helpText_06_01"							text="В этом режиме вы также можете установить два пункта назначения: первый - локация на поле, откуда можно подъехать к работающему комбайну, второй -  место разгрузки урожая." />
 		<text name="ad_helpText_06_02"							text="Это первый режим, в котором водителям AutoDrive разрешается отклоняться от записанного маршрута и ездить по полю. Этот режим довольно сложный и включает в себя множество настроек доступных из Меню настроек." />
 		<text name="ad_helpText_06_03"							text="Таким образом, в этой документации сначала опишем основное поведение, а затем добавим, как настройки влияют на поведение." />
 
 		<text name="ad_helpTitle_07"							text="Режим AD - Разгрузка комбайна - Основы - 1" />
-		<text name="ad_helpText_07_01"							text="При запуске водитель решит, отправиться ли ему в поле или сначала разгрузиться (см. «Загрузка и доставка»). Когда он достигает локации на поле, он регистрируется как доступный водитель. Если комбайн заполнен на 100% и имеет выставленную трубу, он автоматически пройдется по зарегистрированным разгрузчикам и выберет ближайший к нему. В зависимости от настройки «Поиск разгружающего водителя» могут быть приняты все водители на расстоянии до 300 метров («Да») или только те водители с теми же целями, что указаны в HUD AutoDrive для комбайна («Нет»)." />
+		<text name="ad_helpText_07_01"							text="При запуске водитель решит, отправиться ли ему в поле или сначала разгрузиться (см. «Загрузка и доставка»). Когда он достигает локации на поле, он регистрируется как доступный водитель. Если комбайн заполнен на 100% и имеет выставленную трубу, он автоматически пройдется по зарегистрированным разгрузчикам и выберет ближайшего к нему. В зависимости от настройки «Поиск разгружающего водителя» могут быть приняты все водители в радиусе до 300 метров («Да») или только те водители с теми же целями, что указаны в HUD AutoDrive для комбайна («Нет»)." />
 		<text name="ad_helpText_07_02"							text="" />
-		<text name="ad_helpText_07_03"							text="Важно: На комбайне вам не нужно активировать AutoDrive. Требуется только выбрать локацию." />
+		<text name="ad_helpText_07_03"							text="ВАЖНО: На комбайне вам не нужно активировать AutoDrive. Требуется только выбрать локацию." />
 		<text name="ad_helpText_07_04"							text="" />
-		<text name="ad_helpText_07_05"							text="Кроме того, игрок также может вручную вызвать разгрузчик, назначив в опциях игры сочетание клавиш для «AD: Вызвать разгружающего водителя» и используя его, сидя в комбайне. Если комбайном управляет Courseplay, AutoDrive также вызовет разгрузчик, если обнаружит, что водитель Courseplay хочет разгрузиться." />
+		<text name="ad_helpText_07_05"							text="Кроме того, игрок также может вручную вызвать разгрузчика, назначив в опциях игры сочетание клавиш для «AD: Вызвать разгружающего водителя» и используя их, сидя в комбайне. Если комбайном управляет Courseplay, AutoDrive также вызовет разгрузчика, если обнаружит, что водитель Courseplay хочет разгрузиться." />
 
 		<text name="ad_helpTitle_08"							text="Режим AD - Разгрузка комбайна - Основы - 2" />
-		<text name="ad_helpText_08_01"							text="Если разгрузчик вызывается к комбайну, он начнет планировать путь к выставленной трубе комбайна. Планировщик пути является полностью уникальной реализацией, и объяснение может быть позже включено в качестве приложения к этой документации. Основные понятия - это разделение моделируемого мира на ячейки сетки. Размеры этих ячеек сетки соответствуют радиусу поворота транспортных средств и проверяются на отсутствие посевов (см. Настройки), отсутствие столкновений на поле (см. Настройки) и максимальный уклон, приемлемый для водителей AI. После того, как был найден свободный путь, применяется некоторое сглаживание, чтобы избавиться от наиболее крутых поворотов, и затем водитель направляется по этому пути к комбайну." />
+		<text name="ad_helpText_08_01"							text="Если разгрузчик вызывается к комбайну, он начнет планировать путь к выставленной трубе комбайна. Планировщик пути является полностью уникальной реализацией, и объяснение может быть позже включено в качестве приложения к этой документации. Основные понятия - это разделение моделируемого мира на ячейки сетки. Размеры этих ячеек сетки соответствуют радиусу поворота транспортных средств и проверяются на наличие посевов (см. Настройки), отсутствие столкновений на поле (см. Настройки) и максимальный уклон, приемлемый для водителей AI. После того, как был найден свободный путь, применяется некоторое сглаживание, чтобы избавиться от наиболее крутых поворотов, и затем водитель направляется по этому пути к комбайну." />
 		<text name="ad_helpText_08_02"							text="" />
-		<text name="ad_helpText_08_03"							text="Примечание. Как только разгружающий водитель получает команду на движение к комбайну, в информационной панели HUD меняется сообщение о состоянии с «Ожидаю комбайн» на «Еду к комбайну». Это означает, что планировщик пути теперь активно ищет путь. В зависимости от производительности вашего процессора и ваших настроек («Время поиска маршрута (макс.)»), этот процесс может занять некоторое время, а в крайних случаях снизить частоту кадров. Обычно это происходит, если разгрузчик не может найти приемлемый путь к комбайну. Всегда следите за тем, чтобы перед водителем не было препятствий (и не было посевов), а путь, ведущий к трубе комбайна, также был свободен от столкновений (например, не было деревьев сразу за комбайном)." />
+		<text name="ad_helpText_08_03"							text="Примечание. Как только разгружающий водитель получает команду на движение к комбайну, в информационной панели HUD меняется сообщение о состоянии с «Ожидает вызова» на «Двигается к выгрузной трубе». Это означает, что планировщик пути теперь активно ищет путь. В зависимости от производительности вашего процессора и ваших настроек («Время поиска маршрута (макс.)»), этот процесс может занять некоторое время, а в крайних случаях снизить частоту кадров. Обычно это происходит, если разгрузчик не может найти приемлемый путь к комбайну. Всегда следите за тем, чтобы перед водителем не было препятствий (и не было посевов), а путь, ведущий к трубе комбайна, также был свободен от столкновений (например, не было деревьев сразу за комбайном)." />
 		<text name="ad_helpText_08_04"							text="" />
 		<text name="ad_helpText_08_05"							text="Когда водитель достигает комбайна, он проверяет, завершен ли процесс разгрузки или не заполнен ли текущий прицеп. В случае, если присоединено несколько прицепов, водитель будет продвигаться вперед, пока не будет обнаружен процесс заполнения следующего прицепа. После процесса разгрузки водитель начнет движение назад на несколько метров, чтобы обеспечить комбайну достаточно места для продолжения его работы. Затем водитель подождет несколько секунд, пока комбайн не освободит участок и начнет планирование пути назад к начальной точке. По достижении начальной точки он снова зарегистрируется как доступный разгрузчик и будет ждать повторного вызова. Если в этот момент прицеп уже заполнен, он сразу же направится к месту выгрузки, а затем вернется на место." />
 
@@ -255,15 +268,15 @@
 		<text name="ad_helpTitle_10"							text="Режим AD - Разгрузка комбайна - Поиск маршрута ограничен полем" />
 		<text name="ad_helpText_10_01"							text="Если для этой опции задано значение «Да», алгоритм поиска пути будет принимать только ячейки сетки, которые находятся на поле. Этот параметр вступает в силу только в том случае, если автомобиль уже находится на поле (запущен на поле или остановлен на поле). Эта опция должна помочь удерживать водителя на поле, особенно во время выполнения маневров поворотов. " />
 		<text name="ad_helpText_10_02"							text="" />
-		<text name="ad_helpText_10_03"							text="Важно: Если за указанное время невозможно рассчитать путь, свободный от посевов (см. Настройки), система поиска пути перейдет в резервный режим, который игнорирует границы посевов и полей!" />
+		<text name="ad_helpText_10_03"							text="ВАЖНО: Если за указанное время невозможно рассчитать путь, свободный от посевов (см. Настройки), система поиска пути перейдет в резервный режим, который игнорирует границы посевов и полей!" />
 
 		<text name="ad_helpTitle_11"							text="Режим AD - Разгрузка комбайна - Избегать посевов" />
-		<text name="ad_helpText_11_01"							text="Эта опция гарантирует, что система поиска пути будет принимать только ячейки сетки, которые не содержат посевов или имеют только незначительное их количество. Важно: Если за указанное время невозможно рассчитать путь, свободный от посевов (см. Настройки), система поиска пути перейдет в резервный режим, который игнорирует границы посевов и полей!" />
+		<text name="ad_helpText_11_01"							text="Эта опция гарантирует, что система поиска пути будет принимать только ячейки сетки, которые не содержат посевов или имеют только незначительное их количество. ВАЖНО: Если за указанное время невозможно рассчитать путь, свободный от посевов (см. Настройки), система поиска пути перейдет в резервный режим, который игнорирует границы посевов и полей!" />
 
 		<text name="ad_helpTitle_12"							text="Режим AD - Разгрузка комбайна - Следовать за комбайном" />
 		<text name="ad_helpText_12_01"							text="Предварительный вызов водителя / Следовать за комбайном" />
 		<text name="ad_helpText_12_02"							text="" />
-		<text name="ad_helpText_12_03"							text="Эти параметры могут использоваться для простого следования за комбайном на некотором расстоянии (Предварительный вызов водителя включен / Следование выключено). Или даёт возможность разгружаться не, останавливая комбайн. Когда комбайн достигнет установленного значения «Уровень предварительного вызова», он вызовет водителя к его текущему местоположению. Как только водитель достигнет этой точки, он проведет повторную оценку. Если он находится рядом с комбайном (менее чем 60 метров) и включена настройка «Следовать за комбайном», он начнет следовать за ним в пределах видимости. В противном случае он перезапустит процесс поиска пути к новому расположению комбайна. Во время следования он будет видеть, что труба в данный момент над посевами или нет. Если нет, он начнет нацеливаться на местоположение трубы, в противном случае он будет следовать за комбайном на некотором расстоянии. Когда водитель достигнет уровня «Отвозить при уровне», он сразу же начнет планировать путь к выходу из выбранного поля (см. Настройки). Таким образом, в этом режиме имеет смысл установить уровень 100%. Так он не попытается случайно подрезать комбайн или уехать, пока не будет полностью заполнен." />
+		<text name="ad_helpText_12_03"							text="Эти параметры могут использоваться для простого следования за комбайном на некотором расстоянии (Предварительный вызов водителя включен / Следование выключено). Или даёт возможность разгружаться не, останавливая комбайн. Когда комбайн достигнет установленного значения «Уровень предварительного вызова», он вызовет водителя к его текущему местоположению. Как только водитель достигнет этой точки, он проведет повторную оценку. Если он находится рядом с комбайном (менее чем 60 метров) и включена настройка «Следовать за комбайном», он начнет следовать за ним в пределах видимости. В противном случае он перезапустит процесс поиска пути к новому расположению комбайна. Во время следования он будет видеть, что труба в данный момент над посевами или нет. Если нет, он начнет нацеливаться на местоположение трубы, в противном случае он будет следовать за комбайном на некотором расстоянии. Когда водитель достигнет уровня «Отвозить при уровне», он сразу же начнет планировать путь к съезду из выбранного поля (см. Настройки). Таким образом, в этом режиме имеет смысл установить уровень 100%. Так он не попытается случайно подрезать комбайн или уехать, пока не будет полностью заполнен." />
 
 		<text name="ad_helpTitle_13"							text="Режим AD - Перегрузка из силосной ямы" />
 		<text name="ad_helpText_13_01"							text="Этот режим можно использовать только с транспортными средствами, к которым прикреплен ковш. Основная идея - решение в один клик для разгрузки силосных ям. При запуске трактор проверит наличие двух необходимых условий: наличие поблизости (~ 100 м?) заполненного бункера и прикрепленная лопата. Если оба условия соблюдены, трактор инициализирует свои оси погрузчика, чтобы получить правильные значения для движений вверх/вниз, загрузки/разгрузки и выдвижения/втягивания. Затем он разделит ширину бункера на части шириной, равной ширине его ковша + «Добавочная ширина ковша» (см. Настройки), и начнет с первой части. Если первая или последняя часть попадают в стену силосной ямы, вам следует в настройках увеличить значение «Добавочная ширина ковша» и перезапустить водителя. Это может произойти, если либо ширина ковша не соответствует физическим размерам, либо маркеры бункера находится внутри стены, что не является необычным, поскольку облегчает разработку силосной ямы с хорошим внешним видом. После того, как ковш наполнен и трактор выезжает из бункера, он будет сканировать пространство на наличие транспортного средства с прицепом (с оставленным пространством для заполнения) и начнет движение туда." />
@@ -273,29 +286,30 @@
 		<text name="ad_helpText_13_05"							text="Так как транспортное средство пытается автоматически найти для ковша идеальное положение погрузки, может случиться так, что оно поднимает передние колеса. Для этого сценария предусмотрено обнаружение, которое проверяет, все ли колеса находятся на земле, и начинает поднимать ковш, если эта проверка возвращает ЛОЖЬ в течение нескольких сотен миллисекунд." />
 
 		
-		<text name="AD_task_pathfinding"						text="Planning path" />
-		<text name="AD_task_catch_up_with_combine"				text="Catching up with combine" />
+		<text name="AD_task_pathfinding"						text="Планирование пути" />
+		<text name="AD_task_catch_up_with_combine"				text="Подъезжает к комбайну" />
 		<text name="AD_task_clearcrop"							text="Clearing crop" />
-		<text name="AD_task_drive_to_destination"				text="Driving to destination" />
-		<text name="AD_task_drive_to_vehicle"					text="Driving to target vehicle" />
-		<text name="AD_task_drive_to_combine_pipe"				text="Drive to combine pipe" />
-		<text name="AD_task_unloading_combine"					text="Unloading combine" />
-		<text name="AD_task_reversing_from_combine"				text="Reversing from combine" />
-		<text name="AD_task_waiting_for_space"					text="Waiting for maneuver room" />
-		<text name="AD_task_wait_for_combine_turn"				text="Wait for combine's turn" />
-		<text name="AD_task_drive_to_load_point"				text="Drive to loading point" />
-		<text name="AD_task_drive_to_refuel_point"				text="Drive to refuel station" />
-		<text name="AD_task_stop_and_disable"					text="Stopping" />
-		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
-		<text name="AD_task_wait_for_call"						text="Waiting for call" />
-		<text name="AD_task_chasing_combine"					text="Chaising combine" />	
-		<text name="AD_task_wait_for_combine_pass_by"			text="Letting combine pass by" />	
-		<text name="AD_task_catching_chase_side"				text="Catching side" />	
-		<text name="AD_task_chase_side"							text="Side" />	
-		<text name="AD_task_chase_side_left"					text="left" />	
-		<text name="AD_task_chase_side_rear"					text="rear" />	
-		<text name="AD_task_chase_side_right"					text="right" />		
-		<text name="AD_task_waiting_for_room"					text="Waiting for room" />
-		<text name="AD_task_exiting_field"						text="Exiting field" />
+		<text name="AD_task_drive_to_destination"				text="Двигается к пункту назначения" />
+		<text name="AD_task_drive_to_vehicle"					text="Двигается к целевому транспорту" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Двигается к выгрузной трубе" />
+		<text name="AD_task_unloading_combine"					text="Разгружает комбайн" />
+		<text name="AD_task_reversing_from_combine"				text="Отъезжает от комбайна" />
+		<text name="AD_task_waiting_for_space"					text="Ожидает пространства для манёвра" />
+		<text name="AD_task_wait_for_combine_turn"				text="Ожидает пока развернётся комбайн" />
+		<text name="AD_task_drive_to_load_point"				text="Двигается к точки загрузки" />
+		<text name="AD_task_drive_to_refuel_point"				text="Двигается к АЗС" />
+		<text name="AD_task_stop_and_disable"					text="Останавливается" />
+		<text name="AD_task_drive_to_unload_point"				text="Двигается к точке разгрузки" />
+		<text name="AD_task_wait_for_call"						text="Ожидает вызова" />
+		<text name="AD_task_chasing_combine"					text="Следует за комбайном" />	
+		<text name="AD_task_wait_for_combine_pass_by"			text="Позволяет комбайну пройти мимо" />	
+		<text name="AD_task_catching_chase_side"				text="Сторона приёма" />	
+		<text name="AD_task_chase_side"							text="Сторона" />	
+		<text name="AD_task_chase_side_left"					text="слева" />	
+		<text name="AD_task_chase_side_rear"					text="сзади" />	
+		<text name="AD_task_chase_side_right"					text="справа" />		
+		<text name="AD_task_waiting_for_room"					text="Ожидает пространства" />
+		<text name="AD_task_exiting_field"						text="Покидает поле" />
+		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
 	</texts>
 </l10n>

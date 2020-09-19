@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Fahrzeug parken" />
 		<text name="input_ADSwapTargets"						text="AD: Ziele tauschen" />
 		<text name="hud_avoidFruit"								text="AD: Fruchtumfahrung" />
-		<text name="hud_startCp" 								text="AD: Starte CP Fahrer am Zielpunkt" />
+		<text name="hud_startCp" 								text="AD: Starte CP / AIVE Fahrer am Zielpunkt" />
 		<text name="AD_parkVehicle_noPosSet"					text="Kein Parkplatz zugewiesen. Bitte mit rechter Maustaste auf Button festlegen. (Aktuelles Ziel)" />
 		<text name="AD_parkVehicle_selected"					text="Als Parkplatz zugewiesen: " />
 		<text name="AD_Driver_of"								text="Der Fahrer von" />
@@ -58,6 +58,10 @@
 		<text name="AD_lctrl_for_creation" 						text="LSTRG zum Erstellen" />
 		<text name="AD_lalt_for_deletion" 						text="LALT zum Löschen" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Einstellungen" />
+		<text name="gui_ad_collisionHeigth"						text="Kollisionshöhe über Grund" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Einstellung der Kollisionserkennung vor dem Fahrzeug. Wenn andere Fahrzeuge während des Fahrens nicht erkannt werden, verringern. (Standard 2m)" />
+		<text name="gui_ad_blinkValue"						    text="Lenkwinkel Blinker-Automatik" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Lenkwinkel, ab dem beim Abbiegen automatisch geblinkt wird. (0 = Blinker deaktiviert)" />
 		<text name="gui_ad_pipe_offset"							text="Abstand Rohr" />
 		<text name="gui_ad_followDistance"						text="Abstand Häcksler" />
 		<text name="gui_ad_followDistance_tooltip"				text="Abstand vom Häcksler, wenn von hinten abgefahren/gefolgt wird" />
@@ -123,8 +127,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Falls die automatisch erkannte Breite zu klein ist, kann sie hiermit erhöht werden" />
 		<text name="gui_ad_preCallLevel"						text="Früher rufen ab" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Abfahrer wird beim eingestellten Füllgrad bereits gerufen." />
-		<text name="gui_ad_distributeToFolder"					text="Mehrere Ziele" />
-		<text name="gui_ad_distributeToFolder_tooltip"			text="Alle Ziele im selben Ordner werden als Abladeziel durchrotiert." />
+		<text name="gui_ad_none"					            text="keine" />
+		<text name="gui_ad_onlyPickup"					        text="nur Beladen" />
+		<text name="gui_ad_onlyDeliver"					        text="nur Entladen" />
+		<text name="gui_ad_PickupandDeliver"					text="Be- und Entladen" />
+		<text name="gui_ad_rotateTargets"					    text="Rotierend Be- und Entladen" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modi: kein Wechsel der Ziele / nur Beladeziele / nur Entladeziele / Be- und Entladeziele im Ordner rotierend wechseln (nicht für Standard-Ordner) (und nur wenn Ordner verwenden aktiv)" />
 		<text name="gui_ad_maxTriggerDistance"					text="Maximaler Siloabstand" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Bis zu dieser Entfernung zum Zielpunkt wird beladen/entladen bei erkanntem Trigger." />
 		<text name="gui_ad_useBeaconLights"						text="Rundumleuchten" />
@@ -166,8 +174,11 @@
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Nutze 2. Editormodus statt Halten der LSTRG-Taste" />
 		<text name="gui_ad_wideHUD"								text="Breites HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Nutze breites HUD. Erlaubt dadurch auch zusätzliche Buttons." />
+		<text name="gui_ad_syncMultiTargets"					text="Synchronisiere 'Mehrere Ziele'" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Wenn mehrere Fahrer die selben Ziele anfahren, wird die Zielauswahl synchronisiert." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
@@ -197,6 +208,7 @@
 		<text name="gui_ad_debugChannelNetwork" 				text="Netzwerk" />
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Externe Schnittstelle" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
+		<text name="gui_ad_debugChannelRoadNetwork"				text="Streckennetz" />
 		<text name="gui_ad_debugChannelAll" 					text="Alles" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -296,5 +308,6 @@
 		<text name="AD_task_chase_side_right"					text="rechts" />
 		<text name="AD_task_waiting_for_room"					text="Warte auf Platz" />		
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
+		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
 	</texts>
 </l10n>

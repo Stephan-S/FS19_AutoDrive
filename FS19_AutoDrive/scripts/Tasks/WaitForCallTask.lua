@@ -12,6 +12,7 @@ function WaitForCallTask:setUp()
 end
 
 function WaitForCallTask:update(dt)
+    self.vehicle.ad.specialDrivingModule:stopVehicle()
     self.vehicle.ad.specialDrivingModule:update(dt)
 end
 

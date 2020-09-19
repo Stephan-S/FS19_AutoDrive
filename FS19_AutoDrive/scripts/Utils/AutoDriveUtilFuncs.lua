@@ -6,7 +6,18 @@ function AutoDrive.createWayPointRelativeToVehicle(vehicle, offsetX, offsetZ)
     return wayPoint
 end
 
-function AutoDrive.isTrailerInCrop(vehicle)
+function AutoDrive.createWayPointRelativeToNode(node, offsetX, offsetZ)
+    local wayPoint = {}
+    wayPoint.x, wayPoint.y, wayPoint.z = localToWorld(node, offsetX, 0, offsetZ)
+    return wayPoint
+end
+
+function AutoDrive.isTrailerInCrop(vehicle, enlargeDetectionArea)
+    local widthFactor = 1
+    if enlargeDetectionArea then
+        widthFactor = 1.5
+    end
+
     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
     local trailer = trailers[trailerCount]
     local inCrop = false
@@ -15,13 +26,18 @@ function AutoDrive.isTrailerInCrop(vehicle)
             trailer.ad = {}
         end
         ADSensor:handleSensors(trailer, 0)
-        inCrop = trailer.ad.sensors.centerSensorFruit:pollInfo()
+        inCrop = trailer.ad.sensors.centerSensorFruit:pollInfo(true, widthFactor)
     end
     return inCrop
 end
 
-function AutoDrive.isVehicleOrTrailerInCrop(vehicle)
-    return AutoDrive.isTrailerInCrop(vehicle) or vehicle.ad.sensors.centerSensorFruit:pollInfo()
+function AutoDrive.isVehicleOrTrailerInCrop(vehicle, enlargeDetectionArea)
+    local widthFactor = 1
+    if enlargeDetectionArea then
+        widthFactor = 1.5
+    end
+
+    return AutoDrive.isTrailerInCrop(vehicle, enlargeDetectionArea) or vehicle.ad.sensors.centerSensorFruit:pollInfo(true, widthFactor)
 end
 
 function AutoDrive:checkIsConnected(toCheck, other)
@@ -102,10 +118,12 @@ function AutoDrive.combineIsTurning(combine)
     local cpIsTurning = combine.cp ~= nil and (combine.cp.isTurning or (combine.cp.turnStage ~= nil and combine.cp.turnStage > 0))
     local cpIsTurningTwo = combine.cp ~= nil and combine.cp.driver and (combine.cp.driver.turnIsDriving or (combine.cp.driver.fieldworkState ~= nil and combine.cp.driver.fieldworkState == combine.cp.driver.states.TURNING))
     local aiIsTurning = (combine.getAIIsTurning ~= nil and combine:getAIIsTurning() == true)
-    local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 30)
-    local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
+    --local combineSteering = combine.rotatedTime ~= nil and (math.deg(combine.rotatedTime) > 30)
+    local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning --or combineSteering
 
-    if ((combine:getIsBufferCombine() and combine.ad.noTurningTimer:done()) or (combine.ad.driveForwardTimer:done() and (not combine:getIsBufferCombine()))) and (not combineIsTurning) then
+    --local b = AutoDrive.boolToString
+    --print("cpIsTurning: " .. b(cpIsTurning) .. " cpIsTurningTwo: " .. b(cpIsTurningTwo) .. " aiIsTurning: " .. b(aiIsTurning) .. " combineIsTurning: " .. b(combineIsTurning) .. " driveForwardDone: " .. b(combine.ad.driveForwardTimer:done()))
+    if not combineIsTurning then --(combine.ad.driveForwardTimer:done() and (not combine:getIsBufferCombine()))
         return false
     end
     if combine.ad.noMovementTimer.elapsedTime > 3000 then
@@ -158,7 +176,18 @@ function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
             local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz
             local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz
             local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz
-            return MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z)
+            if MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z) then
+                return true
+            end
+        end
+
+        local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+        if trailerCount > 0 then
+            for _, trailer in pairs(trailers) do
+                if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
+                    return true
+                end
+            end
         end
     end
 

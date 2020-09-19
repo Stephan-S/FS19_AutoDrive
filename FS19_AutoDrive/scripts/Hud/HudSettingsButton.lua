@@ -20,7 +20,7 @@ end
 function ADHudSettingsButton:readImages()
     local images = {}
     local counter = 1
-    while counter <= 3 do
+    while counter <= 4 do
         images[counter] = AutoDrive.directory .. "textures/" .. self.setting .. "_" .. counter .. ".dds"
         counter = counter + 1
     end

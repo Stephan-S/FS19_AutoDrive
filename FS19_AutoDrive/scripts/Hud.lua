@@ -93,6 +93,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive.getSetting("guiScale") ~= 0 then
 		uiScale = AutoDrive.getSetting("guiScale")
 	end
+    local vehicle = g_currentMission.controlledVehicle
 	local numButtons = 7
 	local numButtonRows = 2
 	local buttonSize = 32
@@ -101,7 +102,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	local listItemSize = 20
 
 	self.headerHeight = 0.016 * uiScale
-	
+
 	self.Background = {}
 	self.Buttons = {}
 	self.buttonCounter = 0
@@ -125,7 +126,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.iconWidth, self.iconHeight = getNormalizedScreenValues(uiScale * iconSize, uiScale * iconSize)
 	self.listItemWidth, self.listItemHeight = getNormalizedScreenValues(uiScale * listItemSize, uiScale * listItemSize)
 	self.posX = math.clamp(0, hudX, 1 - self.width)
-	self.posY = math.clamp(2 * self.gapHeight, hudY, 1- (self.height + 3 * self.gapHeight + self.headerHeight))
+	self.posY = math.clamp(2 * self.gapHeight, hudY, 1 - (self.height + 3 * self.gapHeight + self.headerHeight))
 
 	AutoDrive.HudX = self.posX
 	AutoDrive.HudY = self.posY
@@ -161,7 +162,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	table.insert(self.hudElements, self.targetPullDownList)
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX + self.gapWidth, self.row3, self.iconWidth, self.iconHeight, AutoDrive.directory .. "textures/tipper_overlay.dds", 1, "unloadOverlay"))
-	
+
 	table.insert(self.hudElements, ADPullDownList:new(self.posX + 2 * self.gapWidth + self.buttonWidth, self.row3, self.iconWidth * 6 + self.gapWidth * 5, self.listItemHeight, ADPullDownList.TYPE_UNLOAD, 1))
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX + self.gapWidth, self.row2, self.iconWidth, self.iconHeight, AutoDrive.directory .. "textures/fruit_overlay.dds", 1, "fruitOverlay"))
@@ -184,7 +185,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_continue", nil, "input_AD_continue", 1, true)
 	self:AddButton("input_parkVehicle", "input_setParkDestination", "input_ADParkVehicle", 1, true)
 	self:AddButton("input_incLoopCounter", "input_decLoopCounter", "input_ADIncLoopCounter", 1, true)
-	
+
 	local speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
 	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, false))
@@ -197,16 +198,19 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive.getSetting("wideHUD") then
 		if AutoDrive.getSetting("addSettingsToHUD") then
 			self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
-			self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
+			self:AddSettingsButton("rotateTargets", "gui_ad_rotateTargets", 1, true)
 			self:AddSettingsButton("exitField", "gui_ad_exitField", 1, true)
 			self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 			self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 		else
 			self:AddEditModeButtons()
-			if g_courseplay ~= nil then
-				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
-			end
+            if g_courseplay ~= nil then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+            elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
+            end
 		end
 
 		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
@@ -219,22 +223,27 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self:AddEditModeButtons()
 		if AutoDrive.getSetting("addSettingsToHUD") then
 			self.buttonCounter = self.buttonCounter - 5
-		
-			if g_courseplay ~= nil then
-				self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
+
+            if g_courseplay ~= nil then
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+            elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
 			else
 				self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 			end
 
-			self:AddSettingsButton("distributeToFolder", "gui_ad_distributeToFolder", 1, true)
+			self:AddSettingsButton("rotateTargets", "gui_ad_rotateTargets", 1, true)
 			self:AddSettingsButton("exitField", "gui_ad_exitField", 1, true)
 			self:AddSettingsButton("restrictToField", "gui_ad_restrictToField", 1, true)
 			self:AddSettingsButton("avoidFruit", "gui_ad_avoidFruit", 1, true)
 		else
-			if g_courseplay ~= nil then
-				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
-			end
+            if g_courseplay ~= nil then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+            elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+                self.buttonCounter = self.buttonCounter - 1
+                self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
+            end
 		end
 
 		speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
@@ -250,9 +259,11 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
 		self:AddEditModeButtons()
 
-		if g_courseplay ~= nil then
-			self:AddButton("input_startCp", nil, "hud_startCp", 1, true)
-		end
+        if g_courseplay ~= nil then
+            self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 1, true)
+        elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
+            self:AddButton("input_startCp", "input_toggleCP_AIVE", "hud_startCp", 3, true)
+        end
 	end
 
 	-- Refreshing layer sequence must be called, after all elements have been added
@@ -441,7 +452,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			if AutoDrive.leftCTRLmodifierKeyPressed then
 				--If no node is hovered / moved - check for creation of new node
 				if vehicle.ad.nodeToMoveId == nil and vehicle.ad.hoveredNodeId == nil then
-					if button == 1 and isDown then
+					if button == 1 and isUp then
 						--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
 						local closest = vehicle:getClosestWayPoint()
 						closest = ADGraphManager:getWayPointById(closest)
@@ -451,7 +462,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 							-- And just to correct for slope changes, we now set the height to the terrain height
 							y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-							
+
 							local screenX, screenY, depthNew = project(x, y, z)
 							local _, _, depth = project(closest.x, closest.y, closest.z)
 
@@ -465,10 +476,10 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 								else
 									depth = depth + 0.0001
 								end
-								
+
 								x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
 								y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-								
+
 								screenX, screenY, depthNew = project(x, y, z)
 
 								local distance = MathUtil.vector2Length(g_lastMousePosX - screenX, g_lastMousePosY - screenY)
@@ -484,8 +495,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							local createdId = ADGraphManager:getWayPointsCount()
 							if vehicle.ad.selectedNodeId ~= nil then
 								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)
-								vehicle.ad.selectedNodeId = createdId
 							end
+							vehicle.ad.selectedNodeId = createdId
 						end
 					end
 				end
@@ -537,7 +548,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 			node.y = node.y - 0.1
 			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
 		end
-		node.y = math.max(safeNodeY-0.2, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
+		node.y = math.max(safeNodeY - 0.2, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
 		ADGraphManager:markChanges()
 	end
 end
@@ -560,7 +571,7 @@ end
 
 function AutoDriveHud:stopMovingHud()
 	self.isMoving = false
-	AutoDriveUserDataEvent.sendToServer()
+	ADUserDataManager:sendToServer()
 end
 
 function AutoDriveHud:getModeName(vehicle)

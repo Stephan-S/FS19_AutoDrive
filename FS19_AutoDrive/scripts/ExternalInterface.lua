@@ -133,7 +133,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.stateModule:getCurrentMode():start()
                 vehicle.ad.onRouteToPark = true
             else --unloadDestinationID == -2 refuel
-                vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+                -- vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO) -- should fix #1477
                 vehicle.ad.stateModule:getCurrentMode():start()
             end
         end
@@ -187,5 +187,26 @@ function AutoDrive:notifyDestinationListeners()
 end
 
 function AutoDrive:combineIsCallingDriver(combine)
-    return ADHarvestManager.doesHarvesterNeedUnloading(combine)
+    return ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
+end
+
+-- stop CP if it is active
+function AutoDrive:StopCP(vehicle)
+	if vehicle == nil then 
+		return 
+	end
+
+	if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
+		if vehicle.ad.stateModule:getUseCP_AIVE() then
+			vehicle.ad.stateModule:toggleUseCP_AIVE()
+		end
+		g_courseplay.courseplay:stop(vehicle)
+	end
+end
+
+function AutoDrive:HoldDriving(vehicle)
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule:isActive() then
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:HoldDriving should set setPaused")
+        vehicle.ad.drivePathModule:setPaused()
+    end
 end

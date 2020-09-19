@@ -20,6 +20,8 @@ end
 
 function ADStateModule:reset()
     self.active = false
+    self.activeBeforeSave = false
+    self.AIVEActiveBeforeSave = false
     self.mode = AutoDrive.MODE_DRIVETO
     self.firstMarker = ADGraphManager:getMapMarkerById(1)
     self.secondMarker = ADGraphManager:getMapMarkerById(1)
@@ -46,7 +48,9 @@ function ADStateModule:reset()
     self.currentNeighbourToPointAt = -1
     self.neighbourPoints = {}
 
-    self.startCp = false
+    self.startCP_AIVE = false
+
+    self.useCP = (g_courseplay ~= nil)
 
     self.driverName = g_i18n:getText("UNKNOWN")
     if self.vehicle.getName ~= nil then
@@ -103,6 +107,16 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
     if parkDestination ~= nil then
         self.parkDestination = parkDestination
     end
+
+    local lastActive = getXMLBool(xmlFile, key .. "#lastActive")
+    if lastActive ~= nil then
+        self.activeBeforeSave = lastActive
+    end
+
+    local AIVElastActive = getXMLBool(xmlFile, key .. "#AIVElastActive")
+    if AIVElastActive ~= nil then
+        self.AIVEActiveBeforeSave = AIVElastActive
+    end
 end
 
 function ADStateModule:saveToXMLFile(xmlFile, key)
@@ -119,6 +133,8 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
     setXMLInt(xmlFile, key .. "#loopCounter", self.loopCounter)
     setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
+    setXMLBool(xmlFile, key .. "#lastActive", self.active)
+    setXMLBool(xmlFile, key .. "#AIVElastActive", (self.vehicle.acParameters ~= nil and self.vehicle.acParameters.enabled and self.vehicle.spec_aiVehicle.isActive))
 end
 
 function ADStateModule:writeStream(streamId)
@@ -137,7 +153,8 @@ function ADStateModule:writeStream(streamId)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
-    streamWriteBool(streamId, self.startCp)
+    streamWriteBool(streamId, self.startCP_AIVE)
+    streamWriteBool(streamId, self.useCP)
 end
 
 function ADStateModule:readStream(streamId)
@@ -157,7 +174,8 @@ function ADStateModule:readStream(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
-    self.startCp = streamReadBool(streamId)
+    self.startCP_AIVE = streamReadBool(streamId)
+    self.useCP = streamReadBool(streamId)
 end
 
 function ADStateModule:writeUpdateStream(streamId)
@@ -176,7 +194,8 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
-    streamWriteBool(streamId, self.startCp)
+    streamWriteBool(streamId, self.startCP_AIVE)
+    streamWriteBool(streamId, self.useCP)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -196,7 +215,8 @@ function ADStateModule:readUpdateStream(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
-    self.startCp = streamReadBool(streamId)
+    self.startCP_AIVE = streamReadBool(streamId)
+    self.useCP = streamReadBool(streamId)
 end
 
 function ADStateModule:update(dt)
@@ -220,7 +240,8 @@ function ADStateModule:update(dt)
         debug.currentLocalizedTaskInfo = self.currentLocalizedTaskInfo
         debug.currentWayPointId = self.currentWayPointId
         debug.nextWayPointId = self.nextWayPointId
-        debug.startCp = self.startCp
+        debug.startCP_AIVE = self.startCP_AIVE
+        debug.useCP = self.useCP
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
         else
@@ -240,20 +261,29 @@ function ADStateModule:update(dt)
     end
 end
 
-function ADStateModule:toggleStartCp()
-    self.startCp = not self.startCp
+function ADStateModule:toggleStartCP_AIVE()
+    self.startCP_AIVE = not self.startCP_AIVE
     self:raiseDirtyFlag()
 end
 
-function ADStateModule:setStartCp(enabled)
-    if enabled ~= self.startCp then
-        self.startCp = enabled
+function ADStateModule:setStartCP_AIVE(enabled)
+    if enabled ~= self.startCP_AIVE then
+        self.startCP_AIVE = enabled
         self:raiseDirtyFlag()
     end
 end
 
-function ADStateModule:getStartCp()
-    return self.startCp
+function ADStateModule:getStartCP_AIVE()
+    return self.startCP_AIVE
+end
+
+function ADStateModule:toggleUseCP_AIVE()
+    self.useCP = not self.useCP
+    self:raiseDirtyFlag()
+end
+
+function ADStateModule:getUseCP_AIVE()
+    return self.useCP
 end
 
 function ADStateModule:getCurrentWayPointId()
@@ -336,7 +366,6 @@ function ADStateModule:nextMode()
         self.mode = AutoDrive.MODE_DRIVETO
     end
     self:raiseDirtyFlag()
-    self:removeCPCallback()
 end
 
 function ADStateModule:previousMode()
@@ -346,7 +375,6 @@ function ADStateModule:previousMode()
         self.mode = AutoDrive.MODE_UNLOAD
     end
     self:raiseDirtyFlag()
-    self:removeCPCallback()
 end
 
 function ADStateModule:setMode(newMode)
@@ -399,6 +427,7 @@ function ADStateModule:cycleEditMode()
         self.editorMode = ADStateModule.EDITOR_EXTENDED
     elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or ((not AutoDrive.getSetting("secondEditorModeAllowed")) and self.editorMode == ADStateModule.EDITOR_ON) then
         self.editorMode = ADStateModule.EDITOR_OFF
+	self:disableCreationMode()
         self.vehicle.ad.selectedNodeId = nil
     end
     self:raiseDirtyFlag()
@@ -409,6 +438,7 @@ function ADStateModule:cycleEditorShowMode()
         self.editorMode = ADStateModule.EDITOR_SHOW
     else
         self.editorMode = ADStateModule.EDITOR_OFF
+	self:disableCreationMode()
     end
     self:raiseDirtyFlag()
 end
@@ -723,17 +753,17 @@ function ADStateModule:setNextTargetInFolder()
         local nextMarkerInGroup = nil
         local markerSeen = false
         local firstMarkerInGroup = nil
-        for markerID, marker in pairs(ADGraphManager:getMapMarkers()) do
+        for _, marker in ipairs(ADGraphManager:getMapMarkersInGroup(group)) do
             if marker.group == group then
                 if firstMarkerInGroup == nil then
-                    firstMarkerInGroup = markerID
+                    firstMarkerInGroup = marker.markerIndex
                 end
 
                 if markerSeen and nextMarkerInGroup == nil then
-                    nextMarkerInGroup = markerID
+                    nextMarkerInGroup = marker.markerIndex
                 end
 
-                if markerID == self.secondMarker.markerIndex then
+                if marker.markerIndex == self.secondMarker.markerIndex then
                     markerSeen = true
                 end
             end
@@ -752,21 +782,33 @@ function ADStateModule:setNextTargetInFolder()
 end
 
 function ADStateModule:removeCPCallback()
+   if self.vehicle.ad.callBackFunction ~= nil then			-- if CP callback is set, CP has to be stopped
+	AutoDrive:StopCP(self.vehicle)
+    end
     self.vehicle.ad.callBackFunction = nil
     self.vehicle.ad.callBackObject = nil
     self.vehicle.ad.callBackArg = nil
 end
 
 function ADStateModule:resetMarkersOnReload()
+    local newFirstMarker = nil
     if self.firstMarker ~= nil and self.firstMarker.id ~= nil then
-        self.firstMarker = ADGraphManager:getMapMarkerById(self.firstMarker.id)
+        newFirstMarker = ADGraphManager:getMapMarkerByWayPointId(self.firstMarker.id)
+    end
+    if newFirstMarker ~= nil then
+        self.firstMarker = newFirstMarker
     else
         self.firstMarker = ADGraphManager:getMapMarkerById(1)
     end
 
+    local newSecondMarker = nil
     if self.secondMarker ~= nil and self.secondMarker.id ~= nil then
-        self.secondMarker = ADGraphManager:getMapMarkerById(self.secondMarker.id)
+        newSecondMarker = ADGraphManager:getMapMarkerByWayPointId(self.secondMarker.id)
+    end
+    if newSecondMarker ~= nil then
+        self.secondMarker = newSecondMarker
     else
         self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
+    self:raiseDirtyFlag()
 end

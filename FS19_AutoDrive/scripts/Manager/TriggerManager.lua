@@ -87,6 +87,8 @@ end
 
 function ADTriggerManager.loadAllTriggers()
     ADTriggerManager.searchedForTriggers = true
+    ADTriggerManager.tipTriggers = {}
+    ADTriggerManager.siloTriggers = {}
     for _, ownedItem in pairs(g_currentMission.ownedItems) do
         if ownedItem.storeItem ~= nil then
             if ownedItem.storeItem.categoryName == "SILOS" then
@@ -299,7 +301,7 @@ function ADTriggerManager.getTriggerPos(trigger)
         x, y, z = getWorldTranslation(trigger.triggerNode)
     --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
-    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil and entityExists(trigger.exactFillRootNode)  then
+    if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil and entityExists(trigger.exactFillRootNode) then
         x, y, z = getWorldTranslation(trigger.exactFillRootNode)
     --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
@@ -323,4 +325,8 @@ function ADTriggerManager:loadTriggerDelete(superFunc)
         table.removeValue(ADTriggerManager.siloTriggers, self)
     end
     superFunc(self)
+end
+
+function ADTriggerManager:onPlaceableBuy()
+    ADTriggerManager.searchedForTriggers = false
 end

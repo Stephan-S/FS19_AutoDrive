@@ -212,6 +212,9 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 if self.hovered == self.selected + (i - 1) and listEntry.isFolder == false then
                     setTextBold(false)
                     setTextColor(0, 1, 0, 1)
+                elseif self.hovered == self.selected + (i - 1) and listEntry.isFolder == true then  -- folders mouse over
+                    setTextBold(true)
+                    setTextColor(0.5, 0.8, 0, 1)
                 else
                     if listEntry.isFolder == false then
                         setTextBold(false)
@@ -439,6 +442,24 @@ function ADPullDownList:sortGroups()
 end
 
 function ADPullDownList:createSelection_FillType()
+    local supportedFillTypes = nil
+    if g_currentMission.controlledVehicle ~= nil then
+        for _, trailer in pairs(AutoDrive.getTrailersOf(g_currentMission.controlledVehicle, false)) do
+            supportedFillTypes = {}
+            if trailer.getFillUnits ~= nil then
+                for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
+                    if trailer.getFillUnitSupportedFillTypes ~= nil then
+                        for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                            if supported then
+                                table.insert(supportedFillTypes, fillType)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     self.options = {}
     self.options[1] = {}
     local fillTypeIndex = 1
@@ -446,7 +467,7 @@ function ADPullDownList:createSelection_FillType()
     local lastIndexReached = false
     while not lastIndexReached do
         if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
-            if not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex) then
+            if (not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex)) and (supportedFillTypes == nil or table.contains(supportedFillTypes, fillTypeIndex)) then
                 self.options[1][itemListIndex] = {displayName = g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue = fillTypeIndex}
                 itemListIndex = itemListIndex + 1
             end
@@ -596,9 +617,9 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             AutoDrive.mouseWheelActive = true
             return true
         elseif button == 5 and isUp then
-            if self:getListElementByIndex(vehicle, self.selected + 1) ~= nil then
+            if self:getListElementByIndex(vehicle, self.selected + 1 + ADPullDownList.MAX_SHOWN - 2) ~= nil then
                 self.selected = self.selected + 1
-                if self:getListElementByIndex(vehicle, self.hovered + 1) ~= nil then
+                if self:getListElementByIndex(vehicle, self.hovered + 1 + ADPullDownList.MAX_SHOWN - 2) ~= nil then
                     self.hovered = self.hovered + 1
                 end
             end

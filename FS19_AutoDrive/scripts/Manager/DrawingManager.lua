@@ -40,6 +40,7 @@ ADDrawingManager.markers = {}
 ADDrawingManager.markers.fileNames = {}
 ADDrawingManager.markers.fileNames[1] = "marker.i3d"
 ADDrawingManager.markers.fileNames[2] = "marker_2.i3d"
+ADDrawingManager.markers.fileNames[3] = "marker_3.i3d"
 ADDrawingManager.markers.buffer = Buffer:new()
 ADDrawingManager.markers.objects = FlaggedTable:new()
 ADDrawingManager.markers.tasks = {}

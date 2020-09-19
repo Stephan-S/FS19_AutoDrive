@@ -23,7 +23,7 @@ PathFinderModule.PP_CELL_X = 9
 PathFinderModule.PP_CELL_Z = 9
 
 PathFinderModule.GRID_SIZE_FACTOR = 0.5
-PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1
+PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER = 1.1
 
 function PathFinderModule:new(vehicle)
     local o = {}
@@ -79,27 +79,53 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     local rx, _, rz = localDirectionToWorld(combine.components[1].node, 0, 0, 1)
     local combineVector = {x = rx, z = rz}
 
-    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition()
+    local pipeChasePos, pipeChaseSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getPipeChasePosition(true)
+    -- We use the follow distance as a proxy measure for "what works" for the size of the
+    -- field being worked.
+    local followDistance = AutoDrive.getSetting("followDistance", self.vehicle)
+    -- Use the length of the tractor-trailer combo to determine how far to drive to straighten
+    -- the trailer.
+    -- 2*math.sin(math.pi/8)) is the third side of a 45-67.5-67.5 isosceles triangle with the
+    -- equal sides being the length of the tractor train
+    local lengthOffset = combine.sizeLength / 2 + 
+                            AutoDrive.getTractorTrainLength(self.vehicle, true, false) * (2 * math.sin(math.pi / 8))
+    -- A bit of a sanity check, in case the vehicle is absurdly long.
+    --if lengthOffset > self.PATHFINDER_FOLLOW_DISTANCE then
+    --    lengthOffset = self.PATHFINDER_FOLLOW_DISTANCE
+    --elseif
+    if lengthOffset <= self.PATHFINDER_TARGET_DISTANCE then
+        lengthOffset = self.PATHFINDER_TARGET_DISTANCE
+    end
 
+    --local target = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
+    -- The sugarcane harvester needs extra room or it collides
+    --if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR or CombineUnloaderMode:isSugarcaneHarvester(combine) then
+    --    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe?lengthOffset " .. lengthOffset)
+    --    local straightenNode = {x = pipeChasePos.x - lengthOffset * rx, y = worldY, z = pipeChasePos.z - lengthOffset * rz}
+    --    self:startPathPlanningTo(straightenNode, combineVector)
+    --    table.insert(self.appendWayPoints, target)
+    --else
+    --    self:startPathPlanningTo(target, combineVector)
+    --end
     if combine.getIsBufferCombine ~= nil and combine:getIsBufferCombine() then
-        local pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * 2 * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * 2 * rz}
-        local appendTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE * rz}
+        local pathFinderTarget = {x = pipeChasePos.x - (self.PATHFINDER_TARGET_DISTANCE) * rx, y = worldY, z = pipeChasePos.z - (self.PATHFINDER_TARGET_DISTANCE) * rz}
+        --local appendTarget = {x = pipeChasePos.x - (lengthOffset/2) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset/2) * rz}
 
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        table.insert(self.appendWayPoints, appendTarget)
+        --table.insert(self.appendWayPoints, appendTarget)
     else
         local pathFinderTarget = {x = pipeChasePos.x, y = worldY, z = pipeChasePos.z}
         -- only append target points / try to straighten the driver/trailer combination if we are driving up to the pipe not the rear end
-        local appendedNode = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE_CLOSE * rz}
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
-            pathFinderTarget = {x = pipeChasePos.x - self.PATHFINDER_TARGET_DISTANCE_PIPE * rx, y = worldY, z = pipeChasePos.z - self.PATHFINDER_TARGET_DISTANCE_PIPE * rz}
+        if pipeChaseSide ~= AutoDrive.CHASEPOS_REAR then
+            pathFinderTarget = {x = pipeChasePos.x - (lengthOffset) * rx, y = worldY, z = pipeChasePos.z - (lengthOffset) * rz}
         end
+        local appendedNode = {x = pipeChasePos.x - (combine.sizeLength / 2 * rx), y = worldY, z = pipeChasePos.z - (combine.sizeLength / 2 * rz)}
 
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe - normal combine")
         self:startPathPlanningTo(pathFinderTarget, combineVector)
 
-        if pipeChaseSide ~= CombineUnloaderMode.CHASEPOS_REAR then
+        if pipeChaseSide ~= AutoDrive.CHASEPOS_REAR then
             table.insert(self.appendWayPoints, appendedNode)
             table.insert(self.appendWayPoints, pipeChasePos)
         end
@@ -180,7 +206,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     targetCellX = AutoDrive.round(targetCellX)
     targetCellZ = AutoDrive.round(targetCellZ)
-    self.targetCell = {x=targetCellX, z=targetCellZ, direction=self.PP_UP}
+    self.targetCell = {x = targetCellX, z = targetCellZ, direction = self.PP_UP}
     self:determineBlockedCells(self.targetCell)
     --self:checkGridCell(self.targetCell)
 
@@ -189,7 +215,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     self.goingToCombine = false
 
-    local startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo()
+    local startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo(true)
     local endIsOnField = AutoDrive.checkIsOnField(targetX, vehicleWorldY, targetZ)
 
     self.restrictToField = endIsOnField and AutoDrive.getSetting("restrictToField", self.vehicle) --and startIsOnField
@@ -283,7 +309,7 @@ function PathFinderModule:update(dt)
     end
 
     if self.vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
-        if self.isFinished and self.smoothDone and self.wayPoints ~= nil and #self.chainStartToTarget > 0 and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
+        if self.isFinished and self.smoothDone and self.wayPoints ~= nil and self.chainStartToTarget ~= nil and #self.chainStartToTarget > 0 and self.vehicle.ad.stateModule:getSpeedLimit() > 40 then
             self:drawDebugForCreatedRoute()
         else
             self:drawDebugForPF()
@@ -299,7 +325,7 @@ function PathFinderModule:update(dt)
 
     self.steps = self.steps + 1
 
-    if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then        
+    if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
         --[[ We need some better logic here. 
         Some situations might be solved by the module itself by either
             a) 'fallBackMode (ignore fruit and field restrictions)'
@@ -309,7 +335,6 @@ function PathFinderModule:update(dt)
             d) 'update target location and reinvoke pathfinder if target has moved'
             e) 'try different field exit strategy'
         --]]
-
         -- Only allow fallback if we are not heading for a moving vehicle
         local fallBackModeAllowed = (not self.chasingVehicle) and (not self.isSecondChasingVehicle) and (not self.fallBackMode)
         -- Only allow auto restart when planning path to network and we can adjust target wayPoint
@@ -341,8 +366,8 @@ function PathFinderModule:update(dt)
 
     --We should see some perfomance increase by localizing the sqrt/pow functions right here
     local sqrt = math.sqrt
-    local distanceFunc = function(a,b)
-        return sqrt(a*a + b*b)
+    local distanceFunc = function(a, b)
+        return sqrt(a * a + b * b)
     end
 
     for i = 1, self.MAX_PATHFINDER_STEPS_PER_FRAME, 1 do
@@ -350,7 +375,7 @@ function PathFinderModule:update(dt)
             local minDistance = math.huge
             local bestCell = nil
             local bestSteps = math.huge
-                
+
             local grid = self.grid
             for _, cell in pairs(grid) do
                 --also checking for chasingVehicle here -> don't ever drive through fruit in chasingVehicle mode -> this will often result in driver cutting through fruit in front of combine!
@@ -439,26 +464,26 @@ end
 
 function PathFinderModule:checkGridCell(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
-    local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
+    local gridFactor = PathFinderModule.GRID_SIZE_FACTOR * 1.3
     if self.isSecondChasingVehicle then
-        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
-    end   
+        gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER * 1.6
+    end
     local worldPos = self:gridLocationToWorldLocation(cell)
     if cell.incoming ~= nil then
         local worldPosPrevious = self:gridLocationToWorldLocation(cell.incoming)
         cell.hasCollision = self.checkSlopeAngle(worldPos.x, worldPos.z, worldPosPrevious.x, worldPosPrevious.z)
     end
-    
+
     if not cell.hasCollision then
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
-        local shapes =  overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 224, true, true, true)
+        local shapes = overlapBox(shapeDefinition.x, shapeDefinition.y + 3, shapeDefinition.z, 0, shapeDefinition.angleRad, 0, shapeDefinition.widthX, shapeDefinition.height, shapeDefinition.widthZ, "collisionTestCallbackIgnore", nil, 239, true, true, true)
         cell.hasCollision = (shapes > 0)
     end
 
     --only check for restriction if not already blocked due to collision
     if not cell.hasCollision then
-        local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
-     
+        local corners = self:getCorners(cell, {x = self.vectorX.x * gridFactor, z = self.vectorX.z * gridFactor}, {x = self.vectorZ.x * gridFactor, z = self.vectorZ.z * gridFactor})
+
         --Increase checked cell size for vehicles that follow an already active unloader -> prevent deadlocks when meeting on the crop's edge while unloading harvester
         if self.avoidFruitSetting and not self.fallBackMode then
             self:checkForFruitInArea(cell, corners)
@@ -469,7 +494,7 @@ function PathFinderModule:checkGridCell(cell)
             cell.isRestricted = cellUsedByVehiclePath
             self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
         end
-        
+
         if not cell.isRestricted then
             local isOnField = AutoDrive.checkIsOnField(worldPos.x, 0, worldPos.z)
             if isOnField then
@@ -592,7 +617,7 @@ function PathFinderModule:determineNextGridCells(cell)
         cell.out[3].direction = self.PP_UP
     end
 
-    for _, outGoing in pairs(cell.out) do        
+    for _, outGoing in pairs(cell.out) do
         outGoing.visited = false
         outGoing.isRestricted = false
         outGoing.hasCollision = false
@@ -625,11 +650,11 @@ end
 
 function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, corners)
     local fruitValue = 0
-    if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 then
+    --if fruitType == 9 or fruitType == 22 or fruitType == 8 or fruitType == 17 or fruitType == 15 then
         fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, true, true)
-    else
-        fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
-    end
+    --else
+        --fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(fruitType, corners[1].x, corners[1].z, corners[2].x, corners[2].z, corners[3].x, corners[3].z, nil, false)
+    --end
 
     if (self.fruitToCheck == nil or self.fruitToCheck < 1) and (fruitValue > 150) then
         self.fruitToCheck = fruitType
@@ -676,7 +701,7 @@ function PathFinderModule:drawDebugForPF()
         pointD.x = pointD.x - self.vectorX.x * size + self.vectorZ.x * size
         pointD.z = pointD.z - self.vectorX.z * size + self.vectorZ.z * size
         pointD.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pointD.x, 1, pointD.z) + 3
-        
+
         if cell.isRestricted == true then
             AutoDriveDM:addLineTask(pointA.x, pointA.y, pointA.z, pointB.x, pointB.y, pointB.z, 1, 0, 0)
             if cell.hasCollision == true then
@@ -697,17 +722,18 @@ function PathFinderModule:drawDebugForPF()
             end
         end
 
-        
+        --[[
         local gridFactor = PathFinderModule.GRID_SIZE_FACTOR
         if self.isSecondChasingVehicle then
             gridFactor = PathFinderModule.GRID_SIZE_FACTOR_SECOND_UNLOADER
         end
-        --[[
         local corners = self:getCorners(cell, {x=self.vectorX.x * gridFactor, z=self.vectorX.z * gridFactor}, {x=self.vectorZ.x * gridFactor,z=self.vectorZ.z * gridFactor})
-        AutoDriveDM:addLineTask(corners[1].x, pointA.y+1, corners[1].z, corners[2].x, pointA.y+1, corners[2].z, 0, 1, 0)
-        AutoDriveDM:addLineTask(corners[2].x, pointA.y+1, corners[2].z, corners[3].x, pointA.y+1, corners[3].z, 1, 0, 0)
-        AutoDriveDM:addLineTask(corners[3].x, pointA.y+1, corners[3].z, corners[4].x, pointA.y+1, corners[4].z, 0, 0, 1)
-        AutoDriveDM:addLineTask(corners[4].x, pointA.y+1, corners[4].z, corners[1].x, pointA.y+1, corners[1].z, 1, 0, 1)
+        local heightOffset = 1
+        AutoDriveDM:addLineTask(corners[1].x, pointA.y+heightOffset, corners[1].z, corners[2].x, pointA.y+heightOffset, corners[2].z, 0, 1, 0)
+        AutoDriveDM:addLineTask(corners[2].x, pointA.y+heightOffset, corners[2].z, corners[3].x, pointA.y+heightOffset, corners[3].z, 1, 0, 0)
+        AutoDriveDM:addLineTask(corners[3].x, pointA.y+heightOffset, corners[3].z, corners[4].x, pointA.y+heightOffset, corners[4].z, 0, 0, 1)
+        AutoDriveDM:addLineTask(corners[4].x, pointA.y+heightOffset, corners[4].z, corners[1].x, pointA.y+heightOffset, corners[1].z, 1, 0, 1)
+        
         local shapeDefinition = self:getShapeDefByDirectionType(cell)
         local red = 0
         if cell.hasCollision then
@@ -832,7 +858,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
     local worldPos = self:gridLocationToWorldLocation(cell)
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-    shapeDefinition.height = 2.6
+    shapeDefinition.height = 2.65
 
     if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT or cell.direction == -1 then
         --default size:
@@ -870,7 +896,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
         shapeDefinition.widthZ = self.minTurnRadius / 2 + math.abs(offsetZ)
     end
 
-    local increaseCellFactor = 1.3
+    local increaseCellFactor = 1.15
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
 
@@ -886,10 +912,10 @@ end
 
 function PathFinderModule:getCornersFromShapeDefinition(shapeDefinition)
     local corners = {}
-    corners[1] = {x=shapeDefinition.x + (-shapeDefinition.widthX), z=shapeDefinition.z + (-shapeDefinition.widthZ)}
-    corners[2] = {x=shapeDefinition.x + ( shapeDefinition.widthX), z=shapeDefinition.z + ( shapeDefinition.widthZ)}
-    corners[3] = {x=shapeDefinition.x + (-shapeDefinition.widthX), z=shapeDefinition.z + ( shapeDefinition.widthZ)}
-    corners[4] = {x=shapeDefinition.x + ( shapeDefinition.widthX), z=shapeDefinition.z + (-shapeDefinition.widthZ)}
+    corners[1] = {x = shapeDefinition.x + (-shapeDefinition.widthX), z = shapeDefinition.z + (-shapeDefinition.widthZ)}
+    corners[2] = {x = shapeDefinition.x + (shapeDefinition.widthX), z = shapeDefinition.z + (shapeDefinition.widthZ)}
+    corners[3] = {x = shapeDefinition.x + (-shapeDefinition.widthX), z = shapeDefinition.z + (shapeDefinition.widthZ)}
+    corners[4] = {x = shapeDefinition.x + (shapeDefinition.widthX), z = shapeDefinition.z + (-shapeDefinition.widthZ)}
 
     return corners
 end
@@ -897,10 +923,10 @@ end
 function PathFinderModule:getCorners(cell, vectorX, vectorZ)
     local corners = {}
     local centerLocation = self:gridLocationToWorldLocation(cell)
-    corners[1] = {x=centerLocation.x + (-vectorX.x - vectorZ.x), z=centerLocation.z + (-vectorX.z - vectorZ.z)}
-    corners[2] = {x=centerLocation.x + ( vectorX.x - vectorZ.x), z=centerLocation.z + ( vectorX.z - vectorZ.z)}
-    corners[3] = {x=centerLocation.x + (-vectorX.x + vectorZ.x), z=centerLocation.z + (-vectorX.z + vectorZ.z)}
-    corners[4] = {x=centerLocation.x + ( vectorX.x + vectorZ.x), z=centerLocation.z + ( vectorX.z + vectorZ.z)}
+    corners[1] = {x = centerLocation.x + (-vectorX.x - vectorZ.x), z = centerLocation.z + (-vectorX.z - vectorZ.z)}
+    corners[2] = {x = centerLocation.x + (vectorX.x - vectorZ.x), z = centerLocation.z + (vectorX.z - vectorZ.z)}
+    corners[3] = {x = centerLocation.x + (-vectorX.x + vectorZ.x), z = centerLocation.z + (-vectorX.z + vectorZ.z)}
+    corners[4] = {x = centerLocation.x + (vectorX.x + vectorZ.x), z = centerLocation.z + (vectorX.z + vectorZ.z)}
 
     return corners
 end
@@ -940,7 +966,7 @@ function PathFinderModule:createWayPoints()
 
     self:smoothResultingPPPath_Refined()
 
-    if self.smoothStep == 2 then        
+    if self.smoothStep == 2 then
         for i = 1, #self.wayPoints, 1 do
             self.wayPoints[i].isPathFinderPoint = true
         end
@@ -1078,7 +1104,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 local corner4X = node.x - math.cos(rightAngle) * sideLength
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength
 
-                local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, 224, true, true, true)
+                local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, 239, true, true, true)
                 hasCollision = hasCollision or (shapes > 0)
 
                 if (self.smoothIndex > 1) then
@@ -1094,30 +1120,30 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 if self.fruitToCheck ~= nil and self.avoidFruitSetting and not self.fallBackMode then
                     local fruitValue = 0
                     if self.isSecondChasingVehicle then
-                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 2
-                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 2
+                        local cornerWideX = node.x - math.cos(leftAngle) * sideLength * 4
+                        local cornerWideZ = node.z + math.sin(leftAngle) * sideLength * 4
 
-                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 2
-                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 2
+                        local cornerWide2X = nodeAhead.x - math.cos(leftAngle) * sideLength * 4
+                        local cornerWide2Z = nodeAhead.z + math.sin(leftAngle) * sideLength * 4
 
-                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 2
-                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 2
+                        local cornerWide4X = node.x - math.cos(rightAngle) * sideLength * 4
+                        local cornerWide4Z = node.z + math.sin(rightAngle) * sideLength * 4
 
-                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 then
+                        --if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 or self.fruitToCheck == 15 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, true, true)
                             fruitValue = fruitValueResult
-                        else
-                            local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, nil, false)
-                            fruitValue = fruitValueResult
-                        end
+                        --else
+                            --local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerWideX, cornerWideZ, cornerWide2X, cornerWide2Z, cornerWide4X, cornerWide4Z, nil, false)
+                            --fruitValue = fruitValueResult
+                        --end
                     else
-                        if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 then
+                        --if self.fruitToCheck == 9 or self.fruitToCheck == 22 or self.fruitToCheck == 8 or self.fruitToCheck == 17 or self.fruitToCheck == 15 then
                             local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
                             fruitValue = fruitValueResult
-                        else
-                            local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, nil, false)
-                            fruitValue = fruitValueResult
-                        end
+                        --else
+                            --local fruitValueResult, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, nil, false)
+                            --fruitValue = fruitValueResult
+                        --end
                     end
 
                     hasCollision = hasCollision or (fruitValue > 50)
@@ -1176,9 +1202,9 @@ function PathFinderModule.checkSlopeAngle(x1, z1, x2, z2)
     local angleBetween = math.atan(math.abs(terrain1 - terrain2) / length)
     local angleBetweenCenter = math.atan(math.abs(terrain3 - terrain2) / lengthMiddle)
 
-    local belowGroundLevel = terrain1 < g_currentMission.waterY-0.5 or terrain2 < g_currentMission.waterY-0.5 or terrain3 < g_currentMission.waterY-0.5
+    local belowGroundLevel = terrain1 < g_currentMission.waterY - 0.5 or terrain2 < g_currentMission.waterY - 0.5 or terrain3 < g_currentMission.waterY - 0.5
 
-    if belowGroundLevel or (angleBetween * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 1.5) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
+    if belowGroundLevel or (angleBetween * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD or (angleBetweenCenter * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
         return true
     end
     return false

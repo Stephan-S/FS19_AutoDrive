@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.5-RC2"
+AutoDrive.version = "1.1.0.5-RC5"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -10,6 +10,7 @@ AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.reverseDrivingAllowed = true
+AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 
 AutoDrive.developmentControls = false
 
@@ -40,9 +41,16 @@ AutoDrive.DC_SENSORINFO = 32
 AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
+AutoDrive.DC_ROADNETWORKINFO = 512
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
+
+-- rotate target modes
+AutoDrive.RT_NONE = 1
+AutoDrive.RT_ONLYPICKUP = 2
+AutoDrive.RT_ONLYDELIVER = 3
+AutoDrive.RT_PICKUPANDDELIVER = 4
 
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
@@ -70,7 +78,8 @@ AutoDrive.actions = {
 	{"ADNameDriver", false, 0},
 	{"ADRenameMapMarker", false, 0},
 	{"ADSwapTargets", false, 0},
-	{"AD_open_notification_history", false, 0}
+	{"AD_open_notification_history", false, 0},
+	{"ADParkVehicle", false, 0}
 }
 
 function AutoDrive:loadMap(name)
@@ -89,6 +98,7 @@ function AutoDrive:loadMap(name)
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ",", "_")
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ":", "_")
 	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, ";", "_")
+	AutoDrive.loadedMap = string.gsub(AutoDrive.loadedMap, "'", "_")
 
 	g_logManager:devInfo("[AutoDrive] Parsed map title: %s", AutoDrive.loadedMap)
 
@@ -107,9 +117,9 @@ function AutoDrive:loadMap(name)
 
 	AutoDrive.loadStoredXML()
 
+	ADUserDataManager:load()
 	if g_server ~= nil then
-		AutoDrive.usersData = {}
-		AutoDrive.loadUsersData()
+		ADUserDataManager:loadFromXml()
 	end
 
 	AutoDrive.Hud = AutoDriveHud:new()
@@ -126,6 +136,7 @@ function AutoDrive:loadMap(name)
 
 	LoadTrigger.load = Utils.overwrittenFunction(LoadTrigger.load, ADTriggerManager.loadTriggerLoad)
 	LoadTrigger.delete = Utils.overwrittenFunction(LoadTrigger.delete, ADTriggerManager.loadTriggerDelete)
+	Placeable.onBuy = Utils.appendedFunction(Placeable.onBuy, ADTriggerManager.onPlaceableBuy)
 
 	MapHotspot.getHasDetails = Utils.overwrittenFunction(MapHotspot.getHasDetails, AutoDrive.mapHotSpotClicked)
 	MapHotspot.getIsVisible = Utils.overwrittenFunction(MapHotspot.getIsVisible, AutoDrive.MapHotspot_getIsVisible)
@@ -142,6 +153,7 @@ function AutoDrive:loadMap(name)
 	ADMessagesManager:load()
 	ADHarvestManager:load()
 	ADInputManager:load()
+	ADMultipleTargetsManager:load()
 end
 
 function AutoDrive:init()
@@ -167,7 +179,7 @@ function AutoDrive:saveSavegame()
 				saveXMLFile(AutoDrive.adXml)
 			end
 		end
-		AutoDrive.saveUsersData()
+		ADUserDataManager:saveToXml()
 	end
 end
 
@@ -228,7 +240,7 @@ function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
 		end
 	end
 
-	if vehicle ~= nil and AutoDrive.Hud.showHud == true then
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and AutoDrive.Hud.showHud == true then
 		AutoDrive.Hud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 	end
 
@@ -253,7 +265,10 @@ function AutoDrive:update(dt)
 		end
 	end
 
-	ADHarvestManager:update(dt)
+	if g_server ~= nil then
+		ADHarvestManager:update(dt)
+	end
+
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
 	ADRoutesManager:update(dt)

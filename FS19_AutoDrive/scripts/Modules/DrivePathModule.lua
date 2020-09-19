@@ -1,9 +1,11 @@
 ADDrivePathModule = {}
 
-ADDrivePathModule.LOOKAHEADDISTANCE = 12
+ADDrivePathModule.LOOKAHEADDISTANCE = 20
 ADDrivePathModule.MAXLOOKAHEADPOINTS = 20
 ADDrivePathModule.MAX_SPEED_DEVIATION = 6
 ADDrivePathModule.MAX_STEERING_ANGLE = 30
+ADDrivePathModule.PAUSE_TIMEOUT = 3000
+ADDrivePathModule.BLINK_TIMEOUT = 1000
 
 function ADDrivePathModule:new(vehicle)
     local o = {}
@@ -12,11 +14,14 @@ function ADDrivePathModule:new(vehicle)
     o.vehicle = vehicle
     o.min_distance = AutoDrive.defineMinDistanceByVehicleType(vehicle)
     o.minDistanceTimer = AutoDriveTON:new()
+    o.waitTimer = AutoDriveTON:new()
+    o.blinkTimer = AutoDriveTON:new()
     ADDrivePathModule.reset(o)
     return o
 end
 
 function ADDrivePathModule:reset()
+    self.turnAngle = 0
     self.isPaused = false
     self.atTarget = false
     self.wayPoints = nil
@@ -24,9 +29,12 @@ function ADDrivePathModule:reset()
     self.onRoadNetwork = true
     self.minDistanceToNextWp = math.huge
     self.minDistanceTimer:timer(false, 5000, 0)
+    self.waitTimer:timer(false, ADDrivePathModule.PAUSE_TIMEOUT, 0)
+    self.blinkTimer:timer(false, ADDrivePathModule.BLINK_TIMEOUT, 0)
     self.vehicle.ad.stateModule:setCurrentWayPointId(-1)
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
     self.isReversing = false
+    self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -89,10 +97,14 @@ function ADDrivePathModule:setWayPoints(wayPoints)
         self:setCurrentWayPointIndex(1)
     end
     self:resetIsReversing()
+    if self.wayPoints == nil or #self.wayPoints < 0 then
+        self.atTarget = true
+    end
 end
 
 function ADDrivePathModule:setPaused()
     self.isPaused = true
+    self.waitTimer:timer(false)
 end
 
 function ADDrivePathModule:setUnPaused()
@@ -108,6 +120,15 @@ function ADDrivePathModule:resetDirtyFlag()
 end
 
 function ADDrivePathModule:update(dt)
+    if self.waitTimer:timer(self.isPaused, ADDrivePathModule.PAUSE_TIMEOUT, dt) then        -- used to wait for the CP silo compacter
+        self:setUnPaused()
+    end
+    if self.isPaused then
+        self.vehicle.ad.specialDrivingModule:stopVehicle()
+        self.vehicle.ad.specialDrivingModule:update(dt)
+        return
+    end
+
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
         local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -129,8 +150,8 @@ function ADDrivePathModule:update(dt)
                 end
             end
         end
-        
-        self:checkActiveAttributesSet()
+
+        self:checkActiveAttributesSet(dt)
     else
         --keep calling the reverse function as it is also handling the bunkersilo unload, even after reaching the target
         if self.isReversing then
@@ -223,8 +244,8 @@ function ADDrivePathModule:followWaypoints(dt)
     self.targetX, self.targetZ = self:getLookAheadTarget()
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, self.targetX, y, self.targetZ)
 
-    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable() then
-        self.vehicle.ad.specialDrivingModule:stopVehicle(lx, lz)
+    if self.vehicle.ad.collisionDetectionModule:hasDetectedObstable(dt) then
+        self.vehicle.ad.specialDrivingModule:stopVehicle((not self:isOnRoadNetwork()), lx, lz)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
@@ -262,7 +283,7 @@ end
 
 -- To differentiate between waypoints on the road and ones created from pathfinder
 function ADDrivePathModule:isOnRoadNetwork()
-    return self.onRoadNetwork
+    return (self.wayPoints ~= nil and self:getNextWayPoint() ~= nil and not self:getNextWayPoint().isPathFinderPoint)
 end
 
 function ADDrivePathModule:getWayPoints()
@@ -291,10 +312,11 @@ function ADDrivePathModule:getCurrentLookAheadDistance()
     if speedFactor <= 1 then
         massFactor = math.min(speedFactor, massFactor)
     end
-    return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 100)
+    return math.min(ADDrivePathModule.LOOKAHEADDISTANCE * massFactor * speedFactor, 150)
 end
 
 function ADDrivePathModule:getHighestApproachingAngle()
+    self.turnAngle = 0
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
@@ -315,6 +337,9 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 2]
 
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
+
+            self.turnAngle = self.turnAngle + math.clamp(-90, angle, 90)
+
             angle = math.abs(angle)
 
             if MathUtil.vector2Length(self:getCurrentWayPoint().x - wp_ahead.x, self:getCurrentWayPoint().z - wp_ahead.z) <= (self.distanceToLookAhead - baseDistance) then
@@ -372,7 +397,7 @@ function ADDrivePathModule:getDistanceBetweenWayPoints(indexStart, indexTarget)
     local distance = 0
     while indexStart < indexTarget do
         local wpStart = self.wayPoints[indexStart]
-        local wpNext = self.wayPoints[indexStart+1]
+        local wpNext = self.wayPoints[indexStart + 1]
         distance = distance + MathUtil.vector2Length(wpStart.x - wpNext.x, wpStart.z - wpNext.z)
         indexStart = indexStart + 1
     end
@@ -385,7 +410,7 @@ function ADDrivePathModule:getApproachingHeightDiff()
     local maxLookAhead = 10
     local maxLookAheadDistance = 20
     local lookAhead = 1
-    for i=1, maxLookAhead do
+    for i = 1, maxLookAhead do
         if self.wayPoints ~= nil and self:getCurrentWayPointIndex() ~= nil and self:getCurrentWayPoint() ~= nil and (self:getCurrentWayPointIndex() + lookAhead) <= #self.wayPoints then
             local p1 = self.wayPoints[self:getCurrentWayPointIndex()]
             local p2 = self.wayPoints[self:getCurrentWayPointIndex() + lookAhead]
@@ -403,8 +428,7 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
     if angle < 5 then
-        maxSpeed = math.huge
-    --[[
+        --[[
     elseif angle < 5 then
         maxSpeed = 38
     elseif angle < 8 then
@@ -418,17 +442,18 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     elseif angle < 100 then
         maxSpeed = 13
         --]]
-    elseif angle < 45 then
+        maxSpeed = math.huge
+    elseif angle < 50 then
+        --elseif angle < 100 then
+        --maxSpeed = 8
         -- < 5 max
         -- > 5 = 60
         -- < 30 = 12
         maxSpeed = 12 + 48 * (1 - math.clamp(0, (angle - 5), 25) / (30 - 5))
-    --elseif angle < 100 then
-        --maxSpeed = 8
-    elseif angle >= 45 then
+    elseif angle >= 50 then
         maxSpeed = 3
     end
-    
+
     self.maxAngle = angle
     self.maxAngleSpeed = maxSpeed * 1.0 * AutoDrive.getSetting("cornerSpeed", self.vehicle)
 
@@ -595,7 +620,7 @@ function ADDrivePathModule:getLookAheadTarget()
     return targetX, targetZ
 end
 
-function ADDrivePathModule:checkActiveAttributesSet()
+function ADDrivePathModule:checkActiveAttributesSet(dt)
     if self.vehicle.isServer then
         self.vehicle.forceIsActive = true
         self.vehicle.spec_motorized.stopMotorOnLeave = false
@@ -612,6 +637,19 @@ function ADDrivePathModule:checkActiveAttributesSet()
                 self.vehicle:setBeaconLightsVisibility(true)
             else
                 self.vehicle:setBeaconLightsVisibility(false)
+            end
+        end
+        local blinkangle = AutoDrive.getSetting("blinkValue") or 0
+
+        if blinkangle > 0 then
+            if self.blinkTimer:timer(math.abs(self.turnAngle) < blinkangle, ADDrivePathModule.BLINK_TIMEOUT, dt) then
+                self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
+            else
+                if self.turnAngle > blinkangle and self:isOnRoadNetwork() then
+                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_LEFT)
+                elseif self.turnAngle < - blinkangle and self:isOnRoadNetwork() then
+                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_RIGHT)
+                end
             end
         end
 
@@ -651,15 +689,15 @@ end
 function ADDrivePathModule:checkForReverseSection()
     local reverseStart = false
     local reverseEnd = false
-    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
-        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex()+1]
-        local wp_current = self.wayPoints[self:getCurrentWayPointIndex()-0]
+    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and self.wayPoints ~= nil and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
+        local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + 1]
+        local wp_current = self.wayPoints[self:getCurrentWayPointIndex() - 0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]
         local isReverseStart = wp_ahead.incoming ~= nil and (not table.contains(wp_ahead.incoming, wp_current.id))
         local isReverseEnd = wp_ahead.incoming ~= nil and wp_current.incoming ~= nil and table.contains(wp_ahead.incoming, wp_current.id) and not table.contains(wp_current.incoming, wp_ref.id)
 
         local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
-        
+
         angle = math.abs(angle)
         if angle > 100 and isReverseStart then
             reverseStart = true
