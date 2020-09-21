@@ -126,45 +126,55 @@ source(Utils.getFilename("scripts/Gui/Settings.lua", g_currentModDirectory))
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version
 
+if AutoDrive.ADSpecName == nil then
+    AutoDrive.ADSpecName = g_currentModName .. ".AutoDrive"
+end
+
 if g_specializationManager:getSpecializationByName("AutoDrive") == nil then
-	g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
+    g_specializationManager:addSpecialization("AutoDrive", "AutoDrive", Utils.getFilename("scripts/AutoDrive.lua", g_currentModDirectory), nil)
+end
 
-	if AutoDrive == nil then
-		g_logManager:error("[AutoDrive] Unable to add specialization 'AutoDrive'")
-		return
-	end
+function AutoDriveRegister.register()
 
-	local ADSpecName = g_currentModName .. ".AutoDrive"
+    if AutoDrive == nil then
+        g_logManager:error("[AutoDrive] Unable to add specialization 'AutoDrive'")
+        return
+    end
 
-	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-		if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" then
-			if AutoDrive.prerequisitesPresent(typeDef.specializations) then
-				g_logManager:info('[AutoDrive] Attached to vehicleType "%s"', vehicleType)
-				if typeDef.specializationsByName["AutoDrive"] == nil then
-					g_vehicleTypeManager:addSpecialization(vehicleType, ADSpecName)
-					typeDef.hasADSpec = true
-				end
-			end
-		end
-	end
+    for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
+        if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" and (not typeDef.hasADSpec == true) then
+            if AutoDrive.prerequisitesPresent(typeDef.specializations) then
+                g_logManager:info('[AutoDrive] Attached to vehicleType "%s"', vehicleType)
+                if typeDef.specializationsByName[AutoDrive.ADSpecName] == nil then
+                    g_vehicleTypeManager:addSpecialization(vehicleType, AutoDrive.ADSpecName)
+                    typeDef.hasADSpec = true
+                end
+            end
+        end
+    end
+end
+
+if AutoDrive.ADVDSpecName == nil then
+    AutoDrive.ADVDSpecName = g_currentModName .. ".AutoDriveVehicleData"
 end
 
 if g_specializationManager:getSpecializationByName("AutoDriveVehicleData") == nil then
 	g_specializationManager:addSpecialization("AutoDriveVehicleData", "AutoDriveVehicleData", Utils.getFilename("scripts/Utils/AutoDriveVehicleData.lua", g_currentModDirectory), nil)
+end
+
+function AutoDriveRegister.registerVehicleData()
 
 	if AutoDriveVehicleData == nil then
 		g_logManager:error("[AutoDriveVehicleData] Unable to add specialization 'AutoDriveVehicleData'")
 		return
 	end
 
-	local ADVDSpecName = g_currentModName .. ".AutoDriveVehicleData"
-
 	for vehicleType, typeDef in pairs(g_vehicleTypeManager.vehicleTypes) do
-		if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" then
+		if typeDef ~= nil and vehicleType ~= "locomotive" and vehicleType ~= "horse" and (not typeDef.hasADVDSpec == true) then
 			if AutoDriveVehicleData.prerequisitesPresent(typeDef.specializations) then
-				if typeDef.specializationsByName["AutoDriveVehicleData"] == nil then
-					g_vehicleTypeManager:addSpecialization(vehicleType, ADVDSpecName)
-					-- typeDef.hasADSpec = true
+				if typeDef.specializationsByName[AutoDrive.ADVDSpecName] == nil then
+					g_vehicleTypeManager:addSpecialization(vehicleType, AutoDrive.ADVDSpecName)
+					typeDef.hasADVDSpec = true
 				end
 			end
 		end
@@ -257,3 +267,7 @@ Mission00.loadMission00Finished = Utils.overwrittenFunction(Mission00.loadMissio
 VehicleTypeManager.validateVehicleTypes = Utils.prependedFunction(VehicleTypeManager.validateVehicleTypes, AutoDriveValidateVehicleTypes)
 
 addModEventListener(AutoDriveRegister)
+
+-- first iteration to register AD to vehicle types
+AutoDriveRegister.register()
+AutoDriveRegister.registerVehicleData()
