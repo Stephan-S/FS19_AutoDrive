@@ -91,6 +91,12 @@ AutoDrive.actions = {
 }
 
 function AutoDrive:loadMap(name)
+g_logManager:info("[AD] Start register later loaded mods...")
+-- second iteration to register AD to vehicle types which where loaded after AD
+    AutoDriveRegister.register()
+    AutoDriveRegister.registerVehicleData()
+g_logManager:info("[AD] Start register later loaded mods end")
+
 	if g_server ~= nil then
 		AutoDrive.AutoDriveSync = AutoDriveSync:new(g_server ~= nil, g_client ~= nil)
 		AutoDrive.AutoDriveSync:register(false)
