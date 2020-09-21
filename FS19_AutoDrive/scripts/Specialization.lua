@@ -122,11 +122,19 @@ function AutoDrive:onLoad(savegame)
 
     self.ad.onRouteToPark = false
     self.ad.isStoppingWithError = false
+
+    self.ad.selectedNodeId = nil
+    self.ad.nodeToMoveId = nil
+    self.ad.hoveredNodeId = nil
+    self.ad.newcreated = nil
 end
 
 function AutoDrive:onPostLoad(savegame)
     -- This will run before initial MP sync
     --print("Running post load for vehicle: " .. self:getName())
+    if self.ad == nil then
+        return
+    end
 
     for groupName, _ in pairs(ADGraphManager:getGroups()) do
         self.ad.groups[groupName] = false
@@ -190,6 +198,9 @@ function AutoDrive:onPostLoad(savegame)
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
+    if self.ad == nil then
+        return
+    end
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting ~= nil and setting.isVehicleSpecific then
             streamWriteUInt16(streamId, AutoDrive.getSettingState(settingName, self))
@@ -199,6 +210,9 @@ function AutoDrive:onWriteStream(streamId, connection)
 end
 
 function AutoDrive:onReadStream(streamId, connection)
+    if self.ad == nil then
+        return
+    end
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting ~= nil and setting.isVehicleSpecific then
             self.ad.settings[settingName].current = streamReadUInt16(streamId)
@@ -231,6 +245,9 @@ function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
 end
 
 function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
+    if self.ad == nil then
+        return
+    end
     if connection:getIsServer() then
         if streamReadBool(streamId) then
             self.ad.stateModule:readUpdateStream(streamId)
@@ -239,6 +256,9 @@ function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
 end
 
 function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
+    if self.ad == nil then
+        return
+    end
     if not connection:getIsServer() then
         if streamWriteBool(streamId, bitAND(dirtyMask, self.ad.dirtyFlag) ~= 0) then
             self.ad.stateModule:writeUpdateStream(streamId)
@@ -272,6 +292,9 @@ function AutoDrive:onUpdate(dt)
 end
 
 function AutoDrive:saveToXMLFile(xmlFile, key)
+    if self.ad == nil then
+        return
+    end
     self.ad.stateModule:saveToXMLFile(xmlFile, key)
 
     for settingName, setting in pairs(AutoDrive.settings) do
