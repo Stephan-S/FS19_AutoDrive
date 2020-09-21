@@ -222,6 +222,7 @@ function AutoDrive.cycleEditMode()
             vehicle.ad.selectedNodeId = nil
             vehicle.ad.nodeToMoveId = nil
             vehicle.ad.hoveredNodeId = nil
+			vehicle.ad.newcreated = nil
         end
         if (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) then
             AutoDrive.setEditorMode(AutoDrive.EDITOR_EXTENDED)
