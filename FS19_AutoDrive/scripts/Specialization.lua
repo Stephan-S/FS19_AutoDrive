@@ -577,7 +577,7 @@ function AutoDrive:onDrawEditorMode()
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                         else
