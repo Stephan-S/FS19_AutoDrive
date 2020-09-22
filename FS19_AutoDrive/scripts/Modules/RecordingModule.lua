@@ -23,7 +23,7 @@ function ADRecordingModule:start(dual)
         rearOffset = -6
     end
 
-    self.drivingReverse = AutoDrive.experimentalFeatures.reverseDrivingAllowed and (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
+    self.drivingReverse = (self.vehicle.lastSpeedReal * self.vehicle.movingDirection) < 0
     local x1, y1, z1 = getWorldTranslation(self:getRecordingPoint())
     if self.drivingReverse then
         x1, y1, z1 = localToWorld(self.vehicle.ad.specialDrivingModule:getReverseNode(), 0, 0, rearOffset)
