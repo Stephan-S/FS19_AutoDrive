@@ -117,10 +117,10 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
     if self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
         self:stopAndHoldVehicle(dt)
     else
-        local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
-        AutoDrive.experimentalFeatures.smootherDriving = false
+        local storedSmootherDriving = AutoDrive.smootherDriving
+        AutoDrive.smootherDriving = false
         AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
-        AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
+        AutoDrive.smootherDriving = storedSmootherDriving
     end
 end
 
@@ -153,10 +153,10 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
-        local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
-        AutoDrive.experimentalFeatures.smootherDriving = false
+        local storedSmootherDriving = AutoDrive.smootherDriving
+        AutoDrive.smootherDriving = false
         AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 0.3)
-        AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
+        AutoDrive.smootherDriving = storedSmootherDriving
     end
 end
 
@@ -386,10 +386,10 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
         end
     end
 
-    local storedSmootherDriving = AutoDrive.experimentalFeatures.smootherDriving
-    AutoDrive.experimentalFeatures.smootherDriving = false
+    local storedSmootherDriving = AutoDrive.smootherDriving
+    AutoDrive.smootherDriving = false
     AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, acc, 0.2, 20, true, false, lx, lz, speed, 1)
-    AutoDrive.experimentalFeatures.smootherDriving = storedSmootherDriving
+    AutoDrive.smootherDriving = storedSmootherDriving
 
     self.lastAngleToPoint = self.angleToPoint
 end
