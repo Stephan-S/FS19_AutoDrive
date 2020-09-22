@@ -7,11 +7,10 @@ g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
 
 AutoDrive.experimentalFeatures = {}
-AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.reverseDrivingAllowed = true
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 
+AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
 
 AutoDrive.mapHotspotsBuffer = {}
