@@ -29,14 +29,14 @@
 		<text name="input_ADSelectPreviousFillType"				text="AD: Выбрать предыдущую продукцию" />
 		<text name="input_ADOpenGUI"							text="AD: Открыть GUI" />
 		<text name="input_ADCallDriver"							text="AD: Вызвать разгружающего водителя" />
-		<text name="input_ADGoToVehicle"						text="AD: Перейти к прибывшему автомобилю" />
+		<text name="input_ADGoToVehicle"						text="AD: Пересесть в прибывшую технику" />
 		<text name="input_ADNameDriver"							text="AD: Назначить водителю имя" />
-		<text name="input_ADIncLoopCounter"						text="AD: Увеличить счетчик повторений" />
+		<text name="input_ADIncLoopCounter"						text="AD: Увеличить счетчик рейсов" />
 		<text name="input_ADParkVehicle"						text="AD: Припарковать технику" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
 		<text name="hud_startCp"								text="AD: Запустить CP/AIVE в пункте назначения" />
-		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Нажмите правой кнопкой мыши на этой же кнопке, чтобы назначить выбранную локацию, как место парковки." />
+		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Чтобы назначить выбранную локацию, как место парковки, нажмите правой кнопкой мыши на этой же кнопке." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"								text="Водитель на" />
 		<text name="AD_has_reached"								text="прибыл к" />
@@ -67,7 +67,7 @@
 		<text name="gui_ad_followDistance"						text="Расстояние до комбайна" />
 		<text name="gui_ad_followDistance_tooltip"				text="Расстояние до комбайна при следовании за ним сзади." />
 		<text name="gui_ad_lookahead_turning"					text="Просматривать при повороте на" />
-		<text name="gui_ad_lookahead_turning_tooltip"			text="Расстояние, на которое водитель при повороте 'смотрит' вперед, чтобы управлять рулением, для следования к следующему сегменту." />
+		<text name="gui_ad_lookahead_turning_tooltip"			text="Расстояние, на которое водитель при повороте 'смотрит' вперед, чтобы управлять рулением, для движения к следующему сегменту." />
 		<text name="gui_ad_useFastestRoute"						text="Использ. самый быстрый маршрут" />
 		<text name="gui_ad_useFastestRoute_tooltip"				text="При расчете лучшего маршрута учитывается скорость движения, а не фактическое расстояния." />
 		<text name="gui_ad_mapMarkerDetour"						text="Максимальный объезд" />
@@ -75,7 +75,7 @@
 		<text name="gui_ad_siloEmpty"							text="Если бункер пуст" />
 		<text name="gui_ad_siloEmpty_tooltip"					text="Действия водителя в режиме 'Загрузка и доставка' если бункер оказался пустой." />
 		<text name="gui_ad_useFolders"							text="Использовать папки" />
-		<text name="gui_ad_useFolders_tooltip"					text="Использовать папки, чтобы структурировать места назначения." />
+		<text name="gui_ad_useFolders_tooltip"					text="Использовать папки, чтобы структурировать места назначения (локации)." />
 		<text name="gui_ad_wait"								text="Ожидать" />
 		<text name="gui_ad_drive"								text="Следовать к" />
 		<text name="gui_ad_yes"									text="Да" />
