@@ -22,7 +22,8 @@ function AutoDrive.registerEventListeners(vehicleType)
             "onStopAutoDrive",
             "onPostAttachImplement",
             "onPreDetachImplement",
-            "onEnterVehicle"
+            "onEnterVehicle",
+            "onLeaveVehicle"
         }
     ) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
@@ -121,11 +122,19 @@ function AutoDrive:onLoad(savegame)
 
     self.ad.onRouteToPark = false
     self.ad.isStoppingWithError = false
+
+    self.ad.selectedNodeId = nil
+    self.ad.nodeToMoveId = nil
+    self.ad.hoveredNodeId = nil
+    self.ad.newcreated = nil
 end
 
 function AutoDrive:onPostLoad(savegame)
     -- This will run before initial MP sync
     --print("Running post load for vehicle: " .. self:getName())
+    if self.ad == nil then
+        return
+    end
 
     for groupName, _ in pairs(ADGraphManager:getGroups()) do
         self.ad.groups[groupName] = false
@@ -189,18 +198,24 @@ function AutoDrive:onPostLoad(savegame)
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
+    if self.ad == nil then
+        return
+    end
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting ~= nil and setting.isVehicleSpecific then
-            streamWriteInt16(streamId, AutoDrive.getSettingState(settingName, self))
+            streamWriteUInt16(streamId, AutoDrive.getSettingState(settingName, self))
         end
     end
     self.ad.stateModule:writeStream(streamId)
 end
 
 function AutoDrive:onReadStream(streamId, connection)
+    if self.ad == nil then
+        return
+    end
     for settingName, setting in pairs(AutoDrive.settings) do
         if setting ~= nil and setting.isVehicleSpecific then
-            self.ad.settings[settingName].current = streamReadInt16(streamId)
+            self.ad.settings[settingName].current = streamReadUInt16(streamId)
         end
     end
     self.ad.stateModule:readStream(streamId)
@@ -230,6 +245,9 @@ function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
 end
 
 function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
+    if self.ad == nil then
+        return
+    end
     if connection:getIsServer() then
         if streamReadBool(streamId) then
             self.ad.stateModule:readUpdateStream(streamId)
@@ -238,6 +256,9 @@ function AutoDrive:onReadUpdateStream(streamId, timestamp, connection)
 end
 
 function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
+    if self.ad == nil then
+        return
+    end
     if not connection:getIsServer() then
         if streamWriteBool(streamId, bitAND(dirtyMask, self.ad.dirtyFlag) ~= 0) then
             self.ad.stateModule:writeUpdateStream(streamId)
@@ -260,7 +281,7 @@ function AutoDrive:onUpdate(dt)
 
     ADSensor:handleSensors(self, dt)
 
-    if not self.ad.stateModule:isActive() then
+    if not self.ad.stateModule:isActive() and self.ad.taskModule:getNumberOfTasks() > 0 then
         self.ad.taskModule:abortAllTasks()
     end
 
@@ -271,6 +292,9 @@ function AutoDrive:onUpdate(dt)
 end
 
 function AutoDrive:saveToXMLFile(xmlFile, key)
+    if self.ad == nil then
+        return
+    end
     self.ad.stateModule:saveToXMLFile(xmlFile, key)
 
     for settingName, setting in pairs(AutoDrive.settings) do
@@ -320,7 +344,7 @@ function AutoDrive:onDraw()
         end
     end
 
-    if (self.ad.stateModule:isEditorModeEnabled() or self.ad.stateModule:isEditorShowEnabled()) then
+    if (AutoDrive.isEditorModeEnabled() or AutoDrive.isEditorShowEnabled()) then
         self:onDrawEditorMode()
     end
 
@@ -452,6 +476,12 @@ function AutoDrive:onEnterVehicle()
     AutoDrive.Hud.lastUIScale = 0
 end
 
+function AutoDrive:onLeaveVehicle()
+    if self.ad ~= nil and self.ad.stateModule ~= nil then
+        self.ad.stateModule:disableCreationMode()
+    end
+end
+
 function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
 end
@@ -478,7 +508,8 @@ function AutoDrive:onDrawEditorMode()
         end
     end
 
-    if ADGraphManager:getWayPointById(1) ~= nil and not self.ad.stateModule:isEditorShowEnabled() then
+    if ADGraphManager:getWayPointById(1) ~= nil and not AutoDrive.isEditorShowEnabled() then
+
         local g = 0
         --Draw line to selected neighbor point
         local neighbour = self.ad.stateModule:getSelectedNeighbourPoint()
@@ -501,30 +532,34 @@ function AutoDrive:onDrawEditorMode()
         local x = point.x
         local y = point.y
         local z = point.z
-        if self.ad.stateModule:isInExtendedEditorMode() then
+        if AutoDrive.isInExtendedEditorMode() then
             arrowPosition = DrawingManager.arrows.position.middle
-            if AutoDrive.mouseIsAtPos(point, 0.01) then
-                DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
-            else
-                if point.id == self.ad.selectedNodeId then
-                    DrawingManager:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
+            if AutoDrive.enableSphrere == true then
+                if AutoDrive.mouseIsAtPos(point, 0.01) then
+                    DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
                 else
-                    DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
+                    if point.id == self.ad.selectedNodeId then
+                        DrawingManager:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
+                    else
+                        DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
+                    end
                 end
             end
 
             -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
-            if AutoDrive.getSettingState("lineHeight") > 1 then
-                local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
-                DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
+            if AutoDrive.enableSphrere == true then
+                if AutoDrive.getSettingState("lineHeight") > 1 then
+                    local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
+                    DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
 
-                if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
-                    DrawingManager:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
-                else
-                    if point.id == self.ad.selectedNodeId then
-                        DrawingManager:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
+                    if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
+                        DrawingManager:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
                     else
-                        DrawingManager:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
+                        if point.id == self.ad.selectedNodeId then
+                            DrawingManager:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
+                        else
+                            DrawingManager:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
+                        end
                     end
                 end
             end
@@ -542,7 +577,7 @@ function AutoDrive:onDrawEditorMode()
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
-                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) or not AutoDrive.experimentalFeatures.reverseDrivingAllowed then
+                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                         else
@@ -667,6 +702,10 @@ function AutoDrive:stopAutoDrive()
 
             if self.setBeaconLightsVisibility ~= nil then
                 self:setBeaconLightsVisibility(false)
+            end
+
+            if self.setTurnLightState ~= nil then
+                self:setTurnLightState(Lights.TURNLIGHT_OFF)
             end
 
             self.ad.stateModule:setActive(false)

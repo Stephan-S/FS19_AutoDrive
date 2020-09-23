@@ -36,7 +36,7 @@ end
 
 function ADHudSettingsButton:updateState(vehicle)
     local newState = AutoDrive.getSettingState(self.setting, vehicle)
-    self.isVisible = not vehicle.ad.stateModule:isEditorModeEnabled() or AutoDrive.getSetting("wideHUD")
+    self.isVisible = not AutoDrive.isEditorModeEnabled() or AutoDrive.getSetting("wideHUD")
     self.ov:setImage(self.images[newState])
     self.state = newState
 end

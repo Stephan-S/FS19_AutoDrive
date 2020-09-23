@@ -140,16 +140,16 @@ end
 function ADStateModule:writeStream(streamId)
     streamWriteBool(streamId, self.active)
     streamWriteUIntN(streamId, self.mode, 4)
-    streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 10)
-    streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 10)
+    streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 17)
+    streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 17)
     streamWriteUIntN(streamId, self.creationMode, 3)
     streamWriteUIntN(streamId, self.editorMode, 3)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
-    streamWriteUIntN(streamId, self.parkDestination + 1, 20)
-    streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
+    streamWriteUIntN(streamId, self.parkDestination + 1, 17)
+    streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 17)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
@@ -160,16 +160,16 @@ end
 function ADStateModule:readStream(streamId)
     self.active = streamReadBool(streamId)
     self.mode = streamReadUIntN(streamId, 4)
-    self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
-    self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
+    self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
+    self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.creationMode = streamReadUIntN(streamId, 3)
     self.editorMode = streamReadUIntN(streamId, 3)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
-    self.parkDestination = streamReadUIntN(streamId, 20) - 1
-    self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
+    self.parkDestination = streamReadUIntN(streamId, 17) - 1
+    self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.currentTaskInfo = streamReadString(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
@@ -181,16 +181,16 @@ end
 function ADStateModule:writeUpdateStream(streamId)
     streamWriteBool(streamId, self.active)
     streamWriteUIntN(streamId, self.mode, 4)
-    streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 10)
-    streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 10)
+    streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 17)
+    streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 17)
     streamWriteUIntN(streamId, self.creationMode, 3)
     streamWriteUIntN(streamId, self.editorMode, 3)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
-    streamWriteUIntN(streamId, self.parkDestination + 1, 20)
-    streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 10)
+    streamWriteUIntN(streamId, self.parkDestination + 1, 17)
+    streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 17)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
@@ -201,16 +201,16 @@ end
 function ADStateModule:readUpdateStream(streamId)
     self.active = streamReadBool(streamId)
     self.mode = streamReadUIntN(streamId, 4)
-    self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
-    self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
+    self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
+    self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.creationMode = streamReadUIntN(streamId, 3)
     self.editorMode = streamReadUIntN(streamId, 3)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
-    self.parkDestination = streamReadUIntN(streamId, 20) - 1
-    self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 10) - 1)
+    self.parkDestination = streamReadUIntN(streamId, 17) - 1
+    self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.currentTaskInfo = streamReadString(streamId)
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
@@ -400,51 +400,8 @@ function ADStateModule:setActive(active)
     end
 end
 
-function ADStateModule:isEditorModeEnabled()
-    return self.editorMode ~= ADStateModule.EDITOR_OFF and self.editorMode ~= ADStateModule.EDITOR_SHOW
-end
-
-function ADStateModule:isEditorShowEnabled()
-    return self.editorMode == ADStateModule.EDITOR_SHOW
-end
-
-function ADStateModule:isInExtendedEditorMode()
-    return self.editorMode == ADStateModule.EDITOR_EXTENDED
-end
-
-function ADStateModule:getEditorMode()
-    return self.editorMode
-end
-
-function ADStateModule:setEditorMode(editorMode)
-    self.editorMode = editorMode
-end
-
-function ADStateModule:cycleEditMode()
-    if self.editorMode == ADStateModule.EDITOR_OFF then
-        self.editorMode = ADStateModule.EDITOR_ON
-    elseif self.editorMode == ADStateModule.EDITOR_ON and AutoDrive.getSetting("secondEditorModeAllowed") then
-        self.editorMode = ADStateModule.EDITOR_EXTENDED
-    elseif self.editorMode == ADStateModule.EDITOR_EXTENDED or self.editorMode == ADStateModule.EDITOR_SHOW or ((not AutoDrive.getSetting("secondEditorModeAllowed")) and self.editorMode == ADStateModule.EDITOR_ON) then
-        self.editorMode = ADStateModule.EDITOR_OFF
-	self:disableCreationMode()
-        self.vehicle.ad.selectedNodeId = nil
-    end
-    self:raiseDirtyFlag()
-end
-
-function ADStateModule:cycleEditorShowMode()
-    if self.editorMode == ADStateModule.EDITOR_OFF then
-        self.editorMode = ADStateModule.EDITOR_SHOW
-    else
-        self.editorMode = ADStateModule.EDITOR_OFF
-	self:disableCreationMode()
-    end
-    self:raiseDirtyFlag()
-end
-
 function ADStateModule:isInCreationMode()
-    return self.creationMode ~= ADStateModule.CREATE_OFF
+    return (self.creationMode == ADStateModule.CREATE_NORMAL) or (self.creationMode == ADStateModule.CREATE_DUAL)
 end
 
 function ADStateModule:isInNormalCreationMode()
@@ -458,18 +415,25 @@ end
 function ADStateModule:disableCreationMode()
     self.creationMode = ADStateModule.CREATE_OFF
     self:raiseDirtyFlag()
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:stop()
+	end
 end
 
 function ADStateModule:startNormalCreationMode()
     self.creationMode = ADStateModule.CREATE_NORMAL
     self:raiseDirtyFlag()
-    self:setActive(false)
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(false)
+	end
 end
 
 function ADStateModule:startDualCreationMode()
     self.creationMode = ADStateModule.CREATE_DUAL
     self:raiseDirtyFlag()
-    self:setActive(false)
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(true)
+	end
 end
 
 function ADStateModule:getLoopCounter()
@@ -671,10 +635,6 @@ end
 function ADStateModule:setParkDestination(parkDestination)
     self.parkDestination = parkDestination
     self:raiseDirtyFlag()
-end
-
-function ADStateModule:hasParkDestination(parkDestination)
-    return self.parkDestination ~= nil and self.parkDestination >= 1 and ADGraphManager:getMapMarkerById(self.parkDestination) ~= nil
 end
 
 function ADStateModule:getSelectedNeighbourPoint()

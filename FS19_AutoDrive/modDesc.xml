@@ -6,89 +6,23 @@
 	</title>
 	<description>
 		<en>
-			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
-
-Changelog 1.1.0.0:
-- NEW: Updated HUD-Design
-- NEW: Improved settings menu
-- NEW: Increased Multiplayer perfomance and functionality
-- NEW: Completely reworked codebase.
-- NEW: Improved combine unloader mode with precalling and active side-by-side unloading.
-- NEW: Automatic pathfinding when network isn't nearby
-- NEW: New Ingame editor to create and edit the network
-- FIX: Countless small fixes - over 650 changes since last release (1.0.1.9)
-]]>
+			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.]]>
 		</en>
 		<de>
-			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
-
-Changelog 1.1.0.0:
-- NEU: Aktualisiertes HUD-Design
-- NEU: Verbessertes Einstellungsmenü
-- NEU: Erhöhte Multiplayer-Leistung und -Funktionalität
-- NEU: Vollständig überarbeitete Codebasis.
-- NEU: Verbesserter Mähdrescher-Entlademodus mit Vorabruf und aktivem Side-by-Side-Entladen.
-- NEU: Automatische Pfadfindung, wenn das Netzwerk nicht in der Nähe ist.
-- NEU: Neuer Ingame-Editor zum Erstellen und Bearbeiten des Netzwerks
-- FIX: Unzählige kleine Korrekturen - über 650 Änderungen seit der letzten Version (1.0.1.9)
-]]>
+			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.]]>
 		</de>
 		<it>
-			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
-
-Changelog 1.1.0.0:
-- NOVITÀ: Design HUD aggiornato
-- NOVITÀ: Menu impostazioni migliorato
-- NOVITÀ: Migliorate le prestazioni e le funzionalità del Multiplayer
-- NOVITÀ: Rielaborazione completa del Codebase.
-- NOVITÀ: Migliorata la modalità di scarico combinato con precalibrazione e scarico attivo affiancato.
-- NOVITÀ: Ricerca automatica del percorso per raggiungere la rete stradale
-- NOVITÀ: Nuovo editor in gioco per creare e modificare i percorsi
-- FIX: Innumerevoli correzioni - oltre 650 modifiche dall'ultima versione (1.0.1.9)
-]]>
+			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.]]>
 		</it>
 		<fr>
 			<![CDATA[Ce mod peut être utilisé pour créer un réseau de routes permettant aux véhicules de conduire de manière autonome. Une fois la configuration effectuée, vous pouvez indiquer à un tracteur situé près du réseau de se rendre à n’importe quel point, tel que le magasin, le champ 1 ou un point de vente.
-Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !.
-
-Changelog 1.1.0.0 :
-- NOUVEAU : Mise à jour du design du HUD
-- NOUVEAU : Menu des paramètres amélioré
-- NOUVEAU : Amélioration des performances et des fonctionnalités multijoueurs
-- NOUVEAU : Base de code complètement remaniée.
-- NOUVEAU : amélioration du mode de déchargement combiné avec appel préalable et déchargement actif côte à côte.
-- NOUVEAU : Recherche automatique de chemin lorsque le réseau n'est pas à proximité
-- NOUVEAU : Nouvel éditeur Ingame pour créer et éditer le réseau
-- CORRECTIF : D'innombrables petites corrections - plus de 650 changements depuis la dernière version (1.0.1.9)
-]]>
+Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !]]>
 		</fr>
 		<es>
-			<![CDATA[Este mod se utiliza para crear una red de rutas y permitir que los vehículos conduzcan de forma autónoma. Una vez configurado, puede ordenar a un tractor, cercano a la red, que conduzca a cualquier meta definida, como la tienda, el campo 1 o un punto de venta.
-
-Changelog 1.1.0.0:
-- NUEVO: Diseño HUD actualizado
-- NUEVO: Menú de ajustes mejorado
-- NUEVO: Mayor rendimiento y funcionalidad del Multijugador
-- Una base de código completamente revisada.
-- NUEVO: Modo de descarga combinado mejorado con precintado y descarga activa lado a lado.
-- NUEVO: Búsqueda automática cuando la red no está cerca
-- NUEVO: Nuevo editor de Ingame para crear y editar la red
-- FIX: Incontables pequeñas correcciones - más de 650 cambios desde la última versión (1.0.1.9)
-]]>
+			<![CDATA[Este mod se utiliza para crear una red de rutas y permitir que los vehículos conduzcan de forma autónoma. Una vez configurado, puede ordenar a un tractor, cercano a la red, que conduzca a cualquier meta definida, como la tienda, el campo 1 o un punto de venta.]]>
 		</es>
 		<ru>
-			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.
-
-Блог изменений 1.1.0.0:
-- NEW: Обновленный HUD-дизайн
-- НОВИНКА: Улучшенное меню настроек
-- НОВИНКА: Повышенный уровень многопользовательского совершенства и функциональности
-- Новое: Полностью переработанная кодовая база.
-- НОВИНКА: Улучшенный режим комбинированной разгрузки с предварительной и активной боковой разгрузкой.
-- НОВИНКА: Автоматический поиск пути, когда сеть не рядом.
-- NEW: Новый редактор Ingame для создания и редактирования сети.
-- FIX: бесчисленное множество мелких исправлений - более 650 изменений с момента последнего релиза (1.0.1.9).
-]]>
+			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
 	<version>1.1.0.5</version>

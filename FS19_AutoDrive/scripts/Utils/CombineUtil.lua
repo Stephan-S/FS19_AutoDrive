@@ -106,7 +106,7 @@ end
 
 function AutoDrive.isPipeOut(combine)
     local spec = combine.spec_pipe
-    if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
+    if spec ~= nil and spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
         return true
     else
         return false

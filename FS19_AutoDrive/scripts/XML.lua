@@ -26,7 +26,6 @@ function AutoDrive.loadStoredXML()
 				AutoDrive.versionUpdateCancelsSettingsLoad = true
 			end
 		end
-		--]]
 		local MapCheck = hasXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap)
 		if MapCheck == false then --versionString == nil or
 			g_logManager:devWarning("[AutoDrive] Map Check (%s) failed", MapCheck == false)
@@ -34,6 +33,8 @@ function AutoDrive.loadStoredXML()
 		else
 			AutoDrive.readFromXML(AutoDrive.adXml)
 		end
+		--]]
+		AutoDrive.readFromXML(AutoDrive.adXml)
 	else
 		AutoDrive.loadInitConfig(xmlFile)
 	end
@@ -233,6 +234,9 @@ function AutoDrive.readFromXML(xmlFile)
 		-- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
 		ADGraphManager:createMarkersAtOpenEnds()
 	end
+    g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
+    g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
+    g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -308,6 +312,11 @@ function AutoDrive.saveToXML(xmlFile)
 		end
 	end
 	saveXMLFile(xmlFile)
+    if g_client == nil then
+        g_logManager:info("[AD] AutoDrive.saveToXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
+        g_logManager:info("[AD] AutoDrive.saveToXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
+        g_logManager:info("[AD] AutoDrive.saveToXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
+    end
 end
 
 function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)

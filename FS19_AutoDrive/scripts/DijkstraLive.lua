@@ -46,7 +46,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 			end
 
 			newdist = newdist + distanceToAdd
-			if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
+			if math.abs(angle) > 90 and (not isReverseStart and not isReverseEnd) then
 				newdist = 100000000
 			end
 
@@ -94,7 +94,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 
 		newdist = newdist + distanceToAdd
 
-		if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
+		if math.abs(angle) > 90 and (not isReverseStart and not isReverseEnd) then
 			newdist = 100000000
 		end
 
@@ -226,7 +226,7 @@ function AutoDrive:dijkstraLive(start, target)
 								end
 
 								local alternative = shortest + distanceToAdd
-								if math.abs(angle) > 90 and (not AutoDrive.experimentalFeatures.reverseDrivingAllowed or (not isReverseStart and not isReverseEnd)) then
+								if math.abs(angle) > 90 and (not isReverseStart and not isReverseEnd) then
 									alternative = 100000000
 								end
 

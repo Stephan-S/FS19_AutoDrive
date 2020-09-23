@@ -75,20 +75,12 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         textToShow = textToShow .. " - " .. taskInfo
     end
 
-    if AutoDrive.getSetting("secondEditorModeAllowed") then
-        if vehicle.ad.stateModule:isInExtendedEditorMode() then
-            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_creation")
-            textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
-        end
-    else
-        if vehicle.ad.stateModule:isInExtendedEditorMode() then
-            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lalt_for_deletion")
-        elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
-            textToShow = textToShow .. " - " .. g_i18n:getText("AD_lctrl_for_extendedEditor")
-        end
+    if AutoDrive.isInExtendedEditorMode() then
+        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lshift_for_reverse")
+        textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
     end
 
-    if vehicle.ad.stateModule:isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
+    if AutoDrive.isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
         if vehicle.ad.pathFinderModule.steps > 0 then
             textToShow = textToShow .. " - " .. "Fallback: " .. AutoDrive.boolToString(vehicle.ad.pathFinderModule.fallBackMode)
         end

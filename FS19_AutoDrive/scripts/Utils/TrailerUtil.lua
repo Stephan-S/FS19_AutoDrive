@@ -355,19 +355,11 @@ function AutoDrive.setTrailerCoverOpen(vehicle, trailers, open)
         targetState = 1
     end
 
-    if vehicle.ad.closeCoverTimer == nil then
-        vehicle.ad.closeCoverTimer = AutoDriveTON:new()
-    end
-
-    vehicle.ad.closeCoverTimer:timer(not open, 2000, 16)
-
-    if (not open) and (not vehicle.ad.closeCoverTimer:done()) then
-        return
-    end
-
     for _, trailer in pairs(trailers) do
-        if trailer.spec_cover ~= nil then
-            targetState = targetState * #trailer.spec_cover.covers
+        if trailer.spec_cover ~= nil and trailer.spec_cover.state ~= nil then
+            if trailer.spec_cover.covers ~= nil then
+                targetState = targetState * #trailer.spec_cover.covers
+            end
             if trailer.spec_cover.state ~= targetState and trailer:getIsNextCoverStateAllowed(targetState) then
                 trailer:setCoverState(targetState, false)
             end

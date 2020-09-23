@@ -41,7 +41,6 @@ end
 function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "getWorkToolParkDestination", AutoDriveVehicleData.getWorkToolParkDestination)
     SpecializationUtil.registerFunction(vehicleType, "setWorkToolParkDestination", AutoDriveVehicleData.setWorkToolParkDestination)
-    SpecializationUtil.registerFunction(vehicleType, "hasWorkToolParkDestination", AutoDriveVehicleData.hasWorkToolParkDestination)
 end
 
 function AutoDriveVehicleData:onPreLoad(savegame)
@@ -62,6 +61,9 @@ end
 
 function AutoDriveVehicleData:onPostLoad(savegame)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onPostLoad vehicle %s savegame %s self %s", tostring(self:getName()), tostring(savegame), tostring(self))
+    if self.advd == nil then
+        return
+    end
     -- if self.isServer then
         if savegame ~= nil then
             AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onPostLoad self.isServer")
@@ -74,6 +76,9 @@ end
 
 function AutoDriveVehicleData:saveToXMLFile(xmlFile, key)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.saveToXMLFile vehicle %s", tostring(self:getName()))
+    if self.advd == nil then
+        return
+    end
     if self.advd.WorkToolParkDestination ~= nil and self.advd.WorkToolParkDestination > 0 then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.saveToXMLFile WorkToolParkDestination %s", tostring(self.advd.WorkToolParkDestination))
         if self.isServer then
@@ -87,6 +92,9 @@ function AutoDriveVehicleData:onReadStream(streamId, connection)        -- Calle
     if self~= nil and self.vehicle ~= nil then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadStream vehicle %s", tostring(self.vehicle:getName()))
     end
+    if self.vehicle.advd == nil then
+        return
+    end
     self.vehicle.advd.WorkToolParkDestination = streamReadUIntN(streamId, 20) - 1
 end
 
@@ -94,12 +102,18 @@ function AutoDriveVehicleData:onWriteStream(streamId, connection)       -- Calle
     if self~= nil and self.vehicle ~= nil then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onWriteStream vehicle %s", tostring(self.vehicle:getName()))
     end
+    if self.vehicle.advd == nil then
+        return
+    end
     streamWriteUIntN(streamId, self.vehicle.advd.WorkToolParkDestination + 1, 20)
 end
 
 function AutoDriveVehicleData:onReadUpdateStream(streamId, timestamp, connection)       -- Called on on update
     if self~= nil and self.vehicle ~= nil then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadUpdateStream vehicle %s", tostring(self.vehicle:getName()))
+    end
+    if self.vehicle.advd == nil then
+        return
     end
     if connection:getIsServer() then
         if streamReadBool(streamId) then
@@ -113,6 +127,9 @@ function AutoDriveVehicleData:onWriteUpdateStream(streamId, connection, dirtyMas
     if self~= nil and self.vehicle ~= nil then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onWriteUpdateStream vehicle %s", tostring(self.vehicle:getName()))
     end
+    if self.vehicle.advd == nil then
+        return
+    end
     if not connection:getIsServer() then
         if streamWriteBool(streamId, bitAND(dirtyMask, self.advd.dirtyFlag) ~= 0) then
             AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onWriteUpdateStream streamReadBool ")
@@ -121,16 +138,12 @@ function AutoDriveVehicleData:onWriteUpdateStream(streamId, connection, dirtyMas
     end
 end
 
-function AutoDriveVehicleData:hasWorkToolParkDestination()
-    if self~= nil and self.vehicle ~= nil then
-        -- AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData:hasWorkToolParkDestination vehicle %s", tostring(self.vehicle:getName()))
-    end
-    return self.vehicle.advd.WorkToolParkDestination >= 1
-end
-
 function AutoDriveVehicleData:getWorkToolParkDestination()
     if self~= nil and self.vehicle ~= nil then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData:getWorkToolParkDestination vehicle %s", tostring(self.vehicle:getName()))
+    end
+    if self.vehicle.advd == nil then
+        return -1
     end
     return self.vehicle.advd.WorkToolParkDestination
 end
@@ -138,6 +151,9 @@ end
 function AutoDriveVehicleData:setWorkToolParkDestination(WorkToolParkDestination)
     if self~= nil and self.vehicle ~= nil then
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData:setWorkToolParkDestination vehicle %s WorkToolParkDestination %s", tostring(self.vehicle:getName()), tostring(WorkToolParkDestination))
+    end
+    if self.vehicle.advd == nil then
+        return
     end
     self.vehicle.advd.WorkToolParkDestination = WorkToolParkDestination
     self.vehicle:raiseDirtyFlags(self.vehicle.advd.dirtyFlag)
@@ -167,6 +183,9 @@ end
 
 function AutoDriveVehicleDataEvent:writeStream(streamId, connection)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleDataEvent:writeStream connection %s", tostring(connection))
+    if self.vehicle.advd == nil then
+        return
+    end
     streamWriteInt32(streamId, NetworkUtil.getObjectId(self.vehicle))
     streamWriteUIntN(streamId, self.vehicle.advd.WorkToolParkDestination + 1, 20)
 end

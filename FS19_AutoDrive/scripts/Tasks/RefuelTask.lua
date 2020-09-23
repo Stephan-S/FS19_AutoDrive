@@ -19,6 +19,7 @@ function RefuelTask:setUp()
         self.state = RefuelTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
+    AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_task_drive_to_refuel_point;", 5000, self.vehicle.ad.stateModule:getName())
 end
 
 function RefuelTask:update(dt)
