@@ -4,10 +4,7 @@ ADStateModule.CREATE_OFF = 1
 ADStateModule.CREATE_NORMAL = 2
 ADStateModule.CREATE_DUAL = 3
 
-ADStateModule.EDITOR_OFF = 1
-ADStateModule.EDITOR_ON = 2
-ADStateModule.EDITOR_EXTENDED = 3
-ADStateModule.EDITOR_SHOW = 4
+ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL = 1000
 
 function ADStateModule:new(vehicle)
     local o = {}
@@ -26,7 +23,7 @@ function ADStateModule:reset()
     self.firstMarker = ADGraphManager:getMapMarkerById(1)
     self.secondMarker = ADGraphManager:getMapMarkerById(1)
     self.creationMode = ADStateModule.CREATE_OFF
-    self.editorMode = ADStateModule.EDITOR_OFF
+    self.editorMode = AutoDrive.EDITOR_OFF
 
     self.fillType = 2
     self.loopCounter = 0
@@ -56,6 +53,8 @@ function ADStateModule:reset()
     if self.vehicle.getName ~= nil then
         self.driverName = self.vehicle:getName()
     end
+    self.remainingDriveTime = 0
+    self.calculateRemainingDriveTimeInterval = 0
 end
 
 function ADStateModule:readFromXMLFile(xmlFile, key)
@@ -155,6 +154,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
     streamWriteBool(streamId, self.startCP_AIVE)
     streamWriteBool(streamId, self.useCP)
+    streamWriteUInt16(streamId, self.remainingDriveTime)
 end
 
 function ADStateModule:readStream(streamId)
@@ -176,6 +176,7 @@ function ADStateModule:readStream(streamId)
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
     self.startCP_AIVE = streamReadBool(streamId)
     self.useCP = streamReadBool(streamId)
+    self.remainingDriveTime = streamReadUInt16(streamId)
 end
 
 function ADStateModule:writeUpdateStream(streamId)
@@ -196,6 +197,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
     streamWriteBool(streamId, self.startCP_AIVE)
     streamWriteBool(streamId, self.useCP)
+	streamWriteUInt16(streamId, self.remainingDriveTime)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -217,10 +219,21 @@ function ADStateModule:readUpdateStream(streamId)
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
     self.startCP_AIVE = streamReadBool(streamId)
     self.useCP = streamReadBool(streamId)
+    self.remainingDriveTime = streamReadUInt16(streamId)
 end
 
 function ADStateModule:update(dt)
-    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+	if self.active == true and g_server ~= nil then
+        -- remaining drive time shall be calculated only if AD driving and only on server
+		self.calculateRemainingDriveTimeInterval = self.calculateRemainingDriveTimeInterval + dt
+		if self.calculateRemainingDriveTimeInterval > ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL then
+			self.calculateRemainingDriveTimeInterval = 0
+			self:calculateRemainingDriveTime()
+		end
+	end
+
+    if g_client ~= nil and self.vehicle.getIsEntered ~= nil and self.vehicle:getIsEntered() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+		-- debug output only displayed on client with entered vehicle
         local debug = {}
         debug.active = self.active
         debug.mode = self.mode
@@ -242,6 +255,7 @@ function ADStateModule:update(dt)
         debug.nextWayPointId = self.nextWayPointId
         debug.startCP_AIVE = self.startCP_AIVE
         debug.useCP = self.useCP
+        debug.remainingDriveTime = self.remainingDriveTime
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
         else
@@ -389,6 +403,7 @@ function ADStateModule:isActive()
 end
 
 function ADStateModule:setActive(active)
+    self.remainingDriveTime = 0
     if active ~= self.active then
         self.active = active
         self:raiseDirtyFlag()
@@ -771,4 +786,23 @@ function ADStateModule:resetMarkersOnReload()
         self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
     self:raiseDirtyFlag()
+end
+
+function ADStateModule:calculateRemainingDriveTime()
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    if not AutoDrive.checkIsOnField(x, y, z) then
+		local wp, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
+		if wp ~= nil and currentWayPoint > 0 then
+			self.remainingDriveTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((self.vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), self:getSpeedLimit()))
+		else
+			self.remainingDriveTime = 0
+		end
+	else
+		self.remainingDriveTime = 0
+	end
+	self:raiseDirtyFlag()
+end
+
+function ADStateModule:getRemainingDriveTime()
+	return self.remainingDriveTime
 end
