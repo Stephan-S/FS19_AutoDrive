@@ -275,9 +275,7 @@ function AutoDrive:onUpdate(dt)
         end
     end
 
-    if self.getIsEntered ~= nil and self:getIsEntered() then
-        self.ad.stateModule:update(dt)
-    end
+    self.ad.stateModule:update(dt)
 
     ADSensor:handleSensors(self, dt)
 
