@@ -195,11 +195,12 @@ function AutoDrive:StopCP(vehicle)
 	if vehicle == nil then 
 		return 
 	end
-
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP...")
 	if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
 		if vehicle.ad.stateModule:getStartCP_AIVE() then
 			vehicle.ad.stateModule:toggleStartCP_AIVE()
 		end
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP call CP stop")
 		g_courseplay.courseplay:stop(vehicle)
 	end
 end
