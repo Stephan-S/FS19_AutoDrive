@@ -95,13 +95,17 @@ function ADTriggerManager.loadAllTriggers()
                 for _, item in pairs(ownedItem.items) do
                     if item.unloadingStation ~= nil then
                         for _, unloadTrigger in pairs(item.unloadingStation.unloadTriggers) do
-                            table.insert(ADTriggerManager.tipTriggers, unloadTrigger)
+                            if not table.contains(ADTriggerManager.tipTriggers, unloadTrigger) then
+                                table.insert(ADTriggerManager.tipTriggers, unloadTrigger)
+                            end
                         end
                     end
 
                     if item.loadingStation ~= nil then
                         for _, loadTrigger in pairs(item.loadingStation.loadTriggers) do
-                            table.insert(ADTriggerManager.siloTriggers, loadTrigger)
+                            if not table.contains(ADTriggerManager.siloTriggers, loadTrigger) then
+                                table.insert(ADTriggerManager.siloTriggers, loadTrigger)
+                            end
                         end
                     end
                 end
@@ -113,13 +117,17 @@ function ADTriggerManager.loadAllTriggers()
         for _, placeable in pairs(g_currentMission.placeables) do
             if placeable.sellingStation ~= nil then
                 for _, unloadTrigger in pairs(placeable.sellingStation.unloadTriggers) do
-                    table.insert(ADTriggerManager.tipTriggers, unloadTrigger)
+                    if not table.contains(ADTriggerManager.tipTriggers, unloadTrigger) then
+                        table.insert(ADTriggerManager.tipTriggers, unloadTrigger)
+                    end
                 end
             end
 
             if placeable.unloadingStation ~= nil then
                 for _, unloadTrigger in pairs(placeable.unloadingStation.unloadTriggers) do
-                    table.insert(ADTriggerManager.tipTriggers, unloadTrigger)
+                    if not table.contains(ADTriggerManager.tipTriggers, unloadTrigger) then
+                        table.insert(ADTriggerManager.tipTriggers, unloadTrigger)
+                    end
                 end
             end
 
@@ -127,34 +135,46 @@ function ADTriggerManager.loadAllTriggers()
                 for i = 1, #placeable.modulesById do
                     local myModule = placeable.modulesById[i]
                     if myModule.unloadPlace ~= nil then
-                        table.insert(ADTriggerManager.tipTriggers, myModule.unloadPlace)
+                        if not table.contains(ADTriggerManager.tipTriggers, myModule.unloadPlace) then
+                            table.insert(ADTriggerManager.tipTriggers, myModule.unloadPlace)
+                        end
                     end
 
                     if myModule.feedingTrough ~= nil then
-                        table.insert(ADTriggerManager.tipTriggers, myModule.feedingTrough)
+                        if not table.contains(ADTriggerManager.tipTriggers, myModule.feedingTrough) then
+                            table.insert(ADTriggerManager.tipTriggers, myModule.feedingTrough)
+                        end
                     end
 
                     if myModule.loadPlace ~= nil then
-                        table.insert(ADTriggerManager.siloTriggers, myModule.loadPlace)
+                        if not table.contains(ADTriggerManager.siloTriggers, myModule.loadPlace) then
+                            table.insert(ADTriggerManager.siloTriggers, myModule.loadPlace)
+                        end
                     end
                 end
             end
 
             if placeable.buyingStation ~= nil then
                 for _, loadTrigger in pairs(placeable.buyingStation.loadTriggers) do
-                    table.insert(ADTriggerManager.siloTriggers, loadTrigger)
+                    if not table.contains(ADTriggerManager.siloTriggers, loadTrigger) then
+                        table.insert(ADTriggerManager.siloTriggers, loadTrigger)
+                    end
                 end
             end
 
             if placeable.loadingStation ~= nil then
                 for _, loadTrigger in pairs(placeable.loadingStation.loadTriggers) do
-                    table.insert(ADTriggerManager.siloTriggers, loadTrigger)
+                    if not table.contains(ADTriggerManager.siloTriggers, loadTrigger) then
+                        table.insert(ADTriggerManager.siloTriggers, loadTrigger)
+                    end
                 end
             end
 
             if placeable.bunkerSilos ~= nil then
                 for _, bunker in pairs(placeable.bunkerSilos) do
-                    table.insert(ADTriggerManager.tipTriggers, bunker)
+                    if not table.contains(ADTriggerManager.tipTriggers, bunker) then
+                        table.insert(ADTriggerManager.tipTriggers, bunker)
+                    end
                 end
             end
         end
@@ -163,7 +183,9 @@ function ADTriggerManager.loadAllTriggers()
     if g_currentMission.nodeToObject ~= nil then
         for _, object in pairs(g_currentMission.nodeToObject) do
             if object.triggerNode ~= nil then
-                table.insert(ADTriggerManager.siloTriggers, object)
+                if not table.contains(ADTriggerManager.siloTriggers, object) then
+                    table.insert(ADTriggerManager.siloTriggers, object)
+                end
             end
         end
     end
@@ -171,7 +193,9 @@ function ADTriggerManager.loadAllTriggers()
     if g_currentMission.bunkerSilos ~= nil then
         for _, trigger in pairs(g_currentMission.bunkerSilos) do
             if trigger.bunkerSilo then
-                table.insert(ADTriggerManager.tipTriggers, trigger)
+                if not table.contains(ADTriggerManager.tipTriggers, trigger) then
+                    table.insert(ADTriggerManager.tipTriggers, trigger)
+                end
             end
         end
     end
@@ -181,10 +205,14 @@ function ADTriggerManager.loadAllTriggers()
             local triggerManager = g_company.triggerManagerList[i]
             for _, trigger in pairs(triggerManager.registeredTriggers) do
                 if trigger.exactFillRootNode then
-                    table.insert(ADTriggerManager.tipTriggers, trigger)
+                    if not table.contains(ADTriggerManager.tipTriggers, trigger) then
+                        table.insert(ADTriggerManager.tipTriggers, trigger)
+                    end
                 end
                 if trigger.triggerNode then
-                    table.insert(ADTriggerManager.siloTriggers, trigger)
+                    if not table.contains(ADTriggerManager.siloTriggers, trigger) then
+                        table.insert(ADTriggerManager.siloTriggers, trigger)
+                    end
                 end
             end
         end
@@ -267,8 +295,7 @@ function ADTriggerManager.getRefuelDestinations(vehicle)
             local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(refuelTrigger)
             local distance = MathUtil.vector2Length(triggerX - ADGraphManager:getWayPointById(mapMarker.id).x, triggerZ - ADGraphManager:getWayPointById(mapMarker.id).z)
             if distance < AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
-                --g_logManager:devInfo("Found possible refuel destination: " .. mapMarker.name .. " at distance: " .. distance);
-                table.insert(refuelDestinations, mapMarkerID)
+                table.insert(refuelDestinations, {mapMarkerID = mapMarkerID, refuelTrigger = refuelTrigger, distance = distance})
             end
         end
     end
@@ -282,13 +309,27 @@ function ADTriggerManager.getClosestRefuelDestination(vehicle)
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local closestRefuelDestination = nil
     local closestDistance = math.huge
+    local closestRefuelTrigger = nil
 
-    for _, refuelDestination in pairs(refuelDestinations) do
-        local refuelX, refuelZ = ADGraphManager:getWayPointById(ADGraphManager:getMapMarkerById(refuelDestination).id).x, ADGraphManager:getWayPointById(ADGraphManager:getMapMarkerById(refuelDestination).id).z
-        local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z)
-        if distance < closestDistance then
+    -- for _, refuelDestination in pairs(refuelDestinations) do
+    for _, item in pairs(refuelDestinations) do
+        local refuelX, refuelZ = ADGraphManager:getWayPointById(ADGraphManager:getMapMarkerById(item.mapMarkerID).id).x, ADGraphManager:getWayPointById(ADGraphManager:getMapMarkerById(item.mapMarkerID).id).z
+        local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z)       -- vehicle to destination
+        if distance <= closestDistance then
+            closestRefuelDestination = item.mapMarkerID
+            closestRefuelTrigger = item.refuelTrigger
             closestDistance = distance
-            closestRefuelDestination = refuelDestination
+        end
+    end
+    if closestRefuelTrigger ~= nil then
+        -- now find the closest mapMarker for the found refuel trigger
+        local closestDistance2 = math.huge
+        for _, item in pairs(refuelDestinations) do
+            if item.refuelTrigger == closestRefuelTrigger and item.distance < closestDistance2 then
+                closestRefuelTrigger = item.refuelTrigger
+                closestDistance2 = item.distance
+                closestRefuelDestination = item.mapMarkerID
+            end
         end
     end
 
