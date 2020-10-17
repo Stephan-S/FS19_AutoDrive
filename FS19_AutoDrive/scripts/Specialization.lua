@@ -654,29 +654,38 @@ function AutoDrive:stopAutoDrive()
                 local callBackFunction = self.ad.callBackFunction
                 local callBackObject = self.ad.callBackObject
                 local callBackArg = self.ad.callBackArg
-                self.ad.callBackFunction = nil
-                self.ad.callBackObject = nil
-                self.ad.callBackArg = nil
+                if distanceToStart < 30 then        -- pass control to external mod only when near to field point
+                    if callBackObject ~= nil then
+                        if callBackArg ~= nil then
+                            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to external mod callBackObject %s callBackArg %s", tostring(callBackObject), tostring(callBackArg))
+                            self.ad.callBackFunction = nil
+                            self.ad.callBackObject = nil
+                            self.ad.callBackArg = nil
+                            callBackFunction(callBackObject, callBackArg)
+                        else
+                            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to external mod callBackObject %s", tostring(callBackObject))
+                            self.ad.callBackFunction = nil
+                            self.ad.callBackObject = nil
+                            self.ad.callBackArg = nil
+                            callBackFunction(callBackObject)
+                        end
+                    else
+                        if callBackArg ~= nil then
+                            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to external mod callBackArg %s", tostring(callBackArg))
+                            self.ad.callBackFunction = nil
+                            self.ad.callBackObject = nil
+                            self.ad.callBackArg = nil
+                            callBackFunction(callBackArg)
+                        else
+                            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to external mod, no callBackArg no callBackArg")
+                            self.ad.callBackFunction = nil
+                            self.ad.callBackObject = nil
+                            self.ad.callBackArg = nil
+                            callBackFunction()
+                        end
+                    end
+                end
 
-				if distanceToStart < 30 then 			-- pass control to external mod only when near to field point
-					if callBackObject ~= nil then
-						if callBackArg ~= nil then
-							callBackFunction(callBackObject, callBackArg)
-						else
-							callBackFunction(callBackObject)
-						end
-					else
-						if callBackArg ~= nil then
-							callBackFunction(callBackArg)
-						else
-							callBackFunction()
-						end
-					end
-				end
-
-                self.ad.callBackFunction = nil
-                self.ad.callBackObject = nil
-                self.ad.callBackArg = nil
             else
                 AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
                 self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
@@ -715,14 +724,16 @@ function AutoDrive:stopAutoDrive()
             local isPassingToCP = hasCallbacks or (not self.ad.isStoppingWithError and self.ad.stateModule:getStartCP_AIVE() and self.ad.stateModule:getUseCP_AIVE())
             AutoDriveStartStopEvent:sendStopEvent(self, isPassingToCP, isStartingAIVE)
 
-            if not hasCallbacks and not self.ad.isStoppingWithError then
+            if not hasCallbacks and not self.ad.isStoppingWithError and distanceToStart < 30 then
                 if self.ad.stateModule:getStartCP_AIVE() then
                     self.ad.stateModule:setStartCP_AIVE(false)
                     if  g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
+                        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to CP with start")
                         g_courseplay.courseplay:start(self)
                     else
                         if self.acParameters ~= nil then
                             self.acParameters.enabled = true
+                            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to AIVE with startAIVehicle")
                             self:startAIVehicle(nil, false, self.spec_aiVehicle.startedFarmId)
                         end
                     end
