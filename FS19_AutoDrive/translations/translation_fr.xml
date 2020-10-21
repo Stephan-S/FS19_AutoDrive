@@ -13,7 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
 		<text name="input_AD_Speed_down"						text="AD: Réduire la vitesse" />
 		<text name="input_AD_routes_manager"					text="AD: Ouvrir le gestionnaire d'itinéraires" />
-		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
+		<text name="input_AD_open_notification_history" 		text="AD: Ouvrir l'historique de notifications" />
 		<text name="input_AD_continue"							text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
@@ -27,7 +27,7 @@
 		<text name="input_ADDebugDeleteDestination"				text="AD: Éffacer point destination" />
 		<text name="input_ADSelectNextFillType"					text="AD: Sélect. prochain type de fruit" />
 		<text name="input_ADSelectPreviousFillType"				text="AD: Sélect. précédent type de fruit" />
-		<text name="input_ADOpenGUI"							text="AD: Ouvrir GUI" />
+		<text name="input_ADOpenGUI"							text="AD: Ouvrir l'interface Graphique Utilisateur/GUI" />
 		<text name="input_ADCallDriver"							text="AD: Appeler un chauffeur" />
 		<text name="input_ADGoToVehicle"						text="AD: Entrer dans le vehicule arrivé" />
 		<text name="input_ADNameDriver"							text="AD: Donnez un nom au chauffeur" />
@@ -35,7 +35,7 @@
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
 		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
 		<text name="hud_avoidFruit"								text="AD: Éviter les cultures" />
-		<text name="hud_startCp"								text="AD: Start CP / AIVE à la destination" />
+		<text name="hud_startCp"								text="AD: Démarrer CP/AIVE à la destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Pas de parking attribué. Veuillez sélectionner la (Destination actuelle) et corriger avec le clic droit de souris sur le 'P' HUD." />
 		<text name="AD_parkVehicle_selected"					text="Parking assigné: " />
 		<text name="AD_Driver_of"								text="Le chauffeur de" />
@@ -54,15 +54,15 @@
 		<text name="AD_MODE_LOAD"								text="Chargement" />
 		<text name="AD_MODE_BGA"								text="Vider silo (bunker)" />
 		<text name="AD_synchronizing"							text="Chargement des routes du serveur .." />
-		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pour le mode éditeur étendu" />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL pour créer" />
-		<text name="AD_lalt_for_deletion" 						text="LALT pour effacer" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverse drive" />
+		<text name="AD_lctrl_for_extendedEditor" 				text="CTRLG pour le mode éditeur étendu" />
+		<text name="AD_lctrl_for_creation" 						text="CTRLG pour créer" />
+		<text name="AD_lalt_for_deletion" 						text="ALTG pour effacer" />
+		<text name="AD_lshift_for_reverse" 						text="MAJG marche arrière" />
 		<text name="gui_ad_Setting"								text="AutoDrive - paramètres" />
-		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
-		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
-		<text name="gui_ad_blinkValue"						    text="Turnlight Automatic" />
-		<text name="gui_ad_blinkValue_tooltip"					text="Steering angle to enable turn lights automatically. (0 = turn light automatic deactivated)" />
+		<text name="gui_ad_collisionHeigth"						text="Hauteur de collision au sol" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Réglage de la détection de collision devant le véhicule. Si d'autres véhicules ne sont pas détectés pendant la conduite, réduisez progressivement. (Par défaut 2 m)" />
+		<text name="gui_ad_blinkValue"						    text="Clignotant automatique" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Angle de braquage pour activer automatiquement les feux de virage. (0 = clignotant automatiquement désactivé)" />
 		<text name="gui_ad_pipe_offset"							text="Décalage du tuyau (pipe)" />
 		<text name="gui_ad_followDistance"						text="Distance de moissonneuse" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance de la moissonneuse depuis son extrémité arrière, lorsqu'elle est suivie." />
@@ -128,12 +128,12 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Si la largeur détectée automatiquement est trop petite, elle peut être augmentée." />
 		<text name="gui_ad_preCallLevel"						text="Appel anticipé pour décharger" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur au niveau de déchargement défini." />
-		<text name="gui_ad_none"					            text="None" />
-		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
-		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
-		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
-		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
-		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
+		<text name="gui_ad_none"					            text="Aucun" />
+		<text name="gui_ad_onlyPickup"					        text="Uniquement ramasser" />
+		<text name="gui_ad_onlyDeliver"					        text="Uniquement livrer " />
+		<text name="gui_ad_PickupandDeliver"					text="Ramassage et livraison" />
+		<text name="gui_ad_rotateTargets"					    text="Cycle de ramassage et livraison" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: Aucun changement de cibles|uniquement les cibles de ramassage|uniquement les cibles de livraison|les cibles de ramassage et de livraison dans le dossier sont cyclées (pas avec le dossier par défaut) (uniquement pris en compte si l'utilisation des dossiers est active)" />
 		<text name="gui_ad_distributeToFolder"					text="Objectifs multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Toutes les cibles d'un même dossier deviendront des cibles de déchargement les unes après les autres." />
 		<text name="gui_ad_maxTriggerDistance"					text="Zone maxi du silo" />
@@ -173,14 +173,14 @@
 		<text name="gui_ad_iconSetToUse"						text="Personnalisation du logo" />
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Logo par défaut ou logo personnalisé - La sélection peut être étendue." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Utiliser 2. le mode éditeur" />
-		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Utilisez le mode 2. éditeur pour la manipulation d'itinéraire au lieu de maintenir LCTRL enfoncé" />
+		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Utilisez le mode 2. éditeur pour la manipulation d'itinéraire au lieu de maintenir CTRLG enfoncé" />
 		<text name="gui_ad_wideHUD"								text="HUD large" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Utilisez le mode HUD large, qui permet également quelques boutons de réglage supplémentaires dans le HUD" />
 		<text name="gui_ad_syncMultiTargets"					text="Synchroniser plusieurs cibles" />
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Plusieurs conducteurs utilisant le même dossier pour plusieurs cibles synchroniseront les cibles suivantes" />
 
     <text name="gui_ad_settingsPage_title"					text="Paramètres - AutoDrive" />
-		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="Paramètres utilisateur - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Paramètres de véhicules - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Paramètres de déchargements moissonneuses - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Paramètres de débogage - AutoDrive" />
@@ -313,6 +313,6 @@
 		<text name="AD_task_chase_side_right"					text="droite" />	
 		<text name="AD_task_waiting_for_room"					text="En attente d'une chambre" />	
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
-		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
+		<text name="AD_task_reversing_from_collision"			text="Recherche d'une zone dégagée" />
 	</texts>
 </l10n>
