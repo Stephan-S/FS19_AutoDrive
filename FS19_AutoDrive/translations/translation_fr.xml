@@ -13,7 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
 		<text name="input_AD_Speed_down"						text="AD: Réduire la vitesse" />
 		<text name="input_AD_routes_manager"					text="AD: Ouvrir le gestionnaire d'itinéraires" />
-		<text name="input_AD_open_notification_history" 		text="AD: Ouvrir l'historique de notifications" />
+		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
 		<text name="input_AD_continue"							text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
@@ -131,9 +131,9 @@
 		<text name="gui_ad_none"					            text="Aucun" />
 		<text name="gui_ad_onlyPickup"					        text="Uniquement ramasser" />
 		<text name="gui_ad_onlyDeliver"					        text="Uniquement livrer " />
-		<text name="gui_ad_PickupandDeliver"					text="Ramassage et livraison" />
+		<text name="gui_ad_PickupandDeliver"					text="Ramasser et livrer" />
 		<text name="gui_ad_rotateTargets"					    text="Cycle de ramassage et livraison" />
-		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: Aucun changement de cibles|uniquement les cibles de ramassage|uniquement les cibles de livraison|les cibles de ramassage et de livraison dans le dossier sont cyclées (pas avec le dossier par défaut) (uniquement pris en compte si l'utilisation des dossiers est active)" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: Aucune cibles|Cibles ramassage|Cibles livraison|Les cibles de ramassage et livraison dans un dossier sont cyclées (pas avec le dossier par défaut, et seulement pris en compte si l'utilisation des dossiers est activé)" />
 		<text name="gui_ad_distributeToFolder"					text="Objectifs multiples" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Toutes les cibles d'un même dossier deviendront des cibles de déchargement les unes après les autres." />
 		<text name="gui_ad_maxTriggerDistance"					text="Zone maxi du silo" />
@@ -166,7 +166,7 @@
 		<text name="gui_ad_callSecondUnloader"					text="Appelez le 2. Déchargeur" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Appelez le 2. Déchargeur lorsque le déchargeur actuel atteint le niveau de remplissage préappel" />
 
-		<text name="gui_ad_followOnlyOnField"					text="Restreindre le déchargement au champ" />
+		<text name="gui_ad_followOnlyOnField"					text="Restreindre au champ..." />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
 		<text name="gui_ad_addSettingsToHUD"					text="Ajouter des paramètres au HUD" />
 		<text name="gui_ad_addSettingsToHUD_tooltip"			text="Ajoute des boutons au HUD pour modifier les paramètres sans ouvrir ce menu" />
