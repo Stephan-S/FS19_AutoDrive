@@ -33,6 +33,7 @@ ADInputManager.actionsToInputs = {
     ADIncLoopCounter = "input_incLoopCounter",
     ADSwapTargets = "input_swapTargets",
     AD_open_notification_history = "input_openNotificationHistory",
+    AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle"
 }
 
