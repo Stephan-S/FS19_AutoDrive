@@ -12,12 +12,6 @@ function ADTriggerManager.load()
 end
 
 function ADTriggerManager:update(dt)
-    for _, trigger in pairs(self:getLoadTriggers()) do
-        if trigger.stoppedTimer == nil then
-            trigger.stoppedTimer = AutoDriveTON:new()
-        end
-        trigger.stoppedTimer:timer(not trigger.isLoading, 300, dt)
-    end
 end
 
 function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
@@ -52,6 +46,7 @@ function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
                     local hasRequiredFillType = false
                     local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
                     if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
+                        -- seeds, fertilizer, liquidfertilizer
                         allowedFillTypes = {}
                         table.insert(allowedFillTypes, 13)
                         table.insert(allowedFillTypes, 43)
@@ -215,6 +210,11 @@ function ADTriggerManager.loadAllTriggers()
                     end
                 end
             end
+        end
+    end
+    for _, trigger in pairs(ADTriggerManager.siloTriggers) do
+        if trigger.stoppedTimer == nil then
+            trigger.stoppedTimer = AutoDriveTON:new()
         end
     end
 end
