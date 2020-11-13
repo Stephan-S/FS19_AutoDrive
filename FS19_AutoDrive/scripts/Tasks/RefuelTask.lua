@@ -99,10 +99,13 @@ end
 function RefuelTask:startRefueling()
     if (not self.refuelTrigger.isLoading) and (not self.isRefueled) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling")
+        
+        local fuelFillTypeIndex = g_currentMission.fillTypeManager:getFillTypeIndexByName('DIESEL')
+        
         self.refuelTrigger.autoStart = true
-        self.refuelTrigger.selectedFillType = 32
-        self.refuelTrigger:onFillTypeSelection(32)
-        self.refuelTrigger.selectedFillType = 32
+        self.refuelTrigger.selectedFillType = fuelFillTypeIndex
+        self.refuelTrigger:onFillTypeSelection(fuelFillTypeIndex)
+        self.refuelTrigger.selectedFillType = fuelFillTypeIndex
         self.hasRefueled = true
         g_effectManager:setFillType(self.refuelTrigger.effects, self.refuelTrigger.selectedFillType)
     end

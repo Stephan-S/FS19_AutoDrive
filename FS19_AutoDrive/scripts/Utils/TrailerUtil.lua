@@ -295,7 +295,10 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitInde
     local isSelectedFillType = false
     local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
     for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-        if (fillType == 1 or fillType == 34 or fillType == 33 or fillType == 32) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
+        
+        local fillTypeName = g_currentMission.fillTypeManager:getFillTypeNameByIndex(fillType)
+        
+        if (fillTypeName == 'UNKNOWN' or fillTypeName == 'ELECTRICCHARGE' or fillTypeName == 'AIR' or fillTypeName == 'DEF' or fillTypeName == 'DIESEL') then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
             if object.isEntered ~= nil or hasOnlyDieselForFuel then
                 fillTypeIsProhibited = true
             end
@@ -327,10 +330,13 @@ function AutoDrive.checkForDieselTankOnlyFuel(object)
         numberOfFillUnits = numberOfFillUnits + 1
         local dieselFillUnit = false
         for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-            if fillType == 33 then
+            
+            local fillTypeName = g_currentMission.fillTypeManager:getFillTypeNameByIndex(fillType)
+            
+            if fillTypeName == 'DEF' then
                 adBlueUnitCount = adBlueUnitCount + 1
             end
-            if fillType == 32 then
+            if fillTypeName == 'DIESEL' then
                 dieselFuelUnitCount = dieselFuelUnitCount + 1
                 dieselFillUnit = true
             end
@@ -446,11 +452,14 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle, dt)
                     local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
                     local fillUnits = trailer:getFillUnits()
                     if #fillUnits > 1 then
-                        if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
+                                                
+                        local fillTypeName = g_currentMission.fillTypeManager:getFillTypeNameByIndex(vehicle.ad.stateModule:getFillType())
+                        
+                        if fillTypeName == 'SEEDS' or fillTypeName == 'FERTILIZER' or fillTypeName == 'LIQUIDFERTILIZER' then
                             allowedFillTypes = {}
-                            table.insert(allowedFillTypes, 13)
-                            table.insert(allowedFillTypes, 43)
-                            table.insert(allowedFillTypes, 44)
+                            table.insert(allowedFillTypes, g_currentMission.fillTypeManager:getFillTypeIndexByName('SEEDS'))
+                            table.insert(allowedFillTypes, g_currentMission.fillTypeManager:getFillTypeIndexByName('FERTILIZER'))
+                            table.insert(allowedFillTypes, g_currentMission.fillTypeManager:getFillTypeIndexByName('LIQUIDFERTILIZER'))
                         end
                     end
 

@@ -279,14 +279,15 @@ function ADTrailerModule:startLoadingCorrectFillTypeAtTrigger(trailer, trigger, 
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingCorrectFillTypeAtTrigger start")
     if not AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer) then
         local storedFillType = self.vehicle.ad.stateModule:getFillType()
-        local toCheck = {13, 43, 44}
+        local toCheck = {'SEEDS','FERTILIZER','LIQUIDFERTILIZER'}
 
-        for _, fillType in pairs(toCheck) do
-            self.vehicle.ad.stateModule:setFillType(fillType)
+        for _, fillTypeName in pairs(toCheck) do
+            local fillTypeIndex = g_currentMission.fillTypeManager:getFillTypeIndexByName(fillTypeName)
+            self.vehicle.ad.stateModule:setFillType(fillTypeIndex)
             if AutoDrive.fillTypesMatch(self.vehicle, trigger, trailer, nil, fillUnitIndex) then
-                self:startLoadingAtTrigger(trigger, fillType, fillUnitIndex, trailer)
+                self:startLoadingAtTrigger(trigger, fillTypeIndex, fillUnitIndex, trailer)
                 self.vehicle.ad.stateModule:setFillType(storedFillType)
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingCorrectFillTypeAtTrigger found fillType 13, 43, 44 - return")
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:startLoadingCorrectFillTypeAtTrigger found fillType 'SEEDS','FERTILIZER','LIQUIDFERTILIZER' - return")
                 return
             end
         end
