@@ -19,12 +19,12 @@ function AutoDriveGroupsEvent:new(groupName, eventType)
 end
 
 function AutoDriveGroupsEvent:writeStream(streamId, connection)
-	streamWriteUIntN(streamId, self.eventType, 1)
+	streamWriteUInt8(streamId, self.eventType)
 	AutoDrive.streamWriteStringOrEmpty(streamId, self.groupName)
 end
 
 function AutoDriveGroupsEvent:readStream(streamId, connection)
-	self.eventType = streamReadUIntN(streamId, 1)
+	self.eventType = streamReadUInt8(streamId)
 	self.groupName = streamReadString(streamId)
 	self:run(connection)
 end

@@ -22,14 +22,14 @@ end
 
 function AutoDriveStartStopEvent:writeStream(streamId, connection)
     NetworkUtil.writeNodeObjectId(streamId, NetworkUtil.getObjectId(self.vehicle))
-    streamWriteUIntN(streamId, self.eventType, 1)
+    streamWriteUIntN(streamId, self.eventType, 4)
     streamWriteBool(streamId, self.hasCallbacks)
     streamWriteBool(streamId, self.isStartingAIVE)
 end
 
 function AutoDriveStartStopEvent:readStream(streamId, connection)
     self.vehicle = NetworkUtil.getObject(NetworkUtil.readNodeObjectId(streamId))
-    self.eventType = streamReadUIntN(streamId, 1)
+    self.eventType = streamReadUIntN(streamId, 4)
     self.hasCallbacks = streamReadBool(streamId)
     self.isStartingAIVE = streamReadBool(streamId)
     self:run(connection)

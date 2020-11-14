@@ -219,7 +219,7 @@ function ADDrivePathModule:followWaypoints(dt)
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
-        self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit) - 1
+        self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
         maxSpeedDiff = 1
     else
         if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
@@ -689,7 +689,7 @@ end
 function ADDrivePathModule:checkForReverseSection()
     local reverseStart = false
     local reverseEnd = false
-    if AutoDrive.experimentalFeatures.reverseDrivingAllowed and self.wayPoints ~= nil and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
+    if self.wayPoints ~= nil and #self.wayPoints > self:getCurrentWayPointIndex() + 1 and self:getCurrentWayPointIndex() > 1 then
         local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + 1]
         local wp_current = self.wayPoints[self:getCurrentWayPointIndex() - 0]
         local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() - 1]

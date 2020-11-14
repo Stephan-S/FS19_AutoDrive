@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.5-RC5"
+AutoDrive.version = "1.1.0.5-RC6"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -7,11 +7,10 @@ g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
 
 AutoDrive.experimentalFeatures = {}
-AutoDrive.experimentalFeatures.smootherDriving = true
 AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.reverseDrivingAllowed = true
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 
+AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
 
 AutoDrive.mapHotspotsBuffer = {}
@@ -52,6 +51,14 @@ AutoDrive.RT_ONLYPICKUP = 2
 AutoDrive.RT_ONLYDELIVER = 3
 AutoDrive.RT_PICKUPANDDELIVER = 4
 
+AutoDrive.EDITOR_OFF = 1
+AutoDrive.EDITOR_ON = 2
+AutoDrive.EDITOR_EXTENDED = 3
+AutoDrive.EDITOR_SHOW = 4
+
+AutoDrive.toggleSphrere = true
+AutoDrive.enableSphrere = true
+
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
 	{"ADToggleHud", true, 1},
@@ -83,6 +90,12 @@ AutoDrive.actions = {
 }
 
 function AutoDrive:loadMap(name)
+g_logManager:info("[AD] Start register later loaded mods...")
+-- second iteration to register AD to vehicle types which where loaded after AD
+    AutoDriveRegister.register()
+    AutoDriveRegister.registerVehicleData()
+g_logManager:info("[AD] Start register later loaded mods end")
+
 	if g_server ~= nil then
 		AutoDrive.AutoDriveSync = AutoDriveSync:new(g_server ~= nil, g_client ~= nil)
 		AutoDrive.AutoDriveSync:register(false)
@@ -169,18 +182,28 @@ function AutoDrive:init()
 end
 
 function AutoDrive:saveSavegame()
+--    g_logManager:info("[AD] AutoDrive:saveSavegame start")
 	if g_server ~= nil then
+--        g_logManager:info("[AD] AutoDrive:saveSavegame g_server ~= nil start")
+--[[
 		if ADGraphManager:hasChanges() or AutoDrive.HudChanged then
+            g_logManager:info("[AD] AutoDrive:saveSavegame hasChanges or HudChanged")
 			AutoDrive.saveToXML(AutoDrive.adXml)
 			ADGraphManager:resetChanges()
 			AutoDrive.HudChanged = false
 		else
+            g_logManager:info("[AD] AutoDrive:saveSavegame else hasChanges or HudChanged")
 			if AutoDrive.adXml ~= nil then
+                g_logManager:info("[AD] AutoDrive:saveSavegame AutoDrive.adXml ~= nil -> saveXMLFile")
 				saveXMLFile(AutoDrive.adXml)
 			end
 		end
+]]
+        AutoDrive.saveToXML(AutoDrive.adXml)
 		ADUserDataManager:saveToXml()
+--        g_logManager:info("[AD] AutoDrive:saveSavegame g_server ~= nil end")
 	end
+--    g_logManager:info("[AD] AutoDrive:saveSavegame end")
 end
 
 function AutoDrive:deleteMap()
@@ -207,24 +230,20 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_LCTRL) > 0
 	AutoDrive.leftALTmodifierKeyPressed = bitAND(modifier, Input.MOD_LALT) > 0
 	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
+	AutoDrive.isCAPSKeyActive = bitAND(modifier, Input.MOD_CAPS) > 0
+	AutoDrive.rightCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_RCTRL) > 0
 
-	if not AutoDrive.getSetting("secondEditorModeAllowed") then
-		local vehicle = g_currentMission.controlledVehicle
-		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
-			if vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_ON then
-				if AutoDrive.leftCTRLmodifierKeyPressed then
-					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_EXTENDED)
-					AutoDrive.toggledEditorMode = true
-				end
-			elseif vehicle.ad.stateModule:getEditorMode() == ADStateModule.EDITOR_EXTENDED and AutoDrive.toggledEditorMode then
-				if not AutoDrive.leftCTRLmodifierKeyPressed then
-					vehicle.ad.stateModule:setEditorMode(ADStateModule.EDITOR_ON)
-					AutoDrive.toggledEditorMode = false
-					vehicle.ad.selectedNodeId = nil
-				end
-			end
-		end
-	end
+    if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
+        AutoDrive.toggleSphrere = false
+    elseif (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == false) then
+        AutoDrive.toggleSphrere = true
+    end
+
+    if (AutoDrive.leftCTRLmodifierKeyPressed or AutoDrive.leftALTmodifierKeyPressed) then
+        AutoDrive.enableSphrere = true
+    else
+        AutoDrive.enableSphrere = AutoDrive.toggleSphrere
+    end
 end
 
 function AutoDrive:mouseEvent(posX, posY, isDown, isUp, button)
@@ -280,8 +299,11 @@ function AutoDrive:draw()
 end
 
 function AutoDrive:preRemoveVehicle(vehicle)
-	if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:isActive() then
-		vehicle:stopAutoDrive()
+	if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+        if vehicle.ad.stateModule:isActive() then
+            vehicle:stopAutoDrive()
+        end
+        vehicle.ad.stateModule:disableCreationMode()
 	end
 end
 

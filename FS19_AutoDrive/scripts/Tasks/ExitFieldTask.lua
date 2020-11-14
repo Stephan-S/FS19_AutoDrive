@@ -17,6 +17,7 @@ function ExitFieldTask:setUp()
     self.state = ExitFieldTask.STATE_PATHPLANNING
     self.nextExitStrategy = AutoDrive.getSetting("exitField", self.vehicle)
     self:startPathPlanning()
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function ExitFieldTask:update(dt)

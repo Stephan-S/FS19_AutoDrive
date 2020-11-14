@@ -343,6 +343,7 @@ function ADGraphManager:addGroup(groupName, sendEvent)
 			if AutoDrive.Hud ~= nil then
 				AutoDrive.Hud.lastUIScale = 0
 			end
+			self:markChanges()
 		end
 	end
 end
@@ -378,6 +379,7 @@ function ADGraphManager:removeGroup(groupName, sendEvent)
 			end
 			-- Resetting HUD
 			AutoDrive.Hud.lastUIScale = 0
+			self:markChanges()
 		end
 	end
 end
@@ -390,6 +392,7 @@ function ADGraphManager:changeMapMarkerGroup(groupName, markerId, sendEvent)
 		else
 			-- Changing the group name of the marker
 			self.mapMarkers[markerId].group = groupName
+			self:markChanges()
 		end
 	end
 end
@@ -436,7 +439,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 				if g_server ~= nil then
 					-- Removing references to it on all vehicles
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
 							local parkDestination = vehicle.ad.stateModule:getParkDestination()
 							if parkDestination ~= nil and parkDestination >= markerId then
 								if parkDestination == markerId then
@@ -449,7 +452,7 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 					end
                     -- handle all vehicles and tools park destination
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-                        if vehicle.advd ~= nil and vehicle.advd.hasWorkToolParkDestination ~= nil and vehicle.advd:hasWorkToolParkDestination() then
+                        if vehicle.advd ~= nil and vehicle.advd.getWorkToolParkDestination ~= nil and vehicle.advd:getWorkToolParkDestination() >= 1 then
 							local WorkToolParkDestination = vehicle.advd:getWorkToolParkDestination()
 							if WorkToolParkDestination ~= nil and WorkToolParkDestination >= markerId then
 								if WorkToolParkDestination == markerId then
@@ -490,6 +493,9 @@ function ADGraphManager:removeMapMarkerByWayPoint(wayPointId, sendEvent)
 end
 
 function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirection, sendEvent)
+    if startNode == nil or endNode == nil then
+        return
+    end
 	if sendEvent == nil or sendEvent == true then
 		-- Propagating connection toggling all over the network
 		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode, reverseDirection)

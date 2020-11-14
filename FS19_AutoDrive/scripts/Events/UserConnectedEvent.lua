@@ -29,6 +29,7 @@ function AutoDriveUserConnectedEvent:run(connection)
 		for feature, state in pairs(AutoDrive.experimentalFeatures) do
 			AutoDriveExperimentalFeaturesEvent.sendToClient(connection, feature, state)
 		end
+        AutoDriveDebugSettingsEvent.sendToClient(connection, AutoDrive.currentDebugChannelMask)
 	end
 end
 

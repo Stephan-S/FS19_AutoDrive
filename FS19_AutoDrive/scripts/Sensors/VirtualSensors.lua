@@ -225,6 +225,7 @@ function ADSensor:getLocationByPosition()
         if location == nil then
             location = {x = 0, z = vehicle.sizeLength / 2}
         end
+        location.z = location.z + 2
     elseif self.position == ADSensor.POS_REAR then
         location.z = - vehicle.sizeLength / 2
         self.frontFactor = -1

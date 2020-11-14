@@ -16,11 +16,11 @@ function AutoDriveDeleteMapMarkerEvent:new(markerId)
 end
 
 function AutoDriveDeleteMapMarkerEvent:writeStream(streamId, connection)
-	streamWriteUInt8(streamId, self.markerId)
+	streamWriteUInt16(streamId, self.markerId)
 end
 
 function AutoDriveDeleteMapMarkerEvent:readStream(streamId, connection)
-	self.markerId = streamReadUInt8(streamId)
+	self.markerId = streamReadUInt16(streamId)
 	self:run(connection)
 end
 

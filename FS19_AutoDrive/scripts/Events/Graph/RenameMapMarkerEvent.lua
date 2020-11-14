@@ -18,12 +18,12 @@ end
 
 function AutoDriveRenameMapMarkerEvent:writeStream(streamId, connection)
 	AutoDrive.streamWriteStringOrEmpty(streamId, self.newName)
-	streamWriteUInt8(streamId, self.markerId)
+	streamWriteUInt16(streamId, self.markerId)
 end
 
 function AutoDriveRenameMapMarkerEvent:readStream(streamId, connection)
 	self.newName = AutoDrive.streamReadStringOrEmpty(streamId)
-	self.markerId = streamReadUInt8(streamId)
+	self.markerId = streamReadUInt16(streamId)
 	self:run(connection)
 end
 

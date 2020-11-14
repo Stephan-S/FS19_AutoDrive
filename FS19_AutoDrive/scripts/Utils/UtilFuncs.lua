@@ -464,6 +464,8 @@ function AutoDrive:setDebugChannel(newDebugChannel)
 	else
 		AutoDrive.currentDebugChannelMask = AutoDrive.DC_ALL
 	end
+    AutoDriveDebugSettingsEvent.sendEvent(AutoDrive.currentDebugChannelMask)
+
 	AutoDrive.showNetworkEvents()
 	ADGraphManager:createMarkersAtOpenEnds()
 end
@@ -742,7 +744,7 @@ AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, accelera
 		allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
 	end
 
-	if self.ad ~= nil and AutoDrive.experimentalFeatures.smootherDriving then
+	if self.ad ~= nil and AutoDrive.smootherDriving then
 		if self.ad.stateModule:isActive() and allowedToDrive then
 			--slowAngleLimit = 90 -- Set it to high value since we don't need the slow down
 
