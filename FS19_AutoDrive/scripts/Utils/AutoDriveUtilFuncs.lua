@@ -106,12 +106,19 @@ end
 
 function AutoDrive.hasToRefuel(vehicle)
     local spec = vehicle.spec_motorized
+    local ret = false
 
-    if spec.consumersByFillTypeName ~= nil and spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
-        return vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) <= AutoDrive.REFUEL_LEVEL
+    if spec.consumersByFillTypeName ~= nil then
+        -- at least one fuel type is sufficient to continue
+        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
+            ret = ret or vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) > AutoDrive.REFUEL_LEVEL
+        end
+        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
+            ret = ret or vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.electricCharge.fillUnitIndex) > AutoDrive.REFUEL_LEVEL
+        end
     end
 
-    return false
+    return not ret
 end
 
 function AutoDrive.combineIsTurning(combine)
@@ -246,4 +253,45 @@ function AutoDrive.cycleEditorShowMode()
             vehicle.ad.stateModule:disableCreationMode()
         end
     end
+end
+
+function AutoDrive.getActualParkDestination(vehicle)
+    local actualParkDestination = -1
+    local SelectedWorkTool = nil
+
+    if vehicle == nil then
+        return actualParkDestination
+    end
+
+    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
+        local allImp = {}
+        -- Credits to Tardis from FS17
+        local function addAllAttached(obj)
+            for _, imp in pairs(obj:getAttachedImplements()) do
+                addAllAttached(imp.object)
+                table.insert(allImp, imp)
+            end
+        end
+            
+        addAllAttached(vehicle)
+
+        if allImp ~= nil then
+            for i = 1, #allImp do
+                local imp = allImp[i]
+                if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
+                    SelectedWorkTool = imp.object
+                    break
+                end
+            end
+        end
+    end
+    if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.getWorkToolParkDestination ~= nil then
+        actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
+    else
+        if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
+            -- g_logManager:info("[AD] AutoDrive.getActualParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
+            actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+        end
+    end
+    return actualParkDestination
 end
