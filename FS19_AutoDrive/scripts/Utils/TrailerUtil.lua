@@ -266,10 +266,6 @@ function AutoDrive.getFillLevelAndCapacityOf(trailer, selectedFillType)
             end
         end
     end
-    -- g_logManager:devInfo("FillLevel: " .. fillLevel .. " leftCapacity: " .. leftCapacity .. " fullUnits: " .. #fullFillUnits);
-    -- for index, value in pairs(fullFillUnits) do
-    --     g_logManager:devInfo("Unit full: " .. index .. " " .. AutoDrive.boolToString(value));
-    -- end;
 
     return fillLevel, leftCapacity, fullFillUnits
 end
@@ -296,7 +292,8 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitInde
     local isSelectedFillType = false
     local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
     for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-        if (fillType == 1 or fillType == 34 or fillType == 33 or fillType == 32) then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
+        local fillTypeName = g_fillTypeManager:getFillTypeNameByIndex(fillType)
+        if (fillTypeName == 'UNKNOWN' or fillTypeName == 'ELECTRICCHARGE' or fillTypeName == 'AIR' or fillTypeName == 'DEF' or fillTypeName == 'DIESEL') then --1:UNKNOWN 34:AIR 33:AdBlue 32:Diesel
             if object.isEntered ~= nil or hasOnlyDieselForFuel then
                 fillTypeIsProhibited = true
             end
@@ -328,10 +325,11 @@ function AutoDrive.checkForDieselTankOnlyFuel(object)
         numberOfFillUnits = numberOfFillUnits + 1
         local dieselFillUnit = false
         for fillType, _ in pairs(object:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-            if fillType == 33 then
+            local fillTypeName = g_fillTypeManager:getFillTypeNameByIndex(fillType)
+            if fillTypeName == 'DEF' then
                 adBlueUnitCount = adBlueUnitCount + 1
             end
-            if fillType == 32 then
+            if fillTypeName == 'DIESEL' then
                 dieselFuelUnitCount = dieselFuelUnitCount + 1
                 dieselFillUnit = true
             end
@@ -350,13 +348,15 @@ function AutoDrive.setTrailerCoverOpen(vehicle, trailers, open)
     if trailers == nil then
         return
     end
-
-    local targetState = 0
-    if open then
-        targetState = 1
+    if (AutoDrive.getSetting("autoTrailerCover", vehicle) ~= true) then
+        return
     end
 
     for _, trailer in pairs(trailers) do
+        local targetState = 0
+        if open then
+            targetState = 1
+        end
         if trailer.spec_cover ~= nil and trailer.spec_cover.state ~= nil then
             if trailer.spec_cover.covers ~= nil then
                 targetState = targetState * #trailer.spec_cover.covers
@@ -391,7 +391,7 @@ function AutoDrive.findAndSetBestTipPoint(vehicle, trailer)
     if trailer.getCanDischargeToObject ~= nil and trailer.getCurrentDischargeNode ~= nil then
         dischargeCondition = (not trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()))
     end
-    if dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) and trailer.getCurrentDischargeNode ~= nil and trailer:getCurrentDischargeNode() ~= nil then
+    if (AutoDrive.getSetting("autoTipSide", vehicle) == true) and dischargeCondition and (not vehicle.ad.isLoading) and (not vehicle.ad.isUnloading) and trailer.getCurrentDischargeNode ~= nil and trailer:getCurrentDischargeNode() ~= nil then
         local spec = trailer.spec_trailer
         if spec == nil then
             return
@@ -449,12 +449,13 @@ function AutoDrive.getTriggerAndTrailerPairs(vehicle, dt)
                     -- seeds, fertilizer, liquidfertilizer should always be loaded if in trigger available
                     local fillUnits = trailer:getFillUnits()
                     if #fillUnits > 1 then
-                        if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
+                        local fillTypeName = g_fillTypeManager:getFillTypeNameByIndex(vehicle.ad.stateModule:getFillType())
+                        if fillTypeName == 'SEEDS' or fillTypeName == 'FERTILIZER' or fillTypeName == 'LIQUIDFERTILIZER' then
                             -- seeds, fertilizer, liquidfertilizer
                             allowedFillTypes = {}
-                            table.insert(allowedFillTypes, 13)
-                            table.insert(allowedFillTypes, 43)
-                            table.insert(allowedFillTypes, 44)
+                            table.insert(allowedFillTypes, g_fillTypeManager:getFillTypeIndexByName('SEEDS'))
+                            table.insert(allowedFillTypes, g_fillTypeManager:getFillTypeIndexByName('FERTILIZER'))
+                            table.insert(allowedFillTypes, g_fillTypeManager:getFillTypeIndexByName('LIQUIDFERTILIZER'))
                         end
                     end
 
