@@ -569,6 +569,7 @@ AutoDrive.settings.enableTrafficDetection = {
     isVehicleSpecific = false
 }
 
+--[[
 AutoDrive.settings.shovelWidth = {
     values = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0},
     texts = {"0m", "0.1m", "0.2m", "0.3m", "0.4m", "0.5m", "0.6m", "0.7m", "0.8m", "0.9m", "1.0m", "1.1m", "1.2m", "1.3m", "1.4m", "1.5m", "1.6m", "1.7m", "1.8m", "1.9m", "2.0m"},
@@ -579,7 +580,9 @@ AutoDrive.settings.shovelWidth = {
     translate = false,
     isVehicleSpecific = true
 }
+]]
 
+--[[
 AutoDrive.settings.shovelHeight = {
     values = {
         -0.5,
@@ -694,6 +697,7 @@ AutoDrive.settings.shovelHeight = {
     translate = false,
     isVehicleSpecific = true
 }
+]]
 
 AutoDrive.settings.useFolders = {
     values = {false, true},
@@ -747,7 +751,7 @@ AutoDrive.settings.useBeaconLights = {
     text = "gui_ad_useBeaconLights",
     tooltip = "gui_ad_useBeaconLights_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.restrictToField = {
@@ -758,7 +762,7 @@ AutoDrive.settings.restrictToField = {
     text = "gui_ad_restrictToField",
     tooltip = "gui_ad_restrictToField_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.showTooltips = {
@@ -838,7 +842,7 @@ AutoDrive.settings.followOnlyOnField = {
     text = "gui_ad_followOnlyOnField",
     tooltip = "gui_ad_followOnlyOnField_tooltip",
     translate = true,
-    isVehicleSpecific = false
+    isVehicleSpecific = true
 }
 
 AutoDrive.settings.addSettingsToHUD = {
@@ -887,6 +891,39 @@ AutoDrive.settings.EditorMode = {
     translate = false,
     isVehicleSpecific = false,
     isUserSpecific = true
+}
+
+AutoDrive.settings.enableParkAtJobFinished = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_enableParkAtJobFinished",
+    tooltip = "gui_ad_enableParkAtJobFinished_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
+AutoDrive.settings.autoTipSide = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_autoTipSide",
+    tooltip = "gui_ad_autoTipSide_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
+AutoDrive.settings.autoTrailerCover = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_autoTrailerCover",
+    tooltip = "gui_ad_autoTrailerCover_tooltip",
+    translate = true,
+    isVehicleSpecific = true
 }
 
 function AutoDrive.getSetting(settingName, vehicle)
@@ -961,11 +998,9 @@ function AutoDrive.readVehicleSettingsFromXML(vehicle, xmlFile, key)
             settingVehicle.current = setting.current
             vehicle.ad.settings[settingName] = settingVehicle
 
-            if not AutoDrive.versionUpdateCancelsSettingsLoad then
-                local storedSetting = getXMLInt(xmlFile, key .. "#" .. settingName)
-                if storedSetting ~= nil then
-                    vehicle.ad.settings[settingName].current = storedSetting
-                end
+            local storedSetting = getXMLInt(xmlFile, key .. "#" .. settingName)
+            if storedSetting ~= nil then
+                vehicle.ad.settings[settingName].current = storedSetting
             end
         end
     end
