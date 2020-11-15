@@ -165,6 +165,12 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajuster la vitesse de virage pour chaque véhicule. La masse et la vitesse actuelle auront toujours un impact sur le point de freinage" />
 		<text name="gui_ad_callSecondUnloader"					text="Appelez le 2. Déchargeur" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Appelez le 2. Déchargeur lorsque le déchargeur actuel atteint le niveau de remplissage préappel" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
+		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
+		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
 
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre le déchargement au champ" />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
@@ -314,5 +320,6 @@
 		<text name="AD_task_waiting_for_room"					text="En attente d'une chambre" />	
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
+        <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
 	</texts>
 </l10n>
