@@ -77,7 +77,7 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
         lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, x, y, z)
     end
 
-    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028 and (not self.vehicle.ad.trailerModule:isActiveAtTrigger()), 10000, dt)
+    self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028 and (self.vehicle.ad.trailerModule:getCanStopMotor()), 10000, dt)
 
     if self.stoppedTimer:done() then
         self.motorShouldBeStopped = true
