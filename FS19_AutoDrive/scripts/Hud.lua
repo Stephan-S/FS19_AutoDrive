@@ -1,54 +1,8 @@
 AutoDriveHud = {}
 AutoDrive.FONT_SCALE = 0.0115
 AutoDrive.PULLDOWN_ITEM_COUNT = 20
-AutoDrive.ItemFilterList = {
-	34, --Air
-	--11, -- Cotton --can be transported with trailers apparently
-	77,
-	78,
-	79,
-	80, --Chicken
-	61,
-	62,
-	63,
-	64,
-	65,
-	66,
-	67,
-	68, -- Cows
-	14, --Eggs
-	--28, --29, --multiple grass
-	53,
-	54,
-	55,
-	56,
-	57,
-	58,
-	59,
-	60, --Horses
-	25, --Oilseed Radish
-	73,
-	74,
-	75,
-	76, --Pigs
-	35,
-	36,
-	37,
-	38,
-	39, --Round bale
-	69,
-	70,
-	71,
-	72, --Sheep
-	40,
-	41,
-	42, --Square bale
-	49, --Tarp?
-	22, --Tree sapling
-	1, --Unknown
-	52, --weed
-	15 --wool
-}
+
+AutoDrive.ItemFilterList = {}
 
 AutoDrive.pullDownListExpanded = 0
 AutoDrive.pullDownListDirection = 0
@@ -58,6 +12,53 @@ function AutoDriveHud:new()
 	local o = {}
 	setmetatable(o, self)
 	self.__index = self
+    -- not allowed fillTypes in HUD
+    AutoDrive.ItemFilterList = {
+        g_fillTypeManager:getFillTypeIndexByName('AIR'),
+        g_fillTypeManager:getFillTypeIndexByName('CHICKEN_TYPE_BLACK'),
+        g_fillTypeManager:getFillTypeIndexByName('CHICKEN_TYPE_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('CHICKEN_TYPE_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('CHICKEN_TYPE_ROOSTER'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BROWN_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BLACK'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BLACK_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BRAHMAN_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BRAHMAN_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BRAHMAN_LIGHT_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('COW_TYPE_BRAHMAN_GREY'),
+        g_fillTypeManager:getFillTypeIndexByName('EGG'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_BEIGE'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_BLACK'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_BROWN_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_DARK_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_GREY'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_LIGHT_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('HORSE_TYPE_RED_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('OILSEEDRADISH'),
+        g_fillTypeManager:getFillTypeIndexByName('PIG_TYPE_RED'),
+        g_fillTypeManager:getFillTypeIndexByName('PIG_TYPE_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('PIG_TYPE_BLACK_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('PIG_TYPE_BLACK'),
+        g_fillTypeManager:getFillTypeIndexByName('ROUNDBALE'),
+        g_fillTypeManager:getFillTypeIndexByName('ROUNDBALE_GRASS'),
+        g_fillTypeManager:getFillTypeIndexByName('ROUNDBALE_DRYGRASS'),
+        g_fillTypeManager:getFillTypeIndexByName('ROUNDBALE_WHEAT'),
+        g_fillTypeManager:getFillTypeIndexByName('ROUNDBALE_BARLEY'),
+        g_fillTypeManager:getFillTypeIndexByName('SHEEP_TYPE_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('SHEEP_TYPE_BROWN'),
+        g_fillTypeManager:getFillTypeIndexByName('SHEEP_TYPE_BLACK_WHITE'),
+        g_fillTypeManager:getFillTypeIndexByName('SHEEP_TYPE_BLACK'),
+        g_fillTypeManager:getFillTypeIndexByName('SQUAREBALE'),
+        g_fillTypeManager:getFillTypeIndexByName('SQUAREBALE_WHEAT'),
+        g_fillTypeManager:getFillTypeIndexByName('SQUAREBALE_BARLEY'),
+        g_fillTypeManager:getFillTypeIndexByName('TARP'),
+        g_fillTypeManager:getFillTypeIndexByName('TREESAPLINGS'),
+        g_fillTypeManager:getFillTypeIndexByName('UNKNOWN'),
+        g_fillTypeManager:getFillTypeIndexByName('WEED'),
+        g_fillTypeManager:getFillTypeIndexByName('WOOL')
+	}
 	return o
 end
 
