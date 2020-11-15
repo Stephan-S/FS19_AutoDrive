@@ -163,8 +163,6 @@ function AutoDrive:onPostLoad(savegame)
         end
 
         self.ad.noMovementTimer = AutoDriveTON:new()
-        self.ad.noTurningTimer = AutoDriveTON:new()
-        self.ad.turningTimer = AutoDriveTON:new()
         self.ad.driveForwardTimer = AutoDriveTON:new()
     end
 
@@ -284,7 +282,6 @@ function AutoDrive:onUpdate(dt)
     end
 
     --For 'legacy' purposes, this value should be kept since other mods already test for this:
-    self.ad.isActive = self.ad.stateModule:isActive()
     self.ad.mapMarkerSelected = self.ad.stateModule:getFirstMarkerId()
     self.ad.mapMarkerSelected_Unload = self.ad.stateModule:getSecondMarkerId()
 end
@@ -542,10 +539,8 @@ function AutoDrive:onDrawEditorMode()
                         DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
                     end
                 end
-            end
 
-            -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
-            if AutoDrive.enableSphrere == true then
+                -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
                 if AutoDrive.getSettingState("lineHeight") > 1 then
                     local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
                     DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
@@ -560,6 +555,23 @@ function AutoDrive:onDrawEditorMode()
                         end
                     end
                 end
+
+                -- draw previous and next points in different colors - note: sequence is important
+                if point.out ~= nil then
+                    for _, neighbor in pairs(point.out) do
+                        local nWp = ADGraphManager:getWayPointById(neighbor)
+                        if nWp ~= nil then
+                            if AutoDrive.mouseIsAtPos(nWp, 0.01) then
+                                -- draw previous point in GOLDHOFER_PINK1
+                                DrawingManager:addSphereTask(point.x, point.y, point.z, 3.4, 1, 0.2195, 0.6524, 0.5)
+                            end
+                            if AutoDrive.mouseIsAtPos(point, 0.01) then
+                                -- draw next point
+                                DrawingManager:addSphereTask(nWp.x, nWp.y, nWp.z, 3.2, 1, 0.7, 0, 0.5)
+                            end
+                        end
+                    end
+                end
             end
         end
 
@@ -571,14 +583,16 @@ function AutoDrive:onDrawEditorMode()
                     --check if outgoing connection is a dual way connection
                     local nWp = ADGraphManager:getWayPointById(neighbor)
                     if point.incoming == nil or table.contains(point.incoming, neighbor) then
-                        --draw simple line
+                        --draw dual way line
                         DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
                     else
                         --draw line with direction markers (arrow)
                         if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
+                            -- one way line
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
                         else
+                            -- reverse way line
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
                             DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
                         end
@@ -752,6 +766,8 @@ function AutoDrive:onStartAutoDrive()
     self.spec_aiVehicle.isActive = true
     self.steeringEnabled = false
 
+    self.ad.isActive = true
+
     if self.currentHelper == nil then
         self.currentHelper = g_helperManager:getRandomHelper()
         if self.currentHelper ~= nil then
@@ -767,6 +783,15 @@ function AutoDrive:onStartAutoDrive()
     end
 
     AutoDriveHud:createMapHotspot(self)
+
+    if AutoDrive.getSetting("enableParkAtJobFinished", self) and ((self.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) or (self.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO)) then
+        local actualParkDestination = AutoDrive.getActualParkDestination(self)
+        if actualParkDestination >= 1 then
+            self.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
+        else
+            AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
+        end
+    end
 end
 
 function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
@@ -774,6 +799,8 @@ function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
         if self.raiseAIEvent ~= nil and not isStartingAIVE then
             self:raiseAIEvent("onAIEnd", "onAIImplementEnd")
         end
+
+        self.ad.isActive = false
 
         self.spec_aiVehicle.isActive = false
         self.forceIsActive = false
