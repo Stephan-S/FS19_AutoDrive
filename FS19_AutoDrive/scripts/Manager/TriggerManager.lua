@@ -45,12 +45,14 @@ function ADTriggerManager.checkForTriggerProximity(vehicle, distanceToTarget)
                 if distance < distanceToSlowDownAt and distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") then
                     local hasRequiredFillType = false
                     local allowedFillTypes = {vehicle.ad.stateModule:getFillType()}
-                    if vehicle.ad.stateModule:getFillType() == 13 or vehicle.ad.stateModule:getFillType() == 43 or vehicle.ad.stateModule:getFillType() == 44 then
+                    local fillTypeName = g_fillTypeManager:getFillTypeNameByIndex(vehicle.ad.stateModule:getFillType())
+
+                    if fillTypeName == 'SEEDS' or fillTypeName == 'FERTILIZER' or fillTypeName == 'LIQUIDFERTILIZER' then
                         -- seeds, fertilizer, liquidfertilizer
                         allowedFillTypes = {}
-                        table.insert(allowedFillTypes, 13)
-                        table.insert(allowedFillTypes, 43)
-                        table.insert(allowedFillTypes, 44)
+                        table.insert(allowedFillTypes, g_fillTypeManager:getFillTypeIndexByName('SEEDS'))
+                        table.insert(allowedFillTypes, g_fillTypeManager:getFillTypeIndexByName('FERTILIZER'))
+                        table.insert(allowedFillTypes, g_fillTypeManager:getFillTypeIndexByName('LIQUIDFERTILIZER'))
                     end
 
                     for _, trailer in pairs(allFillables) do
@@ -233,31 +235,47 @@ function ADTriggerManager.getLoadTriggers()
     return ADTriggerManager.siloTriggers
 end
 
+-- returns only suitable fuel triggers according to used fuel type
 function ADTriggerManager.getRefuelTriggers(vehicle)
     local refuelTriggers = {}
+    local fillType = nil
+    local spec = vehicle.spec_motorized
 
-    for _, trigger in pairs(ADTriggerManager.getLoadTriggers()) do
-        --loadTriggers
-        if trigger.source ~= nil and trigger.source.providedFillTypes ~= nil and trigger.source.providedFillTypes[32] then
-            local fillLevels = {}
-            if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
-                fillLevels, _ = trigger.source:getAllFillLevels(vehicle:getOwnerFarmId())
-            end
-            local gcFillLevels = {}
-            if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
-                gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(vehicle:getOwnerFarmId(), trigger.managerId)
-            end
-            if #fillLevels == 0 and #gcFillLevels == 0 and trigger.source ~= nil and trigger.source.gcId ~= nil and trigger.source.fillLevels ~= nil then
-                for index, fillLevel in pairs(trigger.source.fillLevels) do
-                    if fillLevel ~= nil and fillLevel[1] ~= nil then
-                        fillLevels[index] = fillLevel[1]
+    if spec.consumersByFillTypeName ~= nil then
+        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
+            fillType = g_fillTypeManager:getFillTypeIndexByName('DIESEL')
+        end
+        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
+            fillType = g_fillTypeManager:getFillTypeIndexByName('ELECTRICCHARGE')
+        end
+    end
+    if fillType ~= nil then
+
+        for _, trigger in pairs(ADTriggerManager.getLoadTriggers()) do
+            --loadTriggers
+            if trigger.source ~= nil and trigger.source.providedFillTypes ~= nil and trigger.source.providedFillTypes[fillType] then
+                -- vanilla LoadingStation
+                local fillLevels = {}
+                if trigger.source ~= nil and trigger.source.getAllFillLevels ~= nil then
+                    fillLevels, _ = trigger.source:getAllFillLevels(vehicle:getOwnerFarmId())
+                end
+                -- GC trigger
+                local gcFillLevels = {}
+                if trigger.source ~= nil and trigger.source.getAllProvidedFillLevels ~= nil then
+                    gcFillLevels, _ = trigger.source:getAllProvidedFillLevels(vehicle:getOwnerFarmId(), trigger.managerId)
+                end
+                if table.getn(fillLevels) == 0 and table.getn(gcFillLevels) == 0 and trigger.source ~= nil and trigger.source.gcId ~= nil and trigger.source.fillLevels ~= nil then
+                    for index, fillLevel in pairs(trigger.source.fillLevels) do
+                        if fillLevel ~= nil and fillLevel[1] ~= nil then
+                            fillLevels[index] = fillLevel[1]
+                        end
                     end
                 end
-            end
-            local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[32] ~= nil and fillLevels[32] > 0) or (gcFillLevels[32] ~= nil and gcFillLevels[32] > 0)
+                local hasCapacity = trigger.hasInfiniteCapacity or (fillLevels[fillType] ~= nil and fillLevels[fillType] > 0) or (gcFillLevels[fillType] ~= nil and gcFillLevels[fillType] > 0)
 
-            if hasCapacity then
-                table.insert(refuelTriggers, trigger)
+                if hasCapacity then
+                    table.insert(refuelTriggers, trigger)
+                end
             end
         end
     end
