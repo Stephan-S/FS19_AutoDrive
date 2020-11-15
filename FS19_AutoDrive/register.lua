@@ -89,6 +89,7 @@ source(Utils.getFilename("scripts/Tasks/RefuelTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/ExitFieldTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/FollowVehicleTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/ReverseFromBadLocationTask.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Tasks/ParkTask.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Modules/DrivePathModule.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Modules/CollisionDetectionModule.lua", g_currentModDirectory))
