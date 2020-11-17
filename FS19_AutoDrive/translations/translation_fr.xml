@@ -130,7 +130,7 @@
 		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur au niveau de déchargement défini." />
 		<text name="gui_ad_none"					            text="Aucun" />
 		<text name="gui_ad_onlyPickup"					        text="Uniquement ramasser" />
-		<text name="gui_ad_onlyDeliver"					        text="Uniquement livrer " />
+		<text name="gui_ad_onlyDeliver"					        text="Uniquement livrer" />
 		<text name="gui_ad_PickupandDeliver"					text="Ramasser et livrer" />
 		<text name="gui_ad_rotateTargets"					    text="Cycle de ramassage et livraison" />
 		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: Aucune cibles|Cibles ramassage|Cibles livraison|Les cibles de ramassage et livraison dans un dossier sont cyclées (pas avec le dossier par défaut, et seulement pris en compte si l'utilisation des dossiers est activé)" />
@@ -165,12 +165,12 @@
 		<text name="gui_ad_cornerSpeed_tooltip"					text="Ajuster la vitesse de virage pour chaque véhicule. La masse et la vitesse actuelle auront toujours un impact sur le point de freinage" />
 		<text name="gui_ad_callSecondUnloader"					text="Appelez le 2. Déchargeur" />
 		<text name="gui_ad_callSecondUnloader_tooltip"			text="Appelez le 2. Déchargeur lorsque le déchargeur actuel atteint le niveau de remplissage préappel" />
-		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
-		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
-		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
-		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Garer après le boulot fini" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Disponible que dans les modes cycle 'Ramasser et livrer, Uniquement livrer': Si le travail est terminé, la position parking mémorisée du véhicule/outil y sera conduite. Sur un Serveur-dedié, disponible que pour le parking véhicule!" />
+		<text name="gui_ad_autoTipSide"                         text="Côté pour vider automatique" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Oui - AutoDrive sélectionne automatiquement le côté pour vider / Non - le côté pour vider déjà sélectionné sera utilisé" />
+		<text name="gui_ad_autoTrailerCover"                    text="Bâches remorques automatique" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Oui - AutoDrive ouvre et ferme les bâches remorque au besoin / Non - les bâches remorque ne seront pas ouvertes ou fermées par AutoDrive" />
 
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre au champ..." />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
@@ -300,7 +300,7 @@
 		<text name="AD_task_clearcrop"							text="Culture de défrichement" />
 		<text name="AD_task_drive_to_destination"				text="Conduire jusqu'à destination" />
 		<text name="AD_task_drive_to_vehicle"					text="Conduire vers le véhicule cible" />
-		<text name="AD_task_drive_to_combine_pipe"				text="Conduit vers le véhicule cible" />
+		<text name="AD_task_drive_to_combine_pipe"				text="Conduire vers le tuyau de moissonneuse" />
 		<text name="AD_task_unloading_combine"					text="Déchargement de la moissonneuse-batteuse" />
 		<text name="AD_task_reversing_from_combine"				text="Inversion de la combinaison" />
 		<text name="AD_task_waiting_for_space"					text="En attente d'une marge de manœuvre" />
@@ -312,14 +312,14 @@
 		<text name="AD_task_wait_for_call"						text="En attente d'un appel" />	
 		<text name="AD_task_chasing_combine"					text="Combinaison de chaînage" />	
 		<text name="AD_task_wait_for_combine_pass_by"			text="Laisser passer la moissonneuse-batteuse" />	
-		<text name="AD_task_catching_chase_side"				text="Côté attrapage" />	
+		<text name="AD_task_catching_chase_side"				text="Côté recherché" />	
 		<text name="AD_task_chase_side"							text="Côté" />	
-		<text name="AD_task_chase_side_left"					text="à gauche" />	
+		<text name="AD_task_chase_side_left"					text="gauche" />	
 		<text name="AD_task_chase_side_rear"					text="arrière" />	
 		<text name="AD_task_chase_side_right"					text="droite" />	
 		<text name="AD_task_waiting_for_room"					text="En attente d'une chambre" />	
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 		<text name="AD_task_reversing_from_collision"			text="Recherche d'une zone dégagée" />
-        <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
+        <text name="AD_task_drive_to_park"				        text="Conduire vers le parking" />
 	</texts>
 </l10n>
