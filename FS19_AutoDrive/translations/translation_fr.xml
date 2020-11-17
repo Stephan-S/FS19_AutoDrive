@@ -169,7 +169,7 @@
 		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Disponible que dans les modes cycle 'Ramasser et livrer, Uniquement livrer': Si le travail est terminé, la position parking mémorisée du véhicule/outil y sera conduite. Sur un Serveur-dedié, disponible que pour le parking véhicule!" />
 		<text name="gui_ad_autoTipSide"                         text="Côté pour vider automatique" />
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Oui - AutoDrive sélectionne automatiquement le côté pour vider / Non - le côté pour vider déjà sélectionné sera utilisé" />
-		<text name="gui_ad_autoTrailerCover"                    text="Bâches-remorques automatiques" />
+		<text name="gui_ad_autoTrailerCover"                    text="Bâches remorques automatique" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Oui - AutoDrive ouvre et ferme les bâches remorque au besoin / Non - les bâches remorque ne seront pas ouvertes ou fermées par AutoDrive" />
 
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre au champ..." />
