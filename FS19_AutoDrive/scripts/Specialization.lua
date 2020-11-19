@@ -482,6 +482,7 @@ function AutoDrive:onDelete()
 end
 
 function AutoDrive:onDrawEditorMode()
+    local isActive = self.ad.stateModule:isActive()
     local DrawingManager = ADDrawingManager
 
     local startNode = self.ad.frontNode
@@ -557,7 +558,7 @@ function AutoDrive:onDrawEditorMode()
                 end
 
                 -- draw previous and next points in different colors - note: sequence is important
-                if point.out ~= nil then
+                if point.out ~= nil and not isActive then
                     for _, neighbor in pairs(point.out) do
                         local nWp = ADGraphManager:getWayPointById(neighbor)
                         if nWp ~= nil then
