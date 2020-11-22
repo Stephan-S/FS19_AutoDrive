@@ -19,8 +19,8 @@ ADPullDownList.ICON_FILTER = 2
 ADPullDownList.ICON_CREATE_FOLDER = 3
 
 -- folder icons
-ADPullDownList.ICON_EXPAND_COLLAPS = 1
-ADPullDownList.ICON_DELETE_FOLDER = 2
+-- ADPullDownList.ICON_EXPAND_COLLAPS = 1
+ADPullDownList.ICON_DELETE_FOLDER = 1
 
 
 function ADPullDownList:initReusableOverlaysOnlyOnce()
@@ -34,11 +34,11 @@ function ADPullDownList:initReusableOverlaysOnlyOnce()
     -- For avoiding creating/destroying multiple Overlay objects in onDraw, so here we only create
     -- one instance of each icon (overlay). Then in onDraw we use the game engine's renderOverlay()
     -- API method directly. Should reduce excessive memory allocation/deallocation tremendously.
-    ADPullDownList.ovCollapse = overlayReuseOrNew(ADPullDownList.ovCollapse, self.imageCollapse)
-    ADPullDownList.ovExpand = overlayReuseOrNew(ADPullDownList.ovExpand, self.imageExpand)
+    -- ADPullDownList.ovCollapse = overlayReuseOrNew(ADPullDownList.ovCollapse, self.imageCollapse)
+    -- ADPullDownList.ovExpand = overlayReuseOrNew(ADPullDownList.ovExpand, self.imageExpand)
     --ADPullDownList.ovAddHere = overlayReuseOrNew(ADPullDownList.ovAddHere, self.imageRight)
-    ADPullDownList.ovMinus = overlayReuseOrNew(ADPullDownList.ovMinus, self.imageMinus)
     ADPullDownList.ovPlus = overlayReuseOrNew(ADPullDownList.ovPlus, self.imagePlus)
+    ADPullDownList.ovMinus = overlayReuseOrNew(ADPullDownList.ovMinus, self.imageMinus)
     ADPullDownList.ovFilter = overlayReuseOrNew(ADPullDownList.ovFilter, self.imageFilter)
     ADPullDownList.ovCollapseAll = overlayReuseOrNew(ADPullDownList.ovCollapseAll, self.imageCollapseAll)
 end
@@ -71,13 +71,13 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     o.imageBGBottom = AutoDrive.directory .. "textures/4xlongBorderBottomFilled.dds"
     o.imageBGStretch = AutoDrive.directory .. "textures/4xlongBorderStretchFilled.dds"
     o.imageExpand = AutoDrive.directory .. "textures/arrowExpand.dds"
-    o.imageCollapse = AutoDrive.directory .. "textures/arrowCollapse.dds"
+    -- o.imageCollapse = AutoDrive.directory .. "textures/arrowCollapse.dds"
     o.imageCollapseAll = AutoDrive.directory .. "textures/arrowCollapseAll.dds"
-    o.imageUp = AutoDrive.directory .. "textures/arrowUp.dds"
-    o.imageDown = AutoDrive.directory .. "textures/arrowDown.dds"
+    -- o.imageUp = AutoDrive.directory .. "textures/arrowUp.dds"
+    -- o.imageDown = AutoDrive.directory .. "textures/arrowDown.dds"
     o.imagePlus = AutoDrive.directory .. "textures/plusSign.dds"
     o.imageMinus = AutoDrive.directory .. "textures/minusSign.dds"
-    o.imageRight = AutoDrive.directory .. "textures/arrowRight.dds"
+    -- o.imageRight = AutoDrive.directory .. "textures/arrowRight.dds"
     o.imageFilter = AutoDrive.directory .. "textures/zoom.dds"
 
     o.ovBG = Overlay:new(o.imageBG, o.position.x, o.position.y, o.size.width, o.size.height)
@@ -210,17 +210,19 @@ function ADPullDownList:onDraw(vehicle, uiScale)
                 local textPosition = self:getTextPositionByDisplayIndex(i + 1, uiScale)     -- start 1 line later
 
                 if listEntry.isFolder then
+--[[
                     -- expand / collaps icons for folder in list
                     if vehicle.ad.groups[listEntry.displayName] then
                         renderOverlay(ADPullDownList.ovCollapse.overlayId, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                     else
                         renderOverlay(ADPullDownList.ovExpand.overlayId, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                     end
+]]
 
                     if AutoDrive.isEditorModeEnabled() then
                         if (listEntry.displayName ~= "All") and self:getItemCountForGroup(listEntry.displayName) <= 0 then
                             -- icon minus for delete folder only for empty folders and not standard folder
-                            renderOverlay(ADPullDownList.ovMinus.overlayId, self.rightIconPos2.x, textPosition.y, self.iconSize.width, self.iconSize.height)
+                            renderOverlay(ADPullDownList.ovMinus.overlayId, self.rightIconPos.x, textPosition.y, self.iconSize.width, self.iconSize.height)
                         end
                     end
                 end
@@ -587,7 +589,7 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
             elseif self.state == ADPullDownList.STATE_COLLAPSED and AutoDrive.pullDownListExpanded <= 0 then
                 -- expand the collapsed list
                 self:expand(vehicle)
-            elseif self.state == ADPullDownList.STATE_EXPANDED and (hitIcon == nil or hitIcon == 0) then
+            elseif self.state == ADPullDownList.STATE_EXPANDED and (hitElement ~=nil and not hitElement.isFolder) then
                 -- clicked outside -> collaps complete list
                 self:collapse(vehicle, true)
             elseif self.state == ADPullDownList.STATE_EXPANDED and self.type ~= ADPullDownList.TYPE_FILLTYPE and hitIcon ~= nil and hitIcon == ADPullDownList.ICON_COLLAPSALL and hitIndex ~= nil and hitIndex == 0 then
@@ -612,8 +614,8 @@ function ADPullDownList:act(vehicle, posX, posY, isDown, isUp, button)
                 AutoDrive.onOpenEnterGroupName()
             elseif self.state == ADPullDownList.STATE_EXPANDED and hitElement ~= nil then
                 -- clicked in element list, not top icon
-                if hitIcon ~= nil and hitIcon == ADPullDownList.ICON_EXPAND_COLLAPS then
-                    -- clicked expand collaps icon of folder
+                if (hitIcon ~= nil and hitIcon ~= ADPullDownList.ICON_DELETE_FOLDER) and hitElement.isFolder then
+                    -- clicked folder, but not icon delete
                     if hitElement.isFolder then
                         vehicle.ad.groups[hitElement.returnValue] = not vehicle.ad.groups[hitElement.returnValue]
                     end

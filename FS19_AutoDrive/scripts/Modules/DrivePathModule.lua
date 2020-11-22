@@ -631,7 +631,7 @@ function ADDrivePathModule:checkActiveAttributesSet(dt)
         end
         self.vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
-        if self.vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights") then
+        if self.vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self.vehicle) then
             local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
             if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.spec_motorized.isMotorStarted then
                 self.vehicle:setBeaconLightsVisibility(true)

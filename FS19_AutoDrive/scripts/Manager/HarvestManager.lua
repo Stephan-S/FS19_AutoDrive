@@ -160,8 +160,6 @@ function ADHarvestManager:update(dt)
                 local aiIsTurning = (harvester.getAIIsTurning ~= nil and harvester:getAIIsTurning() == true)
                 local combineSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 20)
                 local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
-                harvester.ad.noTurningTimer:timer((not combineIsTurning), 4000, dt)
-                harvester.ad.turningTimer:timer(combineIsTurning, 4000, dt)
             end
         else
             table.removeValue(self.harvesters, harvester)
@@ -241,11 +239,11 @@ function ADHarvestManager.isHarvesterActive(harvester)
             local chasingRear = false
             local pipeSide = AutoDrive.getPipeSide(harvester)
             if pipeSide == AutoDrive.CHASEPOS_LEFT then
-                local leftBlocked = harvester.ad.sensors.leftSensorFruit:pollInfo() or harvester.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField") and (not harvester.ad.sensors.leftSensorField:pollInfo()))
+                local leftBlocked = harvester.ad.sensors.leftSensorFruit:pollInfo() or harvester.ad.sensors.leftSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", harvester) and (not harvester.ad.sensors.leftSensorField:pollInfo()))
                 local leftFrontBlocked = harvester.ad.sensors.leftFrontSensorFruit:pollInfo() or harvester.ad.sensors.leftFrontSensor:pollInfo()
                 chasingRear = leftBlocked or leftFrontBlocked
             else
-                local rightBlocked = harvester.ad.sensors.rightSensorFruit:pollInfo() or harvester.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField") and (not harvester.ad.sensors.rightSensorField:pollInfo()))
+                local rightBlocked = harvester.ad.sensors.rightSensorFruit:pollInfo() or harvester.ad.sensors.rightSensor:pollInfo() or (AutoDrive.getSetting("followOnlyOnField", harvester) and (not harvester.ad.sensors.rightSensorField:pollInfo()))
                 local rightBlockedBlocked = harvester.ad.sensors.rightFrontSensorFruit:pollInfo() or harvester.ad.sensors.rightFrontSensor:pollInfo()
                 chasingRear = rightBlocked or rightBlockedBlocked
             end

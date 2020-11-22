@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.5-RC6"
+AutoDrive.version = "1.1.0.6"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -86,6 +86,7 @@ AutoDrive.actions = {
 	{"ADRenameMapMarker", false, 0},
 	{"ADSwapTargets", false, 0},
 	{"AD_open_notification_history", false, 0},
+	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0}
 }
 
@@ -233,16 +234,18 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.isCAPSKeyActive = bitAND(modifier, Input.MOD_CAPS) > 0
 	AutoDrive.rightCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_RCTRL) > 0
 
-    if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
-        AutoDrive.toggleSphrere = false
-    elseif (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == false) then
-        AutoDrive.toggleSphrere = true
-    end
+    if AutoDrive.isInExtendedEditorMode() then
+        if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
+            AutoDrive.toggleSphrere = false
+        elseif (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == false) then
+            AutoDrive.toggleSphrere = true
+        end
 
-    if (AutoDrive.leftCTRLmodifierKeyPressed or AutoDrive.leftALTmodifierKeyPressed) then
-        AutoDrive.enableSphrere = true
-    else
-        AutoDrive.enableSphrere = AutoDrive.toggleSphrere
+        if (AutoDrive.leftCTRLmodifierKeyPressed or AutoDrive.leftALTmodifierKeyPressed) then
+            AutoDrive.enableSphrere = true
+        else
+            AutoDrive.enableSphrere = AutoDrive.toggleSphrere
+        end
     end
 end
 

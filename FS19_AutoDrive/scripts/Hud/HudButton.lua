@@ -135,39 +135,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_parkVehicle" then
-        local actualParkDestination = -1
-        local SelectedWorkTool = nil
-
-        if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
-            local allImp = {}
-            -- Credits to Tardis from FS17
-            local function addAllAttached(obj)
-                for _, imp in pairs(obj:getAttachedImplements()) do
-                    addAllAttached(imp.object)
-                    table.insert(allImp, imp)
-                end
-            end
-                
-            addAllAttached(vehicle)
-
-            if allImp ~= nil then
-                for i = 1, #allImp do
-                    local imp = allImp[i]
-                    if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
-                        SelectedWorkTool = imp.object
-                        break
-                    end
-                end
-            end
-        end
-        if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.getWorkToolParkDestination ~= nil then
-            actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
-        else
-            if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
-                -- g_logManager:info("[AD] ADInputManager:input_parkVehicle vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
-                actualParkDestination = vehicle.ad.stateModule:getParkDestination()
-            end
-        end
+        local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
 
         if actualParkDestination >= 1 then
             newState = 1
@@ -215,42 +183,8 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             end
         end
         if self.primaryAction == "input_parkVehicle" then
-
-            local actualParkDestination = -1
-            local SelectedWorkTool = nil
-
-            if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
-                local allImp = {}
-                -- Credits to Tardis from FS17
-                local function addAllAttached(obj)
-                    for _, imp in pairs(obj:getAttachedImplements()) do
-                        addAllAttached(imp.object)
-                        table.insert(allImp, imp)
-                    end
-                end
-                    
-                addAllAttached(vehicle)
-
-                if allImp ~= nil then
-                    for i = 1, #allImp do
-                        local imp = allImp[i]
-                        if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
-                            SelectedWorkTool = imp.object
-                            break
-                        end
-                    end
-                end
-            end
-            if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.getWorkToolParkDestination ~= nil then
-                actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
-            else
-                if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
-                    -- g_logManager:info("[AD] ADInputManager:input_parkVehicle vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
-                    actualParkDestination = vehicle.ad.stateModule:getParkDestination()
-                end
-            end
-
-            if actualParkDestination >= 1 then
+            local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
+            if actualParkDestination >= 1 and ADGraphManager:getMapMarkerById(actualParkDestination) ~= nil then
                 vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(actualParkDestination).name
             end
 

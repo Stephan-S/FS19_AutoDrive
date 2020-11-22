@@ -166,6 +166,12 @@
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Logotipo padrão ou logotipo personalizado - a seleção pode ser expandida." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. modo de editor" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. modo editor para manipulação de rota em vez de manter pressionada a tecla LCTRL" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
+		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
+		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
 
 
 
@@ -300,5 +306,6 @@
 		<text name="AD_task_waiting_for_room"					text="À espera de espaço" />
 		<text name="AD_task_exiting_field"						text="Saindo do campo" />
 		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
+        <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
 	</texts>
 </l10n>

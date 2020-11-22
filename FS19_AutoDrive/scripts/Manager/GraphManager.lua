@@ -464,6 +464,8 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 						end
 					end
 					removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. (#self.mapMarkers + 1))
+                    -- new config file format
+					removeXMLProperty(AutoDrive.adXml, "AutoDrive.mapmarker.mm" .. (#self.mapMarkers + 1))
 				end
 			end
 

@@ -43,18 +43,14 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     textToShow = textToShow .. " - " .. AutoDrive.version
     textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle)
 
-    local x, y, z = getWorldTranslation(vehicle.components[1].node)
-    if vehicle ~= nil and vehicle == g_currentMission.controlledVehicle and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.spec_motorized ~= nil and not AutoDrive.checkIsOnField(x, y, z) and vehicle.ad.stateModule:getMode() ~= AutoDrive.MODE_BGA then
-        local wp, currentWayPoint = vehicle.ad.drivePathModule:getWayPoints()
-        local remainingTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), vehicle.ad.stateModule:getSpeedLimit()))
+    local remainingTime = vehicle.ad.stateModule:getRemainingDriveTime()
+    if remainingTime ~= 0 then
         local remainingMinutes = math.floor(remainingTime / 60)
         local remainingSeconds = remainingTime % 60
-        if remainingTime ~= 0 then
-            if remainingMinutes > 0 then
-                textToShow = textToShow .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds))
-            elseif remainingSeconds ~= 0 then
-                textToShow = textToShow .. " - " .. string.format("%2.0f", remainingSeconds) .. "s"
-            end
+        if remainingMinutes > 0 then
+            textToShow = textToShow .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds))
+        elseif remainingSeconds ~= 0 then
+            textToShow = textToShow .. " - " .. string.format("%2.0f", remainingSeconds) .. "s"
         end
     end
 
