@@ -130,7 +130,7 @@
 		<text name="gui_ad_preCallLevel_tooltip"				text="Appel anticipé du chauffeur au niveau de déchargement défini." />
 		<text name="gui_ad_none"					            text="Aucun" />
 		<text name="gui_ad_onlyPickup"					        text="Uniquement ramasser" />
-		<text name="gui_ad_onlyDeliver"					        text="Uniquement livrer" />
+		<text name="gui_ad_onlyDeliver"					        text="Uniquement livrer " />
 		<text name="gui_ad_PickupandDeliver"					text="Ramasser et livrer" />
 		<text name="gui_ad_rotateTargets"					    text="Cycle de ramassage et livraison" />
 		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: Aucune cibles|Cibles ramassage|Cibles livraison|Les cibles de ramassage et livraison dans un dossier sont cyclées (pas avec le dossier par défaut, et seulement pris en compte si l'utilisation des dossiers est activé)" />
@@ -320,6 +320,7 @@
 		<text name="AD_task_waiting_for_room"					text="En attente d'une chambre" />	
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 		<text name="AD_task_reversing_from_collision"			text="Recherche d'une zone dégagée" />
-        <text name="AD_task_drive_to_park"				        text="Conduire vers le parking" />
-	</texts>
+    <text name="AD_task_drive_to_park"				        text="Conduire vers le parking" />
+
+  </texts>
 </l10n>
