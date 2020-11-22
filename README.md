@@ -33,10 +33,10 @@ and also
 # Downloads
 
 ### Latest Release (Non-Candidate): 1.1.0.6
-[You can download the latest release candidate here](https://host-my-bits.com/cdn/files/1/FS19_AutoDrive.zip)  
+[You can download the latest release here](https://host-my-bits.com/cdn/files/1/FS19_AutoDrive.zip)  
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/1?v=3)  
-### Release before: 1.1.0.4
+### Release: 1.1.0.6
 ![Version](https://host-my-bits.com/cdn/badges/v/2)  
 
 [You can download the latest release here](https://host-my-bits.com/cdn/files/2/FS19_AutoDrive.zip)  
