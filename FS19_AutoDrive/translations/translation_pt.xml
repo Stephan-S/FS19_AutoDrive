@@ -13,6 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Aumentar Velocidade" />
 		<text name="input_AD_Speed_down"						text="AD: Diminuir Velocidade" />
 		<text name="input_AD_routes_manager" 					text="AD: Abrir gerenciador de rotas" />
+		<text name="input_AD_open_notification_history" 		text="AD: Abrir histórico de notificação" />
 		<text name="input_AD_continue"							text="AD: Continuar" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Selecionar descarga seguinte" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Selecionar descarga anterior" />
@@ -58,10 +59,10 @@
 		<text name="AD_lalt_for_deletion" 						text="LALT para apagar" />
 		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverse drive" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Definições" />
-		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
-		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
-		<text name="gui_ad_blinkValue"						    text="Turnlight Automatic" />
-		<text name="gui_ad_blinkValue_tooltip"					text="Steering angle to enable turn lights automatically. (0 = turn light automatic deactivated)" />
+		<text name="gui_ad_collisionHeigth"						text="Altura da colisão sobre o chão" />
+		<text name="gui_ad_collisionHeigth_tooltip"				text="Configuração para deteção de colisão na frente do veículo. Se outros veículos não forem detetados durante a condução, reduzir passo a passo. (Predefinição 2m)" />
+		<text name="gui_ad_blinkValue"						    text="Piscas automáticos" />
+		<text name="gui_ad_blinkValue_tooltip"					text="Ângulo de direção para permitir que os piscas liguem automaticamente. (0 = pisca automático desativado)" />
 		<text name="gui_ad_pipe_offset"							text="Offset do tubo" />
 		<text name="gui_ad_followDistance"						text="Distância da ceifeira" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distância a manter da ceifeira quando seguindo atrás dela" />
@@ -94,6 +95,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Procurar por condutores próximos (Ignorar destino)" />
 		<text name="gui_ad_gui_scale"							text="Gui escala para AutoDrive HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Deixe em default para usar nas configurações de escala do jogo" />
+		<text name="gui_ad_notifications"						text="Notificações" />
+		<text name="gui_ad_notifications_text_1"				text="Desativada" />
+		<text name="gui_ad_notifications_text_2"				text="Curta" />
+		<text name="gui_ad_notifications_text_3"				text="Default" />
+		<text name="gui_ad_notifications_text_4"				text="Longa" />
+		<text name="gui_ad_notifications_text_5"				text="Extra longa" />
+		<text name="gui_ad_notifications_text_6"				text="Sem fim" />
+		<text name="gui_ad_notifications_tooltip"				text="Tempo de exibição para notificações: sem exibição / ca. 2,5s / 5s / 10s / 25s / Mostrar até o utilizador fechar" />
 		<text name="gui_ad_exitField"							text="Saída do campo" />
 		<text name="gui_ad_exitField_tooltip"					text="Estratégia de saída de campo para descarregar" />
 		<text name="gui_ad_default"								text="Default" />
@@ -119,15 +128,15 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Se a largura da pá detectada automaticamente for muito pequena, ela poderá ser aumentada com esse valor" />
 		<text name="gui_ad_preCallLevel"						text="Nível de pré-chamada" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Pre chama um descarregador ao nivel de enchimento definido." />
-		<text name="gui_ad_none"					            text="None" />
-		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
-		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
-		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
-		<text name="gui_ad_rotateTargets"					    text="Cycle Pickup and Deliver" />
-		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modes: No change of targets / only Pickup Targets / only Deliver Targets / Pickup and Deliver Targets in folder are cycled (not with default folder) (only considered if use folders is active)" />
+		<text name="gui_ad_none"					            text="Nenhum" />
+		<text name="gui_ad_onlyPickup"					        text="apenas Coleta" />
+		<text name="gui_ad_onlyDeliver"					        text="apenas Entregar" />
+		<text name="gui_ad_PickupandDeliver"					text="Coleta e Entrega" />
+		<text name="gui_ad_rotateTargets"					    text="Ciclo de Coleta e Entrega" />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 Modos: Sem alteração de alvos / apenas Alvos de Coleta / apenas Alvos de Entrega / Coleta e Entrega os destinos na pasta são alternados (não com a pasta padrão) (apenas considerado se usar pastas estiver ativo)" />
 		<text name="gui_ad_distributeToFolder"					text="Múltiplos alvos" />
 		<text name="gui_ad_distributeToFolder_tooltip"			text="Todos os destinos na mesma pasta serão girados como destinos de descarregamento." />
-		<text name="gui_ad_maxTriggerDistance"					text="Maximum trigger distance" />
+		<text name="gui_ad_maxTriggerDistance"					text="Distância máxima de gatilho" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Distância ao alvo em que os gatilhos são detectados e ativados." />
 		<text name="gui_ad_useBeaconLights"						text="Pirilampos" />
 		<text name="gui_ad_useBeaconLights_tooltip"				text="Use pirilampos na estrada." />
@@ -166,12 +175,16 @@
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Logotipo padrão ou logotipo personalizado - a seleção pode ser expandida." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="Use 2. modo de editor" />
 		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Use 2. modo editor para manipulação de rota em vez de manter pressionada a tecla LCTRL" />
-		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
-		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
-		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
-		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
+		<text name="gui_ad_wideHUD"								text="Wide HUD" />
+		<text name="gui_ad_wideHUD_tooltip"						text="Use o modo Wide HUD, que também permite mais alguns botões de configuração no HUD" />
+		<text name="gui_ad_syncMultiTargets"					text="Sincronizar vários alvos" />
+		<text name="gui_ad_syncMultiTargets_tooltip"			text="Vários condutores usando a mesma pasta para múltiplos alvos sincronizarão os próximos alvos" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Estacionar no Trabalho concluído" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Apenas disponível em Modos Coleta e Entrega, Entrega: Se o trabalho estiver terminado, o veículo / equipamento será conduzido até à posição de estacionamento guardado. No Dedi-Server apenas disponível para o lugar de estacionamento do veículo!" />
+		<text name="gui_ad_autoTipSide"                         text="Lado da porta automática" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Sim - o AutoDrive seleciona automaticamente o lado da porta / Não - o lado da porta já selecionado será utilizado" />
+		<text name="gui_ad_autoTrailerCover"                    text="Cobertura automática de atrelados" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sim - o AutoDrive abre e fecha as coberturas dos reboques conforme necessário / Não - as coberturas dos reboques não serão abertas ou fechadas pela AutoDrive" />
 
 
 
@@ -211,6 +224,8 @@
 		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
 
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notificações" />
+		<text name="button_delete_all" 							text="Eliminar tudo" />
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
 		<text name="ad_helpTitle_01"							text="AD - Introdução" />
