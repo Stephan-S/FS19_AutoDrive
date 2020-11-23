@@ -82,14 +82,6 @@
 					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
 					<GuiElement type="bitmap" profile="baseReference" screenAlign="topLeft" position="5px 4px" size="17px 17px" />
 				</GuiElement>
-				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" onClick="onOptionChange" name="useBeaconLights" toolTipElementId="ingameMenuHelpBoxText">
-					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
-					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
-					<GuiElement type="text" profile="multiTextOptionSettingsText" />
-					<GuiElement type="text" profile="multiTextOptionSettingsTitle" position="27px 6px" />
-					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
-					<GuiElement type="bitmap" profile="baseReference" screenAlign="topLeft" position="5px 4px" size="17px 17px" />
-				</GuiElement>
 				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" onClick="onOptionChange" name="collisionHeigth" toolTipElementId="ingameMenuHelpBoxText">
 					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
 					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
@@ -99,6 +91,14 @@
 					<GuiElement type="bitmap" profile="baseReference" screenAlign="topLeft" position="5px 4px" size="17px 17px" />
 				</GuiElement>
 				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" onClick="onOptionChange" name="blinkValue" toolTipElementId="ingameMenuHelpBoxText">
+					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
+					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
+					<GuiElement type="text" profile="multiTextOptionSettingsText" />
+					<GuiElement type="text" profile="multiTextOptionSettingsTitle" position="27px 6px" />
+					<GuiElement type="bitmap" profile="multiTextOptionSettingsBg" />
+					<GuiElement type="bitmap" profile="baseReference" screenAlign="topLeft" position="5px 4px" size="17px 17px" />
+				</GuiElement>
+				<GuiElement type="multiTextOption" profile="multiTextOptionSettings" onCreate="onCreateAutoDriveSetting" onClick="onOptionChange" name="pathFinderTime" toolTipElementId="ingameMenuHelpBoxText">
 					<GuiElement type="button" profile="multiTextOptionSettingsLeft" />
 					<GuiElement type="button" profile="multiTextOptionSettingsRight" />
 					<GuiElement type="text" profile="multiTextOptionSettingsText" />

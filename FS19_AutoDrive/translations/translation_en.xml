@@ -102,7 +102,7 @@
 		<text name="gui_ad_notifications_text_4"				text="Long" />
 		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
 		<text name="gui_ad_notifications_text_6"				text="Endless" />
-		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
+		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications: no display / ca. 2,5s / 5s / 10s / 25s / Show until user close" />
 		<text name="gui_ad_exitField"							text="Field exit" />
 		<text name="gui_ad_exitField_tooltip"					text="Field exit strategy for unloader" />
 		<text name="gui_ad_default"								text="Default" />
@@ -137,7 +137,7 @@
 		<text name="gui_ad_maxTriggerDistance"					text="Maximum trigger distance" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Distance to target at which triggers are detected and activated." />
 		<text name="gui_ad_useBeaconLights"						text="Beacon lights" />
-		<text name="gui_ad_useBeaconLights_tooltip"				text="Use beacon lights on the road." />
+		<text name="gui_ad_useBeaconLights_tooltip"				text="Yes - Use beacon lights automatic outside of fields / No - beacon lights will not be turned on or off automatically" />
 		<text name="gui_ad_restrictToField"						text="Restrict pathfinder to field" />
 		<text name="gui_ad_restrictToField_tooltip"				text="If unloader is already parked in the field, he will limit the pathfinder to field boundaries." />
 		<text name="gui_ad_showTooltips"						text="Show tooltips" />
@@ -177,11 +177,13 @@
 		<text name="gui_ad_wideHUD_tooltip"						text="Use wide HUD mode, which also allows a few more setting buttons in the HUD" />
 		<text name="gui_ad_syncMultiTargets"					text="Sync multiple targets" />
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Multiple drivers using the same folder for multiple targets will synchronize next targets" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
+		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
+		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
 
-
-
-		
-		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
@@ -314,5 +316,6 @@
 		<text name="AD_task_waiting_for_room"					text="Waiting for room" />
 		<text name="AD_task_exiting_field"						text="Exiting field" />
 		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
+        <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
 	</texts>
 </l10n>

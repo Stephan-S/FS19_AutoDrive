@@ -4,10 +4,7 @@ ADStateModule.CREATE_OFF = 1
 ADStateModule.CREATE_NORMAL = 2
 ADStateModule.CREATE_DUAL = 3
 
-ADStateModule.EDITOR_OFF = 1
-ADStateModule.EDITOR_ON = 2
-ADStateModule.EDITOR_EXTENDED = 3
-ADStateModule.EDITOR_SHOW = 4
+ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL = 1000
 
 function ADStateModule:new(vehicle)
     local o = {}
@@ -20,13 +17,10 @@ end
 
 function ADStateModule:reset()
     self.active = false
-    self.activeBeforeSave = false
-    self.AIVEActiveBeforeSave = false
     self.mode = AutoDrive.MODE_DRIVETO
     self.firstMarker = ADGraphManager:getMapMarkerById(1)
     self.secondMarker = ADGraphManager:getMapMarkerById(1)
     self.creationMode = ADStateModule.CREATE_OFF
-    self.editorMode = ADStateModule.EDITOR_OFF
 
     self.fillType = 2
     self.loopCounter = 0
@@ -35,6 +29,7 @@ function ADStateModule:reset()
     self.fieldSpeedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
 
     self.parkDestination = -1
+    self.parkDestinationAtJobFinished = -1
 
     self.currentDestination = nil
 
@@ -56,22 +51,14 @@ function ADStateModule:reset()
     if self.vehicle.getName ~= nil then
         self.driverName = self.vehicle:getName()
     end
+    self.remainingDriveTime = 0
+    self.calculateRemainingDriveTimeInterval = 0
 end
 
 function ADStateModule:readFromXMLFile(xmlFile, key)
     local mode = getXMLInt(xmlFile, key .. "#mode")
     if mode ~= nil then
         self.mode = mode
-    end
-
-    local speedLimit = getXMLInt(xmlFile, key .. "#speedLimit")
-    if speedLimit ~= nil then
-        self.speedLimit = math.min(speedLimit, AutoDrive.getVehicleMaxSpeed(self.vehicle))
-    end
-
-    local fieldSpeedLimit = getXMLInt(xmlFile, key .. "#fieldSpeedLimit")
-    if fieldSpeedLimit ~= nil then
-        self.fieldSpeedLimit = math.min(fieldSpeedLimit, AutoDrive.getVehicleMaxSpeed(self.vehicle))
     end
 
     local firstMarker = getXMLInt(xmlFile, key .. "#firstMarker")
@@ -93,14 +80,19 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
         self.fillType = fillType
     end
 
-    local driverName = getXMLString(xmlFile, key .. "#driverName")
-    if driverName ~= nil then
-        self.driverName = driverName
-    end
-
     local loopCounter = getXMLInt(xmlFile, key .. "#loopCounter")
     if loopCounter ~= nil then
         self.loopCounter = loopCounter
+    end
+
+    local speedLimit = getXMLInt(xmlFile, key .. "#speedLimit")
+    if speedLimit ~= nil then
+        self.speedLimit = math.min(speedLimit, AutoDrive.getVehicleMaxSpeed(self.vehicle))
+    end
+
+    local fieldSpeedLimit = getXMLInt(xmlFile, key .. "#fieldSpeedLimit")
+    if fieldSpeedLimit ~= nil then
+        self.fieldSpeedLimit = math.min(fieldSpeedLimit, AutoDrive.getVehicleMaxSpeed(self.vehicle))
     end
 
     local parkDestination = getXMLInt(xmlFile, key .. "#parkDestination")
@@ -108,21 +100,14 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
         self.parkDestination = parkDestination
     end
 
-    local lastActive = getXMLBool(xmlFile, key .. "#lastActive")
-    if lastActive ~= nil then
-        self.activeBeforeSave = lastActive
-    end
-
-    local AIVElastActive = getXMLBool(xmlFile, key .. "#AIVElastActive")
-    if AIVElastActive ~= nil then
-        self.AIVEActiveBeforeSave = AIVElastActive
+    local driverName = getXMLString(xmlFile, key .. "#driverName")
+    if driverName ~= nil then
+        self.driverName = driverName
     end
 end
 
 function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#mode", self.mode)
-    setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
-    setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
     if self.firstMarker ~= nil then
         setXMLInt(xmlFile, key .. "#firstMarker", self.firstMarker.markerIndex)
     end
@@ -130,11 +115,11 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
         setXMLInt(xmlFile, key .. "#secondMarker", self.secondMarker.markerIndex)
     end
     setXMLInt(xmlFile, key .. "#fillType", self.fillType)
-    setXMLString(xmlFile, key .. "#driverName", self.driverName)
     setXMLInt(xmlFile, key .. "#loopCounter", self.loopCounter)
+    setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
+    setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
     setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
-    setXMLBool(xmlFile, key .. "#lastActive", self.active)
-    setXMLBool(xmlFile, key .. "#AIVElastActive", (self.vehicle.acParameters ~= nil and self.vehicle.acParameters.enabled and self.vehicle.spec_aiVehicle.isActive))
+    setXMLString(xmlFile, key .. "#driverName", self.driverName)
 end
 
 function ADStateModule:writeStream(streamId)
@@ -143,18 +128,20 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 17)
     streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 17)
     streamWriteUIntN(streamId, self.creationMode, 3)
-    streamWriteUIntN(streamId, self.editorMode, 3)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 17)
+    streamWriteUIntN(streamId, self.parkDestinationAtJobFinished + 1, 17)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 17)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
     streamWriteBool(streamId, self.startCP_AIVE)
     streamWriteBool(streamId, self.useCP)
+    streamWriteString(streamId, self.driverName)
+    streamWriteUInt16(streamId, self.remainingDriveTime)
 end
 
 function ADStateModule:readStream(streamId)
@@ -163,19 +150,22 @@ function ADStateModule:readStream(streamId)
     self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.creationMode = streamReadUIntN(streamId, 3)
-    self.editorMode = streamReadUIntN(streamId, 3)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 17) - 1
+    self.parkDestinationAtJobFinished = streamReadUIntN(streamId, 17) - 1
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.currentTaskInfo = streamReadString(streamId)
-    self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
     self.startCP_AIVE = streamReadBool(streamId)
     self.useCP = streamReadBool(streamId)
+    self.driverName = streamReadString(streamId)
+    self.remainingDriveTime = streamReadUInt16(streamId)
+
+    self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
 
 function ADStateModule:writeUpdateStream(streamId)
@@ -184,18 +174,20 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self:getFirstMarkerId() + 1, 17)
     streamWriteUIntN(streamId, self:getSecondMarkerId() + 1, 17)
     streamWriteUIntN(streamId, self.creationMode, 3)
-    streamWriteUIntN(streamId, self.editorMode, 3)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 17)
+    streamWriteUIntN(streamId, self.parkDestinationAtJobFinished + 1, 17)
     streamWriteUIntN(streamId, self:getCurrentDestinationId() + 1, 17)
     streamWriteString(streamId, self.currentTaskInfo)
     streamWriteUIntN(streamId, self.currentWayPointId + 1, 20)
     streamWriteUIntN(streamId, self.nextWayPointId + 1, 20)
     streamWriteBool(streamId, self.startCP_AIVE)
     streamWriteBool(streamId, self.useCP)
+    streamWriteString(streamId, self.driverName)
+	streamWriteUInt16(streamId, self.remainingDriveTime)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -204,35 +196,48 @@ function ADStateModule:readUpdateStream(streamId)
     self.firstMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.secondMarker = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.creationMode = streamReadUIntN(streamId, 3)
-    self.editorMode = streamReadUIntN(streamId, 3)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 17) - 1
+    self.parkDestinationAtJobFinished = streamReadUIntN(streamId, 17) - 1
     self.currentDestination = ADGraphManager:getMapMarkerById(streamReadUIntN(streamId, 17) - 1)
     self.currentTaskInfo = streamReadString(streamId)
-    self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
     self.currentWayPointId = streamReadUIntN(streamId, 20) - 1
     self.nextWayPointId = streamReadUIntN(streamId, 20) - 1
     self.startCP_AIVE = streamReadBool(streamId)
     self.useCP = streamReadBool(streamId)
+    self.driverName = streamReadString(streamId)
+    self.remainingDriveTime = streamReadUInt16(streamId)
+
+    self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
 
 function ADStateModule:update(dt)
-    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+	if self.active == true and g_server ~= nil then
+        -- remaining drive time shall be calculated only if AD driving and only on server
+		self.calculateRemainingDriveTimeInterval = self.calculateRemainingDriveTimeInterval + dt
+		if self.calculateRemainingDriveTimeInterval > ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL then
+			self.calculateRemainingDriveTimeInterval = 0
+			self:calculateRemainingDriveTime()
+		end
+	end
+
+    if g_client ~= nil and self.vehicle.getIsEntered ~= nil and self.vehicle:getIsEntered() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+		-- debug output only displayed on client with entered vehicle
         local debug = {}
         debug.active = self.active
         debug.mode = self.mode
         debug.firstMarker = self.firstMarker.name
         debug.secondMarker = self.secondMarker.name
         debug.creationMode = self.creationMode
-        debug.editorMode = self.editorMode
         debug.fillType = self.fillType
         debug.loopCounter = self.loopCounter
         debug.speedLimit = self.speedLimit
         debug.fieldSpeedLimit = self.fieldSpeedLimit
         debug.parkDestination = self.parkDestination
+        debug.parkDestinationAtJobFinished = self.parkDestinationAtJobFinished
         if self.currentDestination ~= nil then
             debug.currentDestination = self.currentDestination.name
         end
@@ -242,6 +247,8 @@ function ADStateModule:update(dt)
         debug.nextWayPointId = self.nextWayPointId
         debug.startCP_AIVE = self.startCP_AIVE
         debug.useCP = self.useCP
+        debug.driverName = self.driverName
+        debug.remainingDriveTime = self.remainingDriveTime
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
         else
@@ -389,6 +396,7 @@ function ADStateModule:isActive()
 end
 
 function ADStateModule:setActive(active)
+    self.remainingDriveTime = 0
     if active ~= self.active then
         self.active = active
         self:raiseDirtyFlag()
@@ -637,15 +645,20 @@ function ADStateModule:setParkDestination(parkDestination)
     self:raiseDirtyFlag()
 end
 
+function ADStateModule:getParkDestinationAtJobFinished()
+    return self.parkDestinationAtJobFinished
+end
+
+function ADStateModule:setParkDestinationAtJobFinished(parkDestination)
+    self.parkDestinationAtJobFinished = parkDestination
+    self:raiseDirtyFlag()
+end
+
 function ADStateModule:getSelectedNeighbourPoint()
     if not self.pointToNeighbour then
         return nil
     end
     return self.neighbourPoints[self.currentNeighbourToPointAt]
-end
-
-function ADStateModule:getPointToNeighbor()
-    return self.pointToNeighbour
 end
 
 function ADStateModule:togglePointToNeighbor()
@@ -742,8 +755,8 @@ function ADStateModule:setNextTargetInFolder()
 end
 
 function ADStateModule:removeCPCallback()
-   if self.vehicle.ad.callBackFunction ~= nil then			-- if CP callback is set, CP has to be stopped
-	AutoDrive:StopCP(self.vehicle)
+    if self.vehicle.ad.callBackFunction ~= nil then			-- if CP callback is set, CP has to be stopped
+        AutoDrive:StopCP(self.vehicle)
     end
     self.vehicle.ad.callBackFunction = nil
     self.vehicle.ad.callBackObject = nil
@@ -771,4 +784,23 @@ function ADStateModule:resetMarkersOnReload()
         self.secondMarker = ADGraphManager:getMapMarkerById(1)
     end
     self:raiseDirtyFlag()
+end
+
+function ADStateModule:calculateRemainingDriveTime()
+    local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+    if not AutoDrive.checkIsOnField(x, y, z) then
+		local wp, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
+		if wp ~= nil and currentWayPoint > 0 then
+			self.remainingDriveTime = ADGraphManager:getDriveTimeForWaypoints(wp, currentWayPoint, math.min((self.vehicle.spec_motorized.motor.maxForwardSpeed * 3.6), self:getSpeedLimit()))
+		else
+			self.remainingDriveTime = 0
+		end
+	else
+		self.remainingDriveTime = 0
+	end
+	self:raiseDirtyFlag()
+end
+
+function ADStateModule:getRemainingDriveTime()
+	return self.remainingDriveTime
 end

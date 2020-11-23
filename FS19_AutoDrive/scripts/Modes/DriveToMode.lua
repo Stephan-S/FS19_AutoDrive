@@ -38,6 +38,7 @@ function DriveToMode:handleFinishedTask()
         for _, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
             if self.destinationID == mapMarker.id then
                 target = mapMarker.name
+                break
             end
         end
         if self.vehicle.ad.isStoppingWithError == false then

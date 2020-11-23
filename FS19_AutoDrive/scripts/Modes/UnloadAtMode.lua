@@ -1,5 +1,10 @@
 UnloadAtMode = ADInheritsFrom(AbstractMode)
 
+UnloadAtMode.STATE_TO_TARGET = 1
+UnloadAtMode.STATE_FINISHED = 2
+UnloadAtMode.STATE_EXIT_FIELD = 3
+UnloadAtMode.STATE_PARK = 4
+
 function UnloadAtMode:new(vehicle)
     local o = UnloadAtMode:create()
     o.vehicle = vehicle
@@ -8,8 +13,8 @@ function UnloadAtMode:new(vehicle)
 end
 
 function UnloadAtMode:reset()
-    self.unloadAtDestinationTask = nil
-    self.destinationID = nil
+    self.state = UnloadAtMode.STATE_TO_TARGET
+    self.activeTask = nil
 end
 
 function UnloadAtMode:start()
@@ -20,35 +25,48 @@ function UnloadAtMode:start()
     if self.vehicle.ad.stateModule:getFirstMarker() == nil then
         return
     end
-    self.destinationID = self.vehicle.ad.stateModule:getFirstMarker().id
 
-    self.unloadAtDestinationTask = UnloadAtDestinationTask:new(self.vehicle, self.destinationID)
-    self.vehicle.ad.taskModule:addTask(self.unloadAtDestinationTask)
+    self.activeTask = self:getNextTask()
+    if self.activeTask ~= nil then
+        self.vehicle.ad.taskModule:addTask(self.activeTask)
+    end
 end
 
 function UnloadAtMode:monitorTasks(dt)
 end
 
 function UnloadAtMode:handleFinishedTask()
-    --print("UnloadAtMode:handleFinishedTask")
-    if self.unloadAtDestinationTask ~= nil then
-        self.unloadAtDestinationTask = nil
-        --print("UnloadAtMode:handleFinishedTask - starting stopAndDisableTask now")
-        self.vehicle.ad.taskModule:addTask(StopAndDisableADTask:new(self.vehicle))
-    else
-        local target = self.vehicle.ad.stateModule:getFirstMarker().name
-        for _, mapMarker in pairs(ADGraphManager:getMapMarkers()) do
-            if self.destinationID == mapMarker.id then
-                target = mapMarker.name
-            end
-        end
-
-        --print("UnloadAtMode:handleFinishedTask - done")
-        AutoDriveMessageEvent.sendNotification(self.vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.stateModule:getName(), target)
+    self.vehicle.ad.trailerModule:reset()
+    self.activeTask = self:getNextTask()
+    if self.activeTask ~= nil then
+        self.vehicle.ad.taskModule:addTask(self.activeTask)
     end
 end
 
 function UnloadAtMode:stop()
+end
+
+function UnloadAtMode:getNextTask()
+	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask start self.state %s", tostring(self.state))
+    local nextTask
+
+	if self.state == UnloadAtMode.STATE_TO_TARGET then
+		-- STATE_TO_TARGET - drive to unload destination
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask STATE_TO_TARGET UnloadAtDestinationTask...")
+		nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
+		self.state = UnloadAtMode.STATE_PARK
+    elseif self.state == UnloadAtMode.STATE_PARK then
+        -- job done - drive to park position
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask STATE_PARK ParkTask...")
+        nextTask = ParkTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
+        self.state = UnloadAtMode.STATE_FINISHED
+        -- message for reached park position send by ParkTask as only there the correct destination is known
+	else
+		-- self.state == UnloadAtMode.STATE_FINISHED then
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask STATE_FINISHED StopAndDisableADTask...")
+		nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
+    end
+    return nextTask
 end
 
 function UnloadAtMode:shouldUnloadAtTrigger()

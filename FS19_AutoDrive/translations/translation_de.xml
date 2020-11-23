@@ -95,14 +95,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Suche nach nahestem Abfahrer (Zieleinstellung ignorieren)" />
 		<text name="gui_ad_gui_scale"							text="GUI Skalierung des AutoDrive HUDs" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Auf Standard (Default) lassen um die spielinterne Skalierungseinstellung zu nutzen" />
-		<text name="gui_ad_notifications"						text="Notifications" />
-		<text name="gui_ad_notifications_text_1"				text="Disabled" />
-		<text name="gui_ad_notifications_text_2"				text="Short" />
-		<text name="gui_ad_notifications_text_3"				text="Default" />
-		<text name="gui_ad_notifications_text_4"				text="Long" />
-		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
-		<text name="gui_ad_notifications_text_6"				text="Endless" />
-		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
+		<text name="gui_ad_notifications"						text="Benachrichtigungen" />
+		<text name="gui_ad_notifications_text_1"				text="Ausgeschaltet" />
+		<text name="gui_ad_notifications_text_2"				text="Kurz" />
+		<text name="gui_ad_notifications_text_3"				text="Standard" />
+		<text name="gui_ad_notifications_text_4"				text="Lang" />
+		<text name="gui_ad_notifications_text_5"				text="Sehr lang" />
+		<text name="gui_ad_notifications_text_6"				text="Dauerhaft" />
+		<text name="gui_ad_notifications_tooltip"				text="Anzeige-Zeit für Benachrichtigungen: keine Anzeige / ca. 2,5s / 5s / 10s / 25s / Anzeige bis zum Schliessen" />
 		<text name="gui_ad_exitField"							text="Feldausfahrt" />
 		<text name="gui_ad_exitField_tooltip"					text="Feldausfahrt Strategie nach Abladen - Start, kurz hinter Startpunkt, Nähester Punkt" />
 		<text name="gui_ad_default"								text="Standard" />
@@ -137,7 +137,7 @@
 		<text name="gui_ad_maxTriggerDistance"					text="Maximaler Siloabstand" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Bis zu dieser Entfernung zum Zielpunkt wird beladen/entladen bei erkanntem Trigger." />
 		<text name="gui_ad_useBeaconLights"						text="Rundumleuchten" />
-		<text name="gui_ad_useBeaconLights_tooltip"				text="Werden außerhalb des Felds genutzt." />
+		<text name="gui_ad_useBeaconLights_tooltip"				text="Ja - Außerhalb des Felds automatisch eingeschaltet / Nein - Rundumleuchten werden nicht automatisch ein- oder ausgeschaltet" />
 		<text name="gui_ad_restrictToField"						text="Pfadplanung begrenzt" />
 		<text name="gui_ad_restrictToField_tooltip"				text="Falls der Abfahrer bereits im Feld steht, wird ein Pfad im Feld gesucht." />
 		<text name="gui_ad_showTooltips"						text="Tooltips zeigen" />
@@ -177,6 +177,12 @@
 		<text name="gui_ad_wideHUD_tooltip"						text="Nutze breites HUD. Erlaubt dadurch auch zusätzliche Buttons." />
 		<text name="gui_ad_syncMultiTargets"					text="Synchronisiere 'Mehrere Ziele'" />
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Wenn mehrere Fahrer die selben Ziele anfahren, wird die Zielauswahl synchronisiert." />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Am Ende Parken" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Nur in Modi Abholen und Abliefern, Abladen: Wenn Aufgabe beendet, wird die gespeicherte Parkposition des aktuell gewählten Fahrzeug / Anhänger / Anbaugerät angefahren. Auf Dedi-Servern nur für Fahrzeug-Parkplatz!" />
+		<text name="gui_ad_autoTipSide"                         text="Automatische Abladeseite" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Ja - AutoDrive wählt Abladeseite automatisch / Nein - die gewählte Abladeseite wird verwendet" />
+		<text name="gui_ad_autoTrailerCover"                    text="Automatische Abdeckungen" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ja - AutoDrive öffnet und schließt Abdeckungen von Anhängern wenn notwendig / Nein - die Abdeckungen werden von AutoDrive nicht geöffnet oder geschlossen" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
@@ -310,5 +316,6 @@
 		<text name="AD_task_waiting_for_room"					text="Warte auf Platz" />		
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
+        <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
 	</texts>
 </l10n>
