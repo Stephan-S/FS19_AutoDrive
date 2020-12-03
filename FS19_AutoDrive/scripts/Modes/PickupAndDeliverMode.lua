@@ -21,7 +21,7 @@ end
 function PickupAndDeliverMode:reset()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:reset set STATE_INIT")
     self.state = PickupAndDeliverMode.STATE_INIT
-    self.loopsDone = 0
+    self.vehicle.ad.stateModule:setLoopsDone(0)
     self.activeTask = nil
 end
 
@@ -167,16 +167,16 @@ function PickupAndDeliverMode:getNextTask(forced)
 
     if self.state == PickupAndDeliverMode.STATE_DELIVER then
         -- STATE_DELIVER - drive to load destination
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_DELIVER self.loopsDone %s", tostring(self.loopsDone))
-        if self.vehicle.ad.stateModule:getLoopCounter() == 0 or self.loopsDone < self.vehicle.ad.stateModule:getLoopCounter() or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_DELIVER loopsDone %s", tostring(self.vehicle.ad.stateModule:getLoopsDone()))
+        if self.vehicle.ad.stateModule:getLoopCounter() == 0 or self.vehicle.ad.stateModule:getLoopsDone() < self.vehicle.ad.stateModule:getLoopCounter() or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
             -- until loops not finished or 0 - drive to load destination
             setPickupTarget()   -- if rotateTargets is set, set the next pickup target
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask LoadAtDestinationTask... getFirstMarkerName() %s", tostring(self.vehicle.ad.stateModule:getFirstMarkerName()))
             nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_PICKUP_FROM_NEXT_TARGET")
             self.state = PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET
-            self.loopsDone = self.loopsDone + 1
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask self.loopsDone %s", tostring(self.loopsDone))
+            self.vehicle.ad.stateModule:setLoopsDone(self.vehicle.ad.stateModule:getLoopsDone() + 1)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask loopsDone %s", tostring(self.vehicle.ad.stateModule:getLoopsDone()))
         else
             -- if loops are finished - drive to park destination and stop AD
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask DriveToDestinationTask...")
@@ -189,7 +189,6 @@ function PickupAndDeliverMode:getNextTask(forced)
         setDeliverTarget()      -- if rotateTargets is set, set the next deliver target
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_PICKUP UnloadAtDestinationTask... getSecondMarkerName() %s", tostring(self.vehicle.ad.stateModule:getSecondMarkerName()))
         nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getSecondMarker().id)
-        -- self.loopsDone = self.loopsDone + 1
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_DELIVER_TO_NEXT_TARGET")
         self.state = PickupAndDeliverMode.STATE_DELIVER_TO_NEXT_TARGET
     elseif self.state == PickupAndDeliverMode.STATE_EXIT_FIELD then
@@ -225,7 +224,7 @@ function PickupAndDeliverMode:getNextTask(forced)
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_has_reached; %s", 5000, self.vehicle.ad.stateModule:getName(), self.vehicle.ad.stateModule:getFirstMarkerName())
     end
 
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask end self.loopsDone %s self.state %s", tostring(self.loopsDone), tostring(self.state))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask end loopsDone %s self.state %s", tostring(self.vehicle.ad.stateModule:getLoopsDone()), tostring(self.state))
     return nextTask
 end
 
