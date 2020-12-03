@@ -70,8 +70,16 @@ function EmptyHarvesterTask:update(dt)
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = true
         -- Stopping CP drivers for now
-        if self.combine.cp and self.combine.cp.driver and self.combine.cp.driver.holdForUnloadOrRefill then
-            self.combine.cp.driver:holdForUnloadOrRefill()
+
+        if self.combine.trailingVehicle ~= nil then
+            -- harvester is trailed - CP use the trailing vehicle
+            if self.combine.trailingVehicle.cp and self.combine.trailingVehicle.cp.driver and self.combine.trailingVehicle.cp.driver.holdForUnloadOrRefill then
+                self.combine.trailingVehicle.cp.driver:holdForUnloadOrRefill()
+            end
+        else
+            if self.combine.cp and self.combine.cp.driver and self.combine.cp.driver.holdForUnloadOrRefill then
+                self.combine.cp.driver:holdForUnloadOrRefill()
+            end
         end
 
         --Check if the combine is moving / has already moved away and we are supposed to actively unload
@@ -115,7 +123,12 @@ function EmptyHarvesterTask:update(dt)
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
-        if distanceToReversStart > 10 then
+        local overallLength = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
+        if self.combine.trailingVehicle ~= nil then
+            -- if the harvester is trailed reverse 5m more
+            -- overallLength = overallLength + 5
+        end
+        if distanceToReversStart > overallLength then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
             self.state = EmptyHarvesterTask.STATE_WAITING
         else
