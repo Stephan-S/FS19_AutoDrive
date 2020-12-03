@@ -24,6 +24,7 @@ function ADStateModule:reset()
 
     self.fillType = 2
     self.loopCounter = 0
+    self.loopsDone = 0
 
     self.speedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
     self.fieldSpeedLimit = AutoDrive.getVehicleMaxSpeed(self.vehicle)
@@ -130,6 +131,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteUIntN(streamId, self.creationMode, 3)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
+    streamWriteUIntN(streamId, self.loopsDone, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 17)
@@ -152,6 +154,7 @@ function ADStateModule:readStream(streamId)
     self.creationMode = streamReadUIntN(streamId, 3)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
+    self.loopsDone = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 17) - 1
@@ -176,6 +179,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteUIntN(streamId, self.creationMode, 3)
     streamWriteUIntN(streamId, self.fillType, 8)
     streamWriteUIntN(streamId, self.loopCounter, 4)
+    streamWriteUIntN(streamId, self.loopsDone, 4)
     streamWriteUIntN(streamId, self.speedLimit, 8)
     streamWriteUIntN(streamId, self.fieldSpeedLimit, 8)
     streamWriteUIntN(streamId, self.parkDestination + 1, 17)
@@ -198,6 +202,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.creationMode = streamReadUIntN(streamId, 3)
     self.fillType = streamReadUIntN(streamId, 8)
     self.loopCounter = streamReadUIntN(streamId, 4)
+    self.loopsDone = streamReadUIntN(streamId, 4)
     self.speedLimit = streamReadUIntN(streamId, 8)
     self.fieldSpeedLimit = streamReadUIntN(streamId, 8)
     self.parkDestination = streamReadUIntN(streamId, 17) - 1
@@ -234,6 +239,7 @@ function ADStateModule:update(dt)
         debug.creationMode = self.creationMode
         debug.fillType = self.fillType
         debug.loopCounter = self.loopCounter
+        debug.loopsDone = self.loopsDone
         debug.speedLimit = self.speedLimit
         debug.fieldSpeedLimit = self.fieldSpeedLimit
         debug.parkDestination = self.parkDestination
@@ -459,6 +465,15 @@ function ADStateModule:decreaseLoopCounter()
     else
         self.loopCounter = 9
     end
+    self:raiseDirtyFlag()
+end
+
+function ADStateModule:getLoopsDone()
+    return self.loopsDone
+end
+
+function ADStateModule:setLoopsDone(loopsDone)
+    self.loopsDone = loopsDone
     self:raiseDirtyFlag()
 end
 
