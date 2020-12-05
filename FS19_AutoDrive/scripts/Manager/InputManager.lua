@@ -404,6 +404,7 @@ function ADInputManager:input_parkVehicle(vehicle)
         self:input_start_stop(vehicle)
         vehicle.ad.onRouteToPark = true
     else
+        vehicle.ad.onRouteToPark = false
         AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
     end
 end
