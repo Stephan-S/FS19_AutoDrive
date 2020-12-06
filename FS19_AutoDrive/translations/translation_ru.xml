@@ -39,14 +39,14 @@
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Чтобы назначить выбранную локацию, как место парковки, нажмите правой кнопкой мыши на этой же кнопке." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
 		<text name="AD_Driver_of"								text="Водитель на" />
-		<text name="AD_has_reached"								text="прибыл к" />
-		<text name="AD_got_stuck"								text="застрял" />
-		<text name="AD_cannot_reach"							text="не может доехать до локации " />
-		<text name="AD_cannot_find_path"						text="не может рассчитать маршрут к" />
+		<text name="AD_has_reached"								text="Прибыл к" />
+		<text name="AD_got_stuck"								text="Застрял" />
+		<text name="AD_cannot_reach"							text="Не может доехать до локации " />
+		<text name="AD_cannot_find_path"						text="Не может рассчитать маршрут к" />
 		<text name="AD_new_marker"								text="Новая локация:" />
-		<text name="AD_No_Trailer"								text="не могу найти прицеп" />
-		<text name="AD_No_Bunker"								text="не могу найти силосную яму" />
-		<text name="AD_No_Shovel"								text="не могу найти присоединённый ковш" />
+		<text name="AD_No_Trailer"								text="Не могу найти прицеп" />
+		<text name="AD_No_Bunker"								text="Не могу найти силосную яму" />
+		<text name="AD_No_Shovel"								text="Не могу найти присоединённый ковш" />
 		<text name="AD_MODE_DRIVETO"							text="Перегон" />
 		<text name="AD_MODE_DELIVERTO"							text="Доставка" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Загрузка и доставка" />
@@ -57,7 +57,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="L-CTRL расширенный редактор" />
 		<text name="AD_lctrl_for_creation" 						text="L-CTRL создать" />
 		<text name="AD_lalt_for_deletion" 						text="L-ALT удалить" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverse drive" />
+		<text name="AD_lshift_for_reverse" 						text="lshift reverse drive" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
 		<text name="gui_ad_collisionHeigth"						text="Высота преград над землёй" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Настройка для обнаружения столкновений/преград перед автомобилем. Если во время движения другие транспортные средства не обнаруживаются, постепенно уменьшайте параметр. (По умолчанию 2 м)" />
@@ -128,20 +128,20 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Если автоматически определенная ширина ковша слишком мала, ее можно увеличить с помощью этого значения." />
 		<text name="gui_ad_preCallLevel"						text="Уровень предварительного вызова" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Предварительный вызов разгружающего при заданном уровне заполнения." />
-		<text name="gui_ad_none"					            text="не менять" />
+		<text name="gui_ad_none"					            text="Не менять" />
 		<text name="gui_ad_onlyPickup"					        text="только Загрузки" />
 		<text name="gui_ad_onlyDeliver"					        text="только Доставки" />
 		<text name="gui_ad_PickupandDeliver"					text="Загрузки и Доставки" />
 		<text name="gui_ad_rotateTargets"					    text="Менять Загрузки и Доставки" />
-		<text name="gui_ad_rotateTargets_tooltip"			    text="4 режима: не менять локации/ только локации Загрузок/ только локации Доставок/ менять циклически в папке локации Загрузок и Доставок (не для стандартных папок) (учитывается только активировано 'Использовать папки')." />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 режима: не менять локации/ только локации Загрузок/ только локации Доставок/ менять циклически в папке локации Загрузок и Доставок (не работает для стандартных папок) (учитывается только активировано 'Использовать папки')." />
 		<text name="gui_ad_distributeToFolder"					text="Несколько локаций" />
-		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации из одной папки станут числиться, как места выгрузки." />
+		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации из одной папки станут считаться местами выгрузки." />
 		<text name="gui_ad_maxTriggerDistance"					text="Макс. расстояние триггера" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Расстояние до локации, на котором обнаруживаются и активируются триггеры." />
 		<text name="gui_ad_useBeaconLights"						text="Маячок" />
 		<text name="gui_ad_useBeaconLights_tooltip"				text="Включать маячок при движении по дороге." />
 		<text name="gui_ad_restrictToField"						text="Поиск маршрута ограничен полем" />
-		<text name="gui_ad_restrictToField_tooltip"				text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск маршрута границами поля." />
+		<text name="gui_ad_restrictToField_tooltip"				text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск маршрута границами данного поля." />
 		<text name="gui_ad_showTooltips"						text="Отображать подсказки" />
 		<text name="gui_ad_showTooltips_tooltip"				text="Показывать подсказки к кнопкам в HUD AutoDrive." />
 		<text name="gui_ad_enterTargetNameTitle_add"			text="Добавление локации" />
@@ -174,17 +174,17 @@
 		<text name="gui_ad_iconSetToUse"						text="Персонализация логотипа" />
 		<text name="gui_ad_iconSetToUse_tooltip"				text="Логотип по умолчанию или свой персональный. - Выбор может быть расширен." />
 		<text name="gui_ad_secondEditorModeAllowed"				text="2-й режим редактора" />
-		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Использовать 2-й режим редактора для манипуляции точками вместо удержания LCTRL." />
+		<text name="gui_ad_secondEditorModeAllowed_tooltip"		text="Использовать 2-й режим редактора для манипуляции точками вместо удержания L-CTRL." />
 		<text name="gui_ad_wideHUD"								text="Широкий HUD" />
 		<text name="gui_ad_wideHUD_tooltip"						text="Использовать режим широкого HUD, который также позволяет использовать еще несколько кнопок настройки в HUD." />
 		<text name="gui_ad_syncMultiTargets"					text="Синхронизация нескольких локаций" />
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Если несколько водителей едут в одно и то же место, выбор места назначения синхронизируется." />
-		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
-		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
-		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
-		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Парковка после завершения работы" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Доступно только в режимах «Загрузка и доставка», «Доставка»: если работа завершена, транспортное средство переместится с прицепом и навесным оборудованием до парковочного места. В мультиплеере до парковочного места переместится только само транспортное средство, без всего!" />
+		<text name="gui_ad_autoTipSide"                         text="Управление стороной разгрузки" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - сторона разгрузки выбирается самостоятельно." />
+		<text name="gui_ad_autoTrailerCover"                    text="Управление тентом кузова" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Да - AutoDrive автоматически открывает и закрывает тент кузова / Нет - AutoDrive не управляет тентом кузова." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
@@ -234,7 +234,7 @@
 
 		<text name="ad_helpTitle_03"							text="Режим AD - Доставка" />
 		<text name="ad_helpText_03_01"							text="В этом режиме AutoDrive будет управлять техникой так же, как в режиме «Перегон», но дополнительно разгрузит прицеп в пункте назначения, если будет обнаружен триггер разгрузки." />
-		<text name="ad_helpText_03_02"							text="Точка назначения (локация) должна быть создана за триггером разгрузки, чтобы транспортные средства с длинными прицепами достигали триггера разгрузки до достижения пункта назначения. " />
+		<text name="ad_helpText_03_02"							text="Точка назначения (локация) должна быть создана за триггером разгрузки, чтобы транспортные средства с длинными прицепами достигали триггера разгрузки до достижения пункта назначения." />
 		<text name="ad_helpText_03_03"							text="Водитель остановится в пункте назначения независимо от того, пуст он или нет. Если вы заметили, что пункт назначения находится недостаточно далеко за триггером, вы можете легко удалить пункт назначения и создать его в следующей точке, не удаляя саму точку (см. HUD-кнопки)." />
 
 		<text name="ad_helpTitle_04"							text="Режим AD - Загрузка и доставка" />
@@ -295,7 +295,7 @@
 		
 		<text name="AD_task_pathfinding"						text="Планирование пути" />
 		<text name="AD_task_catch_up_with_combine"				text="Подъезжает к комбайну" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" />
+		<text name="AD_task_clearcrop"							text="Очистка урожая" />
 		<text name="AD_task_drive_to_destination"				text="Двигается к пункту назначения" />
 		<text name="AD_task_drive_to_vehicle"					text="Двигается к целевому транспорту" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Двигается к выгрузной трубе" />
@@ -312,12 +312,12 @@
 		<text name="AD_task_wait_for_combine_pass_by"			text="Позволяет комбайну пройти мимо" />	
 		<text name="AD_task_catching_chase_side"				text="Сторона приёма" />	
 		<text name="AD_task_chase_side"							text="Сторона" />	
-		<text name="AD_task_chase_side_left"					text="слева" />	
-		<text name="AD_task_chase_side_rear"					text="сзади" />	
-		<text name="AD_task_chase_side_right"					text="справа" />		
+		<text name="AD_task_chase_side_left"					text="Слева" />	
+		<text name="AD_task_chase_side_rear"					text="Сзади" />	
+		<text name="AD_task_chase_side_right"					text="Справа" />		
 		<text name="AD_task_waiting_for_room"					text="Ожидает пространства" />
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
-		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
-        <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
+		<text name="AD_task_reversing_from_collision"			text="Поиск чистой области" />
+        <text name="AD_task_drive_to_park"				        text="Доехать до места парковки" />
 	</texts>
 </l10n>
