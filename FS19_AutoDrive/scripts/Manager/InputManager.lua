@@ -236,7 +236,6 @@ end
 
 function ADInputManager:input_setParkDestination(vehicle)
     if vehicle.ad.stateModule:getFirstMarker() ~= nil then
-
         -- g_logManager:info("[AD] ADInputManager:input_setParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
 
         local SelectedWorkTool = nil
@@ -249,7 +248,7 @@ function ADInputManager:input_setParkDestination(vehicle)
                     table.insert(allImp, imp)
                 end
             end
-                
+
             addAllAttached(vehicle)
 
             if allImp ~= nil then
@@ -283,19 +282,19 @@ function ADInputManager:input_previousMode(vehicle)
 end
 
 function ADInputManager:input_record(vehicle)
-	if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
-		vehicle.ad.stateModule:startNormalCreationMode()
-	else
-		vehicle.ad.stateModule:disableCreationMode()
-	end
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+        vehicle.ad.stateModule:startNormalCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
 end
 
 function ADInputManager:input_record_dual(vehicle)
-	if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
-		vehicle.ad.stateModule:startDualCreationMode()
-	else
-		vehicle.ad.stateModule:disableCreationMode()
-	end
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+        vehicle.ad.stateModule:startDualCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
 end
 
 function ADInputManager:input_debug(vehicle)
@@ -387,11 +386,12 @@ end
 function ADInputManager:input_callDriver(vehicle)
     if vehicle.spec_pipe ~= nil and vehicle.spec_enterable ~= nil then
         ADHarvestManager:assignUnloaderToHarvester(vehicle)
+    elseif vehicle.ad.isCombine and vehicle.ad.attachableCombine ~= nil then
+        ADHarvestManager:assignUnloaderToHarvester(vehicle.ad.attachableCombine)
     end
 end
 
 function ADInputManager:input_parkVehicle(vehicle)
-
     local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
 
     if actualParkDestination >= 1 then
@@ -416,15 +416,15 @@ function ADInputManager:input_swapTargets(vehicle)
     vehicle.ad.stateModule:removeCPCallback()
 end
 
-function ADInputManager:input_startCp(vehicle)  -- enable / disable CP or AIVE
+function ADInputManager:input_startCp(vehicle) -- enable / disable CP or AIVE
     if g_courseplay ~= nil or vehicle.acParameters ~= nil then
         vehicle.ad.stateModule:toggleStartCP_AIVE()
     end
 end
 
-function ADInputManager:input_toggleCP_AIVE(vehicle)    -- select CP or AIVE
+function ADInputManager:input_toggleCP_AIVE(vehicle) -- select CP or AIVE
     if g_courseplay ~= nil and vehicle.acParameters ~= nil then
         vehicle.ad.stateModule:toggleUseCP_AIVE()
-        vehicle.ad.stateModule:setStartCP_AIVE(false)   -- disable if changed between CP and AIVE
+        vehicle.ad.stateModule:setStartCP_AIVE(false) -- disable if changed between CP and AIVE
     end
 end
