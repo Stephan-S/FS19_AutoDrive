@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="46">
+<modDesc descVersion="53">
 	<author>Balu</author>
 	<title>
 		<en>AutoDrive</en>
@@ -25,7 +25,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.0.6</version>
+	<version>1.1.0.7</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>
