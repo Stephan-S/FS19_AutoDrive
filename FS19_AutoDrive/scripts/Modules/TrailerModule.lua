@@ -178,7 +178,7 @@ function ADTrailerModule:updateLoad(dt)
     local checkFillUnitFull = false
 
     -- update trigger timer
-    if self.trigger ~= nil then
+    if self.trigger ~= nil and self.trigger.stoppedTimer ~= nil then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad update trigger timer")
         self.trigger.stoppedTimer:timer(not self.trigger.isLoading,300,dt)
         if self.trigger.isLoading then
@@ -213,7 +213,19 @@ function ADTrailerModule:updateLoad(dt)
             end
         end
 
-        if #loadPairs == 0 then
+        -- check for load water from ground
+        local waterTrailer = AutoDrive.getWaterTrailerInWater(self.vehicle, dt)
+        if waterTrailer ~= nil and waterTrailer.setIsWaterTrailerFilling ~= nil then
+            waterTrailer:setIsWaterTrailerFilling(true)
+            fillFound = true
+            self.isLoading = true
+            self.foundSuitableTrigger = true    -- loading trigger was found
+            self.trigger = waterTrailer         -- need a trigger to not search again
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad WaterTrailer found water -> start load")
+            return
+        end
+
+        if #loadPairs == 0 and waterTrailer == nil then
             self.isLoading = false
             self.trigger = nil
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad loadPairs == 0, Nothing found to load - continue drive -> return")
@@ -226,8 +238,13 @@ function ADTrailerModule:updateLoad(dt)
             end
         end
     else
-        if self.trigger ~= nil and self.trigger.stoppedTimer:done() then
+        if self.trigger ~= nil and self.trigger.stoppedTimer ~= nil and self.trigger.stoppedTimer:done() then
+            -- load from trigger
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad loading finished - check fill level...")
+            checkFillUnitFull = true
+        elseif self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger.spec_waterTrailer ~= nil and self.trigger.spec_waterTrailer.isFilling ~= nil and not self.trigger.spec_waterTrailer.isFilling then
+            -- load water
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad WaterTrailer full")
             checkFillUnitFull = true
         else
             -- still loading from trigger
@@ -237,7 +254,7 @@ function ADTrailerModule:updateLoad(dt)
     end
 
     if checkFillUnitFull then
-        if fillUnitFull then
+        if fillUnitFull or (self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger.spec_waterTrailer ~= nil and self.trigger.spec_waterTrailer.isFilling ~= nil and not self.trigger.spec_waterTrailer.isFilling) then
             self.isLoading = false
             self.trigger = nil
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad fillUnitFull %s", tostring(fillUnitFull))
