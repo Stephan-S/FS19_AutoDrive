@@ -538,5 +538,19 @@ function ADTrailerModule:clearTrailerUnloadTimers()
 end
 
 function ADTrailerModule:getCanStopMotor()
-    return not self.isUnloading
+    local ret=true
+    if self.isUnloading and self.isUnloadingWithTrailer ~= nil then
+        local tipState = Trailer.TIPSTATE_CLOSED
+        if self.isUnloadingWithTrailer.getTipState ~= nil then
+            tipState = self.isUnloadingWithTrailer:getTipState()
+        end
+        local dischargeState = Dischargeable.DISCHARGE_STATE_OFF
+        if self.isUnloadingWithTrailer.getDischargeState ~= nil then
+            dischargeState = self.isUnloadingWithTrailer:getDischargeState()
+        end
+        if (tipState ~= Trailer.TIPSTATE_CLOSED or dischargeState ~= Dischargeable.DISCHARGE_STATE_OFF) then
+            ret = false
+        end
+    end
+    return ret
 end
