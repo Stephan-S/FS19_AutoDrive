@@ -1,5 +1,6 @@
 function AutoDrive.prerequisitesPresent(specializations)
-    return SpecializationUtil.hasSpecialization(Motorized, specializations) and SpecializationUtil.hasSpecialization(Drivable, specializations) and SpecializationUtil.hasSpecialization(Enterable, specializations)
+    return SpecializationUtil.hasSpecialization(AIVehicle, specializations) and SpecializationUtil.hasSpecialization(Motorized, specializations) and SpecializationUtil.hasSpecialization(Drivable, specializations) and
+        SpecializationUtil.hasSpecialization(Enterable, specializations)
 end
 
 function AutoDrive.registerEventListeners(vehicleType)
@@ -264,7 +265,7 @@ function AutoDrive:onWriteUpdateStream(streamId, connection, dirtyMask)
     end
 end
 
-function AutoDrive:onUpdate(dt) 
+function AutoDrive:onUpdate(dt)
     if self.isServer and self.ad.stateModule:isActive() then
         self.ad.recordingModule:update(dt)
         self.ad.taskModule:update(dt)
@@ -424,6 +425,7 @@ function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointD
         attachable.trailingVehicle = self
         ADHarvestManager:registerHarvester(attachable)
         self.ad.isCombine = true
+        self.ad.attachableCombine = attachable
         attachable.ad = self.ad
     end
 
@@ -454,6 +456,7 @@ function AutoDrive:onPreDetachImplement(implement)
     if attachable.isTrailedHarvester and attachable.trailingVehicle == self then
         attachable.ad = nil
         self.ad.isCombine = false
+        self.ad.attachableCombine = nil
         ADHarvestManager:unregisterHarvester(attachable)
         attachable.isTrailedHarvester = false
         attachable.trailingVehicle = nil
@@ -505,7 +508,6 @@ function AutoDrive:onDrawEditorMode()
     end
 
     if ADGraphManager:getWayPointById(1) ~= nil and not AutoDrive.isEditorShowEnabled() then
-
         local g = 0
         --Draw line to selected neighbor point
         local neighbour = self.ad.stateModule:getSelectedNeighbourPoint()
@@ -640,16 +642,19 @@ function AutoDrive:startAutoDrive()
 end
 
 function AutoDrive:stopAutoDrive()
-	local x, y, z = getWorldTranslation(self.components[1].node)
+    local x, y, z = getWorldTranslation(self.components[1].node)
 
-	local point = nil
-	local distanceToStart = 0
-	if self.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.ad.stateModule ~= nil and self.ad.stateModule.getFirstMarker ~= nil and self.ad.stateModule:getFirstMarker() ~= nil and self.ad.stateModule:getFirstMarker() ~= 0 and self.ad.stateModule:getFirstMarker().id ~= nil then
-		point = ADGraphManager:getWayPointById(self.ad.stateModule:getFirstMarker().id)
-		if point ~= nil then
-			distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
-		end
-	end
+    local point = nil
+    local distanceToStart = 0
+    if
+        self.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.ad.stateModule ~= nil and self.ad.stateModule.getFirstMarker ~= nil and self.ad.stateModule:getFirstMarker() ~= nil and self.ad.stateModule:getFirstMarker() ~= 0 and
+            self.ad.stateModule:getFirstMarker().id ~= nil
+     then
+        point = ADGraphManager:getWayPointById(self.ad.stateModule:getFirstMarker().id)
+        if point ~= nil then
+            distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
+        end
+    end
 
     if self.isServer then
         if self.ad.stateModule:isActive() then
@@ -669,7 +674,7 @@ function AutoDrive:stopAutoDrive()
                 local callBackFunction = self.ad.callBackFunction
                 local callBackObject = self.ad.callBackObject
                 local callBackArg = self.ad.callBackArg
-                if distanceToStart < 30 then        -- pass control to external mod only when near to field point
+                if distanceToStart < 30 then -- pass control to external mod only when near to field point
                     if callBackObject ~= nil then
                         if callBackArg ~= nil then
                             AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to external mod callBackObject %s callBackArg %s", tostring(callBackObject), tostring(callBackArg))
@@ -700,7 +705,6 @@ function AutoDrive:stopAutoDrive()
                         end
                     end
                 end
-
             else
                 AIVehicleUtil.driveInDirection(self, 16, 30, 0, 0.2, 20, false, self.ad.drivingForward, 0, 0, 0, 1)
                 self:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
@@ -742,7 +746,7 @@ function AutoDrive:stopAutoDrive()
             if not hasCallbacks and not self.ad.isStoppingWithError and distanceToStart < 30 then
                 if self.ad.stateModule:getStartCP_AIVE() then
                     self.ad.stateModule:setStartCP_AIVE(false)
-                    if  g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
+                    if g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
                         AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to CP with start")
                         g_courseplay.courseplay:start(self)
                     else
@@ -790,6 +794,7 @@ function AutoDrive:onStartAutoDrive()
         if actualParkDestination >= 1 then
             self.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
         else
+            self.ad.stateModule:setParkDestinationAtJobFinished(-1)
             AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
         end
     end

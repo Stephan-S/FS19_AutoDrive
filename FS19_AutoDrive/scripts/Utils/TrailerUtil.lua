@@ -562,3 +562,24 @@ end
 function AutoDrive.checkForContinueOnEmptyLoadTrigger(vehicle)
     return AutoDrive.getSetting("continueOnEmptySilo") or ((AutoDrive.getSetting("rotateTargets", vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders"))
 end
+
+function AutoDrive.getWaterTrailerInWater(vehicle, dt)
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
+
+    for _, trailer in pairs(trailers) do
+        local spec = trailer.spec_waterTrailer
+        if spec ~= nil and spec.waterFillNode ~= nil and g_currentMission.waterY ~= nil then
+            local _,y,_ = getWorldTranslation(spec.waterFillNode)
+            local isNearWater = (y <= g_currentMission.waterY + 0.2)
+            local fillUnits = trailer:getFillUnits()
+            for i = 1, #fillUnits do
+                local isNotFilled = trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999
+                local allowedFillType = vehicle.ad.stateModule:getFillType() == FillType.WATER
+                if isNearWater and isNotFilled and allowedFillType then
+                    return trailer
+                end
+            end
+        end
+    end
+    return nil
+end
