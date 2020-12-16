@@ -42,5 +42,6 @@ and also
 [You can download the latest release here](https://host-my-bits.com/cdn/files/2/FS19_AutoDrive.zip)  
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/2)  
+
 ### Course Editor
 [You can download the latest version here](https://github.com/Stephan-S/FS19_AutoDrive/raw/master/AutoDrive%20Course%20Editor/AD.jar)
