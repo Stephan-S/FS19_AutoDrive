@@ -57,25 +57,26 @@ Changelog 1.1.0.7:
 		<fr>
 			<![CDATA[Ce mod peut être utilisé pour créer un réseau de routes permettant aux véhicules de conduire de manière autonome. Une fois la configuration effectuée, vous pouvez indiquer à un tracteur situé près du réseau de se rendre à n’importe quel point, tel que le magasin, le champ 1 ou un point de vente.
 Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
+Différents modes d'utilisation ont été ajoutés depuis les premières versions, et peuvent être combinés à l'utilisation du bien connu "Courseplay".
 
 Changelog 1.1.0.7:
-- Déchargement à l'envers dans un silo-couloir
+- Déchargement en marche arrière dans un silo-couloir
 - L'interface graphique a été retravaillée pour une utilisation plus aisée
 - Marquage coloré des points de passage précédents et suivants dans l'éditeur
-- Ouvrir et fermer le dossier avec le nom du dossier
+- Ouvrir et fermer les dossiers en cliquant
 - Marquage des points de passage ouverts
 - Coopération avec Courseplay et AIVE
 - Chargement et déchargement à des destinations multiples
-- détection réglable des collisions
-- Les véhicules, remorques et accessoires peuvent être affectés et approchés aux positions de stationnement
+- Réglage de détection des collisions
+- Les véhicules, remorques et accessoires peuvent être affectés et approchés aux positions de stationnement (voir Wiki) https://github.com/Stephan-S/FS19_AutoDrive/wiki/Buttons-with-short-description
 - Les positions de stationnement peuvent être approchées à la fin des cycles de déchargement
 - Amélioration du support multijoueurs
-- Clignotement automatique réglable
-- Sélection automatique du côté de déchargement réglable
-- Ouverture et fermeture automatique de la bâche de la remorque réglable
-- Balise tournante réglable pour chaque véhicule
+- Réglage des clignotants automatique
+- Réglage de sélection automatique des côtés de déchargements
+- Réglage d'ouverture et fermeture automatique des bâches de remorque
+- Girophare réglable pour chaque véhicule
 - En outre, une combinaison de clés peut être attribuée
-- Nom de la carte retiré du fichier de configuration
+- Nom des cartes retiré du fichier de configuration
 ]]>
 		</fr>
 		<es>
