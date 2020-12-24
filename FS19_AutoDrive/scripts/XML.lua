@@ -14,8 +14,6 @@ function AutoDrive.loadStoredXML()
 		g_logManager:devInfo("[AutoDrive] Loading xml file from " .. xmlFile)
 		AutoDrive.adXml = loadXMLFile("AutoDrive_XML", xmlFile)
 		AutoDrive.readFromXML(AutoDrive.adXml)
-		AutoDrive.adXml = createXMLFile("AutoDrive_XML", xmlFile_new, "AutoDrive")         -- use the new file name onwards
-		saveXMLFile(AutoDrive.adXml)
 	else
 		AutoDrive.loadInitConfig(xmlFile_new)
 	end
@@ -97,14 +95,14 @@ function AutoDrive.readFromXML(xmlFile)
 
 	local mapMarker = {}
 	local mapMarkerCounter = 1
-	mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
+    mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
     if mapMarker.name == nil or mapMarker.name =="" then
-        mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
+        mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
     end
 
-	mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
+    mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
     if mapMarker.group == nil or mapMarker.group =="" then
-        mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
+        mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
     end
 
 	mapMarker.markerIndex = mapMarkerCounter
@@ -118,9 +116,9 @@ function AutoDrive.readFromXML(xmlFile)
 	ADGraphManager:resetMapMarkers()
 
 	while mapMarker.name ~= nil do
-		mapMarker.id = getXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".id")
+        mapMarker.id = getXMLFloat(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".id")
         if mapMarker.id == nil or mapMarker.id =="" then
-            mapMarker.id = getXMLFloat(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".id")
+            mapMarker.id = getXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".id")
         end
 
 		mapMarker.markerIndex = mapMarkerCounter
@@ -130,14 +128,14 @@ function AutoDrive.readFromXML(xmlFile)
 		mapMarker = nil
 		mapMarker = {}
 		mapMarkerCounter = mapMarkerCounter + 1
-		mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
+        mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
         if mapMarker.name == nil or mapMarker.name =="" then
-            mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
+            mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
         end
 
-		mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
+        mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
         if mapMarker.group == nil or mapMarker.group =="" then
-            mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
+            mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
         end
 
 		if mapMarker.group == nil then
@@ -148,9 +146,9 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	local idString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id")
+	local idString = getXMLString(xmlFile, "AutoDrive.waypoints.id")
 	if idString == nil or idString =="" then
-        idString = getXMLString(xmlFile, "AutoDrive.waypoints.id")
+        idString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.id")
     end
 
 	--maybe map was opened and saved, but no waypoints recorded with AutoDrive!
@@ -162,27 +160,27 @@ function AutoDrive.readFromXML(xmlFile)
 
 	local idTable = idString:split(",")
 
-	local xString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.x")
+	local xString = getXMLString(xmlFile, "AutoDrive.waypoints.x")
 	if xString == nil or xString =="" then
-        xString = getXMLString(xmlFile, "AutoDrive.waypoints.x")
+        xString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.x")
     end
 	local xTable = xString:split(",")
 
-	local yString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.y")
+	local yString = getXMLString(xmlFile, "AutoDrive.waypoints.y")
 	if yString == nil or yString =="" then
-        yString = getXMLString(xmlFile, "AutoDrive.waypoints.y")
+        yString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.y")
     end
 	local yTable = yString:split(",")
 
-	local zString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.z")
+	local zString = getXMLString(xmlFile, "AutoDrive.waypoints.z")
 	if zString == nil or zString =="" then
-        zString = getXMLString(xmlFile, "AutoDrive.waypoints.z")
+        zString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.z")
     end
 	local zTable = zString:split(",")
 
-	local outString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out")
+	local outString = getXMLString(xmlFile, "AutoDrive.waypoints.out")
 	if outString == nil or outString =="" then
-        outString = getXMLString(xmlFile, "AutoDrive.waypoints.out")
+        outString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.out")
     end
 	local outTable = outString:split(";")
 
@@ -195,9 +193,9 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	local incomingString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming")
+	local incomingString = getXMLString(xmlFile, "AutoDrive.waypoints.incoming")
 	if incomingString == nil or incomingString =="" then
-        incomingString = getXMLString(xmlFile, "AutoDrive.waypoints.incoming")
+        incomingString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.incoming")
     end
 
 	local incomingTable = incomingString:split(";")
@@ -270,10 +268,9 @@ function AutoDrive.readFromXML(xmlFile)
 end
 
 function AutoDrive.saveToXML(xmlFile)
-	if xmlFile == nil then
-		g_logManager:devInfo("[AutoDrive] No valid xml file for saving the configuration")
-		return
-	end
+	local xmlFileName = AutoDrive.getXMLFile_new()
+    -- create empty xml file
+    local xmlFile = createXMLFile("AutoDrive_XML", xmlFileName, "AutoDrive")         -- use the new file name onwards
 
 	setXMLString(xmlFile, "AutoDrive.version", AutoDrive.version)
 	setXMLString(xmlFile, "AutoDrive.MapName", AutoDrive.loadedMap)
@@ -287,19 +284,12 @@ function AutoDrive.saveToXML(xmlFile)
     for settingName, setting in pairs(AutoDrive.settings) do
         if not setting.isVehicleSpecific then
             setXMLFloat(xmlFile, "AutoDrive." .. settingName, AutoDrive.settings[settingName].current)
-        else
-            -- axel TODO - check if not used vehicle specific properties may be removed from config.xml
-            -- removeXMLProperty(xmlFile, "AutoDrive." .. settingName)
         end
     end
 
 	for feature, enabled in pairs(AutoDrive.experimentalFeatures) do
 		setXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled", enabled)
 	end
-
-	removeXMLProperty(AutoDrive.adXml, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.markerID")
-
-	removeXMLProperty(AutoDrive.adXml, "AutoDrive.waypoints.markerID")
 
 	local idFullTable = {}
 
