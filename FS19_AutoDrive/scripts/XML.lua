@@ -93,58 +93,49 @@ function AutoDrive.readFromXML(xmlFile)
         AutoDrive.experimentalFeatures[feature] = Utils.getNoNil(getXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled"), AutoDrive.experimentalFeatures[feature])
     end
 
+	-- load Map Markers
+	ADGraphManager:resetMapMarkers()
 	local mapMarker = {}
 	local mapMarkerCounter = 1
-    mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
-    if mapMarker.name == nil or mapMarker.name =="" then
-        mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
-    end
 
-    mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
-    if mapMarker.group == nil or mapMarker.group =="" then
-        mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
-    end
+	while mapMarker ~= nil do
 
-	mapMarker.markerIndex = mapMarkerCounter
-	if mapMarker.group == nil then
-		mapMarker.group = "All"
-	end
-	if ADGraphManager:getGroupByName(mapMarker.group) == nil then
-		ADGraphManager:addGroup(mapMarker.group)
-	end
-
-	ADGraphManager:resetMapMarkers()
-
-	while mapMarker.name ~= nil do
-        mapMarker.id = getXMLFloat(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".id")
-        if mapMarker.id == nil or mapMarker.id =="" then
+		mapMarker.id = getXMLFloat(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".id")
+        if mapMarker.id == nil or mapMarker.id == "" then
             mapMarker.id = getXMLFloat(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".id")
         end
+		-- if id is still nil, we are at the end of the list and stop here
+		if mapMarker.id == nil then
+			mapMarker = nil
+			break
+		end
 
 		mapMarker.markerIndex = mapMarkerCounter
 
-		ADGraphManager:setMapMarker(mapMarker)
+		mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
+		if mapMarker.name == nil or mapMarker.name == "" then
+			mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
+		end
 
-		mapMarker = nil
-		mapMarker = {}
-		mapMarkerCounter = mapMarkerCounter + 1
-        mapMarker.name = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".name")
-        if mapMarker.name == nil or mapMarker.name =="" then
-            mapMarker.name = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".name")
-        end
-
-        mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
-        if mapMarker.group == nil or mapMarker.group =="" then
-            mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
-        end
-
+		mapMarker.group = getXMLString(xmlFile, "AutoDrive.mapmarker.mm" .. mapMarkerCounter .. ".group")
+		if mapMarker.group == nil or mapMarker.group == "" then
+			mapMarker.group = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".mapmarker.mm" .. mapMarkerCounter .. ".group")
+		end
 		if mapMarker.group == nil then
 			mapMarker.group = "All"
-		end
+		end		
+
+		-- make sure group existst
 		if ADGraphManager:getGroupByName(mapMarker.group) == nil then
 			ADGraphManager:addGroup(mapMarker.group)
 		end
+		
+		-- finally save map marker and reset table
+		ADGraphManager:setMapMarker(mapMarker)
+		mapMarker = {}
+		mapMarkerCounter = mapMarkerCounter + 1
 	end
+	-- done loading Map Markers
 
 	local idString = getXMLString(xmlFile, "AutoDrive.waypoints.id")
 	if idString == nil or idString =="" then
