@@ -1,6 +1,7 @@
 ADTrailerModule = {}
 
 ADTrailerModule.LOAD_RETRY_TIME = 3000
+ADTrailerModule.UNLOAD_RETRY_TIME = 30000
 
 function ADTrailerModule:new(vehicle)
     local o = {}
@@ -35,6 +36,11 @@ function ADTrailerModule:reset()
         self.unloadDelayTimer = AutoDriveTON:new()
     else
         self.unloadDelayTimer:timer(false)      -- clear timer
+    end
+    if self.unloadRetryTimer == nil then
+        self.unloadRetryTimer = AutoDriveTON:new()
+    else
+        self.unloadRetryTimer:timer(false)      -- clear timer
     end
     self:clearTrailerUnloadTimers()
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
@@ -336,6 +342,15 @@ function ADTrailerModule:updateUnload(dt)
                         self:startUnloadingIntoTrigger(trailer, unloadTrigger)
                     end
                 end
+                -- overload to another trailer
+                if (trailer.spec_pipe ~= nil) then
+                    if trailer:getDischargeState() ~= Dischargeable.DISCHARGE_STATE_OFF then
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload unload via pipe")
+                        self.isUnloading = true
+                        self.isUnloadingWithTrailer = trailer
+                        self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+                    end
+                end
             end
         -- end
     else
@@ -344,13 +359,22 @@ function ADTrailerModule:updateUnload(dt)
         local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
         self.unloadDelayTimer:timer(self.isUnloading, 250, dt)
         if self.unloadDelayTimer:done() then
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload Monitor unloading unloadDelayTimer:done areAllTrailersClosed %s", tostring(self:areAllTrailersClosed(dt)))
+            self.unloadRetryTimer:timer(self.isUnloading, ADTrailerModule.UNLOAD_RETRY_TIME, dt)
             if self:areAllTrailersClosed(dt) and (fillUnitEmpty or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders"))) then
                 self.unloadDelayTimer:timer(false)      -- clear timer
                 self.isUnloading = false
                 self.unloadingToBunkerSilo = false
+            elseif (self:areAllTrailersClosed(dt) and self.isUnloadingWithTrailer ~= nil and self.isUnloadingWithTrailer.spec_pipe ~= nil) then
+                -- unload auger wagon to another trailer
+                self.unloadDelayTimer:timer(false)      -- clear timer
+                self.isUnloading = false
             elseif fillUnitEmpty then
                 self.unloadDelayTimer:timer(false)      -- clear timer
                 self.unloadingToBunkerSilo = false
+            elseif self.unloadRetryTimer:done() and self.isUnloadingWithTrailer ~= nil and self.unloadingToBunkerSilo == false then
+                self.isUnloadingWithTrailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
+                self.unloadRetryTimer:timer(false)      -- clear timer
             end
         end
     end
@@ -440,7 +464,7 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
         if triggerX ~= nil then
             if distanceToTarget ~= nil and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < 300)) then
                 if trigger.bunkerSiloArea == nil then
-                    if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.setDischargeState ~= nil then
+                    if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.getDischargeState ~= nil then
                         if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then
                             self.siloTrigger = trigger
                             return trigger
