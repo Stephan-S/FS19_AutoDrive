@@ -226,7 +226,7 @@ function ADDrivePathModule:followWaypoints(dt)
             self.speedLimit = math.min(12, self.speedLimit)
             maxSpeedDiff = 3
         else
-            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) then
+            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) or (self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and self.distanceToTarget < AutoDrive.getSetting("maxTriggerDistance")) then
                 self.speedLimit = math.min(5, self.speedLimit)
             end
         end
