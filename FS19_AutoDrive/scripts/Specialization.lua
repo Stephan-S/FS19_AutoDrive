@@ -726,7 +726,7 @@ function AutoDrive:stopAutoDrive()
                 end
             end
 
-            if self.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self.vehicle) then
+            if self.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self) then
                 self:setBeaconLightsVisibility(false)
             end
 
