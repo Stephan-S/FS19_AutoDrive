@@ -414,6 +414,10 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                     break
                 end
             end
+            if vehicle.ad.nodeToMoveId ~= nil then
+                -- move point at mouse position
+                AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
+            end
             if vehicle.ad.hoveredNodeId ~= nil then
                 -- waypoint at mouse position
                 if button == 1 and isUp and not AutoDrive.leftALTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed then
@@ -440,10 +444,6 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 end
             end
 
-            if vehicle.ad.nodeToMoveId ~= nil then
-                -- move point at mouse position
-                AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
-            end
             if (button == 2 or button == 3) and isUp and not AutoDrive.leftALTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed then
                 if vehicle.ad.nodeToMoveId ~= nil then
                     -- middle or right mouse button to move points - end of move -> change waypoint coordinates now
