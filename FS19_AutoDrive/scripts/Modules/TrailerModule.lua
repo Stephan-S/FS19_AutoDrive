@@ -1,7 +1,9 @@
 ADTrailerModule = {}
 
 ADTrailerModule.LOAD_RETRY_TIME = 3000
+ADTrailerModule.LOAD_DELAY_TIME = 500
 ADTrailerModule.UNLOAD_RETRY_TIME = 30000
+ADTrailerModule.MIN_DISTANCE_TO_OPEN_COVER = 50
 
 function ADTrailerModule:new(vehicle)
     local o = {}
@@ -31,6 +33,11 @@ function ADTrailerModule:reset()
         self.loadRetryTimer = AutoDriveTON:new()
     else
         self.loadRetryTimer:timer(false)      -- clear timer
+    end
+    if self.loadDelayTimer == nil then
+        self.loadDelayTimer = AutoDriveTON:new()
+    else
+        self.loadDelayTimer:timer(false)      -- clear timer
     end
     if self.unloadDelayTimer == nil then
         self.unloadDelayTimer = AutoDriveTON:new()
@@ -136,8 +143,7 @@ function ADTrailerModule:update(dt)
 end
 
 function ADTrailerModule:handleTrailerCovers()
-    local inTriggerProximity = ADTriggerManager.checkForTriggerProximity(self.vehicle, self.vehicle.ad.drivePathModule.distanceToTarget)
-    if inTriggerProximity then
+    if self.vehicle.ad.drivePathModule.distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or self.vehicle.ad.drivePathModule.distanceToTarget < ADTrailerModule.MIN_DISTANCE_TO_OPEN_COVER then
         AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
     end
 end
@@ -195,6 +201,8 @@ function ADTrailerModule:updateLoad(dt)
 
     -- update retry timer
     self.loadRetryTimer:timer(true, ADTrailerModule.LOAD_RETRY_TIME, dt) 
+    -- update load delay timer
+    self.loadDelayTimer:timer(true, ADTrailerModule.LOAD_DELAY_TIME, dt) 
 
     if self.trigger == nil then
         -- look for triggers with requested fill type
@@ -231,7 +239,17 @@ function ADTrailerModule:updateLoad(dt)
             return
         end
 
-        if #loadPairs == 0 and waterTrailer == nil then
+        -- check for load from source without trigger
+        if self.lastFillLevel < self.fillLevel then
+            fillFound = true
+            self.isLoading = true
+            self.foundSuitableTrigger = true    -- loading trigger was found
+            self.trigger = self                 -- need a trigger to not search again
+            -- update load delay timer
+            self.loadDelayTimer:timer(false, ADTrailerModule.LOAD_DELAY_TIME)
+        end
+
+        if #loadPairs == 0 and waterTrailer == nil and self.trigger ~= self then
             self.isLoading = false
             self.trigger = nil
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad loadPairs == 0, Nothing found to load - continue drive -> return")
@@ -252,6 +270,10 @@ function ADTrailerModule:updateLoad(dt)
             -- load water
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad WaterTrailer full")
             checkFillUnitFull = true
+        elseif self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger == self and self.loadDelayTimer:done() and self.lastFillLevel >= self.fillLevel then
+            -- load from source without trigger
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad WaterTrailer full")
+            checkFillUnitFull = true
         else
             -- still loading from trigger
             return
@@ -260,7 +282,7 @@ function ADTrailerModule:updateLoad(dt)
     end
 
     if checkFillUnitFull then
-        if fillUnitFull or (self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger.spec_waterTrailer ~= nil and self.trigger.spec_waterTrailer.isFilling ~= nil and not self.trigger.spec_waterTrailer.isFilling) then
+        if fillUnitFull or (self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger.spec_waterTrailer ~= nil and self.trigger.spec_waterTrailer.isFilling ~= nil and not self.trigger.spec_waterTrailer.isFilling) or (self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger == self and self.loadDelayTimer:done() and self.lastFillLevel >= self.fillLevel) then
             self.isLoading = false
             self.trigger = nil
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad fillUnitFull %s", tostring(fillUnitFull))
