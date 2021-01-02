@@ -35,6 +35,7 @@ function ADDrivePathModule:reset()
     self.vehicle.ad.stateModule:setNextWayPointId(-1)
     self.isReversing = false
     self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
+    self.distanceToTarget = math.huge
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -226,7 +227,7 @@ function ADDrivePathModule:followWaypoints(dt)
             self.speedLimit = math.min(12, self.speedLimit)
             maxSpeedDiff = 3
         else
-            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) or (self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and self.distanceToTarget < AutoDrive.getSetting("maxTriggerDistance")) then
+            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) or ((self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() or self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger()) and self.distanceToTarget < ADTrailerModule.MIN_DISTANCE_TO_OPEN_COVER) then
                 self.speedLimit = math.min(5, self.speedLimit)
             end
         end
