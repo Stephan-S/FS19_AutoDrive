@@ -239,11 +239,16 @@ function ADTrailerModule:updateLoad(dt)
             return
         end
 
+        local fillableTrailer = AutoDrive.startFillFillableTrailer(self.vehicle)
+        if fillableTrailer ~= nil then
+            -- no further actions required, monitoring via fill level - see load from source without trigger
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad fillableTrailer found -> load already started")
+        end
+
         -- check for load from source without trigger
         if self.lastFillLevel < self.fillLevel then
             fillFound = true
             self.isLoading = true
-            self.foundSuitableTrigger = true    -- loading trigger was found
             self.trigger = self                 -- need a trigger to not search again
             -- update load delay timer
             self.loadDelayTimer:timer(false, ADTrailerModule.LOAD_DELAY_TIME)
