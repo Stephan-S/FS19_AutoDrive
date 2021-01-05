@@ -513,6 +513,86 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 	end
 end
 
+
+function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirection)
+    if startNode == nil or endNode == nil then
+		return
+	end
+
+	if table.contains(startNode.out, endNode.id) or table.contains(endNode.incoming, startNode.id) then
+		-- nodes are already connected - remove connections
+		table.removeValue(startNode.out, endNode.id)
+		table.removeValue(endNode.incoming, startNode.id)
+	else
+		if #startNode.incoming == 1 and #endNode.out == 1 then
+			local p0 = nil
+			for _, px in pairs(startNode.incoming) do
+				p0 = ADGraphManager:getWayPointById(px)
+				break
+			end
+			local p3 = nil
+			for _, px in pairs(endNode.out) do
+				p3 = ADGraphManager:getWayPointById(px)
+				break
+			end
+
+			local prevWP = startNode
+			for i = 1, 9 do
+				local px = ADGraphManager:CatmullRomInterpolate(i, p0, startNode, endNode, p3, 10)
+				ADGraphManager:createWayPoint(px.x, px.y, px.z)
+				-- this is a hack - we assume that we created the last WP here, ignoring MP and parallel events... :(
+				local newID = self:getWayPointsCount()
+				local newWP = self:getWayPointById(newID)
+				ADGraphManager:toggleConnectionBetween(prevWP, newWP, false)
+				prevWP = newWP
+			end
+			ADGraphManager:toggleConnectionBetween(prevWP, endNode, false)
+		end
+	end
+	self:markChanges()
+end
+
+
+function ADGraphManager:CatmullRomInterpolate(index, p0, p1, p2, p3, segments)
+	local px = {x=nil, y=nil, z=nil}
+	local x = {p0.x, p1.x, p2.x, p3.x}
+	local z = {p0.z, p1.z, p2.z, p3.z}
+	local time = {0, 1, 2, 3} -- linear at start... calculate weights over time
+	local total = 0.0
+
+	for i = 2, 4 do
+		local dx = x[i] - x[i - 1]
+		local dz = z[i] - z[i - 1]
+		-- the .9 is giving the wideness and roundness of the curve,
+		-- lower values (like .25 will be more straight, while high values like .95 will be wider and rounder)
+		total = total + math.pow(dx * dx + dz * dz, 0.9)
+		time[i] = total
+	end
+    local tstart = time[2]
+	local tend = time[3]
+	local t = tstart + (index * (tend - tstart)) / segments
+
+	local L01 = p0.x * (time[2] - t) / (time[2] - time[1]) + p1.x * (t - time[1]) / (time[2] - time[1])
+	local L12 = p1.x * (time[3] - t) / (time[3] - time[2]) + p2.x * (t - time[2]) / (time[3] - time[2])
+	local L23 = p2.x * (time[4] - t) / (time[4] - time[3]) + p3.x * (t - time[3]) / (time[4] - time[3])
+	local L012 = L01 * (time[3] - t) / (time[3] - time[1]) + L12 * (t - time[1]) / (time[3] - time[1])
+	local L123 = L12 * (time[4] - t) / (time[4] - time[2]) + L23 * (t - time[2]) / (time[4] - time[2])
+	local C12 = L012 * (time[3] - t) / (time[3] - time[2]) + L123 * (t - time[2]) / (time[3] - time[2])
+	px.x = C12
+
+	L01 = p0.z * (time[2] - t) / (time[2] - time[1]) + p1.z * (t - time[1]) / (time[2] - time[1])
+	L12 = p1.z * (time[3] - t) / (time[3] - time[2]) + p2.z * (t - time[2]) / (time[3] - time[2])
+	L23 = p2.z * (time[4] - t) / (time[4] - time[3]) + p3.z * (t - time[3]) / (time[4] - time[3])
+	L012 = L01 * (time[3] - t) / (time[3] - time[1]) + L12 * (t - time[1]) / (time[3] - time[1])
+	L123 = L12 * (time[4] - t) / (time[4] - time[2]) + L23 * (t - time[2]) / (time[4] - time[2])
+	C12 = L012 * (time[3] - t) / (time[3] - time[2]) + L123 * (t - time[2]) / (time[3] - time[2])
+	px.z = C12
+
+	px.y = (p0.y + p1.y + p2.y + p3.y) / 4 + .3
+	return px
+end
+
+
 function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	if sendEvent == nil or sendEvent == true then
 		-- Propagating waypoint creation all over the network

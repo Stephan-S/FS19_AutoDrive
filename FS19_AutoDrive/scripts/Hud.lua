@@ -423,9 +423,15 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 if button == 1 and isUp and not AutoDrive.leftALTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed then
                     -- left mouse button to select point / connect to already selected point
                     if vehicle.ad.selectedNodeId ~= nil then
-                        if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-                            -- connect selected point with hovered point
-                            ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+						if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+							local success = true
+							if AutoDrive.isCAPSKeyActive then
+								-- try a smooth connection between two nodes
+								success = ADGraphManager:smoothConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+							else 
+								-- connect selected point with hovered point
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+							end
                         end
                         -- unselect point
                         vehicle.ad.selectedNodeId = nil
