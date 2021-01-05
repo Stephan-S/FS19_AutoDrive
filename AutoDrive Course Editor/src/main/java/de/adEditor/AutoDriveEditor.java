@@ -603,22 +603,6 @@ public class AutoDriveEditor extends JFrame {
             mapMarkerCount += 1;
         }
 
-
-        Node mapNameNode = waypoints.getParentNode();
-        String newMapName = mapNameNode.getNodeValue();
-        String fileName = xmlConfigFile.getName();
-        if (fileName.contains("AutoDrive_") && fileName.contains("_config")) {
-            int newPathStartIndex = fileName.lastIndexOf("AutoDrive_");
-            newPathStartIndex += "AutoDrive_".length();
-            int newPathEndIndex = fileName.lastIndexOf("_config");
-            if (fileName.endsWith("_init_config")) {
-                newPathEndIndex = fileName.lastIndexOf("_init_config");
-            }
-            newMapName = fileName.substring(newPathStartIndex, newPathEndIndex);
-            LOG.info("Found new map name in: {} : {}", fileName, newMapName);
-        }
-        doc.renameNode(mapNameNode, null, newMapName);
-
         // write the content into xml file
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
