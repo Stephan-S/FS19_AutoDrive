@@ -3,7 +3,6 @@ ADTrailerModule = {}
 ADTrailerModule.LOAD_RETRY_TIME = 3000
 ADTrailerModule.LOAD_DELAY_TIME = 500
 ADTrailerModule.UNLOAD_RETRY_TIME = 30000
-ADTrailerModule.MIN_DISTANCE_TO_OPEN_COVER = 50
 
 function ADTrailerModule:new(vehicle)
     local o = {}
@@ -52,6 +51,7 @@ function ADTrailerModule:reset()
     self:clearTrailerUnloadTimers()
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
+    AutoDrive.setAugerPipeOpen(trailers, false)
     self.count = 0
 end
 
@@ -128,11 +128,13 @@ function ADTrailerModule:update(dt)
     if self.trailerCount == 0 then
         return
     end
+    local distanceToUnload = AutoDrive.getDistanceToUnloadPosition(self.vehicle)
 
-    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() then
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (distanceToUnload < 100) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateUnload")
         self:updateUnload(dt)
-    elseif self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() then
+    end
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateLoad")
         self:updateLoad(dt)
     end
@@ -143,9 +145,10 @@ function ADTrailerModule:update(dt)
 end
 
 function ADTrailerModule:handleTrailerCovers()
-    if self.vehicle.ad.drivePathModule.distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or self.vehicle.ad.drivePathModule.distanceToTarget < ADTrailerModule.MIN_DISTANCE_TO_OPEN_COVER then
-        AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
-    end
+    -- open trailer cover if trigger is reachable
+    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, isInRangeToLoadUnloadTarget)
 end
 
 function ADTrailerModule:updateStates()
@@ -183,7 +186,6 @@ function ADTrailerModule:updateLoad(dt)
     self.count =  self.count + dt
 
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad start")
-    self:stopUnloading()
     local _, _, fillUnitFull = AutoDrive.getIsFilled(self.vehicle, self.isLoadingToTrailer, self.isLoadingToFillUnitIndex)
     local fillFound = false
     local checkForContinue = false
@@ -239,11 +241,16 @@ function ADTrailerModule:updateLoad(dt)
             return
         end
 
+        local fillableTrailer = AutoDrive.startFillFillableTrailer(self.vehicle)
+        if fillableTrailer ~= nil then
+            -- no further actions required, monitoring via fill level - see load from source without trigger
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad fillableTrailer found -> load already started")
+        end
+
         -- check for load from source without trigger
         if self.lastFillLevel < self.fillLevel then
             fillFound = true
             self.isLoading = true
-            self.foundSuitableTrigger = true    -- loading trigger was found
             self.trigger = self                 -- need a trigger to not search again
             -- update load delay timer
             self.loadDelayTimer:timer(false, ADTrailerModule.LOAD_DELAY_TIME)
@@ -344,7 +351,6 @@ end
 
 function ADTrailerModule:updateUnload(dt)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload ")
-    self:stopLoading()
     AutoDrive.setAugerPipeOpen(self.trailers,  AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
     if not self.isUnloading then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload not self.isUnloading")
@@ -484,7 +490,7 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
         local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
         if triggerX ~= nil then
-            if distanceToTarget ~= nil and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < 300)) then
+            if distanceToTarget ~= nil and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < 100)) then
                 if trigger.bunkerSiloArea == nil then
                     if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.getDischargeState ~= nil then
                         if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then

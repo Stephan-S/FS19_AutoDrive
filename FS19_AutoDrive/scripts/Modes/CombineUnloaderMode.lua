@@ -383,7 +383,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
 end
 
 function CombineUnloaderMode:shouldLoadOnTrigger()
-    return self.state == self.STATE_PICKUP and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return self.state == self.STATE_PICKUP
 end
 
 function CombineUnloaderMode:shouldUnloadAtTrigger()

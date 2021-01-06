@@ -68,6 +68,7 @@ function LoadAtDestinationTask:update(dt)
                         self:finished()
                     else
                         -- Wait to be loaded manally - check filllevel
+                        AutoDrive.startFillFillableTrailer(self.vehicle)        -- try to load fillable trailer
                         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update Wait to be loaded manally")
                         self.vehicle.ad.specialDrivingModule:stopVehicle()
                         self.vehicle.ad.specialDrivingModule:update(dt)
