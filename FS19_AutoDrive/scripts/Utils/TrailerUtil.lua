@@ -206,15 +206,20 @@ function AutoDrive.getBackImplementsOf(vehicle, onlyDischargeable)
     return AutoDrive.tempBackImplements, AutoDrive.tempBackImplementsCount
 end
 
-
-function AutoDrive.getDistanceToUnloadPosition(vehicle)
-    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
+function AutoDrive.getDistanceToTargetPosition(vehicle)
+    -- returns the distance to load destination depending on mode
+    if vehicle.ad.stateModule:getFirstMarker() == nil then
         return math.huge
     end
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
-    local destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
-    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
-        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+    local destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+
+    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
+        -- in pickup mode return distance to second destination
+        if vehicle.ad.stateModule:getSecondMarker() == nil then
+            return math.huge
+        end
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
     end
     if destination == nil then
         return math.huge
@@ -222,12 +227,25 @@ function AutoDrive.getDistanceToUnloadPosition(vehicle)
     return MathUtil.vector2Length(x - destination.x, z - destination.z)
 end
 
-function AutoDrive.getDistanceToTargetPosition(vehicle)
-    if vehicle.ad.stateModule:getFirstMarker() == nil then
-        return math.huge
-    end
+function AutoDrive.getDistanceToUnloadPosition(vehicle)
+    -- returns the distance to unload destination depending on mode
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
-    local destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+    local destination = nil
+    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
+        -- in deliver mode only 1st target in HUD is taken
+        if vehicle.ad.stateModule:getFirstMarker() == nil then
+            return math.huge
+        end
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+    elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
+        -- in pickup mode no unload in this mode, so return huge distance
+        return math.huge
+    else
+        if vehicle.ad.stateModule:getSecondMarker() == nil then
+            return math.huge
+        end
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
+    end
     if destination == nil then
         return math.huge
     end
@@ -601,3 +619,16 @@ function AutoDrive.startFillFillableTrailer(vehicle)
     return ret
 end
 
+function AutoDrive.isInRangeToLoadUnloadTarget(vehicle)
+    if vehicle == nil or vehicle.ad == nil or vehicle.ad.stateModule == nil or vehicle.ad.drivePathModule == nil then
+        return false
+    end
+    local ret = false
+    ret =
+            (
+                ((vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() == true) and AutoDrive.getDistanceToTargetPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+                or
+                ((vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() == true) and AutoDrive.getDistanceToUnloadPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+            )
+    return ret
+end
