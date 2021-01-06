@@ -44,6 +44,7 @@ and also
 [Release@modhub](https://www.farming-simulator.com/mod.php?mod_id=127335&title=fs2019)  
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/2)  
+![GitHub all releases](https://img.shields.io/github/downloads/Stephan-S/FS19_AutoDrive/total?label=Downloads)  
 
 ### Course Editor
 [You can download the latest version here](https://github.com/Stephan-S/FS19_AutoDrive/raw/master/AutoDrive%20Course%20Editor/AD.jar)
