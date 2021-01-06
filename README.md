@@ -40,7 +40,8 @@ and also
 ![Version](https://host-my-bits.com/cdn/badges/v/2)  
 
 [You can download the latest release here](https://host-my-bits.com/cdn/files/2/FS19_AutoDrive.zip)  
-[Alternate link](https://github.com/Stephan-S/FS19_AutoDrive/releases)
+[Release@github](https://github.com/Stephan-S/FS19_AutoDrive/releases)
+[Release@modhub](https://www.farming-simulator.com/mod.php?mod_id=127335&title=fs2019)
 
 ![Download Counter](https://host-my-bits.com/cdn/badges/dc/2)  
 
