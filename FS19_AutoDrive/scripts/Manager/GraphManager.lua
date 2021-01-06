@@ -513,7 +513,10 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 	end
 end
 
-
+--- Create a smooth connection between two nodes by applying a RomCutmull smoothing algorithm.
+---@param startNode table Node to start the curve with
+---@param endNode table Node to end the curve at
+---@param reverseDirection boolean If true, make a curve driving reverse
 function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirection)
     if startNode == nil or endNode == nil then
 		return
@@ -525,6 +528,7 @@ function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirec
 		table.removeValue(endNode.incoming, startNode.id)
 	else
 		if #startNode.incoming == 1 and #endNode.out == 1 then
+			-- TODO: if we have more then one inbound or outbound connections, get the avg. vector
 			local p0 = nil
 			for _, px in pairs(startNode.incoming) do
 				p0 = ADGraphManager:getWayPointById(px)
@@ -536,15 +540,45 @@ function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirec
 				break
 			end
 
+			-- distance from start to end, divided by two to give it more roundness...
+			local dStartEnd = ADVectorUtils.distance2D(startNode, endNode) / 1.7
+
+			-- we need to normalize the length of p0-start and end-p3, otherwise their length will influence the curve
+			-- get vector from p0->start
+			local vp0Start = ADVectorUtils.subtract2D(p0, startNode)
+			-- calculate unit vector of vp0Start
+			vp0Start = ADVectorUtils.unitVector2D(vp0Start)
+			-- scale it like start->end
+			vp0Start = ADVectorUtils.scaleVector2D(vp0Start, dStartEnd)
+			-- invert it
+			vp0Start = ADVectorUtils.invert2D(vp0Start)
+			-- add it to the start Vector so that we get new p0
+			p0 = ADVectorUtils.add2D(startNode, vp0Start)
+			-- make sure p0 has a y value
+			p0.y = startNode.y
+
+			-- same for end->p3, except that we do not need to invert it, but just add it to the endNode
+			local vEndp3 = ADVectorUtils.subtract2D(endNode, p3)
+			vEndp3 = ADVectorUtils.unitVector2D(vEndp3)
+			vEndp3 = ADVectorUtils.scaleVector2D(vEndp3, dStartEnd)
+			p3  = ADVectorUtils.add2D(endNode, vEndp3)
+			p3.y = endNode.y
+
 			local prevWP = startNode
-			for i = 1, 9 do
-				local px = ADGraphManager:CatmullRomInterpolate(i, p0, startNode, endNode, p3, 10)
-				ADGraphManager:createWayPoint(px.x, px.y, px.z)
-				-- this is a hack - we assume that we created the last WP here, ignoring MP and parallel events... :(
-				local newID = self:getWayPointsCount()
-				local newWP = self:getWayPointById(newID)
-				ADGraphManager:toggleConnectionBetween(prevWP, newWP, false)
-				prevWP = newWP
+			-- we're calculting a VERY smooth curve and whenever the new point on the curve has a good distance to the last one create a new waypoint
+			-- but make sure that the last point also has a good distance to the endNode
+			for i = 1, 200 do
+				local px = ADGraphManager:CatmullRomInterpolate(i, p0, startNode, endNode, p3, 200)
+				if ADVectorUtils.distance2D(prevWP, px) >= 2 and ADVectorUtils.distance2D(px, endNode) >= 2 then
+					-- TODO: we can reduce the amount of waypoints by also taking the angle into account. Only create new waypoint if angle > whetever..
+
+					ADGraphManager:createWayPoint(px.x, px.y, px.z)
+					-- HACK: we assume that we created the last WP here, ignoring MP and parallel events... :(
+					local newID = self:getWayPointsCount()
+					local newWP = self:getWayPointById(newID)
+					ADGraphManager:toggleConnectionBetween(prevWP, newWP, false)
+					prevWP = newWP
+				end
 			end
 			ADGraphManager:toggleConnectionBetween(prevWP, endNode, false)
 		end
@@ -565,7 +599,7 @@ function ADGraphManager:CatmullRomInterpolate(index, p0, p1, p2, p3, segments)
 		local dz = z[i] - z[i - 1]
 		-- the .9 is giving the wideness and roundness of the curve,
 		-- lower values (like .25 will be more straight, while high values like .95 will be wider and rounder)
-		total = total + math.pow(dx * dx + dz * dz, 0.9)
+		total = total + math.pow(dx * dx + dz * dz, 0.99)
 		time[i] = total
 	end
     local tstart = time[2]
@@ -588,7 +622,7 @@ function ADGraphManager:CatmullRomInterpolate(index, p0, p1, p2, p3, segments)
 	C12 = L012 * (time[3] - t) / (time[3] - time[2]) + L123 * (t - time[2]) / (time[3] - time[2])
 	px.z = C12
 
-	px.y = (p0.y + p1.y + p2.y + p3.y) / 4 + .3
+	px.y = (p0.y + p1.y + p2.y + p3.y) / 4
 	return px
 end
 

@@ -962,4 +962,59 @@ function AutoDrive.checkWaypointsMultipleSameOut(correctit)
 	end
 end
 
+ADVectorUtils = {}
+
+--- Calculates the unit vector on a given vector.
+--- @param vector table Table with x and z properties.
+--- @return table Unitvector as table with x and z properties.
+function ADVectorUtils.unitVector2D(vector)
+	local x, z = vector.x or 0, vector.z or 0
+	local q = math.sqrt( (x * x) + ( z * z ) )
+	return {x = x / q, z = z / q}
+end
+
+--- Scales a vector by a given scalar.
+--- @param vector table Table with x and z properties. 
+--- @param scale number Scale
+--- @return table Vector
+function ADVectorUtils.scaleVector2D(vector, scale)
+	scale = scale or 1.0
+	vector.x = ( vector.x * scale ) or 0
+	vector.z = ( vector.z * scale ) or 0
+	return vector
+end
+
+--- Returns the distance between zwo vectors using their x and z coordinates.
+--- @param vectorA table with x and z property
+--- @param vectorB table with x and z property
+--- @return number Distance between vectorA and vectorB
+function ADVectorUtils.distance2D(vectorA, vectorB)
+	return MathUtil.vector2Length(vectorA.x - vectorB.x, vectorA.z - vectorB.z)
+end
+
+--- Returns a new vector pointing from vectorA to vectorB by subtracting A from B
+--- @param vectorA table with x and z property
+--- @param vectorB table with x and z property
+--- @return table Vector pointing from A to B
+function ADVectorUtils.subtract2D(vectorA, vectorB)
+	return {x = vectorB.x - vectorA.x, z = vectorB.z - vectorA.z}
+end
+
+--- Inverts a vector with x and z properties. 
+--- @param vector table with x and z property
+--- @return table Vector inverted
+function ADVectorUtils.invert2D(vector)
+	vector.x = vector.x * -1
+	vector.z = vector.z * -1
+	return vector
+end
+
+--- Adds x and z values of two given vectors and returns a new vector with x and z properties.
+--- @param vectorA table with x and z property
+--- @param vectorB table with x and z property
+--- @return table Vector
+function ADVectorUtils.add2D(vectorA, vectorB)
+	return {x = vectorA.x + vectorB.x, z = vectorA.z + vectorB.z}
+end
+
 -- TODO: Maybe we should add a console command that allows to run console commands to server
