@@ -131,7 +131,6 @@ function ADDrivePathModule:update(dt)
     end
 
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
-        local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
         if self.isReversing then
             self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
@@ -220,14 +219,17 @@ function ADDrivePathModule:followWaypoints(dt)
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
+        -- drive through bunker silo
         self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
         maxSpeedDiff = 1
     else
-        if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
+        if self.distanceToTarget < 100 and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
+            -- vehicle enters drive through bunker silo
             self.speedLimit = math.min(12, self.speedLimit)
             maxSpeedDiff = 3
         else
-            if ADTriggerManager.checkForTriggerProximity(self.vehicle, self.distanceToTarget) or ((self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() or self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger()) and self.distanceToTarget < ADTrailerModule.MIN_DISTANCE_TO_OPEN_COVER) then
+            local isInRangeToLoadUnloadTarget = self.distanceToTarget <= AutoDrive.getSetting("maxTriggerDistance")
+            if isInRangeToLoadUnloadTarget == true then
                 self.speedLimit = math.min(5, self.speedLimit)
             end
         end
