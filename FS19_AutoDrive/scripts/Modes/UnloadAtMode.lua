@@ -70,5 +70,5 @@ function UnloadAtMode:getNextTask()
 end
 
 function UnloadAtMode:shouldUnloadAtTrigger()
-    return (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return (self.state == UnloadAtMode.STATE_PARK)
 end
