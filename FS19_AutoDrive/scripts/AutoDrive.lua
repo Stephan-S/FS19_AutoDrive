@@ -280,6 +280,9 @@ function AutoDrive:update(dt)
 			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
 		end
 	end
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+		AutoDrive.debugDrawBoundingBoxForVehicles()
+	end
 
 	if AutoDrive.Hud ~= nil then
 		if AutoDrive.Hud.showHud == true then
