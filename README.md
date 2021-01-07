@@ -35,7 +35,8 @@ and also
 ### Latest Release: 1.1.0.7
 ![GitHub all releases](https://img.shields.io/github/downloads/Stephan-S/FS19_AutoDrive/total?label=Downloads&style=plastic)  
 [Release@github](https://github.com/Stephan-S/FS19_AutoDrive/releases/latest)  
-[Release@modhub](https://www.farming-simulator.com/mod.php?mod_id=127335&title=fs2019)  
+   
+[Release 1.1.0.7@modhub](https://www.farming-simulator.com/mod.php?mod_id=127335&title=fs2019)  
 
 ### Course Editor
 [You can download the latest version here](https://github.com/Stephan-S/FS19_AutoDrive/raw/master/AutoDrive%20Course%20Editor/AD.jar)
