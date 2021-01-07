@@ -1017,4 +1017,22 @@ function ADVectorUtils.add2D(vectorA, vectorB)
 	return {x = vectorA.x + vectorB.x, z = vectorA.z + vectorB.z}
 end
 
+--- Does a linear interpolation based on the in* range and value, and returns a new value
+--- fitting in the out range. Second return value is the interpolated value between 0..1.
+--- @param inMin number Minimum value for input range
+--- @param inMax number Maximum number for input range
+--- @param inValue number Current value for input range
+--- @param outMin number Minimum value vor output range
+--- @param outMax number Maximum value for output range
+--- @return number, number Interpolated value in output range, value in range 0..1
+function ADVectorUtils.linterp(inMin, inMax, inValue, outMin, outMax)
+	-- normalize input, make min range boundary = 0, nval is between 0..1
+	local imax = inMax - inMin
+	local nval = math.clamp(0, inValue - inMin, imax) / imax
+	-- normalize output
+	local omax = outMax - outMin
+	local oval = outMin + ( omax * nval )
+	return oval, nval
+end
+
 -- TODO: Maybe we should add a console command that allows to run console commands to server

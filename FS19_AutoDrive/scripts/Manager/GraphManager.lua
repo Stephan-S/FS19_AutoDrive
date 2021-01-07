@@ -514,9 +514,9 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 end
 
 --- Create a smooth connection between two nodes by applying a RomCutmull smoothing algorithm.
----@param startNode table Node to start the curve with
----@param endNode table Node to end the curve at
----@param reverseDirection boolean If true, make a curve driving reverse
+--- @param startNode table Node to start the curve with
+--- @param endNode table Node to end the curve at
+--- @param reverseDirection boolean If true, make a curve driving reverse
 function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirection)
     if startNode == nil or endNode == nil then
 		return
@@ -540,8 +540,15 @@ function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirec
 				break
 			end
 
+			-- calculate the angle between start tangent and end tangent
+			local dAngle = math.abs(AutoDrive.angleBetween(
+				ADVectorUtils.subtract2D(p0, startNode),
+				ADVectorUtils.subtract2D(endNode, p3)
+			))
+			local roundFac = ADVectorUtils.linterp(0, 180, dAngle, 1.5, 2.5)
+
 			-- distance from start to end, divided by two to give it more roundness...
-			local dStartEnd = ADVectorUtils.distance2D(startNode, endNode) / 1.7
+			local dStartEnd = ADVectorUtils.distance2D(startNode, endNode) / roundFac
 
 			-- we need to normalize the length of p0-start and end-p3, otherwise their length will influence the curve
 			-- get vector from p0->start
@@ -565,12 +572,21 @@ function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirec
 			p3.y = endNode.y
 
 			local prevWP = startNode
+			local prevV = ADVectorUtils.subtract2D(p0, startNode)
 			-- we're calculting a VERY smooth curve and whenever the new point on the curve has a good distance to the last one create a new waypoint
 			-- but make sure that the last point also has a good distance to the endNode
 			for i = 1, 200 do
 				local px = ADGraphManager:CatmullRomInterpolate(i, p0, startNode, endNode, p3, 200)
-				if ADVectorUtils.distance2D(prevWP, px) >= 2 and ADVectorUtils.distance2D(px, endNode) >= 2 then
-					-- TODO: we can reduce the amount of waypoints by also taking the angle into account. Only create new waypoint if angle > whetever..
+				local newV = ADVectorUtils.subtract2D(prevWP, px)
+				local dAngle = math.abs(AutoDrive.angleBetween(prevV, newV))
+
+				-- only create new WP if distance to last one is > 2m and distance to target > 2m and angle to last one >0 3°
+				if ADVectorUtils.distance2D(prevWP, px) >= 2 and
+					ADVectorUtils.distance2D(px, endNode) >= 2 and
+					dAngle >= 3 then
+
+					-- get height at terrain
+					px.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, px.x, 1, px.z)
 
 					ADGraphManager:createWayPoint(px.x, px.y, px.z)
 					-- HACK: we assume that we created the last WP here, ignoring MP and parallel events... :(
@@ -578,9 +594,14 @@ function ADGraphManager:smoothConnectionBetween(startNode, endNode, reverseDirec
 					local newWP = self:getWayPointById(newID)
 					ADGraphManager:toggleConnectionBetween(prevWP, newWP, false)
 					prevWP = newWP
+					prevV = newV
 				end
 			end
 			ADGraphManager:toggleConnectionBetween(prevWP, endNode, false)
+
+		else -- fallback to straight line connection behaviour
+			ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirection)
+			return
 		end
 	end
 	self:markChanges()
@@ -599,7 +620,7 @@ function ADGraphManager:CatmullRomInterpolate(index, p0, p1, p2, p3, segments)
 		local dz = z[i] - z[i - 1]
 		-- the .9 is giving the wideness and roundness of the curve,
 		-- lower values (like .25 will be more straight, while high values like .95 will be wider and rounder)
-		total = total + math.pow(dx * dx + dz * dz, 0.99)
+		total = total + math.pow(dx * dx + dz * dz, 0.95)
 		time[i] = total
 	end
     local tstart = time[2]
@@ -622,7 +643,6 @@ function ADGraphManager:CatmullRomInterpolate(index, p0, p1, p2, p3, segments)
 	C12 = L012 * (time[3] - t) / (time[3] - time[2]) + L123 * (t - time[2]) / (time[3] - time[2])
 	px.z = C12
 
-	px.y = (p0.y + p1.y + p2.y + p3.y) / 4
 	return px
 end
 
