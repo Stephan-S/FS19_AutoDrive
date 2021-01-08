@@ -246,7 +246,16 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
             AutoDrive.enableSphrere = true
         else
             AutoDrive.enableSphrere = AutoDrive.toggleSphrere
-        end
+		end
+
+		-- TODO: Make those keys proper actions and bindable settings
+		if sym == Input.KEY_period and isDown and ADGraphManager.curvePreview ~= nil then
+			ADGraphManager:recalculatePreview(math.max(ADGraphManager.curvePreview.curvature - .2, 0.5))
+		end
+		if sym == Input.KEY_comma and isDown and ADGraphManager.curvePreview ~= nil then
+			ADGraphManager:recalculatePreview(math.min(ADGraphManager.curvePreview.curvature + .2, 3.5))
+		end
+
     end
 end
 

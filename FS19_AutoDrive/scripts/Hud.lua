@@ -409,14 +409,32 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
             -- 1st or 2nd Editor Mode enabled
             -- try to get a waypoint in mouse range
             for _, point in pairs(vehicle:getWayPointsInRange(0, AutoDrive.drawDistance)) do
-                if AutoDrive.mouseIsAtPos(point, 0.01) then
-                    vehicle.ad.hoveredNodeId = point.id
+				if AutoDrive.mouseIsAtPos(point, 0.01) then
+					if point.id ~= vehicle.ad.hoveredNodeId then
+						vehicle.ad.hoveredNodeId = point.id
+
+						-- if there is a selected node which is not the hovered node, draw a preview of a potential connection
+						if vehicle.ad.selectedNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+							ADGraphManager:previewConnectionBetween(
+								ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId),
+								ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId)
+							)
+						end
+					end
                     break
                 end
             end
             if vehicle.ad.nodeToMoveId ~= nil then
                 -- move point at mouse position
-                AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
+				AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
+
+				if ADGraphManager.curvePreview ~= nil and ADGraphManager:doesNodeAffectPreview(vehicle.ad.nodeToMoveId) then
+					-- recalculate curve
+					ADGraphManager:previewConnectionBetween(
+						ADGraphManager.curvePreview.startNode,
+						ADGraphManager.curvePreview.endNode
+					)
+				end
             end
             if vehicle.ad.hoveredNodeId ~= nil then
                 -- waypoint at mouse position
@@ -424,21 +442,16 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                     -- left mouse button to select point / connect to already selected point
                     if vehicle.ad.selectedNodeId ~= nil then
 						if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-							local success = true
-							if AutoDrive.isCAPSKeyActive then
-								-- try a smooth connection between two nodes
-								success = ADGraphManager:smoothConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
-							else 
-								-- connect selected point with hovered point
-								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
-							end
+							ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
                         end
                         -- unselect point
-                        vehicle.ad.selectedNodeId = nil
+						vehicle.ad.selectedNodeId = nil
+						ADGraphManager.curvePreview = nil
                     else
                         -- select point
                         -- no selectedNodeId: hoveredNodeId is now selectedNodeId
-                        vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+						vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+						ADGraphManager.curvePreview = nil
                     end
                 end
 

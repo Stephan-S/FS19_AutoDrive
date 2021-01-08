@@ -610,6 +610,16 @@ function AutoDrive:onDrawEditorMode()
             DrawingManager:addCrossTask(x, y, z)
         end
     end
+
+    -- draw curve preview if available
+    if AutoDrive.isInExtendedEditorMode() and ADGraphManager.curvePreview ~= nil then
+        for i = 1, #ADGraphManager.curvePreview.waypoints - 1, 1 do
+            local p0 = ADGraphManager.curvePreview.waypoints[i]
+            local p1 = ADGraphManager.curvePreview.waypoints[i + 1]
+            DrawingManager:addLineTask(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, 1, 0.85, 0)
+            DrawingManager:addSphereTask(p1.x, p1.y, p1.z, 2.0, 1, 0.85, 0, 1)
+        end
+    end
 end
 
 function AutoDrive:startAutoDrive()
