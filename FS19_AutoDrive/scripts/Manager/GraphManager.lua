@@ -507,6 +507,16 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 			-- if there is an active preview between startNode and endNode use this to create new WP - otherwise just create a straight line
 			if self.curvePreview ~= nil and startNode == self.curvePreview.startNode and endNode == self.curvePreview.endNode then
 
+				-- if there are only 2 WP in the preview - just create a straight line as before
+				if #self.curvePreview.waypoints == 2 then
+					table.insert(startNode.out, endNode.id)
+					if not reverseDirection then
+						table.insert(endNode.incoming, startNode.id)
+					end
+					self:markChanges()
+					return
+				end
+
 				local aWP = startNode
 				local bWP = nil
 
@@ -572,10 +582,10 @@ function ADGraphManager:previewConnectionBetween(startNode, endNode, reverseDire
 	end
 
 	if table.contains(startNode.out, endNode.id) or table.contains(endNode.incoming, startNode.id) then
-		-- nodes are already connected - remove connections
-		-- table.removeValue(startNode.out, endNode.id)
-		-- table.removeValue(endNode.incoming, startNode.id)
+		-- nodes are already connected - do not create preview
+		return
 	else
+		-- TODO: if we have more then one inbound or outbound connections, get the avg. vector
 		if #startNode.incoming == 1 and #endNode.out == 1 then
 
 			if reuseParams == nil or reuseParams == false then
@@ -592,7 +602,6 @@ function ADGraphManager:previewConnectionBetween(startNode, endNode, reverseDire
 				self.curvePreview.waypoints = { startNode }
 			end
 
-			-- TODO: if we have more then one inbound or outbound connections, get the avg. vector
 			local p0 = nil
 			for _, px in pairs(startNode.incoming) do
 				p0 = ADGraphManager:getWayPointById(px)
@@ -650,12 +659,13 @@ function ADGraphManager:previewConnectionBetween(startNode, endNode, reverseDire
 				local dAngle = math.abs(AutoDrive.angleBetween(prevV, newV))
 
 				-- only create new WP if distance to last one is > 2m and distance to target > 2m and angle to last one >0 3°
-				if ADVectorUtils.distance2D(prevWP, px) >= 1 and
-					ADVectorUtils.distance2D(px, endNode) >= 1 and
-					dAngle >= 2.5 then
+				if ADVectorUtils.distance2D(prevWP, px) >= 1.5 and
+					ADVectorUtils.distance2D(px, endNode) >= 1.5 and
+					dAngle >= 3 then
 
-					-- get height at terrain
-					px.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, px.x, 1, px.z)
+					-- get height at terrain 
+					-- TODO: sometimes lines go into the ground - no idea why... making sure that they are at least as high as start or end
+					px.y = math.max(math.min(startNode.y, endNode.y), getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, px.x, 1, px.z))
 					table.insert(self.curvePreview.waypoints, px)
 					prevWP = px -- newWP
 					prevV = newV
