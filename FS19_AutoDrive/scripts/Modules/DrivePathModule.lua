@@ -228,7 +228,7 @@ function ADDrivePathModule:followWaypoints(dt)
             self.speedLimit = math.min(12, self.speedLimit)
             maxSpeedDiff = 3
         else
-            local isInRangeToLoadUnloadTarget = self.distanceToTarget <= AutoDrive.getSetting("maxTriggerDistance")
+            local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) and self.distanceToTarget <= AutoDrive.getSetting("maxTriggerDistance")
             if isInRangeToLoadUnloadTarget == true then
                 self.speedLimit = math.min(5, self.speedLimit)
             end
