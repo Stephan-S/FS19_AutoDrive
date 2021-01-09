@@ -204,7 +204,7 @@ function AutoDrive:saveSavegame()
 			end
 		end
 ]]
-        AutoDrive.saveToXML(AutoDrive.adXml)
+        AutoDrive.saveToXML()
 		ADUserDataManager:saveToXml()
 --        g_logManager:info("[AD] AutoDrive:saveSavegame g_server ~= nil end")
 	end
@@ -226,9 +226,6 @@ function AutoDrive:deleteMap()
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
 	ADRoutesManager:delete()
-	if g_server ~= nil then
-		delete(AutoDrive.adXml)
-	end
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
