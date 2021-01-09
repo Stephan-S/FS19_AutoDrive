@@ -90,6 +90,10 @@ AutoDrive.actions = {
 	{"ADParkVehicle", false, 0}
 }
 
+function AutoDrive:onAllModsLoaded()
+	ADThirdPartyModsManager:load()
+end
+
 function AutoDrive:loadMap(name)
 g_logManager:info("[AD] Start register later loaded mods...")
 -- second iteration to register AD to vehicle types which where loaded after AD
