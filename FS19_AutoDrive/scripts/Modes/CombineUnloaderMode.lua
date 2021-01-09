@@ -383,7 +383,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
 end
 
 function CombineUnloaderMode:shouldLoadOnTrigger()
-    return self.state == self.STATE_PICKUP
+    return false
 end
 
 function CombineUnloaderMode:shouldUnloadAtTrigger()
