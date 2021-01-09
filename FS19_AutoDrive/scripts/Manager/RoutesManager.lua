@@ -12,10 +12,13 @@ ADRoutesManager.cfnInterval = 1000
 ADRoutesManager.cfnFile = ""
 
 function ADRoutesManager:load()
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
-   -- defining and creating needed folders
+
+    addConsoleCommand("adExportRoutesAsExternalMod", "Gives you the basic files to create an 'AutoDrive routes mod'", "exportRoutesAsExternalMod", self)
+
+    -- defining and creating needed folders
     self.rootFolder = getUserProfileAppPath() .. "autoDrive/"
     createFolder(self.rootFolder)
     self.managerFolder = self.rootFolder .. "routesManager/"
@@ -29,7 +32,7 @@ function ADRoutesManager:load()
 end
 
 function ADRoutesManager:loadRoutesFromXML()
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
     self:delete()
@@ -60,7 +63,7 @@ function ADRoutesManager:loadRoutesFromXML()
 end
 
 function ADRoutesManager:update(dt)
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
     self.cfnTimer = self.cfnTimer + dt
@@ -77,7 +80,7 @@ function ADRoutesManager:update(dt)
 end
 
 function ADRoutesManager:import(name)
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
     local route =
@@ -98,7 +101,7 @@ function ADRoutesManager:import(name)
 end
 
 function ADRoutesManager:export(name)
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
     local fileName = self:getFileName()
@@ -139,7 +142,7 @@ function ADRoutesManager:export(name)
 end
 
 function ADRoutesManager:remove(name)
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
     local mapName = AutoDrive.loadedMap
@@ -168,7 +171,7 @@ function ADRoutesManager:getFileName()
 end
 
 function ADRoutesManager:saveRoutes()
-	if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
+    if g_currentMission:getIsClient() and not g_currentMission:getIsServer() and not g_currentMission.isMasterUser then
         return
     end
     -- updating routes.xml
@@ -199,4 +202,27 @@ function ADRoutesManager:delete()
     if self.xml ~= nil then
         delete(self.xml)
     end
+end
+
+function ADRoutesManager:exportRoutesAsExternalMod()
+    local mapName = AutoDrive.loadedMap
+    local exportRootFolder = string.format("%sFS19_AutoDrive_Routes_%s/", self.rootFolder, mapName)
+    createFolder(exportRootFolder)
+    local exportRoutesFolder = string.format("%sroutes/", exportRootFolder)
+    createFolder(exportRoutesFolder)
+
+    local mdXml = createXMLFile("modDesc_xml", exportRootFolder .. "modDesc.xml", "modDesc")
+    setXMLString(mdXml, "modDesc.autoDrive#routesFolder", "routes/")
+    setXMLString(mdXml, "modDesc.autoDrive#routesFolder", "routes/")
+    setXMLString(mdXml, "modDesc.autoDrive.routes.route(0)#mapName", mapName)
+    setXMLString(mdXml, "modDesc.autoDrive.routes.route(0)#fileName", mapName .. ".xml")
+    saveXMLFile(mdXml)
+    delete(mdXml)
+
+    local rXml = createXMLFile("modDesc_xml", exportRoutesFolder .. mapName .. ".xml", "defaultRoutes")
+    AutoDrive.writeGraphToXml(rXml, "defaultRoutes", ADGraphManager:getWayPoints(), ADGraphManager:getMapMarkers(), ADGraphManager:getGroups())
+    saveXMLFile(rXml)
+    delete(rXml)
+
+    print(string.format("Files exported to '%s'", exportRootFolder))
 end

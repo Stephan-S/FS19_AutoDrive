@@ -447,7 +447,7 @@ function AutoDrive.dumpTable(inputTable, name, maxDepth)
 	end
 end
 
-addConsoleCommand("ADsetDebugChannel", "Set new debug channel", "setDebugChannel", AutoDrive)
+addConsoleCommand("adSetDebugChannel", "Set new debug channel", "setDebugChannel", AutoDrive)
 
 function AutoDrive:setDebugChannel(newDebugChannel)
 	if newDebugChannel ~= nil then
