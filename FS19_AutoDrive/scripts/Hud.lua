@@ -429,7 +429,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 -- move point at mouse position
 				AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
 
-				if AutoDrive.experimentalFeatures.smoothWaypointConnection and 
+				if AutoDrive.experimentalFeatures.smoothWaypointConnection and
 				   ADGraphManager.curvePreview ~= nil and ADGraphManager:doesNodeAffectPreview(vehicle.ad.nodeToMoveId) then
 					-- recalculate curve
 					ADGraphManager:previewConnectionBetween(
