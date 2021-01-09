@@ -6,9 +6,11 @@ AutoDrive.directory = g_currentModDirectory
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
 
-AutoDrive.experimentalFeatures = {}
-AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.dynamicChaseDistance = false
+AutoDrive.experimentalFeatures = {
+	redLinePosition = false,
+	dynamicChaseDistance = false,
+	smoothWaypointConnection = false
+}
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -17,6 +19,11 @@ AutoDrive.mapHotspotsBuffer = {}
 
 AutoDrive.drawHeight = 0.3
 AutoDrive.drawDistance = getViewDistanceCoeff() * 50
+
+-- Global set of colors used in rendering
+AutoDrive.COLORS = {
+	EDITOR_LINE_PREVIEW = {r=1, g=0.85, b=0, a=1}
+}
 
 AutoDrive.STAT_NAMES = {"driversTraveledDistance", "driversHired"}
 for _, statName in pairs(AutoDrive.STAT_NAMES) do
@@ -248,12 +255,14 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
             AutoDrive.enableSphrere = AutoDrive.toggleSphrere
 		end
 
-		-- TODO: Make those keys proper actions and bindable settings
-		if sym == Input.KEY_period and isDown and ADGraphManager.curvePreview ~= nil then
-			ADGraphManager:recalculatePreview(math.max(ADGraphManager.curvePreview.curvature - .2, 0.5))
-		end
-		if sym == Input.KEY_comma and isDown and ADGraphManager.curvePreview ~= nil then
-			ADGraphManager:recalculatePreview(math.min(ADGraphManager.curvePreview.curvature + .2, 3.5))
+		if AutoDrive.experimentalFeatures.smoothWaypointConnection then
+			-- TODO: Make those keys proper actions and bindable settings
+			if sym == Input.KEY_period and isDown and ADGraphManager.curvePreview ~= nil then
+				ADGraphManager:recalculatePreview(math.max(ADGraphManager.curvePreview.curvature - .2, 0.5))
+			end
+			if sym == Input.KEY_comma and isDown and ADGraphManager.curvePreview ~= nil then
+				ADGraphManager:recalculatePreview(math.min(ADGraphManager.curvePreview.curvature + .2, 3.5))
+			end
 		end
 
     end

@@ -414,7 +414,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 						vehicle.ad.hoveredNodeId = point.id
 
 						-- if there is a selected node which is not the hovered node, draw a preview of a potential connection
-						if vehicle.ad.selectedNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+						if AutoDrive.experimentalFeatures.smoothWaypointConnection and
+						   vehicle.ad.selectedNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
 							ADGraphManager:previewConnectionBetween(
 								ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId),
 								ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId)
@@ -428,7 +429,8 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 -- move point at mouse position
 				AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
 
-				if ADGraphManager.curvePreview ~= nil and ADGraphManager:doesNodeAffectPreview(vehicle.ad.nodeToMoveId) then
+				if AutoDrive.experimentalFeatures.smoothWaypointConnection and 
+				   ADGraphManager.curvePreview ~= nil and ADGraphManager:doesNodeAffectPreview(vehicle.ad.nodeToMoveId) then
 					-- recalculate curve
 					ADGraphManager:previewConnectionBetween(
 						ADGraphManager.curvePreview.startNode,

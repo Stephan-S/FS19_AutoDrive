@@ -504,8 +504,9 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 			table.removeValue(startNode.out, endNode.id)
 			table.removeValue(endNode.incoming, startNode.id)
 		else
-			-- if there is an active preview between startNode and endNode use this to create new WP - otherwise just create a straight line
-			if self.curvePreview ~= nil and startNode == self.curvePreview.startNode and endNode == self.curvePreview.endNode then
+			-- if there is an active preview between startNode and endNode use this to create new WPs - otherwise just create a straight line
+			if AutoDrive.experimentalFeatures.smoothWaypointConnection and
+			   self.curvePreview ~= nil and startNode == self.curvePreview.startNode and endNode == self.curvePreview.endNode then
 
 				-- if there are only 2 WP in the preview - just create a straight line as before
 				if #self.curvePreview.waypoints == 2 then
@@ -533,6 +534,7 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 				-- connect last new WP with end node
 				ADGraphManager:toggleConnectionBetween(aWP, endNode, false)
 			else
+				-- original behaviour - just create a straight line
 				table.insert(startNode.out, endNode.id)
 				if not reverseDirection then
 					table.insert(endNode.incoming, startNode.id)
@@ -561,6 +563,8 @@ function ADGraphManager:doesNodeAffectPreview(nodeId)
 	return false
 end
 
+--- Enforces a recalculation of the smooth preview, e.g. if the roundness has changed.
+--- @param curvature number Roundness of the curve. Should be between 0.5 and 3 for useful results.
 function ADGraphManager:recalculatePreview(curvature)
 	if self.curvePreview == nil then
 		return
