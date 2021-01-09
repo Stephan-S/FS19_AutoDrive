@@ -106,11 +106,23 @@ end
 
 function AutoDrive.isPipeOut(combine)
     local spec = combine.spec_pipe
-    if spec ~= nil and spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
-        return true
+
+    if (spec ~= nil and combine.getIsBufferCombine ~= nil) then
+        if spec.currentState == spec.targetState and (spec.currentState == 2 or combine.typeName == "combineCutterFruitPreparer") then
+            return true
+        end
     else
-        return false
+        if combine.getAttachedImplements ~= nil then
+            for _, implement in pairs(combine:getAttachedImplements()) do
+                if (implement.object.spec_pipe ~= nil and implement.object.getIsBufferCombine ~= nil) then
+                    if implement.object.spec_pipe.currentState == implement.object.spec_pipe.targetState and (implement.object.spec_pipe.currentState == 2 or implement.object.typeName == "combineCutterFruitPreparer") then
+                        return true
+                    end
+                end
+            end
+        end
     end
+    return false
 end
 
 function AutoDrive.isSugarcaneHarvester(combine)

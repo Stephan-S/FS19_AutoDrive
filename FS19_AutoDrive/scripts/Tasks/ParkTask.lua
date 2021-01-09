@@ -12,6 +12,7 @@ function ParkTask:new(vehicle, destinationID)
 end
 
 function ParkTask:setUp()
+    self.vehicle.ad.onRouteToPark = false
 
     if AutoDrive.getSetting("enableParkAtJobFinished", self.vehicle) then
         local actualParkDestination = self.vehicle.ad.stateModule:getParkDestinationAtJobFinished()
@@ -45,7 +46,6 @@ function ParkTask:update(dt)
             else
                 self.vehicle.ad.drivePathModule:setWayPoints(self.wayPoints)
                 self.state = ParkTask.STATE_DRIVING
-                self.vehicle.ad.onRouteToPark = true
             end
         else
             self.vehicle.ad.pathFinderModule:update(dt)
@@ -78,7 +78,9 @@ end
 function ParkTask:getI18nInfo()
     if self.state == ParkTask.STATE_PATHPLANNING then
         return "$l10n_AD_task_pathfinding;"
-    else
+    elseif self.vehicle.ad.onRouteToPark == true then
         return "$l10n_AD_task_drive_to_park;"
+    else
+        return "$l10n_AD_task_drive_to_destination;"
     end
 end

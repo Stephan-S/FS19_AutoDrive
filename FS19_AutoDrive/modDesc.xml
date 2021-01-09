@@ -1,22 +1,82 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="46">
+<modDesc descVersion="53">
 	<author>Balu</author>
 	<title>
 		<en>AutoDrive</en>
 	</title>
 	<description>
 		<en>
-			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.]]>
+			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
+
+Changelog 1.1.0.7:
+- Unload backwards into bunker silo
+- GUI reworked for easier usability
+- Colored marking of previous and following waypoints in the editor
+- Open and close folder with folder name
+- Marking of open waypoints
+- Cooperation with Courseplay and AIVE
+- Loading and unloading at multiple destinations
+- adjustable collision detection
+- Vehicles, trailers and attachments can be assigned and approached to parking positions
+- Parking positions can be approached at the end of unloading cycles
+- MultiPlayer support improved
+- Automatic flashing adjustable
+- Automatic selection of unloading side adjustable
+- Automatic opening and closing of trailer cover adjustable
+- Rotating beacon adjustable for each vehicle
+- Further a key combination can be assigned
+- Card name removed from config file
+]]>
 		</en>
 		<de>
-			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.]]>
+			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
+
+Changelog 1.1.0.7:
+- Rückwärts in Bunker Silo entladen
+- GUI überarbeitet für einfachere Bedienbarkeit
+- Farbliche Markierung vorheriger und nachfolgender Wegpunkte im Editor
+- Ordner öffnen und schließen mit Ordnername
+- Markierung offener Wegstrecken
+- Zusammenarbeit mit Courseplay und AIVE
+- Be- und Entladen an mehreren Zielen
+- einstellbare Kollisionserkennung
+- Fahrzeugen, Anhängern und Anbauteilen können Parkplätze zugewiesen und angefahren werden
+- Parkpositionen können bei Ende von Abladezyklen angefahren werden
+- MultiPlayer-Unterstützung verbessert
+- Automatisches Blinken einstellbar
+- Automatische Auswahl der Abladeseite einstellbar
+- Automatisches Öffnen und Schließen der Abdeckung von Anhängern einstellbar
+- Rundumleuchte für jedes Fahrzeug einstellbar
+- Weiter kann eine Tastenkombination zugewiesen werden
+- Kartenname aus der config-Datei entfernt
+]]>
 		</de>
 		<it>
 			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.]]>
 		</it>
 		<fr>
 			<![CDATA[Ce mod peut être utilisé pour créer un réseau de routes permettant aux véhicules de conduire de manière autonome. Une fois la configuration effectuée, vous pouvez indiquer à un tracteur situé près du réseau de se rendre à n’importe quel point, tel que le magasin, le champ 1 ou un point de vente.
-Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !]]>
+Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
+
+Changelog 1.1.0.7:
+- Déchargement à l'envers dans un silo-couloir
+- L'interface graphique a été retravaillée pour une utilisation plus aisée
+- Marquage coloré des points de passage précédents et suivants dans l'éditeur
+- Ouvrir et fermer le dossier avec le nom du dossier
+- Marquage des points de passage ouverts
+- Coopération avec Courseplay et AIVE
+- Chargement et déchargement à des destinations multiples
+- détection réglable des collisions
+- Les véhicules, remorques et accessoires peuvent être affectés et approchés aux positions de stationnement
+- Les positions de stationnement peuvent être approchées à la fin des cycles de déchargement
+- Amélioration du support multijoueurs
+- Clignotement automatique réglable
+- Sélection automatique du côté de déchargement réglable
+- Ouverture et fermeture automatique de la bâche de la remorque réglable
+- Balise tournante réglable pour chaque véhicule
+- En outre, une combinaison de clés peut être attribuée
+- Nom de la carte retiré du fichier de configuration
+]]>
 		</fr>
 		<es>
 			<![CDATA[Este mod se utiliza para crear una red de rutas y permitir que los vehículos conduzcan de forma autónoma. Una vez configurado, puede ordenar a un tractor, cercano a la red, que conduzca a cualquier meta definida, como la tienda, el campo 1 o un punto de venta.]]>
@@ -25,7 +85,7 @@ Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'ai
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.0.6</version>
+	<version>1.1.0.7</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>
