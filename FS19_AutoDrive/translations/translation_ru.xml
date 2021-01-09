@@ -102,7 +102,7 @@
 		<text name="gui_ad_notifications_text_4"				text="Долго" />
 		<text name="gui_ad_notifications_text_5"				text="Очень долго" />
 		<text name="gui_ad_notifications_text_6"				text="Бесконечно" />
-		<text name="gui_ad_notifications_tooltip"				text="Время отображения уведомлений" />
+		<text name="gui_ad_notifications_tooltip"				text="Время отображения уведомлений: не отображать / около 2,5/5/10/25 сек/ Отображать, пока не закроет пользователь." />
 		<text name="gui_ad_exitField"							text="Выезд с поля" />
 		<text name="gui_ad_exitField_tooltip"					text="Способ выезда с поля при разгрузке." />
 		<text name="gui_ad_default"								text="Обычный" />
@@ -133,13 +133,13 @@
 		<text name="gui_ad_onlyDeliver"					        text="только Доставки" />
 		<text name="gui_ad_PickupandDeliver"					text="Загрузки и Доставки" />
 		<text name="gui_ad_rotateTargets"					    text="Менять Загрузки и Доставки" />
-		<text name="gui_ad_rotateTargets_tooltip"			    text="4 режима: не менять локации/ только локации Загрузок/ только локации Доставок/ менять циклически в папке локации Загрузок и Доставок (не работает для стандартных папок) (учитывается только активировано 'Использовать папки')." />
-		<text name="gui_ad_distributeToFolder"					text="Несколько локаций" />
-		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации из одной папки станут считаться местами выгрузки." />
+		<text name="gui_ad_rotateTargets_tooltip"			    text="4 режима: не менять локации/ только локации Загрузок/ только локации Доставок/ менять циклически в папке локации Загрузок и Доставок (не для стандартных папок) (учитывается только активировано 'Использовать папки')." />
+		<text name="gui_ad_distributeToFolder"					text="Несколько локаций" /> <!-- кажется не используется -->
+		<text name="gui_ad_distributeToFolder_tooltip"			text="Все локации из одной папки станут числиться, как места выгрузки." /> <!-- кажется не используется -->
 		<text name="gui_ad_maxTriggerDistance"					text="Макс. расстояние триггера" />
 		<text name="gui_ad_maxTriggerDistance_tooltip"			text="Расстояние до локации, на котором обнаруживаются и активируются триггеры." />
 		<text name="gui_ad_useBeaconLights"						text="Маячок" />
-		<text name="gui_ad_useBeaconLights_tooltip"				text="Включать маячок при движении по дороге." />
+		<text name="gui_ad_useBeaconLights_tooltip"				text="Да - использовать автоматические сигнальные огни за пределами полей / Нет - сигнальные огни не будут включаться или выключаться автоматически." />
 		<text name="gui_ad_restrictToField"						text="Поиск маршрута ограничен полем" />
 		<text name="gui_ad_restrictToField_tooltip"				text="Если разгружающий автомобиль уже находится на поле, он ограничит поиск маршрута границами данного поля." />
 		<text name="gui_ad_showTooltips"						text="Отображать подсказки" />
@@ -179,12 +179,12 @@
 		<text name="gui_ad_wideHUD_tooltip"						text="Использовать режим широкого HUD, который также позволяет использовать еще несколько кнопок настройки в HUD." />
 		<text name="gui_ad_syncMultiTargets"					text="Синхронизация нескольких локаций" />
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Если несколько водителей едут в одно и то же место, выбор места назначения синхронизируется." />
-		<text name="gui_ad_enableParkAtJobFinished"				text="Парковка после завершения работы" />
-		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Доступно только в режимах «Загрузка и доставка», «Доставка»: если работа завершена, транспортное средство переместится с прицепом и навесным оборудованием до парковочного места. В мультиплеере до парковочного места переместится только само транспортное средство, без всего!" />
-		<text name="gui_ad_autoTipSide"                         text="Управление стороной разгрузки" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - сторона разгрузки выбирается самостоятельно." />
-		<text name="gui_ad_autoTrailerCover"                    text="Управление тентом кузова" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Да - AutoDrive автоматически открывает и закрывает тент кузова / Нет - AutoDrive не управляет тентом кузова." />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Парковка по завершению" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Доступно только в режимах «Загрузка и доставка» и «Доставка»: по завершении работы, техника будет отправлена на заранее назначенное парковочное место автомобиля/навесного оборудования. На Dedi-Server доступно только место для парковки автомобиля!" />
+		<text name="gui_ad_autoTipSide"                         text="Автовыбор стороны разгрузки" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
+		<text name="gui_ad_autoTrailerCover"                    text="Тенты на прицепах" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
@@ -242,10 +242,10 @@
 		<text name="ad_helpText_04_02"							text="Если AutoDrive активирован, он будет следить за уровнем заполнения подсоединённых прицепов/орудий. Если это значение выше, чем установленное значение «Отвозить при уровне» (см. Настройки), водитель сразу направится к назначенному месту для выгрузки." />
 		<text name="ad_helpText_04_03"							text="В противном случае он сначала отправится в назначенный пункт загрузки. В зависимости от выбранной настройки «Если бункер пуст», водитель либо будет ждать в локации загрузки, пока не будет заполнено до значения «Отвозить при уровне», либо продолжит движение к месту выгрузки." />
 		<text name="ad_helpText_04_04"							text="В любом случае, водитель сначала попытается загрузить указанный тип заполнения в любом доступном триггере из указанного диапазона (см. Настройки) мест загрузки." />
-		<text name="ad_helpText_04_05"							text="Дополнительно, перед запуском водителя, вы можете установить счетчик повторений (рейсов). Если вы установите этот счетчик на 2, водитель остановится после того, как 2 раза достигнет места выгрузки. Если этот параметр (см. HUD) оставить по умолчанию, водитель будет ездить постоянно." />
+		<text name="ad_helpText_04_05"							text="Дополнительно, перед запуском водителя, вы можете установить счетчик рейсов. Если вы установите этот счетчик на 2, водитель остановится после того, как 2 раза достигнет места выгрузки. Если этот параметр (см. HUD) оставить по умолчанию, водитель будет ездить постоянно." />
 
 		<text name="ad_helpTitle_05"							text="Режим AD - Загрузка" />
-		<text name="ad_helpText_05_01"							text="Этот режим очень похож на ранее описанный режим «Загрузка и доставка», за небольшим исключением: не будет учитываться «счетчик повторений»." />
+		<text name="ad_helpText_05_01"							text="Этот режим очень похож на ранее описанный режим «Загрузка и доставка», за небольшим исключением: не будет учитываться счетчик рейсов." />
 		<text name="ad_helpText_05_02"							text="Существует только пункт загрузки и локация, в которой водитель остановится и отключит AutoDrive." />
 		<text name="ad_helpText_05_03"							text="Этот режим предназначен для использования в качестве режима пополнения при полевых работах. Таким образом, сеялки или опрыскиватели могут быть запущены на месте полевых работ и отправлены в точку пополнения, после чего они вернутся к заданному месту назначения." />
 		<text name="ad_helpText_05_04"							text="Этот режим также можно использовать в сочетании с Courseplay. Вам нужно будет выбрать «AutoDrive: Для разгрузки/наполнения» в HUD Courseplay (не является частью этой документации)." />
@@ -308,16 +308,16 @@
 		<text name="AD_task_stop_and_disable"					text="Останавливается" />
 		<text name="AD_task_drive_to_unload_point"				text="Двигается к точке разгрузки" />
 		<text name="AD_task_wait_for_call"						text="Ожидает вызова" />
-		<text name="AD_task_chasing_combine"					text="Следует за комбайном" />	
-		<text name="AD_task_wait_for_combine_pass_by"			text="Позволяет комбайну пройти мимо" />	
-		<text name="AD_task_catching_chase_side"				text="Сторона приёма" />	
+		<text name="AD_task_chasing_combine"					text="Следует за комбайном" />
+		<text name="AD_task_wait_for_combine_pass_by"			text="Позволяет комбайну пройти мимо" />
+		<text name="AD_task_catching_chase_side"				text="Сторона приёма" />
 		<text name="AD_task_chase_side"							text="Сторона" />	
-		<text name="AD_task_chase_side_left"					text="Слева" />	
-		<text name="AD_task_chase_side_rear"					text="Сзади" />	
-		<text name="AD_task_chase_side_right"					text="Справа" />		
+		<text name="AD_task_chase_side_left"					text="слева" />	
+		<text name="AD_task_chase_side_rear"					text="сзади" />	
+		<text name="AD_task_chase_side_right"					text="справа" />
 		<text name="AD_task_waiting_for_room"					text="Ожидает пространства" />
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
-		<text name="AD_task_reversing_from_collision"			text="Поиск чистой области" />
-        <text name="AD_task_drive_to_park"				        text="Доехать до места парковки" />
+		<text name="AD_task_reversing_from_collision"			text="Ищет свободное пространство" />
+		<text name="AD_task_drive_to_park"						text="Движется на парковочное место" />
 	</texts>
 </l10n>
