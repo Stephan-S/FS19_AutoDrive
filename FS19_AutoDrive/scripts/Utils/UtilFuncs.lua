@@ -739,6 +739,168 @@ function AutoDrive:onFillTypeSelection(superFunc, fillType)
 	end
 end
 
+function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)
+    local isTurning = self.vehicle:getRootVehicle():getAIIsTurning()
+    local allowedToDrive = true
+    local waitForStraw = false
+    local maxSpeed = math.huge
+    for _, combine in pairs(self.combines) do
+        if not combine:getIsThreshingAllowed() then
+            self.vehicle:stopAIVehicle(AIVehicle.STOP_REASON_REGULAR)
+            self:debugPrint("Stopping AIVehicle - combine not allowed to thresh")
+            return nil, nil, nil, nil, nil
+        end
+        if combine.spec_pipe ~= nil then
+            local fillLevel = 0
+            local capacity = 0
+            local trailerInTrigger = false
+            local invalidTrailerInTrigger = false
+            local dischargeNode = combine:getCurrentDischargeNode()
+            if dischargeNode ~= nil then
+                fillLevel = combine:getFillUnitFillLevel(dischargeNode.fillUnitIndex)
+                capacity = combine:getFillUnitCapacity(dischargeNode.fillUnitIndex)
+            end
+            local trailer = NetworkUtil.getObject(combine.spec_pipe.nearestObjectInTriggers.objectId)
+            local trailerFillUnitIndex = combine.spec_pipe.nearestObjectInTriggers.fillUnitIndex
+            if trailer ~= nil then
+                trailerInTrigger = true
+            end
+            if combine.spec_pipe.nearestObjectInTriggerIgnoreFillLevel then
+                invalidTrailerInTrigger = true
+            end
+            local currentPipeTargetState = combine.spec_pipe.targetState
+            if capacity == math.huge then
+                -- forage harvesters
+                if currentPipeTargetState ~= 2 then
+                    combine:setPipeState(2)
+                end
+                if not isTurning then
+                    local targetObject, _ = combine:getDischargeTargetObject(dischargeNode)
+                    allowedToDrive = trailerInTrigger and targetObject ~= nil
+                    if VehicleDebug.state == VehicleDebug.DEBUG_AI then
+                        if not trailerInTrigger then
+                            self.vehicle:addAIDebugText("COMBINE -> Waiting for trailer enter the trigger")
+                        elseif trailerInTrigger and targetObject == nil then
+                            self.vehicle:addAIDebugText("COMBINE -> Waiting for pipe hitting the trailer")
+                        end
+                    end
+                end
+            else
+                -- combine harvesters
+                local pipeState = currentPipeTargetState
+				local pipePercent = 0.9
+				
+				if AutoDrive.getSetting("preCallLevel", self.vehicle) ~= nil then
+					pipePercent = AutoDrive.getSetting("preCallLevel", self.vehicle)
+				end
+                if fillLevel > (0.8*capacity) then
+                    if not self.beaconLightsActive then
+                        self.vehicle:setAIMapHotspotBlinking(true)
+                        self.vehicle:setBeaconLightsVisibility(true)
+                        self.beaconLightsActive = true
+                    end
+                    if not self.notificationGrainTankWarningShown then
+                        g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_CRITICAL, string.format(g_i18n:getText("ingameNotification_aiVehicleReasonGrainTankIsNearlyFull"), self.vehicle:getCurrentHelper().name) )
+                        self.notificationGrainTankWarningShown = true
+                    end
+                else
+                    if self.beaconLightsActive then
+                        self.vehicle:setAIMapHotspotBlinking(false)
+                        self.vehicle:setBeaconLightsVisibility(false)
+                        self.beaconLightsActive = false
+                    end
+                    self.notificationGrainTankWarningShown = false
+                end
+                if fillLevel == capacity then
+                    pipeState = 2
+                    self.wasCompletelyFull = true
+                    if self.notificationFullGrainTankShown ~= true then
+                        g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_CRITICAL, string.format(g_i18n:getText(AIVehicle.REASON_TEXT_MAPPING[AIVehicle.STOP_REASON_GRAINTANK_IS_FULL]), self.vehicle:getCurrentHelper().name) )
+                        self.notificationFullGrainTankShown = true
+                    end
+                else
+                    self.notificationFullGrainTankShown = false
+                end
+                if trailerInTrigger or fillLevel > (pipePercent) * capacity then
+                    pipeState = 2
+                end
+                if not trailerInTrigger then
+                    if fillLevel < capacity * 0.8 then
+                        self.wasCompletelyFull = false
+                        if not combine:getIsTurnedOn() and combine:getCanBeTurnedOn() then
+                            combine:setIsTurnedOn(true)
+                        end
+                    end
+                end
+                if (not trailerInTrigger and not invalidTrailerInTrigger) and fillLevel < pipePercent * capacity then
+                    pipeState = 1
+                end
+                if fillLevel < 0.1 then
+                    if not combine.spec_pipe.aiFoldedPipeUsesTrailerSpace then
+                        if not trailerInTrigger and not invalidTrailerInTrigger then
+                            pipeState = 1
+                        end
+                        if not combine:getIsTurnedOn() and combine:getCanBeTurnedOn() then
+                            combine:setIsTurnedOn(true)
+                        end
+                    end
+                    self.wasCompletelyFull = false
+                end
+                if currentPipeTargetState ~= pipeState then
+                    combine:setPipeState(pipeState)
+                end
+                allowedToDrive = fillLevel < capacity
+                if pipeState == 2 and self.wasCompletelyFull then
+                    allowedToDrive = false
+                    if VehicleDebug.state == VehicleDebug.DEBUG_AI then
+                        self.vehicle:addAIDebugText("COMBINE -> Waiting for trailer to unload")
+                    end
+                end
+                if isTurning and trailerInTrigger then
+                    if combine:getCanDischargeToObject(dischargeNode) then
+                        allowedToDrive = fillLevel == 0
+                        if VehicleDebug.state == VehicleDebug.DEBUG_AI then
+                            if not allowedToDrive then
+                                self.vehicle:addAIDebugText("COMBINE -> Unload to trailer on headland")
+                            end
+                        end
+                    end
+                end
+                local freeFillLevel = capacity - fillLevel
+                if freeFillLevel < self.slowDownFillLevel then
+                    -- we want to drive at least 2 km/h to avoid combine stops too early
+                    maxSpeed = 2 + (freeFillLevel / self.slowDownFillLevel) * self.slowDownStartSpeed
+                    if VehicleDebug.state == VehicleDebug.DEBUG_AI then
+                        self.vehicle:addAIDebugText(string.format("COMBINE -> Slow down because nearly full: %.2f", maxSpeed))
+                    end
+                end
+            end
+            if not trailerInTrigger then
+                if combine.spec_combine.isSwathActive then
+                    if combine.spec_combine.strawPSenabled then
+                        waitForStraw = true
+                    end
+                end
+            end
+        end
+    end
+    if isTurning and waitForStraw then
+        if VehicleDebug.state == VehicleDebug.DEBUG_AI then
+            self.vehicle:addAIDebugText("COMBINE -> Waiting for straw to drop")
+        end
+        local h = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, self.vehicle.aiDriveTarget[1],0,self.vehicle.aiDriveTarget[2])
+        local x,_,z = worldToLocal(self.vehicle:getAIVehicleDirectionNode(), self.vehicle.aiDriveTarget[1],h,self.vehicle.aiDriveTarget[2])
+        local dist = MathUtil.vector2Length(vX-x, vZ-z)
+        return x, z, false, 10, dist
+    else
+        if not allowedToDrive then
+            return 0, 1, true, 0, math.huge
+        else
+            return nil, nil, nil, maxSpeed, nil
+        end
+    end
+end
+
 AIVehicleUtil.driveInDirection = function(self, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
 	if self.getMotorStartTime ~= nil then
 		allowedToDrive = allowedToDrive and (self:getMotorStartTime() <= g_currentMission.time)
