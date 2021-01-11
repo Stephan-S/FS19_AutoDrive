@@ -787,10 +787,9 @@ function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)
                 end
             else
                 -- combine harvesters
-                local pipeState = currentPipeTargetState
+				local pipeState = currentPipeTargetState
 				local pipePercent = 0.9
-				
-				if AutoDrive.getSetting("preCallLevel", self.vehicle) ~= nil then
+				if AutoDrive.getSetting("preCallLevel", self.vehicle) ~= nil and ADHarvestManager:getAssignedUnloader(self.vehicle) ~= nil then
 					pipePercent = AutoDrive.getSetting("preCallLevel", self.vehicle)
 				end
                 if fillLevel > (0.8*capacity) then
