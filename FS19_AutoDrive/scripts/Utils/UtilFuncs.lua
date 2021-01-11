@@ -63,6 +63,28 @@ string.randomCharset = {
 	"z"
 }
 
+--- Calculates a much better result of world height by using a raycast.
+--- The original function `getTerrainHeightAtWorldPos` returns wrong results if, for example, the terrain underneath a road has gaps.
+--- As the raycast uses a callback function, this function must be splitted in two parts.
+--- We're using collision mask of 12 (bit 3&4) - see: ADCollSensor.mask_static_world*
+--- see: https://gdn.giants-software.com/thread.php?categoryId=3&threadId=8381
+--- @param x number X Coordinate
+--- @param z number Z Coordinate
+--- @return number Height of the terrain
+function AutoDrive:getTerrainHeightAtWorldPos(x, z)
+	self.raycastHeight = nil
+	-- get a starting height with the basic function
+	local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+	-- do a raycast from a bit above y
+	raycastClosest(x, y + 9, z, 0, -1, 0, "getTerrainHeightAtWorldPos_Callback", 10, self, 12)
+	return self.raycastHeight or y
+end
+
+--- Callback function called by AutoDrive:getTerrainHeightAtWorldPos()
+function AutoDrive:getTerrainHeightAtWorldPos_Callback(hitObjectId, x, y, z, distance)
+	self.raycastHeight = y
+end
+
 function AutoDrive.streamReadStringOrEmpty(streamId)
 	local string = streamReadString(streamId)
 	if string == nil or string == "nil" then
