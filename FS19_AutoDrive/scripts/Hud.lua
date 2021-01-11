@@ -463,7 +463,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
                         local x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
                         -- And just to correct for slope changes, we now set the height to the terrain height
-                        y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+                        y = AutoDrive:getTerrainHeightAtWorldPos(x, z)
 
                         local screenX, screenY, depthNew = project(x, y + AutoDrive.drawHeight + AutoDrive.getSetting("lineHeight"), z)
 
@@ -479,7 +479,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                             end
 
                             x, y, z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
-                            y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+                            y = AutoDrive:getTerrainHeightAtWorldPos(x, z)
 
                             screenX, screenY, depthNew = project(x, y + AutoDrive.drawHeight + AutoDrive.getSetting("lineHeight"), z)
 
@@ -538,27 +538,7 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 
 	if node ~= nil and g_lastMousePosX ~= nil and g_lastMousePosY ~= nil then
 		node.x, _, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
-		local collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
-		local maxLoops = 10
-		local safeNodeY = node.y
-		while collisions > 0 and maxLoops > 0 do
-			maxLoops = maxLoops - 1
-			node.y = node.y + 0.1
-			safeNodeY = node.y
-			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
-		end
-
-		-- Once again, try if we can't find a proper floor level here
-		maxLoops = 10
-		node.y = node.y - 0.1
-		collisions = overlapBox(node.x, node.y - 0.1, node.z, 0, 0, 0, 0.5, 0.5, 0.5, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
-		while collisions == 0 and maxLoops > 0 do
-			maxLoops = maxLoops - 1
-			safeNodeY = node.y
-			node.y = node.y - 0.1
-			collisions = overlapBox(node.x, node.y, node.z, 0, 0, 0, 0.1, 0.1, 0.1, "collisionTestCallback", nil, ADCollSensor.collisionMask, true, true, true)
-		end
-		node.y = math.max(safeNodeY - 0.2, getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, node.x, 1, node.z))
+		node.y = AutoDrive:getTerrainHeightAtWorldPos(node.x, node.z)
 		ADGraphManager:markChanges()
 	end
 end
