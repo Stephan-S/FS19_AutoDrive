@@ -116,7 +116,7 @@ function AutoDriveVehicleData:onReadUpdateStream(streamId, timestamp, connection
         return
     end
     if connection:getIsServer() then
-        if streamReadBool(self) then
+        if streamReadBool(streamId) then
             AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadUpdateStream streamReadBool ")
             self.vehicle.advd.WorkToolParkDestination = streamReadUIntN(streamId, 20) - 1
         end
