@@ -76,7 +76,7 @@ function AutoDrive:getTerrainHeightAtWorldPos(x, z)
 	-- get a starting height with the basic function
 	local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
 	-- do a raycast from a bit above y
-	raycastClosest(x, y + 9, z, 0, -1, 0, "getTerrainHeightAtWorldPos_Callback", 10, self, 12)
+	raycastClosest(x, y + 2, z, 0, -1, 0, "getTerrainHeightAtWorldPos_Callback", 3, self, 12)
 	return self.raycastHeight or y
 end
 
@@ -709,6 +709,11 @@ function AutoDrive:getIsActivatable(superFunc, objectToFill)
 end
 
 function AutoDrive:zoomSmoothly(superFunc, offset)
+	-- if smooth curve preview is active, use mousewheel to increase and decrease smoothness and prevent zooming
+	if AutoDrive.experimentalFeatures.smoothWaypointConnection and ADGraphManager.curvePreview and AutoDrive.leftLSHIFTmodifierKeyPressed then
+		ADGraphManager:recalculatePreview(offset / 3)
+		return
+	end
 	if not AutoDrive.mouseWheelActive then -- don't zoom camera when mouse wheel is used to scroll targets (thanks to sperrgebiet)
 		superFunc(self, offset)
 	end
