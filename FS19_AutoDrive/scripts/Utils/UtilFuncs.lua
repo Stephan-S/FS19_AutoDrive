@@ -76,7 +76,7 @@ function AutoDrive:getTerrainHeightAtWorldPos(x, z)
 	-- get a starting height with the basic function
 	local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
 	-- do a raycast from a bit above y
-	raycastClosest(x, y + 9, z, 0, -1, 0, "getTerrainHeightAtWorldPos_Callback", 10, self, 12)
+	raycastClosest(x, y + 2, z, 0, -1, 0, "getTerrainHeightAtWorldPos_Callback", 3, self, 12)
 	return self.raycastHeight or y
 end
 
