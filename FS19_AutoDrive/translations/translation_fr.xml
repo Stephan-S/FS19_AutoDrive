@@ -13,7 +13,7 @@
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
 		<text name="input_AD_Speed_down"						text="AD: Réduire la vitesse" />
 		<text name="input_AD_routes_manager"					text="AD: Ouvrir le gestionnaire d'itinéraires" />
-		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
+		<text name="input_AD_open_notification_history" 		text="AD: Ouvrir l'historique des notifications" />
 		<text name="input_AD_continue"							text="AD: Continuer" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
