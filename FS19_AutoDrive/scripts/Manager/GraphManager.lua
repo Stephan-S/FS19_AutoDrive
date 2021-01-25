@@ -90,18 +90,18 @@ function ADGraphManager:getMapMarkersInGroup(groupName)
 	end
 
 	local sort_func = function(a, b)
-        a = tostring(a.name):lower()
-        b = tostring(b.name):lower()
-        local patt = "^(.-)%s*(%d+)$"
-        local _, _, col1, num1 = a:find(patt)
-        local _, _, col2, num2 = b:find(patt)
-        if (col1 and col2) and col1 == col2 then
-            return tonumber(num1) < tonumber(num2)
-        end
-        return a < b
-    end
+		a = tostring(a.name):lower()
+		b = tostring(b.name):lower()
+		local patt = "^(.-)%s*(%d+)$"
+		local _, _, col1, num1 = a:find(patt)
+		local _, _, col2, num2 = b:find(patt)
+		if (col1 and col2) and col1 == col2 then
+			return tonumber(num1) < tonumber(num2)
+		end
+		return a < b
+	end
 
-    table.sort(markersInGroup, sort_func)
+	table.sort(markersInGroup, sort_func)
 
 	return markersInGroup
 end
@@ -450,9 +450,9 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 							end
 						end
 					end
-                    -- handle all vehicles and tools park destination
+					-- handle all vehicles and tools park destination
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-                        if vehicle.advd ~= nil and vehicle.advd.getWorkToolParkDestination ~= nil and vehicle.advd:getWorkToolParkDestination() >= 1 then
+						if vehicle.advd ~= nil and vehicle.advd.getWorkToolParkDestination ~= nil and vehicle.advd:getWorkToolParkDestination() >= 1 then
 							local WorkToolParkDestination = vehicle.advd:getWorkToolParkDestination()
 							if WorkToolParkDestination ~= nil and WorkToolParkDestination >= markerId then
 								if WorkToolParkDestination == markerId then
@@ -492,9 +492,9 @@ function ADGraphManager:removeMapMarkerByWayPoint(wayPointId, sendEvent)
 end
 
 function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirection, sendEvent)
-    if startNode == nil or endNode == nil then
-        return
-    end
+	if startNode == nil or endNode == nil then
+		return
+	end
 	if sendEvent == nil or sendEvent == true then
 		-- Propagating connection toggling all over the network
 		AutoDriveToggleConnectionEvent.sendEvent(startNode, endNode, reverseDirection)
@@ -548,11 +548,19 @@ function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
 	end
 end
 
-function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, sendEvent)
+function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, sendEvent)
+	previousId = previousId or 0
+	local previous
+	if connectPrevious then
+		if previousId == nil or previousId == 0 then
+			previousId = self:getWayPointsCount()
+		end
+		previous = self:getWayPointById(previousId)
+	end
 	if g_server ~= nil then
 		if sendEvent ~= false then
 			-- Propagating waypoint recording to clients
-			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse)
+			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId)
 		end
 	else
 		if sendEvent ~= false then
@@ -560,15 +568,13 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 			return
 		end
 	end
-	local prevId = self:getWayPointsCount()
-	local newId = prevId + 1
-	local prevWp = self:getWayPointById(prevId)
+	local newId = self:getWayPointsCount() + 1
 	local newWp = self:createNode(newId, x, y, z, {}, {})
 	self:setWayPoint(newWp)
 	if connectPrevious then
-		self:toggleConnectionBetween(prevWp, newWp, isReverse, false)
+		self:toggleConnectionBetween(previous, newWp, isReverse, false)
 		if dual then
-			self:toggleConnectionBetween(newWp, prevWp, isReverse, false)
+			self:toggleConnectionBetween(newWp, previous, isReverse, false)
 		end
 	end
 	self:markChanges()
@@ -797,25 +803,25 @@ function ADGraphManager:createNode(id, x, y, z, out, incoming)
 end
 
 function ADGraphManager:prepareWayPoints()
-    local network = self:getWayPoints()
-    for id, wp in ipairs(network) do
-        wp.transitMapping = {}
-        wp.inverseTransitMapping = {}
-        if #wp.incoming > 0 then --and #wp.out > 0
-            for outIndex, outId in ipairs(wp.out) do
-                wp.inverseTransitMapping[outId] = {}
-            end
+	local network = self:getWayPoints()
+	for id, wp in ipairs(network) do
+		wp.transitMapping = {}
+		wp.inverseTransitMapping = {}
+		if #wp.incoming > 0 then --and #wp.out > 0
+			for outIndex, outId in ipairs(wp.out) do
+				wp.inverseTransitMapping[outId] = {}
+			end
 
-            for inIndex, inId in ipairs(wp.incoming) do
-                local inPoint = network[inId]
-                wp.transitMapping[inId] = {}
-                for outIndex, outId in ipairs(wp.out) do
-                    local outPoint = network[outId]
-                    local angle = math.abs(AutoDrive.angleBetween({x = outPoint.x - wp.x, z = outPoint.z - wp.z}, {x = wp.x - inPoint.x, z = wp.z - inPoint.z}))
+			for inIndex, inId in ipairs(wp.incoming) do
+				local inPoint = network[inId]
+				wp.transitMapping[inId] = {}
+				for outIndex, outId in ipairs(wp.out) do
+					local outPoint = network[outId]
+					local angle = math.abs(AutoDrive.angleBetween({x = outPoint.x - wp.x, z = outPoint.z - wp.z}, {x = wp.x - inPoint.x, z = wp.z - inPoint.z}))
 					--print("prep4: " .. outId .. " angle: " .. angle)
-					
-                    if angle <= 90 then
-                        table.insert(wp.transitMapping[inId], outId)
+
+					if angle <= 90 then
+						table.insert(wp.transitMapping[inId], outId)
 						table.insert(wp.inverseTransitMapping[outId], inId)
 					else
 						--Also for reverse routes - but only checked on demand, if angle check fails
@@ -825,22 +831,23 @@ function ADGraphManager:prepareWayPoints()
 							table.insert(wp.transitMapping[inId], outId)
 							table.insert(wp.inverseTransitMapping[outId], inId)
 						end
-                    end
-                end
-            end
-        end
+					end
+				end
+			end
+		end
 	end
 	self.preparedWayPoints = true
 end
 
 -- create map markers for waypoints without out connection
 function ADGraphManager:createMarkersAtOpenEnds()
-
 	local network = self:getWayPoints()
 	local overallnumberWP = self:getWayPointsCount()
 	local debugGroupName = "AD_Debug"
 
-	if overallnumberWP < 3 then return end
+	if overallnumberWP < 3 then
+		return
+	end
 
 	-- Removing all old map hotspots
 	for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
@@ -880,14 +887,14 @@ function ADGraphManager:createMarkersAtOpenEnds()
 		end
 	else
 		-- remove debug markers from AD list
-		local debugGroupMarkers = self:getMapMarkersInGroup(debugGroupName)	-- use a copy of the debug marker list as removeMapMarker will reorder all marker index
+		local debugGroupMarkers = self:getMapMarkersInGroup(debugGroupName) -- use a copy of the debug marker list as removeMapMarker will reorder all marker index
 		for _, marker in pairs(debugGroupMarkers) do
 			-- remove the markers
 			if marker.isADDebug == true then
-				self:removeMapMarker(marker.markerIndex)			
+				self:removeMapMarker(marker.markerIndex)
 			end
 		end
-		
+
 		-- remove the debug group
 		if self:getGroupByName(debugGroupName) ~= nil then
 			self:removeGroup(debugGroupName)
@@ -900,7 +907,7 @@ function ADGraphManager:createMarkersAtOpenEnds()
 			-- create hotspots for AD all map markers, but Debug markers only if setting is active
 			local width, height = getNormalizedScreenValues(9, 9)
 			local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
-			
+
 			if marker.isADDebug == true then
 				mh:delete()
 				mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_MISSION)
