@@ -125,6 +125,7 @@ Changelog 1.1.0.7:
 		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />
 	</actions>
 
 	<inputBinding>
