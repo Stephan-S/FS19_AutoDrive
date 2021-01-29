@@ -153,7 +153,8 @@ end
 
 function RefuelTask:getInfoText()
     if self.state == RefuelTask.STATE_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     else
         return g_i18n:getText("AD_task_drive_to_refuel_point")
     end
@@ -161,7 +162,8 @@ end
 
 function RefuelTask:getI18nInfo()
     if self.state == RefuelTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     else
         return "$l10n_AD_task_drive_to_refuel_point;"
     end
