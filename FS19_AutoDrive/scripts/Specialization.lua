@@ -194,6 +194,7 @@ function AutoDrive:onPostLoad(savegame)
     link(self.components[1].node, self.ad.frontNode)
     setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
     self.ad.frontNodeGizmo = DebugGizmo:new()
+    self.ad.debug = RingQueue:new()
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
@@ -631,6 +632,7 @@ function AutoDrive:startAutoDrive()
                     end
                 end
             end
+            self.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
             g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
 
