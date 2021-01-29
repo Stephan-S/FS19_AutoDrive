@@ -34,7 +34,8 @@ ADInputManager.actionsToInputs = {
     ADSwapTargets = "input_swapTargets",
     AD_open_notification_history = "input_openNotificationHistory",
     AD_continue = "input_continue",
-    ADParkVehicle = "input_parkVehicle"
+    ADParkVehicle = "input_parkVehicle",
+    AD_devAction = "input_devAction"
 }
 
 ADInputManager.inputsToIds = {
@@ -426,5 +427,11 @@ function ADInputManager:input_toggleCP_AIVE(vehicle) -- select CP or AIVE
     if g_courseplay ~= nil and vehicle.acParameters ~= nil then
         vehicle.ad.stateModule:toggleUseCP_AIVE()
         vehicle.ad.stateModule:setStartCP_AIVE(false) -- disable if changed between CP and AIVE
+    end
+end
+
+function ADInputManager:input_devAction(vehicle)
+    if AutoDrive.devAction ~= nil then
+        AutoDrive.devAction(vehicle)
     end
 end
