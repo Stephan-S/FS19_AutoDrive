@@ -62,6 +62,7 @@ source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentM
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/SortedQueue.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/DevFuncs.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
