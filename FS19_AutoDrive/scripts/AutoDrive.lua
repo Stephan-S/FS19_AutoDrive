@@ -87,7 +87,8 @@ AutoDrive.actions = {
 	{"ADSwapTargets", false, 0},
 	{"AD_open_notification_history", false, 0},
 	{"AD_continue", false, 3},
-	{"ADParkVehicle", false, 0}
+	{"ADParkVehicle", false, 0},
+	{"AD_devAction", false, 0}
 }
 
 function AutoDrive:onAllModsLoaded()
