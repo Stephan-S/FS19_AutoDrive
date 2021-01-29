@@ -77,7 +77,8 @@ end
 
 function ParkTask:getI18nInfo()
     if self.state == ParkTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     elseif self.vehicle.ad.onRouteToPark == true then
         return "$l10n_AD_task_drive_to_park;"
     else
