@@ -104,21 +104,24 @@ function AutoDrive.renameDriver(vehicle, name, sendEvent)
     end
 end
 
-function AutoDrive.hasToRefuel(vehicle)
+-- return fillType to refuel or nil if no refuel required
+function AutoDrive.getRequiredRefuel(vehicle)
     local spec = vehicle.spec_motorized
-    local ret = false
+    local ret = 0
 
-    if spec.consumersByFillTypeName ~= nil then
-        -- at least one fuel type is sufficient to continue
-        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
-            ret = ret or vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) > AutoDrive.REFUEL_LEVEL
+    if spec ~= nil and spec.consumersByFillTypeName ~= nil then
+        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil and vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) < AutoDrive.REFUEL_LEVEL then
+            ret = g_fillTypeManager:getFillTypeIndexByName('DIESEL')
         end
-        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
-            ret = ret or vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.electricCharge.fillUnitIndex) > AutoDrive.REFUEL_LEVEL
+        if spec.consumersByFillTypeName.def ~= nil and spec.consumersByFillTypeName.def.fillUnitIndex ~= nil and vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.def.fillUnitIndex) < AutoDrive.REFUEL_LEVEL then
+            ret = g_fillTypeManager:getFillTypeIndexByName('DEF')
+        end
+        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil and vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.electricCharge.fillUnitIndex) < AutoDrive.REFUEL_LEVEL then
+            ret = g_fillTypeManager:getFillTypeIndexByName('ELECTRICCHARGE')
         end
     end
 
-    return not ret
+    return ret
 end
 
 function AutoDrive.combineIsTurning(combine)
