@@ -111,7 +111,19 @@ function ADTaskModule:update(dt)
 end
 
 function ADTaskModule:hasToRefuel()
-    return AutoDrive.getSetting("autoRefuel", self.vehicle) and AutoDrive.hasToRefuel(self.vehicle)
+    if not AutoDrive.getSetting("autoRefuel", self.vehicle) then
+        return false
+    end
+    local refuelFillType = AutoDrive.getRequiredRefuel(self.vehicle)
+    if refuelFillType > 0 then
+        -- refuel required
+        if self.vehicle.ad.stateModule:getRefuelFillType() ~= refuelFillType then
+            self.vehicle.ad.stateModule:setRefuelFillType(refuelFillType)
+        end
+        return true
+    else
+        return false
+    end
 end
 
 function ADTaskModule:onTaskChange()
