@@ -52,7 +52,27 @@ Changelog 1.1.0.7:
 ]]>
 		</de>
 		<it>
-			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.]]>
+			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
+
+Log delle modifiche 1.1.0.7:
+- Scaricare all'indietro nel silo bunker
+- GUI rielaborata per una più facile usabilità
+- Marcatura colorata dei waypoint precedenti e seguenti nell'editor
+- Apri e chiudi la cartella con il nome della cartella
+- Marcatura di waypoint aperti
+- Collaborazione con Courseplay e AIVE
+- Carico e scarico in più destinazioni
+- rilevamento delle collisioni regolabile
+- Veicoli, rimorchi e attrezzature possono essere assegnati e avvicinati a posizioni di parcheggio
+- Possibilità di raggiungere posizioni di parcheggio al termine dei cicli di scarico
+- Supporto multiplayer migliorato
+- Lampeggiamento automatico regolabile
+- Selezione automatica del lato di scarico regolabile
+- Apertura e chiusura automatica della copertura del rimorchio regolabile
+- Faro rotante regolabile per ogni veicolo
+- Inoltre è possibile assegnare una combinazione di tasti
+- Nome della cartella rimosso dal file di configurazione
+]]>
 		</it>
 		<fr>
 			<![CDATA[Ce mod peut être utilisé pour créer un réseau de routes permettant aux véhicules de conduire de manière autonome. Une fois la configuration effectuée, vous pouvez indiquer à un tracteur situé près du réseau de se rendre à n’importe quel point, tel que le magasin, le champ 1 ou un point de vente.

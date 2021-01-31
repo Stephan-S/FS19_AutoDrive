@@ -57,7 +57,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořit" />
 		<text name="AD_lalt_for_deletion" 						text="LALT smazat" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverse drive" />
+		<text name="AD_lshift_for_reverse" 						text="LSHIFT zpětný chod" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
 		<text name="gui_ad_blinkValue"						    text="Blinkry automaticky" />
 		<text name="gui_ad_blinkValue_tooltip"					text="Úhel řízení pro automatické zapnutí blinkrů. (0 = automatická deaktivace směrových světel)" />
@@ -179,12 +179,12 @@
 		<text name="gui_ad_wideHUD_tooltip"						text="Použijte široký režim HUD, který také umožňuje několik dalších tlačítek pro nastavení v HUD" />
 		<text name="gui_ad_syncMultiTargets"					text="Synchronizujte více cílů" />
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Více řidičů používá stejnou složku s více cíly a budou  sychronizovány s dalšími cíly" />
-		<text name="gui_ad_enableParkAtJobFinished"				text="Park at Job finished" />
-		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Only available in Modes Pickup and Deliver, Deliver: If Job is finished, stored parking position of vehicle / attachment will be driven to. On Dedi-Server only available for vehicle parking place!" />
-		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
-		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
+		<text name="gui_ad_enableParkAtJobFinished"				text="Zaparkovat po dokončení práce" />
+		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="K dispozici pouze v režimech Vyzvednutí a doručení, Doručit: Je-li úloha dokončena, bude vozidlo přistaveno na uloženou parkovací pozici / u závěsoviny na jeho určené místo. Na dedikovaném server je k dispozici pouze pro parkovací místo vozidla!" />
+		<text name="gui_ad_autoTipSide"                         text="Automatická volba strany vykládky" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Ano - AutoDrive automaticky vybere stranu vykládky / Ne - použije se již vybraná strana vykládky" />
+		<text name="gui_ad_autoTrailerCover"                    text="Automatické plachtování přívěsu" />
+		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ano - AutoDrive podle potřeby otevírá a zavírá kryty přívěsu / Ne - kryty přívěsu nebude AutoDrive otevírat ani zavírat" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Nastavení - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Uživatelské nastavení - AutoDrive" />
@@ -318,6 +318,6 @@
 		<text name="AD_task_waiting_for_room"					text="Čekání na prostor" />	
 		<text name="AD_task_exiting_field"						text="Opouštím pole" />
 		<text name="AD_task_reversing_from_collision"			text="Vyhledávám čistou oblast" />
-        <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
+        <text name="AD_task_drive_to_park"				        text="Jedu na parkovací místo" />
 	</texts>
 </l10n>

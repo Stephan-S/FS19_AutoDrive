@@ -396,10 +396,11 @@ public class AutoDriveEditor extends JFrame {
         roadMap.mapNodes = nodes;
         roadMap.mapMarkers = mapMarkers;
 
-        Node ADNode = doc.getElementsByTagName("AutoDrive").item(0);
-        Node mapNameNode = nList.item(0).getParentNode();
-        String mapName = mapNameNode.getNodeName();
-        LOG.info("Loaded config for map: {}", mapNameNode.getNodeName());
+        NodeList mapNameNode = doc.getElementsByTagName("MapName");
+        Element mapNameElement = (Element) mapNameNode.item(0);
+        NodeList fstNm = mapNameElement.getChildNodes();
+        String mapName =(fstNm.item(0)).getNodeValue();
+        LOG.info("Loaded config for map: {}", mapName);
 
         String mapPath = "/mapImages/" + mapName + ".png";
         URL url = AutoDriveEditor.class.getResource(mapPath);
@@ -601,22 +602,6 @@ public class AutoDriveEditor extends JFrame {
             markerNode.appendChild(newMapMarker);
             mapMarkerCount += 1;
         }
-
-
-        Node mapNameNode = waypoints.getParentNode();
-        String newMapName = mapNameNode.getNodeValue();
-        String fileName = xmlConfigFile.getName();
-        if (fileName.contains("AutoDrive_") && fileName.contains("_config")) {
-            int newPathStartIndex = fileName.lastIndexOf("AutoDrive_");
-            newPathStartIndex += "AutoDrive_".length();
-            int newPathEndIndex = fileName.lastIndexOf("_config");
-            if (fileName.endsWith("_init_config")) {
-                newPathEndIndex = fileName.lastIndexOf("_init_config");
-            }
-            newMapName = fileName.substring(newPathStartIndex, newPathEndIndex);
-            LOG.info("Found new map name in: {} : {}", fileName, newMapName);
-        }
-        doc.renameNode(mapNameNode, null, newMapName);
 
         // write the content into xml file
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
