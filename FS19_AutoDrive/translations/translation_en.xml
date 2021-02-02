@@ -39,6 +39,7 @@
 		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
+		<text name="AD_parkVehicle_deleted"					    text="parking destination deleted!" />
 		<text name="AD_Driver_of"								text="Driver of" />
 		<text name="AD_has_reached"								text="has reached" />
 		<text name="AD_got_stuck"								text="got stuck" />
