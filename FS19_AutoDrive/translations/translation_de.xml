@@ -185,7 +185,7 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ja - AutoDrive öffnet und schließt Abdeckungen von Anhängern wenn notwendig / Nein - die Abdeckungen werden von AutoDrive nicht geöffnet oder geschlossen" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
-		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="Benutzereinstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
