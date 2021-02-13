@@ -256,6 +256,16 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
             local fillType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(combine:getFillUnitFillType(combine.spec_combine.fillUnitIndex))
             if fillType ~= nil and (not combine:getIsBufferCombine()) then
                 self.fruitToCheck = fillType
+                local fruitType = g_fruitTypeManager:getFruitTypeByIndex(fillType)
+
+                PathFinderModule.debugVehicleMsg(self.vehicle,
+                    string.format("[AD] PFM %s startPathPlanningToPipe self.fruitToCheck %s Fruit name %s title %s",
+                        tostring(self.vehicle:getName()),
+                        tostring(self.fruitToCheck),
+                        tostring(fruitType.fillType.name),
+                        tostring(fruitType.fillType.title)
+                    )
+                )
             end
         end
     end
@@ -355,7 +365,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.startIsOnField = AutoDrive.checkIsOnField(vehicleWorldX, vehicleWorldY, vehicleWorldZ) and self.vehicle.ad.sensors.frontSensorField:pollInfo(true)
     local endIsOnField = AutoDrive.checkIsOnField(targetX, vehicleWorldY, targetZ)
 
-    self.restrictToField = AutoDrive.getSetting("restrictToField", self.vehicle) and self.startIsOnField
+    self.restrictToField = AutoDrive.getSetting("restrictToField", self.vehicle) and self.startIsOnField and endIsOnField
     self.goingToPipe = false
     self.chasingVehicle = false
     self.isSecondChasingVehicle = false
@@ -715,6 +725,7 @@ function PathFinderModule:testNextCells(cell)
     end
     for _, location in pairs(cell.out) do
         local createPoint = true
+        local duplicatePointDirection = -1
         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
             PathFinderModule.debugVehicleMsg(self.vehicle,
                 string.format("[AD] PFM %s testNextCells location xz %d %d direction %s",
@@ -728,6 +739,7 @@ function PathFinderModule:testNextCells(cell)
         for i = -1, PathFinderModule.PP_UP_LEFT, 1 do -- important: do not break this loop to check for all directions!
             local gridKey = string.format("%d|%d|%d", location.x, location.z, i)
             if self.grid[gridKey] ~= nil then
+                -- cell is already in the grid
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
                         string.format("[AD] PFM %s testNextCells gridKey %s cell.x,cell.z %s %s direction %s",
@@ -750,11 +762,18 @@ function PathFinderModule:testNextCells(cell)
                             self.grid[gridKey].incoming = cell
                             self.grid[gridKey].steps = cell.steps + 1
                         end
+                    elseif self.grid[gridKey].direction ~= location.direction then
+                        duplicatePointDirection = self.grid[gridKey].direction -- remember the grid direction
+                        if self.grid[gridKey].steps > (cell.steps + 1) then --found shortcut
+                            self.grid[gridKey].incoming = cell
+                            self.grid[gridKey].steps = cell.steps + 1
+                        end
                     end
                 end
             end
         end
         if createPoint then
+            local gridKey
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
                     string.format("[AD] PFM %s testNextCells location xz %d %d createPoint %s",
@@ -765,9 +784,38 @@ function PathFinderModule:testNextCells(cell)
                     )
                 )
             end
-            self:checkGridCell(location)
+            if duplicatePointDirection >= 0 then
+                -- if different direction, it is not necessary to check the cell details again, just add a new entry in grid with known required restrictions
+                gridKey = string.format("%d|%d|%d", location.x, location.z, duplicatePointDirection)
+                location.isRestricted = self.grid[gridKey].isRestricted
+                location.hasCollision = self.grid[gridKey].hasCollision
+                location.bordercells = self.grid[gridKey].bordercells
+                location.hasFruit = self.grid[gridKey].hasFruit
+                location.fruitValue = self.grid[gridKey].fruitValue
+
+                if not location.isRestricted and not location.hasCollision and location.incoming ~= nil then
+                    -- check for up/down is to big or below water level
+                    -- this is a required check as we come from different direction
+                    local worldPos = self:gridLocationToWorldLocation(location)
+                    local worldPosPrevious = self:gridLocationToWorldLocation(location.incoming)
+                    location.hasCollision = location.hasCollision or self:checkSlopeAngle(worldPos.x, worldPos.z, worldPosPrevious.x, worldPosPrevious.z)    --> true if up/down is to big or below water level
+                end
+
+                if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
+                    PathFinderModule.debugVehicleMsg(self.vehicle,
+                        string.format("[AD] PFM %s testNextCells different direction xz %d %d createPoint %s",
+                            tostring(self.vehicle:getName()),
+                            math.floor(location.x),
+                            math.floor(location.z),
+                            tostring(PathFinderModule.direction_to_text[location.direction+1])
+                        )
+                    )
+                end
+            else
+                self:checkGridCell(location)
+            end
             -- table.insert(self.grid, location)
-            local gridKey = string.format("%d|%d|%d", location.x, location.z, location.direction)
+            gridKey = string.format("%d|%d|%d", location.x, location.z, location.direction)
             self.grid[gridKey] = location
         end
     end
