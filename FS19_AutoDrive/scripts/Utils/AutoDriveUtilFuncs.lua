@@ -179,6 +179,10 @@ function AutoDrive.mouseIsAtPos(position, radius)
 end
 
 function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
+    if not (vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() == true) then
+        -- check only for bunker silo if should unload to improve performance
+        return false
+    end
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
         local x, y, z = getWorldTranslation(vehicle.components[1].node)
         local tx, _, tz = x, y, z + 1
@@ -189,13 +193,13 @@ function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
             if MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z) then
                 return true
             end
-        end
 
-        local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
-        if trailerCount > 0 then
-            for _, trailer in pairs(trailers) do
-                if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
-                    return true
+            local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+            if trailerCount > 0 then
+                for _, trailer in pairs(trailers) do
+                    if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
+                        return true
+                    end
                 end
             end
         end
