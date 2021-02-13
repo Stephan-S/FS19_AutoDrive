@@ -56,6 +56,8 @@ AutoDrive.EDITOR_ON = 2
 AutoDrive.EDITOR_EXTENDED = 3
 AutoDrive.EDITOR_SHOW = 4
 
+AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed should be lowered
+
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
 
