@@ -59,7 +59,7 @@ This is inclusive of the field border cells!
 PathFinderModule = {}
 
 PathFinderModule.PATHFINDER_MAX_RETRIES = 3
-PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 10
+PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 2
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
 PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 45
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
