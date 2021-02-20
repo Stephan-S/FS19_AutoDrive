@@ -183,6 +183,18 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Igen - Az AutoDrive automatikusan kiválasztja a csúcsoldalt / Nem - a már kiválasztott csúcsoldalt fogja használni" />
 		<text name="gui_ad_autoTrailerCover"                    text="Automatikus pótkocsi fedél " />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Igen - az AutoDrive szükség esetén nyissa meg és zárja be a pótkocsi fedelét / Nem - az AutoDrive nem nyitja vagy zárja le a pótkocsi fedelét" />
+
+		<text name="gui_ad_offFieldLights"						text="Night Driving Lights" />
+		<text name="gui_ad_offFieldLights_tooltip"				text="Light set for off-field Night Driving (Default = Headlights)" />
+		<text name="gui_ad_LightsSetting0"						text="No Lights" />
+		<text name="gui_ad_LightsSetting1"						text="Headlights" />
+		<text name="gui_ad_LightsSetting2"						text="Back Worklights" />
+		<text name="gui_ad_LightsSetting3"						text="Headlights + Back Worklights" />
+		<text name="gui_ad_LightsSetting4"						text="Front Worklights" />
+		<text name="gui_ad_LightsSetting5"						text="Headlights + Front Worklights" />
+		<text name="gui_ad_LightsSetting6"						text="Front + Back Worklights" />
+		<text name="gui_ad_LightsSetting7"						text="All Lights" />
+
 		<text name="gui_ad_settingsPage_title"					text="Beállítás - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Felhasználói beállítások - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Jármű beállítás - AutoDrive" />

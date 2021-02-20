@@ -184,6 +184,17 @@
 		<text name="gui_ad_autoTrailerCover"                    text="Lonas de remolque automáticas" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sí - AutoDrive abrirá y cerrará las lonas según necesite / No - las lonas no se abrirán ni cerrarán automáticamente" />
 		
+		<text name="gui_ad_offFieldLights"						text="Night Driving Lights" />
+		<text name="gui_ad_offFieldLights_tooltip"				text="Light set for off-field Night Driving (Default = Headlights)" />
+		<text name="gui_ad_LightsSetting0"						text="No Lights" />
+		<text name="gui_ad_LightsSetting1"						text="Headlights" />
+		<text name="gui_ad_LightsSetting2"						text="Back Worklights" />
+		<text name="gui_ad_LightsSetting3"						text="Headlights + Back Worklights" />
+		<text name="gui_ad_LightsSetting4"						text="Front Worklights" />
+		<text name="gui_ad_LightsSetting5"						text="Headlights + Front Worklights" />
+		<text name="gui_ad_LightsSetting6"						text="Front + Back Worklights" />
+		<text name="gui_ad_LightsSetting7"						text="All Lights" />
+
 		<text name="gui_ad_settingsPage_title"					text="Ajustes - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Ajustes de usuario - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Ajustes del vehículo - AutoDrive" />

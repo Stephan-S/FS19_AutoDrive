@@ -962,7 +962,13 @@ function AutoDrive:updateAILights(superFunc)
                 self:setLightsTypesMask(spec.aiLightsTypesMask)
             end
             if spec.lightsTypesMask ~= 1 and not AutoDrive.checkIsOnField(x, y, z) then
-                self:setLightsTypesMask(1)
+                local lightSetting = AutoDrive.getSetting("offFieldLights", self)
+
+                if lightSetting ~= nil then
+                    self:setLightsTypesMask(lightSetting)
+                else
+                    self:setLightsTypesMask(1)
+                end
             end
         else
             if spec.lightsTypesMask ~= 0 then

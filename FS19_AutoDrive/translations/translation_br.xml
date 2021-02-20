@@ -186,6 +186,17 @@
 		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
 
+		<text name="gui_ad_offFieldLights"						text="Night Driving Lights" />
+		<text name="gui_ad_offFieldLights_tooltip"				text="Light set for off-field Night Driving (Default = Headlights)" />
+		<text name="gui_ad_LightsSetting0"						text="No Lights" />
+		<text name="gui_ad_LightsSetting1"						text="Headlights" />
+		<text name="gui_ad_LightsSetting2"						text="Back Worklights" />
+		<text name="gui_ad_LightsSetting3"						text="Headlights + Back Worklights" />
+		<text name="gui_ad_LightsSetting4"						text="Front Worklights" />
+		<text name="gui_ad_LightsSetting5"						text="Headlights + Front Worklights" />
+		<text name="gui_ad_LightsSetting6"						text="Front + Back Worklights" />
+		<text name="gui_ad_LightsSetting7"						text="All Lights" />
+		
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

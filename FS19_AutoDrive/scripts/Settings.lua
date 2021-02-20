@@ -926,6 +926,17 @@ AutoDrive.settings.autoTrailerCover = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.offFieldLights = {
+    values = {0, 1, 2, 3, 4, 5, 6, 7},
+    texts = { "gui_ad_LightsSetting0", "gui_ad_LightsSetting1", "gui_ad_LightsSetting2", "gui_ad_LightsSetting3", "gui_ad_LightsSetting4", "gui_ad_LightsSetting5", "gui_ad_LightsSetting6", "gui_ad_LightsSetting7" },
+    default = 2,
+    current = 2,
+    text = "gui_ad_offFieldLights",
+    tooltip = "gui_ad_offFieldLights_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

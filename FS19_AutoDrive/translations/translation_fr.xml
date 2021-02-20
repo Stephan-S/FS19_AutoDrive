@@ -172,6 +172,17 @@
 		<text name="gui_ad_autoTrailerCover"                    text="Bâches remorques automatique" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Oui - AutoDrive ouvre et ferme les bâches remorque au besoin / Non - les bâches remorque ne seront pas ouvertes ou fermées par AutoDrive" />
 
+		<text name="gui_ad_offFieldLights"						text="Night Driving Lights" />
+		<text name="gui_ad_offFieldLights_tooltip"				text="Light set for off-field Night Driving (Default = Headlights)" />
+		<text name="gui_ad_LightsSetting0"						text="No Lights" />
+		<text name="gui_ad_LightsSetting1"						text="Headlights" />
+		<text name="gui_ad_LightsSetting2"						text="Back Worklights" />
+		<text name="gui_ad_LightsSetting3"						text="Headlights + Back Worklights" />
+		<text name="gui_ad_LightsSetting4"						text="Front Worklights" />
+		<text name="gui_ad_LightsSetting5"						text="Headlights + Front Worklights" />
+		<text name="gui_ad_LightsSetting6"						text="Front + Back Worklights" />
+		<text name="gui_ad_LightsSetting7"						text="All Lights" />
+
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre au champ..." />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
 		<text name="gui_ad_addSettingsToHUD"					text="Ajouter des paramètres au HUD" />

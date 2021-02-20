@@ -187,6 +187,17 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sim - o AutoDrive abre e fecha as coberturas dos reboques conforme necessário / Não - as coberturas dos reboques não serão abertas ou fechadas pela AutoDrive" />
 
 
+		<text name="gui_ad_offFieldLights"						text="Night Driving Lights" />
+		<text name="gui_ad_offFieldLights_tooltip"				text="Light set for off-field Night Driving (Default = Headlights)" />
+		<text name="gui_ad_LightsSetting0"						text="No Lights" />
+		<text name="gui_ad_LightsSetting1"						text="Headlights" />
+		<text name="gui_ad_LightsSetting2"						text="Back Worklights" />
+		<text name="gui_ad_LightsSetting3"						text="Headlights + Back Worklights" />
+		<text name="gui_ad_LightsSetting4"						text="Front Worklights" />
+		<text name="gui_ad_LightsSetting5"						text="Headlights + Front Worklights" />
+		<text name="gui_ad_LightsSetting6"						text="Front + Back Worklights" />
+		<text name="gui_ad_LightsSetting7"						text="All Lights" />
+
 
 		
 		
