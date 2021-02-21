@@ -27,6 +27,7 @@ function AutoDriveVehicleData.registerEventListeners(vehicleType)
             "onPreLoad",
             "onLoad",
             "onPostLoad",
+            "onSelect",
             "saveToXMLFile"
             -- ,"onReadStream"
             -- ,"onWriteStream"
@@ -72,6 +73,20 @@ function AutoDriveVehicleData:onPostLoad(savegame)
         self.advd.WorkToolParkDestination = Utils.getNoNil(getXMLInt(xmlFile, key .. "#WorkToolParkDestination"), -1)
     end
     -- end
+end
+
+function AutoDriveVehicleData:onSelect()
+    local rootAttacherVehicle = self:getRootVehicle()
+    if rootAttacherVehicle ~= nil and rootAttacherVehicle ~= self then
+        if rootAttacherVehicle.ad ~= nil and rootAttacherVehicle.ad.stateModule ~= nil then
+            local actualParkDestination = AutoDrive.getActualParkDestination(rootAttacherVehicle)
+            if actualParkDestination >= 1 then
+                rootAttacherVehicle.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
+            else
+                rootAttacherVehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
+            end
+        end
+    end
 end
 
 function AutoDriveVehicleData:saveToXMLFile(xmlFile, key)
