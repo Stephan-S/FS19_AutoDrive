@@ -449,6 +449,17 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 								end
 							end
 						end
+
+						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestinationAtJobFinished ~= nil then
+							local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
+							if parkDestinationAtJobFinished ~= nil and parkDestinationAtJobFinished >= markerId then
+								if parkDestinationAtJobFinished == markerId then
+									vehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
+								else
+									vehicle.ad.stateModule:setParkDestinationAtJobFinished(math.max(parkDestinationAtJobFinished - 1, 1))
+								end
+							end
+						end
 					end
 					-- handle all vehicles and tools park destination
 					for _, vehicle in pairs(g_currentMission.vehicles) do
