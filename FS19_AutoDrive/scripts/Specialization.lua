@@ -671,6 +671,8 @@ function AutoDrive:stopAutoDrive()
     end
 
     if self.isServer then
+        ADScheduler:removePathfinderVehicle(self)
+
         if self.ad.stateModule:isActive() then
             g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
             self.ad.drivePathModule:reset()
