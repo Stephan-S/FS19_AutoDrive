@@ -173,6 +173,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	ADDrawingManager:load()
 	ADMessagesManager:load()
 	ADHarvestManager:load()
+        ADScheduler:load()
 	ADInputManager:load()
 	ADMultipleTargetsManager:load()
 end
@@ -296,6 +297,7 @@ function AutoDrive:update(dt)
 
 	if g_server ~= nil then
 		ADHarvestManager:update(dt)
+		ADScheduler:update(dt)
 	end
 
 	ADMessagesManager:update(dt)
