@@ -118,8 +118,8 @@
 		<text name="gui_ad_showNextPath_tooltip"				text="En/Disable the display of the next two waypoints" />
 		<text name="gui_ad_avoidFruit"							text="Avoid fruit" />
 		<text name="gui_ad_avoidFruit_tooltip"					text="Combine unloader tries to avoid fruit destruction" />
-		<text name="gui_ad_pathFinderTime"						text="Pathfinder-time (max)" />
-		<text name="gui_ad_pathFinderTime_tooltip"				text="Determines how long pathfinding algorithm is allowed to search for collision free path to/from combine. (Potential fps-impact)" />
+		<text name="gui_ad_pathFinderTime"						text="Pathfinder factor" />
+		<text name="gui_ad_pathFinderTime_tooltip"				text="Determines how far pathfinding algorithm is allowed to search for collision free path to/from combine. Should only be slightly increased in case fruit avoid on large fields with sufficient headland is not working." />
 		<text name="gui_ad_lineHeight"							text="Line height" />
 		<text name="gui_ad_lineHeight_tooltip"					text="Line height in editor mode. Either on ground level or above the tractor" />
 		<text name="gui_ad_ground"								text="Ground level" />
