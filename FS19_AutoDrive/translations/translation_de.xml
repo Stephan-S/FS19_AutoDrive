@@ -118,8 +118,8 @@
 		<text name="gui_ad_showNextPath_tooltip"				text="Anzeige der nächsten 2 Wegpunkte an/ausschalten" />
 		<text name="gui_ad_avoidFruit"							text="Fruchtumfahrung" />
 		<text name="gui_ad_avoidFruit_tooltip"					text="Drescherabfahrer versucht möglichst die Frucht zu umfahren" />
-		<text name="gui_ad_pathFinderTime"						text="Pfadfindungs-Dauer (max)" />
-		<text name="gui_ad_pathFinderTime_tooltip"				text="Legt fest wie lange ein Abfahrer nach einer kollisionsfreien Strecke suchen darf. Hohe Werte können das Spiel verlangsamen" />
+		<text name="gui_ad_pathFinderTime"						text="Pfadfindungs-Faktor" />
+		<text name="gui_ad_pathFinderTime_tooltip"				text="Legt fest wie weit ein Abfahrer nach einer kollisionsfreien Strecke suchen darf. Sollte nur langsam erhöht werden wenn bei ausreichend Vorgewende die Fruchtumfahrung nicht funktioniert." />
 		<text name="gui_ad_lineHeight"							text="Linienhöhe" />
 		<text name="gui_ad_lineHeight_tooltip"					text="Linienhöhe im Editormodus wahlweise überm oder unterm Traktor" />
 		<text name="gui_ad_ground"								text="Bodenhöhe" />
