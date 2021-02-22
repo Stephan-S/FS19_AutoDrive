@@ -140,6 +140,8 @@ function PathFinderModule:reset()
     self.fallBackMode1 = false
     self.fallBackMode2 = false
     self.fallBackMode3 = false
+    self.isFinished = true
+    self.smoothDone = true
 end
 
 function PathFinderModule:hasFinished()
@@ -301,6 +303,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
             math.floor(targetPoint.z)
         )
     )
+    ADScheduler:addPathfinderVehicle(self.vehicle)
     self.targetVector = targetVector
     local vehicleWorldX, vehicleWorldY, vehicleWorldZ = getWorldTranslation(self.vehicle.components[1].node)
     local vehicleRx, _, vehicleRz = localDirectionToWorld(self.vehicle.components[1].node, 0, 0, 1)
@@ -472,6 +475,7 @@ function PathFinderModule:abort()
     self.isFinished = true
     self.smoothDone = true
     self.wayPoints = {}
+    ADScheduler:removePathfinderVehicle(self.vehicle)
 end
 
 function PathFinderModule:isBlocked()       --> true if no path in grid found -- used in: ExitFieldTask, UnloadAtDestinationTask
@@ -542,6 +546,9 @@ function PathFinderModule:update(dt)
     if self.isFinished then
         if not self.smoothDone then
             self:createWayPoints()
+        end
+        if self.smoothDone then
+            ADScheduler:removePathfinderVehicle(self.vehicle)
         end
         return
     end
@@ -641,7 +648,7 @@ function PathFinderModule:update(dt)
         return sqrt(a * a + b * b)
     end
 
-    for i = 1, self.MAX_PATHFINDER_STEPS_PER_FRAME, 1 do
+    for i = 1, ADScheduler:getStepsPerFrame(), 1 do
         if self.currentCell == nil then
             local minDistance = math.huge
             local bestCell = nil
@@ -1615,7 +1622,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
     local unfilteredEndPointCount = 5
     if self.smoothStep == 1 then
         local stepsThisFrame = 0
-        while self.smoothIndex < #self.wayPoints - unfilteredEndPointCount and stepsThisFrame < PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME do
+        while self.smoothIndex < #self.wayPoints - unfilteredEndPointCount and stepsThisFrame < ADScheduler:getStepsPerFrame() do
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
                     string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d ",
@@ -1648,7 +1655,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
 
             local stepsOfLookAheadThisFrame = 0
 
-            while (foundCollision == false or self.totalEagerSteps < 30) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME do
+            while (foundCollision == false or self.totalEagerSteps < 30) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < ADScheduler:getStepsPerFrame() do
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
                         string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d",
