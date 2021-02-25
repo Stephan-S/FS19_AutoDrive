@@ -123,6 +123,7 @@ function EmptyHarvesterTask:update(dt)
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
+        local  _,trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
         local overallLength
         if trailercount <= 1 then
             overallLength = self.vehicle.sizeLength -- only tractor length
