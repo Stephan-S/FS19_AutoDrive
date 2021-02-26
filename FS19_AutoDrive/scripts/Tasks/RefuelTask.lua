@@ -80,6 +80,7 @@ function RefuelTask:finished()
     self.vehicle.ad.callBackObject = nil
     self.vehicle.ad.callBackArg = nil
 
+    self.vehicle.ad.stateModule:setRefuelFillType(0)        -- before start the mode again, we need to clear the refuel type
     self.vehicle:stopAutoDrive()
     self.vehicle.ad.stateModule:getCurrentMode():start()
     self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
@@ -87,7 +88,6 @@ function RefuelTask:finished()
     self.vehicle.ad.callBackFunction = callBackFunction
     self.vehicle.ad.callBackObject = callBackObject
     self.vehicle.ad.callBackArg = callBackArg
-    self.vehicle.ad.stateModule:setRefuelFillType(0)
 end
 
 function RefuelTask:isInRefuelRange()
