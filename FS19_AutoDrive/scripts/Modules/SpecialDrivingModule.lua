@@ -202,17 +202,17 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
 
             local inBunkerSilo = AutoDrive.isVehicleInBunkerSiloArea(self.vehicle)
 
-            if not inBunkerSilo and self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
+            if not inBunkerSilo and (AutoDrive.getSetting("enableTrafficDetection") == true) and self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving self:stopAndHoldVehicle inBunkerSilo %s self.vehicle.ad.collisionDetectionModule:checkReverseCollision() %s self.currentWayPointIndex %s ", tostring(inBunkerSilo), tostring(self.vehicle.ad.collisionDetectionModule:checkReverseCollision()), tostring(self.currentWayPointIndex))
                 self:stopAndHoldVehicle(dt)
             else
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving reverseToPoint self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
                 -- open trailer cover if trigger is reachable
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-                local inTriggerProximity = ADTriggerManager.checkForTriggerProximity(self.vehicle, AutoDrive.getSetting("maxTriggerDistance")-1)
-                AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, inTriggerProximity)
+                local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle)
+                AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, isInRangeToLoadUnloadTarget)
 
-		self:reverseToPoint(dt)
+                self:reverseToPoint(dt)
             end
         end
         self.unloadingIntoBunkerSilo = false

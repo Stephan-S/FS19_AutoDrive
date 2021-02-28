@@ -42,12 +42,7 @@ function ADTaskModule:setCurrentTaskFinished(stoppedFlag)
 
     self.activeTask = nil
 
-    if self:hasToRefuel() then
-        local refuelDestinationMarkerID = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
-        if refuelDestinationMarkerID ~= nil then
-            self.activeTask = RefuelTask:new(self.vehicle, ADGraphManager:getMapMarkerById(refuelDestinationMarkerID).id)
-        end
-    end
+    self:RefuelIfNeeded()
 
     -- No refuel needed or no refuel trigger available
     if self.activeTask == nil then
@@ -91,12 +86,7 @@ function ADTaskModule:update(dt)
             self:onTaskInfoChange(taskInfo)
         end
     else
-        if self:hasToRefuel() then
-            local refuelDestinationMarkerID = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
-            if refuelDestinationMarkerID ~= nil then
-                self.activeTask = RefuelTask:new(self.vehicle, ADGraphManager:getMapMarkerById(refuelDestinationMarkerID).id)
-            end
-        end
+        self:RefuelIfNeeded()
     
         -- No refuel needed or no refuel trigger available
         if self.activeTask == nil then
@@ -111,8 +101,35 @@ function ADTaskModule:update(dt)
 end
 
 function ADTaskModule:hasToRefuel()
-    return AutoDrive.getSetting("autoRefuel", self.vehicle) and AutoDrive.hasToRefuel(self.vehicle)
+    if not AutoDrive.getSetting("autoRefuel", self.vehicle) then
+        return false
+    end
+    local refuelFillType = AutoDrive.getRequiredRefuel(self.vehicle)
+    if refuelFillType > 0 then
+        -- refuel required
+        if self.vehicle.ad.stateModule:getRefuelFillType() ~= refuelFillType then
+            self.vehicle.ad.stateModule:setRefuelFillType(refuelFillType)
+        end
+        return true
+    else
+        return false
+    end
 end
+
+function ADTaskModule:RefuelIfNeeded()
+    if self:hasToRefuel() then
+        local refuelDestinationMarkerID = ADTriggerManager.getClosestRefuelDestination(self.vehicle)
+        if refuelDestinationMarkerID ~= nil then
+            self.activeTask = RefuelTask:new(self.vehicle, ADGraphManager:getMapMarkerById(refuelDestinationMarkerID).id)
+        else
+            self.vehicle.ad.isStoppingWithError = true
+            self.vehicle:stopAutoDrive()
+            local refuelFillTypeTitle = g_fillTypeManager:getFillTypeByIndex(self.vehicle.ad.stateModule:getRefuelFillType()).title
+            AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Refuel_Station; %s", 5000, self.vehicle.ad.stateModule:getName(), refuelFillTypeTitle)
+        end
+    end
+end
+    
 
 function ADTaskModule:onTaskChange()
     local taskInfo = ""

@@ -47,6 +47,7 @@
 		<text name="AD_No_Trailer"								text="не может найти прицеп" />
 		<text name="AD_No_Bunker"								text="не может найти силосную яму" />
 		<text name="AD_No_Shovel"								text="не может найти присоединённый ковш" />
+		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
 		<text name="AD_MODE_DRIVETO"							text="Перегон" />
 		<text name="AD_MODE_DELIVERTO"							text="Доставка" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Загрузка и доставка" />

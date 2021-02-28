@@ -116,5 +116,5 @@ function LoadMode:getNextTask()
 end
 
 function LoadMode:shouldLoadOnTrigger()
-    return (self.state == LoadMode.STATE_LOAD) and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return (self.state == LoadMode.STATE_LOAD)
 end

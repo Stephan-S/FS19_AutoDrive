@@ -110,7 +110,9 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_routesManager" then
-        self.isVisible = AutoDrive.isEditorModeEnabled()
+        if (AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer == true and g_dedicatedServerInfo ~= nil) or g_dedicatedServerInfo == nil then
+            self.isVisible = AutoDrive.isEditorModeEnabled()
+        end
     end
 
     if self.primaryAction == "input_removeWaypoint" then

@@ -134,22 +134,23 @@ function AutoDrive.getDistanceBetween(vehicleOne, vehicleTwo)
     return math.sqrt(math.pow(x2 - x1, 2) + math.pow(z2 - z1, 2))
 end
 
-function AutoDrive.getFrontToolLength(vehicle)
-    local lengthOfFrontTool = 0
-
-    if vehicle.getAttachedImplements ~= nil then
-        for _, impl in pairs(vehicle:getAttachedImplements()) do
-            local tool = impl.object
-            if tool ~= nil and tool.sizeLength ~= nil then
-                --Check if tool is in front of vehicle
-                local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
-                local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
-                if offsetZ > 0 then
-                    lengthOfFrontTool = math.max(lengthOfFrontTool, tool.sizeLength)
+function AutoDrive.debugDrawBoundingBoxForVehicles()
+    local vehicle = g_currentMission.controlledVehicle
+    if vehicle ~= nil and vehicle.getIsEntered ~= nil and vehicle:getIsEntered() then
+        local PosX, _, PosZ = getWorldTranslation(vehicle.components[1].node)
+        local maxDistance = AutoDrive.drawDistance
+        for _, otherVehicle in pairs(g_currentMission.vehicles) do
+            if otherVehicle ~= nil and otherVehicle.components ~= nil and otherVehicle.components[1].node ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then
+                local x, _, z = getWorldTranslation(otherVehicle.components[1].node)
+                local distance = MathUtil.vector2Length(PosX - x, PosZ - z)
+                if distance < maxDistance then
+                    local boundingBox = AutoDrive.getBoundingBoxForVehicle(otherVehicle)
+                    ADDrawingManager:addLineTask(boundingBox[1].x, boundingBox[1].y, boundingBox[1].z, boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, 1, 1, 0)
+                    ADDrawingManager:addLineTask(boundingBox[2].x, boundingBox[2].y, boundingBox[2].z, boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, 1, 1, 0)
+                    ADDrawingManager:addLineTask(boundingBox[3].x, boundingBox[3].y, boundingBox[3].z, boundingBox[4].x, boundingBox[4].y, boundingBox[4].z, 1, 1, 0)
+                    ADDrawingManager:addLineTask(boundingBox[4].x, boundingBox[4].y, boundingBox[4].z, boundingBox[1].x, boundingBox[1].y, boundingBox[1].z, 1, 1, 0)
                 end
             end
         end
     end
-
-    return lengthOfFrontTool
 end
