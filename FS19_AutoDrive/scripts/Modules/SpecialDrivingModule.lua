@@ -202,7 +202,7 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
 
             local inBunkerSilo = AutoDrive.isVehicleInBunkerSiloArea(self.vehicle)
 
-            if not inBunkerSilo and self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
+            if not inBunkerSilo and (AutoDrive.getSetting("enableTrafficDetection") == true) and self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving self:stopAndHoldVehicle inBunkerSilo %s self.vehicle.ad.collisionDetectionModule:checkReverseCollision() %s self.currentWayPointIndex %s ", tostring(inBunkerSilo), tostring(self.vehicle.ad.collisionDetectionModule:checkReverseCollision()), tostring(self.currentWayPointIndex))
                 self:stopAndHoldVehicle(dt)
             else

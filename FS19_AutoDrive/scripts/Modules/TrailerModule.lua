@@ -113,7 +113,7 @@ function ADTrailerModule:getBunkerSiloSpeed()
                     remainingDistance = vecHLength - drivenDistance
                 end
 
-                local speed = ((math.max(1, remainingDistance - 3) / unloadTimeInMS) * 1000) * 3.6 * 1
+                local speed = ((math.max(1, remainingDistance) / unloadTimeInMS) * 1000) * 3.6 * 1
 
                 return speed
             end
@@ -130,7 +130,7 @@ function ADTrailerModule:update(dt)
     end
     local distanceToUnload = AutoDrive.getDistanceToUnloadPosition(self.vehicle)
 
-    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (distanceToUnload < 100) then
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (distanceToUnload < (AutoDrive.MAX_BUNKERSILO_LENGTH)) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateUnload")
         self:updateUnload(dt)
     end
@@ -490,7 +490,7 @@ function ADTrailerModule:lookForPossibleUnloadTrigger(trailer)
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
         local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
         if triggerX ~= nil then
-            if distanceToTarget ~= nil and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < 100)) then
+            if distanceToTarget ~= nil and (distanceToTarget < AutoDrive.getSetting("maxTriggerDistance") or (trigger.bunkerSiloArea ~= nil and distanceToTarget < (AutoDrive.MAX_BUNKERSILO_LENGTH))) then
                 if trigger.bunkerSiloArea == nil then
                     if trailer:getCanDischargeToObject(trailer:getCurrentDischargeNode()) and trailer.getDischargeState ~= nil then
                         if (trailer:getDischargeState() == Dischargeable.DISCHARGE_STATE_OFF and trailer.spec_pipe == nil) or (trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState >= 2) then

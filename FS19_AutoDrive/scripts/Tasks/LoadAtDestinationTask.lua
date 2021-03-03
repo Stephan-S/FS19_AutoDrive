@@ -121,7 +121,8 @@ end
 
 function LoadAtDestinationTask:getInfoText()
     if self.state == LoadAtDestinationTask.STATE_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     else
         return g_i18n:getText("AD_task_drive_to_load_point")
     end
@@ -129,7 +130,8 @@ end
 
 function LoadAtDestinationTask:getI18nInfo()
     if self.state == LoadAtDestinationTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     else
         return "$l10n_AD_task_drive_to_load_point;"
     end

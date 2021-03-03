@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.8-RC1"
+AutoDrive.version = "1.1.0.8"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -9,6 +9,7 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
+AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -56,6 +57,8 @@ AutoDrive.EDITOR_ON = 2
 AutoDrive.EDITOR_EXTENDED = 3
 AutoDrive.EDITOR_SHOW = 4
 
+AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed should be lowered
+
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
 
@@ -87,7 +90,8 @@ AutoDrive.actions = {
 	{"ADSwapTargets", false, 0},
 	{"AD_open_notification_history", false, 0},
 	{"AD_continue", false, 3},
-	{"ADParkVehicle", false, 0}
+	{"ADParkVehicle", false, 0},
+	{"AD_devAction", false, 0}
 }
 
 function AutoDrive:onAllModsLoaded()
@@ -171,6 +175,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	ADDrawingManager:load()
 	ADMessagesManager:load()
 	ADHarvestManager:load()
+        ADScheduler:load()
 	ADInputManager:load()
 	ADMultipleTargetsManager:load()
 end
@@ -294,6 +299,7 @@ function AutoDrive:update(dt)
 
 	if g_server ~= nil then
 		ADHarvestManager:update(dt)
+		ADScheduler:update(dt)
 	end
 
 	ADMessagesManager:update(dt)

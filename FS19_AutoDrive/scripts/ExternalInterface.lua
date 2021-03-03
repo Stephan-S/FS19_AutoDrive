@@ -118,20 +118,30 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
         vehicle.ad.callBackFunction = callBackFunction
         vehicle.ad.callBackArg = callBackArg
 
-        if destinationID >= 0 and ADGraphManager:getMapMarkerById(destinationID) ~= nil then
+        if destinationID ~= nil and destinationID >= 0 and ADGraphManager:getMapMarkerById(destinationID) ~= nil then
             vehicle.ad.stateModule:setFirstMarker(destinationID)
-
+        end
+        if unloadDestinationID ~= nil then
             if unloadDestinationID >= 0 and ADGraphManager:getMapMarkerById(unloadDestinationID) ~= nil then
                 vehicle.ad.stateModule:setSecondMarker(unloadDestinationID)
                 vehicle.ad.stateModule:getCurrentMode():start()
             elseif unloadDestinationID == -3 then --park
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
-                vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
-                if vehicle.ad.stateModule:getParkDestination() >= 1 then
-                    vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getParkDestination())
+                local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
+                if parkDestinationAtJobFinished >= 1 then
+                    vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+                    vehicle.ad.stateModule:setFirstMarker(parkDestinationAtJobFinished)
+                    vehicle.ad.stateModule:getCurrentMode():start()
+                    vehicle.ad.onRouteToPark = true
+                else
+                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
+                    -- stop vehicle movement
+                    AIVehicleUtil.driveInDirection(vehicle, 16, 30, 0, 0.2, 20, false, false, 0, 0, 0, 1)
+                    vehicle:setCruiseControlState(Drivable.CRUISECONTROL_STATE_OFF)
+                    if vehicle.stopMotor ~= nil then
+                        vehicle:stopMotor()
+                    end
                 end
-                vehicle.ad.stateModule:getCurrentMode():start()
-                vehicle.ad.onRouteToPark = true
             else --unloadDestinationID == -2 refuel
                 -- vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO) -- should fix #1477
                 vehicle.ad.stateModule:getCurrentMode():start()
@@ -157,11 +167,12 @@ end
 
 function AutoDrive:GetParkDestination(vehicle)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetParkDestination()")
-    if vehicle ~= nil and vehicle.ad ~= nil then
-        if vehicle.ad.stateModule:getParkDestination() >= 1 then
-            return vehicle.ad.stateModule:getParkDestination()
-		else
-			return -1
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+        local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
+        if parkDestinationAtJobFinished >= 1 then
+            return parkDestinationAtJobFinished
+      	else
+            return -1
         end
     end
     return nil

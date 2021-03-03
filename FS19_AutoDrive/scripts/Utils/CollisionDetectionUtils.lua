@@ -134,26 +134,6 @@ function AutoDrive.getDistanceBetween(vehicleOne, vehicleTwo)
     return math.sqrt(math.pow(x2 - x1, 2) + math.pow(z2 - z1, 2))
 end
 
-function AutoDrive.getFrontToolLength(vehicle)
-    local lengthOfFrontTool = 0
-
-    if vehicle.getAttachedImplements ~= nil then
-        for _, impl in pairs(vehicle:getAttachedImplements()) do
-            local tool = impl.object
-            if tool ~= nil and tool.sizeLength ~= nil then
-                --Check if tool is in front of vehicle
-                local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
-                local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
-                if offsetZ > 0 then
-                    lengthOfFrontTool = math.max(lengthOfFrontTool, tool.sizeLength)
-                end
-            end
-        end
-    end
-
-    return lengthOfFrontTool
-end
-
 function AutoDrive.debugDrawBoundingBoxForVehicles()
     local vehicle = g_currentMission.controlledVehicle
     if vehicle ~= nil and vehicle.getIsEntered ~= nil and vehicle:getIsEntered() then

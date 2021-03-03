@@ -27,6 +27,7 @@ function AutoDriveVehicleData.registerEventListeners(vehicleType)
             "onPreLoad",
             "onLoad",
             "onPostLoad",
+            "onSelect",
             "saveToXMLFile"
             -- ,"onReadStream"
             -- ,"onWriteStream"
@@ -74,6 +75,20 @@ function AutoDriveVehicleData:onPostLoad(savegame)
     -- end
 end
 
+function AutoDriveVehicleData:onSelect()
+    local rootAttacherVehicle = self:getRootVehicle()
+    if rootAttacherVehicle ~= nil and rootAttacherVehicle ~= self then
+        if rootAttacherVehicle.ad ~= nil and rootAttacherVehicle.ad.stateModule ~= nil then
+            local actualParkDestination = AutoDrive.getActualParkDestination(rootAttacherVehicle)
+            if actualParkDestination >= 1 then
+                rootAttacherVehicle.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
+            else
+                rootAttacherVehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
+            end
+        end
+    end
+end
+
 function AutoDriveVehicleData:saveToXMLFile(xmlFile, key)
     AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.saveToXMLFile vehicle %s", tostring(self:getName()))
     if self.advd == nil then
@@ -116,7 +131,7 @@ function AutoDriveVehicleData:onReadUpdateStream(streamId, timestamp, connection
         return
     end
     if connection:getIsServer() then
-        if streamReadBool(self) then
+        if streamReadBool(streamId) then
             AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadUpdateStream streamReadBool ")
             self.vehicle.advd.WorkToolParkDestination = streamReadUIntN(streamId, 20) - 1
         end

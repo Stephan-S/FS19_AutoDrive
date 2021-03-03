@@ -150,7 +150,7 @@ function AutoDrive.getTrailersOf(vehicle, onlyDischargeable)
     AutoDrive.tempTrailers = {}
     AutoDrive.tempTrailerCount = 0
 
-    if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil then
+    if (vehicle.spec_dischargeable ~= nil or not (onlyDischargeable == true)) and vehicle.getFillUnits ~= nil then
         local vehicleFillLevel, vehicleLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(vehicle, nil)
         --g_logManager:devInfo("VehicleFillLevel: " .. vehicleFillLevel .. " vehicleLeftCapacity: " .. vehicleLeftCapacity);
         if not (vehicleFillLevel == 0 and vehicleLeftCapacity == 0) then
@@ -170,7 +170,7 @@ function AutoDrive.getTrailersOf(vehicle, onlyDischargeable)
 end
 
 function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
-    if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
+    if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or not (onlyDischargeable == true)) and attachedImplement.getFillUnits ~= nil then
         if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == g_i18n:getText("typeDesc_frontloaderTool") or attachedImplement.typeDesc == g_i18n:getText("typeDesc_wheelLoaderTool")) then --avoid trying to fill shovels and levellers atached
             local trailer = attachedImplement
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
@@ -252,13 +252,13 @@ function AutoDrive.getDistanceToUnloadPosition(vehicle)
     return MathUtil.vector2Length(x - destination.x, z - destination.z)
 end
 
-function AutoDrive.getFillLevelAndCapacityOfAll(trailers, selectedFillType)
+function AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local leftCapacity = 0
     local fillLevel = 0
 
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer, selectedFillType)
+            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
             fillLevel = fillLevel + trailerFillLevel
             leftCapacity = leftCapacity + trailerLeftCapacity
         end
@@ -267,28 +267,24 @@ function AutoDrive.getFillLevelAndCapacityOfAll(trailers, selectedFillType)
     return fillLevel, leftCapacity
 end
 
-function AutoDrive.getFillLevelAndCapacityOf(trailer, selectedFillType)
+function AutoDrive.getFillLevelAndCapacityOf(trailer)
     local leftCapacity = 0
     local fillLevel = 0
-    local fullFillUnits = {}
+
 
     if trailer ~= nil then
         for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
-            if selectedFillType == nil or trailer:getFillUnitSupportedFillTypes(fillUnitIndex)[selectedFillType] == true then
-                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, selectedFillType)
+
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex)
                 fillLevel = fillLevel + trailerFillLevel
                 leftCapacity = leftCapacity + trailerLeftCapacity
-                if (trailerLeftCapacity <= 0.01) then
-                    fullFillUnits[fillUnitIndex] = true
-                end
-            end
         end
     end
 
-    return fillLevel, leftCapacity, fullFillUnits
+    return fillLevel, leftCapacity
 end
 
-function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFillType)
+function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object)
     if object == nil or object.getFillUnits == nil then
         return 0, 0
     end
@@ -296,7 +292,7 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
     local fillLevel = 0
     for fillUnitIndex, _ in pairs(object:getFillUnits()) do
         --print("object fillUnit " .. fillUnitIndex ..  " has :");
-        local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
+        local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex)
         --print("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity);
         fillLevel = fillLevel + unitFillLevel
         leftCapacity = leftCapacity + unitLeftCapacity
@@ -305,7 +301,7 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
     return fillLevel, leftCapacity
 end
 
-function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
+function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex)
     local fillTypeIsProhibited = false
     local isSelectedFillType = false
     local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
@@ -316,13 +312,8 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitInde
                 fillTypeIsProhibited = true
             end
         end
-        if selectedFillType ~= nil and fillType == selectedFillType then
-            isSelectedFillType = true
-        end
     end
-    if isSelectedFillType then
-        fillTypeIsProhibited = false
-    end
+
 
     if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex)
