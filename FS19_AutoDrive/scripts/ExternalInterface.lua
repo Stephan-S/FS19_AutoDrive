@@ -171,8 +171,6 @@ function AutoDrive:GetParkDestination(vehicle)
         local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
         if parkDestinationAtJobFinished >= 1 then
             return parkDestinationAtJobFinished
-      	else
-            return -1
         end
     end
     return nil
