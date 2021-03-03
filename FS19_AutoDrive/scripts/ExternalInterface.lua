@@ -160,6 +160,8 @@ function AutoDrive:GetParkDestination(vehicle)
     if vehicle ~= nil and vehicle.ad ~= nil then
         if vehicle.ad.stateModule:getParkDestination() >= 1 then
             return vehicle.ad.stateModule:getParkDestination()
+		else
+			return -1
         end
     end
     return nil
@@ -186,8 +188,14 @@ function AutoDrive:notifyDestinationListeners()
     end
 end
 
-function AutoDrive:combineIsCallingDriver(combine)
-    return ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
+function AutoDrive:combineIsCallingDriver(combine)	--only for CoursePlay
+	local openPipe = ADHarvestManager.GetOpenPipePercent(combine)
+	return openPipe or ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
+end
+
+function AutoDrive:combinePipePercent(combine)	--for AIVE
+	local _, pipePercent = ADHarvestManager.GetOpenPipePercent(combine)
+	return pipePercent
 end
 
 -- stop CP if it is active

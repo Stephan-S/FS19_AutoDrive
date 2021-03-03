@@ -761,7 +761,7 @@ function AutoDrive:onFillTypeSelection(superFunc, fillType)
 	end
 end
 
-function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)
+function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)		--combine helper function, copied from GDN and modified to open combine pipe when an unloader is assigned to the combine
     local isTurning = self.vehicle:getRootVehicle():getAIIsTurning()
     local allowedToDrive = true
     local waitForStraw = false
@@ -810,10 +810,7 @@ function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)
             else
                 -- combine harvesters
 				local pipeState = currentPipeTargetState
-				local pipePercent = 0.9
-				if AutoDrive.getSetting("preCallLevel", self.vehicle) ~= nil and ADHarvestManager:getAssignedUnloader(self.vehicle) ~= nil then
-					pipePercent = AutoDrive.getSetting("preCallLevel", self.vehicle)
-				end
+				local _, pipePercent = ADHarvestManager.GetOpenPipePercent(combine)
                 if fillLevel > (0.8*capacity) then
                     if not self.beaconLightsActive then
                         self.vehicle:setAIMapHotspotBlinking(true)
@@ -842,7 +839,7 @@ function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)
                 else
                     self.notificationFullGrainTankShown = false
                 end
-                if trailerInTrigger or fillLevel > (pipePercent) * capacity then
+                if trailerInTrigger or fillLevel > (pipePercent * capacity) then
                     pipeState = 2
                 end
                 if not trailerInTrigger then
@@ -853,7 +850,7 @@ function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)
                         end
                     end
                 end
-                if (not trailerInTrigger and not invalidTrailerInTrigger) and fillLevel < pipePercent * capacity then
+                if (not trailerInTrigger and not invalidTrailerInTrigger) and fillLevel < (pipePercent * capacity) then
                     pipeState = 1
                 end
                 if fillLevel < 0.1 then
