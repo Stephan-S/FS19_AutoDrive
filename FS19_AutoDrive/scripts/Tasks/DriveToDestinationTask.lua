@@ -18,6 +18,8 @@ function DriveToDestinationTask:setUp()
         self.state = DriveToDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
+    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
 end
 
 function DriveToDestinationTask:update(dt)
@@ -40,8 +42,6 @@ function DriveToDestinationTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
     else
-        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             self:finished()
         else
@@ -59,7 +59,8 @@ end
 
 function DriveToDestinationTask:getInfoText()
     if self.state == DriveToDestinationTask.STATE_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     else
         return g_i18n:getText("AD_task_drive_to_destination")
     end
@@ -67,7 +68,8 @@ end
 
 function DriveToDestinationTask:getI18nInfo()
     if self.state == DriveToDestinationTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     else
         return "$l10n_AD_task_drive_to_destination;"
     end

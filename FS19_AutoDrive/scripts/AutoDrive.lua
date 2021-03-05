@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.7-RC1"
+AutoDrive.version = "1.1.0.8"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -9,6 +9,7 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
+AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -56,6 +57,8 @@ AutoDrive.EDITOR_ON = 2
 AutoDrive.EDITOR_EXTENDED = 3
 AutoDrive.EDITOR_SHOW = 4
 
+AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed should be lowered
+
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
 
@@ -87,8 +90,13 @@ AutoDrive.actions = {
 	{"ADSwapTargets", false, 0},
 	{"AD_open_notification_history", false, 0},
 	{"AD_continue", false, 3},
-	{"ADParkVehicle", false, 0}
+	{"ADParkVehicle", false, 0},
+	{"AD_devAction", false, 0}
 }
+
+function AutoDrive:onAllModsLoaded()
+	ADThirdPartyModsManager:load()
+end
 
 function AutoDrive:loadMap(name)
 g_logManager:info("[AD] Start register later loaded mods...")
@@ -166,6 +174,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	ADDrawingManager:load()
 	ADMessagesManager:load()
 	ADHarvestManager:load()
+        ADScheduler:load()
 	ADInputManager:load()
 	ADMultipleTargetsManager:load()
 end
@@ -200,7 +209,7 @@ function AutoDrive:saveSavegame()
 			end
 		end
 ]]
-        AutoDrive.saveToXML(AutoDrive.adXml)
+        AutoDrive.saveToXML()
 		ADUserDataManager:saveToXml()
 --        g_logManager:info("[AD] AutoDrive:saveSavegame g_server ~= nil end")
 	end
@@ -222,9 +231,6 @@ function AutoDrive:deleteMap()
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
 	end
 	ADRoutesManager:delete()
-	if g_server ~= nil then
-		delete(AutoDrive.adXml)
-	end
 end
 
 function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
@@ -280,6 +286,9 @@ function AutoDrive:update(dt)
 			AutoDrive.renderTable(0.3, 0.9, 0.009, AutoDrive.debug.lastSentEvent)
 		end
 	end
+	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
+		AutoDrive.debugDrawBoundingBoxForVehicles()
+	end
 
 	if AutoDrive.Hud ~= nil then
 		if AutoDrive.Hud.showHud == true then
@@ -289,6 +298,7 @@ function AutoDrive:update(dt)
 
 	if g_server ~= nil then
 		ADHarvestManager:update(dt)
+		ADScheduler:update(dt)
 	end
 
 	ADMessagesManager:update(dt)

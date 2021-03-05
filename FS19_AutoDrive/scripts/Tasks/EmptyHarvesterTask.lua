@@ -123,7 +123,13 @@ function EmptyHarvesterTask:update(dt)
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
-        local overallLength = AutoDrive.getTractorTrainLength(self.vehicle, true, false)
+        local  _,trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
+        local overallLength
+        if trailercount <= 1 then
+            overallLength = self.vehicle.sizeLength -- only tractor length
+        else
+            overallLength = AutoDrive.getTractorTrainLength(self.vehicle, true, true) -- complete train length
+        end
         if self.combine.trailingVehicle ~= nil then
             -- if the harvester is trailed reverse 5m more
             -- overallLength = overallLength + 5
@@ -132,7 +138,7 @@ function EmptyHarvesterTask:update(dt)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
             self.state = EmptyHarvesterTask.STATE_WAITING
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 5, 1)
         end
     elseif self.state == EmptyHarvesterTask.STATE_WAITING then
         self.waitTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
@@ -164,7 +170,8 @@ end
 
 function EmptyHarvesterTask:getInfoText()
     if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
         return g_i18n:getText("AD_task_drive_to_combine_pipe")
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
@@ -180,7 +187,8 @@ end
 
 function EmptyHarvesterTask:getI18nInfo()
     if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
         return "$l10n_AD_task_drive_to_combine_pipe;"
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then

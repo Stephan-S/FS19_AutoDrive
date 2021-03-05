@@ -54,6 +54,7 @@ function ADStateModule:reset()
     end
     self.remainingDriveTime = 0
     self.calculateRemainingDriveTimeInterval = 0
+    self.refuelFillType = 0
 end
 
 function ADStateModule:readFromXMLFile(xmlFile, key)
@@ -147,6 +148,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteBool(streamId, self.useCP)
     streamWriteString(streamId, self.driverName)
     streamWriteUInt16(streamId, self.remainingDriveTime)
+    streamWriteUIntN(streamId, self.refuelFillType, 8)
 end
 
 function ADStateModule:readStream(streamId)
@@ -170,6 +172,7 @@ function ADStateModule:readStream(streamId)
     self.useCP = streamReadBool(streamId)
     self.driverName = streamReadString(streamId)
     self.remainingDriveTime = streamReadUInt16(streamId)
+    self.refuelFillType = streamReadUIntN(streamId, 8)
 
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
@@ -195,6 +198,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteBool(streamId, self.useCP)
     streamWriteString(streamId, self.driverName)
 	streamWriteUInt16(streamId, self.remainingDriveTime)
+    streamWriteUIntN(streamId, self.refuelFillType, 8)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -218,6 +222,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.useCP = streamReadBool(streamId)
     self.driverName = streamReadString(streamId)
     self.remainingDriveTime = streamReadUInt16(streamId)
+    self.refuelFillType = streamReadUIntN(streamId, 8)
 
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
@@ -258,6 +263,7 @@ function ADStateModule:update(dt)
         debug.useCP = self.useCP
         debug.driverName = self.driverName
         debug.remainingDriveTime = self.remainingDriveTime
+        debug.refuelFillType = self.refuelFillType
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
         else
@@ -821,4 +827,13 @@ end
 
 function ADStateModule:getRemainingDriveTime()
 	return self.remainingDriveTime
+end
+
+function ADStateModule:getRefuelFillType()
+	return self.refuelFillType
+end
+
+function ADStateModule:setRefuelFillType(refuelFillType)
+	self.refuelFillType = refuelFillType
+	self:raiseDirtyFlag()
 end

@@ -47,6 +47,7 @@
 		<text name="AD_No_Trailer"								text="impossibile trovare il rimorchio" />
 		<text name="AD_No_Bunker"								text="impossibile trovare il bunker" />
 		<text name="AD_No_Shovel"								text="impossibile trovare una pala collegata" />
+		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
 		<text name="AD_MODE_DRIVETO"							text="Guida" />
 		<text name="AD_MODE_DELIVERTO"							text="Consegna" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Carica e consegna" />

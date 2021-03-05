@@ -34,7 +34,8 @@ ADInputManager.actionsToInputs = {
     ADSwapTargets = "input_swapTargets",
     AD_open_notification_history = "input_openNotificationHistory",
     AD_continue = "input_continue",
-    ADParkVehicle = "input_parkVehicle"
+    ADParkVehicle = "input_parkVehicle",
+    AD_devAction = "input_devAction"
 }
 
 ADInputManager.inputsToIds = {
@@ -193,7 +194,9 @@ function ADInputManager:input_toggleMouse()
 end
 
 function ADInputManager:input_routesManager()
-    AutoDrive.onOpenRoutesManager()
+    if (AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer == true and g_dedicatedServerInfo ~= nil) or g_dedicatedServerInfo == nil then
+        AutoDrive.onOpenRoutesManager()
+    end
 end
 
 function ADInputManager:input_goToVehicle()
@@ -262,12 +265,26 @@ function ADInputManager:input_setParkDestination(vehicle)
             end
         end
         if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.setWorkToolParkDestination ~= nil then
-            SelectedWorkTool.advd:setWorkToolParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
-            AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+            if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
+                -- assign park destination
+                SelectedWorkTool.advd:setWorkToolParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+            elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
+                -- delete park destination
+                SelectedWorkTool.advd:setWorkToolParkDestination(-1)
+                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+            end
         else
             if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.setParkDestination ~= nil then
-                vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
-                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+                if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
+                    -- assign park destination
+                    vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+                elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
+                    -- delete park destination
+                    vehicle.ad.stateModule:setParkDestination(-1)
+                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
+                end
             end
         end
     end
@@ -426,5 +443,11 @@ function ADInputManager:input_toggleCP_AIVE(vehicle) -- select CP or AIVE
     if g_courseplay ~= nil and vehicle.acParameters ~= nil then
         vehicle.ad.stateModule:toggleUseCP_AIVE()
         vehicle.ad.stateModule:setStartCP_AIVE(false) -- disable if changed between CP and AIVE
+    end
+end
+
+function ADInputManager:input_devAction(vehicle)
+    if AutoDrive.devAction ~= nil then
+        AutoDrive.devAction(vehicle)
     end
 end
