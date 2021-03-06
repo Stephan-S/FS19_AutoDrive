@@ -76,6 +76,7 @@ function AutoDrive.readFromXML(xmlFile)
 	AutoDrive.HudX = getXMLFloat(xmlFile, "AutoDrive.HudX")
 	AutoDrive.HudY = getXMLFloat(xmlFile, "AutoDrive.HudY")
 	AutoDrive.showingHud = getXMLBool(xmlFile, "AutoDrive.HudShow")
+	AutoDrive.combinedHudMouse = getXMLInt(xmlFile, "AutoDrive.combineCPADHudMouse")
 
 	AutoDrive.currentDebugChannelMask = getXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask") or 0
 
@@ -267,6 +268,7 @@ function AutoDrive.saveToXML(xmlFile)
 	setXMLFloat(xmlFile, "AutoDrive.HudX", AutoDrive.HudX)
 	setXMLFloat(xmlFile, "AutoDrive.HudY", AutoDrive.HudY)
 	setXMLBool(xmlFile, "AutoDrive.HudShow", AutoDrive.Hud.showHud)
+	setXMLInt(xmlFile, "AutoDrive.combineCPADHudMouse", AutoDrive.combinedHudMouse)
 
 	setXMLInt(xmlFile, "AutoDrive.currentDebugChannelMask", AutoDrive.currentDebugChannelMask)
 
