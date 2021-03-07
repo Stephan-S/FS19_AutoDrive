@@ -34,10 +34,12 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Установить к-во рейсов" />
 		<text name="input_ADParkVehicle"						text="AD: Отправить на парковку" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
+		<text name="input_AD_devAction"							text="AD: Действия разработчика" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
 		<text name="hud_startCp"								text="AD: Запустить CP/AIVE в пункте назначения" />
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Чтобы назначить выбранную локацию, как место парковки, нажмите правой кнопкой мыши на этой же кнопке." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
+		<text name="AD_parkVehicle_deleted"						text="место стоянки удалено!" />
 		<text name="AD_Driver_of"								text="Водитель на" />
 		<text name="AD_has_reached"								text="прибыл к" />
 		<text name="AD_got_stuck"								text="застрял" />
@@ -47,7 +49,7 @@
 		<text name="AD_No_Trailer"								text="не может найти прицеп" />
 		<text name="AD_No_Bunker"								text="не может найти силосную яму" />
 		<text name="AD_No_Shovel"								text="не может найти присоединённый ковш" />
-		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
+		<text name="AD_No_Refuel_Station"						text="не удалось найти заправочную станцию для:" />
 		<text name="AD_MODE_DRIVETO"							text="Перегон" />
 		<text name="AD_MODE_DELIVERTO"							text="Доставка" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Загрузка и доставка" />
@@ -182,10 +184,10 @@
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Если несколько водителей едут в одно и то же место, выбор места назначения синхронизируется." />
 		<text name="gui_ad_enableParkAtJobFinished"				text="Припарковать по завершению" />
 		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Доступно только в режимах «Загрузка и доставка» и «Доставка»: по завершении работы, техника будет отправлена на заранее назначенное парковочное место автомобиля/навесного оборудования. На Dedi-Server доступно только место для парковки автомобиля!" />
-		<text name="gui_ad_autoTipSide"                         text="Автовыбор стороны разгрузки" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
-		<text name="gui_ad_autoTrailerCover"                    text="Тенты на прицепах" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
+		<text name="gui_ad_autoTipSide"							text="Автовыбор стороны разгрузки" />
+		<text name="gui_ad_autoTipSide_tooltip"					text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
+		<text name="gui_ad_autoTrailerCover"					text="Тенты на прицепах" />
+		<text name="gui_ad_autoTrailerCover_tooltip"			text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
@@ -319,6 +321,6 @@
 		<text name="AD_task_waiting_for_room"					text="Ожидает пространства" />
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
 		<text name="AD_task_reversing_from_collision"			text="Ищет свободное пространство" />
-		<text name="AD_task_drive_to_park"						text="Движется на парковочное место" />
+		<text name="AD_task_drive_to_park"						text="Движется на место парковки" />
 	</texts>
 </l10n>
