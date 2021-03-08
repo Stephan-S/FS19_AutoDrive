@@ -279,6 +279,9 @@ function AutoDrive:update(dt)
 	if AutoDrive.isFirstRun == nil then
 		AutoDrive.isFirstRun = false
 		self:init()
+                if AutoDrive.devAutoDriveInit ~= nil then
+                    AutoDrive.devAutoDriveInit()
+                end
 	end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
