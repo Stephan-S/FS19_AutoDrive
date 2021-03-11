@@ -141,14 +141,14 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.stateHud = 0
 	self.statesHud = 0
 	
-	if AutoDrive.combinedHudMouse > 0 then
+	if AutoDrive.getSetting("combineCPADHudMouse") > 1.0 then
 		AutoDrive.actions[table.getn(AutoDrive.actions)] = {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 		table.remove(ADInputManager.actionsToInputs, ADToggleMouse)
 		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = "input_toggleMouse"
 	end
-	if AutoDrive.combinedHudMouse == 1 then
+	if AutoDrive.getSetting("combineCPADHudMouse") == 2.0 then
 		self.statesHud = 2
-	elseif AutoDrive.combinedHudMouse == 2 then
+	elseif AutoDrive.getSetting("combineCPADHudMouse") == 3.0 then
 		self.statesHud = 4
 	end
 	if ADGraphManager:getMapMarkerById(1) ~= nil then

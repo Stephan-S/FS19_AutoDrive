@@ -322,6 +322,9 @@
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 		<text name="AD_task_reversing_from_collision"			text="Recherche d'une zone dégagée" />
     <text name="AD_task_drive_to_park"				        text="Conduire vers le parking" />
+		
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP:  sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Tip: remove unused button settings"/>
 
   </texts>
 </l10n>

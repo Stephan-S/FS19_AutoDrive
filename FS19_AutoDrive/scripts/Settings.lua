@@ -869,6 +869,18 @@ AutoDrive.settings.iconSetToUse = {
     isUserSpecific = true
 }
 
+AutoDrive.settings.combineCPADHudMouse = {
+    values = {1, 2, 3},
+    texts = {"off", "simple", "full"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_combineCPADHudMouse",
+    tooltip = "gui_ad_combineCPADHudMouse_tooltip",
+    translate = false,
+    isVehicleSpecific = false,
+    isUserSpecific = true
+}
+
 AutoDrive.settings.wideHUD = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},

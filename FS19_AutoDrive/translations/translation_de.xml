@@ -320,5 +320,8 @@
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
         <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
+
+		<text name = "gui_ad_combineCPADHudMouse"				text = "Kombiniere CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sek. Maus-Aktion > Maus an + aus, AD: HUD ein/ausblenden > beide Huds an + aus / full: wie simple, aber Huds können einzeln durchgeschaltet werden / Tip: Lösche unbenutzte Tastenzuweisungen"/>
 	</texts>
 </l10n>
