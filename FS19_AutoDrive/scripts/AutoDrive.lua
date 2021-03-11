@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.8"
+AutoDrive.version = "1.1.0.9-RC1"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -279,6 +279,9 @@ function AutoDrive:update(dt)
 	if AutoDrive.isFirstRun == nil then
 		AutoDrive.isFirstRun = false
 		self:init()
+                if AutoDrive.devAutoDriveInit ~= nil then
+                    AutoDrive.devAutoDriveInit()
+                end
 	end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
