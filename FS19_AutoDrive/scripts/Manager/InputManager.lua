@@ -242,6 +242,8 @@ function ADInputManager:input_setParkDestination(vehicle)
         -- g_logManager:info("[AD] ADInputManager:input_setParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
 
         local SelectedWorkTool = nil
+        local firstMarkerID = vehicle.ad.stateModule:getFirstMarkerId()
+
         if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
             local allImp = {}
             -- Credits to Tardis from FS17
@@ -267,22 +269,26 @@ function ADInputManager:input_setParkDestination(vehicle)
         if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.setWorkToolParkDestination ~= nil then
             if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
                 -- assign park destination
-                SelectedWorkTool.advd:setWorkToolParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+                SelectedWorkTool.advd:setWorkToolParkDestination(firstMarkerID)
+                vehicle.ad.stateModule:setParkDestinationAtJobFinished(firstMarkerID)
                 AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
             elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
                 -- delete park destination
                 SelectedWorkTool.advd:setWorkToolParkDestination(-1)
+                vehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
                 AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
             end
         else
             if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.setParkDestination ~= nil then
                 if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
                     -- assign park destination
-                    vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
+                    vehicle.ad.stateModule:setParkDestination(firstMarkerID)
+                    vehicle.ad.stateModule:setParkDestinationAtJobFinished(firstMarkerID)
                     AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
                 elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
                     -- delete park destination
                     vehicle.ad.stateModule:setParkDestination(-1)
+                    vehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
                     AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
                 end
             end
