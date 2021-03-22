@@ -603,7 +603,7 @@ function AutoDrive.startFillFillableTrailer(vehicle)
         local spec = trailer.spec_fillUnit
         if spec ~= nil and spec.fillTrigger ~= nil and spec.fillTrigger.triggers ~= nil and #spec.fillTrigger.triggers >0 then
             spec:setFillUnitIsFilling(true)
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] AutoDrive.startFillFillableTrailer setFillUnitIsFilling currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "[AD] AutoDrive.startFillFillableTrailer setFillUnitIsFilling currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
             if spec.fillTrigger.currentTrigger ~= nil then
                 return spec.fillTrigger.currentTrigger
             end
