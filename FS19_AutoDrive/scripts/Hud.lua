@@ -142,7 +142,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.statesHud = 0
 	
 	if AutoDrive.getSetting("combineCPADHudMouse") > 1.0 and g_courseplay ~= nil then
-		AutoDrive.actions[table.getn(AutoDrive.actions)] = {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
+		AutoDrive.actions[table.getn(AutoDrive.actions) + 1] = {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 		table.remove(ADInputManager.actionsToInputs, ADToggleMouse)
 		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = "input_toggleMouse"
 		if AutoDrive.getSetting("combineCPADHudMouse") == 2.0 then
