@@ -140,15 +140,12 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.showHud = false
 	self.stateHud = 0
 	self.statesHud = 0
-	
+
 	if AutoDrive.getSetting("combineCPADHudMouse") > 1.0 and g_courseplay ~= nil then
-		AutoDrive.actions[table.getn(AutoDrive.actions) + 1] = {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
-		table.remove(ADInputManager.actionsToInputs, ADToggleMouse)
-		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = "input_toggleMouse"
 		if AutoDrive.getSetting("combineCPADHudMouse") == 2.0 then
-			self.statesHud = 2
+			self.statesHud = 1
 		elseif AutoDrive.getSetting("combineCPADHudMouse") == 3.0 then
-			self.statesHud = 4
+			self.statesHud = 2
 		end
 	end
 	if ADGraphManager:getMapMarkerById(1) ~= nil then
@@ -375,7 +372,7 @@ function AutoDriveHud:toggleHud(vehicle)
 			self.showHud = true
 			vehicle.ad.showingHud = true
 			g_courseplay.courseplay:openCloseHud(vehicle, true)
-			if self.statesHud == 4 then
+			if self.statesHud == 2 then
 				self.stateHud = 1
 			else
 				self.stateHud = 3
@@ -385,6 +382,7 @@ function AutoDriveHud:toggleHud(vehicle)
 			self.showHud = true
 			vehicle.ad.showingHud = true
 			g_courseplay.courseplay:openCloseHud(vehicle, false)
+			g_inputBinding:setShowMouseCursor(true)
 			self.stateHud = 2
 		elseif self.stateHud == 2 then
 			-- show CP hud

@@ -23,6 +23,7 @@ ADInputManager.actionsToInputs = {
     AD_FieldSpeed_down = "input_decreaseFieldSpeed",
     ADToggleHud = "input_toggleHud",
     ADToggleMouse = "input_toggleMouse",
+    COURSEPLAY_MOUSEACTION_SECONDARY = "input_toggleMouse",
     ADDebugDeleteWayPoint = "input_removeWaypoint",
     AD_routes_manager = "input_routesManager",
     ADSelectNextFillType = "input_nextFillType",

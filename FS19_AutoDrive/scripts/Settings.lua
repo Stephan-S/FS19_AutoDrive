@@ -871,12 +871,12 @@ AutoDrive.settings.iconSetToUse = {
 
 AutoDrive.settings.combineCPADHudMouse = {
     values = {1, 2, 3},
-    texts = {"off", "simple", "full"},
+    texts = {"gui_CPAD_off", "gui_CPAD_simple", "gui_CPAD_full"},
     default = 1,
     current = 1,
     text = "gui_ad_combineCPADHudMouse",
     tooltip = "gui_ad_combineCPADHudMouse_tooltip",
-    translate = false,
+    translate = true,
     isVehicleSpecific = false,
     isUserSpecific = true
 }
