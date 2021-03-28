@@ -592,18 +592,20 @@ function AutoDrive.getWaterTrailerInWater(vehicle, dt)
     end
     return nil
 end
+
 function AutoDrive.startFillFillableTrailer(vehicle)
+    local ret = nil
     local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
     if trailers == nil then
-        return
+        return nil
     end
-    local ret = nil
     for _, trailer in pairs(trailers) do
-        local spec = trailer.spec_fillTriggerVehicle
-        if spec ~= nil and spec.fillTrigger ~= nil and not spec.fillTrigger.isFilling then
+        local spec = trailer.spec_fillUnit
+        if spec ~= nil and spec.fillTrigger ~= nil and spec.fillTrigger.triggers ~= nil and #spec.fillTrigger.triggers >0 then
             spec:setFillUnitIsFilling(true)
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "[AD] AutoDrive.startFillFillableTrailer setFillUnitIsFilling currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
             if spec.fillTrigger.currentTrigger ~= nil then
-                -- return spec.fillTrigger.currentTrigger  -- TODO: is nil, may be due to updatetick ?
+                return spec.fillTrigger.currentTrigger
             end
         end
     end

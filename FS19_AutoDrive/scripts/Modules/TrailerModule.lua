@@ -130,11 +130,11 @@ function ADTrailerModule:update(dt)
     end
     local distanceToUnload = AutoDrive.getDistanceToUnloadPosition(self.vehicle)
 
-    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (distanceToUnload < (AutoDrive.MAX_BUNKERSILO_LENGTH)) then
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) or distanceToUnload < (AutoDrive.MAX_BUNKERSILO_LENGTH)) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateUnload")
         self:updateUnload(dt)
     end
-    if self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() then
+    if self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() and AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateLoad")
         self:updateLoad(dt)
     end
@@ -241,10 +241,14 @@ function ADTrailerModule:updateLoad(dt)
             return
         end
 
-        local fillableTrailer = AutoDrive.startFillFillableTrailer(self.vehicle)
-        if fillableTrailer ~= nil then
+        local fillTrigger = AutoDrive.startFillFillableTrailer(self.vehicle)
+        if fillTrigger ~= nil then
             -- no further actions required, monitoring via fill level - see load from source without trigger
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad fillableTrailer found -> load already started")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad fillTrigger found -> load already started")
+            fillFound = true
+            self.isLoading = true
+            self.trigger = fillTrigger                 -- need a trigger to not search again
+            return
         end
 
         -- check for load from source without trigger

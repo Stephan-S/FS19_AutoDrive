@@ -126,7 +126,7 @@ function EmptyHarvesterTask:update(dt)
         local  _,trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
         local overallLength
         if trailercount <= 1 then
-            overallLength = self.vehicle.sizeLength -- only tractor length
+            overallLength = self.vehicle.sizeLength * 2 -- 2x tractor length
         else
             overallLength = AutoDrive.getTractorTrainLength(self.vehicle, true, true) -- complete train length
         end
