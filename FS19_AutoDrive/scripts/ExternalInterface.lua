@@ -201,6 +201,16 @@ function AutoDrive:combineIsCallingDriver(combine)
     return ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
 end
 
+function AutoDrive:StartCP(vehicle)
+    if vehicle.startCpDriver then
+        -- newer CP versions use this function to start the CP driver
+        vehicle:startCpDriver()
+    else
+        -- for backward compatibility for older CP versions
+        g_courseplay.courseplay:start(vehicle)
+    end
+end
+
 -- stop CP if it is active
 function AutoDrive:StopCP(vehicle)
 	if vehicle == nil then 
@@ -212,7 +222,13 @@ function AutoDrive:StopCP(vehicle)
 			vehicle.ad.stateModule:toggleStartCP_AIVE()
 		end
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP call CP stop")
-		g_courseplay.courseplay:stop(vehicle)
+        if vehicle.stopCpDriver then
+            -- newer CP versions use this function to stop the CP driver
+            vehicle:stopCpDriver()
+        else
+            -- for backward compatibility for older CP versions
+            g_courseplay.courseplay:stop(vehicle)
+        end
 	end
 end
 
