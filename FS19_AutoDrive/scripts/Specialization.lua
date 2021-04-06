@@ -764,7 +764,7 @@ function AutoDrive:stopAutoDrive()
                     self.ad.stateModule:setStartCP_AIVE(false)
                     if g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
                         AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to CP with start")
-                        g_courseplay.courseplay:start(self)
+                        AutoDrive:StartCP(self)
                     else
                         if self.acParameters ~= nil then
                             self.acParameters.enabled = true
