@@ -201,19 +201,40 @@ function AutoDrive:combineIsCallingDriver(combine)
     return ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
 end
 
+-- start CP
+function AutoDrive:StartCP(vehicle)
+    if vehicle == nil then 
+        return 
+    end
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StartCP...")
+    if vehicle.startCpDriver then
+        -- newer CP versions use this function to start the CP driver
+        vehicle:startCpDriver()
+    else
+        -- for backward compatibility for older CP versions
+        g_courseplay.courseplay:start(vehicle)
+    end
+end
+
 -- stop CP if it is active
 function AutoDrive:StopCP(vehicle)
-	if vehicle == nil then 
-		return 
-	end
+    if vehicle == nil then 
+        return 
+    end
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP...")
-	if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
-		if vehicle.ad.stateModule:getStartCP_AIVE() then
-			vehicle.ad.stateModule:toggleStartCP_AIVE()
-		end
+    if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
+        if vehicle.ad.stateModule:getStartCP_AIVE() then
+            vehicle.ad.stateModule:toggleStartCP_AIVE()
+        end
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP call CP stop")
-		g_courseplay.courseplay:stop(vehicle)
-	end
+        if vehicle.stopCpDriver then
+            -- newer CP versions use this function to stop the CP driver
+            vehicle:stopCpDriver()
+        else
+            -- for backward compatibility for older CP versions
+            g_courseplay.courseplay:stop(vehicle)
+        end
+    end
 end
 
 function AutoDrive:HoldDriving(vehicle)
