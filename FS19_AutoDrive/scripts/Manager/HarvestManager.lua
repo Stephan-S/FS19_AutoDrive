@@ -319,3 +319,24 @@ function ADHarvestManager:getClosestIdleUnloader(harvester)
     end
     return closestUnloader
 end
+
+function ADHarvestManager.getOpenPipePercent(harvester)
+	local pipePercent = 1
+	local openPipe = false
+	local fillLevel = 0
+	local capacity = 0
+	if harvester ~= nil then
+		local dischargeNode = harvester:getCurrentDischargeNode()
+		if dischargeNode ~= nil then
+			fillLevel = harvester:getFillUnitFillLevel(dischargeNode.fillUnitIndex)
+			capacity = harvester:getFillUnitCapacity(dischargeNode.fillUnitIndex)
+		end
+		if capacity ~= nil and capacity > 0 and AutoDrive.getSetting("preCallLevel", harvester) ~= nil and ADHarvestManager:getAssignedUnloader(harvester) ~= nil and AutoDrive.experimentalFeatures.dynamicChaseDistance then
+			pipePercent = AutoDrive.getSetting("preCallLevel", harvester)
+			if fillLevel > (pipePercent * capacity) then
+				openPipe = true
+			end
+		end
+	end
+	return openPipe, pipePercent
+end
