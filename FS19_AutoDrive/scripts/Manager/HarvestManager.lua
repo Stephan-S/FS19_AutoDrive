@@ -320,7 +320,7 @@ function ADHarvestManager:getClosestIdleUnloader(harvester)
     return closestUnloader
 end
 
-function ADHarvestManager.GetOpenPipePercent(harvester)
+function ADHarvestManager.getOpenPipePercent(harvester)
 	local pipePercent = 1
 	local openPipe = false
 	local fillLevel = 0

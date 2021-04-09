@@ -810,7 +810,7 @@ function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)		--combine helper functi
             else
                 -- combine harvesters
 				local pipeState = currentPipeTargetState
-				local _, pipePercent = ADHarvestManager.GetOpenPipePercent(combine)
+				local _, pipePercent = ADHarvestManager.getOpenPipePercent(combine)
                 if fillLevel > (0.8*capacity) then
                     if not self.beaconLightsActive then
                         self.vehicle:setAIMapHotspotBlinking(true)
