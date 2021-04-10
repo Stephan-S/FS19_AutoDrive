@@ -794,7 +794,7 @@ function AutoDrive:onStartAutoDrive()
     AutoDriveHud:createMapHotspot(self)
 
     if AutoDrive.getSetting("enableParkAtJobFinished", self) and ((self.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) or (self.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO)) then
-        local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
+        local actualParkDestination = self.ad.stateModule:getParkDestinationAtJobFinished()
         if actualParkDestination >= 1 then
         else
             AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
