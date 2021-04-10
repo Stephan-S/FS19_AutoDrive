@@ -219,7 +219,7 @@ end
 
 function AutoDrive:deleteMap()
 	-- this function is called even befor the game is compeltely started in case you insert a wrong password for mp game, so we need to check that "mapHotspotsBuffer" and "unRegisterDestinationListener" are not nil
-	if g_dedicatedServerInfo == nil and AutoDrive.mapHotspotsBuffer ~= nil then
+	if AutoDrive.mapHotspotsBuffer ~= nil then
 		-- Removing and deleting all map hotspots
 		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
 			g_currentMission:removeMapHotspot(mh)
@@ -227,6 +227,7 @@ function AutoDrive:deleteMap()
 		end
 	end
 	AutoDrive.mapHotspotsBuffer = {}
+	AutoDrive.mapHotspotsBuffer = nil
 
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
