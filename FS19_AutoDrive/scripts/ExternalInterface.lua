@@ -127,7 +127,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.stateModule:getCurrentMode():start()
             elseif unloadDestinationID == -3 then --park
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
-                local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
+                local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
                 if parkDestinationAtJobFinished >= 1 then
                     vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
                     vehicle.ad.stateModule:setFirstMarker(parkDestinationAtJobFinished)
@@ -168,7 +168,7 @@ end
 function AutoDrive:GetParkDestination(vehicle)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetParkDestination()")
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
-        local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
+        local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
         if parkDestinationAtJobFinished >= 1 then
             return parkDestinationAtJobFinished
         end
