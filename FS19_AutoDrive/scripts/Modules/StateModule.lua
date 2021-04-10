@@ -123,7 +123,6 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#loopCounter", self.loopCounter)
     setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
     setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
-    setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
 end
 
@@ -236,6 +235,14 @@ function ADStateModule:update(dt)
 			self:calculateRemainingDriveTime()
 		end
 	end
+
+    if self.parkDestination ~= -1 then
+        -- transfer park destination to vehicle data as all park destinations are in vehicle data now
+        if self.vehicle.advd ~= nil then
+            self.vehicle.advd:setParkDestination(self.vehicle, self.parkDestination, false)
+            self.parkDestination = -1
+        end
+    end
 
     if g_client ~= nil and self.vehicle.getIsEntered ~= nil and self.vehicle:getIsEntered() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
 		-- debug output only displayed on client with entered vehicle
@@ -657,15 +664,6 @@ function ADStateModule:decreaseFieldSpeedLimit()
     if self.fieldSpeedLimit > 2 then
         self.fieldSpeedLimit = self.fieldSpeedLimit - 1
     end
-    self:raiseDirtyFlag()
-end
-
-function ADStateModule:getParkDestination()
-    return self.parkDestination
-end
-
-function ADStateModule:setParkDestination(parkDestination)
-    self.parkDestination = parkDestination
     self:raiseDirtyFlag()
 end
 
