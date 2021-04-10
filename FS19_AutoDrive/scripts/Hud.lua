@@ -631,7 +631,7 @@ function AutoDriveHud:createMapHotspot(vehicle)
 end
 
 function AutoDriveHud:deleteMapHotspot(vehicle)
-	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.mapHotspot then
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.mapHotspot ~= nil then
 		g_currentMission:removeMapHotspot(vehicle.ad.mapHotspot)
 		vehicle.ad.mapHotspot:delete()
 		vehicle.ad.mapHotspot = nil
@@ -677,39 +677,38 @@ function AutoDrive:MapHotspot_getIsVisible(superFunc)
 end
 
 function AutoDrive.updateDestinationsMapHotspots()
-	if g_dedicatedServerInfo == nil then
-		AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
+    AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
 
-		-- Removing all old map hotspots
-		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
-			g_currentMission:removeMapHotspot(mh)
-		end
+    if AutoDrive.mapHotspotsBuffer ~= nil then
+        -- Removing all old map hotspots
+        for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+            g_currentMission:removeMapHotspot(mh)
+        end
+    end
+    -- Filling the buffer
+    local missingAmount = #ADGraphManager:getMapMarkers() - #AutoDrive.mapHotspotsBuffer
+    if missingAmount > 0 then
+        local width, height = getNormalizedScreenValues(9, 9)
+        for i = 1, missingAmount do
+            local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+            mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
+            mh:setSize(width, height)
+            mh:setTextOptions(0)
+            mh.isADMarker = true
+            table.insert(AutoDrive.mapHotspotsBuffer, mh)
+        end
+    end
 
-		-- Filling the buffer
-		local missingAmount = #ADGraphManager:getMapMarkers() - #AutoDrive.mapHotspotsBuffer
-		if missingAmount > 0 then
-			local width, height = getNormalizedScreenValues(9, 9)
-			for i = 1, missingAmount do
-				local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
-				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
-				mh:setSize(width, height)
-				mh:setTextOptions(0)
-				mh.isADMarker = true
-				table.insert(AutoDrive.mapHotspotsBuffer, mh)
-			end
-		end
-
-		-- Updating and adding hotspots
-		for index, marker in ipairs(ADGraphManager:getMapMarkers()) do
-			local mh = AutoDrive.mapHotspotsBuffer[index]
-			mh:setText(marker.name)
-			local wp = ADGraphManager:getWayPointById(marker.id)
-			if wp ~= nil then
-				mh:setWorldPosition(wp.x, wp.z)
-				mh.enabled = true
-				mh.markerID = index
-				g_currentMission:addMapHotspot(mh)
-			end
-		end
-	end
+    -- Updating and adding hotspots
+    for index, marker in ipairs(ADGraphManager:getMapMarkers()) do
+        local mh = AutoDrive.mapHotspotsBuffer[index]
+        mh:setText(marker.name)
+        local wp = ADGraphManager:getWayPointById(marker.id)
+        if wp ~= nil then
+            mh:setWorldPosition(wp.x, wp.z)
+            mh.enabled = true
+            mh.markerID = index
+            g_currentMission:addMapHotspot(mh)
+        end
+    end
 end
