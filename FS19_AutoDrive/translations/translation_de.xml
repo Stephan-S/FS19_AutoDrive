@@ -325,6 +325,6 @@
 		<text name = "gui_CPAD_simple"							text = "einfach"/>
 		<text name = "gui_CPAD_full"							text = "voll"/>
 		<text name = "gui_ad_combineCPADHudMouse"				text = "Kombiniere CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sek. Maus-Aktion > Maus an + aus, AD: HUD ein/ausblenden > beide Huds an + aus / full: wie simple, aber Huds können einzeln durchgeschaltet werden / Tip: Deaktiviere Rechtsklick HUD im CP Menü "/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "aus: default / einfach: CP: sek. Maus-Aktion > Maus an + aus, AD: HUD ein/ausblenden > beide Huds an + aus / voll: wie 'einfach', aber Huds können einzeln durchgeschaltet werden / Tip: Deaktiviere Rechtsklick HUD im CP Menü "/>
 	</texts>
 </l10n>
