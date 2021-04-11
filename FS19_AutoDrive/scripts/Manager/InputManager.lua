@@ -39,11 +39,17 @@ ADInputManager.actionsToInputs = {
     AD_devAction = "input_devAction"
 }
 
+--[[
+tool selection not proper on dedi servers as known!
+That's why the following event is only taken on clients and send as event in the network
+input_setParkDestination
+]]
+-- inputs to send to server
 ADInputManager.inputsToIds = {
     input_start_stop = 1,
     input_incLoopCounter = 2,
     input_decLoopCounter = 3,
-    input_setParkDestination = 4,
+    -- input_setParkDestination = 4,
     input_silomode = 5,
     input_previousMode = 6,
     input_record = 7,
@@ -239,62 +245,7 @@ function ADInputManager:input_decLoopCounter(vehicle)
 end
 
 function ADInputManager:input_setParkDestination(vehicle)
-    if vehicle.ad.stateModule:getFirstMarker() ~= nil then
-        -- g_logManager:info("[AD] ADInputManager:input_setParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
-
-        local SelectedWorkTool = nil
-        local firstMarkerID = vehicle.ad.stateModule:getFirstMarkerId()
-
-        if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
-            local allImp = {}
-            -- Credits to Tardis from FS17
-            local function addAllAttached(obj)
-                for _, imp in pairs(obj:getAttachedImplements()) do
-                    addAllAttached(imp.object)
-                    table.insert(allImp, imp)
-                end
-            end
-
-            addAllAttached(vehicle)
-
-            if allImp ~= nil then
-                for i = 1, #allImp do
-                    local imp = allImp[i]
-                    if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
-                        SelectedWorkTool = imp.object
-                        break
-                    end
-                end
-            end
-        end
-        if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.setWorkToolParkDestination ~= nil then
-            if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
-                -- assign park destination
-                SelectedWorkTool.advd:setWorkToolParkDestination(firstMarkerID)
-                vehicle.ad.stateModule:setParkDestinationAtJobFinished(firstMarkerID)
-                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-            elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
-                -- delete park destination
-                SelectedWorkTool.advd:setWorkToolParkDestination(-1)
-                vehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
-                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-            end
-        else
-            if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.setParkDestination ~= nil then
-                if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
-                    -- assign park destination
-                    vehicle.ad.stateModule:setParkDestination(firstMarkerID)
-                    vehicle.ad.stateModule:setParkDestinationAtJobFinished(firstMarkerID)
-                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-                elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
-                    -- delete park destination
-                    vehicle.ad.stateModule:setParkDestination(-1)
-                    vehicle.ad.stateModule:setParkDestinationAtJobFinished(-1)
-                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-                end
-            end
-        end
-    end
+    AutoDrive.setActualParkDestination(vehicle)
 end
 
 function ADInputManager:input_silomode(vehicle)
@@ -416,8 +367,7 @@ function ADInputManager:input_callDriver(vehicle)
 end
 
 function ADInputManager:input_parkVehicle(vehicle)
-    local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
-
+    local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
     if actualParkDestination >= 1 then
         vehicle.ad.stateModule:setFirstMarker(actualParkDestination)
         vehicle.ad.stateModule:removeCPCallback()

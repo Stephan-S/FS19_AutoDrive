@@ -127,7 +127,7 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.stateModule:getCurrentMode():start()
             elseif unloadDestinationID == -3 then --park
                 --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
-                local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
+                local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
                 if parkDestinationAtJobFinished >= 1 then
                     vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
                     vehicle.ad.stateModule:setFirstMarker(parkDestinationAtJobFinished)
@@ -168,7 +168,7 @@ end
 function AutoDrive:GetParkDestination(vehicle)
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:GetParkDestination()")
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
-        local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished(vehicle)
+        local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
         if parkDestinationAtJobFinished >= 1 then
             return parkDestinationAtJobFinished
         end
@@ -197,23 +197,50 @@ function AutoDrive:notifyDestinationListeners()
     end
 end
 
-function AutoDrive:combineIsCallingDriver(combine)
-    return ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
+function AutoDrive:combineIsCallingDriver(combine)	--only for CoursePlay
+	local openPipe,_ = ADHarvestManager.getOpenPipePercent(combine)
+	return openPipe or ADHarvestManager.doesHarvesterNeedUnloading(combine, true)
+end
+
+function AutoDrive:getCombineOpenPipePercent(combine)	--for AIVE
+	local _, pipePercent = ADHarvestManager.getOpenPipePercent(combine)
+	return pipePercent
+end
+
+-- start CP
+function AutoDrive:StartCP(vehicle)
+    if vehicle == nil then 
+        return 
+    end
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StartCP...")
+    if vehicle.startCpDriver then
+        -- newer CP versions use this function to start the CP driver
+        vehicle:startCpDriver()
+    else
+        -- for backward compatibility for older CP versions
+        g_courseplay.courseplay:start(vehicle)
+    end
 end
 
 -- stop CP if it is active
 function AutoDrive:StopCP(vehicle)
-	if vehicle == nil then 
-		return 
-	end
+    if vehicle == nil then 
+        return 
+    end
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP...")
-	if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
-		if vehicle.ad.stateModule:getStartCP_AIVE() then
-			vehicle.ad.stateModule:toggleStartCP_AIVE()
-		end
+    if g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving() then
+        if vehicle.ad.stateModule:getStartCP_AIVE() then
+            vehicle.ad.stateModule:toggleStartCP_AIVE()
+        end
         AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StopCP call CP stop")
-		g_courseplay.courseplay:stop(vehicle)
-	end
+        if vehicle.stopCpDriver then
+            -- newer CP versions use this function to stop the CP driver
+            vehicle:stopCpDriver()
+        else
+            -- for backward compatibility for older CP versions
+            g_courseplay.courseplay:stop(vehicle)
+        end
+    end
 end
 
 function AutoDrive:HoldDriving(vehicle)

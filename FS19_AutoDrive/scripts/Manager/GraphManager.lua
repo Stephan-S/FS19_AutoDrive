@@ -439,17 +439,6 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 				if g_server ~= nil then
 					-- Removing references to it on all vehicles
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
-							local parkDestination = vehicle.ad.stateModule:getParkDestination()
-							if parkDestination ~= nil and parkDestination >= markerId then
-								if parkDestination == markerId then
-									vehicle.ad.stateModule:setParkDestination(-1)
-								else
-									vehicle.ad.stateModule:setParkDestination(math.max(parkDestination - 1, 1))
-								end
-							end
-						end
-
 						if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestinationAtJobFinished ~= nil then
 							local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
 							if parkDestinationAtJobFinished ~= nil and parkDestinationAtJobFinished >= markerId then
@@ -463,13 +452,13 @@ function ADGraphManager:removeMapMarker(markerId, sendEvent)
 					end
 					-- handle all vehicles and tools park destination
 					for _, vehicle in pairs(g_currentMission.vehicles) do
-						if vehicle.advd ~= nil and vehicle.advd.getWorkToolParkDestination ~= nil and vehicle.advd:getWorkToolParkDestination() >= 1 then
-							local WorkToolParkDestination = vehicle.advd:getWorkToolParkDestination()
-							if WorkToolParkDestination ~= nil and WorkToolParkDestination >= markerId then
-								if WorkToolParkDestination == markerId then
-									vehicle.advd:setWorkToolParkDestination(-1)
+						if vehicle.advd ~= nil and vehicle.advd.getParkDestination ~= nil and vehicle.advd.setParkDestination ~= nil then
+							local parkDestination = vehicle.advd:getParkDestination(vehicle)
+							if parkDestination ~= nil and parkDestination >= markerId then
+								if parkDestination == markerId then
+                                    vehicle.advd:setParkDestination(vehicle, -1)
 								else
-									vehicle.advd:setWorkToolParkDestination(math.max(WorkToolParkDestination - 1, 1))
+                                    vehicle.advd:setParkDestination(vehicle, math.max(parkDestination - 1, 1))
 								end
 							end
 						end
@@ -861,10 +850,12 @@ function ADGraphManager:createMarkersAtOpenEnds()
 	end
 
 	-- Removing all old map hotspots
-	for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
-		g_currentMission:removeMapHotspot(mh)
-		mh:delete()
-	end
+	if AutoDrive.mapHotspotsBuffer ~= nil then
+        for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+            g_currentMission:removeMapHotspot(mh)
+            mh:delete()
+        end
+    end
 	AutoDrive.mapHotspotsBuffer = {}
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then

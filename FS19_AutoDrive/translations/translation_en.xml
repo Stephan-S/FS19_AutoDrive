@@ -37,7 +37,7 @@
 		<text name="input_AD_devAction"                                                 text="AD: Developer Action" />
 		<text name="hud_avoidFruit"								text="AD: Avoid fruit" />
 		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
-		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
+		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
 		<text name="AD_parkVehicle_deleted"					    text="parking destination deleted!" />
 		<text name="AD_Driver_of"								text="Driver of" />
