@@ -91,7 +91,8 @@ AutoDrive.actions = {
 	{"AD_open_notification_history", false, 0},
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
-	{"AD_devAction", false, 0}
+	{"AD_devAction", false, 0},
+	{"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 
 function AutoDrive:onAllModsLoaded()

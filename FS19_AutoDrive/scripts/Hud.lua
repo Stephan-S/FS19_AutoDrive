@@ -138,6 +138,16 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Speed = "50"
 	self.Target = "Not Ready"
 	self.showHud = false
+	self.stateHud = 0
+	self.statesHud = 0
+
+	if AutoDrive.getSetting("combineCPADHudMouse") > 1.0 and g_courseplay ~= nil then
+		if AutoDrive.getSetting("combineCPADHudMouse") == 2.0 then
+			self.statesHud = 1
+		elseif AutoDrive.getSetting("combineCPADHudMouse") == 3.0 then
+			self.statesHud = 2
+		end
+	end
 	if ADGraphManager:getMapMarkerById(1) ~= nil then
 		self.Target = ADGraphManager:getMapMarkerById(1).name
 	end
@@ -356,13 +366,47 @@ function AutoDriveHud:update(dt)
 end
 
 function AutoDriveHud:toggleHud(vehicle)
-	if self.showHud == false then
-		self.showHud = true
-		vehicle.ad.showingHud = true
+	if self.statesHud > 0 then
+		if self.stateHud == 0 then
+			-- show both
+			self.showHud = true
+			vehicle.ad.showingHud = true
+			g_courseplay.courseplay:openCloseHud(vehicle, true)
+			if self.statesHud == 2 then
+				self.stateHud = 1
+			else
+				self.stateHud = 3
+			end
+		elseif self.stateHud == 1 then
+			-- show AD hud
+			self.showHud = true
+			vehicle.ad.showingHud = true
+			g_courseplay.courseplay:openCloseHud(vehicle, false)
+			g_inputBinding:setShowMouseCursor(true)
+			self.stateHud = 2
+		elseif self.stateHud == 2 then
+			-- show CP hud
+			self.showHud = false
+			vehicle.ad.showingHud = false
+			g_courseplay.courseplay:openCloseHud(vehicle, true)
+			self.stateHud = 3
+		elseif self.stateHud == 3 then
+			-- close both
+			self.showHud = false
+			vehicle.ad.showingHud = false
+			g_inputBinding:setShowMouseCursor(false)
+			g_courseplay.courseplay:openCloseHud(vehicle, false)
+			self.stateHud = 0
+		end
 	else
-		self.showHud = false
-		vehicle.ad.showingHud = false
-		g_inputBinding:setShowMouseCursor(false)
+		if self.showHud == false then
+			self.showHud = true
+			vehicle.ad.showingHud = true
+		else
+			self.showHud = false
+			vehicle.ad.showingHud = false
+			g_inputBinding:setShowMouseCursor(false)
+		end
 	end
 
 	AutoDrive.showingHud = self.showHud

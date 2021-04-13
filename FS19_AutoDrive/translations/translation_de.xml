@@ -188,7 +188,7 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ja - AutoDrive öffnet und schließt Abdeckungen von Anhängern wenn notwendig / Nein - die Abdeckungen werden von AutoDrive nicht geöffnet oder geschlossen" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
-		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="Benutzereinstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
@@ -320,5 +320,11 @@
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
         <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
+
+		<text name = "gui_CPAD_off"								text = "aus"/>
+		<text name = "gui_CPAD_simple"							text = "einfach"/>
+		<text name = "gui_CPAD_full"							text = "voll"/>
+		<text name = "gui_ad_combineCPADHudMouse"				text = "Kombiniere CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "aus: default / einfach: CP: sek. Maus-Aktion > Maus an + aus, AD: HUD ein/ausblenden > beide Huds an + aus / voll: wie 'einfach', aber Huds können einzeln durchgeschaltet werden / Erforderlich: Deaktiviere Rechtsklick HUD im CP Menü "/>
 	</texts>
 </l10n>
