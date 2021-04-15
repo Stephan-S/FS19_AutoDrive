@@ -142,14 +142,18 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.statesHud = 0
 
 	if AutoDrive.getSetting("combineCPADHudMouse") > 1.0 and g_courseplay ~= nil then
+		AutoDrive:enableCPaction(true)
 		if AutoDrive.getSetting("combineCPADHudMouse") == 2.0 then
 			self.statesHud = 1
 		elseif AutoDrive.getSetting("combineCPADHudMouse") == 3.0 then
 			self.statesHud = 2
 		end
+	else
+		AutoDrive:enableCPaction(false)
+		self.statesHud = 0
 	end
 	-- TODO: deactivated until PR #1862 solved with issue #1886
-	self.statesHud = 0
+	--self.statesHud = 0
 
 	if ADGraphManager:getMapMarkerById(1) ~= nil then
 		self.Target = ADGraphManager:getMapMarkerById(1).name
