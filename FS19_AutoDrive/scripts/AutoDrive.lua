@@ -366,6 +366,7 @@ function AutoDrive:FarmStats_getStatisticData(superFunc)
 	return Utils.getNoNil(self.statisticData, {})
 end
 
+-- disable / enable ADToggleMouse to get only one button to hanlde mouse
 function AutoDrive:enableCPaction(enableCPaction)
 	local found = false
 	if enableCPaction then
@@ -384,15 +385,15 @@ function AutoDrive:enableCPaction(enableCPaction)
 			table.insert(AutoDrive.actions,  {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1})
 		end
 	else
-		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = nil
 		ADInputManager.actionsToInputs["ADToggleMouse"] = "input_toggleMouse"
+		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = nil
 
 		for key, val in pairs(AutoDrive.actions) do
-			if val[1] == "COURSEPLAY_MOUSEACTION_SECONDARY" then
-				table.remove(AutoDrive.actions, key)
-			end
 			if val[1] == "ADToggleMouse" then
 				found = true
+			end
+			if val[1] == "COURSEPLAY_MOUSEACTION_SECONDARY" then
+				table.remove(AutoDrive.actions, key)
 			end
 		end
 		if not found then

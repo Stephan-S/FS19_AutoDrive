@@ -152,8 +152,6 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		AutoDrive:enableCPaction(false)
 		self.statesHud = 0
 	end
-	-- TODO: deactivated until PR #1862 solved with issue #1886
-	--self.statesHud = 0
 
 	if ADGraphManager:getMapMarkerById(1) ~= nil then
 		self.Target = ADGraphManager:getMapMarkerById(1).name
