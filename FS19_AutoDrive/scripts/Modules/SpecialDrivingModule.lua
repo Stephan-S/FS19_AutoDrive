@@ -227,8 +227,10 @@ function ADSpecialDrivingModule:getBasicStates()
     self.trailerVecX, _, self.trailerVecZ = localDirectionToWorld(self.reverseNode, 0, 0, 1)
     self.trailerRearVecX, _, self.trailerRearVecZ = localDirectionToWorld(self.reverseNode, 0, 0, -1)
     self.vecToPoint = {x = self.reverseTarget.x - self.rNx, z = self.reverseTarget.z - self.rNz}
+    self.vecToPointT = {x = self.reverseTarget.x - self.x, z = self.reverseTarget.z - self.z}  	
     self.angleToTrailer = AutoDrive.angleBetween({x = self.vehicleVecX, z = self.vehicleVecZ}, {x = self.trailerVecX, z = self.trailerVecZ})
     self.angleToPoint = AutoDrive.angleBetween({x = self.trailerRearVecX, z = self.trailerRearVecZ}, {x = self.vecToPoint.x, z = self.vecToPoint.z})
+    self.angleToPointTm = 180 - math.abs(AutoDrive.angleBetween({x = self.vehicleVecX, z = self.vehicleVecZ}, {x = self.vecToPointT.x, z = self.vecToPointT.z}))	
     self.steeringAngle = math.deg(math.abs(self.vehicle.rotatedTime))
 
     if self.reverseSolo then
@@ -255,7 +257,12 @@ function ADSpecialDrivingModule:checkWayPointReached()
     if self.reverseSolo then
         minDistance = AutoDrive.defineMinDistanceByVehicleType(self.vehicle)
     elseif self.currentWayPointIndex == #self.wayPoints then
-        minDistance = 4.5
+        --minDistance = 4.5
+	if self.vehicle.trailer.sizeLength ~= nil then
+	    minDistance = self.vehicle.trailer.sizeLength / 2 + 0.5
+	else 
+             minDistance = 4.5
+	end	
     elseif reverseEnd then
         minDistance = 3
     end
@@ -270,10 +277,10 @@ function ADSpecialDrivingModule:checkWayPointReached()
 end
 
 function ADSpecialDrivingModule:getReverseNode()
-    local reverseNode
-    local count = 1
-    if self.vehicle.trailer == nil then
-        self.vehicle.trailer = {}
+   local reverseNode
+   local count = 1
+   if self.vehicle.trailer == nil then
+       self.vehicle.trailer = {}
     end
     self.vehicle.trailer = nil
 
@@ -316,50 +323,92 @@ function ADSpecialDrivingModule:getReverseNode()
 end
 
 function ADSpecialDrivingModule:reverseToPoint(dt)
-	local vehicleIsTruck = self:isTruck(self.vehicle)
+	--local vehicleIsTruck = self:isTruck(self.vehicle)
 
-    if self.lastAngleToPoint == nil then
-        self.lastAngleToPoint = self.angleToPoint
-    end
-    if self.i == nil then
-        self.i = 0
-    end
+    --if self.lastAngleToPoint == nil then
+        --self.lastAngleToPoint = self.angleToPoint
+    --end
+    --if self.i == nil then
+        --self.i = 0
+    --end
 
-    local delta = self.angleToPoint -- - angleToTrailer
-    local p = delta
-    self.i = self.i + (delta) * 0.05
-    local d = delta - self.lastAngleToPoint
+    --local delta = self.angleToPoint -- - angleToTrailer
+    --local p = delta
+    --self.i = self.i + (delta) * 0.05
+    --local d = delta - self.lastAngleToPoint
 
-    self.pFactor = 6 --self.vehicle.ad.stateModule:getSpeedLimit()
-    self.iFactor = 0.01
-    self.dFactor = 1400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
+    --self.pFactor = 6 --self.vehicle.ad.stateModule:getSpeedLimit()
+    --self.iFactor = 0.01
+    --self.dFactor = 1400 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 100
 
-    if vehicleIsTruck then
-        self.pFactor = 1 --self.vehicle.ad.stateModule:getSpeedLimit() * 0.05 --0.1 -- --0.1
-        self.iFactor = 0.00001
-        self.dFactor = 6.7 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 0.1 --10
-    end
+    --if vehicleIsTruck then
+        --self.pFactor = 1 --self.vehicle.ad.stateModule:getSpeedLimit() * 0.05 --0.1 -- --0.1
+        --self.iFactor = 0.00001
+        --self.dFactor = 6.7 --self.vehicle.ad.stateModule:getFieldSpeedLimit() * 0.1 --10
+    --end
 
-    local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
-    local targetDiff = self.angleToTrailer - targetAngleToTrailer
-    local offsetX = -targetDiff * 5
-    local offsetZ = -20
+    --local targetAngleToTrailer = math.clamp(-40, (p * self.pFactor) + (self.i * self.iFactor) + (d * self.dFactor), 40)
+   -- local targetDiff = self.angleToTrailer - targetAngleToTrailer
+    --local offsetX = -targetDiff * 5
+    --local offsetZ = -20
 
-    if vehicleIsTruck then
-        offsetX = -targetDiff * 0.1
-        offsetZ = -100
-    end
+    --if vehicleIsTruck then
+        --offsetX = -targetDiff * 0.1
+        --offsetZ = -100
+    --end
 
     --print("p: " .. p .. " i: " .. self.i .. " d: " .. d)
     --print("p: " .. p * self.pFactor .. " i: " .. (self.i * self.iFactor) .. " d: " .. (d * self.dFactor))
-    --print("targetAngleToTrailer: " .. targetAngleToTrailer .. " targetDiff: " .. targetDiff .. "  offsetX" .. offsetX)
+    --print("targetAngleToTrailer: " .. targetAngleToTrailer .. " targetDiff: " .. targetDiff .. "  offsetX" .. offsetX)\
+	
+    local kofSizeLength = 1 
+    local kSizeLength = 0
+	if not self.reverseSolo then  
+     	  kSizeLength = self.vehicle.trailer.sizeLength  / self.vehicle.sizeLength
+	    if kSizeLength >= 1.8 then
+	       kofSizeLength = 3
+	    elseif  kSizeLength >= 1.7 then
+	       kofSizeLength = 2.5	
+	    elseif  kSizeLength >= 1.6 then
+	       kofSizeLength = 2.2 
+        elseif  kSizeLength >= 1.5 then
+	       kofSizeLength = 2.2
+        elseif  kSizeLength >= 1.4 then
+	       kofSizeLength = 2
+		elseif  kSizeLength >= 1 then
+	       kofSizeLength = 1   
+        elseif  kSizeLength >= 0.9 then
+	       kofSizeLength = 0.7
+	    elseif  kSizeLength >= 0.8 then
+	       kofSizeLength = 0.6	   	
+        elseif  kSizeLength >= 0.7 then
+	       kofSizeLength = 0.5
+		elseif  kSizeLength < 0.7 then
+	       kofSizeLength = 0.4	    	   
+	    end	 
+    end
+	local targetDiff = self.angleToTrailer  - self.angleToPoint * kofSizeLength 
+	local offsetX = -targetDiff 
+    local offsetZ = 20
+	if math.abs(self.angleToPoint) > 15 then
+	    if self.angleToPointTm < 60 then
+	        if math.abs(self.angleToTrailer) > 10 and math.abs(self.angleToTrailer) < 40 then
+		        if kSizeLength > 1.3 then
+	               offsetX = 0
+                end
+	        end
+	    else 
+	        targetDiff = self.angleToTrailer  - self.angleToPoint
+	        offsetX = -targetDiff 
+        end
+    end	
 
     local speed = 5 + (6 * math.clamp(0, (5 / math.max(self.steeringAngle, math.abs(self.angleToTrailer))), 1))
     local acc = 0.4
 
-    if vehicleIsTruck then
-        speed = 3
-    end
+    --if vehicleIsTruck then
+        --speed = 3
+    --end
 
     local node = self.vehicle:getAIVehicleDirectionNode()
 
