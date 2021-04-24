@@ -297,45 +297,50 @@ function AutoDrive.setActualParkDestination(vehicle)
 
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:getFirstMarker() ~= nil then
         local firstMarkerID = vehicle.ad.stateModule:getFirstMarkerId()
+        if firstMarkerID > 0 then
+            local mapMarker = ADGraphManager:getMapMarkerById(firstMarkerID)
+            -- do not allow to set debug marker as park destination
+            if mapMarker ~= nil and mapMarker.isADDebug ~= true then
+                selectedWorkTool = AutoDrive.getSelectedWorkTool(vehicle)
 
-        selectedWorkTool = AutoDrive.getSelectedWorkTool(vehicle)
-
-        if selectedWorkTool == nil then
-            -- no attachment selected, so use the vehicle itself
-            selectedWorkTool = vehicle
-        end
-
-        if selectedWorkTool ~= nil then
-            if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
-                -- assign park destination
-                if vehicle.advd ~= nil then
-                    vehicle.advd:setParkDestination(selectedWorkTool, firstMarkerID)
+                if selectedWorkTool == nil then
+                    -- no attachment selected, so use the vehicle itself
+                    selectedWorkTool = vehicle
                 end
 
-                -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
-                local messageText = "$l10n_AD_parkVehicle_selected; %s"
-                local messageArg = vehicle.ad.stateModule:getFirstMarker().name
-                -- localization
-                messageText = AutoDrive.localize(messageText)
-                -- formatting
-                messageText = string.format(messageText, messageArg)
-                ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
-                
-            elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
-                -- delete park destination
-                if vehicle.advd ~= nil then
-                    vehicle.advd:setParkDestination(selectedWorkTool, -1)
+                if selectedWorkTool ~= nil then
+                    if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
+                        -- assign park destination
+                        if vehicle.advd ~= nil then
+                            vehicle.advd:setParkDestination(selectedWorkTool, firstMarkerID)
+                        end
+
+                        -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
+                        local messageText = "$l10n_AD_parkVehicle_selected; %s"
+                        local messageArg = vehicle.ad.stateModule:getFirstMarker().name
+                        -- localization
+                        messageText = AutoDrive.localize(messageText)
+                        -- formatting
+                        messageText = string.format(messageText, messageArg)
+                        ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
+                        
+                    elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
+                        -- delete park destination
+                        if vehicle.advd ~= nil then
+                            vehicle.advd:setParkDestination(selectedWorkTool, -1)
+                        end
+
+                        -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
+                        local messageText = "$l10n_AD_parkVehicle_deleted; %s"
+                        local messageArg = vehicle.ad.stateModule:getFirstMarker().name
+                        -- localization
+                        messageText = AutoDrive.localize(messageText)
+                        -- formatting
+                        messageText = string.format(messageText, messageArg)
+                        ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
+
+                    end
                 end
-
-                -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
-                local messageText = "$l10n_AD_parkVehicle_deleted; %s"
-                local messageArg = vehicle.ad.stateModule:getFirstMarker().name
-                -- localization
-                messageText = AutoDrive.localize(messageText)
-                -- formatting
-                messageText = string.format(messageText, messageArg)
-                ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
-
             end
         end
     end
