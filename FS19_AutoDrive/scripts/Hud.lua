@@ -725,30 +725,31 @@ end
 
 function AutoDrive.updateDestinationsMapHotspots()
     AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
+    local width, height = getNormalizedScreenValues(9, 9)
 
     if AutoDrive.mapHotspotsBuffer ~= nil then
         -- Removing all old map hotspots
         for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
             g_currentMission:removeMapHotspot(mh)
+            mh:delete()
         end
     end
-    -- Filling the buffer
-    local missingAmount = #ADGraphManager:getMapMarkers() - #AutoDrive.mapHotspotsBuffer
-    if missingAmount > 0 then
-        local width, height = getNormalizedScreenValues(9, 9)
-        for i = 1, missingAmount do
-            local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
-            mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
-            mh:setSize(width, height)
-            mh:setTextOptions(0)
-            mh.isADMarker = true
-            table.insert(AutoDrive.mapHotspotsBuffer, mh)
-        end
-    end
-
+    AutoDrive.mapHotspotsBuffer = {}
+    
     -- Updating and adding hotspots
     for index, marker in ipairs(ADGraphManager:getMapMarkers()) do
-        local mh = AutoDrive.mapHotspotsBuffer[index]
+        local mh
+        if marker.isADDebug == true then
+            -- map hotspot debug
+            mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_MISSION)
+            mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({780, 780, 234, 234}))
+        else
+            mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+            mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
+        end
+        mh:setSize(width, height)
+        mh:setTextOptions(0)
+        mh.isADMarker = true
         mh:setText(marker.name)
         local wp = ADGraphManager:getWayPointById(marker.id)
         if wp ~= nil then
@@ -756,6 +757,7 @@ function AutoDrive.updateDestinationsMapHotspots()
             mh.enabled = true
             mh.markerID = index
             g_currentMission:addMapHotspot(mh)
+            table.insert(AutoDrive.mapHotspotsBuffer, mh)
         end
     end
 end
