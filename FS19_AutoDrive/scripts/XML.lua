@@ -247,13 +247,11 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then
-		-- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
-		ADGraphManager:createMarkersAtOpenEnds()
-	end
-	g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
-	g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
-	g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
+    -- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
+    ADGraphManager:createDebugMarkers()
+    g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
+    g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
+    g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
 end
 
 function AutoDrive.saveToXML(xmlFile)
