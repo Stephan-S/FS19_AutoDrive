@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-	<translationContributors>rogeriodec</translationContributors>
+	<translationContributors>rogeriodec / andrefelipeschulle</translationContributors>
 	<texts>
 		<text name="UNKNOWN"									text="Desconhecido" />
 		<text name="input_ADToggleHud"							text="AD: Mostrar/Ocultar HUD" />
@@ -54,18 +54,18 @@
 		<text name="AD_MODE_UNLOAD"								text="Descarregar colheitadeira" />
 		<text name="AD_MODE_LOAD"								text="Carregar" />
 		<text name="AD_MODE_BGA"								text="Descarga no silo" />
-		<text name="AD_synchronizing"							text="loading network from server.." />
-		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
-		<text name="AD_lctrl_for_creation" 						text="LCTRL to create" />
-		<text name="AD_lalt_for_deletion" 						text="LALT to delete" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverse drive" />
+		<text name="AD_synchronizing"							text="Carregando Rede do Servidor.." />
+		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL para abrir o modo de Editor Estendido" />
+		<text name="AD_lctrl_for_creation" 						text="LCTRL para criar" />
+		<text name="AD_lalt_for_deletion" 						text="LALT para deletar" />
+		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverter a direção" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Configuração" />
-		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
+		<text name="gui_ad_collisionHeigth"						text="Altura de colisão sobre o solo" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
 		<text name="gui_ad_blinkValue"						    text="Turnlight Automatic" />
 		<text name="gui_ad_blinkValue_tooltip"					text="Steering angle to enable turn lights automatically. (0 = turn light automatic deactivated)" />
 		<text name="gui_ad_pipe_offset"							text="Distancia do tubo" />
-		<text name="gui_ad_followDistance"						text="Distance combine" />
+		<text name="gui_ad_followDistance"						text="Distancia da Colheitadeira" />
 		<text name="gui_ad_followDistance_tooltip"				text="Distance kept from combine when following it's rear end" />
 		<text name="gui_ad_lookahead_turning"					text="Distância à frente (desvio)" />
 		<text name="gui_ad_lookahead_turning_tooltip"			text="Distância que o veículo olha para frente para ajustar a direção para seguir o próximo segmento" />
@@ -96,14 +96,14 @@
 		<text name="gui_ad_findDriver_tooltip"					text="Procurar por motoristas próximos (Ignorar destino)" />
 		<text name="gui_ad_gui_scale"							text="Tamanho do HUD" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Muda o tamanho do painel HUD do AutoDrive" />
-		<text name="gui_ad_notifications"						text="Notifications" />
-		<text name="gui_ad_notifications_text_1"				text="Disabled" />
-		<text name="gui_ad_notifications_text_2"				text="Short" />
-		<text name="gui_ad_notifications_text_3"				text="Default" />
-		<text name="gui_ad_notifications_text_4"				text="Long" />
-		<text name="gui_ad_notifications_text_5"				text="Extra Long" />
-		<text name="gui_ad_notifications_text_6"				text="Endless" />
-		<text name="gui_ad_notifications_tooltip"				text="Display time for notifications" />
+		<text name="gui_ad_notifications"						text="Notificações" />
+		<text name="gui_ad_notifications_text_1"				text="Desativado" />
+		<text name="gui_ad_notifications_text_2"				text="Baixo" />
+		<text name="gui_ad_notifications_text_3"				text="Padrão" />
+		<text name="gui_ad_notifications_text_4"				text="Longo" />
+		<text name="gui_ad_notifications_text_5"				text="Extra Longo" />
+		<text name="gui_ad_notifications_text_6"				text="Sem Fim" />
+		<text name="gui_ad_notifications_tooltip"				text="Exibir hora para notificações" />
 		<text name="gui_ad_exitField"							text="Saída do campo" />
 		<text name="gui_ad_exitField_tooltip"					text="Estratégia de saída de campo para descarregador" />
 		<text name="gui_ad_default"								text="Padrão" />
@@ -129,7 +129,7 @@
 		<text name="gui_ad_shovelWidth_tooltip"					text="Se a largura da pá detectada automaticamente for muito pequena, ela poderá ser aumentada com esse valor" />
 		<text name="gui_ad_preCallLevel"						text="Nível para pré-chamada" />
 		<text name="gui_ad_preCallLevel_tooltip"				text="Pre call unloader at the set fill level." />
-		<text name="gui_ad_none"					            text="None" />
+		<text name="gui_ad_none"					            text="Nenhum" />
 		<text name="gui_ad_onlyPickup"					        text="only Pickup" />
 		<text name="gui_ad_onlyDeliver"					        text="only Deliver" />
 		<text name="gui_ad_PickupandDeliver"					text="Pickup and Deliver" />
@@ -148,19 +148,19 @@
 		<text name="gui_ad_enterTargetNameTitle_add"			text="Add Target" />
 		<text name="gui_ad_enterTargetNameTitle_edit"			text="Edit Target" />
 		<text name="gui_ad_enterTargetNameText"					text="Insert target name:" />
-		<text name="gui_ad_createButtonText"					text="Create" />
+		<text name="gui_ad_createButtonText"					text="Criar" />
 		<text name="gui_ad_enterDriverNameTitle"				text="Rename Driver" />
 		<text name="gui_ad_enterDriverNameText"					text="Insert driver name:" />
-		<text name="gui_ad_enterGroupNameTitle"					text="Create Folder" />
-		<text name="gui_ad_enterGroupNameText"					text="Insert folder name:" />
+		<text name="gui_ad_enterGroupNameTitle"					text="Criar Pasta" />
+		<text name="gui_ad_enterGroupNameText"					text="Nome da Pasta:" />
 		<text name="gui_ad_autoRefuel"							text="Automatic Refueling" />
 		<text name="gui_ad_autoRefuel_tooltip"					text="Drive to refuel destination (close to refuel trigger) when fuel level is low." />
-		<text name="gui_ad_filter"								text="Filter" />
+		<text name="gui_ad_filter"								text="Filtro" />
 		<text name="gui_ad_enterDestinationFilterTitle"			text="Change destination filter text" />
 		<text name="gui_ad_enterDestinationFilterText"			text="Insert filter text:" />
 		<text name="gui_ad_shovelHeight"						text="Shovel height" />
 		<text name="gui_ad_shovelHeight_tooltip"				text="If automatically detected shovel height is incorrect. Use this to adjust the target ground height" />
-		<text name="gui_ad_showMarkersOnMap"					text="Show markers" />
+		<text name="gui_ad_showMarkersOnMap"					text="Mostrar Marcadores" />
 		<text name="gui_ad_showMarkersOnMap_tooltip"			text="Show markers/destinations on the ingame map" />
 		<text name="gui_ad_switchToMarkersOnMap"				text="Switch to markers" />
 		<text name="gui_ad_switchToMarkersOnMap_tooltip"		text="Set target/unload target when clicking on map hotspots" />
@@ -187,20 +187,20 @@
 		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
 
-		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
-		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
-		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
-		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combine Unload Settings - AutoDrive" />
-		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Settings - AutoDrive" />
+		<text name="gui_ad_settingsPage_title"					text="Configurações - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="Configurações do Usuário - AutoDrive" />
+		<text name="gui_ad_vehicleSettingsPage_title"			text="Configurações do Veículos - AutoDrive" />
+		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configurações da Descarga da Colheitadeira - AutoDrive" />
+		<text name="gui_ad_debugSettingsPage_title" 			text="Configurações do Debug - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimental Features Settings - AutoDrive" />
-		<text name="gui_ad_restoreButtonText" 					text="Restore" />
+		<text name="gui_ad_restoreButtonText" 					text="Restaurar" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="All changes will be lost" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Are you sure you want to close the settings without saving?" />
 
 		<text name="gui_ad_routesManagerTitle" 					text="Routes Manager" />
 		<text name="gui_ad_routesManagerTextTitle" 				text="Insert route name:" />
-		<text name="gui_ad_button_export" 						text="Save" />
-		<text name="gui_ad_button_import" 						text="Load" />
+		<text name="gui_ad_button_export" 						text="Salvar" />
+		<text name="gui_ad_button_import" 						text="Carregar" />
 		<text name="gui_ad_routeExportWarn_text" 				text="Are you sure you want to overwrite the existing route?" />
 		<text name="gui_ad_routeExportWarn_title" 				text="Route overwrite" />
 		<text name="gui_ad_routeDeleteWarn_text" 				text="Are you sure you want to delete the route '%s'?" />
@@ -209,20 +209,20 @@
 		<text name="statistic_driversTraveledDistance" 			text="Driving distance from drivers" />
 		<text name="statistic_driversHired" 					text="Drivers currently hired" />
 
-		<text name="gui_ad_debugChannelVehicle" 				text="Vehicles" />
-		<text name="gui_ad_debugChannelCombine" 				text="Combines" />
-		<text name="gui_ad_debugChannelTrailer" 				text="Trailers" />
-		<text name="gui_ad_debugChannelDev" 					text="Developing" />
-		<text name="gui_ad_debugChannelPath" 					text="Pathfinding" />
-		<text name="gui_ad_debugChannelSensor" 					text="Sensors" />
-		<text name="gui_ad_debugChannelNetwork" 				text="Network" />
-		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
-		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
-		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
-		<text name="gui_ad_debugChannelAll" 					text="Everything" />
+		<text name="gui_ad_debugChannelVehicle" 				text="Veículos" />
+		<text name="gui_ad_debugChannelCombine" 				text="Colheitadeiras" />
+		<text name="gui_ad_debugChannelTrailer" 				text="Reboques" />
+		<text name="gui_ad_debugChannelDev" 					text="Em Desenvolvimento" />
+		<text name="gui_ad_debugChannelPath" 					text="Encontrado o Caminho" />
+		<text name="gui_ad_debugChannelSensor" 					text="Sensores" />
+		<text name="gui_ad_debugChannelNetwork" 				text="Rede" />
+		<text name="gui_ad_debugChannelExternalInterface" 		text="Interface Externa" />
+		<text name="gui_ad_debugChannelRender" 					text="Renderizando" />
+		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Rede de Estradas" />
+		<text name="gui_ad_debugChannelAll" 					text="Tudo" />
 		
-		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
-		<text name="button_delete_all" 							text="Delete All" />
+		<text name="gui_ad_notificationHistoryTitle" 			text="Notificações" />
+		<text name="button_delete_all" 							text="Deletar Todos" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
@@ -294,7 +294,7 @@
 		<text name="ad_helpText_13_05"							text="Since the vehicle tries to find the ideal loading position for the shovel automatically, it can happen that he lifts it’s front wheels up. There is a detection included for this scenario, which checks if all wheels are on the ground and starts lifting the shovel if this check returns false for a few hundred milliseconds." />
 	
 		
-		<text name="AD_task_pathfinding"						text="Planning path" />
+		<text name="AD_task_pathfinding"						text="Caminho Planejado" />
 		<text name="AD_task_catch_up_with_combine"				text="Catching up with combine" />
 		<text name="AD_task_clearcrop"							text="Clearing crop" />
 		<text name="AD_task_drive_to_destination"				text="Driving to destination" />
@@ -306,7 +306,7 @@
 		<text name="AD_task_wait_for_combine_turn"				text="Wait for combine's turn" />
 		<text name="AD_task_drive_to_load_point"				text="Drive to loading point" />
 		<text name="AD_task_drive_to_refuel_point"				text="Drive to refuel station" />
-		<text name="AD_task_stop_and_disable"					text="Stopping" />
+		<text name="AD_task_stop_and_disable"					text="Parando" />
 		<text name="AD_task_drive_to_unload_point"				text="Drive to unload point" />
 		<text name="AD_task_wait_for_call"						text="Waiting for call" />	
 		<text name="AD_task_chasing_combine"					text="Chasing combine" />	
