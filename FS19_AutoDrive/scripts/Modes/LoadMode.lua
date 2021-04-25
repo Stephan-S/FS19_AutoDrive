@@ -28,6 +28,7 @@ function LoadMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
