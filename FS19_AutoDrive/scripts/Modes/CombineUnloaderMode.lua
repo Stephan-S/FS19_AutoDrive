@@ -643,7 +643,7 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
     self.pipeSide = AutoDrive.getPipeSide(self.combine)
     self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
     local sideChaseTermX = self:getSideChaseOffsetX()
-    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance)
+    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
     local rearChaseTermZ = self:getRearChaseOffsetZ()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
