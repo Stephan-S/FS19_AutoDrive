@@ -10,6 +10,7 @@ AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
+AutoDrive.experimentalFeatures.blueLineRouteFinder = false
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
