@@ -336,7 +336,7 @@ function ADGraphManager:createMapMarker(markerId, markerName, sendEvent)
 end
 
 function ADGraphManager:addGroup(groupName, sendEvent)
-	if groupName:len() > 1 and self.groups[groupName] == nil then
+	if groupName:len() > 1 and self.groups[groupName] == nil and groupName ~= ADGraphManager.debugGroupName then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating group creation all over the network
 			AutoDriveGroupsEvent.sendEvent(groupName, AutoDriveGroupsEvent.TYPE_ADD)
