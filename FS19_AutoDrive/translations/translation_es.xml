@@ -294,7 +294,7 @@
 
 		<text name="AD_task_pathfinding"						text="Calculando ruta" />
 		<text name="AD_task_catch_up_with_combine"				text="Alcanzando a cosechadora" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" /> <!-- POR TRADUCIR -->
+		<text name="AD_task_clearcrop"							text="Retirando Cultivo" />
 		<text name="AD_task_drive_to_destination"				text="Conduciendo al destino" />
 		<text name="AD_task_drive_to_vehicle"					text="Conduciendo al vehículo objetivo" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Conduciendo hacia el tubo de la cosechadora" />
@@ -314,7 +314,7 @@
 		<text name="AD_task_chase_side_left"					text="izquierdo" />
 		<text name="AD_task_chase_side_rear"					text="trasero" />
 		<text name="AD_task_chase_side_right"					text="derecho" />
-		<text name="AD_task_waiting_for_room"					text="Waiting for room" /> <!-- POR TRADUCIR -->
+		<text name="AD_task_waiting_for_room"					text="Esperando un hueco" />
 		<text name="AD_task_exiting_field"						text="Saliendo del campo" />
 		<text name="AD_task_reversing_from_collision"			text="Buscando un área libre" />
         <text name="AD_task_drive_to_park"				        text="Conduciendo al aparcamiento" />
