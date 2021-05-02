@@ -249,3 +249,19 @@ function AutoDrive:HoldDriving(vehicle)
         vehicle.ad.drivePathModule:setPaused()
     end
 end
+
+function AutoDrive:holdCPCombine(combine)
+    -- Stopping CP drivers for now
+    if combine ~= nil then
+        if combine.trailingVehicle ~= nil then
+            -- harvester is trailed - CP use the trailing vehicle
+            if combine.trailingVehicle.cp and combine.trailingVehicle.cp.driver and combine.trailingVehicle.cp.driver.holdForUnloadOrRefill then
+                combine.trailingVehicle.cp.driver:holdForUnloadOrRefill()
+            end
+        else
+            if combine.cp and combine.cp.driver and combine.cp.driver.holdForUnloadOrRefill then
+                combine.cp.driver:holdForUnloadOrRefill()
+            end
+        end
+    end
+end
