@@ -11,6 +11,7 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
 AutoDrive.experimentalFeatures.blueLineRouteFinder = false
+AutoDrive.experimentalFeatures.detectGrasField = true
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
