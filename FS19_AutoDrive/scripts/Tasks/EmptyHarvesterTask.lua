@@ -16,6 +16,7 @@ function EmptyHarvesterTask:new(vehicle, combine)
     o.wayPoints = nil
     o.reverseStartLocation = nil
     o.waitTimer = AutoDriveTON:new()
+    o.holdCPCombineTimer = AutoDriveTON:new()
     return o
 end
 
@@ -123,14 +124,13 @@ function EmptyHarvesterTask:update(dt)
             -- if the harvester is trailed reverse 5m more
             -- overallLength = overallLength + 5
         end
-        self.waitTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
-        if not self.waitTimer:done() then
+        self.holdCPCombineTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
+        if not self.holdCPCombineTimer:done() then
             -- Stopping CP drivers while reverse driving
             AutoDrive:holdCPCombine(self.combine)
         end
         if distanceToReversStart > overallLength then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
-            self.waitTimer:timer(false)
             self.state = EmptyHarvesterTask.STATE_WAITING
         else
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, 5, 1)
