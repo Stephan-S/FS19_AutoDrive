@@ -325,7 +325,7 @@ function ADHarvestManager.getOpenPipePercent(harvester)
 	local openPipe = false
 	local fillLevel = 0
 	local capacity = 0
-	if harvester ~= nil then
+	if harvester ~= nil and harvester.getCurrentDischargeNode ~= nil then
 		local dischargeNode = harvester:getCurrentDischargeNode()
 		if dischargeNode ~= nil then
 			fillLevel = harvester:getFillUnitFillLevel(dischargeNode.fillUnitIndex)
