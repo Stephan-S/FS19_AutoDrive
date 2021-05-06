@@ -97,7 +97,7 @@ function ADHarvestManager:update(dt)
         if vehicle.isTrailedHarvester then
             vehicle = vehicle.trailingVehicle
         end
-        if (vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or (vehicle.getIsEntered ~= nil and vehicle:getIsEntered()) then
+        if (vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or AutoDrive:getIsEntered(vehicle) then
             table.insert(self.harvesters, idleHarvester)
             table.removeValue(self.idleHarvesters, idleHarvester)
         end
@@ -107,7 +107,7 @@ function ADHarvestManager:update(dt)
         if vehicle.isTrailedHarvester then
             vehicle = vehicle.trailingVehicle
         end
-        if not ((vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or (vehicle.getIsEntered ~= nil and vehicle:getIsEntered())) then
+        if not ((vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or AutoDrive:getIsEntered(vehicle)) then
             table.insert(self.idleHarvesters, harvester)
             table.removeValue(self.harvesters, harvester)
 
@@ -152,14 +152,6 @@ function ADHarvestManager:update(dt)
                 else
                     harvester.ad.driveForwardTimer:timer(false)
                 end
-            end
-
-            if (harvester.ad ~= nil and harvester.ad.noTurningTimer ~= nil) then
-                local cpIsTurning = harvester.cp ~= nil and (harvester.cp.isTurning or (harvester.cp.turnStage ~= nil and harvester.cp.turnStage > 0))
-                local cpIsTurningTwo = harvester.cp ~= nil and harvester.cp.driver and (harvester.cp.driver.turnIsDriving or (harvester.cp.driver.fieldworkState ~= nil and harvester.cp.driver.fieldworkState == harvester.cp.driver.states.TURNING))
-                local aiIsTurning = (harvester.getAIIsTurning ~= nil and harvester:getAIIsTurning() == true)
-                local combineSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 20)
-                local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
             end
         else
             table.removeValue(self.harvesters, harvester)
