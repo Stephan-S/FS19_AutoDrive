@@ -345,3 +345,13 @@ function AutoDrive.setActualParkDestination(vehicle)
         end
     end
 end
+
+-- MP: Important! vehicle:getIsEntered() is not working as expected on server!
+-- This is the alternative MP approach
+function AutoDrive:getIsEntered(vehicle)
+    local user = nil
+    if vehicle ~= nil and g_currentMission.userManager ~= nil and g_currentMission.userManager.getUserByConnection ~= nil then
+        user = g_currentMission.userManager:getUserByConnection(vehicle:getOwner())
+    end
+    return user ~= nil
+end
