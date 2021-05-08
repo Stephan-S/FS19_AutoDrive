@@ -19,6 +19,7 @@ source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/DijkstraLive.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/ExternalInterface.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/PathCalculation.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/TelemetryExport.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Hud/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud/HudButton.lua", g_currentModDirectory))
