@@ -44,6 +44,7 @@ function CombineUnloaderMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -86,7 +87,7 @@ function CombineUnloaderMode:notifyAboutFailedPathfinder()
     --print("CombineUnloaderMode:notifyAboutFailedPathfinder() - blocked: " .. AutoDrive.boolToString(self.vehicle.ad.pathFinderModule.completelyBlocked) .. " distance: " .. ADGraphManager:getDistanceFromNetwork(self.vehicle))
     if self.vehicle.ad.pathFinderModule.completelyBlocked and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 20 then
         self.failedPathFinder = self.failedPathFinder + 1
-        --print("Increased Failed pathfinder count to: " .. self.failedPathFinder)
+    --print("Increased Failed pathfinder count to: " .. self.failedPathFinder)
     end
 end
 
@@ -142,7 +143,11 @@ function CombineUnloaderMode:continue()
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local point = nil
     local distanceToStart = 0
-    if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+    if
+        self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and
+            self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and
+            self.vehicle.ad.stateModule:getFirstMarker().id ~= nil
+     then
         point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
         if point ~= nil then
             distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
@@ -156,8 +161,7 @@ function CombineUnloaderMode:continue()
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:continue self.state" .. tostring(self.state))
         self.vehicle.ad.taskModule:abortCurrentTask()
 
-
-        if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
+        if AutoDrive.checkIsOnField(x, y, z) and distanceToStart > 30 then
             -- is activated on a field - use ExitFieldTask to leave field according to setting
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:continue ExitFieldTask...")
             self.activeTask = ExitFieldTask:new(self.vehicle)
@@ -188,7 +192,11 @@ function CombineUnloaderMode:getNextTask()
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local point = nil
     local distanceToStart = 0
-    if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+    if
+        self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and
+            self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and
+            self.vehicle.ad.stateModule:getFirstMarker().id ~= nil
+     then
         point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
         if point ~= nil then
             distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
@@ -202,7 +210,7 @@ function CombineUnloaderMode:getNextTask()
 
     if self.state == self.STATE_INIT then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "[AD] CombineUnloaderMode:getNextTask STATE_INIT filledToUnload %s", tostring(filledToUnload))
-        if filledToUnload then    -- fill level above setting unload level
+        if filledToUnload then -- fill level above setting unload level
             if (AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders") then
                 local nextTarget = ADMultipleTargetsManager:getNextTarget(self.vehicle, false)
                 if nextTarget ~= nil then
@@ -340,7 +348,11 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local point = nil
     local distanceToStart = 0
-    if self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and self.vehicle.ad.stateModule:getFirstMarker().id ~= nil then
+    if
+        self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and
+            self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and
+            self.vehicle.ad.stateModule:getFirstMarker().id ~= nil
+     then
         point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
         if point ~= nil then
             distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
@@ -351,7 +363,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
         --ADHarvestManager:unregisterAsUnloader(self.vehicle)
         --self.followingUnloader = nil
         --self.combine = nil
-        if AutoDrive.checkIsOnField(x, y, z)  and distanceToStart > 30 then
+        if AutoDrive.checkIsOnField(x, y, z) and distanceToStart > 30 then
             -- is activated on a field - use ExitFieldTask to leave field according to setting
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] CombineUnloaderMode:getTaskAfterUnload ExitFieldTask...")
             nextTask = ExitFieldTask:new(self.vehicle)
@@ -383,7 +395,7 @@ function CombineUnloaderMode:getTaskAfterUnload(filledToUnload)
 end
 
 function CombineUnloaderMode:shouldLoadOnTrigger()
-    return self.state == self.STATE_PICKUP and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return false
 end
 
 function CombineUnloaderMode:shouldUnloadAtTrigger()
@@ -412,7 +424,7 @@ function CombineUnloaderMode:getUnloaderOnSide()
     local frontback = AutoDrive.CHASEPOS_FRONT
     -- If we're not clearly on one side or the other of the combine, we don't
     -- give a clear answer
-    if math.abs(diffX) > self.combine.sizeWidth/2 then
+    if math.abs(diffX) > self.combine.sizeWidth / 2 then
         leftright = AutoDrive.sign(diffX)
     end
 
@@ -434,9 +446,7 @@ function CombineUnloaderMode:isUnloaderOnCorrectSide(chaseSide)
     end
 
     local leftRight, frontBack = self:getUnloaderOnSide()
-    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or
-         (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or
-         frontBack == sideIndex then
+    if (leftRight == sideIndex and frontBack == AutoDrive.CHASEPOS_REAR) or (leftRight == AutoDrive.CHASEPOS_UNKNOWN and frontBack == AutoDrive.CHASEPOS_REAR) or frontBack == sideIndex then
         return true
     else
         return false
@@ -447,21 +457,21 @@ function CombineUnloaderMode:getPipeSlopeCorrection2()
     self.combineNode = self.combine.components[1].node
     local dischargeX, dichargeY, dischargeZ = getWorldTranslation(AutoDrive.getDischargeNode(self.combine))
     local diffX, diffY, _ = worldToLocal(self.combineNode, dischargeX, dichargeY, dischargeZ)
-    if math.abs(diffX) < self.combine.sizeWidth/2 then
+    if math.abs(diffX) < self.combine.sizeWidth / 2 then
         -- Some pipes curl up so tight they cause a collisions.
         -- We just don't try to correct in this case.
         return 0
     end
 
     local heightUnderPipe = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, dischargeX, dichargeY, dischargeZ)
-    -- It would be nice if we could use the discharge node direction and the terrain under the harveser, 
+    -- It would be nice if we could use the discharge node direction and the terrain under the harveser,
     -- but discharge node rotations are untrustworthy.
-    wux, wuy, wuz = getTerrainNormalAtWorldPos(g_currentMission.terrainRootNode, dischargeX, dichargeY-heightUnderPipe, dischargeZ)
+    wux, wuy, wuz = getTerrainNormalAtWorldPos(g_currentMission.terrainRootNode, dischargeX, dichargeY - heightUnderPipe, dischargeZ)
     ux, uy, uz = worldDirectionToLocal(self.combineNode, wux, wuy, wuz)
 
-    -- This is backwards from the usual order of these variables, but I need deviation from 0 and pi, not 
+    -- This is backwards from the usual order of these variables, but I need deviation from 0 and pi, not
     -- pi/2 and 3pi/4, so we adjust the coordinate system
-    local theta = math.atan(ux/uy)
+    local theta = math.atan(ux / uy)
 
     local pipePosition = diffX * math.cos(theta) + diffY * math.sin(theta)
     local currentElevationCorrection = pipePosition - diffX
@@ -559,7 +569,7 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     local constantAdditionsZ = 1 + self.vehicle.sizeLength / 2 - self.targetTrailer.sizeLength / 2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
     local dynamicAdditionsZ = diffZ + pipeZOffsetToCombine
-    dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength*0.5 - 2) ^ self.targetTrailerFillRatio, 0)
+    dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength * 0.5 - 2) ^ self.targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
     return sideChaseTermZ
 end
@@ -573,7 +583,7 @@ function CombineUnloaderMode:getSideChaseOffsetZ(dynamic)
 end
 
 function CombineUnloaderMode:getRearChaseOffsetX(leftBlocked, rightBlocked)
-    local rearChaseOffset = (self.combine.sizeWidth/2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth)/2)+1
+    local rearChaseOffset = (self.combine.sizeWidth / 2 + math.max(self.vehicle.sizeWidth, self.targetTrailer.sizeWidth) / 2) + 1
 
     if self.combine:getIsBufferCombine() and not AutoDrive.isSugarcaneHarvester(self.combine) then
         return 0
@@ -584,7 +594,6 @@ function CombineUnloaderMode:getRearChaseOffsetX(leftBlocked, rightBlocked)
     else
         return rearChaseOffset
     end
-
 end
 
 function CombineUnloaderMode:getRearChaseOffsetZ()
@@ -622,7 +631,7 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
     local rightFrontBlocked = self.combine.ad.sensors.rightFrontSensorFruit:pollInfo() or self.combine.ad.sensors.rightFrontSensor:pollInfo()
     rightBlocked = rightBlocked or rightFrontBlocked
     leftBlocked = leftBlocked or leftFrontBlocked
-    
+
     -- prefer side where front is also free
     if (not leftBlocked) and (not rightBlocked) then
         if (not leftFrontBlocked) and rightFrontBlocked then
@@ -680,11 +689,9 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
         if
-            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or 
-              (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and 
-              combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and 
-              ((not AutoDrive.isSugarcaneHarvester(self.combine)) or self:isUnloaderOnCorrectSide(self.pipeSide) and math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide))) or
-                self.combine.ad.noMovementTimer.elapsedTime > 1000
+            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and
+                ((not AutoDrive.isSugarcaneHarvester(self.combine)) or self:isUnloaderOnCorrectSide(self.pipeSide) and math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide))) or
+                (self.combine.ad.noMovementTimer.elapsedTime > 1000)
          then
             -- Take into account a right sided harvester, e.g. potato harvester.
             chaseNode = sideChasePos

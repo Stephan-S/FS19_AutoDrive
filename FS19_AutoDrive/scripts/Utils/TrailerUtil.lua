@@ -150,7 +150,7 @@ function AutoDrive.getTrailersOf(vehicle, onlyDischargeable)
     AutoDrive.tempTrailers = {}
     AutoDrive.tempTrailerCount = 0
 
-    if (vehicle.spec_dischargeable ~= nil or (not onlyDischargeable)) and vehicle.getFillUnits ~= nil then
+    if (vehicle.spec_dischargeable ~= nil or not (onlyDischargeable == true)) and vehicle.getFillUnits ~= nil then
         local vehicleFillLevel, vehicleLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(vehicle, nil)
         --g_logManager:devInfo("VehicleFillLevel: " .. vehicleFillLevel .. " vehicleLeftCapacity: " .. vehicleLeftCapacity);
         if not (vehicleFillLevel == 0 and vehicleLeftCapacity == 0) then
@@ -170,7 +170,7 @@ function AutoDrive.getTrailersOf(vehicle, onlyDischargeable)
 end
 
 function AutoDrive.getTrailersOfImplement(attachedImplement, onlyDischargeable)
-    if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or (not onlyDischargeable)) and attachedImplement.getFillUnits ~= nil then
+    if ((attachedImplement.typeDesc == g_i18n:getText("typeDesc_tipper") or attachedImplement.spec_dischargeable ~= nil) or not (onlyDischargeable == true)) and attachedImplement.getFillUnits ~= nil then
         if not (attachedImplement.vehicleType.specializationsByName["leveler"] ~= nil or attachedImplement.typeDesc == g_i18n:getText("typeDesc_frontloaderTool") or attachedImplement.typeDesc == g_i18n:getText("typeDesc_wheelLoaderTool")) then --avoid trying to fill shovels and levellers atached
             local trailer = attachedImplement
             AutoDrive.tempTrailerCount = AutoDrive.tempTrailerCount + 1
@@ -206,41 +206,59 @@ function AutoDrive.getBackImplementsOf(vehicle, onlyDischargeable)
     return AutoDrive.tempBackImplements, AutoDrive.tempBackImplementsCount
 end
 
-
-function AutoDrive.getDistanceToUnloadPosition(vehicle)
-    if vehicle.ad.stateModule:getFirstMarker() == nil or vehicle.ad.stateModule:getSecondMarker() == nil then
-        return math.huge
-    end
-    local x, _, z = getWorldTranslation(vehicle.components[1].node)
-    local destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
-    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
-        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
-    end
-    if destination == nil then
-        return math.huge
-    end
-    return MathUtil.vector2Length(x - destination.x, z - destination.z)
-end
-
 function AutoDrive.getDistanceToTargetPosition(vehicle)
+    -- returns the distance to load destination depending on mode
     if vehicle.ad.stateModule:getFirstMarker() == nil then
         return math.huge
     end
     local x, _, z = getWorldTranslation(vehicle.components[1].node)
     local destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+
+    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
+        -- in pickup mode return distance to second destination
+        if vehicle.ad.stateModule:getSecondMarker() == nil then
+            return math.huge
+        end
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
+    end
     if destination == nil then
         return math.huge
     end
     return MathUtil.vector2Length(x - destination.x, z - destination.z)
 end
 
-function AutoDrive.getFillLevelAndCapacityOfAll(trailers, selectedFillType)
+function AutoDrive.getDistanceToUnloadPosition(vehicle)
+    -- returns the distance to unload destination depending on mode
+    local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local destination = nil
+    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO then
+        -- in deliver mode only 1st target in HUD is taken
+        if vehicle.ad.stateModule:getFirstMarker() == nil then
+            return math.huge
+        end
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getFirstMarker().id)
+    elseif vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD then
+        -- in pickup mode no unload in this mode, so return huge distance
+        return math.huge
+    else
+        if vehicle.ad.stateModule:getSecondMarker() == nil then
+            return math.huge
+        end
+        destination = ADGraphManager:getWayPointById(vehicle.ad.stateModule:getSecondMarker().id)
+    end
+    if destination == nil then
+        return math.huge
+    end
+    return MathUtil.vector2Length(x - destination.x, z - destination.z)
+end
+
+function AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local leftCapacity = 0
     local fillLevel = 0
 
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer, selectedFillType)
+            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
             fillLevel = fillLevel + trailerFillLevel
             leftCapacity = leftCapacity + trailerLeftCapacity
         end
@@ -249,28 +267,24 @@ function AutoDrive.getFillLevelAndCapacityOfAll(trailers, selectedFillType)
     return fillLevel, leftCapacity
 end
 
-function AutoDrive.getFillLevelAndCapacityOf(trailer, selectedFillType)
+function AutoDrive.getFillLevelAndCapacityOf(trailer)
     local leftCapacity = 0
     local fillLevel = 0
-    local fullFillUnits = {}
+
 
     if trailer ~= nil then
         for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
-            if selectedFillType == nil or trailer:getFillUnitSupportedFillTypes(fillUnitIndex)[selectedFillType] == true then
-                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex, selectedFillType)
+
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex)
                 fillLevel = fillLevel + trailerFillLevel
                 leftCapacity = leftCapacity + trailerLeftCapacity
-                if (trailerLeftCapacity <= 0.01) then
-                    fullFillUnits[fillUnitIndex] = true
-                end
-            end
         end
     end
 
-    return fillLevel, leftCapacity, fullFillUnits
+    return fillLevel, leftCapacity
 end
 
-function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFillType)
+function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object)
     if object == nil or object.getFillUnits == nil then
         return 0, 0
     end
@@ -278,7 +292,7 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
     local fillLevel = 0
     for fillUnitIndex, _ in pairs(object:getFillUnits()) do
         --print("object fillUnit " .. fillUnitIndex ..  " has :");
-        local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
+        local unitFillLevel, unitLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex)
         --print("   fillLevel: " .. unitFillLevel ..  " leftCapacity: " .. unitLeftCapacity);
         fillLevel = fillLevel + unitFillLevel
         leftCapacity = leftCapacity + unitLeftCapacity
@@ -287,7 +301,7 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(object, selectedFil
     return fillLevel, leftCapacity
 end
 
-function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex, selectedFillType)
+function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitIndex)
     local fillTypeIsProhibited = false
     local isSelectedFillType = false
     local hasOnlyDieselForFuel = AutoDrive.checkForDieselTankOnlyFuel(object)
@@ -298,13 +312,8 @@ function AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(object, fillUnitInde
                 fillTypeIsProhibited = true
             end
         end
-        if selectedFillType ~= nil and fillType == selectedFillType then
-            isSelectedFillType = true
-        end
     end
-    if isSelectedFillType then
-        fillTypeIsProhibited = false
-    end
+
 
     if object:getFillUnitCapacity(fillUnitIndex) > 300 and (not fillTypeIsProhibited) then
         return object:getFillUnitFillLevel(fillUnitIndex), object:getFillUnitFreeCapacity(fillUnitIndex)
@@ -378,7 +387,7 @@ function AutoDrive.setAugerPipeOpen(trailers, open)
         targetState = 2
     end
     for _, trailer in pairs(trailers) do
-        if trailer.spec_pipe ~= nil then
+        if trailer.spec_pipe ~= nil and trailer.spec_pipe.currentState ~= nil and trailer.getIsPipeStateChangeAllowed ~= nil then
             if trailer.spec_pipe.currentState ~= targetState and trailer:getIsPipeStateChangeAllowed(targetState) then
                 trailer:setPipeState(targetState, false)
             end
@@ -582,4 +591,37 @@ function AutoDrive.getWaterTrailerInWater(vehicle, dt)
         end
     end
     return nil
+end
+
+function AutoDrive.startFillFillableTrailer(vehicle)
+    local ret = nil
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
+    if trailers == nil then
+        return nil
+    end
+    for _, trailer in pairs(trailers) do
+        local spec = trailer.spec_fillUnit
+        if spec ~= nil and spec.fillTrigger ~= nil and spec.fillTrigger.triggers ~= nil and #spec.fillTrigger.triggers >0 then
+            spec:setFillUnitIsFilling(true)
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "[AD] AutoDrive.startFillFillableTrailer setFillUnitIsFilling currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
+            if spec.fillTrigger.currentTrigger ~= nil then
+                return spec.fillTrigger.currentTrigger
+            end
+        end
+    end
+    return ret
+end
+
+function AutoDrive.isInRangeToLoadUnloadTarget(vehicle)
+    if vehicle == nil or vehicle.ad == nil or vehicle.ad.stateModule == nil or vehicle.ad.drivePathModule == nil then
+        return false
+    end
+    local ret = false
+    ret =
+            (
+                ((vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() == true) and AutoDrive.getDistanceToTargetPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+                or
+                ((vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() == true) and AutoDrive.getDistanceToUnloadPosition(vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+            )
+    return ret
 end

@@ -104,21 +104,24 @@ function AutoDrive.renameDriver(vehicle, name, sendEvent)
     end
 end
 
-function AutoDrive.hasToRefuel(vehicle)
+-- return fillType to refuel or nil if no refuel required
+function AutoDrive.getRequiredRefuel(vehicle)
     local spec = vehicle.spec_motorized
-    local ret = false
+    local ret = 0
 
-    if spec.consumersByFillTypeName ~= nil then
-        -- at least one fuel type is sufficient to continue
-        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
-            ret = ret or vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) > AutoDrive.REFUEL_LEVEL
+    if spec ~= nil and spec.consumersByFillTypeName ~= nil then
+        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil and vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.diesel.fillUnitIndex) < AutoDrive.REFUEL_LEVEL then
+            ret = g_fillTypeManager:getFillTypeIndexByName('DIESEL')
         end
-        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
-            ret = ret or vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.electricCharge.fillUnitIndex) > AutoDrive.REFUEL_LEVEL
+        if spec.consumersByFillTypeName.def ~= nil and spec.consumersByFillTypeName.def.fillUnitIndex ~= nil and vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.def.fillUnitIndex) < AutoDrive.REFUEL_LEVEL then
+            ret = g_fillTypeManager:getFillTypeIndexByName('DEF')
+        end
+        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil and vehicle:getFillUnitFillLevelPercentage(spec.consumersByFillTypeName.electricCharge.fillUnitIndex) < AutoDrive.REFUEL_LEVEL then
+            ret = g_fillTypeManager:getFillTypeIndexByName('ELECTRICCHARGE')
         end
     end
 
-    return not ret
+    return ret
 end
 
 function AutoDrive.combineIsTurning(combine)
@@ -176,6 +179,10 @@ function AutoDrive.mouseIsAtPos(position, radius)
 end
 
 function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
+    if not (vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() == true) then
+        -- check only for bunker silo if should unload to improve performance
+        return false
+    end
     for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
         local x, y, z = getWorldTranslation(vehicle.components[1].node)
         local tx, _, tz = x, y, z + 1
@@ -186,13 +193,13 @@ function AutoDrive.isVehicleInBunkerSiloArea(vehicle)
             if MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z) then
                 return true
             end
-        end
 
-        local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
-        if trailerCount > 0 then
-            for _, trailer in pairs(trailers) do
-                if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
-                    return true
+            local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle)
+            if trailerCount > 0 then
+                for _, trailer in pairs(trailers) do
+                    if AutoDrive.isTrailerInBunkerSiloArea(trailer, trigger) then
+                        return true
+                    end
                 end
             end
         end
@@ -255,15 +262,10 @@ function AutoDrive.cycleEditorShowMode()
     end
 end
 
-function AutoDrive.getActualParkDestination(vehicle)
-    local actualParkDestination = -1
-    local SelectedWorkTool = nil
+function AutoDrive.getSelectedWorkTool(vehicle)
+    local selectedWorkTool = nil
 
-    if vehicle == nil then
-        return actualParkDestination
-    end
-
-    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
+    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
         local allImp = {}
         -- Credits to Tardis from FS17
         local function addAllAttached(obj)
@@ -272,26 +274,84 @@ function AutoDrive.getActualParkDestination(vehicle)
                 table.insert(allImp, imp)
             end
         end
-            
+
         addAllAttached(vehicle)
 
         if allImp ~= nil then
             for i = 1, #allImp do
                 local imp = allImp[i]
                 if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
-                    SelectedWorkTool = imp.object
+                    selectedWorkTool = imp.object
                     break
                 end
             end
         end
     end
-    if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.getWorkToolParkDestination ~= nil then
-        actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
-    else
-        if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
-            -- g_logManager:info("[AD] AutoDrive.getActualParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
-            actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+    return selectedWorkTool
+end
+
+-- set or delete park destination for selected vehicle, tool from user input action, client mode!
+function AutoDrive.setActualParkDestination(vehicle)
+    local actualParkDestination = -1
+    local selectedWorkTool = nil
+
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:getFirstMarker() ~= nil then
+        local firstMarkerID = vehicle.ad.stateModule:getFirstMarkerId()
+        if firstMarkerID > 0 then
+            local mapMarker = ADGraphManager:getMapMarkerById(firstMarkerID)
+            -- do not allow to set debug marker as park destination
+            if mapMarker ~= nil and mapMarker.isADDebug ~= true then
+                selectedWorkTool = AutoDrive.getSelectedWorkTool(vehicle)
+
+                if selectedWorkTool == nil then
+                    -- no attachment selected, so use the vehicle itself
+                    selectedWorkTool = vehicle
+                end
+
+                if selectedWorkTool ~= nil then
+                    if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
+                        -- assign park destination
+                        if vehicle.advd ~= nil then
+                            vehicle.advd:setParkDestination(selectedWorkTool, firstMarkerID)
+                        end
+
+                        -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
+                        local messageText = "$l10n_AD_parkVehicle_selected; %s"
+                        local messageArg = vehicle.ad.stateModule:getFirstMarker().name
+                        -- localization
+                        messageText = AutoDrive.localize(messageText)
+                        -- formatting
+                        messageText = string.format(messageText, messageArg)
+                        ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
+                        
+                    elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
+                        -- delete park destination
+                        if vehicle.advd ~= nil then
+                            vehicle.advd:setParkDestination(selectedWorkTool, -1)
+                        end
+
+                        -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
+                        local messageText = "$l10n_AD_parkVehicle_deleted; %s"
+                        local messageArg = vehicle.ad.stateModule:getFirstMarker().name
+                        -- localization
+                        messageText = AutoDrive.localize(messageText)
+                        -- formatting
+                        messageText = string.format(messageText, messageArg)
+                        ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
+
+                    end
+                end
+            end
         end
     end
-    return actualParkDestination
+end
+
+-- MP: Important! vehicle:getIsEntered() is not working as expected on server!
+-- This is the alternative MP approach
+function AutoDrive:getIsEntered(vehicle)
+    local user = nil
+    if vehicle ~= nil and g_currentMission.userManager ~= nil and g_currentMission.userManager.getUserByConnection ~= nil then
+        user = g_currentMission.userManager:getUserByConnection(vehicle:getOwner())
+    end
+    return user ~= nil
 end

@@ -538,8 +538,8 @@ AutoDrive.settings.avoidFruit = {
 AutoDrive.settings.pathFinderTime = {
     values = {0.25, 0.5, 1.0, 1.5, 2, 3},
     texts = {"x0.25", "x0.5", "x1.0", "x1.5", "x2", "x3"},
-    default = 3,
-    current = 3,
+    default = 2,
+    current = 2,
     text = "gui_ad_pathFinderTime",
     tooltip = "gui_ad_pathFinderTime_tooltip",
     translate = false,
@@ -865,6 +865,18 @@ AutoDrive.settings.iconSetToUse = {
     text = "gui_ad_iconSetToUse",
     tooltip = "gui_ad_iconSetToUse_tooltip",
     translate = false,
+    isVehicleSpecific = false,
+    isUserSpecific = true
+}
+
+AutoDrive.settings.combineCPADHudMouse = {
+    values = {1, 2, 3},
+    texts = {"gui_CPAD_off", "gui_CPAD_simple", "gui_CPAD_full"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_combineCPADHudMouse",
+    tooltip = "gui_ad_combineCPADHudMouse_tooltip",
+    translate = true,
     isVehicleSpecific = false,
     isUserSpecific = true
 }

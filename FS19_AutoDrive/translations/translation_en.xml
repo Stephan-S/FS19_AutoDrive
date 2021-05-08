@@ -34,10 +34,12 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Increase loop counter" />
 		<text name="input_ADParkVehicle"						text="AD: Park vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_AD_devAction"                                                 text="AD: Developer Action" />
 		<text name="hud_avoidFruit"								text="AD: Avoid fruit" />
 		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
-		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned. Please assign the currently selected target with right mouse button." />
+		<text name="AD_parkVehicle_noPosSet"					text="No parking destination assigned." />
 		<text name="AD_parkVehicle_selected"					text="Chosen parking destination: " />
+		<text name="AD_parkVehicle_deleted"					    text="parking destination deleted!" />
 		<text name="AD_Driver_of"								text="Driver of" />
 		<text name="AD_has_reached"								text="has reached" />
 		<text name="AD_got_stuck"								text="got stuck" />
@@ -47,6 +49,7 @@
 		<text name="AD_No_Trailer"								text="couldn't find trailer" />
 		<text name="AD_No_Bunker"								text="couldn't find silo bunker" />
 		<text name="AD_No_Shovel"								text="couldn't find a connected shovel" />
+		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
 		<text name="AD_MODE_DRIVETO"							text="Drive" />
 		<text name="AD_MODE_DELIVERTO"							text="Deliver" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Pickup and Deliver" />
@@ -116,8 +119,8 @@
 		<text name="gui_ad_showNextPath_tooltip"				text="En/Disable the display of the next two waypoints" />
 		<text name="gui_ad_avoidFruit"							text="Avoid fruit" />
 		<text name="gui_ad_avoidFruit_tooltip"					text="Combine unloader tries to avoid fruit destruction" />
-		<text name="gui_ad_pathFinderTime"						text="Pathfinder-time (max)" />
-		<text name="gui_ad_pathFinderTime_tooltip"				text="Determines how long pathfinding algorithm is allowed to search for collision free path to/from combine. (Potential fps-impact)" />
+		<text name="gui_ad_pathFinderTime"						text="Pathfinder factor" />
+		<text name="gui_ad_pathFinderTime_tooltip"				text="Determines how far pathfinding algorithm is allowed to search for collision free path to/from combine. Should only be slightly increased in case fruit avoid on large fields with sufficient headland is not working." />
 		<text name="gui_ad_lineHeight"							text="Line height" />
 		<text name="gui_ad_lineHeight_tooltip"					text="Line height in editor mode. Either on ground level or above the tractor" />
 		<text name="gui_ad_ground"								text="Ground level" />
@@ -317,5 +320,11 @@
 		<text name="AD_task_exiting_field"						text="Exiting field" />
 		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
         <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
+
+		<text name = "gui_CPAD_off"								text = "off"/>
+		<text name = "gui_CPAD_simple"							text = "simple"/>
+		<text name = "gui_CPAD_full"							text = "full"/>		
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
 	</texts>
 </l10n>

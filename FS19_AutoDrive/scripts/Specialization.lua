@@ -194,6 +194,7 @@ function AutoDrive:onPostLoad(savegame)
     link(self.components[1].node, self.ad.frontNode)
     setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
     self.ad.frontNodeGizmo = DebugGizmo:new()
+    -- self.ad.debug = RingQueue:new()
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
@@ -480,6 +481,7 @@ function AutoDrive:onLeaveVehicle()
     end
 end
 
+
 function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
 end
@@ -631,6 +633,7 @@ function AutoDrive:startAutoDrive()
                     end
                 end
             end
+            self.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
             g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", 1)
 
@@ -657,6 +660,8 @@ function AutoDrive:stopAutoDrive()
     end
 
     if self.isServer then
+        ADScheduler:removePathfinderVehicle(self)
+
         if self.ad.stateModule:isActive() then
             g_currentMission:farmStats(self:getOwnerFarmId()):updateStats("driversHired", -1)
             self.ad.drivePathModule:reset()
@@ -665,6 +670,13 @@ function AutoDrive:stopAutoDrive()
 
             for _, mode in pairs(self.ad.modes) do
                 mode:reset()
+            end
+
+            if self.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self) then
+                self:setBeaconLightsVisibility(false)
+            end
+            if self.setTurnLightState ~= nil then
+                self:setTurnLightState(Lights.TURNLIGHT_OFF)
             end
 
             local hasCallbacks = self.ad.callBackFunction ~= nil and self.ad.isStoppingWithError == false
@@ -726,14 +738,6 @@ function AutoDrive:stopAutoDrive()
                 end
             end
 
-            if self.setBeaconLightsVisibility ~= nil then
-                self:setBeaconLightsVisibility(false)
-            end
-
-            if self.setTurnLightState ~= nil then
-                self:setTurnLightState(Lights.TURNLIGHT_OFF)
-            end
-
             self.ad.stateModule:setActive(false)
 
             self.ad.taskModule:abortAllTasks()
@@ -748,7 +752,7 @@ function AutoDrive:stopAutoDrive()
                     self.ad.stateModule:setStartCP_AIVE(false)
                     if g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
                         AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to CP with start")
-                        g_courseplay.courseplay:start(self)
+                        AutoDrive:StartCP(self)
                     else
                         if self.acParameters ~= nil then
                             self.acParameters.enabled = true
@@ -790,11 +794,9 @@ function AutoDrive:onStartAutoDrive()
     AutoDriveHud:createMapHotspot(self)
 
     if AutoDrive.getSetting("enableParkAtJobFinished", self) and ((self.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) or (self.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO)) then
-        local actualParkDestination = AutoDrive.getActualParkDestination(self)
+        local actualParkDestination = self.ad.stateModule:getParkDestinationAtJobFinished()
         if actualParkDestination >= 1 then
-            self.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
         else
-            self.ad.stateModule:setParkDestinationAtJobFinished(-1)
             AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
         end
     end

@@ -17,6 +17,7 @@ source(Utils.getFilename("scripts/Settings.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/DijkstraLive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/DijkstraLiveBlue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/ExternalInterface.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/PathCalculation.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/TelemetryExport.lua", g_currentModDirectory))
@@ -56,12 +57,14 @@ source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory)
 source(Utils.getFilename("scripts/Utils/CombineUtil.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/UtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Queue.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/RingQueue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/Buffer.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/FlaggedTable.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/CollisionDetectionUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/PathFinderUtils.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/AutoDriveUtilFuncs.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/SortedQueue.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Utils/DevFuncs.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Manager/RoutesManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/DrawingManager.lua", g_currentModDirectory))
@@ -72,6 +75,8 @@ source(Utils.getFilename("scripts/Manager/HarvestManager.lua", g_currentModDirec
 source(Utils.getFilename("scripts/Manager/InputManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/UserDataManager.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Manager/MultipleTargetsManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/ThirdPartyModsManager.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Manager/Scheduler.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Tasks/AbstractTask.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Tasks/DriveToDestinationTask.lua", g_currentModDirectory))
@@ -218,6 +223,7 @@ end
 
 function AutoDriveValidateVehicleTypes(vehicleTypeManager)
 	AutoDriveRegister.onMissionWillLoad(g_i18n)
+	AutoDrive:onAllModsLoaded()
 end
 
 ---Copy our translations to global space.

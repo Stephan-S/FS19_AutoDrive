@@ -26,17 +26,12 @@ end
 
 function RefuelTask:update(dt)
     local spec = self.vehicle.spec_motorized
-    local fillUnitIndex = nil
-    if spec.consumersByFillTypeName ~= nil then
-        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
-            fillUnitIndex = spec.consumersByFillTypeName.diesel.fillUnitIndex
+
+    if self.vehicle.ad.stateModule:getRefuelFillType() > 0 then
+        local fillUnitIndex = self.vehicle.spec_motorized:getConsumerFillUnitIndex(self.vehicle.ad.stateModule:getRefuelFillType())
+        if fillUnitIndex ~= nil then
+            self.isRefueled = self.vehicle:getFillUnitFillLevelPercentage(fillUnitIndex) >= 0.99
         end
-        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
-            fillUnitIndex = spec.consumersByFillTypeName.electricCharge.fillUnitIndex
-        end
-    end
-    if fillUnitIndex ~= nil then
-        self.isRefueled = self.vehicle:getFillUnitFillLevelPercentage(fillUnitIndex) >= 0.99
     end
 
     if self.state == RefuelTask.STATE_PATHPLANNING then
@@ -85,6 +80,7 @@ function RefuelTask:finished()
     self.vehicle.ad.callBackObject = nil
     self.vehicle.ad.callBackArg = nil
 
+    self.vehicle.ad.stateModule:setRefuelFillType(0)        -- before start the mode again, we need to clear the refuel type
     self.vehicle:stopAutoDrive()
     self.vehicle.ad.stateModule:getCurrentMode():start()
     self.vehicle.ad.taskModule:setCurrentTaskFinished(ADTaskModule.DONT_PROPAGATE)
@@ -99,24 +95,17 @@ function RefuelTask:isInRefuelRange()
     local refuelX, refuelZ = ADGraphManager:getWayPointById(self.destinationID).x, ADGraphManager:getWayPointById(self.destinationID).z
     local distance = MathUtil.vector2Length(refuelX - x, refuelZ - z)       -- vehicle to destination
 
-    local fillUnitIndex = nil
-    local spec = self.vehicle.spec_motorized
+    if self.vehicle.ad.stateModule:getRefuelFillType() > 0 then
+        local fillUnitIndex = self.vehicle.spec_motorized:getConsumerFillUnitIndex(self.vehicle.ad.stateModule:getRefuelFillType())
 
-    if spec.consumersByFillTypeName ~= nil then
-        if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
-            fillUnitIndex = spec.consumersByFillTypeName.diesel.fillUnitIndex
-        end
-        if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
-            fillUnitIndex = spec.consumersByFillTypeName.electricCharge.fillUnitIndex
-        end
-    end
-    if fillUnitIndex ~= nil then
-        if distance <= AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
-            self.refuelTrigger = ADTriggerManager.getClosestRefuelTrigger(self.vehicle)
-            if self.refuelTrigger ~= nil and not self.refuelTrigger.isLoading then
-                for _, fillableObject in pairs(self.refuelTrigger.fillableObjects) do
-                    if fillableObject == self.vehicle or (fillableObject.object ~= nil and fillableObject.object == self.vehicle and fillableObject.fillUnitIndex == fillUnitIndex) then
-                        return true
+        if fillUnitIndex ~= nil then
+            if distance <= AutoDrive.MAX_REFUEL_TRIGGER_DISTANCE then
+                self.refuelTrigger = ADTriggerManager.getClosestRefuelTrigger(self.vehicle)
+                if self.refuelTrigger ~= nil and not self.refuelTrigger.isLoading then
+                    for _, fillableObject in pairs(self.refuelTrigger.fillableObjects) do
+                        if fillableObject == self.vehicle or (fillableObject.object ~= nil and fillableObject.object == self.vehicle and fillableObject.fillUnitIndex == fillUnitIndex) then
+                            return true
+                        end
                     end
                 end
             end
@@ -129,18 +118,8 @@ function RefuelTask:startRefueling()
     if self.refuelTrigger ~= nil and (not self.refuelTrigger.isLoading) and (not self.isRefueled) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling")
 
-        local fillType = nil
-        local spec = self.vehicle.spec_motorized
-
-        if spec.consumersByFillTypeName ~= nil then
-            if spec.consumersByFillTypeName.diesel ~= nil and spec.consumersByFillTypeName.diesel.fillUnitIndex ~= nil then
-                fillType = g_fillTypeManager:getFillTypeIndexByName('DIESEL')
-            end
-            if spec.consumersByFillTypeName.electricCharge ~= nil and spec.consumersByFillTypeName.electricCharge.fillUnitIndex ~= nil then
-                fillType = g_fillTypeManager:getFillTypeIndexByName('ELECTRICCHARGE')
-            end
-        end
-        if fillType ~= nil then
+        local fillType = self.vehicle.ad.stateModule:getRefuelFillType()
+        if fillType > 0 then
             self.refuelTrigger.autoStart = true
             self.refuelTrigger.selectedFillType = fillType
             self.refuelTrigger:onFillTypeSelection(fillType)
@@ -153,7 +132,8 @@ end
 
 function RefuelTask:getInfoText()
     if self.state == RefuelTask.STATE_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     else
         return g_i18n:getText("AD_task_drive_to_refuel_point")
     end
@@ -161,7 +141,8 @@ end
 
 function RefuelTask:getI18nInfo()
     if self.state == RefuelTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     else
         return "$l10n_AD_task_drive_to_refuel_point;"
     end

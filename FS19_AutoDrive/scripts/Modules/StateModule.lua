@@ -54,6 +54,7 @@ function ADStateModule:reset()
     end
     self.remainingDriveTime = 0
     self.calculateRemainingDriveTimeInterval = 0
+    self.refuelFillType = 0
 end
 
 function ADStateModule:readFromXMLFile(xmlFile, key)
@@ -122,7 +123,6 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#loopCounter", self.loopCounter)
     setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
     setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
-    setXMLInt(xmlFile, key .. "#parkDestination", self.parkDestination)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
 end
 
@@ -147,6 +147,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteBool(streamId, self.useCP)
     streamWriteString(streamId, self.driverName)
     streamWriteUInt16(streamId, self.remainingDriveTime)
+    streamWriteUIntN(streamId, self.refuelFillType, 8)
 end
 
 function ADStateModule:readStream(streamId)
@@ -170,6 +171,7 @@ function ADStateModule:readStream(streamId)
     self.useCP = streamReadBool(streamId)
     self.driverName = streamReadString(streamId)
     self.remainingDriveTime = streamReadUInt16(streamId)
+    self.refuelFillType = streamReadUIntN(streamId, 8)
 
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
@@ -195,6 +197,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteBool(streamId, self.useCP)
     streamWriteString(streamId, self.driverName)
 	streamWriteUInt16(streamId, self.remainingDriveTime)
+    streamWriteUIntN(streamId, self.refuelFillType, 8)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -218,6 +221,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.useCP = streamReadBool(streamId)
     self.driverName = streamReadString(streamId)
     self.remainingDriveTime = streamReadUInt16(streamId)
+    self.refuelFillType = streamReadUIntN(streamId, 8)
 
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
@@ -231,6 +235,14 @@ function ADStateModule:update(dt)
 			self:calculateRemainingDriveTime()
 		end
 	end
+
+    if self.parkDestination ~= -1 then
+        -- transfer park destination to vehicle data as all park destinations are in vehicle data now
+        if self.vehicle.advd ~= nil then
+            self.vehicle.advd:setParkDestination(self.vehicle, self.parkDestination, false)
+            self.parkDestination = -1
+        end
+    end
 
     if g_client ~= nil and self.vehicle.getIsEntered ~= nil and self.vehicle:getIsEntered() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_VEHICLEINFO) then
 		-- debug output only displayed on client with entered vehicle
@@ -258,6 +270,7 @@ function ADStateModule:update(dt)
         debug.useCP = self.useCP
         debug.driverName = self.driverName
         debug.remainingDriveTime = self.remainingDriveTime
+        debug.refuelFillType = self.refuelFillType
         if self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine ~= nil then
             debug.combine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD].combine:getName()
         else
@@ -654,15 +667,6 @@ function ADStateModule:decreaseFieldSpeedLimit()
     self:raiseDirtyFlag()
 end
 
-function ADStateModule:getParkDestination()
-    return self.parkDestination
-end
-
-function ADStateModule:setParkDestination(parkDestination)
-    self.parkDestination = parkDestination
-    self:raiseDirtyFlag()
-end
-
 function ADStateModule:getParkDestinationAtJobFinished()
     return self.parkDestinationAtJobFinished
 end
@@ -821,4 +825,13 @@ end
 
 function ADStateModule:getRemainingDriveTime()
 	return self.remainingDriveTime
+end
+
+function ADStateModule:getRefuelFillType()
+	return self.refuelFillType
+end
+
+function ADStateModule:setRefuelFillType(refuelFillType)
+	self.refuelFillType = refuelFillType
+	self:raiseDirtyFlag()
 end

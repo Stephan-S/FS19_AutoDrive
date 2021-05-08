@@ -34,10 +34,12 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Anzahl Wiederholungen erhöhen" />
 		<text name="input_ADParkVehicle"						text="AD: Fahrzeug parken" />
 		<text name="input_ADSwapTargets"						text="AD: Ziele tauschen" />
+		<text name="input_AD_devAction"                                                 text="AD: Entwickler Aktion" />
 		<text name="hud_avoidFruit"								text="AD: Fruchtumfahrung" />
 		<text name="hud_startCp" 								text="AD: Starte CP / AIVE Fahrer am Zielpunkt" />
-		<text name="AD_parkVehicle_noPosSet"					text="Kein Parkplatz zugewiesen. Bitte mit rechter Maustaste auf Button festlegen. (Aktuelles Ziel)" />
+		<text name="AD_parkVehicle_noPosSet"					text="Kein Parkplatz zugewiesen." />
 		<text name="AD_parkVehicle_selected"					text="Als Parkplatz zugewiesen: " />
+		<text name="AD_parkVehicle_deleted"					    text="Parkplatz gelöscht!" />
 		<text name="AD_Driver_of"								text="Der Fahrer von" />
 		<text name="AD_has_reached"								text="ist angekommen bei" />
 		<text name="AD_got_stuck"								text="hat sich fest gefahren" />
@@ -47,6 +49,7 @@
 		<text name="AD_No_Trailer"								text="konnte keinen Anhänger finden" />
 		<text name="AD_No_Bunker"								text="konnte kein Fahrsilo finden" />
 		<text name="AD_No_Shovel"								text="konnte keine Schaufel finden" />
+		<text name="AD_No_Refuel_Station"						text="konnte keine Tankstelle finden für:" />
 		<text name="AD_MODE_DRIVETO"							text="Fahren" />
 		<text name="AD_MODE_DELIVERTO"							text="Abladen" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Abholen und Abliefern" />
@@ -116,8 +119,8 @@
 		<text name="gui_ad_showNextPath_tooltip"				text="Anzeige der nächsten 2 Wegpunkte an/ausschalten" />
 		<text name="gui_ad_avoidFruit"							text="Fruchtumfahrung" />
 		<text name="gui_ad_avoidFruit_tooltip"					text="Drescherabfahrer versucht möglichst die Frucht zu umfahren" />
-		<text name="gui_ad_pathFinderTime"						text="Pfadfindungs-Dauer (max)" />
-		<text name="gui_ad_pathFinderTime_tooltip"				text="Legt fest wie lange ein Abfahrer nach einer kollisionsfreien Strecke suchen darf. Hohe Werte können das Spiel verlangsamen" />
+		<text name="gui_ad_pathFinderTime"						text="Pfadfindungs-Faktor" />
+		<text name="gui_ad_pathFinderTime_tooltip"				text="Legt fest wie weit ein Abfahrer nach einer kollisionsfreien Strecke suchen darf. Sollte nur langsam erhöht werden wenn bei ausreichend Vorgewende die Fruchtumfahrung nicht funktioniert." />
 		<text name="gui_ad_lineHeight"							text="Linienhöhe" />
 		<text name="gui_ad_lineHeight_tooltip"					text="Linienhöhe im Editormodus wahlweise überm oder unterm Traktor" />
 		<text name="gui_ad_ground"								text="Bodenhöhe" />
@@ -185,7 +188,7 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ja - AutoDrive öffnet und schließt Abdeckungen von Anhängern wenn notwendig / Nein - die Abdeckungen werden von AutoDrive nicht geöffnet oder geschlossen" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
-		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
+		<text name="gui_ad_userSettingsPage_title"				text="Benutzereinstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
@@ -317,5 +320,11 @@
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
         <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
+
+		<text name = "gui_CPAD_off"								text = "aus"/>
+		<text name = "gui_CPAD_simple"							text = "einfach"/>
+		<text name = "gui_CPAD_full"							text = "voll"/>
+		<text name = "gui_ad_combineCPADHudMouse"				text = "Kombiniere CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "aus: default / einfach: CP: sek. Maus-Aktion > Maus an + aus, AD: HUD ein/ausblenden > beide Huds an + aus / voll: wie 'einfach', aber Huds können einzeln durchgeschaltet werden / Erforderlich: Deaktiviere Rechtsklick HUD im CP Menü "/>
 	</texts>
 </l10n>

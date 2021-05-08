@@ -110,7 +110,9 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_routesManager" then
-        self.isVisible = AutoDrive.isEditorModeEnabled()
+        if (AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer == true and g_dedicatedServerInfo ~= nil) or g_dedicatedServerInfo == nil then
+            self.isVisible = AutoDrive.isEditorModeEnabled()
+        end
     end
 
     if self.primaryAction == "input_removeWaypoint" then
@@ -135,7 +137,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_parkVehicle" then
-        local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
+        local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
 
         if actualParkDestination >= 1 then
             newState = 1
@@ -183,7 +185,7 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             end
         end
         if self.primaryAction == "input_parkVehicle" then
-            local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
+            local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
             if actualParkDestination >= 1 and ADGraphManager:getMapMarkerById(actualParkDestination) ~= nil then
                 vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(actualParkDestination).name
             end

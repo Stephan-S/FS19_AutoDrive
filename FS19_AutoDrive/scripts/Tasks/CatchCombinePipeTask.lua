@@ -47,7 +47,7 @@ function CatchCombinePipeTask:update(dt)
             if self.wayPoints == nil or #self.wayPoints < 1 then
                 --restart
                 self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:notifyAboutFailedPathfinder()
-                AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
+                --AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path; %s", 5000, self.vehicle.ad.stateModule:getName(), self.combine.ad.stateModule:getName())
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - STATE_PATHPLANNING restarting path finder - with delay 10000")
                 self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
             else
@@ -82,7 +82,7 @@ function CatchCombinePipeTask:update(dt)
             self.reverseStartLocation = {x = x, y = y, z = z}
             self.state = CatchCombinePipeTask.STATE_REVERSING
         end
-        if combineTravelDistance > 65 then
+        if combineTravelDistance > 85 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - combine travelled - recalculate path")
             self.waitForCheckTimer.elapsedTime = 4000
             self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
@@ -93,7 +93,7 @@ function CatchCombinePipeTask:update(dt)
                 local angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
                 local isCorrectSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide()
 
-                if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60
+                if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 80
                    and isCorrectSide then
                     self:finished()
                 else
@@ -143,7 +143,7 @@ function CatchCombinePipeTask:startNewPathFinding()
         return false
     end
 
-    if self.combine:getIsBufferCombine() or (pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or (targetFieldId == combineFieldId and cFillRatio <= 0.7)) then
+    if self.combine:getIsBufferCombine() or (pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or (targetFieldId == combineFieldId and cFillRatio <= 0.85)) then
         self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))
         self.combinesStartLocation = {}
         self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)
@@ -157,7 +157,8 @@ end
 
 function CatchCombinePipeTask:getInfoText()
     if self.state == CatchCombinePipeTask.STATE_PATHPLANNING or self.state == CatchCombinePipeTask.STATE_DELAY_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     else
         return g_i18n:getText("AD_task_catch_up_with_combine")
     end
@@ -165,7 +166,8 @@ end
 
 function CatchCombinePipeTask:getI18nInfo()
     if self.state == CatchCombinePipeTask.STATE_PATHPLANNING or self.state == CatchCombinePipeTask.STATE_DELAY_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     else
         return "$l10n_AD_task_catch_up_with_combine;"
     end

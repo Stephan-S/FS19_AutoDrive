@@ -64,13 +64,19 @@ function ExitFieldTask:finished()
 end
 
 function ExitFieldTask:startPathPlanning()
+    local closest, closestDistance = self.vehicle:getClosestWayPoint()
     if self.nextExitStrategy == ExitFieldTask.STRATEGY_CLOSEST then
-        local closest = self.vehicle:getClosestWayPoint()
         local closestNode = ADGraphManager:getWayPointById(closest)
         local wayPoints = ADGraphManager:pathFromTo(closest, self.vehicle.ad.stateModule:getSecondWayPoint())
         if wayPoints ~= nil and #wayPoints > 1 then
-            local vecToNextPoint = {x = wayPoints[2].x - closestNode.x, z = wayPoints[2].z - closestNode.z}
-            self.vehicle.ad.pathFinderModule:startPathPlanningTo(closestNode, vecToNextPoint)
+            if closestDistance > AutoDrive.getDriverRadius(self.vehicle) then
+                -- initiate pathFinder only if distance to closest wayPoint is enought to find a path
+                local vecToNextPoint = {x = wayPoints[2].x - closestNode.x, z = wayPoints[2].z - closestNode.z}
+                self.vehicle.ad.pathFinderModule:startPathPlanningTo(closestNode, vecToNextPoint)
+            else
+                -- close to network, set task finished
+                self:finished()
+            end
         else
             AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.WARN, "$l10n_AD_Driver_of; %s $l10n_AD_cannot_find_path;", 5000, self.vehicle.ad.stateModule:getName())
             self.vehicle.ad.taskModule:abortAllTasks()
@@ -103,7 +109,8 @@ end
 
 function ExitFieldTask:getInfoText()
     if self.state == ExitFieldTask.STATE_PATHPLANNING then
-        return g_i18n:getText("AD_task_pathfinding")
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
     else
         return g_i18n:getText("AD_task_exiting_field")
     end
@@ -111,7 +118,8 @@ end
 
 function ExitFieldTask:getI18nInfo()
     if self.state == ExitFieldTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     else
         return "$l10n_AD_task_exiting_field;"
     end

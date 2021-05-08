@@ -7,6 +7,7 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 	local current_pre = 0
 	local wayPoints = ADGraphManager:getWayPoints()
 	local isLinewithReverse = false
+	local count = 1
 
 	if wayPoints[linked].incoming ~= nil and wayPoints[linked].out ~= nil and #wayPoints[linked].incoming == 1 and #wayPoints[linked].out == 1 then
 		if nil == AutoDrive.dijkstraCalc.distance[current] then
@@ -14,6 +15,10 @@ function AutoDrive:dijkstraLiveLongLine(current_in, linked_in, target_id)
 		end
 		newdist = AutoDrive.dijkstraCalc.distance[current]
 		while #wayPoints[linked].incoming <= 1 and #wayPoints[linked].out == 1 and not (linked == target_id) do
+			count = count + 1
+			if count > 5000 then
+				return false, false --something went wrong. prevent overflow here
+			end
 			distanceToAdd = 0
 			angle = 0
 			if nil == AutoDrive.dijkstraCalc.pre[current] then
@@ -303,9 +308,14 @@ return values:
 3.	table with waypoints from start_id to target_id including start_id and target_id
 ]]
 function AutoDrive:dijkstraLiveShortestPath(start_id, target_id)
+
+    if AutoDrive.experimentalFeatures.blueLineRouteFinder == true then
+        return AutoDrive:dijkstraLiveBlueShortestPath(start_id, target_id)
+    end
+
     if ADGraphManager:hasChanges() then
-		AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
-		AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
+        AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
+        AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
         ADGraphManager:resetChanges()
     end
 

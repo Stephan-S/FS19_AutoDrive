@@ -32,6 +32,8 @@ function ParkTask:setUp()
         self.state = ParkTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
+    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
 end
 
 function ParkTask:update(dt)
@@ -53,8 +55,6 @@ function ParkTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
     else
-        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             self:finished()
         else
@@ -77,7 +77,8 @@ end
 
 function ParkTask:getI18nInfo()
     if self.state == ParkTask.STATE_PATHPLANNING then
-        return "$l10n_AD_task_pathfinding;"
+        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
+        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     elseif self.vehicle.ad.onRouteToPark == true then
         return "$l10n_AD_task_drive_to_park;"
     else

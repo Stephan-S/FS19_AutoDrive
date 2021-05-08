@@ -39,3 +39,4 @@ modConfig.json
 tmp
 AutoDrive Course Editor/target
 AutoDrive Course Editor/*.log
+debug.log

@@ -26,6 +26,7 @@ function UnloadAtMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -70,5 +71,5 @@ function UnloadAtMode:getNextTask()
 end
 
 function UnloadAtMode:shouldUnloadAtTrigger()
-    return (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return (self.state == UnloadAtMode.STATE_PARK)
 end

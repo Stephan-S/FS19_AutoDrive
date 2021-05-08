@@ -28,6 +28,7 @@ function LoadMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -116,5 +117,5 @@ function LoadMode:getNextTask()
 end
 
 function LoadMode:shouldLoadOnTrigger()
-    return (self.state == LoadMode.STATE_LOAD) and (AutoDrive.getDistanceToUnloadPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return (self.state == LoadMode.STATE_LOAD)
 end

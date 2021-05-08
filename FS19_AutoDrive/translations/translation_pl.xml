@@ -47,6 +47,7 @@
 		<text name="AD_No_Trailer"								text="nie mogłem znaleźć przyczepy" />
 		<text name="AD_No_Bunker"								text="nie mogłem znaleźć silosu" />
 		<text name="AD_No_Shovel"								text="nie mogłem znaleźć łychy" />
+		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
 		<text name="AD_MODE_DRIVETO"							text="Jazda" />
 		<text name="AD_MODE_DELIVERTO"							text="Rozładunek" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Odbiór i rozładunek" />
@@ -318,5 +319,11 @@
 		<text name="AD_task_waiting_for_room"					text="Czekanie na pokój" />
 		<text name="AD_task_exiting_field"						text="Wyjście z pola" />
         <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
+
+		<text name = "gui_CPAD_off"								text = "off"/>
+		<text name = "gui_CPAD_simple"							text = "simple"/>
+		<text name = "gui_CPAD_full"							text = "full"/>		
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
 	</texts>
 </l10n>

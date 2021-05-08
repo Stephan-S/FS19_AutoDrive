@@ -36,6 +36,7 @@ function PickupAndDeliverMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -230,11 +231,11 @@ end
 
 function PickupAndDeliverMode:shouldUnloadAtTrigger()
     -- AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:shouldUnloadAtTrigger self.state %s ", tostring(self.state))
-    return ((self.state == PickupAndDeliverMode.STATE_DELIVER) or (self.state == PickupAndDeliverMode.STATE_DELIVER_TO_NEXT_TARGET)) 
+    return ((self.state == PickupAndDeliverMode.STATE_DELIVER) or (self.state == PickupAndDeliverMode.STATE_DELIVER_TO_NEXT_TARGET))
 end
 
 function PickupAndDeliverMode:shouldLoadOnTrigger()
     -- AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:shouldLoadOnTrigger self.state %s distance to target %s", tostring(self.state), tostring(AutoDrive.getDistanceToTargetPosition(self.vehicle)))
-    return ((self.state == PickupAndDeliverMode.STATE_PICKUP) or (self.state == PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET)) and (AutoDrive.getDistanceToTargetPosition(self.vehicle) <= AutoDrive.getSetting("maxTriggerDistance"))
+    return ((self.state == PickupAndDeliverMode.STATE_PICKUP) or (self.state == PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET))
 end
 
