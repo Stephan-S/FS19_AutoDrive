@@ -41,6 +41,7 @@ function AutoDriveDebugSettingsEvent:run(connection)
         -- If the event is coming from the server, both clients and server have to act
         -- g_logManager:info("[AD] AutoDriveDebugSettingsEvent.run If the event is coming from the server... currentDebugChannelMask %s", tostring(self.currentDebugChannelMask))
         AutoDrive.currentDebugChannelMask = self.currentDebugChannelMask
+        ADGraphManager:createDebugMarkers()
     end
 end
 

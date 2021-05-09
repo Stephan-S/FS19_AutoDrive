@@ -135,7 +135,7 @@ function AutoDriveSync.streamWriteGraph(streamId, wayPoints, mapMarkers, groups)
     end
 
     offset = streamGetWriteOffset(streamId) - offset
-    self.print("[AutoDriveSync] Written %s bits (%s bytes) in %s ms", offset, offset / 8, netGetTime() - time)
+    self.print("[AutoDriveSync] Written %s bits (%s bytes) in %s ms", offset, math.floor(offset / 8), netGetTime() - time)
 end
 
 function AutoDriveSync.streamReadGraph(streamId)

@@ -27,3 +27,7 @@ function AutoDrive.devAction(vehicle)
     end
     AutoDrive.devPrintDebugQueue(vehicle)
 end
+
+function AutoDrive.devAutoDriveInit()
+    g_logManager:info("[AD] Info: g_server %s g_client %s g_dedicatedServerInfo %s getUserProfileAppPath %s getIsClient %s getIsServer %s isMasterUser %s", tostring(g_server), tostring(g_client), tostring(g_dedicatedServerInfo), tostring(getUserProfileAppPath()), tostring(g_currentMission:getIsClient()), tostring(g_currentMission:getIsServer()), tostring(g_currentMission.isMasterUser))
+end

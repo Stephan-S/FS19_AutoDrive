@@ -138,6 +138,19 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self.Speed = "50"
 	self.Target = "Not Ready"
 	self.showHud = false
+	self.stateHud = 0
+	self.statesHud = 0
+
+	if AutoDrive.getSetting("combineCPADHudMouse") > 1.0 and g_courseplay ~= nil then
+		if AutoDrive.getSetting("combineCPADHudMouse") == 2.0 then
+			self.statesHud = 1
+		elseif AutoDrive.getSetting("combineCPADHudMouse") == 3.0 then
+			self.statesHud = 2
+		end
+	end
+	-- TODO: deactivated until PR #1862 solved with issue #1886
+	self.statesHud = 0
+
 	if ADGraphManager:getMapMarkerById(1) ~= nil then
 		self.Target = ADGraphManager:getMapMarkerById(1).name
 	end
@@ -356,13 +369,47 @@ function AutoDriveHud:update(dt)
 end
 
 function AutoDriveHud:toggleHud(vehicle)
-	if self.showHud == false then
-		self.showHud = true
-		vehicle.ad.showingHud = true
+	if self.statesHud > 0 then
+		if self.stateHud == 0 then
+			-- show both
+			self.showHud = true
+			vehicle.ad.showingHud = true
+			g_courseplay.courseplay:openCloseHud(vehicle, true)
+			if self.statesHud == 2 then
+				self.stateHud = 1
+			else
+				self.stateHud = 3
+			end
+		elseif self.stateHud == 1 then
+			-- show AD hud
+			self.showHud = true
+			vehicle.ad.showingHud = true
+			g_courseplay.courseplay:openCloseHud(vehicle, false)
+			g_inputBinding:setShowMouseCursor(true)
+			self.stateHud = 2
+		elseif self.stateHud == 2 then
+			-- show CP hud
+			self.showHud = false
+			vehicle.ad.showingHud = false
+			g_courseplay.courseplay:openCloseHud(vehicle, true)
+			self.stateHud = 3
+		elseif self.stateHud == 3 then
+			-- close both
+			self.showHud = false
+			vehicle.ad.showingHud = false
+			g_inputBinding:setShowMouseCursor(false)
+			g_courseplay.courseplay:openCloseHud(vehicle, false)
+			self.stateHud = 0
+		end
 	else
-		self.showHud = false
-		vehicle.ad.showingHud = false
-		g_inputBinding:setShowMouseCursor(false)
+		if self.showHud == false then
+			self.showHud = true
+			vehicle.ad.showingHud = true
+		else
+			self.showHud = false
+			vehicle.ad.showingHud = false
+			g_inputBinding:setShowMouseCursor(false)
+		end
 	end
 
 	AutoDrive.showingHud = self.showHud
@@ -631,7 +678,7 @@ function AutoDriveHud:createMapHotspot(vehicle)
 end
 
 function AutoDriveHud:deleteMapHotspot(vehicle)
-	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.mapHotspot then
+	if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.mapHotspot ~= nil then
 		g_currentMission:removeMapHotspot(vehicle.ad.mapHotspot)
 		vehicle.ad.mapHotspot:delete()
 		vehicle.ad.mapHotspot = nil
@@ -677,39 +724,40 @@ function AutoDrive:MapHotspot_getIsVisible(superFunc)
 end
 
 function AutoDrive.updateDestinationsMapHotspots()
-	if g_dedicatedServerInfo == nil then
-		AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
+    AutoDrive.debugPrint(nil, AutoDrive.DC_DEVINFO, "AutoDrive.updateDestinationsMapHotspots()")
+    local width, height = getNormalizedScreenValues(9, 9)
 
-		-- Removing all old map hotspots
-		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
-			g_currentMission:removeMapHotspot(mh)
-		end
-
-		-- Filling the buffer
-		local missingAmount = #ADGraphManager:getMapMarkers() - #AutoDrive.mapHotspotsBuffer
-		if missingAmount > 0 then
-			local width, height = getNormalizedScreenValues(9, 9)
-			for i = 1, missingAmount do
-				local mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
-				mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
-				mh:setSize(width, height)
-				mh:setTextOptions(0)
-				mh.isADMarker = true
-				table.insert(AutoDrive.mapHotspotsBuffer, mh)
-			end
-		end
-
-		-- Updating and adding hotspots
-		for index, marker in ipairs(ADGraphManager:getMapMarkers()) do
-			local mh = AutoDrive.mapHotspotsBuffer[index]
-			mh:setText(marker.name)
-			local wp = ADGraphManager:getWayPointById(marker.id)
-			if wp ~= nil then
-				mh:setWorldPosition(wp.x, wp.z)
-				mh.enabled = true
-				mh.markerID = index
-				g_currentMission:addMapHotspot(mh)
-			end
-		end
-	end
+    if AutoDrive.mapHotspotsBuffer ~= nil then
+        -- Removing all old map hotspots
+        for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
+            g_currentMission:removeMapHotspot(mh)
+            mh:delete()
+        end
+    end
+    AutoDrive.mapHotspotsBuffer = {}
+    
+    -- Updating and adding hotspots
+    for index, marker in ipairs(ADGraphManager:getMapMarkers()) do
+        local mh
+        if marker.isADDebug == true then
+            -- map hotspot debug
+            mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_MISSION)
+            mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({780, 780, 234, 234}))
+        else
+            mh = MapHotspot:new("mapMarkerHotSpot", MapHotspot.CATEGORY_DEFAULT)
+            mh:setImage(g_autoDriveUIFilename, getNormalizedUVs({0, 512, 128, 128}))
+        end
+        mh:setSize(width, height)
+        mh:setTextOptions(0)
+        mh.isADMarker = true
+        mh:setText(marker.name)
+        local wp = ADGraphManager:getWayPointById(marker.id)
+        if wp ~= nil then
+            mh:setWorldPosition(wp.x, wp.z)
+            mh.enabled = true
+            mh.markerID = index
+            g_currentMission:addMapHotspot(mh)
+            table.insert(AutoDrive.mapHotspotsBuffer, mh)
+        end
+    end
 end

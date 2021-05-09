@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.8"
+AutoDrive.version = "1.1.1.0"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -9,7 +9,10 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
+AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
+AutoDrive.experimentalFeatures.blueLineRouteFinder = false
+AutoDrive.experimentalFeatures.detectGrasField = true
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -92,6 +95,7 @@ AutoDrive.actions = {
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0}
+	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 
 function AutoDrive:onAllModsLoaded()
@@ -151,6 +155,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
 
 	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
+	AIDriveStrategyCombine.getDriveData = Utils.overwrittenFunction(AIDriveStrategyCombine.getDriveData, AutoDrive.getDriveData)
 	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
 	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
 
@@ -177,6 +182,8 @@ g_logManager:info("[AD] Start register later loaded mods end")
         ADScheduler:load()
 	ADInputManager:load()
 	ADMultipleTargetsManager:load()
+
+	AutoDrive.initTelemetry()
 end
 
 function AutoDrive:init()
@@ -218,7 +225,7 @@ end
 
 function AutoDrive:deleteMap()
 	-- this function is called even befor the game is compeltely started in case you insert a wrong password for mp game, so we need to check that "mapHotspotsBuffer" and "unRegisterDestinationListener" are not nil
-	if g_dedicatedServerInfo == nil and AutoDrive.mapHotspotsBuffer ~= nil then
+	if AutoDrive.mapHotspotsBuffer ~= nil then
 		-- Removing and deleting all map hotspots
 		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
 			g_currentMission:removeMapHotspot(mh)
@@ -226,6 +233,7 @@ function AutoDrive:deleteMap()
 		end
 	end
 	AutoDrive.mapHotspotsBuffer = {}
+	AutoDrive.mapHotspotsBuffer = nil
 
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
@@ -279,6 +287,9 @@ function AutoDrive:update(dt)
 	if AutoDrive.isFirstRun == nil then
 		AutoDrive.isFirstRun = false
 		self:init()
+                if AutoDrive.devAutoDriveInit ~= nil then
+                    AutoDrive.devAutoDriveInit()
+                end
 	end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
@@ -304,6 +315,8 @@ function AutoDrive:update(dt)
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
 	ADRoutesManager:update(dt)
+
+	AutoDrive.handleTelemetry(dt)
 end
 
 function AutoDrive:draw()
