@@ -195,6 +195,7 @@ function AutoDrive:notifyDestinationListeners()
     for object, callBackFunction in pairs(AutoDrive.destinationListeners) do
         callBackFunction(object, true)
     end
+    AutoDrive.triggerStaticOutput()
 end
 
 function AutoDrive:combineIsCallingDriver(combine)	--only for CoursePlay
