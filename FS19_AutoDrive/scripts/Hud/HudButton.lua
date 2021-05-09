@@ -1,10 +1,11 @@
 ADHudButton = ADInheritsFrom(ADGenericHudElement)
 
-function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, toolTip, state, visible)
+function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, tertiaryAction, toolTip, state, visible)
     local o = ADHudButton:create()
     o:init(posX, posY, width, height)
     o.primaryAction = primaryAction
     o.secondaryAction = secondaryAction
+    o.tertiaryAction = tertiaryAction
     o.toolTip = toolTip
     o.state = state
     o.isVisible = visible
@@ -64,6 +65,9 @@ function ADHudButton:getNewState(vehicle)
             newState = 2
             if vehicle.ad.stateModule:isInDualCreationMode() then
                 newState = 3
+            end
+            if vehicle.ad.stateModule:isInSubPrioCreationMode() then
+                newState = 4
             end
         else
             newState = 1
@@ -196,6 +200,10 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             return true
         elseif (button == 3 or button == 2) and isUp then
             ADInputManager:onInputCall(vehicle, self.secondaryAction)
+            return true
+        elseif button == 4 and isUp then
+            ADInputManager:onInputCall(vehicle, self.tertiaryAction)
+            AutoDrive.mouseWheelActive = true
             return true
         end
     end

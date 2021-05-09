@@ -532,6 +532,8 @@ function AutoDrive:onDrawEditorMode()
         local x = point.x
         local y = point.y
         local z = point.z
+        local isSubPrio = ADGraphManager:getIsPointSubPrio(point.id)
+
         if AutoDrive.isInExtendedEditorMode() then
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.enableSphrere == true then
@@ -585,21 +587,33 @@ function AutoDrive:onDrawEditorMode()
                 table.insert(outPointsSeen, neighbor)
                 local target = ADGraphManager:getWayPointById(neighbor)
                 if target ~= nil then
-                    --check if outgoing connection is a dual way connection
-                    local nWp = ADGraphManager:getWayPointById(neighbor)
-                    if point.incoming == nil or table.contains(point.incoming, neighbor) then
-                        --draw dual way line
-                        DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
-                    else
-                        --draw line with direction markers (arrow)
-                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
-                            -- one way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                    local isSubPrioMarker = ADGraphManager:getIsPointSubPrioMarker(neighbor)
+                    if not isSubPrioMarker then
+                        --check if outgoing connection is a dual way connection
+                        local nWp = ADGraphManager:getWayPointById(neighbor)
+                        if point.incoming == nil or table.contains(point.incoming, neighbor) then
+                            --draw dual way line
+                            if isSubPrio then
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.389, 0.177, 0)
+                            else
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                            end
                         else
-                            -- reverse way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
+                            --draw line with direction markers (arrow)
+                            if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
+                                -- one way line
+                                if isSubPrio then
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 1, 0.531, 0.14)
+                                    DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 1, 0.531, 0.14)
+                                else
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
+                                    DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                                end
+                            else
+                                -- reverse way line
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
+                            end
                         end
                     end
                 end

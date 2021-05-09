@@ -4,6 +4,7 @@ ADInputManager.actionsToInputs = {
     ADSilomode = "input_silomode",
     ADRecord = "input_record",
     ADRecord_Dual = "input_record_dual",
+    ADRecord_SubPrio = "input_record_subPrio",
     ADEnDisable = "input_start_stop",
     ADSelectTarget = "input_nextTarget",
     ADSelectPreviousTarget = "input_previousTarget",
@@ -71,7 +72,8 @@ ADInputManager.inputsToIds = {
     input_nextTarget = 23,
     input_previousTarget = 24,
     input_startCp = 25,
-    input_toggleCP_AIVE = 26
+    input_toggleCP_AIVE = 26,
+    input_record_subPrio = 27
 }
 
 ADInputManager.idsToInputs = {}
@@ -257,7 +259,7 @@ function ADInputManager:input_previousMode(vehicle)
 end
 
 function ADInputManager:input_record(vehicle)
-    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() then
         vehicle.ad.stateModule:startNormalCreationMode()
     else
         vehicle.ad.stateModule:disableCreationMode()
@@ -265,8 +267,16 @@ function ADInputManager:input_record(vehicle)
 end
 
 function ADInputManager:input_record_dual(vehicle)
-    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() then
         vehicle.ad.stateModule:startDualCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
+end
+
+function ADInputManager:input_record_subPrio(vehicle)
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() then
+        vehicle.ad.stateModule:startSubPrioCreationMode()
     else
         vehicle.ad.stateModule:disableCreationMode()
     end
