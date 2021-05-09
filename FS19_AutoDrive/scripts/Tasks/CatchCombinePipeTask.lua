@@ -21,6 +21,7 @@ function CatchCombinePipeTask:new(vehicle, combine)
     o.reverseTimer = AutoDriveTON:new()
     o.waitForCheckTimer = AutoDriveTON:new()
     o.waitForCheckTimer.elapsedTime = 4000
+    o.taskType = "CatchCombinePipeTask"
     return o
 end
 

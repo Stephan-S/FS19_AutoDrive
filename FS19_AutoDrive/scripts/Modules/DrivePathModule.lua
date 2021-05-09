@@ -207,12 +207,22 @@ function ADDrivePathModule:followWaypoints(dt)
     self.distanceToLookAhead = 8
     if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
         local highestAngle = self:getHighestApproachingAngle()
-        self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
+        
+        if self:isOnRoadNetwork() then
+            self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
+        else
+            -- Let's increase the cornering speed for paths generated with the pathfinder module. There are many 45° angles in there that slow the process down otherwise.
+            self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle) * 2)
+        end
     end
 
     self.distanceToTarget = self:getDistanceToLastWaypoint(40)
     if self.distanceToTarget < self.distanceToLookAhead then
-        self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
+        local currentTask = self.vehicle.ad.taskModule:getActiveTask()
+        local isCatchingCombine = currentTask.taskType ~= nil and self.vehicle.ad.taskModule:getActiveTask().taskType == "CatchCombinePipeTask"
+        if not isCatchingCombine then
+            self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
+        end
     end
 
     self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
@@ -286,7 +296,7 @@ end
 
 -- To differentiate between waypoints on the road and ones created from pathfinder
 function ADDrivePathModule:isOnRoadNetwork()
-    return (self.wayPoints ~= nil and self:getNextWayPoint() ~= nil and not self:getNextWayPoint().isPathFinderPoint)
+    return (self.wayPoints ~= nil and self:getCurrentWayPoint() ~= nil and not self:getCurrentWayPoint().isPathFinderPoint)
 end
 
 function ADDrivePathModule:getWayPoints()

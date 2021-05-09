@@ -1544,10 +1544,6 @@ function PathFinderModule:createWayPoints()
     self:smoothResultingPPPath_Refined()
 
     if self.smoothStep == 2 then
-        for i = 1, #self.wayPoints, 1 do
-            self.wayPoints[i].isPathFinderPoint = true
-        end
-
         if self.appendWayPoints ~= nil then
             for i = 1, #self.appendWayPoints, 1 do
                 self.wayPoints[#self.wayPoints + 1] = self.appendWayPoints[i]
@@ -1560,6 +1556,10 @@ function PathFinderModule:createWayPoints()
                 )
             )
 
+        end
+        
+        for i = 1, #self.wayPoints, 1 do
+            self.wayPoints[i].isPathFinderPoint = true
         end
     end
 end
