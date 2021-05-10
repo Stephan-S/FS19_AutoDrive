@@ -119,7 +119,7 @@ function FollowCombineTask:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
-        if not AutoDrive.combineIsTurning(self.combine) and (self.combine.ad.sensors.frontSensorFruit:pollInfo() or self.waitForTurnTimer.elapsedTime > 15000) then
+        if not AutoDrive.combineIsTurning(self.combine) and ((self.combine.ad.sensors.frontSensorFruit:pollInfo() and (self.combine:getIsBufferCombine() or self.combine.ad.driveForwardTimer.elapsedTime > 8000) ) or self.waitForTurnTimer.elapsedTime > 15000) then
             if (self.angleToCombineHeading + self.angleToCombine) < 180 and
                   self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide(self.chaseSide) then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "combine turn finished - Heading looks good - start chasing again")
