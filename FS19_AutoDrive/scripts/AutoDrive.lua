@@ -5,6 +5,7 @@ AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
+g_autoDriveTipOfTheDayUIFilename = AutoDrive.directory .. "textures/tipOfTheDay_icons.dds"
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
@@ -184,6 +185,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	ADMultipleTargetsManager:load()
 
 	AutoDrive.initTelemetry()
+	AutoDrive.initTipOfTheDay()
 end
 
 function AutoDrive:init()
@@ -317,6 +319,7 @@ function AutoDrive:update(dt)
 	ADRoutesManager:update(dt)
 
 	AutoDrive.handleTelemetry(dt)
+	AutoDrive.handleTipOfTheDay(dt)
 end
 
 function AutoDrive:draw()
