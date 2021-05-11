@@ -91,15 +91,13 @@ function AutoDrive.onOpenRoutesManager()
 	end
 end
 
---[[
 function AutoDrive.onOpenNotificationsHistory()
 	if not AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
 		g_gui:showGui("ADNotificationsHistoryGui")
 	end
 end
---]]
 
-function AutoDrive.onOpenNotificationsHistory()
+function AutoDrive.onTipOfTheDay()
 	if not AutoDrive.gui.ADTipOfTheDayGUI.isOpen then
 		g_gui:showGui("ADTipOfTheDayGui")
 	end

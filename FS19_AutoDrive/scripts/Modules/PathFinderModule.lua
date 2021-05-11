@@ -793,6 +793,7 @@ function PathFinderModule:testNextCells(cell)
             end
             if duplicatePointDirection >= 0 then
                 -- if different direction, it is not necessary to check the cell details again, just add a new entry in grid with known required restrictions
+                -- Todo : Not true!! If we come from a different direction we ususally have a differently sized collision box to check. There is a difference between a 0° angle when coming from the last cell and a +/- 45° angle.
                 gridKey = string.format("%d|%d|%d", location.x, location.z, duplicatePointDirection)
                 location.isRestricted = self.grid[gridKey].isRestricted
                 location.hasCollision = self.grid[gridKey].hasCollision
@@ -835,6 +836,7 @@ function PathFinderModule:checkGridCell(cell)
     local worldPos = self:gridLocationToWorldLocation(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
 
+    cell.isOnField = AutoDrive.checkIsOnField(worldPos.x, 0, worldPos.z)
     if self.restrictToField and (self.fallBackMode1 and not self.fallBackMode2) then
         -- limit cells to field border only possible if started on field
         cell.bordercells = cell.incoming.bordercells + 1      -- by default we assume the new cell is not on field, so increase the counter
@@ -1472,8 +1474,12 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     end
 
     local increaseCellFactor = 1.15
+    if cell.isOnField ~= nil and cell.isOnField == true then
+        increaseCellFactor = 0.65
+    end
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
+
 
     local corners = self:getCornersFromShapeDefinition(shapeDefinition)
     if corners ~= nil then
