@@ -313,7 +313,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     local angleRad = math.atan2(targetVector.z, targetVector.x)
     angleRad = AutoDrive.normalizeAngle(angleRad)
-    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle)
+    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle) * 2 / 3
 
     self.vectorX = {x =   math.cos(angleRad) * self.minTurnRadius, z = math.sin(angleRad) * self.minTurnRadius}
     self.vectorZ = {x = - math.sin(angleRad) * self.minTurnRadius, z = math.cos(angleRad) * self.minTurnRadius}
