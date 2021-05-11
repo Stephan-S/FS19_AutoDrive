@@ -769,12 +769,12 @@ function PathFinderModule:testNextCells(cell)
                             self.grid[gridKey].incoming = cell
                             self.grid[gridKey].steps = cell.steps + 1
                         end
-                    elseif self.grid[gridKey].direction ~= location.direction then
-                        duplicatePointDirection = self.grid[gridKey].direction -- remember the grid direction
-                        if self.grid[gridKey].steps > (cell.steps + 1) then --found shortcut
-                            self.grid[gridKey].incoming = cell
-                            self.grid[gridKey].steps = cell.steps + 1
-                        end
+                    --elseif self.grid[gridKey].direction ~= location.direction then
+                        --duplicatePointDirection = self.grid[gridKey].direction -- remember the grid direction
+                        --if self.grid[gridKey].steps > (cell.steps + 1) then --found shortcut -> not true!!! The outgoing angles would be all wrong here. This caused issues with undrivable paths being generated!
+                            --self.grid[gridKey].incoming = cell
+                            --self.grid[gridKey].steps = cell.steps + 1
+                        --end
                     end
                 end
             end
