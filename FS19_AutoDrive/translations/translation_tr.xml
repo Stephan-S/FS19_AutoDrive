@@ -34,6 +34,7 @@
     <text name="input_ADIncLoopCounter"                                                                 text="AD: Döngü sayacını artırın"  />
     <text name="input_ADParkVehicle"                                                                    text="AD: Aracı park et"  />
     <text name="input_ADSwapTargets"                                                                    text="AD: Hedefleri değiştir"  />
+		<text name="input_AD_open_tipOfTheDay" 					                                                    text="AD: Open Tip of the day" />
     <text name="hud_avoidFruit"                                                                         text="AD: Meyvelerden kaçının"  />
     <text name="hud_startCp"                                                                            text="AD: CP / AIVE'ı varış noktasında başlatın"  />
     <text name="AD_parkVehicle_noPosSet"                                                                text="Park yeri atanmadı. Lütfen halihazırda seçili olan hedefi sağ fare tuşu ile atayın."  />
@@ -47,7 +48,7 @@
     <text name="AD_No_Trailer"                                                                          text="dorse bulamadım"  />
     <text name="AD_No_Bunker"                                                                           text="Bunker silosu bulamadı"  />
     <text name="AD_No_Shovel"                                                                           text="bağlı bir kürek bulamadım"  />
-    <text name="AD_No_Refuel_Station"						                        text="could not find refuel station for:" />
+    <text name="AD_No_Refuel_Station"						                                                        text="could not find refuel station for:" />
     <text name="AD_MODE_DRIVETO"                                                                        text="Sürüş"  />
     <text name="AD_MODE_DELIVERTO"                                                                      text="Teslim etmek"  />
     <text name="AD_MODE_PICKUPANDDELIVER"                                                               text="Toplama ve Teslim Etme"  />

@@ -97,7 +97,7 @@ function AutoDrive.onOpenNotificationsHistory()
 	end
 end
 
-function AutoDrive.onTipOfTheDay()
+function AutoDrive.onOpenTipOfTheDay()
 	if not AutoDrive.gui.ADTipOfTheDayGUI.isOpen then
 		g_gui:showGui("ADTipOfTheDayGui")
 	end

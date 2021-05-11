@@ -170,6 +170,7 @@ Traduit avec www.DeepL.com/Translator (version gratuite)
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_open_tipOfTheDay" category="VEHICLE" ignoreComboMask="false" />
 	</actions>
 
 	<inputBinding>

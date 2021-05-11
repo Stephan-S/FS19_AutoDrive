@@ -29,6 +29,7 @@ AutoDrive.tipOfTheDay.Entries[4].text = "ad_totd_04_text"
 AutoDrive.tipOfTheDay.Entries[4].titletext = "ad_totd_04_title"
 
 AutoDrive.tipOfTheDay.currentTipId = 1
+AutoDrive.tipOfTheDay.highestTipId = 1
 AutoDrive.tipOfTheDay.displayedYet = false
 
 function AutoDrive.initTipOfTheDay()
@@ -36,7 +37,12 @@ function AutoDrive.initTipOfTheDay()
 end
 
 function AutoDrive.handleTipOfTheDay(dt)
-	if AutoDrive.getSetting("showTipOfTheDay") and not AutoDrive.tipOfTheDay.displayedYet then
+	if (AutoDrive.getSetting("showTipOfTheDay") or AutoDrive.tipOfTheDay.Entries[AutoDrive.tipOfTheDay.highestTipId + 1] ~= nil) and not AutoDrive.tipOfTheDay.displayedYet then
+		-- The idea is to still diplay new tips that arrived with a new AutoDrive version
+		if not AutoDrive.getSetting("showTipOfTheDay") then
+			AutoDrive.tipOfTheDay.currentTipId = AutoDrive.tipOfTheDay.highestTipId + 1
+		end
+
 		if not AutoDrive.gui.ADTipOfTheDayGUI.isOpen then
 			g_gui:showGui("ADTipOfTheDayGui")
 			AutoDrive.tipOfTheDay.displayedYet = true
@@ -50,6 +56,7 @@ function AutoDrive.showNextTipOfTheDay()
 		AutoDrive.tipOfTheDay.currentTipId = 1
 	end
 
+	AutoDrive.tipOfTheDay.highestTipId = math.max(AutoDrive.tipOfTheDay.highestTipId, AutoDrive.tipOfTheDay.currentTipId)
 	AutoDrive.tipOfTheDay.currentTipOfTheDay = AutoDrive.tipOfTheDay.Entries[AutoDrive.tipOfTheDay.currentTipId]
 end
 

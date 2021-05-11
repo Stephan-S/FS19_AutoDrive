@@ -251,6 +251,7 @@ function AutoDrive.readFromXML(xmlFile)
     ADGraphManager:createDebugMarkers()
 
 	AutoDrive.tipOfTheDay.currentTipId = getXMLInt(xmlFile, "AutoDrive.lastTipOfTheDay") or 1
+	AutoDrive.tipOfTheDay.highestTipId = getXMLInt(xmlFile, "AutoDrive.highestTipOfTheDay") or 1
 	
     g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
     g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
@@ -330,6 +331,7 @@ function AutoDrive.saveToXML(xmlFile)
 	end
 
 	setXMLInt(xmlFile, "AutoDrive.lastTipOfTheDay", AutoDrive.tipOfTheDay.currentTipId)
+	setXMLInt(xmlFile, "AutoDrive.highestTipOfTheDay", AutoDrive.tipOfTheDay.highestTipId)
 	
 	saveXMLFile(xmlFile)
 	if g_client == nil then

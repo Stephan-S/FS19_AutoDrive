@@ -34,6 +34,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Aumentar los ciclos" />
 		<text name="input_ADParkVehicle"						text="AD: Aparcar vehículo" />
 		<text name="input_ADSwapTargets"						text="AD: Intercambiar destinos" />
+		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Evitar destruir cosechas" />
 		<text name="hud_startCp" 								text="AD: Iniciar CP / AIVE en destino" />
 		<text name="AD_parkVehicle_noPosSet"					text="No se ha asignado ningún destino de estacionamiento. Asigna el destino seleccionado actualmente haciendo clic derecho. " />

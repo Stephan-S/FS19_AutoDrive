@@ -34,6 +34,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Útvonal ismétlése" />
 		<text name="input_ADParkVehicle"						text="AD: Parkolja le a járművet" />
 		<text name="input_ADSwapTargets"						text="AD: Cél csere" />
+		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Termény kikerülése" />
 		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Járműnek nincs parkolója. Jobb egérgombbal rendeljen hozzá parkolási helyet." />

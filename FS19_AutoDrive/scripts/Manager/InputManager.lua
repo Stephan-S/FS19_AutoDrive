@@ -37,8 +37,10 @@ ADInputManager.actionsToInputs = {
     AD_open_notification_history = "input_openNotificationHistory",
     AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle",
-    AD_devAction = "input_devAction"
+    AD_devAction = "input_devAction",
+    AD_open_tipOfTheDay = "input_openTipOfTheDay"
 }
+
 
 --[[
 tool selection not proper on dedi servers as known!
@@ -117,6 +119,12 @@ end
 function ADInputManager:input_openNotificationHistory(vehicle)
     AutoDrive.onOpenNotificationsHistory()
 end
+
+function ADInputManager:input_openTipOfTheDay(vehicle)
+    AutoDrive.onOpenTipOfTheDay()
+end
+
+
 
 function ADInputManager:input_editMapMarker(vehicle)
     if AutoDrive.isEditorModeEnabled() then
