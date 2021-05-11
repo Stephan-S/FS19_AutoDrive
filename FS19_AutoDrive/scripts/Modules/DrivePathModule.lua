@@ -212,7 +212,7 @@ function ADDrivePathModule:followWaypoints(dt)
             self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
         else
             -- Let's increase the cornering speed for paths generated with the pathfinder module. There are many 45° angles in there that slow the process down otherwise.
-            self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle) * 2)
+            self.speedLimit = math.min(self.speedLimit, math.max(12, self:getMaxSpeedForAngle(highestAngle) * 2))
         end
     end
 
@@ -225,7 +225,12 @@ function ADDrivePathModule:followWaypoints(dt)
         end
     end
 
-    self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
+    if self:isOnRoadNetwork() then
+        self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
+    else
+        -- Let's increase the cornering speed for paths generated with the pathfinder module. There are many 45° angles in there that slow the process down otherwise.
+        self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle() * 1.5)
+    end
 
     local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
@@ -441,27 +446,8 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
     if angle < 5 then
-        --[[
-    elseif angle < 5 then
-        maxSpeed = 38
-    elseif angle < 8 then
-        maxSpeed = 27
-    elseif angle < 12 then
-        maxSpeed = 20
-    elseif angle < 20 then
-        maxSpeed = 17
-    elseif angle < 25 then
-        maxSpeed = 16
-    elseif angle < 100 then
-        maxSpeed = 13
-        --]]
         maxSpeed = math.huge
     elseif angle < 50 then
-        --elseif angle < 100 then
-        --maxSpeed = 8
-        -- < 5 max
-        -- > 5 = 60
-        -- < 30 = 12
         maxSpeed = 12 + 48 * (1 - math.clamp(0, (angle - 5), 25) / (30 - 5))
     elseif angle >= 50 then
         maxSpeed = 3
