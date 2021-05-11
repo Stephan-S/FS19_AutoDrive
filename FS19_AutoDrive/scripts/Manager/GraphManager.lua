@@ -2,6 +2,7 @@ ADGraphManager = {}
 
 ADGraphManager.debugGroupName = "AD_Debug"
 ADGraphManager.SUB_PRIO_FACTOR = 20
+ADGraphManager.MIN_START_DISTANCE = 8
 
 function ADGraphManager:load()
 	self.wayPoints = {}
@@ -126,6 +127,18 @@ end
 
 function ADGraphManager:getPathTo(vehicle, waypointId)
 	local wp = {}
+
+	local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local wp_target = self.wayPoints[waypointId]
+
+    if wp_target ~= nil then
+        local distanceToTarget = MathUtil.vector2Length(x - wp_target.x, z - wp_target.z)
+		if distanceToTarget < ADGraphManager.MIN_START_DISTANCE then
+			table.insert(wp, wp_target)
+			return wp
+		end
+	end
+
 	local closestWaypoint = self:findMatchingWayPointForVehicle(vehicle)
 	if closestWaypoint ~= nil then
 		wp = self:pathFromTo(closestWaypoint, waypointId)
