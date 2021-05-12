@@ -199,8 +199,8 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	self:AddButton("input_start_stop", nil, nil, "input_ADEnDisable", 1, true)
 	self:AddButton("input_silomode", "input_previousMode", nil, "input_ADSilomode", 1, true)
 	self:AddButton("input_continue", nil, nil, "input_AD_continue", 1, true)
-	self:AddButton("input_parkVehicle", nil, "input_setParkDestination", "input_ADParkVehicle", 1, true)
-	self:AddButton("input_incLoopCounter", nil, "input_decLoopCounter", "input_ADIncLoopCounter", 1, true)
+	self:AddButton("input_parkVehicle", "input_setParkDestination", nil, "input_ADParkVehicle", 1, true)
+	self:AddButton("input_incLoopCounter", "input_decLoopCounter", nil, "input_ADIncLoopCounter", 1, true)
 
 	local speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight

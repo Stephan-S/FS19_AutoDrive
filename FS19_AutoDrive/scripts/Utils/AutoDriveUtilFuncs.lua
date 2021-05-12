@@ -338,7 +338,6 @@ function AutoDrive.setActualParkDestination(vehicle)
                         -- formatting
                         messageText = string.format(messageText, messageArg)
                         ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
-
                     end
                 end
             end
