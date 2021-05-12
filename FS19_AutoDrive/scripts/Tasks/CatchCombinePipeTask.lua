@@ -113,7 +113,7 @@ function CatchCombinePipeTask:update(dt)
             self.reverseTimer:timer(false)
             self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, true)
         end
     end
 end

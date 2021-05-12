@@ -56,7 +56,7 @@ function ADTrailerModule:reset()
 end
 
 function ADTrailerModule:isActiveAtTrigger()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:isActiveAtTrigger self.isLoading %s self.isUnloading %s", tostring(self.isLoading), tostring(self.isUnloading))
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:isActiveAtTrigger self.isLoading %s self.isUnloading %s", tostring(self.isLoading), tostring(self.isUnloading))
     return self.isLoading or self.isUnloading
 end
 
