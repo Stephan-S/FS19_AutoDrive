@@ -16,6 +16,7 @@ function ADDrivePathModule:new(vehicle)
     o.minDistanceTimer = AutoDriveTON:new()
     o.waitTimer = AutoDriveTON:new()
     o.blinkTimer = AutoDriveTON:new()
+    o.brakeHysteresisActive = false
     ADDrivePathModule.reset(o)
     return o
 end
@@ -267,11 +268,17 @@ function ADDrivePathModule:followWaypoints(dt)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
+        local speedDiff = (self.vehicle.lastSpeedReal * 3600) - self.speedLimit
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
-        if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + maxSpeedDiff) then
-            self.acceleration = -0.6
+        if speedDiff <= 0.25 then
+            self.brakeHysteresisActive = false
         end
-
+        if (speedDiff > maxSpeedDiff) or self.brakeHysteresisActive then
+            self.brakeHysteresisActive = true
+            
+            self.acceleration = -math.min(0.6, speedDiff * 0.05)
+        end
+        
         --print("Speed: " .. (self.vehicle.lastSpeedReal * 3600) .. "/" .. self.speedLimit .. " acc: " .. self.acceleration .. " maxSpeedDiff: " .. maxSpeedDiff)
         --print("LAD: " .. self.distanceToLookAhead .. " maxAngle: " .. self.maxAngle .. " maxAngleSpeed: " .. self.maxAngleSpeed)
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
