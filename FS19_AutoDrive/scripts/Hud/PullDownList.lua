@@ -142,9 +142,9 @@ function ADPullDownList:onDraw(vehicle, uiScale)
         -- TODO: Move this out of onDraw, as it SHOULD NOT be checked at-every-frame-update whether text needs to be rendered in green or not.
         if vehicle.ad.stateModule:isActive() then
             local targetToCheck = "nil"
-            if self.type == ADPullDownList.TYPE_TARGET then
+            if self.type == ADPullDownList.TYPE_TARGET and vehicle.ad.stateModule:getFirstMarker() ~= nil then
                 targetToCheck = vehicle.ad.stateModule:getFirstMarker().name
-            elseif self.type == ADPullDownList.TYPE_UNLOAD then
+            elseif self.type == ADPullDownList.TYPE_UNLOAD and vehicle.ad.stateModule:getSecondMarker() ~= nil then
                 targetToCheck = vehicle.ad.stateModule:getSecondMarker().name
             end
             local actualTarget = ""
@@ -865,23 +865,29 @@ function ADPullDownList:moveCurrentElementToFolder(vehicle, hitElement)
     local mapMarker = vehicle.ad.stateModule:getFirstMarker()
     local targetGroupName = hitElement.returnValue
 
+    if targetGroupName == ADGraphManager.debugGroupName then
+        -- do not drag elements in debug group
+        return
+    end
     if self.type == ADPullDownList.TYPE_UNLOAD then
         mapMarker = vehicle.ad.stateModule:getSecondMarker()
     end
 
-    for _, entries in pairs(self.options) do
-        for i, entry in pairs(entries) do
-            if entry.returnValue == mapMarker.markerIndex then
-                table.remove(entries, i)
+    if mapMarker ~= nil then
+        for _, entries in pairs(self.options) do
+            for i, entry in pairs(entries) do
+                if entry.returnValue == mapMarker.markerIndex then
+                    table.remove(entries, i)
+                end
             end
         end
+
+        table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarker.name, returnValue = mapMarker.markerIndex})
+
+        ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarker.markerIndex)
+
+        self:sortCurrentItems()
     end
-
-    table.insert(self.options[self.groups[targetGroupName]], {displayName = mapMarker.name, returnValue = mapMarker.markerIndex})
-
-    ADGraphManager:changeMapMarkerGroup(targetGroupName, mapMarker.markerIndex)
-
-    self:sortCurrentItems()
 end
 
 function ADPullDownList:sortDraggedInGroup(draggedElement, hitElement)
@@ -891,7 +897,10 @@ function ADPullDownList:sortDraggedInGroup(draggedElement, hitElement)
     else
         targetGroupName = ADGraphManager:getMapMarkerById(hitElement.returnValue).group
     end
-
+    if targetGroupName == ADGraphManager.debugGroupName then
+        -- do not drag elements in debug group
+        return
+    end
     for _, entries in pairs(self.options) do
         for i, entry in pairs(entries) do
             if entry.returnValue == draggedElement.returnValue then

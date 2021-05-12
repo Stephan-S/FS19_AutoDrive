@@ -8,125 +8,87 @@
 		<en>
 			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
 
-Changelog 1.1.0.8:
-FIX [BUG] Middle click snaps waypoint to vehicle in edit mode #1723
+Changelog 1.1.1.0:
+FIX collision handling caused unloader to stop-and-go behind chopper
+FIX multiple trailer unload harvester 
 
-ADDED support auger wagon over-/unloading to trailer
-- vehicle will slow down to 5km/h at setting maxTriggerDistance before target and open pipe
-- unload to all trailers on the way to target
-- if not unloaded complete, drive to target and wait to be unloaded somehow (as in the past)
-ADDED retry unload at trigger
-- unloader wil stay at trigger and retry to unload only if trigger is not already 100% full when reaching the trigger
-- Limitation: if trigger is 100% full when reaching the unload trigger, vehicle continue to destination  (LS engine limitation) and wait to unload somehow (as in the past)
-ADDED overload to fillable (liquids) trailer
-ADDED adExportRoutesAsExternalMod console command to create route export as a mod, which could be used by other users / machines on the same map
-ADDED Editormode (red bubbles): start auto-connection on selected waypoint with LCTRL key hold
-ADDED CP park vehicle now use the park position from selected vehicle/attachment
+ADDED combine open pipe when precall-level is reached
+ADDED CP interface for co-operation with newer CP versions
+ADDED experimental features:
+- blue Line Route Finder: default OFF, enable if AD could not find a route via multiple passes dark blue connections, feedback if issues occure
+- detect Gras Field: default ON, harvester will detect gras field and assign the correct side to unloader
 
-ADDED new key+mouse combination to set/delete P destination
-left-mouse -> no change, will send vehicle to park in every AD Mode
-NEW:
-Editormode (red bubbles) + RCTRL + right-mouse on P -> set/override P with 1st destination in HUD
-Editormode (red bubbles) + RALT + right-mouse on P -> delete park destination
-
-TWEAK Changed calculation of reverse distance and speed after harvester unloading
-TWEAK improved waypoint movement, do not glitch into / below visible ground
-TWEAK removed message harvester unloader could not reach harvester as it will restart finding the harvester after some time itself
-TWEAK several translation updates
-TWEAK fixed simultaneous recording on MP
-TWEAK refuel DEF and ELECTRIC at triggers where DEF, ELECTRIC or DIESEL are available
-TWEAK path finding:
-setting avoidFruit works now also outside of field borders to avoid driving through a field with fruit to the next network waypoint if possible
-setting pathFinderTime should only be slightly increased if avoidFruit is not proper working with sufficient headland is available (~20+ m), high value will increase the calculation time
-3 fallback scenario will automatic take effect: 
-First fallback (setting restrictToField is enabled) will extend the "field border" by ~30+ meters around the field pathfinding was started - extend the room for vehicle to find a path
-Second fallback (setting restrictToField is enabled) will deactivate all field border restrictions
-Third fallback (setting avoidFruit is enabled) will disable fruit avoid automatically if no path was found
-If fallbacks will not succeed to find a path you will get the message path not found.
-Overall performance improvement to reduce calculation time and FPS drops. Synchronize calculation time between multiple vehicles with ongoing path calculation.
+TWEAK improved liquid overload:
+- only start loading in silo-trigger-range and if trigger is found
+TWEAK harvester - unloader - co-operation:
+- increased reverse distance for unloader
+- CP harvester should wait some seconds while unloader is driving reverse
+TWEAK rework park destination:
+- MP synchronized
+- all destinations handled now internally in vehicles.xml in tag AutoDriveVehicleData parkDestination, AD will update automatical
+TWEAK debug road network:
+- performance optimisation, especial when deactivating route network debug
+- changed: known markers for open / dead route ends now named with "1_..."
+- new: route network with connections AD might not use due to issues named "2_...", i.e. reverse section (light blue) within one-way direction (green)
+TWEAK reset AD modes if started should fix/avoid unusual behaviour(s)
 ]]>
 		</en>
 		<de>
 			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
 
-Changelog 1.1.0.8:
-FIX [BUG] Mittlerer Klick rastet Wegpunkt an Fahrzeug im Bearbeitungsmodus ein #1723
+Changelog 1.1.1.0:
+FIX Kollisionsbehandlung führte zu Stop-and-Go des Entladers hinter dem Häcksler
+FIX mehrere Anhänger entladen Mähdrescher 
 
-ADDED Unterstützung Schneckenwagen über-/abladen auf Anhänger
-- Fahrzeug wird bei Einstellung maxTriggerDistance vor dem Ziel auf 5km/h verlangsamt und öffnet Rohr
-- entlade auf alle Anhänger auf dem Weg zum Ziel
-- wenn nicht vollständig entladen, zum Ziel fahren und warten, um irgendwie entladen zu werden (wie in der Vergangenheit)
-ADDED retry unload at trigger
-- Entlader bleibt am Trigger und versucht nur dann erneut zu entladen, wenn der Trigger bei Erreichen des Triggers nicht bereits 100% voll ist
-- Einschränkung: wenn der Trigger bei Erreichen des Entlade-Triggers 100% voll ist, fährt das Fahrzeug weiter zum Ziel (LS-Einschränkung) und wartet, um irgendwie zu entladen (wie in der Vergangenheit)
-ADDED überladen in (Flüssigkeits-) Anhänger
-ADDED adExportRoutesAsExternalMod Konsolenbefehl, um einen Routenexport als Mod zu erstellen, der von anderen Benutzern / Maschinen auf der gleichen Map verwendet werden kann
-ADDED Editormode (rote Punkte): Autoverbindung auf ausgewählten Wegpunkt mit LCTRL-Tastendruck starten
-ADDED CP: Park Fahrzeug verwendet jetzt die Parkposition vom ausgewählten Fahrzeug/Anbaugerät
+ADDED Mähdrescher fährt Rohr bei Erreichen des eingestellten Füllstandes aus
+ADDED CP-Schnittstelle für die Zusammenarbeit mit neueren CP-Versionen aktualisiert
+ADDED experimentelle Funktionen:
+- blue Line Route Finder: standardmäßig AUS, aktivieren, wenn AD über mehrere Durchgänge keine Route finden konnte für dunkelblaue Verbindungen, Rückmeldung, wenn Probleme auftreten
+- Grasfeld erkennen: standardmäßig EIN, Ernter erkennen Grasfeld und weisen dem Entlader die richtige Seite zu
 
-ADDED neue Taste+Maus-Kombination zum Setzen/Löschen von P-Zielen
-linke-Maus -> keine Änderung, schickt Fahrzeug in jedem AD-Modus zum Parken
-NEU:
-Editormode (rote Punkte) + RCTRL + rechte Maustaste auf P -> P mit 1. Ziel im HUD setzen/überschreiben
-Editormodus (rote Punkte) + RALT + rechte Maustaste auf P -> Parkziel löschen
-
-TWEAK Berechnung der Rückwärtsstrecke und Geschwindigkeit nach dem Entladen des Ernters angepasst
-TWEAK verbesserte Wegpunkt-Bewegung, glitchen nicht in / unter sichtbaren Boden
-TWEAK Meldung kein Weg zu Ernter gefunden entfernt, da er nach einiger Zeit selbst wieder anfängt, den Ernter zu finden
-TWEAK mehrere Übersetzungs-Updates
-TWEAK gleichzeitige Aufzeichnung auf MP behoben
-TWEAK Tanken von DEF und ELECTRIC an Triggern, wo DEF, ELECTRIC oder DIESEL verfügbar sind
-TWEAK Wegfindung:
-Einstellung Fruchtumfahrung funktioniert jetzt auch außerhalb von Feldgrenzen, um das Durchfahren eines Feldes mit Früchten zum nächsten Wegpunkt möglichst zu vermeiden
-Die Einstellung Pfadfindungs-Faktor sollte nur leicht erhöht werden, wenn Fruchtumfahrung nicht richtig funktioniert und genügend Vorgewende vorhanden ist (~20+ m), ein hoher Wert erhöht die Berechnungszeit
-3 Fallback-Szenarien werden automatisch wirksam: 
-Erster Fallback (Einstellung Pfadplanung begrenzt ist aktiviert) erweitert die "Feldgrenze" um ~30+ Meter um das Feld, in dem die Wegfindung gestartet wurde - erweitert den Raum für das Fahrzeug, einen Weg zu finden
-Zweiter Fallback (Einstellung Pfadplanung begrenzt ist aktiviert) deaktiviert alle Feldrandeinschränkungen
-Der dritte Fallback (Einstellung Fruchtumfahrung ist aktiviert) deaktiviert die Fruchtumfahrung, wenn kein Pfad gefunden wurde.
-Wenn Fallbacks nicht erfolgreich sind, um einen Pfad zu finden, erhalten Sie die Meldung kein Weg gefunden.
-Allgemeine Leistungsverbesserung, um die Berechnungszeit und FPS-Einbrüche zu reduzieren. Synchronisierung der Berechnungszeit zwischen mehreren Fahrzeugen bei laufender Pfadberechnung.
+TWEAK verbesserte Flüssigkeitsüberladung:
+- Start der Beladung nur im Silo-Trigger-Bereich und wenn Trigger gefunden wird
+TWEAK Mähdrescher - Ablader - Zusammenarbeit:
+- Rückwärtsstrecke für Ablader erhöht
+- CP Harvester sollte einige Sekunden warten, während der Entlader rückwärts fährt
+TWEAK Überarbeitete Parkziel-Zuweisung:
+- MP synchronisiert
+- alle Ziele werden jetzt intern in vehicles.xml im Tag AutoDriveVehicleData parkDestination behandelt, wird von AD automatisch aktualisiert
+TWEAK Debuggen Straßennetz:
+- Performance-Optimierung, insbesondere bei Deaktivierung von Routennetz-Debug
+- geändert: bekannte Marker für offene / tote Routenenden jetzt mit "1_..." benannt
+- neu: Streckennetz mit Verbindungen, die AD wegen Problemen nicht verwenden könnte werden mit "2_..." benannt, z.B. Rückwärtsstrecke (hellblau) in Einbahnrichtung (grün)
+TWEAK Reset der AD-Modi sollte ungewöhnliche(s) Verhalten beheben/verhindern
 ]]>
 		</de>
 		<it>
 			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
 
-Log delle modifiche 1.1.0.8:
-CORRETTO [BUG] Il click centrale aggancia il waypoint al veicolo in modalità modifica #1723
+Log delle modifiche 1.1.1.0:
+FIX la gestione delle collisioni causava lo stop-and-go dello scaricatore dietro l'elicottero
+FIX scarico di più rimorchi della mietitrebbia 
 
-AGGIUNTO supporto carro a coclea per sovraccarico/scarico su rimorchio
-- il veicolo rallenterà a 5km/h impostando maxTriggerDistance prima dell'obiettivo e del tubo aperto
-- scarica a tutti i rimorchi sulla strada per l'obiettivo
-- se non viene scaricato completamente, guida fino all'obiettivo e aspetta di essere scaricato in qualche modo (come in passato)
-AGGIUNTO riprovare a scaricare all'innesco
-- lo scaricatore rimane all'innesco e riprova a scaricare solo se l'innesco non è già pieno al 100% quando lo raggiunge
-- Limitazione: se il trigger è pieno al 100% quando raggiunge il trigger di scarico, il veicolo continua a destinazione (limitazione del motore LS) e aspetta di scaricare in qualche modo (come in passato)
-AGGIUNTO sovraccarico al rimorchio riempibile (liquidi)
-AGGIUNTO comando console adExportRoutesAsExternalMod per creare l'esportazione del percorso come mod, che potrebbe essere usato da altri utenti / macchine sulla stessa mappa
-AGGIUNTO Editormode (bolle rosse): avvia l'autoconnessione sul waypoint selezionato tenendo premuto il tasto LCTRL
-AGGIUNTO CP park vehicle ora usa la posizione di parcheggio dal veicolo/attaccamento selezionato
+AGGIUNTO tubo di apertura della mietitrebbia quando viene raggiunto il livello di precarico
+AGGIUNTA interfaccia CP per la cooperazione con le versioni CP più recenti
+AGGIUNTA funzionalità sperimentale:
+- blue Line Route Finder: default OFF, abilitare se AD non è riuscito a trovare un percorso attraverso più passaggi connessioni blu scuro, feedback se si verificano problemi
+- rilevare campo Gras: default ON, la mietitrice rileverà il campo Gras e assegnerà il lato corretto allo scaricatore
 
-AGGIUNTA nuova combinazione tasto+mouse per impostare/cancellare la destinazione P
-left-mouse -> nessun cambiamento, manderà il veicolo a parcheggiare in ogni AD Mode
-NUOVO:
-Editormode (bolle rosse) + RCTRL + tasto destro del mouse su P -> imposta/esclude P con la prima destinazione nell'HUD
-Editormode (bolle rosse) + RALT + tasto destro del mouse su P -> cancella la destinazione del parcheggio
+TWEAK migliorato sovraccarico liquidi:
+- inizia a caricare solo nel campo silo-trigger e se viene trovato il trigger
+TWEAK cooperazione tra mietitrice e scaricatore:
+- aumento della distanza inversa per lo scaricatore
+- CP harvester dovrebbe aspettare alcuni secondi mentre lo scaricatore guida in retromarcia
+TWEAK rielaborazione destinazione parco:
+- MP sincronizzato
+- tutte le destinazioni gestite ora internamente in vehicles.xml nel tag AutoDriveVehicleData parkDestination, AD si aggiornerà automaticamente
+TWEAK debug rete stradale:
+- ottimizzazione delle prestazioni, specialmente quando si disattiva il debug della rete stradale
+- cambiato: i marcatori noti per i terminali di percorso aperti / morti ora sono nominati con "1_..."
+- nuovo: rete stradale con connessioni che AD potrebbe non utilizzare a causa di problemi denominata "2_...", cioè sezione inversa (blu chiaro) all'interno di una direzione a senso unico (verde)
+TWEAK ripristina le modalità AD se avviato dovrebbe risolvere/evitare comportamenti insoliti
 
-TWEAK Cambiato il calcolo della distanza e della velocità inversa dopo lo scarico della mietitrice
-TWEAK migliorato il movimento dei waypoint, non ci sono glitch nel / sotto il terreno visibile
-TWEAK rimosso il messaggio che lo scaricatore di mietitrebbie non ha potuto raggiungere la mietitrebbia, in quanto riprenderà a cercare la mietitrebbia dopo qualche tempo
-TWEAK diversi aggiornamenti di traduzione
-TWEAK fissata la registrazione simultanea su MP
-TWEAK rifornimento DEF e ELECTRIC ai trigger dove DEF, ELECTRIC o DIESEL sono disponibili
-TWEAK ricerca del percorso:
-l'impostazione avoidFruit funziona ora anche al di fuori dei confini del campo per evitare di guidare attraverso un campo con frutta fino al prossimo waypoint della rete, se possibile
-l'impostazione pathFinderTime dovrebbe essere solo leggermente aumentata se avoidFruit non funziona correttamente se è disponibile una capezzagna sufficiente (~20+ m), un valore alto aumenterà il tempo di calcolo
-3 scenari di fallback avranno effetto automatico: 
-Il primo fallback (l'impostazione restrictToField è abilitata) estenderà il "confine del campo" di ~30+ metri intorno al campo in cui è stato avviato il pathfinding - estendendo lo spazio per il veicolo per trovare un percorso
-Il secondo fallback (impostando restrictToField è abilitato) disattiverà tutte le restrizioni del confine del campo
-Il terzo fallback (l'impostazione avoidFruit è abilitata) disabiliterà automaticamente l'evitamento della frutta se non è stato trovato alcun percorso
-Se i fallback non riusciranno a trovare un percorso si otterrà il messaggio percorso non trovato.
-Miglioramento generale delle prestazioni per ridurre il tempo di calcolo e i cali di FPS. Sincronizzare il tempo di calcolo tra più veicoli con il calcolo del percorso in corso.
-
+Tradotto con www.DeepL.com/Translator (versione gratuita)
 ]]>
 		</it>
 		<fr>
@@ -134,43 +96,31 @@ Miglioramento generale delle prestazioni per ridurre il tempo di calcolo e i cal
 Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
 Différents modes d'utilisation ont été ajoutés depuis les premières versions, et peuvent être combinés à l'utilisation du bien connu "Courseplay".
 
-Changelog 1.1.0.8:
-CORRECTION [BUG] Le clic du milieu fixe le point de cheminement vers le véhicule en mode d'édition #1723
+Changelog 1.1.1.0:
+Correction de la gestion des collisions qui provoquait l'arrêt et le déplacement du déchargeur derrière l'hélico.
+FIXE le déchargement de plusieurs remorques sur la moissonneuse 
 
-AJOUTER un soutien au surchargement/déchargement du wagon à vis sans fin sur la remorque
-- le véhicule ralentira à 5km/h à la distance de déclenchement maximale avant la cible et le tuyau ouvert
-- décharger à toutes les remorques en route vers la cible
-- si le déchargement n'est pas complet, se rendre à la cible et attendre d'être déchargé d'une manière ou d'une autre (comme par le passé)
-AJOUTER une nouvelle tentative de déchargement au moment du déclenchement
-- le déchargeur restera sur le déclencheur et n'essaiera à nouveau de décharger que si le déclencheur n'est pas déjà plein à 100% lorsqu'il atteint le déclencheur
-- Limitation : si le déclencheur est plein à 100 % lorsqu'il atteint le déclencheur de déchargement, le véhicule continue vers sa destination (limitation du moteur LS) et attend pour décharger d'une manière ou d'une autre (comme par le passé)
-AJOUTER une surcharge à la remorque (liquide) remplissable
-Ajout de la commande adExportRoutesAsExternalMod en console pour créer l'exportation de routes sous forme de mod, qui pourrait être utilisé par d'autres utilisateurs / machines sur la même carte
-ADDED Editormode (bulles rouges) : démarrage de l'auto-connexion sur le point de passage sélectionné avec maintien de la touche LCTRL
-AJOUTÉ CP véhicule de parc utiliser maintenant la position de parc du véhicule/attachement sélectionné
+Ajout d'un tuyau d'ouverture de la moissonneuse-batteuse lorsque le niveau de précaution est atteint.
+Ajout d'une interface CP pour coopérer avec les nouvelles versions du CP.
+Ajout de fonctionnalités expérimentales :
+- blue Line Route Finder : par défaut OFF, activer si AD n'a pas pu trouver une route via des connexions bleu foncé à passages multiples, feedback si des problèmes surviennent
+- detect Gras Field : ON par défaut, la moissonneuse détectera le champ de graminées et assignera le bon côté au déchargeur.
 
-AJOUTER une nouvelle combinaison clé+souris pour définir/supprimer la destination P
-souris de gauche -> pas de changement, enverra le véhicule se garer dans tous les modes AD
-NOUVEAU :
-Mode éditeur (bulles rouges) + RCTRL + souris droite sur P -> régler/supprimer P avec 1ère destination dans le HUD
-Mode éditeur (bulles rouges) + RALT + souris droite sur P -> supprimer la destination du parc
+TWEAK a amélioré la surcharge de liquide :
+- ne commence le chargement que dans la zone de déclenchement du silo et si le déclencheur est trouvé.
+TWEAK coopération moissonneuse - déchargeur :
+- augmentation de la distance de recul du déchargeur
+- La moissonneuse CP doit attendre quelques secondes pendant que le déchargeur fait marche arrière.
+TWEAK destination du parc de retraitement :
+- MP synchronisé
+- toutes les destinations sont maintenant gérées en interne dans vehicles.xml dans le tag AutoDriveVehicleData parkDestination, AD sera mis à jour automatiquement
+TWEAK déboguer le réseau routier :
+- optimisation des performances, en particulier lors de la désactivation du débogage du réseau routier
+- modifié : les marqueurs connus pour les fins de route ouvertes / mortes sont maintenant nommés avec "1_...".
+- nouveau : réseau routier avec des connexions que AD pourrait ne pas utiliser en raison de problèmes nommés "2_...", c.-à-d. section inverse (bleu clair) dans un sens unique (vert)
+TWEAK réinitialise les modes AD s'ils sont lancés, ce qui devrait corriger/éviter les comportements inhabituels.
 
-TWEAK Modification du calcul de la distance et de la vitesse de recul après le déchargement de la récolteuse
-TWEAK : amélioration du mouvement des points de cheminement, ne pas se glisser dans le sol visible
-TWEAK a supprimé le message "harvester unloader" (déchargeur de la moissonneuse) qui n'a pas pu atteindre la moissonneuse car il recommencera à la trouver lui-même après un certain temps
-TWEAK plusieurs mises à jour de traduction
-TWEAK a fixé l'enregistrement simultané sur MP
-TWEAK fait le plein de DEF et d'ELECTRIC aux points de déclenchement où le DEF, l'ELECTRIC ou le DIESEL sont disponibles
-TWEAK recherche de chemin :
-setting avoidFruit travaille maintenant aussi en dehors des frontières des champs pour éviter de traverser un champ avec des fruits jusqu'au prochain point de cheminement du réseau si possible
-le réglage de pathFinderTime ne doit être que légèrement augmenté si avoidFruit ne fonctionne pas correctement avec un promontoire suffisant (~20+ m), une valeur élevée augmentera le temps de calcul
-Le scénario de repli 3 prendra automatiquement effet : 
-Le premier scénario de repli (le paramètre restrictToField est activé) prolongera la "frontière du champ" de plus de 30 mètres autour du champ où la recherche de chemin a été lancée.
-La deuxième solution (le paramètre restrictToField est activé) désactivera toutes les restrictions aux frontières des champs
-Troisième repli (le paramètre avoidFruit est activé) qui désactivera automatiquement l'évitement des fruits si aucun chemin n'a été trouvé
-Si les repliements ne parviennent pas à trouver un chemin, vous obtiendrez le chemin de message non trouvé.
-Amélioration globale des performances pour réduire le temps de calcul et les chutes de FPS. Synchroniser le temps de calcul entre plusieurs véhicules avec le calcul du chemin en cours.
-
+Traduit avec www.DeepL.com/Translator (version gratuite)
 ]]>
 		</fr>
 		<es>
@@ -180,7 +130,7 @@ Amélioration globale des performances pour réduire le temps de calcul et les c
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.0.8</version>
+	<version>1.1.1.0</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>

@@ -16,6 +16,7 @@ function EmptyHarvesterTask:new(vehicle, combine)
     o.wayPoints = nil
     o.reverseStartLocation = nil
     o.waitTimer = AutoDriveTON:new()
+    o.holdCPCombineTimer = AutoDriveTON:new()
     return o
 end
 
@@ -70,18 +71,7 @@ function EmptyHarvesterTask:update(dt)
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = true
         -- Stopping CP drivers for now
-
-        if self.combine.trailingVehicle ~= nil then
-            -- harvester is trailed - CP use the trailing vehicle
-            if self.combine.trailingVehicle.cp and self.combine.trailingVehicle.cp.driver and self.combine.trailingVehicle.cp.driver.holdForUnloadOrRefill then
-                self.combine.trailingVehicle.cp.driver:holdForUnloadOrRefill()
-            end
-        else
-            if self.combine.cp and self.combine.cp.driver and self.combine.cp.driver.holdForUnloadOrRefill then
-                self.combine.cp.driver:holdForUnloadOrRefill()
-            end
-        end
-
+        AutoDrive:holdCPCombine(self.combine)
         --Check if the combine is moving / has already moved away and we are supposed to actively unload
         if self.combine.ad.driveForwardTimer.elapsedTime > 100 then
             if AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
@@ -126,13 +116,18 @@ function EmptyHarvesterTask:update(dt)
         local  _,trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
         local overallLength
         if trailercount <= 1 then
-            overallLength = self.vehicle.sizeLength -- only tractor length
+            overallLength = math.max(self.vehicle.sizeLength * 2, 15) -- 2x tractor length, min. 15m
         else
             overallLength = AutoDrive.getTractorTrainLength(self.vehicle, true, true) -- complete train length
         end
         if self.combine.trailingVehicle ~= nil then
             -- if the harvester is trailed reverse 5m more
             -- overallLength = overallLength + 5
+        end
+        self.holdCPCombineTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
+        if not self.holdCPCombineTimer:done() then
+            -- Stopping CP drivers while reverse driving
+            AutoDrive:holdCPCombine(self.combine)
         end
         if distanceToReversStart > overallLength then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")

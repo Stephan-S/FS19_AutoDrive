@@ -131,7 +131,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     self.distanceToChasePos = MathUtil.vector2Length(x - point.x, z - point.z)
 
-    if self.distanceToChasePos < 1.75 then
+    if self.distanceToChasePos < 0.5 then
         speed = maxFollowSpeed * 1
     elseif self.distanceToChasePos < 7 then
         speed = maxFollowSpeed + self.distanceToChasePos * 1.4
@@ -143,7 +143,7 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
 
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, point.x, point.y, point.z)
 
-    if (checkDynamicCollision and self.vehicle.ad.collisionDetectionModule:hasDetectedObstable(dt)) or self.vehicle.ad.sensors.frontSensor:pollInfo() then
+    if checkDynamicCollision and (self.vehicle.ad.collisionDetectionModule:hasDetectedObstable(dt) or self.vehicle.ad.sensors.frontSensor:pollInfo()) then
         self:stopVehicle(true, lx, lz)
         self:update(dt)
     else

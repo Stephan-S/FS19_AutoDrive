@@ -34,12 +34,10 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Установить к-во рейсов" />
 		<text name="input_ADParkVehicle"						text="AD: Отправить на парковку" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
-		<text name="input_AD_devAction"							text="AD: Действия разработчика" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
 		<text name="hud_startCp"								text="AD: Запустить CP/AIVE в пункте назначения" />
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Чтобы назначить выбранную локацию, как место парковки, нажмите правой кнопкой мыши на этой же кнопке." />
 		<text name="AD_parkVehicle_selected"					text="Выбранное место для парковки: " />
-		<text name="AD_parkVehicle_deleted"						text="место стоянки удалено!" />
 		<text name="AD_Driver_of"								text="Водитель на" />
 		<text name="AD_has_reached"								text="прибыл к" />
 		<text name="AD_got_stuck"								text="застрял" />
@@ -298,7 +296,7 @@
 		
 		<text name="AD_task_pathfinding"						text="Планирование пути" />
 		<text name="AD_task_catch_up_with_combine"				text="Подъезжает к комбайну" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" />
+		<text name="AD_task_clearcrop"							text="Расчисчает посевы" />
 		<text name="AD_task_drive_to_destination"				text="Двигается к пункту назначения" />
 		<text name="AD_task_drive_to_vehicle"					text="Двигается к целевому транспорту" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Двигается к выгрузной трубе" />
@@ -314,13 +312,19 @@
 		<text name="AD_task_chasing_combine"					text="Следует за комбайном" />
 		<text name="AD_task_wait_for_combine_pass_by"			text="Позволяет комбайну пройти мимо" />
 		<text name="AD_task_catching_chase_side"				text="Сторона приёма" />
-		<text name="AD_task_chase_side"							text="Сторона" />	
-		<text name="AD_task_chase_side_left"					text="слева" />	
-		<text name="AD_task_chase_side_rear"					text="сзади" />	
+		<text name="AD_task_chase_side"							text="Сторона" />
+		<text name="AD_task_chase_side_left"					text="слева" />
+		<text name="AD_task_chase_side_rear"					text="сзади" />
 		<text name="AD_task_chase_side_right"					text="справа" />
 		<text name="AD_task_waiting_for_room"					text="Ожидает пространства" />
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
 		<text name="AD_task_reversing_from_collision"			text="Ищет свободное пространство" />
 		<text name="AD_task_drive_to_park"						text="Движется на место парковки" />
+
+		<text name="gui_CPAD_off"								text="ВЫКЛ"/>
+		<text name="gui_CPAD_simple"							text="простое"/>
+		<text name="gui_CPAD_full"								text="полное"/>
+		<text name="gui_ad_combineCPADHudMouse"					text="Объединение клавиш CP/AD"/>
+		<text name="gui_ad_combineCPADHudMouse_tooltip"			text="ВЫКЛ: по умолчанию. ПРОСТОЕ: CP: ПКМ > указатель вкл+выкл, AD: скрыть/отобразить HUD > оба HUD вкл+выкл. ПОЛНОЕ: как и ПРОСТОЕ, но оба HUD вкл/выкл индивидуально (у CP необходимо отключить открытие HUD правой кнопкой)."/>
 	</texts>
 </l10n>
