@@ -187,6 +187,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Sim - o AutoDrive seleciona automaticamente o lado da porta / Não - o lado da porta já selecionado será utilizado" />
 		<text name="gui_ad_autoTrailerCover"                    text="Cobertura automática de atrelados" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sim - o AutoDrive abre e fecha as coberturas dos reboques conforme necessário / Não - as coberturas dos reboques não serão abertas ou fechadas pela AutoDrive" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 
 
 

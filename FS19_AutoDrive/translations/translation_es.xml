@@ -185,6 +185,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" /> <!-- POR TRADUCIR -->
 		<text name="gui_ad_autoTrailerCover"                    text="Lonas de remolque automáticas" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sí - AutoDrive abrirá y cerrará las lonas según necesite / No - las lonas no se abrirán ni cerrarán automáticamente" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Ajustes - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Ajustes de usuario - AutoDrive" />

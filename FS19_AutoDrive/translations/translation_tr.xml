@@ -185,6 +185,8 @@
     <text name="gui_ad_autoTipSide_tooltip"                                                             text="Evet - AutoDrive otomatik olarak boşaltma tarafını seç / Hayır - önceden seçilmiş olan boşaltma tarafı kullanılacaktır"  />
     <text name="gui_ad_autoTrailerCover"                                                                text="Otomatik römork kapakları"  />
     <text name="gui_ad_autoTrailerCover_tooltip"                                                        text="Evet - AutoDrive gerektiğinde römork kapaklarını açıp kapat / Hayır - römork kapakları AutoDrive tarafından açılmayacak veya kapanmayacak"  />
+		<text name="gui_ad_useForwardTurningManoeuvre"                                                      text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"                                              text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
                                                                                                         
     <text name="gui_ad_settingsPage_title"                                                              text="Ayarlar - AutoDrive"  />
     <text name="gui_ad_userSettingsPage_title"                                                          text="Kullanıcı Ayarları - AutoDrive"  />

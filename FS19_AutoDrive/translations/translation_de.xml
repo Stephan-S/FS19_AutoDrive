@@ -187,6 +187,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Ja - AutoDrive wählt Abladeseite automatisch / Nein - die gewählte Abladeseite wird verwendet" />
 		<text name="gui_ad_autoTrailerCover"                    text="Automatische Abdeckungen" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ja - AutoDrive öffnet und schließt Abdeckungen von Anhängern wenn notwendig / Nein - die Abdeckungen werden von AutoDrive nicht geöffnet oder geschlossen" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Vorwärts Wendemanöver" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Ja - Abfahrer planen eine Vorwärtswende wenn Drescher wendet. / Nein - Abfahrer setzen kurz zurück." />
 		
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Benutzereinstellungen - AutoDrive" />

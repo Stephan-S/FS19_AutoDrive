@@ -185,6 +185,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Igen - Az AutoDrive automatikusan kiválasztja a csúcsoldalt / Nem - a már kiválasztott csúcsoldalt fogja használni" />
 		<text name="gui_ad_autoTrailerCover"                    text="Automatikus pótkocsi fedél " />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Igen - az AutoDrive szükség esetén nyissa meg és zárja be a pótkocsi fedelét / Nem - az AutoDrive nem nyitja vagy zárja le a pótkocsi fedelét" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 		<text name="gui_ad_settingsPage_title"					text="Beállítás - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Felhasználói beállítások - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Jármű beállítás - AutoDrive" />

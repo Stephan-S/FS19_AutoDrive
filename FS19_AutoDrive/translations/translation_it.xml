@@ -187,6 +187,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Sì - AutoDrive seleziona automaticamente il lato da usare / No - verrà utilizzato il lato già selezionato" />
 		<text name="gui_ad_autoTrailerCover"                    text="Copertura automatica del rimorchio" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sì - AutoDrive apre e chiude le coperture del rimorchio secondo necessità / No - le coperture del rimorchio non verranno aperte o chiuse da AutoDrive" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_userSettingsPage_title"				text="Impostazioni Utente" />

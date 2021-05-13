@@ -173,6 +173,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Oui - AutoDrive sélectionne automatiquement le côté pour vider / Non - le côté pour vider déjà sélectionné sera utilisé" />
 		<text name="gui_ad_autoTrailerCover"                    text="Bâches remorques automatique" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Oui - AutoDrive ouvre et ferme les bâches remorque au besoin / Non - les bâches remorque ne seront pas ouvertes ou fermées par AutoDrive" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre au champ..." />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />

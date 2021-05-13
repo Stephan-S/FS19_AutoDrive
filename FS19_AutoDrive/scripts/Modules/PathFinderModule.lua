@@ -1475,7 +1475,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
 
     local increaseCellFactor = 1.15
     if cell.isOnField ~= nil and cell.isOnField == true then
-        increaseCellFactor = 0.65
+        increaseCellFactor = 0.8
     end
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor

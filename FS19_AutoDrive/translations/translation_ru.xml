@@ -187,6 +187,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
 		<text name="gui_ad_autoTrailerCover"                    text="Тенты на прицепах" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
