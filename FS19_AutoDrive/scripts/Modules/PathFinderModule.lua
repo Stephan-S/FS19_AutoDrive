@@ -1662,7 +1662,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
 
             --local stepsOfLookAheadThisFrame = 0
 
-            while (foundCollision == false or self.totalEagerSteps < 30) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsThisFrame < (ADScheduler:getStepsPerFrame() * 0.4) do
+            while (foundCollision == false or self.totalEagerSteps < 30) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsThisFrame <= math.max(1, (ADScheduler:getStepsPerFrame() * 0.4)) do
                 --[[
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
