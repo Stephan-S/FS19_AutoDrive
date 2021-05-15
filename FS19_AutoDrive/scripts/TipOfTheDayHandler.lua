@@ -32,12 +32,19 @@ AutoDrive.tipOfTheDay.currentTipId = 1
 AutoDrive.tipOfTheDay.highestTipId = 1
 AutoDrive.tipOfTheDay.displayedYet = false
 
+AutoDrive.tipOfTheDay.delayTime = 500
+
 function AutoDrive.initTipOfTheDay()
 	
 end
 
 function AutoDrive.handleTipOfTheDay(dt)
-	if g_server ~= nil then
+	if not (g_server ~= nil and g_client ~= nil) then
+		return
+	end
+
+	if AutoDrive.tipOfTheDay.delayTime > 0 then
+		AutoDrive.tipOfTheDay.delayTime = AutoDrive.tipOfTheDay.delayTime - dt
 		return
 	end
 	
