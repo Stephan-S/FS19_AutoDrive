@@ -37,6 +37,10 @@ function AutoDrive.initTipOfTheDay()
 end
 
 function AutoDrive.handleTipOfTheDay(dt)
+	if g_server ~= nil then
+		return
+	end
+	
 	if (AutoDrive.getSetting("showTipOfTheDay") or AutoDrive.tipOfTheDay.Entries[AutoDrive.tipOfTheDay.highestTipId + 1] ~= nil) and not AutoDrive.tipOfTheDay.displayedYet then
 		-- The idea is to still diplay new tips that arrived with a new AutoDrive version
 		if not AutoDrive.getSetting("showTipOfTheDay") then
