@@ -1,11 +1,12 @@
 ADHudButton = ADInheritsFrom(ADGenericHudElement)
 
-function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, tertiaryAction, toolTip, state, visible)
+function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, tertiaryAction, quatenaryAction, toolTip, state, visible)
     local o = ADHudButton:create()
     o:init(posX, posY, width, height)
     o.primaryAction = primaryAction
     o.secondaryAction = secondaryAction
     o.tertiaryAction = tertiaryAction
+    o.quatenaryAction = quatenaryAction
     o.toolTip = toolTip
     o.state = state
     o.isVisible = visible
@@ -68,6 +69,9 @@ function ADHudButton:getNewState(vehicle)
             end
             if vehicle.ad.stateModule:isInSubPrioCreationMode() then
                 newState = 4
+            end
+            if vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
+                newState = 5
             end
         else
             newState = 1
@@ -195,15 +199,17 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             end
 
         end
-        if button == 1 and isUp then
+        if button == 1 and isUp and not AutoDrive.leftLSHIFTmodifierKeyPressed then
             ADInputManager:onInputCall(vehicle, self.primaryAction)
             return true
-        elseif (button == 3 or button == 2) and isUp then
+        elseif (button == 3 or button == 2) and isUp and not AutoDrive.leftLSHIFTmodifierKeyPressed then
             ADInputManager:onInputCall(vehicle, self.secondaryAction)
             return true
-        elseif button == 4 and isUp then
+        elseif button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed then
             ADInputManager:onInputCall(vehicle, self.tertiaryAction)
-            AutoDrive.mouseWheelActive = true
+            return true
+        elseif (button == 3 or button == 2) and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed then
+            ADInputManager:onInputCall(vehicle, self.quatenaryAction)
             return true
         end
     end

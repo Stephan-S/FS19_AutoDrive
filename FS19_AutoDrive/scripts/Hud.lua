@@ -169,7 +169,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	local posX = self.posX + self.width - (closeWidth * 1.1)
 	local posY = self.rowHeader
 	-- close crossing
-	table.insert(self.hudElements, ADHudButton:new(posX, posY, closeWidth, closeHeight, "input_toggleHud", nil, nil, "", 1, true))
+	table.insert(self.hudElements, ADHudButton:new(posX, posY, closeWidth, closeHeight, "input_toggleHud", nil, nil, nil, "", 1, true))
 
 	-- axel - is this used?
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.row4, self.iconWidth, self.iconHeight, AutoDrive.directory .. "textures/destination.dds", 1, "destinationOverlay"))
@@ -196,18 +196,18 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	)
 
 	-------- BASE ROW BUTTONS --------------
-	self:AddButton("input_start_stop", nil, nil, "input_ADEnDisable", 1, true)
-	self:AddButton("input_silomode", "input_previousMode", nil, "input_ADSilomode", 1, true)
-	self:AddButton("input_continue", nil, nil, "input_AD_continue", 1, true)
-	self:AddButton("input_parkVehicle", "input_setParkDestination", nil, "input_ADParkVehicle", 1, true)
-	self:AddButton("input_incLoopCounter", "input_decLoopCounter", nil, "input_ADIncLoopCounter", 1, true)
+	self:AddButton("input_start_stop", nil, nil, nil, "input_ADEnDisable", 1, true)
+	self:AddButton("input_silomode", "input_previousMode", nil, nil, "input_ADSilomode", 1, true)
+	self:AddButton("input_continue", nil, nil, nil, "input_AD_continue", 1, true)
+	self:AddButton("input_parkVehicle", "input_setParkDestination", nil, nil, "input_ADParkVehicle", 1, true)
+	self:AddButton("input_incLoopCounter", "input_decLoopCounter", nil, nil, "input_ADIncLoopCounter", 1, true)
 
 	local speedX = self.posX + (self.cols - 1 + self.buttonCollOffset) * self.borderX + (self.cols - 2 + self.buttonCollOffset) * self.buttonWidth
 	local speedY = self.posY + (1) * self.borderY + (0) * self.buttonHeight
 	table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, false))
 	self.buttonCounter = self.buttonCounter + 1
 
-	self:AddButton("input_debug", "input_displayMapPoints", nil, "input_ADActivateDebug", 1, true)
+	self:AddButton("input_debug", "input_displayMapPoints", nil, nil, "input_ADActivateDebug", 1, true)
 	--------------------------------------------------
 
 	---------- SECOND ROW BUTTONS ---------------------
@@ -222,10 +222,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 			self:AddEditModeButtons()
 			if g_courseplay ~= nil then
 				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 1, true)
+				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 1, true)
 			elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
 				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 3, true)
+				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 3, true)
 			end
 		end
 
@@ -234,16 +234,16 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, true))
 		self.buttonCounter = self.buttonCounter + 1
 
-		self:AddButton("input_openGUI", nil, nil, "input_ADOpenGUI", 1, true)
+		self:AddButton("input_openGUI", nil, nil, nil, "input_ADOpenGUI", 1, true)
 	else
 		self:AddEditModeButtons()
 		if AutoDrive.getSetting("addSettingsToHUD") then
 			self.buttonCounter = self.buttonCounter - 5
 
 			if g_courseplay ~= nil then
-				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 1, true)
+				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 1, true)
 			elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
-				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 3, true)
+				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 3, true)
 			else
 				self:AddSettingsButton("enableTrafficDetection", "gui_ad_enableTrafficDetection", 1, true)
 			end
@@ -255,10 +255,10 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		else
 			if g_courseplay ~= nil then
 				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 1, true)
+				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 1, true)
 			elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
 				self.buttonCounter = self.buttonCounter - 1
-				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 3, true)
+				self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 3, true)
 			end
 		end
 
@@ -267,7 +267,7 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		table.insert(self.hudElements, ADHudSpeedmeter:new(speedX, speedY, self.buttonWidth, self.buttonHeight, true))
 		self.buttonCounter = self.buttonCounter + 1
 
-		self:AddButton("input_openGUI", nil, nil, "input_ADOpenGUI", 1, true)
+		self:AddButton("input_openGUI", nil, nil, nil, "input_ADOpenGUI", 1, true)
 	end
 	--------------------------------------------------
 
@@ -276,9 +276,9 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 		self:AddEditModeButtons()
 
 		if g_courseplay ~= nil then
-			self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 1, true)
+			self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 1, true)
 		elseif (vehicle ~= nil and vehicle.acParameters ~= nil) then
-			self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, "hud_startCp", 3, true)
+			self:AddButton("input_startCp", "input_toggleCP_AIVE", nil, nil, "hud_startCp", 3, true)
 		end
 	end
 
@@ -287,17 +287,17 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 end
 
 function AutoDriveHud:AddEditModeButtons()
-	self:AddButton("input_record", "input_record_dual", "input_record_subPrio", "input_ADRecord", 1, false)
-	self:AddButton("input_routesManager", nil, nil, "input_AD_routes_manager", 1, false)
-	self:AddButton("input_createMapMarker", nil, nil, "input_ADDebugCreateMapMarker", 1, false)
-	self:AddButton("input_removeWaypoint", "input_removeMapMarker", nil, "input_ADDebugDeleteWayPoint", 1, false)
-	self:AddButton("input_editMapMarker", nil, nil, "input_ADRenameMapMarker", 1, false)
+	self:AddButton("input_record", "input_record_dual", "input_record_subPrio", "input_record_subPrioDual", "input_ADRecord", 1, false)
+	self:AddButton("input_routesManager", nil, nil, nil, "input_AD_routes_manager", 1, false)
+	self:AddButton("input_createMapMarker", nil, nil, nil, "input_ADDebugCreateMapMarker", 1, false)
+	self:AddButton("input_removeWaypoint", "input_removeMapMarker", nil, nil, "input_ADDebugDeleteWayPoint", 1, false)
+	self:AddButton("input_editMapMarker", nil, nil, nil, "input_ADRenameMapMarker", 1, false)
 	if AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD") then
-		self:AddButton("input_removeMapMarker", nil, nil, "input_ADDebugDeleteDestination", 1, false)
+		self:AddButton("input_removeMapMarker", nil, nil, nil, "input_ADDebugDeleteDestination", 1, false)
 	end
 end
 
-function AutoDriveHud:AddButton(primaryAction, secondaryAction, tertiaryAction, toolTip, state, visible)
+function AutoDriveHud:AddButton(primaryAction, secondaryAction, tertiaryAction, quatenaryAction, toolTip, state, visible)
 	self.buttonCounter = self.buttonCounter + 1
 	self.colCurrent = self.buttonCounter % self.cols
 	if self.colCurrent == 0 then
@@ -309,7 +309,7 @@ function AutoDriveHud:AddButton(primaryAction, secondaryAction, tertiaryAction, 
 	local posX = self.posX + self.colCurrent * self.borderX + (self.colCurrent - 1) * self.buttonWidth
 	local posY = self.posY + (self.rowCurrent) * self.borderY + (self.rowCurrent - 1) * self.buttonHeight
 	--toolTip = string.sub(g_i18n:getText(toolTip), 4, string.len(g_i18n:getText(toolTip)))
-	table.insert(self.hudElements, ADHudButton:new(posX, posY, self.buttonWidth, self.buttonHeight, primaryAction, secondaryAction, tertiaryAction, toolTip, state, visible))
+	table.insert(self.hudElements, ADHudButton:new(posX, posY, self.buttonWidth, self.buttonHeight, primaryAction, secondaryAction, tertiaryAction, quatenaryAction, toolTip, state, visible))
 end
 
 function AutoDriveHud:AddSettingsButton(setting, toolTip, state, visible)
@@ -505,13 +505,12 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end
 
 			if button == 1 and isUp and AutoDrive.leftALTmodifierKeyPressed and AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil then
-				g_logManager:info("[AD]toggling subPrio marker now for  " .. vehicle.ad.hoveredNodeId)
 				ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
 			end
 
 			--If no node is hovered / moved - create new node
 			if vehicle.ad.nodeToMoveId == nil and vehicle.ad.hoveredNodeId == nil then
-				if button == 1 and isUp and not AutoDrive.leftALTmodifierKeyPressed and AutoDrive.leftCTRLmodifierKeyPressed then
+				if button == 1 and isUp and AutoDrive.leftCTRLmodifierKeyPressed then
 					--For rough depth assertion, we use the closest nodes location as this is roughly in the screen's center
 					local closest = vehicle:getClosestWayPoint()
 					closest = ADGraphManager:getWayPointById(closest)
@@ -556,7 +555,19 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							local createdId = ADGraphManager:getWayPointsCount()
 							if vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated then
 								-- connect only if previous created point is selected and newcreated ~= nil
-								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+
+								-- lalt -> dual
+								-- lshift -> reverse
+								-- lcaps -> subPrio
+
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)								
+								if AutoDrive.leftALTmodifierKeyPressed then
+									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(createdId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+								end
+
+								if AutoDrive.isCAPSKeyActive then
+									ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
+								end								
 							end
 							vehicle.ad.newcreated = createdId
 							vehicle.ad.selectedNodeId = vehicle.ad.newcreated

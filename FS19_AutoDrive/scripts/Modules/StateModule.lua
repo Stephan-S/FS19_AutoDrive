@@ -4,6 +4,7 @@ ADStateModule.CREATE_OFF = 1
 ADStateModule.CREATE_NORMAL = 2
 ADStateModule.CREATE_DUAL = 3
 ADStateModule.CREATE_SUB_PRIO = 4
+ADStateModule.CREATE_SUB_PRIO_DUAL = 5
 
 ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL = 1000
 
@@ -432,7 +433,7 @@ function ADStateModule:setActive(active)
 end
 
 function ADStateModule:isInCreationMode()
-    return (self.creationMode == ADStateModule.CREATE_NORMAL) or (self.creationMode == ADStateModule.CREATE_DUAL) or (self.creationMode == ADStateModule.CREATE_SUB_PRIO)
+    return (self.creationMode == ADStateModule.CREATE_NORMAL) or (self.creationMode == ADStateModule.CREATE_DUAL) or (self.creationMode == ADStateModule.CREATE_SUB_PRIO) or (self.creationMode == ADStateModule.CREATE_SUB_PRIO_DUAL)
 end
 
 function ADStateModule:isInNormalCreationMode()
@@ -445,6 +446,10 @@ end
 
 function ADStateModule:isInSubPrioCreationMode()
     return self.creationMode == ADStateModule.CREATE_SUB_PRIO
+end
+
+function ADStateModule:isInSubPrioDualCreationMode()
+    return self.creationMode == ADStateModule.CREATE_SUB_PRIO_DUAL
 end
 
 function ADStateModule:disableCreationMode()
@@ -476,6 +481,14 @@ function ADStateModule:startSubPrioCreationMode()
     self:raiseDirtyFlag()
     if self.vehicle.ad.recordingModule ~= nil then
 		self.vehicle.ad.recordingModule:start(false, true)
+	end
+end
+
+function ADStateModule:startSubPrioDualCreationMode()
+    self.creationMode = ADStateModule.CREATE_SUB_PRIO_DUAL
+    self:raiseDirtyFlag()
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(true, true)
 	end
 end
 

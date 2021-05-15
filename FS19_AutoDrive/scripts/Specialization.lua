@@ -593,10 +593,12 @@ function AutoDrive:onDrawEditorMode()
                         local nWp = ADGraphManager:getWayPointById(neighbor)
                         if point.incoming == nil or table.contains(point.incoming, neighbor) then
                             --draw dual way line
-                            if isSubPrio then
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.389, 0.177, 0)
-                            else
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                            if point.id > nWp.id then
+                                if isSubPrio then
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.389, 0.177, 0)
+                                else
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                                end
                             end
                         else
                             --draw line with direction markers (arrow)
