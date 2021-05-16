@@ -497,7 +497,9 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					else
 						-- select point
 						-- no selectedNodeId: hoveredNodeId is now selectedNodeId
-						vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+						if not AutoDrive.leftALTmodifierKeyPressed then
+							vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+						end
 					end
 				end
 
