@@ -445,6 +445,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 		end
 
 		vehicle.ad.hoveredNodeId = nil
+		local adjustedPaths = false
 		if (not mouseEventHandled) and AutoDrive.isInExtendedEditorMode() then
 			if not AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated then
 				-- if LCTRL is not pressed - no auto-connect to previous created new point, disable selected point
@@ -466,15 +467,33 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end
 			if vehicle.ad.hoveredNodeId ~= nil then
 				-- waypoint at mouse position
-				if button == 1 and isUp and not AutoDrive.leftALTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed then
+				if button == 1 and isUp and not AutoDrive.leftCTRLmodifierKeyPressed then
 					-- left mouse button to select point / connect to already selected point
 					if vehicle.ad.selectedNodeId ~= nil then
 						if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
 							-- connect selected point with hovered point
-							ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+							--ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+							-- lalt -> dual
+							-- lshift -> subPrio
+							-- rshift -> reverse
+
+							ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)								
+							if AutoDrive.leftALTmodifierKeyPressed then
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)
+							end
+
+							if AutoDrive.leftLSHIFTmodifierKeyPressed then								
+								--local isSubPrioMarker = ADGraphManager:getIsPointSubPrioMarker(vehicle.ad.selectedNodeId)
+								--if not isSubPrioMarker then
+								--	ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
+								--end
+								ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
+							end
 						end
+
 						-- unselect point
 						vehicle.ad.selectedNodeId = nil
+						adjustedPaths = true
 					else
 						-- select point
 						-- no selectedNodeId: hoveredNodeId is now selectedNodeId
@@ -504,7 +523,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				vehicle.ad.selectedNodeId = vehicle.ad.newcreated
 			end
 
-			if button == 1 and isUp and AutoDrive.leftALTmodifierKeyPressed and AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil then
+			if button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed and AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil then
 				ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
 			end
 
@@ -557,15 +576,15 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 								-- connect only if previous created point is selected and newcreated ~= nil
 
 								-- lalt -> dual
-								-- lshift -> reverse
-								-- lcaps -> subPrio
+								-- lshift -> subPrio
+								-- rshift -> reverse
 
-								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.leftLSHIFTmodifierKeyPressed)								
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)								
 								if AutoDrive.leftALTmodifierKeyPressed then
-									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(createdId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), AutoDrive.leftLSHIFTmodifierKeyPressed)
+									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(createdId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)
 								end
 
-								if AutoDrive.isCAPSKeyActive then
+								if AutoDrive.leftLSHIFTmodifierKeyPressed then
 									ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
 								end								
 							end
@@ -576,7 +595,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				end
 			end
 
-			if vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.nodeToMoveId == nil then
+			if vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.nodeToMoveId == nil and vehicle.ad.selectedNodeId == nil and not adjustedPaths then
 				if button == 1 and isUp and AutoDrive.leftALTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed then
 					-- Left alt for deleting the currently hovered node
 					ADGraphManager:removeWayPoint(vehicle.ad.hoveredNodeId)
