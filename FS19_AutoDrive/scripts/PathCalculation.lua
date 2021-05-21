@@ -4,9 +4,13 @@ function ADPathCalculator:GetPath(startID, targetID)
 	local count = 0
 
     if not ADGraphManager:areWayPointsPrepared() then
+        print("ADPathCalculator - preparing waypoints - 1")
 		AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
+        print("ADPathCalculator - preparing waypoints - 2")
 		AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
+        print("ADPathCalculator - preparing waypoints - 3")
         ADGraphManager:prepareWayPoints()
+        print("ADPathCalculator - preparing waypoints - 4")
     end
 
     local network = ADGraphManager:getWayPoints()
@@ -54,8 +58,8 @@ function ADPathCalculator:GetPath(startID, targetID)
                     for _, outId in pairs(outMap) do
                         local outPoint = network[outId]
                         
--- axel  TODO implement automatic network check for such issue: waypoint linked to itself -> DONE with AutoDrive.checkWaypointsLinkedtothemselve(true)
-                        if point.id ~= outPoint.id then
+                        -- axel  TODO implement automatic network check for such issue: waypoint linked to itself -> DONE with AutoDrive.checkWaypointsLinkedtothemselve(true)
+                        --if point.id ~= outPoint.id then
 							-- First check if this point needs to be added to the candidate list or if it has already been tested
 							local toBeAdded = true
 							if results[outId] ~= nil then
@@ -69,7 +73,7 @@ function ADPathCalculator:GetPath(startID, targetID)
 									toBeAdded = false
 								end
 							end
-							if toBeAdded or (#point.incoming > 1) then
+							if toBeAdded then --or (#point.incoming > 1)
 								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)), pre=point.id})
 							end
 
@@ -80,7 +84,7 @@ function ADPathCalculator:GetPath(startID, targetID)
 									results[point.id][outId] = {distance=distance, pre=previousPoint}
 								end
 							end
-						end
+						--end
                     end
                     point = nil
                 else
