@@ -290,6 +290,41 @@ function AutoDrive.getSelectedWorkTool(vehicle)
     return selectedWorkTool
 end
 
+function AutoDrive.getVehicleLeadingEdge(vehicle)
+    local leadingEdge = 0
+    local implements = AutoDrive.getAllImplements(vehicle)
+    if implements ~= nil then
+        for i = 1, #implements do
+            local implement = implements[i]
+            if implement ~= nil and implement.object ~= nil then
+                local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+                local _, _, diffZ = worldToLocal(vehicle.components[1].node, implementX, implementY, implementZ)
+                if diffZ > 0 and implement.object.sizeLength ~= nil then                    
+                    leadingEdge = math.max(leadingEdge, diffZ + (implement.object.sizeLength / 2) - (vehicle.sizeLength / 2))
+                end
+            end
+        end
+    end
+    return leadingEdge
+end
+
+function AutoDrive.getAllImplements(vehicle)
+    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
+        local allImp = {}
+        -- Credits to Tardis from FS17
+        local function addAllAttached(obj)
+            for _, imp in pairs(obj:getAttachedImplements()) do
+                addAllAttached(imp.object)
+                table.insert(allImp, imp)
+            end
+        end
+
+        addAllAttached(vehicle)
+
+        return allImp
+    end
+end
+
 -- set or delete park destination for selected vehicle, tool from user input action, client mode!
 function AutoDrive.setActualParkDestination(vehicle)
     local actualParkDestination = -1

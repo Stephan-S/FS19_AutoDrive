@@ -225,7 +225,8 @@ function ADSensor:getLocationByPosition()
         if location == nil then
             location = {x = 0, z = vehicle.sizeLength / 2}
         end
-        location.z = location.z + 2
+        --location.z = location.z + AutoDrive.getVehicleLeadingEdge(vehicle)
+        --location.z = location.z + 2
     elseif self.position == ADSensor.POS_REAR then
         location.z = - vehicle.sizeLength / 2
         self.frontFactor = -1
@@ -455,7 +456,7 @@ function ADSensor:isTriggered()
 end
 
 function ADSensor:getRotatedFront()
-    if self.frontAxle == nil then
+    --if self.frontAxle == nil then
         local frontWheel = nil
         local pairWheel = nil
         local frontDistance = math.huge
@@ -481,17 +482,17 @@ function ADSensor:getRotatedFront()
             local axleCenterZ = frontWheelZ + 0.5 * (pairWheelZ - frontWheelZ)
             local _, _, diffZ = worldToLocal(self.vehicle.components[1].node, axleCenterX, axleCenterY, axleCenterZ)
             local wheelBaseToFront = self.vehicle.sizeLength / 2 - diffZ
-
-            self.frontAxleLength = wheelBaseToFront
+            local leadingEdge = AutoDrive.getVehicleLeadingEdge(self.vehicle)
+            self.frontAxleLength = wheelBaseToFront + leadingEdge
             self.frontAxle = {}
             self.frontAxle.x, self.frontAxle.y, self.frontAxle.z = worldToLocal(self.vehicle.components[1].node, axleCenterX, axleCenterY, axleCenterZ)
         end
-    else
+    --else
         local rx, _, rz = localDirectionToWorld(self.vehicle.components[1].node, math.sin(self.vehicle.rotatedTime), 0, math.cos(self.vehicle.rotatedTime))
         local frontPoint = {x = self.frontAxle.x + self.frontAxleLength * math.sin(self.vehicle.rotatedTime), y = self.frontAxle.y, z = self.frontAxle.z + self.frontAxleLength * math.cos(self.vehicle.rotatedTime)}
 
         return frontPoint
-    end
+    --end
 
-    return nil
+    --return nil
 end
