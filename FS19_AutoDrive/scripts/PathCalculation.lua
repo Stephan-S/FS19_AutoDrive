@@ -37,7 +37,7 @@ function ADPathCalculator:GetPath(startID, targetID)
     end
 
     local lastPredecessor = nil
-    while not candidates:empty() and not foundTarget and count < 200000 do
+    while not candidates:empty() and not foundTarget do
         local next = candidates:dequeue()
         local point, distance, previousPoint = next.p, next.distance, next.pre
         while point ~= nil do
@@ -106,8 +106,7 @@ function ADPathCalculator:GetPath(startID, targetID)
                 end
             end
         end
-    		count = count + 1
-end
+    end
     
     if not foundTarget then
         return {}

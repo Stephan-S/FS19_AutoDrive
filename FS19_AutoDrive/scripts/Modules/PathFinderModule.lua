@@ -1550,6 +1550,13 @@ function PathFinderModule:createWayPoints()
     self:smoothResultingPPPath_Refined()
 
     if self.smoothStep == 2 then
+        -- When going to network, dont turn actual road network nodes into pathFinderPoints
+        if self.goingToNetwork then
+            for i = 1, #self.wayPoints, 1 do
+                self.wayPoints[i].isPathFinderPoint = true
+            end
+        end
+
         if self.appendWayPoints ~= nil then
             for i = 1, #self.appendWayPoints, 1 do
                 self.wayPoints[#self.wayPoints + 1] = self.appendWayPoints[i]
@@ -1562,9 +1569,12 @@ function PathFinderModule:createWayPoints()
                 --)
             --)
         end
-        
-        for i = 1, #self.wayPoints, 1 do
-            self.wayPoints[i].isPathFinderPoint = true
+
+        -- See comment above
+        if not self.goingToNetwork then
+            for i = 1, #self.wayPoints, 1 do
+                self.wayPoints[i].isPathFinderPoint = true
+            end
         end
     end
 end
