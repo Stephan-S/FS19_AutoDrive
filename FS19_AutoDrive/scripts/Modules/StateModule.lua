@@ -57,6 +57,8 @@ function ADStateModule:reset()
     self.remainingDriveTime = 0
     self.calculateRemainingDriveTimeInterval = 0
     self.refuelFillType = 0
+    self.activeBeforeSave = false
+    self.AIVEActiveBeforeSave = false
 end
 
 function ADStateModule:readFromXMLFile(xmlFile, key)
@@ -111,6 +113,16 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
     if driverName ~= nil then
         self.driverName = driverName
     end
+
+    local lastActive = getXMLBool(xmlFile, key .. "#lastActive")
+    if lastActive ~= nil then
+        self.activeBeforeSave = lastActive
+    end
+
+    local AIVElastActive = getXMLBool(xmlFile, key .. "#AIVElastActive")
+    if AIVElastActive ~= nil then
+        self.AIVEActiveBeforeSave = AIVElastActive
+    end
 end
 
 function ADStateModule:saveToXMLFile(xmlFile, key)
@@ -126,6 +138,8 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
     setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
+    setXMLBool(xmlFile, key .. "#lastActive", self.active)
+    setXMLBool(xmlFile, key .. "#AIVElastActive", (self.vehicle.acParameters ~= nil and self.vehicle.acParameters.enabled and self.vehicle.spec_aiVehicle.isActive))
 end
 
 function ADStateModule:writeStream(streamId)
