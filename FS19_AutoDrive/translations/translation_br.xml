@@ -32,6 +32,7 @@
 		<text name="input_ADGoToVehicle"						text="AD: Ir para o veículo que chegou" />
 		<text name="input_ADNameDriver"							text="AD: Assign driver name" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumentar contador de loop" />
+		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Estacionar veículo" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
@@ -222,6 +223,7 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="External Interface" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
+		<text name="gui_ad_debugChannelBGA"						text="BGA Mode" />
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />

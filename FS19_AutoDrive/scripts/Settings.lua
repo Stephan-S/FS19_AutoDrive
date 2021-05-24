@@ -569,10 +569,9 @@ AutoDrive.settings.enableTrafficDetection = {
     isVehicleSpecific = false
 }
 
---[[
 AutoDrive.settings.shovelWidth = {
-    values = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0},
-    texts = {"0m", "0.1m", "0.2m", "0.3m", "0.4m", "0.5m", "0.6m", "0.7m", "0.8m", "0.9m", "1.0m", "1.1m", "1.2m", "1.3m", "1.4m", "1.5m", "1.6m", "1.7m", "1.8m", "1.9m", "2.0m"},
+    values = {0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0},
+    texts = {"0m", "0.2m", "0.4m", "0.6m", "0.8m", "1.0m", "1.2m", "1.4m", "1.6m", "1.8m", "2.0m", "2.2m", "2.4m", "2.6m", "2.8m", "3.0m", "3.2m", "3.4m", "3.6m", "3.8m", "4.0m"},
     default = 1,
     current = 1,
     text = "gui_ad_shovelWidth",
@@ -580,9 +579,8 @@ AutoDrive.settings.shovelWidth = {
     translate = false,
     isVehicleSpecific = true
 }
-]]
 
---[[
+
 AutoDrive.settings.shovelHeight = {
     values = {
         -0.5,
@@ -697,7 +695,6 @@ AutoDrive.settings.shovelHeight = {
     translate = false,
     isVehicleSpecific = true
 }
-]]
 
 AutoDrive.settings.useFolders = {
     values = {false, true},

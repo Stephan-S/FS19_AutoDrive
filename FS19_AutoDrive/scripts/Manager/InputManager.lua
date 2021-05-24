@@ -77,7 +77,8 @@ ADInputManager.inputsToIds = {
     input_startCp = 25,
     input_toggleCP_AIVE = 26,
     input_record_subPrio = 27,
-    input_record_subPrioDual = 28
+    input_record_subPrioDual = 28,
+    input_bunkerUnloadType = 29
 }
 
 ADInputManager.idsToInputs = {}
@@ -454,4 +455,8 @@ function ADInputManager:input_devAction(vehicle)
     if AutoDrive.devAction ~= nil then
         AutoDrive.devAction(vehicle)
     end
+end
+
+function ADInputManager:input_bunkerUnloadType(vehicle)    
+    vehicle.ad.stateModule:nextBunkerUnloadType()
 end

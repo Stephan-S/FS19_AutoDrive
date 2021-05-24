@@ -171,6 +171,14 @@ function ADHudButton:getNewState(vehicle)
             end
         end
         self.isVisible = (not AutoDrive.isEditorModeEnabled()) or (AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD"))
+    end  
+
+    if self.primaryAction == "input_bunkerUnloadType" then
+        if vehicle.ad.stateModule:getBunkerUnloadTypeIsTrigger() then
+            newState = 1
+        else
+            newState = 2
+        end
     end
 
     return newState
