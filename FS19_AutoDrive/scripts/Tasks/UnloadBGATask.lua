@@ -878,7 +878,8 @@ function UnloadBGATask:driveToSiloCommonPoint(dt)
         self.checkedCurrentRow = true
     end
 
-    self.targetPoint = self:getTargetForShovelOffset(14)
+    --self.targetPoint = self:getTargetForShovelOffset(14)
+    self.targetPoint = self:getTargetForShovelOffset(AutoDrive.getVehicleLeadingEdge(vehicle) + 6)
     local angleToSilo = self:getAngleToTarget() -- in +/- 180°
 
     if self.storedDirection == nil then
@@ -912,7 +913,8 @@ function UnloadBGATask:driveToSiloClosePoint(dt)
 end
 
 function UnloadBGATask:driveToSiloReversePoint(dt)
-    self.targetPoint = self:getTargetForShovelOffset(18)
+    --self.targetPoint = self:getTargetForShovelOffset(18)
+    self.targetPoint = self:getTargetForShovelOffset(AutoDrive.getVehicleLeadingEdge(vehicle) + 6)
     self.driveStrategy = self:getDriveStrategyToTarget(false, dt)
 
     self.shovelTarget = self.SHOVELSTATE_LOW
@@ -1139,7 +1141,6 @@ function UnloadBGATask:loadFromBGA(dt)
 end
 
 function UnloadBGATask:getTargetForShovelOffset(inFront)
-    print("Getting target for shovel in front: " .. inFront)
     local offsetToUse = self.shovelOffsetCounter
     local fromOtherSide = false
     if self.shovelOffsetCounter > self.highestShovelOffsetCounter then
@@ -1188,7 +1189,8 @@ function UnloadBGATask:reverseFromBGALoad(dt)
     self.shovelTarget = self.SHOVELSTATE_LOW
 
     self.targetPoint = self:getTargetForShovelOffset(200)
-    self.targetPointClose = self:getTargetForShovelOffset(16)
+    --self.targetPointClose = self:getTargetForShovelOffset(16)
+    self.targetPointClose = self:getTargetForShovelOffset(AutoDrive.getVehicleLeadingEdge(vehicle) + 10)
 
     local finalSpeed = 30
     local acc = 1
