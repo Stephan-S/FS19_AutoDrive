@@ -141,19 +141,23 @@ function ADGraphManager:getPathTo(vehicle, waypointId)
 
 	local closestWaypoint = self:findMatchingWayPointForVehicle(vehicle)
 	if closestWaypoint ~= nil then
-		wp = self:pathFromTo(closestWaypoint, waypointId)
+		local outCandidates = self:getBestOutPoints(vehicle, closestWaypoint)
+		wp = self:pathFromTo(closestWaypoint, waypointId, outCandidates)
 	end
 
 	return wp
 end
 
-function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId)
+function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId, preferredNeighbors)
 	local wp = {}
 	if startWaypointId ~= nil and self.wayPoints[startWaypointId] ~= nil and targetWaypointId ~= nil and self.wayPoints[targetWaypointId] ~= nil then
 		if startWaypointId == targetWaypointId then
 			table.insert(wp, self.wayPoints[targetWaypointId])
 		else
-			wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId)
+			if preferredNeighbors == nil then
+				preferredNeighbors = {}
+			end
+			wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId, preferredNeighbors)
 			--wp = AutoDrive:dijkstraLiveShortestPath(startWaypointId, targetWaypointId)
 		end
 	end
@@ -168,7 +172,7 @@ function ADGraphManager:pathFromToMarker(startWaypointId, markerId)
 			table.insert(wp, 1, self.wayPoints[targetId])
 			return wp
 		else
-			wp = ADPathCalculator:GetPath(startWaypointId, targetId)
+			wp = ADPathCalculator:GetPath(startWaypointId, targetId, {})
 			--wp = AutoDrive:dijkstraLiveShortestPath(startWaypointId, targetId)
 		end
 	end
@@ -200,7 +204,7 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 		return wp
 	end
 
-	wp = ADPathCalculator:GetPath(start_id, target_id)
+	wp = ADPathCalculator:GetPath(start_id, target_id, {})
 	--wp = AutoDrive:dijkstraLiveShortestPath(start_id, target_id)
 	return wp
 end
@@ -1077,4 +1081,24 @@ function ADGraphManager:getIsPointSubPrioMarker(wayPointId)
 	end
 
 	return false
+end
+
+function ADGraphManager:getBestOutPoints(vehicle, nodeId)
+	local neighbors = {}
+
+	local x, y, z = getWorldTranslation(vehicle.components[1].node)
+	local toCheck = self.wayPoints[nodeId]
+	local baseDistance = MathUtil.vector2Length(toCheck.x - x, toCheck.z - z)
+
+	if toCheck.out ~= nil then
+		for _, outId in pairs(toCheck.out) do
+			local out = self.wayPoints[outId]
+			local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, out.x, y, out.z)
+			if out ~= nil and baseDistance < MathUtil.vector2Length(out.x - x, out.z - z) and offsetZ > 0 then
+				table.insert(neighbors, out.id)
+			end
+		end
+	end
+
+	return neighbors
 end

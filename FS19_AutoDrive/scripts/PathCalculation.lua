@@ -1,21 +1,18 @@
 ADPathCalculator = {}
 
-function ADPathCalculator:GetPath(startID, targetID)
+function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
 	local count = 0
 
     if not ADGraphManager:areWayPointsPrepared() then
-        print("ADPathCalculator - preparing waypoints - 1")
+        print("ADPathCalculator - preparing waypoints")
 		AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
-        print("ADPathCalculator - preparing waypoints - 2")
 		AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
-        print("ADPathCalculator - preparing waypoints - 3")
         ADGraphManager:prepareWayPoints()
-        print("ADPathCalculator - preparing waypoints - 4")
     end
 
     local network = ADGraphManager:getWayPoints()
     local addedWeights = self:getDetourWeights()
-
+    local subPrioNode = ADGraphManager:getSubPrioMarkerNode()
     
     if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil then
         return {}
@@ -34,6 +31,22 @@ function ADPathCalculator:GetPath(startID, targetID)
     local sqrt = math.sqrt
     local distanceFunc = function(a, b)
         return sqrt(a * a + b * b)
+    end
+
+    local isSubPrio = function(pointToTest) 
+        if subPrioNode == nil then
+            return false
+        end
+        for _, neighborId in pairs(pointToTest.out) do
+            local neighbor = network[neighborId]
+            if neighbor ~= nil then			
+                if neighbor.id == subPrioNode.id then
+                    return true
+                end
+            end
+        end
+    
+        return false
     end
 
     local lastPredecessor = nil
@@ -74,7 +87,17 @@ function ADPathCalculator:GetPath(startID, targetID)
 								end
 							end
 							if toBeAdded then --or (#point.incoming > 1)
-								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)), pre=point.id})
+                                local factor = 1
+                                if isSubPrio(outPoint) then
+                                    factor = 20
+                                end
+                                local preventTurnaroundWeight = 0
+                                if point.id == startID then
+                                    if not table.contains(preferredStartIds, outPoint.id) then
+                                        preventTurnaroundWeight = 5000
+                                    end
+                                end
+								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) * factor + (addedWeights[outPoint.id] or 0) + preventTurnaroundWeight), pre=point.id})
 							end
 
 							if results[point.id][outId] == nil then
