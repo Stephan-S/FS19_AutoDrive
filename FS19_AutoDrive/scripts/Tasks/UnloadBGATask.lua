@@ -768,11 +768,11 @@ function UnloadBGATask:getTargetBunkerLoadingSide()
     end
 
     local trigger = self.targetBunker
-    --        vecW
+                                                                        --        vecW
     local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz --      1 ---- 2
     local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz -- vecH | ---- |
     local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz --      | ---- |
-    local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1) --      3 ---- 4    4 = 2 + vecH
+    local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1)                       --      3 ---- 4    4 = 2 + vecH
 
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -1139,6 +1139,7 @@ function UnloadBGATask:loadFromBGA(dt)
 end
 
 function UnloadBGATask:getTargetForShovelOffset(inFront)
+    print("Getting target for shovel in front: " .. inFront)
     local offsetToUse = self.shovelOffsetCounter
     local fromOtherSide = false
     if self.shovelOffsetCounter > self.highestShovelOffsetCounter then
@@ -1157,6 +1158,10 @@ function UnloadBGATask:getPointXInFrontAndYOffsetFromBunker(inFront, offset, fro
     local normalizedVec = {x = (p2.x - p1.x) / (math.abs(p2.x - p1.x) + math.abs(p2.z - p1.z)), z = (p2.z - p1.z) / (math.abs(p2.x - p1.x) + math.abs(p2.z - p1.z))}
     --get ortho for 'inFront' parameter
     local ortho = {x = -normalizedVec.z, z = normalizedVec.x}
+    local factor = math.sqrt(math.pow(ortho.x, 2) + math.pow(ortho.z, 2))
+    ortho.x = ortho.x / factor
+    ortho.z = ortho.z / factor
+    
     --get shovel offset correct position on silo line
     local targetPoint = {x = p1.x + normalizedVec.x * offset, z = p1.z + normalizedVec.z * offset}
 
