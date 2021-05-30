@@ -533,8 +533,9 @@ function AutoDrive:onDrawEditorMode()
         local y = point.y
         local z = point.z
         local isSubPrio = ADGraphManager:getIsPointSubPrio(point.id)
+        local isSubPrioMarker = ADGraphManager:getIsPointSubPrioMarker(point.id)
 
-        if AutoDrive.isInExtendedEditorMode() then
+        if AutoDrive.isInExtendedEditorMode() and not isSubPrioMarker then
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.enableSphrere == true then
                 if AutoDrive.mouseIsAtPos(point, 0.01) then
@@ -623,7 +624,7 @@ function AutoDrive:onDrawEditorMode()
         end
 
         --just a quick way to highlight single (forgotten) points with no connections
-        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) then
+        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) and not isSubPrioMarker then
             y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z) + 0.5
             DrawingManager:addCrossTask(x, y, z)
         end
