@@ -94,7 +94,7 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
                                 local preventTurnaroundWeight = 0
                                 if point.id == startID then
                                     if not table.contains(preferredStartIds, outPoint.id) then
-                                        preventTurnaroundWeight = 5000
+                                        preventTurnaroundWeight = 5000000
                                     end
                                 end
 								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) * factor + (addedWeights[outPoint.id] or 0) + preventTurnaroundWeight), pre=point.id})
