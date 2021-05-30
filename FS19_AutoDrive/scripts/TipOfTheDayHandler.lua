@@ -30,7 +30,7 @@ AutoDrive.tipOfTheDay.Entries[4].titletext = "ad_totd_04_title"
 
 AutoDrive.tipOfTheDay.currentTipId = 1
 AutoDrive.tipOfTheDay.highestTipId = 1
-AutoDrive.tipOfTheDay.displayedYet = false
+AutoDrive.tipOfTheDay.displayedYet = true
 
 AutoDrive.tipOfTheDay.delayTime = 500
 

@@ -55,7 +55,7 @@ end
 
 function ADTipOfTheDayGUI:onClickActivate()
     --ADTipOfTheDayGUI:superClass().onClickActivate(self)
-    AutoDrive.showNextTipOfTheDay()
+    --AutoDrive.showNextTipOfTheDay()
     self:refreshItems()
 end
 
