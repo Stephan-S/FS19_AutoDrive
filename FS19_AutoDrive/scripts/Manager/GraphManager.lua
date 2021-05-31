@@ -1063,8 +1063,9 @@ function ADGraphManager:getIsPointSubPrio(wayPointId)
 	
 	for _, neighborId in pairs(wayPoint.out) do
 		local neighbor = ADGraphManager:getWayPointById(neighborId)
-		if neighbor ~= nil then			
-			if neighbor.id == self:getSubPrioMarkerNode().id then
+		if neighbor ~= nil then
+			local subPrioMarker	= self:getSubPrioMarkerNode()
+			if subPrioMarker ~= nil and neighbor.id == subPrioMarker.id then
 				return true
 			end
 		end

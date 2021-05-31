@@ -4,7 +4,6 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
 	local count = 0
 
     if not ADGraphManager:areWayPointsPrepared() then
-        print("ADPathCalculator - preparing waypoints")
 		AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
 		AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
         ADGraphManager:prepareWayPoints()

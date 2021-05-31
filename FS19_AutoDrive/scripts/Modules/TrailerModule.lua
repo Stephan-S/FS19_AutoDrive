@@ -176,6 +176,20 @@ function ADTrailerModule:updateStates()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateStates end self.isUnloading %s self.fillUnits %s self.blocked %s", tostring(self.isUnloading), tostring(self.fillUnits), tostring(self.blocked))
 end
 
+function ADTrailerModule:canBeHandledInReverse()
+    if self.trailers == nil then
+        self:updateStates()
+    end
+
+    local hasTurnTable = false
+    for _, trailer in pairs(self.trailers) do
+        if #trailer.components > 1 then
+            hasTurnTable = true
+        end
+    end
+    return not hasTurnTable and #self.trailers < 2
+end
+
 --[[
 Important:
 Due to a call to GlobalCompany GC_LoadingTrigger:getIsActivatable() from Giants Engine without initiate by AD we need to fake if AD is active or not
