@@ -238,7 +238,6 @@ function ADDrivePathModule:followWaypoints(dt)
             self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle() * 1.5)
         end
 
-        local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
         if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
             -- drive through bunker silo
             self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
