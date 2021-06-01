@@ -654,45 +654,16 @@ function PathFinderModule:update(dt)
             local bestCell = nil
             local bestSteps = math.huge
 
-            for _, cell in pairs(self.grid) do
-                --also checking for chasingVehicle here -> don't ever drive through fruit in chasingVehicle mode -> this will often result in driver cutting through fruit in front of combine!
-                if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) and (cell.bordercells < PathFinderModule.MAX_FIELDBORDER_CELLS) then
-                    local distance = 0
-                    -- if not self.reachedFieldBorder and self.targetFieldId ~= nil then
-                        -- distance = distanceFunc(self.fieldCell.x - cell.x, self.fieldCell.z - cell.z)
-                    -- else
-                        distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
-                    -- end
-
-                    if (distance < minDistance) or (distance == minDistance and cell.steps < bestSteps) then
-                        minDistance = distance
-                        bestCell = cell
-                        bestSteps = cell.steps
-                    end
-                end
-            end
-
-            self.currentCell = bestCell
+            self.currentCell = self:findClosestCell(self.grid, math.huge)
 
             if self.currentCell ~= nil and distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z) < 1.5 then
 
                 if self.currentCell.out == nil then
                     self:determineNextGridCells(self.currentCell)
                 end
-                for _, outCell in pairs(self.currentCell.out) do
-                    if outCell.x == self.targetCell.x and outCell.z == self.targetCell.z then
-                        self.isFinished = true
-                        self.targetCell.incoming = self.currentCell --.incoming
 
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - path found")
-                        PathFinderModule.debugVehicleMsg(self.vehicle,
-                            string.format("[AD] PFM %s update - path found #self.grid %d",
-                                tostring(self.vehicle:getName()),
-                                table.count(self.grid)
-                            )
-                        )
-                        return
-                    end
+                if self:reachedTargetsNeighbor(self.currentCell.out) then
+                    return
                 end
             end
 
@@ -713,8 +684,64 @@ function PathFinderModule:update(dt)
                 self:determineNextGridCells(self.currentCell)
             end
             self:testNextCells(self.currentCell)
+
+            --Try shortcutting the process here. We dont have to go through the whole grid if one of the out points is viable and closer than the currenCell which was already closest
+            local currentDistance = distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z)
+
+            local nextCell = self:findClosestCell(self.currentCell.out, currentDistance)
+            
+            -- Lets again check if we have reached our target already
+            if self:reachedTargetsNeighbor(self.currentCell.out) then
+                return
+            end
+
+            self.currentCell = nextCell
         end
     end
+end
+
+function PathFinderModule:reachedTargetsNeighbor(cells)
+    for _, outCell in pairs(cells) do
+        if outCell.x == self.targetCell.x and outCell.z == self.targetCell.z then
+            self.isFinished = true
+            self.targetCell.incoming = self.currentCell --.incoming
+
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - path found")
+            PathFinderModule.debugVehicleMsg(self.vehicle,
+                string.format("[AD] PFM %s update - path found #self.grid %d",
+                    tostring(self.vehicle:getName()),
+                    table.count(self.grid)
+                )
+            )
+
+            return true
+        end
+    end
+    return false
+end
+
+function PathFinderModule:findClosestCell(cells, startDistance)
+    local sqrt = math.sqrt
+    local distanceFunc = function(a, b)
+        return sqrt(a * a + b * b)
+    end
+    local minDistance = startDistance
+    local bestCell = nil
+    local bestSteps = math.huge
+
+    for _, cell in pairs(cells) do
+        if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) and (cell.bordercells < PathFinderModule.MAX_FIELDBORDER_CELLS) then
+            local distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
+
+            if (distance < minDistance) or (distance == minDistance and cell.steps < bestSteps) then
+                minDistance = distance
+                bestCell = cell
+                bestSteps = cell.steps
+            end
+        end
+    end
+
+    return bestCell
 end
 
 function PathFinderModule:testNextCells(cell)
@@ -829,7 +856,6 @@ function PathFinderModule:testNextCells(cell)
     end
 
     cell.visited = true
-    self.currentCell = nil
 end
 
 function PathFinderModule:checkGridCell(cell)
