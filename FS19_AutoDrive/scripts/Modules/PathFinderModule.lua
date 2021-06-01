@@ -925,8 +925,13 @@ function PathFinderModule:checkGridCell(cell)
         end
     end
 
-    if not cell.isRestricted and not cell.hasCollision then
-        local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius, self.vehicle)
+    if not cell.isRestricted and not cell.hasCollision and cell.incoming ~= nil then
+        local worldPosPrevious = self:gridLocationToWorldLocation(cell.incoming)
+        local vectorX = worldPosPrevious.x - worldPos.x
+        local vectorZ = worldPosPrevious.z - worldPos.z
+        local dirVec = { x=vectorX, z = vectorZ}
+
+        local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius, self.vehicle, dirVec)
         cell.isRestricted = cell.isRestricted or cellUsedByVehiclePath
         self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
     end

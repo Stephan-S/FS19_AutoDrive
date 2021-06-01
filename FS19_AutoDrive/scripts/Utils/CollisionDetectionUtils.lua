@@ -31,7 +31,7 @@ function AutoDrive.checkForVehiclesInBox(boundingBox, excludedVehicles)
     return false
 end
 
-function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius, searchingVehicle)
+function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius, searchingVehicle, currentVec)
     for _, otherVehicle in pairs(g_currentMission.vehicles) do
         if otherVehicle ~= nil and otherVehicle ~= searchingVehicle and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then                            
             if minTurnRadius ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil then
@@ -66,7 +66,14 @@ function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius, searchin
                             local corner4Z = wp.z + math.sin(rightAngle) * sideLength
                             local cellBox = AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
 
-                            if AutoDrive.boxesIntersect(boundingBox, cellBox) == true then
+                            local anglesSimilar = false
+                            if currentVec ~= nil then
+                                local dirVec = { x=vectorX, z = vectorZ}
+                                local angleBetween = AutoDrive.angleBetween(dirVec, currentVec)
+                                anglesSimilar = math.abs(angleBetween) < 20 or math.abs(angleBetween) > 160
+                            end
+
+                            if AutoDrive.boxesIntersect(boundingBox, cellBox) == true and anglesSimilar then
                                 return true
                             end
                         end
