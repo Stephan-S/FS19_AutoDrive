@@ -30,87 +30,90 @@ function ADCollisionDetectionModule:detectObstacle()
 		end
 	end
 
-	local excludedList = self.vehicle.ad.taskModule:getActiveTask():getExcludedVehiclesForCollisionCheck()
+	if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then
+		local excludedList = self.vehicle.ad.taskModule:getActiveTask():getExcludedVehiclesForCollisionCheck()
 
-	local boundingBox = {}
-    boundingBox[1] = box.topLeft
-    boundingBox[2] = box.topRight
-    boundingBox[3] = box.downRight
-	boundingBox[4] = box.downLeft
-	
-	if AutoDrive:checkForVehicleCollision(self.vehicle, boundingBox, excludedList) then
-		return true
+		local boundingBox = {}
+	    boundingBox[1] = box.topLeft
+	    boundingBox[2] = box.topRight
+	    boundingBox[3] = box.downRight
+		boundingBox[4] = box.downLeft
+
+		if AutoDrive:checkForVehicleCollision(self.vehicle, boundingBox, excludedList) then
+			return true
+		end
 	end
-
 	return false
 end
 
 function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 	local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
 	if self.vehicle.ad.stateModule:isActive() and wayPoints ~= nil and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
-		local idToCheck = 3
-		local alreadyOnDualRoute = false
-		if wayPoints[currentWayPoint - 1] ~= nil and wayPoints[currentWayPoint] ~= nil then
-			alreadyOnDualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
-		end
-		
-		if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil and not alreadyOnDualRoute then
-			local dualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
+		if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then
+			local idToCheck = 3
+			local alreadyOnDualRoute = false
+			if wayPoints[currentWayPoint - 1] ~= nil and wayPoints[currentWayPoint] ~= nil then
+				alreadyOnDualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
+			end
 
-			local dualRoutePoints = {}
-			idToCheck = 0
-			while (dualRoute == true) or (idToCheck < 8) do
-				local startNode = wayPoints[currentWayPoint + idToCheck]
-				local targetNode = wayPoints[currentWayPoint + idToCheck + 1]
-				if (startNode ~= nil) and (targetNode ~= nil) then
-					local testDual = ADGraphManager:isDualRoad(startNode, targetNode)
-					if testDual == true then
-						table.insert(dualRoutePoints, startNode.id)
-						dualRoute = true
+			if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil and not alreadyOnDualRoute then
+				local dualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
+
+				local dualRoutePoints = {}
+				idToCheck = 0
+				while (dualRoute == true) or (idToCheck < 8) do
+					local startNode = wayPoints[currentWayPoint + idToCheck]
+					local targetNode = wayPoints[currentWayPoint + idToCheck + 1]
+					if (startNode ~= nil) and (targetNode ~= nil) then
+						local testDual = ADGraphManager:isDualRoad(startNode, targetNode)
+						if testDual == true then
+							table.insert(dualRoutePoints, startNode.id)
+							dualRoute = true
+						else
+							dualRoute = false
+						end
 					else
 						dualRoute = false
 					end
-				else
-					dualRoute = false
+					idToCheck = idToCheck + 1
 				end
-				idToCheck = idToCheck + 1
-			end
 
-			self.trafficVehicle = nil
-			if #dualRoutePoints > 0 then
-				for _, other in pairs(g_currentMission.vehicles) do
-					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						
-						local onSameRoute = false
-						local sameDirection = false
-						local window = 4
-						local i = -window
-						local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
-						while i <= window do
-							if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
-								for _, point in pairs(dualRoutePoints) do
-									if point == otherWayPoints[otherCurrentWayPoint + i].id then
-										onSameRoute = true
-										--check if going in same direction
-										if dualRoutePoints[_ + 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i + 1] ~= nil then
-											if dualRoutePoints[_ + 1] == otherWayPoints[otherCurrentWayPoint + i + 1].id then
-												sameDirection = true
+				self.trafficVehicle = nil
+				if #dualRoutePoints > 0 then
+					for _, other in pairs(g_currentMission.vehicles) do
+						if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						
+							local onSameRoute = false
+							local sameDirection = false
+							local window = 4
+							local i = -window
+							local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
+							while i <= window do
+								if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
+									for _, point in pairs(dualRoutePoints) do
+										if point == otherWayPoints[otherCurrentWayPoint + i].id then
+											onSameRoute = true
+											--check if going in same direction
+											if dualRoutePoints[_ + 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i + 1] ~= nil then
+												if dualRoutePoints[_ + 1] == otherWayPoints[otherCurrentWayPoint + i + 1].id then
+													sameDirection = true
+												end
 											end
-										end
-										--check if going in same direction
-										if dualRoutePoints[_ - 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i - 1] ~= nil then
-											if dualRoutePoints[_ - 1] == otherWayPoints[otherCurrentWayPoint + i - 1].id then
-												sameDirection = true
+											--check if going in same direction
+											if dualRoutePoints[_ - 1] ~= nil and otherWayPoints[otherCurrentWayPoint + i - 1] ~= nil then
+												if dualRoutePoints[_ - 1] == otherWayPoints[otherCurrentWayPoint + i - 1].id then
+													sameDirection = true
+												end
 											end
 										end
 									end
 								end
+								i = i + 1
 							end
-							i = i + 1
-						end
 
-						if onSameRoute == true and other.ad.collisionDetectionModule:getDetectedVehicle() == nil and (sameDirection == false) then
-							self.trafficVehicle = other
-							return true
+							if onSameRoute == true and other.ad.collisionDetectionModule:getDetectedVehicle() == nil and (sameDirection == false) then
+								self.trafficVehicle = other
+								return true
+							end
 						end
 					end
 				end
@@ -123,54 +126,56 @@ end
 function ADCollisionDetectionModule:detectTrafficOnUpcomingReverseSection()
 	local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
 	if self.vehicle.ad.stateModule:isActive() and wayPoints ~= nil and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
-		local idToCheck = 1
-		
-		if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil then
-			local reverseSection = ADGraphManager:isReverseRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
+		if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then
+			local idToCheck = 1
 
-			local reverseSectionPoints = {}
-			idToCheck = 0
-			while (reverseSection == true) or (idToCheck < 20) do
-				local startNode = wayPoints[currentWayPoint + idToCheck]
-				local targetNode = wayPoints[currentWayPoint + idToCheck + 1]
-				if (startNode ~= nil) and (targetNode ~= nil) then
-					if ADGraphManager:isReverseRoad(startNode, targetNode) == true then
-						table.insert(reverseSectionPoints, startNode.id)
-						reverseSection = true
+			if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil then
+				local reverseSection = ADGraphManager:isReverseRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
+
+				local reverseSectionPoints = {}
+				idToCheck = 0
+				while (reverseSection == true) or (idToCheck < 20) do
+					local startNode = wayPoints[currentWayPoint + idToCheck]
+					local targetNode = wayPoints[currentWayPoint + idToCheck + 1]
+					if (startNode ~= nil) and (targetNode ~= nil) then
+						if ADGraphManager:isReverseRoad(startNode, targetNode) == true then
+							table.insert(reverseSectionPoints, startNode.id)
+							reverseSection = true
+						else
+							reverseSection = false
+						end
 					else
 						reverseSection = false
 					end
-				else
-					reverseSection = false
+					idToCheck = idToCheck + 1
 				end
-				idToCheck = idToCheck + 1
-			end
 
-			if #reverseSectionPoints > 0 then
-				--print(self.vehicle.ad.stateModule:getName() .. " - detected reverse section ahead")
-				for _, other in pairs(g_currentMission.vehicles) do
-					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() and
-                        not (other.ad ~= nil and other.ad == self.vehicle.ad)       -- some trailed harvester get assigned AD from the trailing vehicle, see "attachable.ad = self.ad" in Specialisation
-                    then
-						local onSameRoute = false
-						local i = -10
-						local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
-						while i <= 0 do
-							if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
-								for _, point in pairs(reverseSectionPoints) do
-									if point == otherWayPoints[otherCurrentWayPoint + i].id then
-										onSameRoute = true
-										break
+				if #reverseSectionPoints > 0 then
+					--print(self.vehicle.ad.stateModule:getName() .. " - detected reverse section ahead")
+					for _, other in pairs(g_currentMission.vehicles) do
+						if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() and
+				not (other.ad ~= nil and other.ad == self.vehicle.ad)       -- some trailed harvester get assigned AD from the trailing vehicle, see "attachable.ad = self.ad" in Specialisation
+			    then
+							local onSameRoute = false
+							local i = -10
+							local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
+							while i <= 0 do
+								if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
+									for _, point in pairs(reverseSectionPoints) do
+										if point == otherWayPoints[otherCurrentWayPoint + i].id then
+											onSameRoute = true
+											break
+										end
 									end
 								end
+								i = i + 1
 							end
-							i = i + 1
-						end
 
-						if onSameRoute == true then							
-							--print(self.vehicle.ad.stateModule:getName() .. " - detected reverse section ahead - another vehicle on it")
-							self.trafficVehicle = other
-							return true
+							if onSameRoute == true then							
+								--print(self.vehicle.ad.stateModule:getName() .. " - detected reverse section ahead - another vehicle on it")
+								self.trafficVehicle = other
+								return true
+							end
 						end
 					end
 				end
