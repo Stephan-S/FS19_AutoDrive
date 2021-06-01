@@ -18,6 +18,7 @@ function ADSpecialDrivingModule:reset()
     self.unloadingIntoBunkerSilo = false
     self.stoppedTimer = AutoDriveTON:new()
     self.vehicle.trailer = {}
+    self.isReversing = false
 end
 
 function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
@@ -136,6 +137,9 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration, guid
             self.vehicle.ad.specialDrivingModule:reverseToTargetLocation(dt, self.reverseTarget, maxSpeed)
         end
     end
+    
+    -- Update trailers in case we need to lock the front axle
+    self.vehicle.ad.trailerModule:handleTrailerReversing(true)
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDynamicCollision, maxAcc, maxSpeed)

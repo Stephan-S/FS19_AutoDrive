@@ -132,12 +132,12 @@ function ADDrivePathModule:update(dt)
     end
 
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
-
         if self.isReversing then
             self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
         else
             self:followWaypoints(dt)
             self:checkIfStuck(dt)
+            self.vehicle.ad.trailerModule:handleTrailerReversing(false)
 
             if self:isCloseToWaypoint() then
                 local reverseStart, _ = self:checkForReverseSection()
