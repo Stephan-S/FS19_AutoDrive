@@ -125,7 +125,6 @@ end
 function ADTrailerModule:update(dt)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update start")
     local updateStatesDone = false
-    self:updateStates()
     if self.trailerCount == 0 then
         return
     end
