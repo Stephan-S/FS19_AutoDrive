@@ -49,9 +49,9 @@ function ADTrailerModule:reset()
         self.unloadRetryTimer:timer(false)      -- clear timer
     end
     self:clearTrailerUnloadTimers()
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
-    AutoDrive.setAugerPipeOpen(trailers, false)
+    self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
+    AutoDrive.setAugerPipeOpen(self.trailers, false)
     self.count = 0
 end
 
@@ -124,6 +124,7 @@ end
 
 function ADTrailerModule:update(dt)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update start")
+    local updateStatesDone = false
     self:updateStates()
     if self.trailerCount == 0 then
         return
@@ -132,10 +133,18 @@ function ADTrailerModule:update(dt)
 
     if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) or distanceToUnload < (AutoDrive.MAX_BUNKERSILO_LENGTH)) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateUnload")
+        if not updateStatesDone then
+            self:updateStates()
+            updateStatesDone = true
+        end
         self:updateUnload(dt)
     end
     if self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() and AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateLoad")
+        if not updateStatesDone then
+            self:updateStates()
+            updateStatesDone = true
+        end
         self:updateLoad(dt)
     end
     self:handleTrailerCovers()
@@ -148,13 +157,11 @@ end
 
 function ADTrailerModule:handleTrailerCovers()
     -- open trailer cover if trigger is reachable
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle)
-    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, isInRangeToLoadUnloadTarget)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, isInRangeToLoadUnloadTarget)
 end
 
 function ADTrailerModule:updateStates()
-    self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
     self.fillUnits = 0
     if self.lastFillLevel == nil then
@@ -180,7 +187,7 @@ end
 
 function ADTrailerModule:canBeHandledInReverse()
     if self.trailers == nil then
-       self:updateStates()
+        self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     end
 
     local hasTurnTable = false
