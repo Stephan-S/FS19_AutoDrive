@@ -794,8 +794,18 @@ function AutoDrive:onStartAutoDrive()
 
     self.ad.isActive = true
 
+    self.ad.helper = g_helperManager
+
     if self.currentHelper == nil then
         self.currentHelper = g_helperManager:getRandomHelper()
+
+        if self.currentHelper == nil then
+            g_currentMission.maxNumHirables = g_currentMission.maxNumHirables + 1;
+            --g_helperManager:addHelper("AD_" .. math.random(100, 1000), "dataS2/character/helper/helper02.xml")
+            AutoDrive.AddHelper()
+            self.currentHelper = g_helperManager:getRandomHelper()
+        end
+
         if self.currentHelper ~= nil then
             g_helperManager:useHelper(self.currentHelper)
         end
@@ -805,6 +815,8 @@ function AutoDrive:onStartAutoDrive()
         end
         if self.spec_enterable.controllerFarmId ~= 0 then
             self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
+        else
+            self.spec_aiVehicle.startedFarmId = g_currentMission.player.farmId
         end
     end
 
@@ -817,6 +829,22 @@ function AutoDrive:onStartAutoDrive()
             AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
         end
     end
+end
+
+function AutoDrive.AddHelper()
+    local source = g_helperManager.indexToHelper[1]
+    
+    g_helperManager.numHelpers = g_helperManager.numHelpers + 1
+    local helper = {}
+    helper.name = source.name .. "_" .. math.random(100, 1000)
+    helper.index = g_helperManager.numHelpers
+    helper.title = helper.name
+    helper.filename = source.filename
+
+    g_helperManager.helpers[helper.name] = helper
+    g_helperManager.nameToIndex[helper.name] = g_helperManager.numHelpers
+    g_helperManager.indexToHelper[g_helperManager.numHelpers] = helper
+    table.insert(g_helperManager.availableHelpers, helper)
 end
 
 function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
