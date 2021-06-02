@@ -483,7 +483,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 							ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)								
 							if AutoDrive.leftALTmodifierKeyPressed then
-								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)
+								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), false)
 							end
 
 							if AutoDrive.leftLSHIFTmodifierKeyPressed then								
@@ -491,7 +491,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 								--if not isSubPrioMarker then
 								--	ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
 								--end
-								ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
+								ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
 							end
 						end
 

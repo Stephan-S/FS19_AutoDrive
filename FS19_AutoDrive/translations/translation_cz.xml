@@ -60,7 +60,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořit" />
 		<text name="AD_lalt_for_deletion" 						text="LALT smazat" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT zpětný chod" />
+		<text name="AD_lshift_for_reverse" 						text="RSHIFT zpětný chod" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
 		<text name="gui_ad_blinkValue"						    text="Blinkry automaticky" />
 		<text name="gui_ad_blinkValue_tooltip"					text="Úhel řízení pro automatické zapnutí blinkrů. (0 = automatická deaktivace směrových světel)" />

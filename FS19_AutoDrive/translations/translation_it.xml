@@ -60,7 +60,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL per modalita editor estesa" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL per creare" />
 		<text name="AD_lalt_for_deletion" 						text="LALT per cancellare" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT per Guida in retromarcia" />
+		<text name="AD_lshift_for_reverse" 						text="RSHIFT per Guida in retromarcia" />
 		<text name="gui_ad_Setting"								text="Impostazioni Autodrive" />
 		<text name="gui_ad_collisionHeigth"						text="Distanza collisione" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Impostazione per il rilevamento delle collisioni davanti al veicolo. Se durante la guida non vengono rilevati altri veicoli, ridurre gradualmente. (Default 2m)" />

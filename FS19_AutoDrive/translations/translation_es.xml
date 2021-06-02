@@ -60,7 +60,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL para modo editor extendido" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL para crear" />
 		<text name="AD_lalt_for_deletion" 						text="LALT para borrar" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT marcha atrás" />
+		<text name="AD_lshift_for_reverse" 						text="RSHIFT marcha atrás" />
 		<text name="gui_ad_Setting"								text="Configuración - AutoDrive" />
 		<text name="gui_ad_collisionHeigth"						text="Altura de colisión sobre el suelo" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Configuración para la detección de colisiones delante del vehículo. Si no se detectan otros vehículos durante la conducción, reduce poco a poco. (Por defecto 2m)." />
