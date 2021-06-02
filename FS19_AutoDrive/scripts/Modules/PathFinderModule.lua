@@ -553,13 +553,12 @@ function PathFinderModule:update(dt)
         return
     end
 
-    self.steps = self.steps + 1
-
     if (self.steps % 100) == 0 then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - self.steps %d #self.grid %d", self.steps, table.count(self.grid))
     end
 
     if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
+        self.steps = self.steps + 1
         --[[ We need some better logic here. 
         Some situations might be solved by the module itself by either
             a) 'fallBackMode (ignore fruit and field restrictions)'
@@ -721,6 +720,7 @@ function PathFinderModule:reachedTargetsNeighbor(cells)
 end
 
 function PathFinderModule:findClosestCell(cells, startDistance)
+    local cellsToCheck = cells
     local sqrt = math.sqrt
     local distanceFunc = function(a, b)
         return sqrt(a * a + b * b)
@@ -729,7 +729,7 @@ function PathFinderModule:findClosestCell(cells, startDistance)
     local bestCell = nil
     local bestSteps = math.huge
 
-    for _, cell in pairs(cells) do
+    for _, cell in pairs(cellsToCheck) do
         if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) and (cell.bordercells < PathFinderModule.MAX_FIELDBORDER_CELLS) then
             local distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
 
