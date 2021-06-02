@@ -34,11 +34,11 @@ end
 function AutoDrive.checkForVehiclePathInBox(boundingBox, minTurnRadius, searchingVehicle, currentVec)
     for _, otherVehicle in pairs(g_currentMission.vehicles) do
         if otherVehicle ~= nil and otherVehicle ~= searchingVehicle and otherVehicle.components ~= nil and otherVehicle.sizeWidth ~= nil and otherVehicle.sizeLength ~= nil and otherVehicle.rootNode ~= nil then                            
-            if minTurnRadius ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil then
+            if minTurnRadius ~= nil and otherVehicle.ad ~= nil and otherVehicle.ad.drivePathModule ~= nil and otherVehicle.ad.stateModule:isActive() then
                 local otherWPs, otherCurrentWp = otherVehicle.ad.drivePathModule:getWayPoints()
                 local lastWp = nil
                 -- check for other pathfinder steered vehicles and avoid any intersection with their routes
-                if otherWPs ~= nil then
+                if otherWPs ~= nil and otherWPs[otherCurrentWp].isPathFinderPoint then
                     for index, wp in pairs(otherWPs) do
                         if lastWp ~= nil and wp.id == nil and index >= otherCurrentWp and wp.isPathFinderPoint and index > 2 and index < (#otherWPs - 5) then
                             local widthOfColBox = minTurnRadius
