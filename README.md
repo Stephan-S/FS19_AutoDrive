@@ -1,5 +1,5 @@
 # FS19_AutoDrive
-FS19 version of AutoDrive
+#### + + + Download links are at the bottom + + +
 
 If you want to support my development effort, the best way is to open issues on any bugs you encounter or for features you would like to be added to the mod.
 
