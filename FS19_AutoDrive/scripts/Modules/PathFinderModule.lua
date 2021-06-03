@@ -1642,7 +1642,6 @@ function PathFinderModule:smoothResultingPPPath()
     end
 
     self.wayPoints = filteredWPs
-    print("Done smooth 1")
     --PathFinderModule.debugVehicleMsg(self.vehicle,
         --string.format("[AD] PFM %s smoothResultingPPPath self.wayPoints %s",
             --tostring(self.vehicle:getName()),
