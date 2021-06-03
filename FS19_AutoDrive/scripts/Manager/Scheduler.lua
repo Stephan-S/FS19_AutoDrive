@@ -17,7 +17,7 @@ function ADScheduler:load()
     self.average_counter = 0
     self.average_fps = 0
 
-    self.stepsPerFrame = ADScheduler.MAX_STEPS_PER_FRAME
+    self.stepsPerFrame = ADScheduler.MAX_STEPS_PER_FRAME / 2
     self.pathFinderVehicles = {}
     self.activePathFindervehicle = nil
     self.updateTimer = AutoDriveTON:new()

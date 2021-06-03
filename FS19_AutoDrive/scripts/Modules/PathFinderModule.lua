@@ -1703,9 +1703,13 @@ function PathFinderModule:smoothResultingPPPath_Refined()
             local y = worldPos.y
             local foundCollision = false
 
+            if stepsThisFrame > math.max(1, (ADScheduler:getStepsPerFrame() * 0.4) then
+                break
+            end
+            
             --local stepsOfLookAheadThisFrame = 0
-
-            while (foundCollision == false or self.totalEagerSteps < PathFinderModule.PP_MAX_EAGER_LOOKAHEAD_STEPS) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsThisFrame <= math.max(1, (ADScheduler:getStepsPerFrame() * 0.4)) do
+            -- (foundCollision == false or self.totalEagerSteps < PathFinderModule.PP_MAX_EAGER_LOOKAHEAD_STEPS)
+            while (foundCollision == false) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsThisFrame <= math.max(1, (ADScheduler:getStepsPerFrame() * 0.4)) do
                 
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
@@ -1802,8 +1806,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
 
                 local corner4X = node.x - math.cos(rightAngle) * sideLength
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength
-
-                --[[
+                
                 if not hasCollision then
                     local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, self.mask, true, true, true)
                     hasCollision = hasCollision or (shapes > 0)
@@ -1818,8 +1821,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                             )
                         end
                     end
-                end
-                --]]
+                end                
 
                 if (self.smoothIndex > 1) then
                     local worldPosPrevious = self.wayPoints[self.smoothIndex - 1]
@@ -1943,7 +1945,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 end
             end
 
-            if self.totalEagerSteps >= PathFinderModule.PP_MAX_EAGER_LOOKAHEAD_STEPS or ((self.smoothIndex + self.totalEagerSteps) >= (#self.wayPoints - unfilteredEndPointCount)) then
+            if foundCollision or ((self.smoothIndex + self.totalEagerSteps) >= (#self.wayPoints - unfilteredEndPointCount)) then
                 self.smoothIndex = self.smoothIndex + math.max(1, (self.lookAheadIndex))
                 self.totalEagerSteps = 0
             end
