@@ -49,13 +49,14 @@ end
 function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 	local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
 	if self.vehicle.ad.stateModule:isActive() and wayPoints ~= nil and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
-		if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then
+		if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then			
+			self.trafficVehicle = nil
 			local idToCheck = 3
 			local alreadyOnDualRoute = false
 			if wayPoints[currentWayPoint - 1] ~= nil and wayPoints[currentWayPoint] ~= nil then
 				alreadyOnDualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint - 1], wayPoints[currentWayPoint])
 			end
-
+			
 			if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil and not alreadyOnDualRoute then
 				local dualRoute = ADGraphManager:isDualRoad(wayPoints[currentWayPoint + idToCheck], wayPoints[currentWayPoint + idToCheck + 1])
 
@@ -78,10 +79,9 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 					idToCheck = idToCheck + 1
 				end
 
-				self.trafficVehicle = nil
 				if #dualRoutePoints > 0 then
 					for _, other in pairs(g_currentMission.vehicles) do
-						if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						
+						if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then					
 							local onSameRoute = false
 							local sameDirection = false
 							local window = 4
@@ -109,7 +109,7 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 								end
 								i = i + 1
 							end
-
+							
 							if onSameRoute == true and other.ad.collisionDetectionModule:getDetectedVehicle() == nil and (sameDirection == false) then
 								self.trafficVehicle = other
 								return true
@@ -118,6 +118,8 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 					end
 				end
 			end
+		else
+			return self.trafficVehicle ~= nil
 		end
 	end
 	return false
