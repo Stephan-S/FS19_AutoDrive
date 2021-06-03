@@ -52,6 +52,7 @@ function ADTrailerModule:reset()
     self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
     AutoDrive.setAugerPipeOpen(self.trailers, false)
+    self:handleTrailerReversing(false)
     self.count = 0
 end
 
