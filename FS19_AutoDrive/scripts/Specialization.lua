@@ -194,7 +194,7 @@ function AutoDrive:onPostLoad(savegame)
     link(self.components[1].node, self.ad.frontNode)
     setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
     self.ad.frontNodeGizmo = DebugGizmo:new()
-    -- self.ad.debug = RingQueue:new()
+    self.ad.debug = RingQueue:new()
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
@@ -816,7 +816,13 @@ function AutoDrive:onStartAutoDrive()
         if self.spec_enterable.controllerFarmId ~= 0 then
             self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
         else
-            self.spec_aiVehicle.startedFarmId = g_currentMission.player.farmId
+            if g_currentMission ~= nil and g_currentMission.player ~= nil and g_currentMission.player.farmId ~= nil then
+                self.spec_aiVehicle.startedFarmId = g_currentMission.player.farmId
+            elseif self.getOwnerFarmId ~= nil and self:getOwnerFarmId() ~= nil then
+                self.spec_aiVehicle.startedFarmId = self:getOwnerFarmId()
+            else
+                self.spec_aiVehicle.startedFarmId = 1 
+            end
         end
     end
 
