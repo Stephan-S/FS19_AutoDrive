@@ -1695,14 +1695,16 @@ function PathFinderModule:smoothResultingPPPath_Refined()
             local worldPos = self.wayPoints[self.smoothIndex]
 
             if self.totalEagerSteps == nil or self.totalEagerSteps == 0 then
-                self.filteredWPs[self.filteredIndex] = node
-                if self.filteredIndex > 1 then
-                    previousNode = self.filteredWPs[self.filteredIndex - 1]
-                end
-                self.filteredIndex = self.filteredIndex + 1
+                if self.filteredWPs[self.filteredIndex-1].x ~= node.x and self.filteredWPs[self.filteredIndex-1].z ~= node.z then
+                    self.filteredWPs[self.filteredIndex] = node
+                    if self.filteredIndex > 1 then
+                        previousNode = self.filteredWPs[self.filteredIndex - 1]
+                    end
+                    self.filteredIndex = self.filteredIndex + 1
 
-                self.lookAheadIndex = 1
-                self.totalEagerSteps = 0
+                    self.lookAheadIndex = 1
+                    self.totalEagerSteps = 0
+                end
             end
 
             local widthOfColBox = self.minTurnRadius
