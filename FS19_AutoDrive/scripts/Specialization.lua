@@ -779,6 +779,8 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
+            
+            self.ad.trailerModule:handleTrailerReversing(false)
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")

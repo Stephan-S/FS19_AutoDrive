@@ -182,6 +182,9 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
     self.wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
     self.currentWayPointIndex = self.vehicle.ad.drivePathModule:getCurrentWayPointIndex()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving start self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
+    
+    -- Update trailers in case we need to lock the front axle
+    self.vehicle.ad.trailerModule:handleTrailerReversing(true)
 
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving isUnloadingToBunkerSilo self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
