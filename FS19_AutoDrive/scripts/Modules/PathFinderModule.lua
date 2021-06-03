@@ -689,7 +689,14 @@ function PathFinderModule:update(dt)
             --Try shortcutting the process here. We dont have to go through the whole grid if one of the out points is viable and closer than the currenCell which was already closest
             local currentDistance = distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z)
 
-            local nextCell = self:findClosestCell(self.currentCell.out, currentDistance)
+            local outCells = {}
+            for _, outCell in pairs(self.currentCell.out) do
+                local gridKey = string.format("%d|%d|%d", outCell.x, outCell.z, outCell.direction)
+                if self.grid[gridKey] ~= nil then
+                    table.insert(outCells, self.grid[gridKey])
+                end
+            end
+            local nextCell = self:findClosestCell(outCells, currentDistance)
             
             -- Lets again check if we have reached our target already
             if self:reachedTargetsNeighbor(self.currentCell.out) then
@@ -1468,7 +1475,7 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     shapeDefinition.angleRad = AutoDrive.normalizeAngle(shapeDefinition.angleRad)
     local worldPos = self:gridLocationToWorldLocation(cell)
     shapeDefinition.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, worldPos.x, 1, worldPos.z)
-    shapeDefinition.height = 2.8
+    shapeDefinition.height = 2.65
 
     if cell.direction == self.PP_UP or cell.direction == self.PP_DOWN or cell.direction == self.PP_RIGHT or cell.direction == self.PP_LEFT or cell.direction == -1 then
         --default size:
@@ -1808,7 +1815,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength
                 
                 if not hasCollision then
-                    local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.8, sideLength + 1.5, "collisionTestCallbackIgnore", nil, self.mask, true, true, true)
+                    local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, self.mask, true, true, true)
                     hasCollision = hasCollision or (shapes > 0)
                     
                     if hasCollision then
