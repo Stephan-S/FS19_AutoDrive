@@ -8,6 +8,8 @@ function ADCollisionDetectionModule:new(vehicle)
 	o.detectedObstable = false
 	o.reverseSectionClear = AutoDriveTON:new()
 	o.reverseSectionClear.elapsedTime = 20000
+	o.detectedCollision = false
+	o.lastReverseCheck = false
 	return o
 end
 
@@ -39,11 +41,9 @@ function ADCollisionDetectionModule:detectObstacle()
 	    boundingBox[3] = box.downRight
 		boundingBox[4] = box.downLeft
 
-		if AutoDrive:checkForVehicleCollision(self.vehicle, boundingBox, excludedList) then
-			return true
-		end
+		self.detectedCollision = AutoDrive:checkForVehicleCollision(self.vehicle, boundingBox, excludedList)
 	end
-	return false
+	return self.detectedCollision
 end
 
 function ADCollisionDetectionModule:detectAdTrafficOnRoute()
@@ -129,6 +129,7 @@ function ADCollisionDetectionModule:detectTrafficOnUpcomingReverseSection()
 	local wayPoints, currentWayPoint = self.vehicle.ad.drivePathModule:getWayPoints()
 	if self.vehicle.ad.stateModule:isActive() and wayPoints ~= nil and self.vehicle.ad.drivePathModule:isOnRoadNetwork() then
 		if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then
+			self.lastReverseCheck = false
 			local idToCheck = 1
 
 			if wayPoints[currentWayPoint + idToCheck] ~= nil and wayPoints[currentWayPoint + idToCheck + 1] ~= nil then
@@ -176,12 +177,14 @@ function ADCollisionDetectionModule:detectTrafficOnUpcomingReverseSection()
 							if onSameRoute == true then							
 								--print(self.vehicle.ad.stateModule:getName() .. " - detected reverse section ahead - another vehicle on it")
 								self.trafficVehicle = other
-								return true
+								self.lastReverseCheck = true
 							end
 						end
 					end
 				end
 			end
+		else
+			return self.lastReverseCheck
 		end
 	end
 	
