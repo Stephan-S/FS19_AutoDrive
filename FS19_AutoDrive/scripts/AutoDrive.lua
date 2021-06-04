@@ -65,6 +65,7 @@ AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed shoul
 
 -- number of frames for performance modulo operation
 AutoDrive.PERF_FRAMES = 20
+AutoDrive.PERF_FRAMES_HIGH = 4
 
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
