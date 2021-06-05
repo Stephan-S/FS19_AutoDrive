@@ -296,7 +296,7 @@
 		
 		<text name="AD_task_pathfinding"						text="Планирование пути" />
 		<text name="AD_task_catch_up_with_combine"				text="Подъезжает к комбайну" />
-		<text name="AD_task_clearcrop"							text="Расчисчает посевы" />
+		<text name="AD_task_clearcrop"							text="Выезжает из посевов" />
 		<text name="AD_task_drive_to_destination"				text="Двигается к пункту назначения" />
 		<text name="AD_task_drive_to_vehicle"					text="Двигается к целевому транспорту" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Двигается к выгрузной трубе" />
