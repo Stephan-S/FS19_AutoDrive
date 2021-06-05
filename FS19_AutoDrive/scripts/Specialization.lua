@@ -978,6 +978,8 @@ function AutoDrive:toggleMouse()
     if g_inputBinding:getShowMouseCursor() then
         if self.spec_enterable ~= nil and self.spec_enterable.cameras ~= nil then
             for _, camera in pairs(self.spec_enterable.cameras) do
+                camera.storedAllowTranslation = camera.allowTranslation
+                camera.storedIsRotatable = camera.isRotatable
                 camera.allowTranslation = false
                 camera.isRotatable = false
             end
@@ -985,8 +987,16 @@ function AutoDrive:toggleMouse()
     else
         if self.spec_enterable ~= nil and self.spec_enterable.cameras ~= nil then
             for _, camera in pairs(self.spec_enterable.cameras) do
-                camera.allowTranslation = true
-                camera.isRotatable = true
+                if camera.storedAllowTranslation ~= nil then
+                    camera.allowTranslation = camera.storedAllowTranslation
+                else
+                    camera.allowTranslation = true
+                end
+                if camera.storedIsRotatable ~= nil then
+                    camera.isRotatable = camera.storedIsRotatable
+                else
+                    camera.isRotatable = true
+                end
             end
         end
     end
