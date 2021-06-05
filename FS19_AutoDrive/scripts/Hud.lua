@@ -631,7 +631,9 @@ function AutoDrive.moveNodeToMousePos(nodeID)
 
 	if node ~= nil and g_lastMousePosX ~= nil and g_lastMousePosY ~= nil then
 		node.x, _, node.z = unProject(g_lastMousePosX, g_lastMousePosY, depth)
-		node.y = AutoDrive:getTerrainHeightAtWorldPos(node.x, node.z)
+		if not AutoDrive.leftLSHIFTmodifierKeyPressed then
+			node.y = AutoDrive:getTerrainHeightAtWorldPos(node.x, node.z)
+		end
 		ADGraphManager:markChanges()
 	end
 end
