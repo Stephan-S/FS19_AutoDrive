@@ -1,5 +1,5 @@
 # FS19_AutoDrive
-FS19 version of AutoDrive
+#### + + + Download links are at the bottom + + +
 
 If you want to support my development effort, the best way is to open issues on any bugs you encounter or for features you would like to be added to the mod.
 
@@ -32,7 +32,7 @@ and also
 
 # Downloads
 
-### Latest Release: 1.1.0.7
+### Latest Release: 1.1.1.0
 ![GitHub all releases](https://img.shields.io/github/downloads/Stephan-S/FS19_AutoDrive/total?label=Downloads&style=plastic)  
 [Release@github](https://github.com/Stephan-S/FS19_AutoDrive/releases/latest)  
    

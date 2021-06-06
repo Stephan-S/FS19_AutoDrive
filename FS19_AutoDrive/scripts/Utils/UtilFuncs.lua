@@ -489,7 +489,6 @@ function AutoDrive:setDebugChannel(newDebugChannel)
     AutoDriveDebugSettingsEvent.sendEvent(AutoDrive.currentDebugChannelMask)
 
 	AutoDrive.showNetworkEvents()
-	ADGraphManager:createMarkersAtOpenEnds()
 end
 
 function AutoDrive.getDebugChannelIsSet(debugChannel)

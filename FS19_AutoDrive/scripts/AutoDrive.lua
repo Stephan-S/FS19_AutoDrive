@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.9-RC1"
+AutoDrive.version = "1.1.1.0"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -9,7 +9,10 @@ g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dd
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
+AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
+AutoDrive.experimentalFeatures.blueLineRouteFinder = false
+AutoDrive.experimentalFeatures.detectGrasField = true
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -179,6 +182,8 @@ g_logManager:info("[AD] Start register later loaded mods end")
         ADScheduler:load()
 	ADInputManager:load()
 	ADMultipleTargetsManager:load()
+
+	AutoDrive.initTelemetry()
 end
 
 function AutoDrive:init()
@@ -310,6 +315,8 @@ function AutoDrive:update(dt)
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
 	ADRoutesManager:update(dt)
+
+	AutoDrive.handleTelemetry(dt)
 end
 
 function AutoDrive:draw()

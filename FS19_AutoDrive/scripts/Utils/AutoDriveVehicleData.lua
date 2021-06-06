@@ -90,19 +90,18 @@ function AutoDriveVehicleData:onEnterVehicle()
     if g_dedicatedServerInfo == nil then
         -- only send the client event to server
         local selectedWorkTool = AutoDrive.getSelectedWorkTool(self, true)
-
         if selectedWorkTool ~= nil and selectedWorkTool.advd ~= nil then
             actualparkDestination = selectedWorkTool.advd.parkDestination
+        else
+            actualparkDestination = self.advd.parkDestination
+        end
+        local rootVehicle = self:getRootVehicle()
+        if rootVehicle ~= nil and rootVehicle.ad ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) and self == rootVehicle then
             if actualparkDestination == nil then
                 actualparkDestination = -1
             end
-            local rootVehicle = self:getRootVehicle()
-            if rootVehicle ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) and self == rootVehicle then
-                -- propagate park destination only if vehicle is entered
-                if rootVehicle.ad ~= nil and rootVehicle.ad.stateModule ~= nil then
-                    AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
-                end
-            end
+            -- propagate park destination only if vehicle is entered
+            AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
         end
     end
 end
@@ -124,11 +123,9 @@ function AutoDriveVehicleData:onSelect()
             end
 
             local rootVehicle = self:getRootVehicle()
-            if rootVehicle ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) then
+            if rootVehicle ~= nil and rootVehicle.ad ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) then
                 -- propagate park destination only if vehicle is entered, as Giants engine also select vehicle, tools on startup
-                if rootVehicle.ad ~= nil and rootVehicle.ad.stateModule ~= nil then
-                    AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
-                end
+                AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
             end
         end
     end

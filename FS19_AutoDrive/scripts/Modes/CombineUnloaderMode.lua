@@ -44,6 +44,7 @@ function CombineUnloaderMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -643,7 +644,7 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
     self.pipeSide = AutoDrive.getPipeSide(self.combine)
     self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
     local sideChaseTermX = self:getSideChaseOffsetX()
-    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance)
+    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
     local rearChaseTermZ = self:getRearChaseOffsetZ()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
@@ -690,7 +691,7 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
         if
             (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and
                 ((not AutoDrive.isSugarcaneHarvester(self.combine)) or self:isUnloaderOnCorrectSide(self.pipeSide) and math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide))) or
-                self.combine.ad.noMovementTimer.elapsedTime > 1000
+                (self.combine.ad.noMovementTimer.elapsedTime > 1000)
          then
             -- Take into account a right sided harvester, e.g. potato harvester.
             chaseNode = sideChasePos
