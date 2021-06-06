@@ -162,7 +162,7 @@ function ADCollisionDetectionModule:detectTrafficOnUpcomingReverseSection()
 							local onSameRoute = false
 							local i = -10
 							local otherWayPoints, otherCurrentWayPoint = other.ad.drivePathModule:getWayPoints()
-							while i <= 0 do
+							while i <= 10 do
 								if otherWayPoints ~= nil and otherWayPoints[otherCurrentWayPoint + i] ~= nil then
 									for _, point in pairs(reverseSectionPoints) do
 										if point == otherWayPoints[otherCurrentWayPoint + i].id then
