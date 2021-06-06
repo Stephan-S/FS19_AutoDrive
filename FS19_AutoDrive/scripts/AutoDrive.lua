@@ -100,7 +100,8 @@ AutoDrive.actions = {
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
-	{"AD_open_tipOfTheDay", false, 0}
+	{"AD_open_tipOfTheDay", false, 0},
+	{"ADRefuelVehicle", false, 0}
 	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 

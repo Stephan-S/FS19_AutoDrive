@@ -122,6 +122,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
 
     self.ad.onRouteToPark = false
+    self.ad.onRouteToRefuel = false
     self.ad.isStoppingWithError = false
 
     self.ad.selectedNodeId = nil
@@ -781,6 +782,7 @@ function AutoDrive:stopAutoDrive()
             end
             
             self.ad.trailerModule:handleTrailerReversing(false)
+            self.ad.onRouteToRefuel = false
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
