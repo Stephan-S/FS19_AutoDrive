@@ -1,6 +1,8 @@
 ADGraphManager = {}
 
 ADGraphManager.debugGroupName = "AD_Debug"
+ADGraphManager.SUB_PRIO_FACTOR = 20
+ADGraphManager.MIN_START_DISTANCE = 8
 
 function ADGraphManager:load()
 	self.wayPoints = {}
@@ -125,22 +127,38 @@ end
 
 function ADGraphManager:getPathTo(vehicle, waypointId)
 	local wp = {}
+
+	local x, _, z = getWorldTranslation(vehicle.components[1].node)
+    local wp_target = self.wayPoints[waypointId]
+
+    if wp_target ~= nil then
+        local distanceToTarget = MathUtil.vector2Length(x - wp_target.x, z - wp_target.z)
+		if distanceToTarget < ADGraphManager.MIN_START_DISTANCE then
+			table.insert(wp, wp_target)
+			return wp
+		end
+	end
+
 	local closestWaypoint = self:findMatchingWayPointForVehicle(vehicle)
 	if closestWaypoint ~= nil then
-		wp = self:pathFromTo(closestWaypoint, waypointId)
+		local outCandidates = self:getBestOutPoints(vehicle, closestWaypoint)
+		wp = self:pathFromTo(closestWaypoint, waypointId, outCandidates)
 	end
 
 	return wp
 end
 
-function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId)
+function ADGraphManager:pathFromTo(startWaypointId, targetWaypointId, preferredNeighbors)
 	local wp = {}
 	if startWaypointId ~= nil and self.wayPoints[startWaypointId] ~= nil and targetWaypointId ~= nil and self.wayPoints[targetWaypointId] ~= nil then
 		if startWaypointId == targetWaypointId then
 			table.insert(wp, self.wayPoints[targetWaypointId])
 		else
-			-- wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId)
-			wp = AutoDrive:dijkstraLiveShortestPath(startWaypointId, targetWaypointId)
+			if preferredNeighbors == nil then
+				preferredNeighbors = {}
+			end
+			wp = ADPathCalculator:GetPath(startWaypointId, targetWaypointId, preferredNeighbors)
+			--wp = AutoDrive:dijkstraLiveShortestPath(startWaypointId, targetWaypointId)
 		end
 	end
 	return wp
@@ -154,8 +172,8 @@ function ADGraphManager:pathFromToMarker(startWaypointId, markerId)
 			table.insert(wp, 1, self.wayPoints[targetId])
 			return wp
 		else
-			-- wp = ADPathCalculator:GetPath(startWaypointId, targetId)
-			wp = AutoDrive:dijkstraLiveShortestPath(startWaypointId, targetId)
+			wp = ADPathCalculator:GetPath(startWaypointId, targetId, {})
+			--wp = AutoDrive:dijkstraLiveShortestPath(startWaypointId, targetId)
 		end
 	end
 	return wp
@@ -186,8 +204,8 @@ function ADGraphManager:FastShortestPath(start, markerName, markerId)
 		return wp
 	end
 
-	-- wp = ADPathCalculator:GetPath(start_id, target_id)
-	wp = AutoDrive:dijkstraLiveShortestPath(start_id, target_id)
+	wp = ADPathCalculator:GetPath(start_id, target_id, {})
+	--wp = AutoDrive:dijkstraLiveShortestPath(start_id, target_id)
 	return wp
 end
 
@@ -535,6 +553,8 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 		local newWp = self:createNode(newId, x, y, z, {}, {})
 		self:setWayPoint(newWp)
 		self:markChanges()
+
+		return newWp
 	end
 end
 
@@ -560,7 +580,7 @@ function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
 	end
 end
 
-function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, sendEvent)
+function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, isSubPrio, sendEvent)
 	previousId = previousId or 0
 	local previous
 	if connectPrevious then
@@ -572,7 +592,7 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 	if g_server ~= nil then
 		if sendEvent ~= false then
 			-- Propagating waypoint recording to clients
-			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId)
+			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId, isSubPrio)
 		end
 	else
 		if sendEvent ~= false then
@@ -589,6 +609,11 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 			self:toggleConnectionBetween(newWp, previous, isReverse, false)
 		end
 	end
+
+	if isSubPrio then
+		self:toggleWayPointAsSubPrio(newId)
+	end
+
 	self:markChanges()
 	return newWp
 end
@@ -624,6 +649,10 @@ function ADGraphManager:getDistanceBetweenNodes(start, target)
 				break
 			end
 		end
+	end
+
+	if self:getIsPointSubPrio(self.wayPoints[target].id) then
+		distance = distance * ADGraphManager.SUB_PRIO_FACTOR
 	end
 
 	return distance
@@ -982,7 +1011,6 @@ function ADGraphManager:createDebugMarkers(updateMap)
     end
 end
 
-
 function ADGraphManager:checkForWrongReverseStart(wp_ref, wp_current, wp_ahead)
     local reverseStart = false
 
@@ -1001,4 +1029,76 @@ function ADGraphManager:checkForWrongReverseStart(wp_ref, wp_current, wp_ahead)
     end
 
     return reverseStart
+end
+
+function ADGraphManager:toggleWayPointAsSubPrio(wayPointId)
+	local wayPoint = self:getWayPointById(wayPointId)
+	if wayPoint ~= nil then
+		-- check if debug node for subPrio exists
+		local subPrioNode = self:getSubPrioMarkerNode()
+
+		self:toggleConnectionBetween(wayPoint, subPrioNode, false)
+	end
+end
+
+function ADGraphManager:getSubPrioMarkerNode()
+	if self.subPrioMarkerNode == nil then
+		for _, wp in pairs(self.wayPoints) do
+			if self:getIsPointSubPrioMarker(wp.id) then
+				self.subPrioMarkerNode = wp
+				break
+			end
+		end
+	end
+
+	if self.subPrioMarkerNode == nil then
+		self.subPrioMarkerNode = self:createWayPoint(-1, -1, -1)
+	end
+
+	return self.subPrioMarkerNode
+end
+
+function ADGraphManager:getIsPointSubPrio(wayPointId)
+	local wayPoint = self:getWayPointById(wayPointId)
+	
+	for _, neighborId in pairs(wayPoint.out) do
+		local neighbor = ADGraphManager:getWayPointById(neighborId)
+		if neighbor ~= nil then			
+			if neighbor.id == self:getSubPrioMarkerNode().id then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+function ADGraphManager:getIsPointSubPrioMarker(wayPointId)
+	local wayPoint = self:getWayPointById(wayPointId)
+	
+	if wayPoint.x >= -1.01 and wayPoint.x <= -0.99 and wayPoint.z >= -1.01 and wayPoint.z <= -0.99 then
+		return true
+	end
+
+	return false
+end
+
+function ADGraphManager:getBestOutPoints(vehicle, nodeId)
+	local neighbors = {}
+
+	local x, y, z = getWorldTranslation(vehicle.components[1].node)
+	local toCheck = self.wayPoints[nodeId]
+	local baseDistance = MathUtil.vector2Length(toCheck.x - x, toCheck.z - z)
+
+	if toCheck.out ~= nil then
+		for _, outId in pairs(toCheck.out) do
+			local out = self.wayPoints[outId]
+			local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, out.x, y, out.z)
+			if out ~= nil and baseDistance < MathUtil.vector2Length(out.x - x, out.z - z) and offsetZ > 0 then
+				table.insert(neighbors, out.id)
+			end
+		end
+	end
+
+	return neighbors
 end

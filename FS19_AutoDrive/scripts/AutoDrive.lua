@@ -1,10 +1,11 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.1.0"
+AutoDrive.version = "1.1.1.1-RC3"
 
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
+g_autoDriveTipOfTheDayUIFilename = AutoDrive.directory .. "textures/tipOfTheDay_icons.dds"
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
@@ -45,6 +46,7 @@ AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
 AutoDrive.DC_ROADNETWORKINFO = 512
+AutoDrive.DC_BGA_MODE = 1024
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
@@ -95,7 +97,8 @@ AutoDrive.actions = {
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
-	{"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1} -- can be changed by AutoDrive:enableCPaction()
+	{"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}, -- can be changed by AutoDrive:enableCPaction()
+	{"AD_open_tipOfTheDay", false, 0}
 }
 
 function AutoDrive:onAllModsLoaded()
@@ -184,6 +187,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	ADMultipleTargetsManager:load()
 
 	AutoDrive.initTelemetry()
+	AutoDrive.initTipOfTheDay()
 end
 
 function AutoDrive:init()
@@ -247,6 +251,7 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
 	AutoDrive.isCAPSKeyActive = bitAND(modifier, Input.MOD_CAPS) > 0
 	AutoDrive.rightCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_RCTRL) > 0
+	AutoDrive.rightSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_RSHIFT) > 0
 
     if AutoDrive.isInExtendedEditorMode() then
         if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
@@ -317,6 +322,7 @@ function AutoDrive:update(dt)
 	ADRoutesManager:update(dt)
 
 	AutoDrive.handleTelemetry(dt)
+	AutoDrive.handleTipOfTheDay(dt)
 end
 
 function AutoDrive:draw()

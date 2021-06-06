@@ -79,7 +79,8 @@ function ADCollisionDetectionModule:detectAdTrafficOnRoute()
 			self.trafficVehicle = nil
 			if #dualRoutePoints > 0 then
 				for _, other in pairs(g_currentMission.vehicles) do
-					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						local onSameRoute = false
+					if other ~= self.vehicle and other.ad ~= nil and other.ad.stateModule ~= nil and other.ad.stateModule:isActive() and other.ad.drivePathModule:isOnRoadNetwork() then						
+						local onSameRoute = false
 						local sameDirection = false
 						local window = 4
 						local i = -window

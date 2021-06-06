@@ -130,7 +130,7 @@ Traduit avec www.DeepL.com/Translator (version gratuite)
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.1.0</version>
+	<version>1.1.1.1</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>
@@ -170,6 +170,7 @@ Traduit avec www.DeepL.com/Translator (version gratuite)
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_open_tipOfTheDay" category="VEHICLE" ignoreComboMask="false" />
 	</actions>
 
 	<inputBinding>
