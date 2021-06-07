@@ -33,7 +33,9 @@
 		<text name="input_ADNameDriver"							text="AD: Sofőr elnevezése" />
 		<text name="input_ADIncLoopCounter"						text="AD: Útvonal ismétlése" />
 		<text name="input_ADParkVehicle"						text="AD: Parkolja le a járművet" />
+		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADSwapTargets"						text="AD: Cél csere" />
+		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Termény kikerülése" />
 		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Járműnek nincs parkolója. Jobb egérgombbal rendeljen hozzá parkolási helyet." />
@@ -184,6 +186,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Igen - Az AutoDrive automatikusan kiválasztja a csúcsoldalt / Nem - a már kiválasztott csúcsoldalt fogja használni" />
 		<text name="gui_ad_autoTrailerCover"                    text="Automatikus pótkocsi fedél " />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Igen - az AutoDrive szükség esetén nyissa meg és zárja be a pótkocsi fedelét / Nem - az AutoDrive nem nyitja vagy zárja le a pótkocsi fedelét" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 		<text name="gui_ad_settingsPage_title"					text="Beállítás - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Felhasználói beállítások - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Jármű beállítás - AutoDrive" />
@@ -213,6 +217,7 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Külső interfész" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Úthálózat" />
+		<text name="gui_ad_debugChannelBGA"						text="BGA Mode" />
 		<text name="gui_ad_debugChannelAll" 					text="Mind" />
 		<text name="gui_ad_notificationHistoryTitle" 			text="Értesítések" />
 		<text name="button_delete_all" 							text="Összes törlése" />
@@ -298,5 +303,52 @@
 		<text name="AD_task_exiting_field"						text="Kilépés a fölről" />
 		<text name="AD_task_reversing_from_collision"			text="Tiszta terület keresése" />
         <text name="AD_task_drive_to_park"				        text="Parkolás a területen" />
+
+
+		<text name = "gui_CPAD_off"								text = "off"/>
+		<text name = "gui_CPAD_simple"							text = "simple"/>
+		<text name = "gui_CPAD_full"							text = "full"/>		
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
+	
+		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
+		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
+		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />
+		<text name="gui_ad_tipOfTheDayActive" 					text="Show on next start" />
+		<text name="ad_next_tip" 								text="Next" />
+		<text name="ad_totd_01_title" 							text="Multiple functions" />
+		<text name="ad_totd_01_text" 							text="Many buttons in AutoDrive have multiple functions. The main function can always be activated with the left mouse. The secondary function can be activated with either the middle or the right mouse button. 
+		
+		Several buttons even have a third and fourth function which can be used with scrolling with the mouse wheel on top of said buttons. For now, those are the speed limiters and the recording button." />
+		<text name="ad_totd_02_title" 							text="Different types of roads" />
+		<text name="ad_totd_02_text" 							text="An AutoDrive network can contain of 4 different types of roads.
+
+		1. A standard road segment (green). Vehicles can travel along the direction marked with the arrows. To start recording a standard road, simply left click the record button.
+		
+		2. Dual direction roads (blue). Here, vehicles may travel in both directions and will block incoming traffic in the opposite direction. You can record dual direction routes with the secondary function on the record button. So use either the middle or the right mouse button.
+		
+		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
+		
+		4. Side road - This type of road segment is ususally avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
+		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
+		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
+		
+		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should ususally be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to seach for any available unloader in a range of 300m.
+		
+		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
+		<text name="ad_totd_04_title" 							text="Settings - 1" />
+		<text name="ad_totd_04_text" 							text="There are currently 6 different setting pages.
+
+		1. General settings - Applied for all vehicles.
+
+		2. User settings - Applied to the current player (also in MP). These are settings to control how AutoDrive is displayed and not how it works.
+
+		3. Vehicle settings - Applied only for the current vehicle.
+
+		4. Harvester settings - Only visisble when inside a harvester. Here you can control how this harevster calls it's unloaders.
+
+		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
+		
+		6. Experimental features - These settings relate to features we are currently testing/developing but which are not yet considered stable. Use at your own risk." />
 	</texts>
 </l10n>

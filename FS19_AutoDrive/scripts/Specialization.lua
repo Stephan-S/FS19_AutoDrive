@@ -24,8 +24,7 @@ function AutoDrive.registerEventListeners(vehicleType)
             "onPostAttachImplement",
             "onPreDetachImplement",
             "onEnterVehicle",
-            "onLeaveVehicle",
-            "onSelect"
+            "onLeaveVehicle"
         }
     ) do
         SpecializationUtil.registerEventListener(vehicleType, n, AutoDrive)
@@ -482,16 +481,6 @@ function AutoDrive:onLeaveVehicle()
     end
 end
 
-function AutoDrive:onSelect()
-    if self.ad ~= nil and self.ad.stateModule ~= nil then
-        local actualParkDestination = AutoDrive.getActualParkDestination(self)
-        if actualParkDestination >= 1 then
-            self.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
-        else
-            self.ad.stateModule:setParkDestinationAtJobFinished(-1)
-        end
-    end
-end
 
 function AutoDrive:onDelete()
     AutoDriveHud:deleteMapHotspot(self)
@@ -543,7 +532,10 @@ function AutoDrive:onDrawEditorMode()
         local x = point.x
         local y = point.y
         local z = point.z
-        if AutoDrive.isInExtendedEditorMode() then
+        local isSubPrio = ADGraphManager:getIsPointSubPrio(point.id)
+        local isSubPrioMarker = ADGraphManager:getIsPointSubPrioMarker(point.id)
+
+        if AutoDrive.isInExtendedEditorMode() and not isSubPrioMarker then
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.enableSphrere == true then
                 if AutoDrive.mouseIsAtPos(point, 0.01) then
@@ -596,21 +588,35 @@ function AutoDrive:onDrawEditorMode()
                 table.insert(outPointsSeen, neighbor)
                 local target = ADGraphManager:getWayPointById(neighbor)
                 if target ~= nil then
-                    --check if outgoing connection is a dual way connection
-                    local nWp = ADGraphManager:getWayPointById(neighbor)
-                    if point.incoming == nil or table.contains(point.incoming, neighbor) then
-                        --draw dual way line
-                        DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
-                    else
-                        --draw line with direction markers (arrow)
-                        if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
-                            -- one way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                    local isSubPrioMarker = ADGraphManager:getIsPointSubPrioMarker(neighbor)
+                    if not isSubPrioMarker then
+                        --check if outgoing connection is a dual way connection
+                        local nWp = ADGraphManager:getWayPointById(neighbor)
+                        if point.incoming == nil or table.contains(point.incoming, neighbor) then
+                            --draw dual way line
+                            if point.id > nWp.id then
+                                if isSubPrio then
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.389, 0.177, 0)
+                                else
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                                end
+                            end
                         else
-                            -- reverse way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
+                            --draw line with direction markers (arrow)
+                            if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
+                                -- one way line
+                                if isSubPrio then
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 1, 0.531, 0.14)
+                                    DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 1, 0.531, 0.14)
+                                else
+                                    DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
+                                    DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                                end
+                            else
+                                -- reverse way line
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
+                            end
                         end
                     end
                 end
@@ -618,7 +624,7 @@ function AutoDrive:onDrawEditorMode()
         end
 
         --just a quick way to highlight single (forgotten) points with no connections
-        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) then
+        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) and not isSubPrioMarker then
             y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z) + 0.5
             DrawingManager:addCrossTask(x, y, z)
         end
@@ -683,6 +689,13 @@ function AutoDrive:stopAutoDrive()
                 mode:reset()
             end
 
+            if self.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self) then
+                self:setBeaconLightsVisibility(false)
+            end
+            if self.setTurnLightState ~= nil then
+                self:setTurnLightState(Lights.TURNLIGHT_OFF)
+            end
+
             local hasCallbacks = self.ad.callBackFunction ~= nil and self.ad.isStoppingWithError == false
 
             if hasCallbacks then
@@ -742,14 +755,6 @@ function AutoDrive:stopAutoDrive()
                 end
             end
 
-            if self.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self) then
-                self:setBeaconLightsVisibility(false)
-            end
-
-            if self.setTurnLightState ~= nil then
-                self:setTurnLightState(Lights.TURNLIGHT_OFF)
-            end
-
             self.ad.stateModule:setActive(false)
 
             self.ad.taskModule:abortAllTasks()
@@ -764,7 +769,7 @@ function AutoDrive:stopAutoDrive()
                     self.ad.stateModule:setStartCP_AIVE(false)
                     if g_courseplay ~= nil and self.ad.stateModule:getUseCP_AIVE() then
                         AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:stopAutoDrive pass control to CP with start")
-                        g_courseplay.courseplay:start(self)
+                        AutoDrive:StartCP(self)
                     else
                         if self.acParameters ~= nil then
                             self.acParameters.enabled = true
@@ -806,11 +811,9 @@ function AutoDrive:onStartAutoDrive()
     AutoDriveHud:createMapHotspot(self)
 
     if AutoDrive.getSetting("enableParkAtJobFinished", self) and ((self.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) or (self.ad.stateModule:getMode() == AutoDrive.MODE_DELIVERTO)) then
-        local actualParkDestination = AutoDrive.getActualParkDestination(self)
+        local actualParkDestination = self.ad.stateModule:getParkDestinationAtJobFinished()
         if actualParkDestination >= 1 then
-            -- self.ad.stateModule:setParkDestinationAtJobFinished(actualParkDestination)
         else
-            -- self.ad.stateModule:setParkDestinationAtJobFinished(-1)
             AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
         end
     end

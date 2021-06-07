@@ -1,15 +1,19 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.0.8"
+AutoDrive.version = "1.1.1.1-RC3"
 
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
+g_autoDriveTipOfTheDayUIFilename = AutoDrive.directory .. "textures/tipOfTheDay_icons.dds"
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
+AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
+AutoDrive.experimentalFeatures.blueLineRouteFinder = false
+AutoDrive.experimentalFeatures.detectGrasField = true
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -42,6 +46,7 @@ AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
 AutoDrive.DC_ROADNETWORKINFO = 512
+AutoDrive.DC_BGA_MODE = 1024
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
@@ -91,7 +96,9 @@ AutoDrive.actions = {
 	{"AD_open_notification_history", false, 0},
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
-	{"AD_devAction", false, 0}
+	{"AD_devAction", false, 0},
+	{"AD_open_tipOfTheDay", false, 0}
+	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 
 function AutoDrive:onAllModsLoaded()
@@ -151,6 +158,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, AutoDrive.saveSavegame)
 
 	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
+	AIDriveStrategyCombine.getDriveData = Utils.overwrittenFunction(AIDriveStrategyCombine.getDriveData, AutoDrive.getDriveData)
 	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
 	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
 
@@ -177,6 +185,9 @@ g_logManager:info("[AD] Start register later loaded mods end")
         ADScheduler:load()
 	ADInputManager:load()
 	ADMultipleTargetsManager:load()
+
+	AutoDrive.initTelemetry()
+	AutoDrive.initTipOfTheDay()
 end
 
 function AutoDrive:init()
@@ -218,7 +229,7 @@ end
 
 function AutoDrive:deleteMap()
 	-- this function is called even befor the game is compeltely started in case you insert a wrong password for mp game, so we need to check that "mapHotspotsBuffer" and "unRegisterDestinationListener" are not nil
-	if g_dedicatedServerInfo == nil and AutoDrive.mapHotspotsBuffer ~= nil then
+	if AutoDrive.mapHotspotsBuffer ~= nil then
 		-- Removing and deleting all map hotspots
 		for _, mh in pairs(AutoDrive.mapHotspotsBuffer) do
 			g_currentMission:removeMapHotspot(mh)
@@ -226,6 +237,7 @@ function AutoDrive:deleteMap()
 		end
 	end
 	AutoDrive.mapHotspotsBuffer = {}
+	AutoDrive.mapHotspotsBuffer = nil
 
 	if (AutoDrive.unRegisterDestinationListener ~= nil) then
 		AutoDrive:unRegisterDestinationListener(AutoDrive)
@@ -239,6 +251,7 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
 	AutoDrive.isCAPSKeyActive = bitAND(modifier, Input.MOD_CAPS) > 0
 	AutoDrive.rightCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_RCTRL) > 0
+	AutoDrive.rightSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_RSHIFT) > 0
 
     if AutoDrive.isInExtendedEditorMode() then
         if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
@@ -279,6 +292,9 @@ function AutoDrive:update(dt)
 	if AutoDrive.isFirstRun == nil then
 		AutoDrive.isFirstRun = false
 		self:init()
+                if AutoDrive.devAutoDriveInit ~= nil then
+                    AutoDrive.devAutoDriveInit()
+                end
 	end
 
 	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_NETWORKINFO) then
@@ -304,6 +320,9 @@ function AutoDrive:update(dt)
 	ADMessagesManager:update(dt)
 	ADTriggerManager:update(dt)
 	ADRoutesManager:update(dt)
+
+	AutoDrive.handleTelemetry(dt)
+	AutoDrive.handleTipOfTheDay(dt)
 end
 
 function AutoDrive:draw()

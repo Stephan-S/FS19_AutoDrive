@@ -65,6 +65,10 @@ function UnloadBGATask:update(dt)
         self.isActive = true
     end
 
+    if self.targetUnloadTrigger == nil then
+        self.targetUnloadTrigger = self:getTargetUnloadPoint()
+    end
+
     self:getCurrentStates()
 
     if self.state == self.STATE_INIT then
@@ -117,6 +121,10 @@ function UnloadBGATask:update(dt)
 
     self.lastState = self.state
     self.lastAction = self.action
+    
+    if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_BGA_MODE) then
+        self:drawDebug()
+    end
 end
 
 function UnloadBGATask:abort()
@@ -130,6 +138,15 @@ function UnloadBGATask:getCurrentStates()
     self.shovelFillLevel = self:getShovelFillLevel()
     self.trailerFillLevel, self.trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(self.targetTrailer)
     self.bunkerFillLevel = 10000 --self:getBunkerFillLevel();
+
+    self.targetUnloadTriggerFree = false
+    if self.targetUnloadTrigger ~= nil then
+        local fillType = self.shovel:getFillUnitFillType(1)
+        if fillType > 0 then
+            self.targetUnloadTriggerFree = self.targetUnloadTrigger:getFillUnitFreeCapacity(1, fillType) >= self.shovelFilledCapacity
+            --print("targetUnloadTriggerFree: " .. tostring(targetUnloadTriggerFree) .. " capacity: " .. self.targetUnloadTrigger:getFillUnitFreeCapacity(1, fillType))
+        end        
+    end
 
     if not self:checkCurrentTrailerStillValid() then
         self.targetTrailer = nil
@@ -145,8 +162,11 @@ function UnloadBGATask:checkIfPossibleToRestart()
     if self.targetBunker == nil then
         self.targetBunker = self:getTargetBunker()
     end
+    if self.targetUnloadTrigger == nil then
+        self.targetUnloadTrigger = self:getTargetUnloadPoint()
+    end
 
-    if self.targetTrailer ~= nil and self.trailerLeftCapacity >= 1 and self.targetBunker ~= nil and self.bunkerFillLevel > 0 then
+    if (self.targetUnloadTrigger and self.targetUnloadTriggerFree) or (not self.targetUnloadTrigger and self.targetTrailer ~= nil and self.trailerLeftCapacity >= 1 and self.targetBunker ~= nil and self.bunkerFillLevel > 0) then
         return true
     end
 end
@@ -160,6 +180,7 @@ function UnloadBGATask:getShovelFillLevel()
             fillLevel = fillLevel + self.shovel:getFillUnitFillLevel(shovelNode.fillUnitIndex)
             capacity = capacity + self.shovel:getFillUnitCapacity(shovelNode.fillUnitIndex)
             fillUnitCount = fillUnitCount + 1
+            --print("Detected shovelNode width: " .. shovelNode.width)
             if self.shovelWidthTool == nil or self.shovelWidthTool < shovelNode.width then
                 self.shovelWidthTool = shovelNode.width
             end
@@ -173,6 +194,7 @@ function UnloadBGATask:getShovelFillLevel()
         if self.targetBunker ~= nil then
             self:determineHighestShovelOffset()
         end
+        self.shovelFilledCapacity = fillLevel
 
         return fillLevel / capacity
     end
@@ -186,6 +208,8 @@ function UnloadBGATask:initializeBGA()
     self.shovelTarget = self.SHOVELSTATE_LOW
     self.targetTrailer, self.targetDriver = self:findCloseTrailer()
     self.targetBunker = self:getTargetBunker()
+    self.targetUnloadTrigger = self:getTargetUnloadPoint()
+    self.unloadToTrigger = self.vehicle.ad.stateModule:getBunkerUnloadTypeIsTrigger()
 
     self.inShovelRangeTimer = AutoDriveTON:new()
     self.strategyActiveTimer = AutoDriveTON:new()
@@ -196,6 +220,7 @@ function UnloadBGATask:initializeBGA()
     self.shovelOffsetCounter = 0
     self.highestShovelOffsetCounter = 0
     self.reachedPreTargetLoadPoint = false
+    self.shovelInBunkerArea = false
 
     if self.shovel == nil then
         self:getVehicleShovel()
@@ -263,7 +288,7 @@ function UnloadBGATask:handleInitAxis(dt)
                 self.initAxisStartTranslation = translationObject.curTrans[translationObject.translationAxis]
                 translationTarget = (translationObject.transMax - translationObject.transMin) / 2 + translationObject.transMin
                 if math.abs(translationTarget - translationObject.curTrans[translationObject.translationAxis]) <= 0.1 then
-                    translationTarget = translationTarget.transMin
+                    translationTarget = translationObject.transMin
                 end
                 self.armExtender.translationTarget = translationTarget
                 self.initAxisState = self.INITAXIS_STATE_EXTENDER_STEER
@@ -413,9 +438,9 @@ end
 
 function UnloadBGATask:checkForUnloadCondition() --can unload if shovel is filled and trailer available
     if self.action == self.ACTION_DRIVETOSILO_COMMON_POINT then
-        return self.shovelFillLevel > 0 and self.targetTrailer ~= nil and self.trailerLeftCapacity > 1
+        return self.shovelFillLevel > 0 and ((self.targetTrailer ~= nil and self.trailerLeftCapacity > 1) or (self.unloadToTrigger and self.targetUnloadTriggerFree))
     elseif self.action == self.ACTION_LOAD then
-        return self.shovelFillLevel >= 0.98 and self.targetTrailer ~= nil and self.trailerLeftCapacity > 1
+        return self.shovelFillLevel >= 0.98 and ((self.targetTrailer ~= nil and self.trailerLeftCapacity > 1) or (self.unloadToTrigger and self.targetUnloadTriggerFree))
     end
     return false
 end
@@ -425,7 +450,7 @@ function UnloadBGATask:checkForStopLoading() --stop loading when shovel is fille
 end
 
 function UnloadBGATask:checkForIdleCondition() --idle if shovel filled and no trailer available to fill;
-    if self.shovelFillLevel >= 0.98 and (self.targetTrailer ~= nil or self.trailerLeftCapacity <= 1) or self.targetTrailer == nil then
+    if self.shovelFillLevel >= 0.98 and ((((self.targetTrailer ~= nil or self.trailerLeftCapacity <= 1) or self.targetTrailer == nil) and not self.self.unloadToTrigger) or (self.unloadToTrigger and not self.targetUnloadTriggerFree)) then
         return true
     end
     return false
@@ -447,6 +472,9 @@ function UnloadBGATask:handleShovel(dt)
                 self.shovelState = self.shovelTarget
             end
         else
+            if self.shovelState == self.shovelTarget and self.shovelInBunkerArea ~= self:isShovelInBunkerArea() then
+                self.shovelState = self.SHOVELSTATE_UNKNOWN
+            end
             if self.shovelState ~= self.shovelTarget then
                 if not self.shovelActiveTimer:done() then
                     self:moveShovelToTarget(self.shovelTarget, dt)
@@ -465,12 +493,20 @@ function UnloadBGATask:handleShovel(dt)
             end
         end
     end
+
+    if self.shovel ~= nil then
+        self.shovelInBunkerArea = self:isShovelInBunkerArea()
+    end
 end
 
 function UnloadBGATask:moveShovelToTarget(_, dt)
     if self.shovelTarget == self.SHOVELSTATE_LOADING then
-        self.shovelTargetHeight = -0.20 + AutoDrive.getSetting("shovelHeight", self.vehicle)
-        self.shovelTargetAngle = self.shovelRotator.horizontalPosition + self.shovelRotator.moveUpSign * 0.07
+        if self:isShovelInBunkerArea() then
+            self.shovelTargetHeight = -0.25 + AutoDrive.getSetting("shovelHeight", self.vehicle)
+        else
+            self.shovelTargetHeight = -0.20 + AutoDrive.getSetting("shovelHeight", self.vehicle)
+        end
+        self.shovelTargetAngle = self.shovelRotator.horizontalPosition + self.shovelRotator.moveUpSign * 0.11
         if self.armExtender ~= nil then
             self.shovelTargetExtension = self.armExtender.transMin
         end
@@ -560,9 +596,9 @@ function UnloadBGATask:moveShovelToTarget(_, dt)
 end
 
 function UnloadBGATask:checkIfAllWheelsOnGround()
-    local spec = self.vehicle.spec_wheels
+    local spec = self.vehicle.spec_wheels    
     for _, wheel in pairs(spec.wheels) do
-        if wheel.contact ~= Wheels.WHEEL_GROUND_CONTACT then
+        if not wheel.hasGroundContact then
             return false
         end
     end
@@ -624,12 +660,11 @@ function UnloadBGATask:findCloseTrailer()
     local closest = nil
     local closestTrailer = nil
     for _, vehicle in pairs(g_currentMission.vehicles) do
-        if vehicle ~= self.vehicle and self:vehicleHasTrailersAttached(self.vehicle) and vehicle.ad ~= nil then
-            if AutoDrive.getDistanceBetween(vehicle, self.vehicle) < closestDistance and vehicle.ad.noMovementTimer:done() and (not vehicle.ad.trailerModule:isActiveAtTrigger()) then
+        if vehicle ~= self.vehicle and self:vehicleHasTrailersAttached(vehicle) and vehicle.ad ~= nil then
+            if AutoDrive.getDistanceBetween(vehicle, self.vehicle) < closestDistance and vehicle.ad.noMovementTimer:timer(vehicle.lastSpeedReal < 0.0004, 3000, 16) and (not vehicle.ad.trailerModule:isActiveAtTrigger()) then
                 local _, trailers = self:vehicleHasTrailersAttached(vehicle)
                 for _, trailer in pairs(trailers) do
                     if trailer ~= nil then
-                        --local trailerFillLevel = 0
                         local trailerLeftCapacity = 0
                         _, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
                         if trailerLeftCapacity >= 10 then
@@ -648,15 +683,8 @@ function UnloadBGATask:findCloseTrailer()
     return
 end
 
-function UnloadBGATask:getDistanceBetween(vehicleOne, vehicleTwo)
-    local x1, _, z1 = getWorldTranslation(vehicleOne.components[1].node)
-    local x2, _, z2 = getWorldTranslation(vehicleTwo.components[1].node)
-
-    return math.sqrt(math.pow(x2 - x1, 2) + math.pow(z2 - z1, 2))
-end
-
-function UnloadBGATask:vehicleHasTrailersAttached()
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle)
+function UnloadBGATask:vehicleHasTrailersAttached(vehicle)
+    local trailers, _ = AutoDrive.getTrailersOf(vehicle)
     local tipTrailers = {}
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
@@ -705,6 +733,28 @@ function UnloadBGATask:getTargetBunker()
     return closest
 end
 
+function UnloadBGATask:getTargetUnloadPoint()
+    local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
+    local closestDistance = math.huge
+    local closest = nil
+    if self.shovel ~= nil and self.shovel.getFillUnitFillType ~= nil then
+        local fillType = self.shovel:getFillUnitFillType(1)
+        if fillType ~= nil then
+            for _, trigger in pairs(ADTriggerManager.getAllTriggersForFillType(fillType)) do                
+                local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(trigger)
+                local distance = math.sqrt(math.pow(triggerX - x, 2) + math.pow(triggerZ - z, 2))
+                if distance < closestDistance and distance < 1000 then
+                    closest = trigger
+                    closestDistance = distance
+                end
+            end
+        end
+        --print("Found closest trigger with distance: " .. closestDistance)
+    end   
+
+    return closest
+end
+
 function UnloadBGATask:getTargetBunkerLoadingSide()
     if self.targetBunker == nil then
         self:getTargetBunker()
@@ -718,11 +768,11 @@ function UnloadBGATask:getTargetBunkerLoadingSide()
     end
 
     local trigger = self.targetBunker
-    --        vecW
+                                                                        --        vecW
     local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz --      1 ---- 2
     local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz -- vecH | ---- |
     local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz --      | ---- |
-    local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1) --      3 ---- 4    4 = 2 + vecH
+    local x4, z4 = x2 + (x3 - x1), z2 + (z3 - z1)                       --      3 ---- 4    4 = 2 + vecH
 
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -804,13 +854,32 @@ function UnloadBGATask:isAlmostInBunkerSiloArea(distanceToCheck)
     return AutoDrive.boxesIntersect(boundingBox, otherBoundingBox)
 end
 
+function UnloadBGATask:isShovelInBunkerArea()
+    if self.shovel ~= nil and self.targetBunker ~= nil then        
+        local x, y, z = getWorldTranslation(self.shovel.spec_shovel.shovelDischargeInfo.node)
+        local tx, _, tz = localToWorld(self.shovel.spec_shovel.shovelDischargeInfo.node, 0, 0, -1)
+        --local tx, _, tz = x, y, z + 1
+        if self.targetBunker ~= nil and self.targetBunker.bunkerSiloArea ~= nil then
+            local x1, z1 = self.targetBunker.bunkerSiloArea.sx, self.targetBunker.bunkerSiloArea.sz
+            local x2, z2 = self.targetBunker.bunkerSiloArea.wx, self.targetBunker.bunkerSiloArea.wz
+            local x3, z3 = self.targetBunker.bunkerSiloArea.hx, self.targetBunker.bunkerSiloArea.hz
+            if MathUtil.hasRectangleLineIntersection2D(x1, z1, x2 - x1, z2 - z1, x3 - x1, z3 - z1, x, z, tx - x, tz - z) then
+                return true
+            end
+        end
+    end
+    
+    return false
+end
+
 function UnloadBGATask:driveToSiloCommonPoint(dt)
     if (self.checkedCurrentRow == nil or self.checkedCurrentRow == false) then
         self:setShovelOffsetToNonEmptyRow()
         self.checkedCurrentRow = true
     end
 
-    self.targetPoint = self:getTargetForShovelOffset(14)
+    --self.targetPoint = self:getTargetForShovelOffset(14)
+    self.targetPoint = self:getTargetForShovelOffset(AutoDrive.getVehicleLeadingEdge(vehicle) + 6)
     local angleToSilo = self:getAngleToTarget() -- in +/- 180°
 
     if self.storedDirection == nil then
@@ -844,7 +913,8 @@ function UnloadBGATask:driveToSiloClosePoint(dt)
 end
 
 function UnloadBGATask:driveToSiloReversePoint(dt)
-    self.targetPoint = self:getTargetForShovelOffset(18)
+    --self.targetPoint = self:getTargetForShovelOffset(18)
+    self.targetPoint = self:getTargetForShovelOffset(AutoDrive.getVehicleLeadingEdge(vehicle) + 6)
     self.driveStrategy = self:getDriveStrategyToTarget(false, dt)
 
     self.shovelTarget = self.SHOVELSTATE_LOW
@@ -976,6 +1046,13 @@ function UnloadBGATask:getDriveStrategyToTrailerInit(dt)
     return self:getDriveStrategyByAngle(angleToTrailer, true, dt)
 end
 
+function UnloadBGATask:getDriveStrategyToTrigger(dt)
+    local triggerX, _, triggerZ = ADTriggerManager.getTriggerPos(self.targetUnloadTrigger)    
+    self.targetPoint = {x = triggerX, z = triggerZ} 
+
+    return self:getDriveStrategyByAngle(self:getAngleToTarget(), true, dt)
+end
+
 function UnloadBGATask:getDriveStrategyToTrailer(dt)
     local xT, _, zT = getWorldTranslation(self.targetTrailer.components[1].node)
 
@@ -1082,6 +1159,10 @@ function UnloadBGATask:getPointXInFrontAndYOffsetFromBunker(inFront, offset, fro
     local normalizedVec = {x = (p2.x - p1.x) / (math.abs(p2.x - p1.x) + math.abs(p2.z - p1.z)), z = (p2.z - p1.z) / (math.abs(p2.x - p1.x) + math.abs(p2.z - p1.z))}
     --get ortho for 'inFront' parameter
     local ortho = {x = -normalizedVec.z, z = normalizedVec.x}
+    local factor = math.sqrt(math.pow(ortho.x, 2) + math.pow(ortho.z, 2))
+    ortho.x = ortho.x / factor
+    ortho.z = ortho.z / factor
+    
     --get shovel offset correct position on silo line
     local targetPoint = {x = p1.x + normalizedVec.x * offset, z = p1.z + normalizedVec.z * offset}
 
@@ -1108,7 +1189,8 @@ function UnloadBGATask:reverseFromBGALoad(dt)
     self.shovelTarget = self.SHOVELSTATE_LOW
 
     self.targetPoint = self:getTargetForShovelOffset(200)
-    self.targetPointClose = self:getTargetForShovelOffset(16)
+    --self.targetPointClose = self:getTargetForShovelOffset(16)
+    self.targetPointClose = self:getTargetForShovelOffset(AutoDrive.getVehicleLeadingEdge(vehicle) + 10)
 
     local finalSpeed = 30
     local acc = 1
@@ -1133,7 +1215,7 @@ function UnloadBGATask:reverseFromBGALoad(dt)
 end
 
 function UnloadBGATask:driveToBGAUnloadInit(dt)
-    if self.targetTrailer == nil then
+    if self.targetTrailer == nil and not self.unloadToTrigger then
         self:getVehicleToPause()
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
@@ -1142,8 +1224,11 @@ function UnloadBGATask:driveToBGAUnloadInit(dt)
 
     self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
 
-    self.driveStrategy = self:getDriveStrategyToTrailerInit(dt)
-
+    if not self.unloadToTrigger then
+        self.driveStrategy = self:getDriveStrategyToTrailerInit(dt)
+    else
+        self.driveStrategy = self:getDriveStrategyToTrigger(dt)
+    end
     self:handleDriveStrategy(dt)
 
     local x, _, z = getWorldTranslation(self.vehicle.components[1].node)
@@ -1151,7 +1236,7 @@ function UnloadBGATask:driveToBGAUnloadInit(dt)
     if math.sqrt(math.pow(self.targetPoint.x - x, 2) + math.pow(self.targetPoint.z - z, 2)) <= 4 then
         self.action = self.ACTION_DRIVETOUNLOAD
     end
-    if self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.001) then
+    if ((self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.001)) and not self.unloadToTrigger) or ((self.unloadToTrigger and not self.targetUnloadTriggerFree)) then
         self.action = self.ACTION_REVERSEFROMUNLOAD
         self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
@@ -1159,14 +1244,14 @@ function UnloadBGATask:driveToBGAUnloadInit(dt)
 end
 
 function UnloadBGATask:driveToBGAUnload(dt)
-    if self.targetTrailer == nil then
+    if self.targetTrailer == nil and not self.unloadToTrigger then
         AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Trailer;", 5000, self.vehicle.stateModule:getName())
         self:getVehicleToPause()
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
         return
     end
-    if AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) <= 10 then
+    if self.unloadToTrigger or (AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) <= 10) then
         self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
     elseif AutoDrive.getDistanceBetween(self.vehicle, self.targetTrailer) > 20 then
         self.shovelTarget = self.SHOVELSTATE_TRANSPORT
@@ -1177,14 +1262,18 @@ function UnloadBGATask:driveToBGAUnload(dt)
         return
     end
 
-    self.driveStrategy = self:getDriveStrategyToTrailer(dt)
+    if not self.unloadToTrigger then
+        self.driveStrategy = self:getDriveStrategyToTrailer(dt)
+    else
+        self.driveStrategy = self:getDriveStrategyToTrigger(dt)
+    end
 
     self:handleDriveStrategy(dt)
 
     if self.inShovelRangeTimer:timer(self:getShovelInTrailerRange(), 350, dt) then
         self.action = self.ACTION_UNLOAD
     end
-    if self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.1) then
+    if (not self.unloadToTrigger and (self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.1))) or (self.unloadToTrigger and not self.targetUnloadTriggerFree) then
         self.action = self.ACTION_REVERSEFROMUNLOAD
         self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
@@ -1204,7 +1293,7 @@ function UnloadBGATask:handleBGAUnload(dt)
         self.action = self.ACTION_REVERSEFROMUNLOAD
         self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
     end
-    if self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.1) then
+    if (not self.unloadToTrigger and (self.targetTrailer == nil or (self.trailerLeftCapacity <= 0.1))) or (self.unloadToTrigger and not self.targetUnloadTriggerFree) then
         self.action = self.ACTION_REVERSEFROMUNLOAD
         self.shovelState = self.SHOVELSTATE_UNLOAD
         self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
@@ -1244,12 +1333,12 @@ function UnloadBGATask:reverseFromBGAUnload(dt)
         else
             self.shovelTarget = self.SHOVELSTATE_BEFORE_UNLOAD
         end
-    end
 
-    if MathUtil.vector2Length(x - self.shovelUnloadPosition.x, z - self.shovelUnloadPosition.z) >= 8 then
-        self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
-        self.action = self.ACTION_DRIVETOSILO_COMMON_POINT
-    end
+        if MathUtil.vector2Length(x - self.shovelUnloadPosition.x, z - self.shovelUnloadPosition.z) >= 8 then
+            self.shovel:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF, true)
+            self.action = self.ACTION_DRIVETOSILO_COMMON_POINT
+        end
+    end    
 end
 
 function UnloadBGATask:getVehicleToPause()
@@ -1261,7 +1350,7 @@ function UnloadBGATask:getShovelInTrailerRange()
     if dischargeNode ~= nil then
         local dischargeTarget = dischargeNode.dischargeObject
         if dischargeTarget ~= nil then
-            local result = self.shovel:getDischargeState() == Dischargeable.DISCHARGE_STATE_OBJECT and dischargeTarget == self.targetTrailer
+            local result = self.shovel:getDischargeState() == Dischargeable.DISCHARGE_STATE_OBJECT --and dischargeTarget == self.targetTrailer
             return result
         end
     end
@@ -1377,5 +1466,35 @@ function UnloadBGATask:driveInDirection(dt, steeringAngleLimit, acceleration, sl
         end
 
         AIVehicleUtil.driveInDirection(self.vehicle, dt, steeringAngleLimit, acceleration, slowAcceleration, slowAngleLimit, allowedToDrive, moveForwards, lx, lz, maxSpeed, slowDownFactor)
+    end
+end
+
+function UnloadBGATask:drawDebug()
+    local node = self.vehicle.components[1].node
+    local x, y, z = getWorldTranslation(node)
+
+    -- line to trailer or trigger
+    if self.targetUnloadTrigger ~= nil then
+        local triggerX, triggerY, triggerZ = ADTriggerManager.getTriggerPos(self.targetUnloadTrigger)
+        ADDrawingManager:addLineTask(x, y, z, triggerX, triggerY, triggerZ, 0, 1, 0)
+    end
+    -- line to current target
+    if self.targetPoint ~= nil then
+        ADDrawingManager:addLineTask(x, y, z, self.targetPoint.x, y, self.targetPoint.z, 1, 0, 0)
+    end
+    
+    -- Bunker size
+    if self.targetBunker ~= nil then
+        local trigger = self.targetBunker
+        local x1, z1 = trigger.bunkerSiloArea.sx, trigger.bunkerSiloArea.sz
+        local x2, z2 = trigger.bunkerSiloArea.wx, trigger.bunkerSiloArea.wz
+        local x3, z3 = trigger.bunkerSiloArea.hx, trigger.bunkerSiloArea.hz
+
+        local corners = {{x = x1, z = z1}, {x = x2, z = z2}, {x = x3, z = z3}, {x = x2 + (x3 - x1), z = z2 + (z3 - z1)}}
+
+        ADDrawingManager:addLineTask(corners[1].x, y, corners[1].z, corners[2].x, y, corners[2].z, 1, 0, 0)
+        ADDrawingManager:addLineTask(corners[2].x, y, corners[2].z, corners[3].x, y, corners[3].z, 1, 0, 0)
+        ADDrawingManager:addLineTask(corners[3].x, y, corners[3].z, corners[4].x, y, corners[4].z, 1, 0, 0)
+        ADDrawingManager:addLineTask(corners[4].x, y, corners[4].z, corners[1].x, y, corners[1].z, 1, 0, 0)
     end
 end

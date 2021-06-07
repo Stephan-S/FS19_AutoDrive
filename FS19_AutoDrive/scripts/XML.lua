@@ -247,13 +247,15 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
-	if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_ROADNETWORKINFO) then
-		-- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
-		ADGraphManager:createMarkersAtOpenEnds()
-	end
-	g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
-	g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
-	g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
+    -- if debug channel for road network was saved and loaded, the debug wayPoints shall be created
+    ADGraphManager:createDebugMarkers()
+
+	AutoDrive.tipOfTheDay.currentTipId = getXMLInt(xmlFile, "AutoDrive.lastTipOfTheDay") or 1
+	AutoDrive.tipOfTheDay.highestTipId = getXMLInt(xmlFile, "AutoDrive.highestTipOfTheDay") or 1
+	
+    g_logManager:info("[AD] AutoDrive.readFromXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
+    g_logManager:info("[AD] AutoDrive.readFromXML markers: %s", tostring(#ADGraphManager:getMapMarkers()))
+    g_logManager:info("[AD] AutoDrive.readFromXML groups: %s", tostring(table.count(ADGraphManager:getGroups())))
 end
 
 function AutoDrive.saveToXML(xmlFile)
@@ -327,6 +329,10 @@ function AutoDrive.saveToXML(xmlFile)
 			markerIndex = markerIndex + 1
 		end
 	end
+
+	setXMLInt(xmlFile, "AutoDrive.lastTipOfTheDay", AutoDrive.tipOfTheDay.currentTipId)
+	setXMLInt(xmlFile, "AutoDrive.highestTipOfTheDay", AutoDrive.tipOfTheDay.highestTipId)
+	
 	saveXMLFile(xmlFile)
 	if g_client == nil then
 		g_logManager:info("[AD] AutoDrive.saveToXML waypoints: %s", tostring(ADGraphManager:getWayPointsCount()))
@@ -370,10 +376,12 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 	-- writing markers
 	removeXMLProperty(xmlId, rootNode .. ".markers")
 	for i, m in pairs(markers) do
-		local key = string.format("%s.markers.m(%d)", rootNode, i - 1)
-		setXMLInt(xmlId, key .. "#i", m.id)
-		setXMLString(xmlId, key .. "#n", m.name)
-		setXMLString(xmlId, key .. "#g", m.group)
+		if not ADGraphManager:getMapMarkerById(i).isADDebug then -- do not save debug map marker
+			local key = string.format("%s.markers.m(%d)", rootNode, i - 1)
+			setXMLInt(xmlId, key .. "#i", m.id)
+			setXMLString(xmlId, key .. "#n", m.name)
+			setXMLString(xmlId, key .. "#g", m.group)
+		end
 	end
 
 	-- writing groups
@@ -381,10 +389,12 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 	do
 		local i = 0
 		for name, id in pairs(groups) do
-			local key = string.format("%s.groups.g(%d)", rootNode, i)
-			setXMLString(xmlId, key .. "#n", name)
-			setXMLInt(xmlId, key .. "#i", id)
-			i = i + 1
+			if name ~= ADGraphManager.debugGroupName then -- do not save debug group
+				local key = string.format("%s.groups.g(%d)", rootNode, i)
+				setXMLString(xmlId, key .. "#n", name)
+				setXMLInt(xmlId, key .. "#i", id)
+				i = i + 1
+			end
 		end
 	end
 end

@@ -44,6 +44,7 @@ function CombineUnloaderMode:start()
         return
     end
 
+    self:reset()
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -608,9 +609,13 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
         if AutoDrive.isSugarcaneHarvester(self.combine) then
             rearChaseOffset = -self.combine.sizeLength / 2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
         else
-            --there is no need to be close to the rear of the harvester here. We can make it hard on the pathfinder since we have no strong desire to chase there anyway for normal harvesters
-            --Especially when they are CP driven, we have to be prepared for that massive reverse maneuver when the combine is filled and wants to avoid the crop.
-            rearChaseOffset = -45
+            if self.combine.lastSpeedReal > 0.002 and self.combine.ad.sensors.frontSensorFruit:pollInfo() then
+                rearChaseOffset = -10
+            else
+                --there is no need to be close to the rear of the harvester here. We can make it hard on the pathfinder since we have no strong desire to chase there anyway for normal harvesters
+                --Especially when they are CP driven, we have to be prepared for that massive reverse maneuver when the combine is filled and wants to avoid the crop.
+                rearChaseOffset = -45
+            end
         end
     end
 
@@ -643,7 +648,7 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
     self.pipeSide = AutoDrive.getPipeSide(self.combine)
     self.targetTrailer, self.targetTrailerFillRatio = self:getTargetTrailer()
     local sideChaseTermX = self:getSideChaseOffsetX()
-    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance and self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine())
+    local sideChaseTermZ = self:getSideChaseOffsetZ(AutoDrive.experimentalFeatures.dynamicChaseDistance or not self.combine:getIsBufferCombine())
     local rearChaseTermZ = self:getRearChaseOffsetZ()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
@@ -690,7 +695,7 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
         if
             (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and
                 ((not AutoDrive.isSugarcaneHarvester(self.combine)) or self:isUnloaderOnCorrectSide(self.pipeSide) and math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide))) or
-                self.combine.ad.noMovementTimer.elapsedTime > 1000
+                (self.combine.ad.noMovementTimer.elapsedTime > 1000)
          then
             -- Take into account a right sided harvester, e.g. potato harvester.
             chaseNode = sideChasePos

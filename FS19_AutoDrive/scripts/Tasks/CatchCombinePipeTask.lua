@@ -21,6 +21,7 @@ function CatchCombinePipeTask:new(vehicle, combine)
     o.reverseTimer = AutoDriveTON:new()
     o.waitForCheckTimer = AutoDriveTON:new()
     o.waitForCheckTimer.elapsedTime = 4000
+    o.taskType = "CatchCombinePipeTask"
     return o
 end
 
@@ -82,7 +83,7 @@ function CatchCombinePipeTask:update(dt)
             self.reverseStartLocation = {x = x, y = y, z = z}
             self.state = CatchCombinePipeTask.STATE_REVERSING
         end
-        if combineTravelDistance > 65 then
+        if combineTravelDistance > 85 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CatchCombinePipeTask:update - combine travelled - recalculate path")
             self.waitForCheckTimer.elapsedTime = 4000
             self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
@@ -93,7 +94,7 @@ function CatchCombinePipeTask:update(dt)
                 local angleToCombine = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
                 local isCorrectSide = self.vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:isUnloaderOnCorrectSide()
 
-                if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60
+                if angleToCombine < 35 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 80
                    and isCorrectSide then
                     self:finished()
                 else
@@ -112,7 +113,7 @@ function CatchCombinePipeTask:update(dt)
             self.reverseTimer:timer(false)
             self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, true)
         end
     end
 end
@@ -143,7 +144,7 @@ function CatchCombinePipeTask:startNewPathFinding()
         return false
     end
 
-    if self.combine:getIsBufferCombine() or (pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or (targetFieldId == combineFieldId and cFillRatio <= 0.7)) then
+    if self.combine:getIsBufferCombine() or (pipeChaseSide ~= AutoDrive.CHASEPOS_REAR or (targetFieldId == combineFieldId and cFillRatio <= 0.85)) then
         self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, (not self.combine:getIsBufferCombine() and self.combine.lastSpeedReal > 0.002))
         self.combinesStartLocation = {}
         self.combinesStartLocation.x, self.combinesStartLocation.y, self.combinesStartLocation.z = getWorldTranslation(self.combine.components[1].node)

@@ -4,6 +4,8 @@ ADInputManager.actionsToInputs = {
     ADSilomode = "input_silomode",
     ADRecord = "input_record",
     ADRecord_Dual = "input_record_dual",
+    ADRecord_SubPrio = "input_record_subPrio",
+    ADRecord_SubPrioDual = "input_record_subPrioDual",    
     ADEnDisable = "input_start_stop",
     ADSelectTarget = "input_nextTarget",
     ADSelectPreviousTarget = "input_previousTarget",
@@ -23,6 +25,7 @@ ADInputManager.actionsToInputs = {
     AD_FieldSpeed_down = "input_decreaseFieldSpeed",
     ADToggleHud = "input_toggleHud",
     ADToggleMouse = "input_toggleMouse",
+    COURSEPLAY_MOUSEACTION_SECONDARY = "input_toggleMouse",
     ADDebugDeleteWayPoint = "input_removeWaypoint",
     AD_routes_manager = "input_routesManager",
     ADSelectNextFillType = "input_nextFillType",
@@ -35,14 +38,22 @@ ADInputManager.actionsToInputs = {
     AD_open_notification_history = "input_openNotificationHistory",
     AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle",
-    AD_devAction = "input_devAction"
+    AD_devAction = "input_devAction",
+    AD_open_tipOfTheDay = "input_openTipOfTheDay"
 }
 
+
+--[[
+tool selection not proper on dedi servers as known!
+That's why the following event is only taken on clients and send as event in the network
+input_setParkDestination
+]]
+-- inputs to send to server
 ADInputManager.inputsToIds = {
     input_start_stop = 1,
     input_incLoopCounter = 2,
     input_decLoopCounter = 3,
-    input_setParkDestination = 4,
+    -- input_setParkDestination = 4,
     input_silomode = 5,
     input_previousMode = 6,
     input_record = 7,
@@ -64,7 +75,10 @@ ADInputManager.inputsToIds = {
     input_nextTarget = 23,
     input_previousTarget = 24,
     input_startCp = 25,
-    input_toggleCP_AIVE = 26
+    input_toggleCP_AIVE = 26,
+    input_record_subPrio = 27,
+    input_record_subPrioDual = 28,
+    input_bunkerUnloadType = 29
 }
 
 ADInputManager.idsToInputs = {}
@@ -108,6 +122,12 @@ end
 function ADInputManager:input_openNotificationHistory(vehicle)
     AutoDrive.onOpenNotificationsHistory()
 end
+
+function ADInputManager:input_openTipOfTheDay(vehicle)
+    AutoDrive.onOpenTipOfTheDay()
+end
+
+
 
 function ADInputManager:input_editMapMarker(vehicle)
     if AutoDrive.isEditorModeEnabled() then
@@ -226,6 +246,25 @@ function ADInputManager:input_start_stop(vehicle)
         vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:getCurrentMode():start()
+
+        if AutoDrive.rightSHIFTmodifierKeyPressed then
+            for _, otherVehicle in pairs(g_currentMission.vehicles) do
+                if otherVehicle ~= nil and otherVehicle ~= vehicle and otherVehicle.ad ~= nil and otherVehicle.ad.stateModule ~= nil then
+                    --Doesn't work yet, if vehicle hasn't been entered before apparently. So we need to check what to call before, to setup all required variables.
+                    
+                    if otherVehicle.ad.stateModule.activeBeforeSave then
+                        g_currentMission:requestToEnterVehicle(otherVehicle)
+                        otherVehicle.ad.stateModule:getCurrentMode():start()
+                    end
+                    if otherVehicle.ad.stateModule.AIVEActiveBeforeSave and otherVehicle.acParameters ~= nil then
+                        g_currentMission:requestToEnterVehicle(otherVehicle)
+                        otherVehicle.acParameters.enabled = true
+                        otherVehicle:startAIVehicle(nil, false, g_currentMission.player.farmId)
+                    end                    
+				end
+			end
+            g_currentMission:requestToEnterVehicle(vehicle)
+        end
     end
 end
 
@@ -238,56 +277,7 @@ function ADInputManager:input_decLoopCounter(vehicle)
 end
 
 function ADInputManager:input_setParkDestination(vehicle)
-    if vehicle.ad.stateModule:getFirstMarker() ~= nil then
-        -- g_logManager:info("[AD] ADInputManager:input_setParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
-
-        local SelectedWorkTool = nil
-        if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
-            local allImp = {}
-            -- Credits to Tardis from FS17
-            local function addAllAttached(obj)
-                for _, imp in pairs(obj:getAttachedImplements()) do
-                    addAllAttached(imp.object)
-                    table.insert(allImp, imp)
-                end
-            end
-
-            addAllAttached(vehicle)
-
-            if allImp ~= nil then
-                for i = 1, #allImp do
-                    local imp = allImp[i]
-                    if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
-                        SelectedWorkTool = imp.object
-                        break
-                    end
-                end
-            end
-        end
-        if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.setWorkToolParkDestination ~= nil then
-            if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
-                -- assign park destination
-                SelectedWorkTool.advd:setWorkToolParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
-                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-            elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
-                -- delete park destination
-                SelectedWorkTool.advd:setWorkToolParkDestination(-1)
-                AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-            end
-        else
-            if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.setParkDestination ~= nil then
-                if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
-                    -- assign park destination
-                    vehicle.ad.stateModule:setParkDestination(vehicle.ad.stateModule:getFirstMarkerId())
-                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_selected;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-                elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
-                    -- delete park destination
-                    vehicle.ad.stateModule:setParkDestination(-1)
-                    AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.INFO, "$l10n_AD_parkVehicle_deleted;%s", 5000, vehicle.ad.stateModule:getFirstMarker().name)
-                end
-            end
-        end
-    end
+    AutoDrive.setActualParkDestination(vehicle)
 end
 
 function ADInputManager:input_silomode(vehicle)
@@ -299,7 +289,7 @@ function ADInputManager:input_previousMode(vehicle)
 end
 
 function ADInputManager:input_record(vehicle)
-    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
         vehicle.ad.stateModule:startNormalCreationMode()
     else
         vehicle.ad.stateModule:disableCreationMode()
@@ -307,8 +297,24 @@ function ADInputManager:input_record(vehicle)
 end
 
 function ADInputManager:input_record_dual(vehicle)
-    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
         vehicle.ad.stateModule:startDualCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
+end
+
+function ADInputManager:input_record_subPrio(vehicle)
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
+        vehicle.ad.stateModule:startSubPrioCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
+end
+
+function ADInputManager:input_record_subPrioDual(vehicle)
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
+        vehicle.ad.stateModule:startSubPrioDualCreationMode()
     else
         vehicle.ad.stateModule:disableCreationMode()
     end
@@ -409,8 +415,7 @@ function ADInputManager:input_callDriver(vehicle)
 end
 
 function ADInputManager:input_parkVehicle(vehicle)
-    local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
-
+    local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
     if actualParkDestination >= 1 then
         vehicle.ad.stateModule:setFirstMarker(actualParkDestination)
         vehicle.ad.stateModule:removeCPCallback()
@@ -450,4 +455,8 @@ function ADInputManager:input_devAction(vehicle)
     if AutoDrive.devAction ~= nil then
         AutoDrive.devAction(vehicle)
     end
+end
+
+function ADInputManager:input_bunkerUnloadType(vehicle)    
+    vehicle.ad.stateModule:nextBunkerUnloadType()
 end

@@ -1,10 +1,12 @@
 ADHudButton = ADInheritsFrom(ADGenericHudElement)
 
-function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, toolTip, state, visible)
+function ADHudButton:new(posX, posY, width, height, primaryAction, secondaryAction, tertiaryAction, quatenaryAction, toolTip, state, visible)
     local o = ADHudButton:create()
     o:init(posX, posY, width, height)
     o.primaryAction = primaryAction
     o.secondaryAction = secondaryAction
+    o.tertiaryAction = tertiaryAction
+    o.quatenaryAction = quatenaryAction
     o.toolTip = toolTip
     o.state = state
     o.isVisible = visible
@@ -64,6 +66,12 @@ function ADHudButton:getNewState(vehicle)
             newState = 2
             if vehicle.ad.stateModule:isInDualCreationMode() then
                 newState = 3
+            end
+            if vehicle.ad.stateModule:isInSubPrioCreationMode() then
+                newState = 4
+            end
+            if vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
+                newState = 5
             end
         else
             newState = 1
@@ -137,7 +145,7 @@ function ADHudButton:getNewState(vehicle)
     end
 
     if self.primaryAction == "input_parkVehicle" then
-        local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
+        local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
 
         if actualParkDestination >= 1 then
             newState = 1
@@ -163,6 +171,14 @@ function ADHudButton:getNewState(vehicle)
             end
         end
         self.isVisible = (not AutoDrive.isEditorModeEnabled()) or (AutoDrive.getSetting("wideHUD") and AutoDrive.getSetting("addSettingsToHUD"))
+    end  
+
+    if self.primaryAction == "input_bunkerUnloadType" then
+        if vehicle.ad.stateModule:getBunkerUnloadTypeIsTrigger() then
+            newState = 1
+        else
+            newState = 2
+        end
     end
 
     return newState
@@ -185,17 +201,23 @@ function ADHudButton:act(vehicle, posX, posY, isDown, isUp, button)
             end
         end
         if self.primaryAction == "input_parkVehicle" then
-            local actualParkDestination = AutoDrive.getActualParkDestination(vehicle)
+            local actualParkDestination = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
             if actualParkDestination >= 1 and ADGraphManager:getMapMarkerById(actualParkDestination) ~= nil then
                 vehicle.ad.sToolTipInfo = ADGraphManager:getMapMarkerById(actualParkDestination).name
             end
 
         end
-        if button == 1 and isUp then
+        if button == 1 and isUp and not AutoDrive.leftLSHIFTmodifierKeyPressed then
             ADInputManager:onInputCall(vehicle, self.primaryAction)
             return true
-        elseif (button == 3 or button == 2) and isUp then
+        elseif (button == 3 or button == 2) and isUp and not AutoDrive.leftLSHIFTmodifierKeyPressed then
             ADInputManager:onInputCall(vehicle, self.secondaryAction)
+            return true
+        elseif button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed then
+            ADInputManager:onInputCall(vehicle, self.tertiaryAction)
+            return true
+        elseif (button == 3 or button == 2) and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed then
+            ADInputManager:onInputCall(vehicle, self.quatenaryAction)
             return true
         end
     end

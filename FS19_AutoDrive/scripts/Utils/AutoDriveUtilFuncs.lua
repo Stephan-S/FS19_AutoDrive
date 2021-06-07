@@ -262,15 +262,10 @@ function AutoDrive.cycleEditorShowMode()
     end
 end
 
-function AutoDrive.getActualParkDestination(vehicle)
-    local actualParkDestination = -1
-    local SelectedWorkTool = nil
+function AutoDrive.getSelectedWorkTool(vehicle)
+    local selectedWorkTool = nil
 
-    if vehicle == nil then
-        return actualParkDestination
-    end
-
-    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 and g_dedicatedServerInfo == nil then
+    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
         local allImp = {}
         -- Credits to Tardis from FS17
         local function addAllAttached(obj)
@@ -279,26 +274,118 @@ function AutoDrive.getActualParkDestination(vehicle)
                 table.insert(allImp, imp)
             end
         end
-            
+
         addAllAttached(vehicle)
 
         if allImp ~= nil then
             for i = 1, #allImp do
                 local imp = allImp[i]
                 if imp ~= nil and imp.object ~= nil and imp.object:getIsSelected() then
-                    SelectedWorkTool = imp.object
+                    selectedWorkTool = imp.object
                     break
                 end
             end
         end
     end
-    if SelectedWorkTool ~= nil and SelectedWorkTool ~= vehicle and SelectedWorkTool.advd ~= nil and SelectedWorkTool.advd.getWorkToolParkDestination ~= nil then
-        actualParkDestination = SelectedWorkTool.advd:getWorkToolParkDestination()
-    else
-        if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule.getParkDestination ~= nil then
-            -- g_logManager:info("[AD] AutoDrive.getActualParkDestination vehicle %s vehicle:getIsSelected() %s", tostring(vehicle), tostring(vehicle:getIsSelected()))
-            actualParkDestination = vehicle.ad.stateModule:getParkDestination()
+    return selectedWorkTool
+end
+
+function AutoDrive.getVehicleLeadingEdge(vehicle)
+    local leadingEdge = 0
+    local implements = AutoDrive.getAllImplements(vehicle)
+    if implements ~= nil then
+        for i = 1, #implements do
+            local implement = implements[i]
+            if implement ~= nil and implement.object ~= nil then
+                local implementX, implementY, implementZ = getWorldTranslation(implement.object.components[1].node)
+                local _, _, diffZ = worldToLocal(vehicle.components[1].node, implementX, implementY, implementZ)
+                if diffZ > 0 and implement.object.sizeLength ~= nil then                    
+                    leadingEdge = math.max(leadingEdge, diffZ + (implement.object.sizeLength / 2) - (vehicle.sizeLength / 2))
+                end
+            end
         end
     end
-    return actualParkDestination
+    return leadingEdge
+end
+
+function AutoDrive.getAllImplements(vehicle)
+    if vehicle ~= nil and vehicle.getAttachedImplements and #vehicle:getAttachedImplements() > 0 then
+        local allImp = {}
+        -- Credits to Tardis from FS17
+        local function addAllAttached(obj)
+            for _, imp in pairs(obj:getAttachedImplements()) do
+                addAllAttached(imp.object)
+                table.insert(allImp, imp)
+            end
+        end
+
+        addAllAttached(vehicle)
+
+        return allImp
+    end
+end
+
+-- set or delete park destination for selected vehicle, tool from user input action, client mode!
+function AutoDrive.setActualParkDestination(vehicle)
+    local actualParkDestination = -1
+    local selectedWorkTool = nil
+
+    if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil and vehicle.ad.stateModule:getFirstMarker() ~= nil then
+        local firstMarkerID = vehicle.ad.stateModule:getFirstMarkerId()
+        if firstMarkerID > 0 then
+            local mapMarker = ADGraphManager:getMapMarkerById(firstMarkerID)
+            -- do not allow to set debug marker as park destination
+            if mapMarker ~= nil and mapMarker.isADDebug ~= true then
+                selectedWorkTool = AutoDrive.getSelectedWorkTool(vehicle)
+
+                if selectedWorkTool == nil then
+                    -- no attachment selected, so use the vehicle itself
+                    selectedWorkTool = vehicle
+                end
+
+                if selectedWorkTool ~= nil then
+                    if AutoDrive.isInExtendedEditorMode() and AutoDrive.leftCTRLmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed then
+                        -- assign park destination
+                        if vehicle.advd ~= nil then
+                            vehicle.advd:setParkDestination(selectedWorkTool, firstMarkerID)
+                        end
+
+                        -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
+                        local messageText = "$l10n_AD_parkVehicle_selected; %s"
+                        local messageArg = vehicle.ad.stateModule:getFirstMarker().name
+                        -- localization
+                        messageText = AutoDrive.localize(messageText)
+                        -- formatting
+                        messageText = string.format(messageText, messageArg)
+                        ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
+                        
+                    elseif AutoDrive.isInExtendedEditorMode() and not AutoDrive.leftCTRLmodifierKeyPressed and AutoDrive.leftALTmodifierKeyPressed then
+                        -- delete park destination
+                        if vehicle.advd ~= nil then
+                            vehicle.advd:setParkDestination(selectedWorkTool, -1)
+                        end
+
+                        -- on client sendMessage is not allowed, so add the message to ADMessagesManager to show it
+                        local messageText = "$l10n_AD_parkVehicle_deleted; %s"
+                        local messageArg = vehicle.ad.stateModule:getFirstMarker().name
+                        -- localization
+                        messageText = AutoDrive.localize(messageText)
+                        -- formatting
+                        messageText = string.format(messageText, messageArg)
+                        ADMessagesManager:addMessage(ADMessagesManager.messageTypes.INFO, messageText, 5000)
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- MP: Important! vehicle:getIsEntered() is not working as expected on server!
+-- This is the alternative MP approach
+function AutoDrive:getIsEntered(vehicle)
+    local user = nil
+    if vehicle ~= nil and g_currentMission.userManager ~= nil and g_currentMission.userManager.getUserByConnection ~= nil then
+        user = g_currentMission.userManager:getUserByConnection(vehicle:getOwner())
+    end
+    return user ~= nil
 end

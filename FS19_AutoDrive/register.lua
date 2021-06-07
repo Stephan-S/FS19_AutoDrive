@@ -17,8 +17,10 @@ source(Utils.getFilename("scripts/Settings.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/DijkstraLive.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/DijkstraLiveBlue.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/ExternalInterface.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/PathCalculation.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/TelemetryExport.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Hud/GenericHudElement.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Hud/HudButton.lua", g_currentModDirectory))
@@ -127,6 +129,8 @@ source(Utils.getFilename("scripts/Gui/SettingsPage.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/DebugSettingsPage.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/ExperimentalFeaturesSettingsPage.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/Settings.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/TipOfTheDayGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/TipOfTheDayHandler.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version

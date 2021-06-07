@@ -97,7 +97,7 @@ function ADHarvestManager:update(dt)
         if vehicle.isTrailedHarvester then
             vehicle = vehicle.trailingVehicle
         end
-        if (vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or (vehicle.getIsEntered ~= nil and vehicle:getIsEntered()) then
+        if (vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or AutoDrive:getIsEntered(vehicle) then
             table.insert(self.harvesters, idleHarvester)
             table.removeValue(self.idleHarvesters, idleHarvester)
         end
@@ -107,7 +107,7 @@ function ADHarvestManager:update(dt)
         if vehicle.isTrailedHarvester then
             vehicle = vehicle.trailingVehicle
         end
-        if not ((vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or (vehicle.getIsEntered ~= nil and vehicle:getIsEntered())) then
+        if not ((vehicle.spec_aiVehicle ~= nil and vehicle.spec_aiVehicle.isActive) or AutoDrive:getIsEntered(vehicle)) then
             table.insert(self.idleHarvesters, harvester)
             table.removeValue(self.harvesters, harvester)
 
@@ -120,7 +120,7 @@ function ADHarvestManager:update(dt)
 
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil and g_currentMission.nodeToObject[harvester.components[1].node] ~= nil and entityExists(harvester.components[1].node) then
-            if self.assignmentDelayTimer:done() then
+            --if self.assignmentDelayTimer:done() then
                 if not self:alreadyAssignedUnloader(harvester) then
                     if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ((not AutoDrive.combineIsTurning(harvester)) and ADHarvestManager.isHarvesterActive(harvester)) then
                         self:assignUnloaderToHarvester(harvester)
@@ -141,7 +141,7 @@ function ADHarvestManager:update(dt)
                         end
                     end
                 end
-            end
+            --end
 
             if (harvester.ad ~= nil and harvester.ad.noMovementTimer ~= nil and harvester.lastSpeedReal ~= nil) then
                 harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0004), 3000, dt)
@@ -152,14 +152,6 @@ function ADHarvestManager:update(dt)
                 else
                     harvester.ad.driveForwardTimer:timer(false)
                 end
-            end
-
-            if (harvester.ad ~= nil and harvester.ad.noTurningTimer ~= nil) then
-                local cpIsTurning = harvester.cp ~= nil and (harvester.cp.isTurning or (harvester.cp.turnStage ~= nil and harvester.cp.turnStage > 0))
-                local cpIsTurningTwo = harvester.cp ~= nil and harvester.cp.driver and (harvester.cp.driver.turnIsDriving or (harvester.cp.driver.fieldworkState ~= nil and harvester.cp.driver.fieldworkState == harvester.cp.driver.states.TURNING))
-                local aiIsTurning = (harvester.getAIIsTurning ~= nil and harvester:getAIIsTurning() == true)
-                local combineSteering = harvester.rotatedTime ~= nil and (math.deg(harvester.rotatedTime) > 20)
-                local combineIsTurning = cpIsTurning or cpIsTurningTwo or aiIsTurning or combineSteering
             end
         else
             table.removeValue(self.harvesters, harvester)
@@ -318,4 +310,25 @@ function ADHarvestManager:getClosestIdleUnloader(harvester)
         end
     end
     return closestUnloader
+end
+
+function ADHarvestManager.getOpenPipePercent(harvester)
+	local pipePercent = 1
+	local openPipe = false
+	local fillLevel = 0
+	local capacity = 0
+	if harvester ~= nil and harvester.getCurrentDischargeNode ~= nil then
+		local dischargeNode = harvester:getCurrentDischargeNode()
+		if dischargeNode ~= nil then
+			fillLevel = harvester:getFillUnitFillLevel(dischargeNode.fillUnitIndex)
+			capacity = harvester:getFillUnitCapacity(dischargeNode.fillUnitIndex)
+		end
+		if capacity ~= nil and capacity > 0 and AutoDrive.getSetting("preCallLevel", harvester) ~= nil and ADHarvestManager:getAssignedUnloader(harvester) ~= nil and AutoDrive.experimentalFeatures.dynamicChaseDistance then
+			pipePercent = AutoDrive.getSetting("preCallLevel", harvester)
+			if fillLevel > (pipePercent * capacity) then
+				openPipe = true
+			end
+		end
+	end
+	return openPipe, pipePercent
 end
