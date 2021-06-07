@@ -96,7 +96,7 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
                                         preventTurnaroundWeight = 5000000
                                     end
                                 end
-								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) * factor + (addedWeights[outPoint.id] or 0) + preventTurnaroundWeight), pre=point.id})
+								candidates:enqueue({p=outPoint, distance=(distance + (distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)) * factor + preventTurnaroundWeight), pre=point.id})
 							end
 
 							if results[point.id][outId] == nil then
