@@ -19,6 +19,9 @@ function ADRecordingModule:start(dual, subPrio)
     self.isSubPrio = subPrio
     self.vehicle:stopAutoDrive()
     self.flags = 0
+    
+    local startNodeId, _ = self.vehicle:getClosestWayPoint()
+    local startNode = ADGraphManager:getWayPointById(startNodeId)
 
     if self.isSubPrio then
         self.flags = self.flags + AutoDrive.FLAG_SUBPRIO
@@ -40,8 +43,6 @@ function ADRecordingModule:start(dual, subPrio)
     self.lastWpPosition.x, self.lastWpPosition.y, self.lastWpPosition.z = getWorldTranslation(self.vehicle.components[1].node)
 
     if AutoDrive.getSetting("autoConnectStart") then
-        local startNodeId, _ = self.vehicle:getClosestWayPoint()
-        local startNode = ADGraphManager:getWayPointById(startNodeId)
         if startNode ~= nil then
             if ADGraphManager:getDistanceBetweenNodes(startNodeId, self.lastWp.id) < 12 then
                 ADGraphManager:toggleConnectionBetween(startNode, self.lastWp, self.drivingReverse)

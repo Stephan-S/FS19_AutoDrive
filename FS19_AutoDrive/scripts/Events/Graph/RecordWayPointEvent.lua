@@ -9,7 +9,7 @@ function AutoDriveRecordWayPointEvent:emptyNew()
 	return o
 end
 
-function AutoDriveRecordWayPointEvent:new(x, y, z, connectPrevious, dual, isReverse, flags, previousId)
+function AutoDriveRecordWayPointEvent:new(x, y, z, connectPrevious, dual, isReverse, previousId, flags)
 	local o = AutoDriveRecordWayPointEvent:emptyNew()
 	o.x = x
 	o.y = y
