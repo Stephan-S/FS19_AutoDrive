@@ -70,6 +70,9 @@ AutoDrive.PERF_FRAMES_HIGH = 4
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
 
+AutoDrive.FLAG_NONE = 0
+AutoDrive.FLAG_SUBPRIO = 1
+
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
 	{"ADToggleHud", true, 1},
@@ -200,6 +203,7 @@ function AutoDrive:init()
 		AutoDriveUserConnectedEvent.sendEvent()
 	else
 		ADGraphManager:checkYPositionIntegrity()
+		ADGraphManager:checkSubPrioIntegrity()
 	end
 
 	AutoDrive.updateDestinationsMapHotspots()

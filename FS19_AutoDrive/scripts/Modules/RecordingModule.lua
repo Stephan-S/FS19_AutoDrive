@@ -18,6 +18,11 @@ function ADRecordingModule:start(dual, subPrio)
     self.isDual = dual
     self.isSubPrio = subPrio
     self.vehicle:stopAutoDrive()
+    self.flags = 0
+
+    if self.isSubPrio then
+        self.flags = self.flags + AutoDrive.FLAG_SUBPRIO
+    end
 
     local rearOffset = 0
     local _, trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
@@ -30,7 +35,7 @@ function ADRecordingModule:start(dual, subPrio)
     if self.drivingReverse then
         x1, y1, z1 = localToWorld(self.vehicle.ad.specialDrivingModule:getReverseNode(), 0, 0, rearOffset)
     end
-    self.lastWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, false, self.drivingReverse, 0, self.isSubPrio)
+    self.lastWp = ADGraphManager:recordWayPoint(x1, y1, z1, false, false, self.drivingReverse, 0, self.flags)
     self.lastWpPosition = {}
     self.lastWpPosition.x, self.lastWpPosition.y, self.lastWpPosition.z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -120,7 +125,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
     if self.secondLastWp == nil then
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > 3 and MathUtil.vector2Length(vehicleX - self.lastWp.x, vehicleZ - self.lastWp.z) > 3 then
             self.secondLastWp = self.lastWp
-            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, self.drivingReverse, self.secondLastWp.id, self.isSubPrio)
+            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, self.drivingReverse, self.secondLastWp.id, self.flags)
             self.lastWpPosition.x, self.lastWpPosition.y, self.lastWpPosition.z = getWorldTranslation(self.vehicle.components[1].node)
             self.isRecordingReverse = self.drivingReverse
         end
@@ -151,7 +156,7 @@ function ADRecordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgno
 
         if MathUtil.vector2Length(x - self.lastWp.x, z - self.lastWp.z) > max_distance and minDistanceToLastWayPoint and speedMatchesRecording then
             self.secondLastWp = self.lastWp
-            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, self.drivingReverse, self.secondLastWp.id, self.isSubPrio)
+            self.lastWp = ADGraphManager:recordWayPoint(x, y, z, true, self.isDual, self.drivingReverse, self.secondLastWp.id, self.flags)
             self.lastWpPosition.x, self.lastWpPosition.y, self.lastWpPosition.z = getWorldTranslation(self.vehicle.components[1].node)
             self.isRecordingReverse = self.drivingReverse
         end

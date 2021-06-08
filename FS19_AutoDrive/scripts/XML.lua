@@ -197,6 +197,15 @@ function AutoDrive.readFromXML(xmlFile)
 		end
 	end
 
+	local flagString = getXMLString(xmlFile, "AutoDrive.waypoints.flags")
+	if flagString == nil or flagString == "" then
+		flagString = getXMLString(xmlFile, "AutoDrive." .. AutoDrive.loadedMap .. ".waypoints.flags")
+	end
+	local flagTable = nil
+	if flagString ~= nil and flagString ~= "" then
+		flagTable = flagString:split(",")
+	end
+
 	local wp_counter = 0
 	for i, id in pairs(idTable) do
 		if id ~= "" then
@@ -232,6 +241,11 @@ function AutoDrive.readFromXML(xmlFile)
 			wp.x = tonumber(xTable[i])
 			wp.y = tonumber(yTable[i])
 			wp.z = tonumber(zTable[i])
+			if flagTable ~= nil then
+				wp.flags = tonumber(flagTable[i])
+			else
+				wp.flags = 0
+			end
 
 			ADGraphManager:setWayPoint(wp)
 		end
@@ -294,6 +308,8 @@ function AutoDrive.saveToXML(xmlFile)
 
 	local incomingTable = {}
 
+	local flagsTable = {}
+
 	for i, p in pairs(ADGraphManager:getWayPoints()) do
 		idFullTable[i] = p.id
 		xTable[i] = string.format("%.3f", p.x)
@@ -309,6 +325,8 @@ function AutoDrive.saveToXML(xmlFile)
 		if incomingTable[i] == nil or incomingTable[i] == "" then
 			incomingTable[i] = "-1"
 		end
+
+		flagsTable[i] = tostring(p.flags or 0)
 	end
 
 	if idFullTable[1] ~= nil then
@@ -318,6 +336,7 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLString(xmlFile, "AutoDrive.waypoints.z", table.concat(zTable, ","))
 		setXMLString(xmlFile, "AutoDrive.waypoints.out", table.concat(outTable, ";"))
 		setXMLString(xmlFile, "AutoDrive.waypoints.incoming", table.concat(incomingTable, ";"))
+		setXMLString(xmlFile, "AutoDrive.waypoints.flags", table.concat(flagsTable, ","))
 	end
 
 	local markerIndex = 1 -- used for clean index in saved config xml
@@ -353,10 +372,12 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 		local zt = {}
 		local ot = {}
 		local it = {}
+		local ft = {}
 
 		-- localization for better performances
 		local frmt = string.format
 		local cnl = table.concatNil
+		local ts = tostring
 
 		for i, w in pairs(waypoints) do
 			xt[i] = frmt("%.2f", w.x)
@@ -364,6 +385,7 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 			zt[i] = frmt("%.2f", w.z)
 			ot[i] = cnl(w.out, ",") or "-1"
 			it[i] = cnl(w.incoming, ",") or "-1"
+			ft[i] = ts(w.flags)
 		end
 
 		setXMLString(xmlId, key .. ".x", table.concat(xt, ";"))
@@ -371,6 +393,7 @@ function AutoDrive.writeGraphToXml(xmlId, rootNode, waypoints, markers, groups)
 		setXMLString(xmlId, key .. ".z", table.concat(zt, ";"))
 		setXMLString(xmlId, key .. ".out", table.concat(ot, ";"))
 		setXMLString(xmlId, key .. ".in", table.concat(it, ";"))
+		setXMLString(xmlId, key .. ".flags", table.concat(ft, ";"))
 	end
 
 	-- writing markers
@@ -413,6 +436,12 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode)
 		local ot = getXMLString(xmlId, key .. ".out"):split(";")
 		local it = getXMLString(xmlId, key .. ".in"):split(";")
 
+		local ft = nil
+		local flagsString = getXMLString(xmlId, key .. ".flags")
+		if flagsString ~= nil and flagsString ~= "" then
+			ft = flagsString:split(";")
+		end
+
 		-- localization for better performances
 		local tnum = tonumber
 		local tbin = table.insert
@@ -430,6 +459,13 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode)
 					tbin(wp.incoming, tnum(incoming))
 				end
 			end
+
+			if ft ~= nil then
+				wp.flags = tnum(ft[i])
+			else
+				wp.flags = 0
+			end
+
 			wayPoints[i] = wp
 			i = i + 1
 		end

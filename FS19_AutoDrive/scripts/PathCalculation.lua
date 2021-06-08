@@ -11,7 +11,6 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
 
     local network = ADGraphManager:getWayPoints()
     local addedWeights = self:getDetourWeights()
-    local subPrioNode = ADGraphManager:getSubPrioMarkerNode()
     
     if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil then
         return {}
@@ -33,19 +32,7 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
     end
 
     local isSubPrio = function(pointToTest) 
-        if subPrioNode == nil then
-            return false
-        end
-        for _, neighborId in pairs(pointToTest.out) do
-            local neighbor = network[neighborId]
-            if neighbor ~= nil then			
-                if neighbor.id == subPrioNode.id then
-                    return true
-                end
-            end
-        end
-    
-        return false
+        return bitAND(pointToTest.flags, AutoDrive.FLAG_SUBPRIO) > 0
     end
 
     local lastPredecessor = nil
