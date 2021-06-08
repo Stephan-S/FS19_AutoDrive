@@ -578,23 +578,24 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	end
 end
 
-function ADGraphManager:changeWayPointPosition(wayPonitId)
-	local wayPoint = self:getWayPointById(wayPonitId)
+function ADGraphManager:changeWayPointPosition(wayPointId)
+	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
-		self:moveWayPoint(wayPonitId, wayPoint.x, wayPoint.y, wayPoint.z)
+		self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, wayPoint.flags)
 	end
 end
 
-function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
-	local wayPoint = self:getWayPointById(wayPonitId)
+function ADGraphManager:moveWayPoint(wayPointId, x, y, z, flags, sendEvent)
+	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating waypoint moving all over the network
-			AutoDriveMoveWayPointEvent.sendEvent(wayPonitId, x, y, z)
+			AutoDriveMoveWayPointEvent.sendEvent(wayPointId, x, y, z, flags)
 		else
 			wayPoint.x = x
 			wayPoint.y = y
 			wayPoint.z = z
+			wayPoint.flags = flags
 			self:markChanges()
 		end
 	end
@@ -1057,6 +1058,8 @@ function ADGraphManager:toggleWayPointAsSubPrio(wayPointId)
 			wayPoint.flags = wayPoint.flags + AutoDrive.FLAG_SUBPRIO
 		end
 	end
+
+	self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, wayPoint.flags)
 
 	self:markChanges()
 end
