@@ -101,7 +101,7 @@
 		<text name="gui_ad_gui_scale"							text="Skalowanie interfejsu AutoDrive" />
 		<text name="gui_ad_gui_scale_tooltip"					text="Ustaw na Domyślny, aby użyć ustawienia skalowania gry" />
 		<text name="gui_ad_notifications"						text="Powiadomienia" />
-		<text name="gui_ad_notifications_text_1"				text="Wyłączne" />
+		<text name="gui_ad_notifications_text_1"				text="Wyłączone" />
 		<text name="gui_ad_notifications_text_2"				text="Krótkie" />
 		<text name="gui_ad_notifications_text_3"				text="Domyślne" />
 		<text name="gui_ad_notifications_text_4"				text="Długie" />
