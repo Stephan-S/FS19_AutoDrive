@@ -38,7 +38,7 @@
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />
-		<text name="hud_startCp"								text="AD: Avvia CP / AIVE a destinazione" />
+		<text name="hud_startCp"								text="AD: Avvia CP/AIVE a destinazione" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -50,7 +50,7 @@
 		<text name="AD_No_Trailer"								text="impossibile trovare il rimorchio" />
 		<text name="AD_No_Bunker"								text="impossibile trovare il bunker" />
 		<text name="AD_No_Shovel"								text="impossibile trovare una pala collegata" />
-		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
+		<text name="AD_No_Refuel_Station"						text="Impossibile trovare la stazione di rifornimento per:" />
 		<text name="AD_MODE_DRIVETO"							text="Guida" />
 		<text name="AD_MODE_DELIVERTO"							text="Consegna" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Carica e consegna" />
