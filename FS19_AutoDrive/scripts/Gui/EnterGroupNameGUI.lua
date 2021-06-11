@@ -27,10 +27,12 @@ end
 
 function ADEnterGroupNameGui:onClickOk()
     ADEnterGroupNameGui:superClass().onClickOk(self)
-	if  self.textInputElement.text ~= ADGraphManager.debugGroupName then
+
+    if  self.textInputElement.text ~= ADGraphManager.debugGroupName then
         -- do not allow user to create debug group
         ADGraphManager:addGroup(self.textInputElement.text)
     end
+    
     self:onClickBack()
 end
 

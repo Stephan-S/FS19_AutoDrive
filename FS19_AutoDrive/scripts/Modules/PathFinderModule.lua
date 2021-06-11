@@ -114,6 +114,8 @@ PathFinderModule.mask_trigger_trafficVehicles = 25
 PathFinderModule.mask_trigger_cutters = 26
 PathFinderModule.mask_kinematic_objects_wo_coll = 30
 
+PathFinderModule.PP_MAX_EAGER_LOOKAHEAD_STEPS = 1
+
 --[[
 from Giants Engine:
 AITurnStrategy.SLOPE_DETECTION_THRESHOLD  = 0.5235987755983
@@ -313,7 +315,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
 
     local angleRad = math.atan2(targetVector.z, targetVector.x)
     angleRad = AutoDrive.normalizeAngle(angleRad)
-    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle)
+    self.minTurnRadius = AutoDrive.getDriverRadius(self.vehicle) * 2 / 3
 
     self.vectorX = {x =   math.cos(angleRad) * self.minTurnRadius, z = math.sin(angleRad) * self.minTurnRadius}
     self.vectorZ = {x = - math.sin(angleRad) * self.minTurnRadius, z = math.cos(angleRad) * self.minTurnRadius}
@@ -554,7 +556,6 @@ function PathFinderModule:update(dt)
     end
 
     self.steps = self.steps + 1
-
     if (self.steps % 100) == 0 then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - self.steps %d #self.grid %d", self.steps, table.count(self.grid))
     end
@@ -654,45 +655,16 @@ function PathFinderModule:update(dt)
             local bestCell = nil
             local bestSteps = math.huge
 
-            for _, cell in pairs(self.grid) do
-                --also checking for chasingVehicle here -> don't ever drive through fruit in chasingVehicle mode -> this will often result in driver cutting through fruit in front of combine!
-                if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) and (cell.bordercells < PathFinderModule.MAX_FIELDBORDER_CELLS) then
-                    local distance = 0
-                    -- if not self.reachedFieldBorder and self.targetFieldId ~= nil then
-                        -- distance = distanceFunc(self.fieldCell.x - cell.x, self.fieldCell.z - cell.z)
-                    -- else
-                        distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
-                    -- end
-
-                    if (distance < minDistance) or (distance == minDistance and cell.steps < bestSteps) then
-                        minDistance = distance
-                        bestCell = cell
-                        bestSteps = cell.steps
-                    end
-                end
-            end
-
-            self.currentCell = bestCell
+            self.currentCell = self:findClosestCell(self.grid, math.huge)
 
             if self.currentCell ~= nil and distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z) < 1.5 then
 
                 if self.currentCell.out == nil then
                     self:determineNextGridCells(self.currentCell)
                 end
-                for _, outCell in pairs(self.currentCell.out) do
-                    if outCell.x == self.targetCell.x and outCell.z == self.targetCell.z then
-                        self.isFinished = true
-                        self.targetCell.incoming = self.currentCell --.incoming
 
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - path found")
-                        PathFinderModule.debugVehicleMsg(self.vehicle,
-                            string.format("[AD] PFM %s update - path found #self.grid %d",
-                                tostring(self.vehicle:getName()),
-                                table.count(self.grid)
-                            )
-                        )
-                        return
-                    end
+                if self:reachedTargetsNeighbor(self.currentCell.out) then
+                    return
                 end
             end
 
@@ -713,8 +685,72 @@ function PathFinderModule:update(dt)
                 self:determineNextGridCells(self.currentCell)
             end
             self:testNextCells(self.currentCell)
+
+            --Try shortcutting the process here. We dont have to go through the whole grid if one of the out points is viable and closer than the currenCell which was already closest
+            local currentDistance = distanceFunc(self.targetCell.x - self.currentCell.x, self.targetCell.z - self.currentCell.z)
+
+            local outCells = {}
+            for _, outCell in pairs(self.currentCell.out) do
+                local gridKey = string.format("%d|%d|%d", outCell.x, outCell.z, outCell.direction)
+                if self.grid[gridKey] ~= nil then
+                    table.insert(outCells, self.grid[gridKey])
+                end
+            end
+            local nextCell = self:findClosestCell(outCells, currentDistance)
+            
+            -- Lets again check if we have reached our target already
+            if self:reachedTargetsNeighbor(self.currentCell.out) then
+                return
+            end
+
+            self.currentCell = nextCell
         end
     end
+end
+
+function PathFinderModule:reachedTargetsNeighbor(cells)
+    for _, outCell in pairs(cells) do
+        if outCell.x == self.targetCell.x and outCell.z == self.targetCell.z then
+            self.isFinished = true
+            self.targetCell.incoming = self.currentCell --.incoming
+
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - path found")
+            PathFinderModule.debugVehicleMsg(self.vehicle,
+                string.format("[AD] PFM %s update - path found #self.grid %d",
+                    tostring(self.vehicle:getName()),
+                    table.count(self.grid)
+                )
+            )
+
+            return true
+        end
+    end
+    return false
+end
+
+function PathFinderModule:findClosestCell(cells, startDistance)
+    local cellsToCheck = cells
+    local sqrt = math.sqrt
+    local distanceFunc = function(a, b)
+        return sqrt(a * a + b * b)
+    end
+    local minDistance = startDistance
+    local bestCell = nil
+    local bestSteps = math.huge
+
+    for _, cell in pairs(cellsToCheck) do
+        if (not cell.visited) and (not cell.hasCollision) and (not cell.isRestricted) and (cell.bordercells < PathFinderModule.MAX_FIELDBORDER_CELLS) then
+            local distance = distanceFunc(self.targetCell.x - cell.x, self.targetCell.z - cell.z)
+
+            if (distance < minDistance) or (distance == minDistance and cell.steps < bestSteps) then
+                minDistance = distance
+                bestCell = cell
+                bestSteps = cell.steps
+            end
+        end
+    end
+
+    return bestCell
 end
 
 function PathFinderModule:testNextCells(cell)
@@ -769,12 +805,12 @@ function PathFinderModule:testNextCells(cell)
                             self.grid[gridKey].incoming = cell
                             self.grid[gridKey].steps = cell.steps + 1
                         end
-                    elseif self.grid[gridKey].direction ~= location.direction then
-                        duplicatePointDirection = self.grid[gridKey].direction -- remember the grid direction
-                        if self.grid[gridKey].steps > (cell.steps + 1) then --found shortcut
-                            self.grid[gridKey].incoming = cell
-                            self.grid[gridKey].steps = cell.steps + 1
-                        end
+                    --elseif self.grid[gridKey].direction ~= location.direction then
+                        --duplicatePointDirection = self.grid[gridKey].direction -- remember the grid direction
+                        --if self.grid[gridKey].steps > (cell.steps + 1) then --found shortcut -> not true!!! The outgoing angles would be all wrong here. This caused issues with undrivable paths being generated!
+                            --self.grid[gridKey].incoming = cell
+                            --self.grid[gridKey].steps = cell.steps + 1
+                        --end
                     end
                 end
             end
@@ -793,6 +829,7 @@ function PathFinderModule:testNextCells(cell)
             end
             if duplicatePointDirection >= 0 then
                 -- if different direction, it is not necessary to check the cell details again, just add a new entry in grid with known required restrictions
+                -- Todo : Not true!! If we come from a different direction we ususally have a differently sized collision box to check. There is a difference between a 0° angle when coming from the last cell and a +/- 45° angle.
                 gridKey = string.format("%d|%d|%d", location.x, location.z, duplicatePointDirection)
                 location.isRestricted = self.grid[gridKey].isRestricted
                 location.hasCollision = self.grid[gridKey].hasCollision
@@ -828,13 +865,13 @@ function PathFinderModule:testNextCells(cell)
     end
 
     cell.visited = true
-    self.currentCell = nil
 end
 
 function PathFinderModule:checkGridCell(cell)
     local worldPos = self:gridLocationToWorldLocation(cell)
     --Try going through the checks in a way that fast checks happen before slower ones which might then be skipped
 
+    cell.isOnField = AutoDrive.checkIsOnField(worldPos.x, 0, worldPos.z)
     if self.restrictToField and (self.fallBackMode1 and not self.fallBackMode2) then
         -- limit cells to field border only possible if started on field
         cell.bordercells = cell.incoming.bordercells + 1      -- by default we assume the new cell is not on field, so increase the counter
@@ -923,8 +960,13 @@ function PathFinderModule:checkGridCell(cell)
         end
     end
 
-    if not cell.isRestricted and not cell.hasCollision then
-        local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius, self.vehicle)
+    if not cell.isRestricted and not cell.hasCollision and cell.incoming ~= nil then
+        local worldPosPrevious = self:gridLocationToWorldLocation(cell.incoming)
+        local vectorX = worldPosPrevious.x - worldPos.x
+        local vectorZ = worldPosPrevious.z - worldPos.z
+        local dirVec = { x=vectorX, z = vectorZ}
+
+        local cellUsedByVehiclePath = AutoDrive.checkForVehiclePathInBox(corners, self.minTurnRadius, self.vehicle, dirVec)
         cell.isRestricted = cell.isRestricted or cellUsedByVehiclePath
         self.blockedByOtherVehicle = self.blockedByOtherVehicle or cellUsedByVehiclePath
     end
@@ -1472,8 +1514,12 @@ function PathFinderModule:getShapeDefByDirectionType(cell)
     end
 
     local increaseCellFactor = 1.15
+    if cell.isOnField ~= nil and cell.isOnField == true then
+        increaseCellFactor = 1 --0.8
+    end
     shapeDefinition.widthX = shapeDefinition.widthX * increaseCellFactor
     shapeDefinition.widthZ = shapeDefinition.widthZ * increaseCellFactor
+
 
     local corners = self:getCornersFromShapeDefinition(shapeDefinition)
     if corners ~= nil then
@@ -1544,8 +1590,11 @@ function PathFinderModule:createWayPoints()
     self:smoothResultingPPPath_Refined()
 
     if self.smoothStep == 2 then
-        for i = 1, #self.wayPoints, 1 do
-            self.wayPoints[i].isPathFinderPoint = true
+        -- When going to network, dont turn actual road network nodes into pathFinderPoints
+        if self.goingToNetwork then
+            for i = 1, #self.wayPoints, 1 do
+                self.wayPoints[i].isPathFinderPoint = true
+            end
         end
 
         if self.appendWayPoints ~= nil then
@@ -1553,13 +1602,19 @@ function PathFinderModule:createWayPoints()
                 self.wayPoints[#self.wayPoints + 1] = self.appendWayPoints[i]
             end
             self.smoothStep = 3
-            PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s createWayPoints appendWayPoints %s",
-                    tostring(self.vehicle:getName()),
-                    tostring(#self.appendWayPoints)
-                )
-            )
+            --PathFinderModule.debugVehicleMsg(self.vehicle,
+                --string.format("[AD] PFM %s createWayPoints appendWayPoints %s",
+                    --tostring(self.vehicle:getName()),
+                    --tostring(#self.appendWayPoints)
+                --)
+            --)
+        end
 
+        -- See comment above
+        if not self.goingToNetwork then
+            for i = 1, #self.wayPoints, 1 do
+                self.wayPoints[i].isPathFinderPoint = true
+            end
         end
     end
 end
@@ -1594,12 +1649,12 @@ function PathFinderModule:smoothResultingPPPath()
     end
 
     self.wayPoints = filteredWPs
-    PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s smoothResultingPPPath self.wayPoints %s",
-            tostring(self.vehicle:getName()),
-            tostring(#self.wayPoints)
-        )
-    )
+    --PathFinderModule.debugVehicleMsg(self.vehicle,
+        --string.format("[AD] PFM %s smoothResultingPPPath self.wayPoints %s",
+            --tostring(self.vehicle:getName()),
+            --tostring(#self.wayPoints)
+        --)
+    --)
 
 end
 
@@ -1608,6 +1663,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
         self.smoothIndex = 1
         self.filteredIndex = 1
         self.filteredWPs = {}
+        self.totalEagerSteps = 0
 
         --add first few without filtering
         while self.smoothIndex < #self.wayPoints and self.smoothIndex < 3 do
@@ -1623,6 +1679,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
     if self.smoothStep == 1 then
         local stepsThisFrame = 0
         while self.smoothIndex < #self.wayPoints - unfilteredEndPointCount and stepsThisFrame < ADScheduler:getStepsPerFrame() do
+            
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
                     string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d ",
@@ -1638,14 +1695,16 @@ function PathFinderModule:smoothResultingPPPath_Refined()
             local worldPos = self.wayPoints[self.smoothIndex]
 
             if self.totalEagerSteps == nil or self.totalEagerSteps == 0 then
-                self.filteredWPs[self.filteredIndex] = node
-                if self.filteredIndex > 1 then
-                    previousNode = self.filteredWPs[self.filteredIndex - 1]
-                end
-                self.filteredIndex = self.filteredIndex + 1
+                if self.filteredWPs[self.filteredIndex-1].x ~= node.x and self.filteredWPs[self.filteredIndex-1].z ~= node.z then
+                    self.filteredWPs[self.filteredIndex] = node
+                    if self.filteredIndex > 1 then
+                        previousNode = self.filteredWPs[self.filteredIndex - 1]
+                    end
+                    self.filteredIndex = self.filteredIndex + 1
 
-                self.lookAheadIndex = 1
-                self.totalEagerSteps = 0
+                    self.lookAheadIndex = 1
+                    self.totalEagerSteps = 0
+                end
             end
 
             local widthOfColBox = self.minTurnRadius
@@ -1653,9 +1712,14 @@ function PathFinderModule:smoothResultingPPPath_Refined()
             local y = worldPos.y
             local foundCollision = false
 
-            local stepsOfLookAheadThisFrame = 0
+            if stepsThisFrame > math.max(1, (ADScheduler:getStepsPerFrame() * 0.4)) then
+                break
+            end
 
-            while (foundCollision == false or self.totalEagerSteps < 30) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsOfLookAheadThisFrame < ADScheduler:getStepsPerFrame() do
+            --local stepsOfLookAheadThisFrame = 0
+            -- (foundCollision == false or self.totalEagerSteps < PathFinderModule.PP_MAX_EAGER_LOOKAHEAD_STEPS)
+            while (foundCollision == false) and ((self.smoothIndex + self.totalEagerSteps) < (#self.wayPoints - unfilteredEndPointCount)) and stepsThisFrame <= math.max(1, (ADScheduler:getStepsPerFrame() * 0.4)) do
+                
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
                         string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d",
@@ -1665,8 +1729,9 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                         )
                     )
                 end
+
                 local hasCollision = false
-                stepsOfLookAheadThisFrame = stepsOfLookAheadThisFrame + 1
+                stepsThisFrame = stepsThisFrame + 1
                 local nodeAhead = self.wayPoints[self.smoothIndex + self.totalEagerSteps + 1]
                 local nodeTwoAhead = self.wayPoints[self.smoothIndex + self.totalEagerSteps + 2]
 
@@ -1674,6 +1739,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 angle = math.abs(angle)
                 if angle > 60 then
                     hasCollision = true
+                    
                     if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                         PathFinderModule.debugVehicleMsg(self.vehicle,
                             string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
@@ -1688,6 +1754,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                     angle = math.abs(angle)
                     if angle > 60 then
                         hasCollision = true
+                        
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
                                 string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
@@ -1695,12 +1762,13 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                                     2
                                 )
                             )
-                        end
+                        end                        
                     end
                     angle = AutoDrive.angleBetween({x = node.x - previousNode.x, z = node.z - previousNode.z}, {x = nodeAhead.x - node.x, z = nodeAhead.z - node.z})
                     angle = math.abs(angle)
                     if angle > 60 then
                         hasCollision = true
+                        
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
                                 string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
@@ -1708,13 +1776,14 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                                     3
                                 )
                             )
-                        end
+                        end                        
                     end
                 end
 
                 if not hasCollision then
                     hasCollision = hasCollision or self:checkSlopeAngle(worldPos.x, worldPos.z, nodeAhead.x, nodeAhead.z)
                     if hasCollision then
+                        
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
                                 string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
@@ -1746,10 +1815,11 @@ function PathFinderModule:smoothResultingPPPath_Refined()
 
                 local corner4X = node.x - math.cos(rightAngle) * sideLength
                 local corner4Z = node.z + math.sin(rightAngle) * sideLength
-
+                
                 if not hasCollision then
                     local shapes = overlapBox(worldPos.x + vectorX / 2, y + 3, worldPos.z + vectorZ / 2, 0, angleRad, 0, length / 2 + 2.5, 2.65, sideLength + 1.5, "collisionTestCallbackIgnore", nil, self.mask, true, true, true)
                     hasCollision = hasCollision or (shapes > 0)
+                    
                     if hasCollision then
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
@@ -1760,7 +1830,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                             )
                         end
                     end
-                end
+                end                
 
                 if (self.smoothIndex > 1) then
                     local worldPosPrevious = self.wayPoints[self.smoothIndex - 1]
@@ -1769,6 +1839,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
 
                     if (angleBetween * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
                         hasCollision = true
+                        
                         if hasCollision then
                             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                                 PathFinderModule.debugVehicleMsg(self.vehicle,
@@ -1806,6 +1877,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                                 end
                                 hasCollision = hasCollision or (fruitValue > 50)
                                 if hasCollision then
+                                    
                                     if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                                         PathFinderModule.debugVehicleMsg(self.vehicle,
                                             string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
@@ -1828,6 +1900,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                                 fruitValue, _, _, _ = FSDensityMapUtil.getFruitArea(self.fruitToCheck, cornerX, cornerZ, corner2X, corner2Z, corner4X, corner4Z, true, true)
                             end
                             hasCollision = hasCollision or (fruitValue > 50)
+                            
                             if hasCollision then
                                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                                     PathFinderModule.debugVehicleMsg(self.vehicle,
@@ -1841,10 +1914,11 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                         end
                     end
                 end
-
+                
                 if not hasCollision then
                     local cellBox = AutoDrive.boundingBoxFromCorners(cornerX, cornerZ, corner2X, corner2Z, corner3X, corner3Z, corner4X, corner4Z)
                     hasCollision = hasCollision or AutoDrive.checkForVehiclePathInBox(cellBox, self.minTurnRadius, self.vehicle)
+                    
                     if hasCollision then
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
@@ -1866,6 +1940,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 end
 
                 self.totalEagerSteps = self.totalEagerSteps + 1
+                
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
                         string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d self.filteredIndex %d foundCollision %s",
@@ -1879,7 +1954,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 end
             end
 
-            if self.totalEagerSteps >= 30 or ((self.smoothIndex + self.totalEagerSteps) >= (#self.wayPoints - unfilteredEndPointCount)) then
+            if foundCollision or ((self.smoothIndex + self.totalEagerSteps) >= (#self.wayPoints - unfilteredEndPointCount)) then
                 self.smoothIndex = self.smoothIndex + math.max(1, (self.lookAheadIndex))
                 self.totalEagerSteps = 0
             end
@@ -1902,6 +1977,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
         self.wayPoints = self.filteredWPs
 
         self.smoothDone = true
+        
         PathFinderModule.debugVehicleMsg(self.vehicle,
             string.format("[AD] PFM %s smoothResultingPPPath_Refined self.wayPoints %s",
                 tostring(self.vehicle:getName()),

@@ -126,7 +126,7 @@ function AutoDrive.isPipeOut(combine)
 end
 
 function AutoDrive.isSugarcaneHarvester(combine)
-    local isSugarCaneHarvester = true
+    local isSugarCaneHarvester = combine.typeName == "combineCutterFruitPreparer"
     if combine.getAttachedImplements ~= nil then
         for _, implement in pairs(combine:getAttachedImplements()) do
             if implement ~= nil and implement ~= combine and (implement.object == nil or implement.object ~= combine) then

@@ -32,8 +32,11 @@
 		<text name="input_ADGoToVehicle"						text="AD: Zmień na podstawiony pojazd" />
 		<text name="input_ADNameDriver"							text="AD: Przypisz nazwę kierowcy" />
 		<text name="input_ADIncLoopCounter"						text="AD: Zwiększ liczbę powtórzeń" />
+		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Zaparkuj pojazd" />
+		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Unikaj upraw" />
 		<text name="hud_startCp"								text="AD: Start CP / AIVE at destination" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nie przydzielono parkingu. Przypisz wybrany cel trasy za pomocą prawego kliku." />
@@ -58,7 +61,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL for extended editor mode" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL do utworzenia" />
 		<text name="AD_lalt_for_deletion" 						text="LALT do usunięcia" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT reverse drive" />
+		<text name="AD_lshift_for_reverse" 						text="RSHIFT reverse drive" />
 		<text name="gui_ad_Setting"								text="AutoDrive - ustawienia" />
 		<text name="gui_ad_collisionHeigth"						text="Collisionheigth over ground" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Setting for collision detection in front of vehicle. If other vehicles are not detected during driving, reduce step by step. (Default 2m)" />
@@ -184,6 +187,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
 		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Ustawienia - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
@@ -219,6 +224,7 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Interfejs zewnętrzny" />
 		<text name="gui_ad_debugChannelRender" 					text="Rendering" />
 		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Road network" />
+		<text name="gui_ad_debugChannelBGA"						text="BGA Mode" />
 		<text name="gui_ad_debugChannelAll" 					text="Wszystko" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
@@ -325,5 +331,45 @@
 		<text name = "gui_CPAD_full"							text = "full"/>		
 		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
     	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
+	
+		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
+		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
+		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />
+		<text name="gui_ad_tipOfTheDayActive" 					text="Show on next start" />
+		<text name="ad_next_tip" 								text="Next" />
+		<text name="ad_totd_01_title" 							text="Multiple functions" />
+		<text name="ad_totd_01_text" 							text="Many buttons in AutoDrive have multiple functions. The main function can always be activated with the left mouse. The secondary function can be activated with either the middle or the right mouse button. 
+		
+		Several buttons even have a third and fourth function which can be used with scrolling with the mouse wheel on top of said buttons. For now, those are the speed limiters and the recording button." />
+		<text name="ad_totd_02_title" 							text="Different types of roads" />
+		<text name="ad_totd_02_text" 							text="An AutoDrive network can contain of 4 different types of roads.
+
+		1. A standard road segment (green). Vehicles can travel along the direction marked with the arrows. To start recording a standard road, simply left click the record button.
+		
+		2. Dual direction roads (blue). Here, vehicles may travel in both directions and will block incoming traffic in the opposite direction. You can record dual direction routes with the secondary function on the record button. So use either the middle or the right mouse button.
+		
+		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
+		
+		4. Side road - This type of road segment is ususally avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
+		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
+		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
+		
+		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should ususally be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to seach for any available unloader in a range of 300m.
+		
+		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
+		<text name="ad_totd_04_title" 							text="Settings - 1" />
+		<text name="ad_totd_04_text" 							text="There are currently 6 different setting pages.
+
+		1. General settings - Applied for all vehicles.
+
+		2. User settings - Applied to the current player (also in MP). These are settings to control how AutoDrive is displayed and not how it works.
+
+		3. Vehicle settings - Applied only for the current vehicle.
+
+		4. Harvester settings - Only visisble when inside a harvester. Here you can control how this harevster calls it's unloaders.
+
+		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
+		
+		6. Experimental features - These settings relate to features we are currently testing/developing but which are not yet considered stable. Use at your own risk." />
 	</texts>
 </l10n>

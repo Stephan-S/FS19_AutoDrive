@@ -45,6 +45,8 @@ function CombineUnloaderMode:start()
     end
 
     self:reset()
+    self.vehicle.ad.trailerModule:reset()
+
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -53,7 +55,7 @@ function CombineUnloaderMode:start()
 end
 
 function CombineUnloaderMode:monitorTasks(dt)
-    if self.combine ~= nil and (self.state == self.STATE_LEAVE_CROP or self.state == self.STATE_DRIVE_TO_START or self.state == self.STATE_DRIVE_TO_UNLOAD or self.state == self.STATE_EXIT_FIELD) then
+    if self.combine ~= nil and (self.state == self.STATE_DRIVE_TO_START or self.state == self.STATE_DRIVE_TO_UNLOAD or self.state == self.STATE_EXIT_FIELD) then
         if AutoDrive.getDistanceBetween(self.vehicle, self.combine) > 25 then
             ADHarvestManager:unregisterAsUnloader(self.vehicle)
             self.followingUnloader = nil
@@ -609,9 +611,13 @@ function CombineUnloaderMode:getRearChaseOffsetZ()
         if AutoDrive.isSugarcaneHarvester(self.combine) then
             rearChaseOffset = -self.combine.sizeLength / 2 - AutoDrive.getTractorTrainLength(self.vehicle, true, false) * math.sqrt(2)
         else
-            --there is no need to be close to the rear of the harvester here. We can make it hard on the pathfinder since we have no strong desire to chase there anyway for normal harvesters
-            --Especially when they are CP driven, we have to be prepared for that massive reverse maneuver when the combine is filled and wants to avoid the crop.
-            rearChaseOffset = -45
+            if self.combine.lastSpeedReal > 0.002 and self.combine.ad.sensors.frontSensorFruit:pollInfo() then
+                rearChaseOffset = -10
+            else
+                --there is no need to be close to the rear of the harvester here. We can make it hard on the pathfinder since we have no strong desire to chase there anyway for normal harvesters
+                --Especially when they are CP driven, we have to be prepared for that massive reverse maneuver when the combine is filled and wants to avoid the crop.
+                rearChaseOffset = -45
+            end
         end
     end
 

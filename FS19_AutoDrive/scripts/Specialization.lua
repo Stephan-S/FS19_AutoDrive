@@ -122,6 +122,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.modes[AutoDrive.MODE_UNLOAD] = CombineUnloaderMode:new(self)
 
     self.ad.onRouteToPark = false
+    self.ad.onRouteToRefuel = false
     self.ad.isStoppingWithError = false
 
     self.ad.selectedNodeId = nil
@@ -194,7 +195,7 @@ function AutoDrive:onPostLoad(savegame)
     link(self.components[1].node, self.ad.frontNode)
     setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
     self.ad.frontNodeGizmo = DebugGizmo:new()
-    -- self.ad.debug = RingQueue:new()
+    self.ad.debug = RingQueue:new()
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
@@ -532,6 +533,8 @@ function AutoDrive:onDrawEditorMode()
         local x = point.x
         local y = point.y
         local z = point.z
+        local isSubPrio = ADGraphManager:getIsPointSubPrio(point.id)
+
         if AutoDrive.isInExtendedEditorMode() then
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.enableSphrere == true then
@@ -584,18 +587,30 @@ function AutoDrive:onDrawEditorMode()
             for _, neighbor in pairs(point.out) do
                 table.insert(outPointsSeen, neighbor)
                 local target = ADGraphManager:getWayPointById(neighbor)
+                local targetIsSubPrio = ADGraphManager:getIsPointSubPrio(neighbor)
                 if target ~= nil then
                     --check if outgoing connection is a dual way connection
                     local nWp = ADGraphManager:getWayPointById(neighbor)
                     if point.incoming == nil or table.contains(point.incoming, neighbor) then
                         --draw dual way line
-                        DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                        if point.id > nWp.id then
+                            if isSubPrio or targetIsSubPrio then
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.389, 0.177, 0)
+                            else
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                            end
+                        end
                     else
                         --draw line with direction markers (arrow)
                         if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
                             -- one way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                            if isSubPrio or targetIsSubPrio then
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 1, 0.531, 0.14)
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 1, 0.531, 0.14)
+                            else
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                            end
                         else
                             -- reverse way line
                             DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
@@ -762,6 +777,9 @@ function AutoDrive:stopAutoDrive()
                     end
                 end
             end
+            
+            self.ad.trailerModule:handleTrailerReversing(false)
+            self.ad.onRouteToRefuel = false
         end
     else
         g_logManager:devError("AutoDrive:stopAutoDrive() must be called only on the server.")
@@ -777,8 +795,18 @@ function AutoDrive:onStartAutoDrive()
 
     self.ad.isActive = true
 
+    self.ad.helper = g_helperManager
+
     if self.currentHelper == nil then
         self.currentHelper = g_helperManager:getRandomHelper()
+
+        if self.currentHelper == nil then
+            g_currentMission.maxNumHirables = g_currentMission.maxNumHirables + 1;
+            --g_helperManager:addHelper("AD_" .. math.random(100, 1000), "dataS2/character/helper/helper02.xml")
+            AutoDrive.AddHelper()
+            self.currentHelper = g_helperManager:getRandomHelper()
+        end
+
         if self.currentHelper ~= nil then
             g_helperManager:useHelper(self.currentHelper)
         end
@@ -788,6 +816,14 @@ function AutoDrive:onStartAutoDrive()
         end
         if self.spec_enterable.controllerFarmId ~= 0 then
             self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
+        else
+            if g_currentMission ~= nil and g_currentMission.player ~= nil and g_currentMission.player.farmId ~= nil then
+                self.spec_aiVehicle.startedFarmId = g_currentMission.player.farmId
+            elseif self.getOwnerFarmId ~= nil and self:getOwnerFarmId() ~= nil then
+                self.spec_aiVehicle.startedFarmId = self:getOwnerFarmId()
+            else
+                self.spec_aiVehicle.startedFarmId = 1 
+            end
         end
     end
 
@@ -800,6 +836,22 @@ function AutoDrive:onStartAutoDrive()
             AutoDriveMessageEvent.sendMessage(self, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
         end
     end
+end
+
+function AutoDrive.AddHelper()
+    local source = g_helperManager.indexToHelper[1]
+    
+    g_helperManager.numHelpers = g_helperManager.numHelpers + 1
+    local helper = {}
+    helper.name = source.name .. "_" .. math.random(100, 1000)
+    helper.index = g_helperManager.numHelpers
+    helper.title = helper.name
+    helper.filename = source.filename
+
+    g_helperManager.helpers[helper.name] = helper
+    g_helperManager.nameToIndex[helper.name] = g_helperManager.numHelpers
+    g_helperManager.indexToHelper[g_helperManager.numHelpers] = helper
+    table.insert(g_helperManager.availableHelpers, helper)
 end
 
 function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
@@ -925,6 +977,8 @@ function AutoDrive:toggleMouse()
     if g_inputBinding:getShowMouseCursor() then
         if self.spec_enterable ~= nil and self.spec_enterable.cameras ~= nil then
             for _, camera in pairs(self.spec_enterable.cameras) do
+                camera.storedAllowTranslation = camera.allowTranslation
+                camera.storedIsRotatable = camera.isRotatable
                 camera.allowTranslation = false
                 camera.isRotatable = false
             end
@@ -932,8 +986,16 @@ function AutoDrive:toggleMouse()
     else
         if self.spec_enterable ~= nil and self.spec_enterable.cameras ~= nil then
             for _, camera in pairs(self.spec_enterable.cameras) do
-                camera.allowTranslation = true
-                camera.isRotatable = true
+                if camera.storedAllowTranslation ~= nil then
+                    camera.allowTranslation = camera.storedAllowTranslation
+                else
+                    camera.allowTranslation = true
+                end
+                if camera.storedIsRotatable ~= nil then
+                    camera.isRotatable = camera.storedIsRotatable
+                else
+                    camera.isRotatable = true
+                end
             end
         end
     end
