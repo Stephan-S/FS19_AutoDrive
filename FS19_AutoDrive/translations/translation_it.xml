@@ -34,10 +34,11 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Aumenta contatore ciclo" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
+		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />
-		<text name="hud_startCp"								text="AD: Avvia CP / AIVE a destinazione" />
+		<text name="hud_startCp"								text="AD: Avvia CP/AIVE a destinazione" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
 		<text name="AD_parkVehicle_selected"					text="Seleziona Parcheggio veicolo: " />
 		<text name="AD_Driver_of"								text="L'autista di" />
@@ -49,7 +50,7 @@
 		<text name="AD_No_Trailer"								text="impossibile trovare il rimorchio" />
 		<text name="AD_No_Bunker"								text="impossibile trovare il bunker" />
 		<text name="AD_No_Shovel"								text="impossibile trovare una pala collegata" />
-		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
+		<text name="AD_No_Refuel_Station"						text="Impossibile trovare la stazione di rifornimento per:" />
 		<text name="AD_MODE_DRIVETO"							text="Guida" />
 		<text name="AD_MODE_DELIVERTO"							text="Consegna" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Carica e consegna" />
@@ -60,7 +61,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL per modalita editor estesa" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL per creare" />
 		<text name="AD_lalt_for_deletion" 						text="LALT per cancellare" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT per Guida in retromarcia" />
+		<text name="AD_lshift_for_reverse" 						text="RSHIFT per Guida in retromarcia" />
 		<text name="gui_ad_Setting"								text="Impostazioni Autodrive" />
 		<text name="gui_ad_collisionHeigth"						text="Distanza collisione" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Impostazione per il rilevamento delle collisioni davanti al veicolo. Se durante la guida non vengono rilevati altri veicoli, ridurre gradualmente. (Default 2m)" />

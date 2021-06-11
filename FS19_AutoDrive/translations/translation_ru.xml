@@ -34,6 +34,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Установить к-во рейсов" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Отправить на парковку" />
+		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
@@ -49,7 +50,7 @@
 		<text name="AD_No_Trailer"								text="не может найти прицеп" />
 		<text name="AD_No_Bunker"								text="не может найти силосную яму" />
 		<text name="AD_No_Shovel"								text="не может найти присоединённый ковш" />
-		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
+		<text name="AD_No_Refuel_Station"						text="не удалось найти заправочную станцию для:" />
 		<text name="AD_MODE_DRIVETO"							text="Перегон" />
 		<text name="AD_MODE_DELIVERTO"							text="Доставка" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Загрузка и доставка" />
@@ -60,7 +61,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="L-CTRL расширенный редактор" />
 		<text name="AD_lctrl_for_creation" 						text="L-CTRL создать" />
 		<text name="AD_lalt_for_deletion" 						text="L-ALT удалить" />
-		<text name="AD_lshift_for_reverse" 						text="L-SHIFT движение ЗХ" />
+		<text name="AD_lshift_for_reverse" 						text="R-SHIFT движение ЗХ" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Настройки" />
 		<text name="gui_ad_collisionHeigth"						text="Высота преград над землёй" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Настройка для обнаружения столкновений/преград перед автомобилем. Если во время движения другие транспортные средства не обнаруживаются, постепенно уменьшайте параметр. (По умолчанию 2 м)" />
@@ -184,12 +185,14 @@
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Если несколько водителей едут в одно и то же место, выбор места назначения синхронизируется." />
 		<text name="gui_ad_enableParkAtJobFinished"				text="Припарковать по завершению" />
 		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Доступно только в режимах «Загрузка и доставка» и «Доставка»: по завершении работы, техника будет отправлена на заранее назначенное парковочное место автомобиля/навесного оборудования. На Dedi-Server доступно только место для парковки автомобиля!" />
-		<text name="gui_ad_autoTipSide"                         text="Автовыбор стороны разгрузки" />
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
-		<text name="gui_ad_autoTrailerCover"                    text="Тенты на прицепах" />
-		<text name="gui_ad_autoTrailerCover_tooltip"            text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
-		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+
+		<text name="gui_ad_autoTipSide"							text="Автовыбор стороны разгрузки" />
+		<text name="gui_ad_autoTipSide_tooltip"					text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
+		<text name="gui_ad_autoTrailerCover"					text="Тенты на прицепах" />
+		<text name="gui_ad_autoTrailerCover_tooltip"			text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
+    <text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
 		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
+
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
@@ -301,7 +304,7 @@
 		
 		<text name="AD_task_pathfinding"						text="Планирование пути" />
 		<text name="AD_task_catch_up_with_combine"				text="Подъезжает к комбайну" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" />
+		<text name="AD_task_clearcrop"							text="Выезжает из посевов" />
 		<text name="AD_task_drive_to_destination"				text="Двигается к пункту назначения" />
 		<text name="AD_task_drive_to_vehicle"					text="Двигается к целевому транспорту" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Двигается к выгрузной трубе" />
@@ -317,21 +320,21 @@
 		<text name="AD_task_chasing_combine"					text="Следует за комбайном" />
 		<text name="AD_task_wait_for_combine_pass_by"			text="Позволяет комбайну пройти мимо" />
 		<text name="AD_task_catching_chase_side"				text="Сторона приёма" />
-		<text name="AD_task_chase_side"							text="Сторона" />	
-		<text name="AD_task_chase_side_left"					text="слева" />	
-		<text name="AD_task_chase_side_rear"					text="сзади" />	
+		<text name="AD_task_chase_side"							text="Сторона" />
+		<text name="AD_task_chase_side_left"					text="слева" />
+		<text name="AD_task_chase_side_rear"					text="сзади" />
 		<text name="AD_task_chase_side_right"					text="справа" />
 		<text name="AD_task_waiting_for_room"					text="Ожидает пространства" />
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
 		<text name="AD_task_reversing_from_collision"			text="Ищет свободное пространство" />
-		<text name="AD_task_drive_to_park"						text="Движется на парковочное место" />
+		<text name="AD_task_drive_to_park"						text="Движется на место парковки" />
 
-		<text name = "gui_CPAD_off"								text = "off"/>
-		<text name = "gui_CPAD_simple"							text = "simple"/>
-		<text name = "gui_CPAD_full"							text = "full"/>		
-		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
-	
+		<text name="gui_CPAD_off"								text="ВЫКЛ"/>
+		<text name="gui_CPAD_simple"							text="простое"/>
+		<text name="gui_CPAD_full"								text="полное"/>
+		<text name="gui_ad_combineCPADHudMouse"					text="Объединение клавиш CP/AD"/>
+		<text name="gui_ad_combineCPADHudMouse_tooltip"			text="ВЫКЛ: по умолчанию. ПРОСТОЕ: CP: ПКМ > указатель вкл+выкл, AD: скрыть/отобразить HUD > оба HUD вкл+выкл. ПОЛНОЕ: как и ПРОСТОЕ, но оба HUD вкл/выкл индивидуально (у CP необходимо отключить открытие HUD правой кнопкой)."/>
+
 		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
 		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
 		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />

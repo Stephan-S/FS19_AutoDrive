@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.1.1-RC3"
+AutoDrive.version = "1.1.1.1-RC5"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -12,7 +12,6 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
-AutoDrive.experimentalFeatures.blueLineRouteFinder = false
 AutoDrive.experimentalFeatures.detectGrasField = true
 
 AutoDrive.smootherDriving = true
@@ -64,8 +63,15 @@ AutoDrive.EDITOR_SHOW = 4
 
 AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed should be lowered
 
+-- number of frames for performance modulo operation
+AutoDrive.PERF_FRAMES = 20
+AutoDrive.PERF_FRAMES_HIGH = 4
+
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
+
+AutoDrive.FLAG_NONE = 0
+AutoDrive.FLAG_SUBPRIO = 1
 
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
@@ -97,7 +103,8 @@ AutoDrive.actions = {
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
-	{"AD_open_tipOfTheDay", false, 0}
+	{"AD_open_tipOfTheDay", false, 0},
+	{"ADRefuelVehicle", false, 0}
 	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 
@@ -196,6 +203,7 @@ function AutoDrive:init()
 		AutoDriveUserConnectedEvent.sendEvent()
 	else
 		ADGraphManager:checkYPositionIntegrity()
+		ADGraphManager:checkSubPrioIntegrity()
 	end
 
 	AutoDrive.updateDestinationsMapHotspots()

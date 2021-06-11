@@ -34,6 +34,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Zvýšit počítadlo" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Zaparkovat vozidlo" />
+		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Zaměnit cíle" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Nevjíždět do porostu" />
@@ -49,7 +50,7 @@
 		<text name="AD_No_Trailer"								text="Nemohu nalézt odvozce" />
 		<text name="AD_No_Bunker"								text="Nemohu nalézt silážní jámu" />
 		<text name="AD_No_Shovel"								text="Lžíce není připojena" />
-		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
+		<text name="AD_No_Refuel_Station"						text="nemůžu najít benzinku pro:" />
 		<text name="AD_MODE_DRIVETO"							text="Jízda" />
 		<text name="AD_MODE_DELIVERTO"							text="Vykládka" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Nakládka a odvoz" />
@@ -60,7 +61,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LCTRL pro rozšířený režim editoru" />
 		<text name="AD_lctrl_for_creation" 						text="LCTRL vytvořit" />
 		<text name="AD_lalt_for_deletion" 						text="LALT smazat" />
-		<text name="AD_lshift_for_reverse" 						text="LSHIFT zpětný chod" />
+		<text name="AD_lshift_for_reverse" 						text="RSHIFT zpětný chod" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Nastavení" />
 		<text name="gui_ad_blinkValue"						    text="Blinkry automaticky" />
 		<text name="gui_ad_blinkValue_tooltip"					text="Úhel řízení pro automatické zapnutí blinkrů. (0 = automatická deaktivace směrových světel)" />
@@ -326,12 +327,11 @@
 		<text name="AD_task_reversing_from_collision"			text="Vyhledávám čistou oblast" />
         <text name="AD_task_drive_to_park"				        text="Jedu na parkovací místo" />
 
-		<text name = "gui_CPAD_off"								text = "off"/>
-		<text name = "gui_CPAD_simple"							text = "simple"/>
-		<text name = "gui_CPAD_full"							text = "full"/>
-		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
-	
+		<text name = "gui_CPAD_off"								text = "vypnutý"/>
+		<text name = "gui_CPAD_simple"							text = "jednoduchý"/>
+		<text name = "gui_CPAD_full"							text = "plný"/>
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Tlačítka"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "vypnutý: výchozí/ jednoduché: CP: sekundární tlačítko myši > myš zapnutá + vypnutá, AD: Přepnout Hud> oba Hudy zapnuto + vypnuto / plný: stejně jednoduché, ale přepínání Hudu v jednotlivých krocích / požadováno: Zakázat pravé tlačítko HUD v nastavení CP"/>
 		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
 		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
 		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />

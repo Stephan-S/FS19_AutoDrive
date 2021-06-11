@@ -308,11 +308,6 @@ return values:
 3.	table with waypoints from start_id to target_id including start_id and target_id
 ]]
 function AutoDrive:dijkstraLiveShortestPath(start_id, target_id)
-
-    if AutoDrive.experimentalFeatures.blueLineRouteFinder == true then
-        return AutoDrive:dijkstraLiveBlueShortestPath(start_id, target_id)
-    end
-
     if ADGraphManager:hasChanges() then
         AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
         AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed

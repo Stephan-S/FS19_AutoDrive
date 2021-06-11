@@ -45,6 +45,8 @@ function CombineUnloaderMode:start()
     end
 
     self:reset()
+    self.vehicle.ad.trailerModule:reset()
+
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
         self.vehicle.ad.taskModule:addTask(self.activeTask)
@@ -53,7 +55,7 @@ function CombineUnloaderMode:start()
 end
 
 function CombineUnloaderMode:monitorTasks(dt)
-    if self.combine ~= nil and (self.state == self.STATE_LEAVE_CROP or self.state == self.STATE_DRIVE_TO_START or self.state == self.STATE_DRIVE_TO_UNLOAD or self.state == self.STATE_EXIT_FIELD) then
+    if self.combine ~= nil and (self.state == self.STATE_DRIVE_TO_START or self.state == self.STATE_DRIVE_TO_UNLOAD or self.state == self.STATE_EXIT_FIELD) then
         if AutoDrive.getDistanceBetween(self.vehicle, self.combine) > 25 then
             ADHarvestManager:unregisterAsUnloader(self.vehicle)
             self.followingUnloader = nil
