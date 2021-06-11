@@ -222,6 +222,26 @@ function ADGraphManager:checkYPositionIntegrity()
 	end
 end
 
+function ADGraphManager:checkSubPrioIntegrity()
+	for _, wp in pairs(self.wayPoints) do
+		if wp.x >= -1.01 and wp.x <= -0.99 and wp.z >= -1.01 and wp.z <= -0.99 then
+			-- Found old sub prio marker
+			-- Transfer to new style now
+			for __, wpInner in pairs(self.wayPoints) do
+				if wpInner.id ~= wp.id then
+					for _, neighborId in pairs(wpInner.out) do
+						if neighborId == wp.id then
+							self:toggleWayPointAsSubPrio(wpInner.id)
+						end
+					end
+				end
+			end
+
+			self:removeWayPoint(wp.id)
+		end
+	end
+end
+
 function ADGraphManager:removeWayPoint(wayPointId, sendEvent)
 	if wayPointId ~= nil and wayPointId >= 0 and self.wayPoints[wayPointId] ~= nil then
 		if sendEvent == nil or sendEvent == true then
@@ -550,7 +570,7 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	else
 		local prevId = self:getWayPointsCount()
 		local newId = prevId + 1
-		local newWp = self:createNode(newId, x, y, z, {}, {})
+		local newWp = self:createNode(newId, x, y, z, {}, {}, 0)
 		self:setWayPoint(newWp)
 		self:markChanges()
 
@@ -558,29 +578,30 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	end
 end
 
-function ADGraphManager:changeWayPointPosition(wayPonitId)
-	local wayPoint = self:getWayPointById(wayPonitId)
+function ADGraphManager:changeWayPointPosition(wayPointId)
+	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
-		self:moveWayPoint(wayPonitId, wayPoint.x, wayPoint.y, wayPoint.z)
+		self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, wayPoint.flags)
 	end
 end
 
-function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
-	local wayPoint = self:getWayPointById(wayPonitId)
+function ADGraphManager:moveWayPoint(wayPointId, x, y, z, flags, sendEvent)
+	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating waypoint moving all over the network
-			AutoDriveMoveWayPointEvent.sendEvent(wayPonitId, x, y, z)
+			AutoDriveMoveWayPointEvent.sendEvent(wayPointId, x, y, z, flags)
 		else
 			wayPoint.x = x
 			wayPoint.y = y
 			wayPoint.z = z
+			wayPoint.flags = flags
 			self:markChanges()
 		end
 	end
 end
 
-function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, isSubPrio, sendEvent)
+function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, flags, sendEvent)
 	previousId = previousId or 0
 	local previous
 	if connectPrevious then
@@ -592,7 +613,7 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 	if g_server ~= nil then
 		if sendEvent ~= false then
 			-- Propagating waypoint recording to clients
-			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId, isSubPrio)
+			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId, flags)
 		end
 	else
 		if sendEvent ~= false then
@@ -601,17 +622,13 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 		end
 	end
 	local newId = self:getWayPointsCount() + 1
-	local newWp = self:createNode(newId, x, y, z, {}, {})
+	local newWp = self:createNode(newId, x, y, z, {}, {}, flags)
 	self:setWayPoint(newWp)
 	if connectPrevious then
 		self:toggleConnectionBetween(previous, newWp, isReverse, false)
 		if dual then
 			self:toggleConnectionBetween(newWp, previous, isReverse, false)
 		end
-	end
-
-	if isSubPrio then
-		self:toggleWayPointAsSubPrio(newId)
 	end
 
 	self:markChanges()
@@ -832,14 +849,15 @@ function ADGraphManager:getWayPointsInRange(point, rangeMin, rangeMax)
 	return inRange
 end
 
-function ADGraphManager:createNode(id, x, y, z, out, incoming)
+function ADGraphManager:createNode(id, x, y, z, out, incoming, flags)
 	return {
 		id = id,
 		x = x,
 		y = y,
 		z = z,
 		out = out,
-		incoming = incoming
+		incoming = incoming,
+		flags = flags
 	}
 end
 
@@ -1034,53 +1052,22 @@ end
 function ADGraphManager:toggleWayPointAsSubPrio(wayPointId)
 	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
-		-- check if debug node for subPrio exists
-		local subPrioNode = self:getSubPrioMarkerNode()
-
-		self:toggleConnectionBetween(wayPoint, subPrioNode, false)
-	end
-end
-
-function ADGraphManager:getSubPrioMarkerNode()
-	if self.subPrioMarkerNode == nil then
-		for _, wp in pairs(self.wayPoints) do
-			if self:getIsPointSubPrioMarker(wp.id) then
-				self.subPrioMarkerNode = wp
-				break
-			end
+		if self:getIsPointSubPrio(wayPointId) then
+			wayPoint.flags = wayPoint.flags - AutoDrive.FLAG_SUBPRIO
+		else
+			wayPoint.flags = wayPoint.flags + AutoDrive.FLAG_SUBPRIO
 		end
 	end
 
-	if self.subPrioMarkerNode == nil then
-		self.subPrioMarkerNode = self:createWayPoint(-1, -1, -1)
-	end
+	self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, wayPoint.flags)
 
-	return self.subPrioMarkerNode
+	self:markChanges()
 end
 
 function ADGraphManager:getIsPointSubPrio(wayPointId)
 	local wayPoint = self:getWayPointById(wayPointId)
-	
-	for _, neighborId in pairs(wayPoint.out) do
-		local neighbor = ADGraphManager:getWayPointById(neighborId)
-		if neighbor ~= nil then			
-			if neighbor.id == self:getSubPrioMarkerNode().id then
-				return true
-			end
-		end
-	end
-
-	return false
-end
-
-function ADGraphManager:getIsPointSubPrioMarker(wayPointId)
-	local wayPoint = self:getWayPointById(wayPointId)
-	
-	if wayPoint.x >= -1.01 and wayPoint.x <= -0.99 and wayPoint.z >= -1.01 and wayPoint.z <= -0.99 then
-		return true
-	end
-
-	return false
+		
+	return bitAND(wayPoint.flags, AutoDrive.FLAG_SUBPRIO) > 0
 end
 
 function ADGraphManager:getBestOutPoints(vehicle, nodeId)

@@ -18,6 +18,7 @@ function ADSpecialDrivingModule:reset()
     self.unloadingIntoBunkerSilo = false
     self.stoppedTimer = AutoDriveTON:new()
     self.vehicle.trailer = {}
+    self.isReversing = false
 end
 
 function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
@@ -136,6 +137,9 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration, guid
             self.vehicle.ad.specialDrivingModule:reverseToTargetLocation(dt, self.reverseTarget, maxSpeed)
         end
     end
+    
+    -- Update trailers in case we need to lock the front axle
+    self.vehicle.ad.trailerModule:handleTrailerReversing(true)
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDynamicCollision, maxAcc, maxSpeed)
@@ -178,6 +182,9 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
     self.wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
     self.currentWayPointIndex = self.vehicle.ad.drivePathModule:getCurrentWayPointIndex()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving start self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
+    
+    -- Update trailers in case we need to lock the front axle
+    self.vehicle.ad.trailerModule:handleTrailerReversing(true)
 
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving isUnloadingToBunkerSilo self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))

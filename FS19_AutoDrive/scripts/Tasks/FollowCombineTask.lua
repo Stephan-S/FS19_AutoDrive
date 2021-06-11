@@ -124,7 +124,7 @@ function FollowCombineTask:update(dt)
                 --self.stuckTimer:timer(false)
             end
         elseif ((self.combine.lastSpeedReal * self.combine.movingDirection) <= -0.00005) then
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, self.combine.lastSpeedReal * 3600 * 1.3, 1, true)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, self.combine.lastSpeedReal * 3600 * 1.3, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
         else
             self:followChasePoint(dt)
         end
@@ -191,7 +191,7 @@ function FollowCombineTask:update(dt)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "stuck in reversing - set finished")
             self:finished()
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, true)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
         end
     elseif self.state == FollowCombineTask.STATE_CIRCLING_PATHPLANNING then
         if self.vehicle.ad.pathFinderModule:hasFinished() then
@@ -262,7 +262,7 @@ function FollowCombineTask:updateStates()
 end
 
 function FollowCombineTask:reverse(dt)
-    self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, true)
+    self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
 end
 
 function FollowCombineTask:followChasePoint(dt)

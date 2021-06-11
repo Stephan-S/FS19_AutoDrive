@@ -49,9 +49,10 @@ function ADTrailerModule:reset()
         self.unloadRetryTimer:timer(false)      -- clear timer
     end
     self:clearTrailerUnloadTimers()
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
-    AutoDrive.setAugerPipeOpen(trailers, false)
+    self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
+    AutoDrive.setAugerPipeOpen(self.trailers, false)
+    self:handleTrailerReversing(false)
     self.count = 0
 end
 
@@ -124,7 +125,7 @@ end
 
 function ADTrailerModule:update(dt)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update start")
-    self:updateStates()
+    local updateStatesDone = false
     if self.trailerCount == 0 then
         return
     end
@@ -132,13 +133,23 @@ function ADTrailerModule:update(dt)
 
     if self.vehicle.ad.stateModule:getCurrentMode():shouldUnloadAtTrigger() and (AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) or distanceToUnload < (AutoDrive.MAX_BUNKERSILO_LENGTH)) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateUnload")
+        if not updateStatesDone then
+            self:updateStates()
+            updateStatesDone = true
+        end
         self:updateUnload(dt)
     end
     if self.vehicle.ad.stateModule:getCurrentMode():shouldLoadOnTrigger() and AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update updateLoad")
+        if not updateStatesDone then
+            self:updateStates()
+            updateStatesDone = true
+        end
         self:updateLoad(dt)
     end
     self:handleTrailerCovers()
+
+    self:handleTrailerReversing()
     
     self.lastFillLevel = self.fillLevel
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:update end %s", tostring(self.lastFillLevel))
@@ -146,13 +157,11 @@ end
 
 function ADTrailerModule:handleTrailerCovers()
     -- open trailer cover if trigger is reachable
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle)
-    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, isInRangeToLoadUnloadTarget)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, isInRangeToLoadUnloadTarget)
 end
 
 function ADTrailerModule:updateStates()
-    self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     self.fillLevel, self.leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
     self.fillUnits = 0
     if self.lastFillLevel == nil then
@@ -175,6 +184,68 @@ function ADTrailerModule:updateStates()
     end
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateStates end self.isUnloading %s self.fillUnits %s self.blocked %s", tostring(self.isUnloading), tostring(self.fillUnits), tostring(self.blocked))
 end
+
+function ADTrailerModule:canBeHandledInReverse()
+    if self.trailers == nil then
+        self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
+    end
+
+    local hasTurnTable = false
+    for _, trailer in pairs(self.trailers) do
+         if #trailer.components > 1 then
+            hasTurnTable = true
+        end
+    end
+    return #self.trailers < 2 --and not hasTurnTable 
+end
+
+-- Code snippets used from mod: FS19_TrailerJointBlock - credits to Northern_Strike
+function ADTrailerModule:handleTrailerReversing(blockTrailers)
+    if self.trailers == nil then
+        self:updateStates()
+        return
+    end
+
+    for _, trailer in pairs(self.trailers) do
+        if #trailer.components > 1 then
+            if #trailer.componentJoints < 2 then
+                return;
+            end;
+
+            if trailer.ad == nil then
+                trailer.ad = {}
+                trailer.ad.lastBlockedState = false
+                trailer.ad.targetBlockedState = false
+            end
+
+            trailer.ad.targetBlockedState = blockTrailers
+
+            if trailer.ad.rotLimitBackup == nil then
+                trailer.ad.rotLimitBackup = {};
+                            
+                if trailer.componentJoints[1].rotLimit == nil or
+                trailer.componentJoints[1].rotLimit[2] == nil then
+                    trailer.ad.rotLimitBackup[1] = 0;
+                    trailer.ad.rotLimitBackup[2] = 0;
+                else
+                    trailer.ad.rotLimitBackup[1] = trailer.componentJoints[1].rotLimit[1];
+                    trailer.ad.rotLimitBackup[2] = trailer.componentJoints[1].rotLimit[2];
+                end;
+            else
+                if trailer.ad.lastBlockedState ~= trailer.ad.targetBlockedState then
+                    if trailer.ad.targetBlockedState then
+                        trailer:setComponentJointRotLimit(trailer.componentJoints[1], 2, 0, 0);
+                    else
+                        trailer:setComponentJointRotLimit(trailer.componentJoints[1], 2, -trailer.ad.rotLimitBackup[2], trailer.ad.rotLimitBackup[2]);
+                    end;
+                    trailer.ad.lastBlockedState = trailer.ad.targetBlockedState;
+                end;
+            end
+        end
+    end    
+end
+
+
 
 --[[
 Important:

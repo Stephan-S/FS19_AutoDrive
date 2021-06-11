@@ -133,7 +133,7 @@ function EmptyHarvesterTask:update(dt)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
             self.state = EmptyHarvesterTask.STATE_WAITING
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 5, 1, true)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 5, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
         end
     elseif self.state == EmptyHarvesterTask.STATE_WAITING then
         self.waitTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
