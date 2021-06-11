@@ -21,6 +21,7 @@ function CatchCombinePipeTask:new(vehicle, combine)
     o.reverseTimer = AutoDriveTON:new()
     o.waitForCheckTimer = AutoDriveTON:new()
     o.waitForCheckTimer.elapsedTime = 4000
+    o.taskType = "CatchCombinePipeTask"
     return o
 end
 
@@ -112,7 +113,7 @@ function CatchCombinePipeTask:update(dt)
             self.reverseTimer:timer(false)
             self.state = CatchCombinePipeTask.STATE_DELAY_PATHPLANNING
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1)
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, true)
         end
     end
 end

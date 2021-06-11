@@ -3,8 +3,15 @@ ADStateModule = {}
 ADStateModule.CREATE_OFF = 1
 ADStateModule.CREATE_NORMAL = 2
 ADStateModule.CREATE_DUAL = 3
+ADStateModule.CREATE_SUB_PRIO = 4
+ADStateModule.CREATE_SUB_PRIO_DUAL = 5
 
 ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL = 1000
+
+ADStateModule.HIGHEST_MODE = 6
+
+ADStateModule.BUNKER_UNLOAD_TRIGGER = 1
+ADStateModule.BUNKER_UNLOAD_TRAILER = 2
 
 function ADStateModule:new(vehicle)
     local o = {}
@@ -55,14 +62,17 @@ function ADStateModule:reset()
     self.remainingDriveTime = 0
     self.calculateRemainingDriveTimeInterval = 0
     self.refuelFillType = 0
+    self.activeBeforeSave = false
+    self.AIVEActiveBeforeSave = false
+    self.bunkerUnloadType = ADStateModule.BUNKER_UNLOAD_TRIGGER
 end
 
 function ADStateModule:readFromXMLFile(xmlFile, key)
     local mode = getXMLInt(xmlFile, key .. "#mode")
     if mode ~= nil then
-        if mode == AutoDrive.MODE_BGA then
-            mode = AutoDrive.MODE_DRIVETO
-        end
+        --if mode == AutoDrive.MODE_BGA then
+            --mode = AutoDrive.MODE_DRIVETO
+        --end
         self.mode = mode
     end
 
@@ -109,6 +119,21 @@ function ADStateModule:readFromXMLFile(xmlFile, key)
     if driverName ~= nil then
         self.driverName = driverName
     end
+
+    local lastActive = getXMLBool(xmlFile, key .. "#lastActive")
+    if lastActive ~= nil then
+        self.activeBeforeSave = lastActive
+    end
+
+    local AIVElastActive = getXMLBool(xmlFile, key .. "#AIVElastActive")
+    if AIVElastActive ~= nil then
+        self.AIVEActiveBeforeSave = AIVElastActive
+    end
+
+    local bunkerUnloadType = getXMLInt(xmlFile, key .. "#bunkerUnloadType")
+    if bunkerUnloadType ~= nil then
+        self.bunkerUnloadType = bunkerUnloadType
+    end
 end
 
 function ADStateModule:saveToXMLFile(xmlFile, key)
@@ -124,6 +149,9 @@ function ADStateModule:saveToXMLFile(xmlFile, key)
     setXMLInt(xmlFile, key .. "#speedLimit", self.speedLimit)
     setXMLInt(xmlFile, key .. "#fieldSpeedLimit", self.fieldSpeedLimit)
     setXMLString(xmlFile, key .. "#driverName", self.driverName)
+    setXMLBool(xmlFile, key .. "#lastActive", self.active)
+    setXMLBool(xmlFile, key .. "#AIVElastActive", (self.vehicle.acParameters ~= nil and self.vehicle.acParameters.enabled and self.vehicle.spec_aiVehicle.isActive))
+    setXMLInt(xmlFile, key .. "#bunkerUnloadType", self.bunkerUnloadType)
 end
 
 function ADStateModule:writeStream(streamId)
@@ -148,6 +176,7 @@ function ADStateModule:writeStream(streamId)
     streamWriteString(streamId, self.driverName)
     streamWriteUInt16(streamId, self.remainingDriveTime)
     streamWriteUIntN(streamId, self.refuelFillType, 8)
+    streamWriteUIntN(streamId, self.bunkerUnloadType, 3)
 end
 
 function ADStateModule:readStream(streamId)
@@ -172,6 +201,7 @@ function ADStateModule:readStream(streamId)
     self.driverName = streamReadString(streamId)
     self.remainingDriveTime = streamReadUInt16(streamId)
     self.refuelFillType = streamReadUIntN(streamId, 8)
+    self.bunkerUnloadType = streamReadUIntN(streamId, 3)
 
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
@@ -198,6 +228,7 @@ function ADStateModule:writeUpdateStream(streamId)
     streamWriteString(streamId, self.driverName)
 	streamWriteUInt16(streamId, self.remainingDriveTime)
     streamWriteUIntN(streamId, self.refuelFillType, 8)
+    streamWriteUIntN(streamId, self.bunkerUnloadType, 3)
 end
 
 function ADStateModule:readUpdateStream(streamId)
@@ -222,6 +253,7 @@ function ADStateModule:readUpdateStream(streamId)
     self.driverName = streamReadString(streamId)
     self.remainingDriveTime = streamReadUInt16(streamId)
     self.refuelFillType = streamReadUIntN(streamId, 8)
+    self.bunkerUnloadType = streamReadUIntN(streamId, 3)
 
     self.currentLocalizedTaskInfo = AutoDrive.localize(self.currentTaskInfo)
 end
@@ -389,11 +421,12 @@ function ADStateModule:getCurrentMode()
 end
 
 function ADStateModule:nextMode()
-    if self.mode < AutoDrive.MODE_UNLOAD then
+    if self.mode < ADStateModule.HIGHEST_MODE then
         self.mode = self.mode + 1
     else
         self.mode = AutoDrive.MODE_DRIVETO
     end
+    AutoDrive.Hud.lastUIScale = 0
     self:raiseDirtyFlag()
 end
 
@@ -401,14 +434,16 @@ function ADStateModule:previousMode()
     if self.mode > AutoDrive.MODE_DRIVETO then
         self.mode = self.mode - 1
     else
-        self.mode = AutoDrive.MODE_UNLOAD
+        self.mode = ADStateModule.HIGHEST_MODE
     end
+    AutoDrive.Hud.lastUIScale = 0
     self:raiseDirtyFlag()
 end
 
 function ADStateModule:setMode(newMode)
-    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= AutoDrive.MODE_UNLOAD and newMode ~= self.mode then
+    if newMode >= AutoDrive.MODE_DRIVETO and newMode <= ADStateModule.HIGHEST_MODE and newMode ~= self.mode then
         self.mode = newMode
+        AutoDrive.Hud.lastUIScale = 0
         self:raiseDirtyFlag()
     end
 end
@@ -431,7 +466,7 @@ function ADStateModule:setActive(active)
 end
 
 function ADStateModule:isInCreationMode()
-    return (self.creationMode == ADStateModule.CREATE_NORMAL) or (self.creationMode == ADStateModule.CREATE_DUAL)
+    return (self.creationMode == ADStateModule.CREATE_NORMAL) or (self.creationMode == ADStateModule.CREATE_DUAL) or (self.creationMode == ADStateModule.CREATE_SUB_PRIO) or (self.creationMode == ADStateModule.CREATE_SUB_PRIO_DUAL)
 end
 
 function ADStateModule:isInNormalCreationMode()
@@ -440,6 +475,14 @@ end
 
 function ADStateModule:isInDualCreationMode()
     return self.creationMode == ADStateModule.CREATE_DUAL
+end
+
+function ADStateModule:isInSubPrioCreationMode()
+    return self.creationMode == ADStateModule.CREATE_SUB_PRIO
+end
+
+function ADStateModule:isInSubPrioDualCreationMode()
+    return self.creationMode == ADStateModule.CREATE_SUB_PRIO_DUAL
 end
 
 function ADStateModule:disableCreationMode()
@@ -454,7 +497,7 @@ function ADStateModule:startNormalCreationMode()
     self.creationMode = ADStateModule.CREATE_NORMAL
     self:raiseDirtyFlag()
     if self.vehicle.ad.recordingModule ~= nil then
-		self.vehicle.ad.recordingModule:start(false)
+		self.vehicle.ad.recordingModule:start(false, false)
 	end
 end
 
@@ -462,7 +505,23 @@ function ADStateModule:startDualCreationMode()
     self.creationMode = ADStateModule.CREATE_DUAL
     self:raiseDirtyFlag()
     if self.vehicle.ad.recordingModule ~= nil then
-		self.vehicle.ad.recordingModule:start(true)
+		self.vehicle.ad.recordingModule:start(true, false)
+	end
+end
+
+function ADStateModule:startSubPrioCreationMode()
+    self.creationMode = ADStateModule.CREATE_SUB_PRIO
+    self:raiseDirtyFlag()
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(false, true)
+	end
+end
+
+function ADStateModule:startSubPrioDualCreationMode()
+    self.creationMode = ADStateModule.CREATE_SUB_PRIO_DUAL
+    self:raiseDirtyFlag()
+    if self.vehicle.ad.recordingModule ~= nil then
+		self.vehicle.ad.recordingModule:start(true, true)
 	end
 end
 
@@ -834,4 +893,21 @@ end
 function ADStateModule:setRefuelFillType(refuelFillType)
 	self.refuelFillType = refuelFillType
 	self:raiseDirtyFlag()
+end
+
+function ADStateModule:nextBunkerUnloadType()
+    if self.bunkerUnloadType < ADStateModule.BUNKER_UNLOAD_TRAILER then
+        self.bunkerUnloadType = self.bunkerUnloadType + 1
+    else
+        self.bunkerUnloadType = ADStateModule.BUNKER_UNLOAD_TRIGGER
+    end
+    self:raiseDirtyFlag()
+end
+
+function ADStateModule:getBunkerUnloadType()
+    return self.bunkerUnloadType
+end
+
+function ADStateModule:getBunkerUnloadTypeIsTrigger()
+    return self.bunkerUnloadType == ADStateModule.BUNKER_UNLOAD_TRIGGER
 end

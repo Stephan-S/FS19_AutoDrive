@@ -56,7 +56,7 @@ function ADTrailerModule:reset()
 end
 
 function ADTrailerModule:isActiveAtTrigger()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:isActiveAtTrigger self.isLoading %s self.isUnloading %s", tostring(self.isLoading), tostring(self.isUnloading))
+    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:isActiveAtTrigger self.isLoading %s self.isUnloading %s", tostring(self.isLoading), tostring(self.isUnloading))
     return self.isLoading or self.isUnloading
 end
 
@@ -389,15 +389,16 @@ function ADTrailerModule:updateUnload(dt)
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload Monitor unloading")
         --print("Monitor unloading")
         local _, _, fillUnitEmpty = AutoDrive.getIsEmpty(self.vehicle, self.isUnloadingWithTrailer, self.isUnloadingWithFillUnit)
+        local allTrailersClosed = self:areAllTrailersClosed(dt)
         self.unloadDelayTimer:timer(self.isUnloading, 250, dt)
         if self.unloadDelayTimer:done() then
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload Monitor unloading unloadDelayTimer:done areAllTrailersClosed %s", tostring(self:areAllTrailersClosed(dt)))
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateUnload Monitor unloading unloadDelayTimer:done areAllTrailersClosed %s", tostring(allTrailersClosed))
             self.unloadRetryTimer:timer(self.isUnloading, ADTrailerModule.UNLOAD_RETRY_TIME, dt)
-            if self:areAllTrailersClosed(dt) and (fillUnitEmpty or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders"))) then
+            if allTrailersClosed and (fillUnitEmpty or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders"))) then
                 self.unloadDelayTimer:timer(false)      -- clear timer
                 self.isUnloading = false
                 self.unloadingToBunkerSilo = false
-            elseif (self:areAllTrailersClosed(dt) and self.isUnloadingWithTrailer ~= nil and self.isUnloadingWithTrailer.spec_pipe ~= nil) then
+            elseif allTrailersClosed and self.isUnloadingWithTrailer ~= nil and self.isUnloadingWithTrailer.spec_pipe ~= nil then
                 -- unload auger wagon to another trailer
                 self.unloadDelayTimer:timer(false)      -- clear timer
                 self.isUnloading = false
