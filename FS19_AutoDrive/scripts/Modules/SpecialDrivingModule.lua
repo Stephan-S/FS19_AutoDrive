@@ -18,6 +18,7 @@ function ADSpecialDrivingModule:reset()
     self.unloadingIntoBunkerSilo = false
     self.stoppedTimer = AutoDriveTON:new()
     self.vehicle.trailer = {}
+    self.isReversing = false
 end
 
 function ADSpecialDrivingModule:stopVehicle(isBlocked, lx, lz)
@@ -48,6 +49,11 @@ function ADSpecialDrivingModule:update(dt)
         dbg.stoppedTimer = self.stoppedTimer.elapsedTime
         AutoDrive.renderTable(0.6, 0.7, 0.009, dbg)
     end
+
+    if not self.isReversing then
+        self.reverseTarget = nil
+    end
+    self.isReversing = false
 end
 
 function ADSpecialDrivingModule:isStoppingVehicle()
@@ -107,21 +113,33 @@ function ADSpecialDrivingModule:driveForward(dt)
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
 end
 
-function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration)
+function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration, guided)
+    self.isReversing = true
     local speed = maxSpeed
     local acc = maxAcceleration
 
-    local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, -20)
-    local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
 
     if self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
         self:stopAndHoldVehicle(dt)
     else
-        local storedSmootherDriving = AutoDrive.smootherDriving
-        AutoDrive.smootherDriving = false
-        AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
-        AutoDrive.smootherDriving = storedSmootherDriving
+        if guided ~= true then
+            local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, -20)
+            local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
+            local storedSmootherDriving = AutoDrive.smootherDriving
+            AutoDrive.smootherDriving = false
+            AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
+            AutoDrive.smootherDriving = storedSmootherDriving
+        else
+            if self.reverseTarget == nil then
+                local x, y, z = localToWorld(self.vehicle.components[1].node, 0, 0 , -100)
+                self.reverseTarget = {x=x, y=y, z=z}
+            end
+            self.vehicle.ad.specialDrivingModule:reverseToTargetLocation(dt, self.reverseTarget, maxSpeed)
+        end
     end
+    
+    -- Update trailers in case we need to lock the front axle
+    self.vehicle.ad.trailerModule:handleTrailerReversing(true)
 end
 
 function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDynamicCollision, maxAcc, maxSpeed)
@@ -164,6 +182,9 @@ function ADSpecialDrivingModule:handleReverseDriving(dt)
     self.wayPoints = self.vehicle.ad.drivePathModule:getWayPoints()
     self.currentWayPointIndex = self.vehicle.ad.drivePathModule:getCurrentWayPointIndex()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving start self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
+    
+    -- Update trailers in case we need to lock the front axle
+    self.vehicle.ad.trailerModule:handleTrailerReversing(true)
 
     if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] ADSpecialDrivingModule:handleReverseDriving isUnloadingToBunkerSilo self.currentWayPointIndex %s ", tostring(self.currentWayPointIndex))
@@ -315,7 +336,10 @@ function ADSpecialDrivingModule:getReverseNode()
     return reverseNode
 end
 
-function ADSpecialDrivingModule:reverseToPoint(dt)
+function ADSpecialDrivingModule:reverseToPoint(dt, maxSpeed)
+    if maxSpeed == nil then
+        maxSpeed = math.huge
+    end
 	local vehicleIsTruck = self:isTruck(self.vehicle)
 
     if self.lastAngleToPoint == nil then
@@ -388,13 +412,14 @@ function ADSpecialDrivingModule:reverseToPoint(dt)
 
     local storedSmootherDriving = AutoDrive.smootherDriving
     AutoDrive.smootherDriving = false
+    speed = math.min(maxSpeed, speed)
     AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, acc, 0.2, 20, true, false, lx, lz, speed, 1)
     AutoDrive.smootherDriving = storedSmootherDriving
 
     self.lastAngleToPoint = self.angleToPoint
 end
 
-function ADSpecialDrivingModule:reverseToTargetLocation(dt, location)
+function ADSpecialDrivingModule:reverseToTargetLocation(dt, location, maxSpeed)
     self.reverseNode = self:getReverseNode()
     if self.reverseNode == nil then
         return true
@@ -413,7 +438,7 @@ function ADSpecialDrivingModule:reverseToTargetLocation(dt, location)
     if self.vehicle.ad.collisionDetectionModule:checkReverseCollision() then
         self:stopAndHoldVehicle(dt)
     else
-        self:reverseToPoint(dt)
+        self:reverseToPoint(dt, maxSpeed)
     end
 
     return false

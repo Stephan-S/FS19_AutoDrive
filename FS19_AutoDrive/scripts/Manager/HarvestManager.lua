@@ -120,7 +120,7 @@ function ADHarvestManager:update(dt)
 
     for _, harvester in pairs(self.harvesters) do
         if harvester ~= nil and g_currentMission.nodeToObject[harvester.components[1].node] ~= nil and entityExists(harvester.components[1].node) then
-            if self.assignmentDelayTimer:done() then
+            --if self.assignmentDelayTimer:done() then
                 if not self:alreadyAssignedUnloader(harvester) then
                     if ADHarvestManager.doesHarvesterNeedUnloading(harvester) or ((not AutoDrive.combineIsTurning(harvester)) and ADHarvestManager.isHarvesterActive(harvester)) then
                         self:assignUnloaderToHarvester(harvester)
@@ -141,7 +141,7 @@ function ADHarvestManager:update(dt)
                         end
                     end
                 end
-            end
+            --end
 
             if (harvester.ad ~= nil and harvester.ad.noMovementTimer ~= nil and harvester.lastSpeedReal ~= nil) then
                 harvester.ad.noMovementTimer:timer((harvester.lastSpeedReal <= 0.0004), 3000, dt)
