@@ -525,7 +525,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				vehicle.ad.selectedNodeId = vehicle.ad.newcreated
 			end
 
-			if button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed and AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil then
+			if button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil then
 				ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
 			end
 
@@ -574,6 +574,11 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 						if g_server ~= nil and g_client ~= nil then
 							-- auto connect only working in single player properly !
 							local createdId = ADGraphManager:getWayPointsCount()
+							
+							if AutoDrive.leftLSHIFTmodifierKeyPressed then
+								ADGraphManager:toggleWayPointAsSubPrio(createdId)
+							end
+
 							if vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated then
 								-- connect only if previous created point is selected and newcreated ~= nil
 
@@ -588,7 +593,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 
 								if AutoDrive.leftLSHIFTmodifierKeyPressed then
 									ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
-								end								
+								end							
 							end
 							vehicle.ad.newcreated = createdId
 							vehicle.ad.selectedNodeId = vehicle.ad.newcreated
