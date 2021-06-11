@@ -591,9 +591,9 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 									ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(createdId), ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), AutoDrive.rightSHIFTmodifierKeyPressed and not AutoDrive.leftALTmodifierKeyPressed)
 								end
 
-								if AutoDrive.leftLSHIFTmodifierKeyPressed then
-									ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
-								end							
+								--if AutoDrive.leftLSHIFTmodifierKeyPressed then
+									--ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
+								--end
 							end
 							vehicle.ad.newcreated = createdId
 							vehicle.ad.selectedNodeId = vehicle.ad.newcreated
