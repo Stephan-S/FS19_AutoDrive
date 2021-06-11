@@ -327,12 +327,11 @@
 		<text name="AD_task_reversing_from_collision"			text="Vyhledávám čistou oblast" />
         <text name="AD_task_drive_to_park"				        text="Jedu na parkovací místo" />
 
-		<text name = "gui_CPAD_off"								text = "off"/>
-		<text name = "gui_CPAD_simple"							text = "simple"/>
-		<text name = "gui_CPAD_full"							text = "full"/>
-		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
-	
+		<text name = "gui_CPAD_off"								text = "vypnutý"/>
+		<text name = "gui_CPAD_simple"							text = "jednoduchý"/>
+		<text name = "gui_CPAD_full"							text = "plný"/>
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Tlačítka"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "vypnutý: výchozí/ jednoduché: CP: sekundární tlačítko myši > myš zapnutá + vypnutá, AD: Přepnout Hud> oba Hudy zapnuto + vypnuto / plný: stejně jednoduché, ale přepínání Hudu v jednotlivých krocích / požadováno: Zakázat pravé tlačítko HUD v nastavení CP"/>
 		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
 		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
 		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />
