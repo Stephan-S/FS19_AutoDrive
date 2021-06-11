@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
-	<translationContributors>Yllelder</translationContributors>
+	<translationContributors>Yllelder, Vanquish081</translationContributors>
 	<texts>
 		<text name="UNKNOWN"									text="Desconocido" />
 		<text name="input_ADToggleHud"							text="AD: Abrir ventana AD" />
@@ -300,7 +300,7 @@
 
 		<text name="AD_task_pathfinding"						text="Calculando ruta" />
 		<text name="AD_task_catch_up_with_combine"				text="Alcanzando a cosechadora" />
-		<text name="AD_task_clearcrop"							text="Clearing crop" /> <!-- POR TRADUCIR -->
+		<text name="AD_task_clearcrop"							text="Retirando Cultivo" />
 		<text name="AD_task_drive_to_destination"				text="Conduciendo al destino" />
 		<text name="AD_task_drive_to_vehicle"					text="Conduciendo al vehículo objetivo" />
 		<text name="AD_task_drive_to_combine_pipe"				text="Conduciendo hacia el tubo de la cosechadora" />
@@ -320,55 +320,55 @@
 		<text name="AD_task_chase_side_left"					text="izquierdo" />
 		<text name="AD_task_chase_side_rear"					text="trasero" />
 		<text name="AD_task_chase_side_right"					text="derecho" />
-		<text name="AD_task_waiting_for_room"					text="Waiting for room" /> <!-- POR TRADUCIR -->
+		<text name="AD_task_waiting_for_room"					text="Esperando un hueco" />
 		<text name="AD_task_exiting_field"						text="Saliendo del campo" />
 		<text name="AD_task_reversing_from_collision"			text="Buscando un área libre" />
         <text name="AD_task_drive_to_park"				        text="Conduciendo al aparcamiento" />
 
-		<text name = "gui_CPAD_off"								text = "off"/>
-		<text name = "gui_CPAD_simple"							text = "simple"/>
-		<text name = "gui_CPAD_full"							text = "full"/>		
-		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
+		<text name = "gui_CPAD_off"								text = "Off"/>
+		<text name = "gui_CPAD_simple"							text = "Simple"/>
+		<text name = "gui_CPAD_full"							text = "Lleno"/>		
+		<text name = "gui_ad_combineCPADHudMouse"				text = "Combinar Botones CP/AD"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "Off: Por Defecto / Simple: CP: Bot.Sec.Raton > Raton ON + Off, AD: Alternar Hud > Ambos Huds On + Off / Lleno: Así de simple, pero los Huds alternar en pasos simples / Requerido: Desactivar Click Derecho HUD en ajustes CP"/>
 	
-		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
-		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
-		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />
-		<text name="gui_ad_tipOfTheDayActive" 					text="Show on next start" />
-		<text name="ad_next_tip" 								text="Next" />
-		<text name="ad_totd_01_title" 							text="Multiple functions" />
-		<text name="ad_totd_01_text" 							text="Many buttons in AutoDrive have multiple functions. The main function can always be activated with the left mouse. The secondary function can be activated with either the middle or the right mouse button. 
+		<text name="gui_ad_showTipOfTheDay"						text="Consejo del Día" />
+		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Sugerencia del día que se muestra en cada inicio del juego" />
+		<text name="gui_ad_tipOfTheDayTitle" 					text="Consejo del Día" />
+		<text name="gui_ad_tipOfTheDayActive" 					text="Mostrar en el próximo inicio" />
+		<text name="ad_next_tip" 								text="Siguiente" />
+		<text name="ad_totd_01_title" 							text="Multiples funciones" />
+		<text name="ad_totd_01_text" 							text="Muchos botones de AutoDrive tienen múltiples funciones. La función principal siempre se puede activar con el botón izquierdo del ratón. La función secundaria se puede activar con el botón central o con el botón derecho del ratón.
 		
-		Several buttons even have a third and fourth function which can be used with scrolling with the mouse wheel on top of said buttons. For now, those are the speed limiters and the recording button." />
-		<text name="ad_totd_02_title" 							text="Different types of roads" />
-		<text name="ad_totd_02_text" 							text="An AutoDrive network can contain of 4 different types of roads.
+		Varios botones incluso tienen una tercera y cuarta función que se puede usar con el desplazamiento de la rueda del ratón en la parte superior de dichos botones. Por ahora, esos son los limitadores de velocidad y el botón de grabación." />
+		<text name="ad_totd_02_title" 							text="Diferentes tipos de carreteras." />
+		<text name="ad_totd_02_text" 							text="Una red AutoDrive puede contener 4 tipos diferentes de carreteras.
 
-		1. A standard road segment (green). Vehicles can travel along the direction marked with the arrows. To start recording a standard road, simply left click the record button.
+		1. Un tramo de carretera estándar (verde). Los vehículos pueden viajar en la dirección marcada con las flechas. Para comenzar a grabar una carretera estándar, simplemente haga clic con el botón izquierdo en el botón de grabación.
 		
-		2. Dual direction roads (blue). Here, vehicles may travel in both directions and will block incoming traffic in the opposite direction. You can record dual direction routes with the secondary function on the record button. So use either the middle or the right mouse button.
+		2. Carreteras de doble dirección (azul). Aquí, los vehículos pueden viajar en ambas direcciones y bloquearán el tráfico entrante en la dirección opuesta. Puede grabar rutas de doble dirección con la función secundaria en el botón de grabación. Por lo tanto, use el botón central o el botón derecho del ratón.
 		
-		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
+		3. Secciones Marcha Atrás (azul claro): los vehículos solo pueden viajar marcha atrás a lo largo de estas secciones. Útil para estacionar y descargar en lugares estrechos. Simplemente conduzca hacia atrás durante una sesión de grabación estándar.
 		
-		4. Side road - This type of road segment is ususally avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
-		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
-		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
+		4. Carretera lateral: la planificación de la ruta suele evitar este tipo de tramo de carretera, a menos que el objetivo esté en este tramo de carretera. Para grabar una carretera secundaria, use la rueda del mouse hacia arriba mientras mantiene el botón de grabación." />
+		<text name="ad_totd_03_title" 							text="Combinando Cosechadoras - 1" />
+		<text name="ad_totd_03_text" 							text="Algunos consejos básicos para usar AutoDrive para descargar cosechadoras combinadas:
 		
-		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should ususally be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to seach for any available unloader in a range of 300m.
+		1. Para permitir que una cosechadora llame automáticamente a un remolque, simplemente seleccione el mismo destino en el HUD de AutoDrive de la cosechadora que ha seleccionado para el remolque. Por lo general, este punto debe ser un objetivo cercano al campo para que el remolque pueda planificar una ruta hacia la cosechadora. Alternativamente, también puede habilitar la configuración 'Buscar conductor' que hará que la cosechadora busque cualquier remolque disponible en un rango de 300 m.
 		
-		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
-		<text name="ad_totd_04_title" 							text="Settings - 1" />
-		<text name="ad_totd_04_text" 							text="There are currently 6 different setting pages.
+		2. AutoDrive puede descargar tanto cosechadoras como picadoras sobre la marcha. Para habilitar esta función para cosechadoras combinadas, simplemente configure el ajuste 'Nivel previo a la llamada' en 0%." />
+		<text name="ad_totd_04_title" 							text="Ajustes - 1" />
+		<text name="ad_totd_04_text" 							text="Actualmente hay 6 páginas de configuración diferentes.
 
-		1. General settings - Applied for all vehicles.
+		1. Ajustes Generales - Aplicado a todos los vehículos.
 
-		2. User settings - Applied to the current player (also in MP). These are settings to control how AutoDrive is displayed and not how it works.
+		2. Ajustes Usuarios - Aplicado al jugador actual (también en MP). Estas son configuraciones para controlar cómo se muestra AutoDrive y no cómo funciona.
 
-		3. Vehicle settings - Applied only for the current vehicle.
+		3. Ajustes Vehículo - Aplicado solo para el vehículo actual.
 
-		4. Harvester settings - Only visisble when inside a harvester. Here you can control how this harevster calls it's unloaders.
+		4. Ajustes Cosechadora - Solo visible dentro de una cosechadora. Aquí puede controlar cómo la cosechadora llama a sus remolques.
 
-		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
+		5. Ajustes Depuración - Esta configuración permite algunos comentarios de depuración visual y, lo que es más importante, mensajes de registro adicionales. Así que habilítelo si tiene problemas o errores y se está preparando para enviar un archivo de registro a los desarrolladores.
 		
-		6. Experimental features - These settings relate to features we are currently testing/developing but which are not yet considered stable. Use at your own risk." />
+		6. Funciones experimentales - Estos ajustes se relacionan con funciones que están en desarrollo y testeo actualmente, por lo que aún no se consideran estables. Úselo bajo su propio riesgo." />
 	</texts>
 </l10n>
