@@ -325,13 +325,6 @@
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
         <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
-
-		<text name = "gui_CPAD_off"								text = "aus"/>
-		<text name = "gui_CPAD_simple"							text = "einfach"/>
-		<text name = "gui_CPAD_full"							text = "voll"/>
-		<text name = "gui_ad_combineCPADHudMouse"				text = "Kombiniere CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "aus: standard | einfach: [CP] sek. Maus-Aktion > Maus toggle, [AD] HUD ein/ausblenden > beide Huds an/aus | voll: wie 'einfach', Huds können einzeln schaltbar | Erforderlich: [CP] setze sekundäre Maus-Aktion auf mittlere Maustaste; Rechsklick HUD aus"/>
-	
 	
 		<text name="gui_ad_showTipOfTheDay"						text="Tip des Tages" />
 		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip des Tages beim Start des Spiels anzeigen" />

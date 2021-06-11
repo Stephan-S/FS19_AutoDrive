@@ -325,12 +325,6 @@
 		<text name="AD_task_exiting_field"						text="Wyjście z pola" />
         <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
 
-		<text name = "gui_CPAD_off"								text = "off"/>
-		<text name = "gui_CPAD_simple"							text = "simple"/>
-		<text name = "gui_CPAD_full"							text = "full"/>		
-		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default | simple: [CP] sec mouse action > mouse on/off, [AD] Toggle Hud > both huds on/off | full: as simple but huds toggle in single steps | Required: [Courseplay] set secondary mouse action to middle mouse button; disable right klick HUD"/>
-	
 		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
 		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
 		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />

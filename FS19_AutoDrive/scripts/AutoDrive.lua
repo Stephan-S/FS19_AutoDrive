@@ -68,7 +68,7 @@ AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
 
 AutoDrive.actions = {
-	{"ADToggleMouse", true, 1}, -- can be changed by AutoDrive:enableCPaction()
+	{"ADToggleMouse", true, 1},
 	{"ADToggleHud", true, 1},
 	{"ADEnDisable", true, 1},
 	{"ADSelectTarget", false, 0},
@@ -97,7 +97,6 @@ AutoDrive.actions = {
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
-	{"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}, -- can be changed by AutoDrive:enableCPaction()
 	{"AD_open_tipOfTheDay", false, 0}
 }
 
@@ -377,42 +376,6 @@ function AutoDrive:FarmStats_getStatisticData(superFunc)
 		end
 	end
 	return Utils.getNoNil(self.statisticData, {})
-end
-
--- disable / enable ADToggleMouse to get only one button to hanlde mouse
-function AutoDrive:enableCPaction(enableCPaction)
-	local found = false
-	if enableCPaction then
-		ADInputManager.actionsToInputs["ADToggleMouse"] = nil
-		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = "input_toggleMouse"
-		
-		for key, val in pairs(AutoDrive.actions) do
-			if val[1] == "ADToggleMouse" then
-				table.remove(AutoDrive.actions, key)
-			end
-			if val[1] == "COURSEPLAY_MOUSEACTION_SECONDARY" then
-				found = true
-			end
-		end
-		if not found then
-			table.insert(AutoDrive.actions,  {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1})
-		end
-	else
-		ADInputManager.actionsToInputs["ADToggleMouse"] = "input_toggleMouse"
-		ADInputManager.actionsToInputs["COURSEPLAY_MOUSEACTION_SECONDARY"] = nil
-
-		for key, val in pairs(AutoDrive.actions) do
-			if val[1] == "ADToggleMouse" then
-				found = true
-			end
-			if val[1] == "COURSEPLAY_MOUSEACTION_SECONDARY" then
-				table.remove(AutoDrive.actions, key)
-			end
-		end
-		if not found then
-			table.insert(AutoDrive.actions, {"ADToggleMouse", true, 1})
-		end
-	end
 end
 
 addModEventListener(AutoDrive)

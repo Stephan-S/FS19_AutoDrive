@@ -24,8 +24,7 @@ ADInputManager.actionsToInputs = {
     AD_FieldSpeed_up = "input_increaseFieldSpeed",
     AD_FieldSpeed_down = "input_decreaseFieldSpeed",
     ADToggleHud = "input_toggleHud",
-    ADToggleMouse = "input_toggleMouse", -- can be changed by AutoDrive:enableCPaction()
-    COURSEPLAY_MOUSEACTION_SECONDARY = "input_toggleMouse", -- can be changed by AutoDrive:enableCPaction()
+    ADToggleMouse = "input_toggleMouse",
     ADDebugDeleteWayPoint = "input_removeWaypoint",
     AD_routes_manager = "input_routesManager",
     ADSelectNextFillType = "input_nextFillType",
@@ -126,8 +125,6 @@ end
 function ADInputManager:input_openTipOfTheDay(vehicle)
     AutoDrive.onOpenTipOfTheDay()
 end
-
-
 
 function ADInputManager:input_editMapMarker(vehicle)
     if AutoDrive.isEditorModeEnabled() then
