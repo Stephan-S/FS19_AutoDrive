@@ -50,7 +50,7 @@
 		<text name="AD_No_Trailer"								text="Nemohu nalézt odvozce" />
 		<text name="AD_No_Bunker"								text="Nemohu nalézt silážní jámu" />
 		<text name="AD_No_Shovel"								text="Lžíce není připojena" />
-		<text name="AD_No_Refuel_Station"						text="could not find refuel station for:" />
+		<text name="AD_No_Refuel_Station"						text="nemůžu najít benzinku pro:" />
 		<text name="AD_MODE_DRIVETO"							text="Jízda" />
 		<text name="AD_MODE_DELIVERTO"							text="Vykládka" />
 		<text name="AD_MODE_PICKUPANDDELIVER"					text="Nakládka a odvoz" />
