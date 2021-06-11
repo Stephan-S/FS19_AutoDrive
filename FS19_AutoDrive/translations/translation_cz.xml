@@ -35,6 +35,7 @@
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Zaparkovat vozidlo" />
 		<text name="input_ADSwapTargets"						text="AD: Zaměnit cíle" />
+		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Nevjíždět do porostu" />
 		<text name="hud_startCp" 								text="AD: Start CP / AIVE v místě určení" />
