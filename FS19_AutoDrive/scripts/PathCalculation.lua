@@ -107,7 +107,13 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
                             end
                         end
                         previousPoint = point.id
-                        distance = distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)
+
+                        local factor = 1
+                        if isSubPrio(outPoint) then
+                            factor = 20
+                        end
+
+                        distance = distance + (distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)) * factor
                         point = outPoint
                     else
                         point = nil

@@ -525,7 +525,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 				vehicle.ad.selectedNodeId = vehicle.ad.newcreated
 			end
 
-			if button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil then
+			if button == 1 and isUp and AutoDrive.leftLSHIFTmodifierKeyPressed and not AutoDrive.leftCTRLmodifierKeyPressed and vehicle.ad.hoveredNodeId ~= nil and not adjustedPaths then
 				ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
 			end
 
