@@ -9,6 +9,7 @@ function AutoDrive:loadGUI()
 	AutoDrive.gui.ADEnterDestinationFilterGui = ADEnterDestinationFilterGui:new()
 	AutoDrive.gui.ADRoutesManagerGui = ADRoutesManagerGui:new()
 	AutoDrive.gui.ADNotificationsHistoryGui = ADNotificationsHistoryGui:new()
+	AutoDrive.gui.ADTipOfTheDayGUI = ADTipOfTheDayGUI:new()
 
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "ADEnterTargetNameGui", AutoDrive.gui.ADEnterTargetNameGui)
@@ -16,6 +17,7 @@ function AutoDrive:loadGUI()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/routesManagerGUI.xml", "ADRoutesManagerGui", AutoDrive.gui.ADRoutesManagerGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/notificationsHistoryGUI.xml", "ADNotificationsHistoryGui", AutoDrive.gui.ADNotificationsHistoryGui)
+	g_gui:loadGui(AutoDrive.directory .. "gui/tipOfTheDayGUI.xml", "ADTipOfTheDayGui", AutoDrive.gui.ADTipOfTheDayGUI)
 
 	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
 	AutoDrive.gui.ADUserSettingsPage = ADSettingsPage:new()
@@ -44,6 +46,8 @@ function AutoDrive.GuiOverlay_loadOverlay(superFunc, ...)
 		overlay.filename = g_autoDriveDebugUIFilename
 	elseif overlay.filename == "g_autoDriveUIFilename" then
 		overlay.filename = g_autoDriveUIFilename
+	elseif overlay.filename == "g_autoDriveTipOfTheDayUIFilename" then
+		overlay.filename = g_autoDriveTipOfTheDayUIFilename
 	end
 
 	return overlay
@@ -90,5 +94,11 @@ end
 function AutoDrive.onOpenNotificationsHistory()
 	if not AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
 		g_gui:showGui("ADNotificationsHistoryGui")
+	end
+end
+
+function AutoDrive.onOpenTipOfTheDay()
+	if not AutoDrive.gui.ADTipOfTheDayGUI.isOpen then
+		g_gui:showGui("ADTipOfTheDayGui")
 	end
 end

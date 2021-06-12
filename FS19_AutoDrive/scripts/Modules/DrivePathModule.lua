@@ -16,6 +16,7 @@ function ADDrivePathModule:new(vehicle)
     o.minDistanceTimer = AutoDriveTON:new()
     o.waitTimer = AutoDriveTON:new()
     o.blinkTimer = AutoDriveTON:new()
+    o.brakeHysteresisActive = false
     ADDrivePathModule.reset(o)
     return o
 end
@@ -36,6 +37,7 @@ function ADDrivePathModule:reset()
     self.isReversing = false
     self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
     self.distanceToTarget = math.huge
+    self.speedLimit = 0
 end
 
 function ADDrivePathModule:setPathTo(waypointId)
@@ -101,6 +103,8 @@ function ADDrivePathModule:setWayPoints(wayPoints)
     if self.wayPoints == nil or #self.wayPoints < 0 then
         self.atTarget = true
     end
+    self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
+    self.distanceToTarget = self:getDistanceToLastWaypoint(40)
 end
 
 function ADDrivePathModule:setPaused()
@@ -131,12 +135,12 @@ function ADDrivePathModule:update(dt)
     end
 
     if self.wayPoints ~= nil and self:getCurrentWayPointIndex() <= #self.wayPoints then
-
         if self.isReversing then
             self.vehicle.ad.specialDrivingModule:handleReverseDriving(dt)
         else
             self:followWaypoints(dt)
             self:checkIfStuck(dt)
+            self.vehicle.ad.trailerModule:handleTrailerReversing(false)
 
             if self:isCloseToWaypoint() then
                 local reverseStart, _ = self:checkForReverseSection()
@@ -198,39 +202,56 @@ end
 
 function ADDrivePathModule:followWaypoints(dt)
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-
-    self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
-    if AutoDrive.checkIsOnField(x, y, z) then
-        self.speedLimit = self.vehicle.ad.stateModule:getFieldSpeedLimit() --math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), self.speedLimit)
-    end
+    local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
     self.acceleration = 1
     self.distanceToLookAhead = 8
-    if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
-        local highestAngle = self:getHighestApproachingAngle()
-        self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
-    end
 
-    self.distanceToTarget = self:getDistanceToLastWaypoint(40)
-    if self.distanceToTarget < self.distanceToLookAhead then
-        self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
-    end
+    if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES_HIGH == 0) then
+        self.speedLimit = self.vehicle.ad.stateModule:getSpeedLimit()
+        if AutoDrive.checkIsOnField(x, y, z) then
+            self.speedLimit = self.vehicle.ad.stateModule:getFieldSpeedLimit() --math.min(self.vehicle.ad.stateModule:getFieldSpeedLimit(), self.speedLimit)
+        end
+        if self.wayPoints[self:getCurrentWayPointIndex() - 1] ~= nil and self:getNextWayPoint() ~= nil then
+            local highestAngle = self:getHighestApproachingAngle()
 
-    self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
+            if self:isOnRoadNetwork() then
+                self.speedLimit = math.min(self.speedLimit, self:getMaxSpeedForAngle(highestAngle))
+            else
+                -- Let's increase the cornering speed for paths generated with the pathfinder module. There are many 45° angles in there that slow the process down otherwise.
+                self.speedLimit = math.min(self.speedLimit, math.max(12, self:getMaxSpeedForAngle(highestAngle) * 2))
+            end
+        end
 
-    local maxSpeedDiff = ADDrivePathModule.MAX_SPEED_DEVIATION
-    if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
-        -- drive through bunker silo
-        self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
-        maxSpeedDiff = 1
-    else
-        if self.distanceToTarget < (AutoDrive.MAX_BUNKERSILO_LENGTH + AutoDrive.getSetting("maxTriggerDistance")) and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
-            -- vehicle enters drive through bunker silo
-            self.speedLimit = math.min(12, self.speedLimit)
-            maxSpeedDiff = 3
+        self.distanceToTarget = self:getDistanceToLastWaypoint(40)
+        if self.distanceToTarget < self.distanceToLookAhead then
+            local currentTask = self.vehicle.ad.taskModule:getActiveTask()
+            local isCatchingCombine = currentTask.taskType ~= nil and self.vehicle.ad.taskModule:getActiveTask().taskType == "CatchCombinePipeTask"
+            if not isCatchingCombine then
+                self.speedLimit = math.clamp(8, self.speedLimit, 2 + self.distanceToTarget)
+            end
+        end
+
+        if self:isOnRoadNetwork() then
+            self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle())
         else
-            local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) and self.distanceToTarget <= AutoDrive.getSetting("maxTriggerDistance")
-            if isInRangeToLoadUnloadTarget == true then
-                self.speedLimit = math.min(5, self.speedLimit)
+            -- Let's increase the cornering speed for paths generated with the pathfinder module. There are many 45° angles in there that slow the process down otherwise.
+            self.speedLimit = math.min(self.speedLimit, self:getSpeedLimitBySteeringAngle() * 1.5)
+        end
+
+        if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
+            -- drive through bunker silo
+            self.speedLimit = math.min(self.vehicle.ad.trailerModule:getBunkerSiloSpeed(), self.speedLimit)
+            maxSpeedDiff = 1
+        else
+            if self.distanceToTarget < (AutoDrive.MAX_BUNKERSILO_LENGTH + AutoDrive.getSetting("maxTriggerDistance")) and AutoDrive.isVehicleInBunkerSiloArea(self.vehicle) then
+                -- vehicle enters drive through bunker silo
+                self.speedLimit = math.min(12, self.speedLimit)
+                maxSpeedDiff = 3
+            else
+                local isInRangeToLoadUnloadTarget = AutoDrive.isInRangeToLoadUnloadTarget(self.vehicle) and self.distanceToTarget <= AutoDrive.getSetting("maxTriggerDistance")
+                if isInRangeToLoadUnloadTarget == true then
+                    self.speedLimit = math.min(5, self.speedLimit)
+                end
             end
         end
     end
@@ -252,11 +273,17 @@ function ADDrivePathModule:followWaypoints(dt)
         self.vehicle.ad.specialDrivingModule:update(dt)
     else
         self.vehicle.ad.specialDrivingModule:releaseVehicle()
+        local speedDiff = (self.vehicle.lastSpeedReal * 3600) - self.speedLimit
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
-        if (self.vehicle.lastSpeedReal * 3600) > (self.speedLimit + maxSpeedDiff) then
-            self.acceleration = -0.6
+        if speedDiff <= 0.25 then
+            self.brakeHysteresisActive = false
         end
-
+        if (speedDiff > maxSpeedDiff) or self.brakeHysteresisActive then
+            self.brakeHysteresisActive = true
+            
+            self.acceleration = -math.min(0.6, speedDiff * 0.05)
+        end
+        
         --print("Speed: " .. (self.vehicle.lastSpeedReal * 3600) .. "/" .. self.speedLimit .. " acc: " .. self.acceleration .. " maxSpeedDiff: " .. maxSpeedDiff)
         --print("LAD: " .. self.distanceToLookAhead .. " maxAngle: " .. self.maxAngle .. " maxAngleSpeed: " .. self.maxAngleSpeed)
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
@@ -286,7 +313,7 @@ end
 
 -- To differentiate between waypoints on the road and ones created from pathfinder
 function ADDrivePathModule:isOnRoadNetwork()
-    return (self.wayPoints ~= nil and self:getNextWayPoint() ~= nil and not self:getNextWayPoint().isPathFinderPoint)
+    return (self.wayPoints ~= nil and self:getCurrentWayPoint() ~= nil and not self:getCurrentWayPoint().isPathFinderPoint)
 end
 
 function ADDrivePathModule:getWayPoints()
@@ -321,6 +348,7 @@ end
 function ADDrivePathModule:getHighestApproachingAngle()
     self.turnAngle = 0
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> Lookahead distance: " .. self.distanceToLookAhead)
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -338,8 +366,14 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local wp_ahead = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint]
             local wp_current = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 1]
             local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 2]
+            
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> wp_ahead: " .. wp_ahead.x .. " / " .. wp_ahead.z)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> wp_current: " .. wp_current.x .. " / " .. wp_current.z)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> wp_ref: " .. wp_ref.x .. " / " .. wp_ref.z)
 
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
+            
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> angle: " .. angle)
 
             self.turnAngle = self.turnAngle + math.clamp(-90, angle, 90)
 
@@ -431,27 +465,8 @@ function ADDrivePathModule:getMaxSpeedForAngle(angle)
     local maxSpeed = math.huge
 
     if angle < 5 then
-        --[[
-    elseif angle < 5 then
-        maxSpeed = 38
-    elseif angle < 8 then
-        maxSpeed = 27
-    elseif angle < 12 then
-        maxSpeed = 20
-    elseif angle < 20 then
-        maxSpeed = 17
-    elseif angle < 25 then
-        maxSpeed = 16
-    elseif angle < 100 then
-        maxSpeed = 13
-        --]]
         maxSpeed = math.huge
     elseif angle < 50 then
-        --elseif angle < 100 then
-        --maxSpeed = 8
-        -- < 5 max
-        -- > 5 = 60
-        -- < 30 = 12
         maxSpeed = 12 + 48 * (1 - math.clamp(0, (angle - 5), 25) / (30 - 5))
     elseif angle >= 50 then
         maxSpeed = 3
@@ -634,28 +649,29 @@ function ADDrivePathModule:checkActiveAttributesSet(dt)
         end
         self.vehicle.spec_aiVehicle.aiTrafficCollisionTranslation[2] = -1000
 
-        if self.vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self.vehicle) then
-            local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
-            if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.spec_motorized.isMotorStarted then
-                self.vehicle:setBeaconLightsVisibility(true)
-            else
-                self.vehicle:setBeaconLightsVisibility(false)
+        if ((g_updateLoopIndex + self.vehicle.id) % AutoDrive.PERF_FRAMES == 0) then
+            if self.vehicle.setBeaconLightsVisibility ~= nil and AutoDrive.getSetting("useBeaconLights", self.vehicle) then
+                local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+                if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.spec_motorized.isMotorStarted then
+                    self.vehicle:setBeaconLightsVisibility(true)
+                else
+                    self.vehicle:setBeaconLightsVisibility(false)
+                end
             end
-        end
-        local blinkangle = AutoDrive.getSetting("blinkValue") or 0
+            local blinkangle = AutoDrive.getSetting("blinkValue") or 0
 
-        if blinkangle > 0 then
-            if self.blinkTimer:timer(math.abs(self.turnAngle) < blinkangle, ADDrivePathModule.BLINK_TIMEOUT, dt) then
-                self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
-            else
-                if self.turnAngle > blinkangle and self:isOnRoadNetwork() then
-                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_LEFT)
-                elseif self.turnAngle < - blinkangle and self:isOnRoadNetwork() then
-                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_RIGHT)
+            if blinkangle > 0 then
+                if self.blinkTimer:timer(math.abs(self.turnAngle) < blinkangle, ADDrivePathModule.BLINK_TIMEOUT, dt * AutoDrive.PERF_FRAMES) then -- Rough estimate for the dt time. But should be fine
+                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
+                else
+                    if self.turnAngle > blinkangle and self:isOnRoadNetwork() then
+                        self.vehicle:setTurnLightState(Lights.TURNLIGHT_LEFT)
+                    elseif self.turnAngle < - blinkangle and self:isOnRoadNetwork() then
+                        self.vehicle:setTurnLightState(Lights.TURNLIGHT_RIGHT)
+                    end
                 end
             end
         end
-
         -- Only the server has to start/stop motor
         if self.vehicle.startMotor and self.vehicle.stopMotor then
             if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then

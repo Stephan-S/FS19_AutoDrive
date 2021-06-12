@@ -184,6 +184,10 @@ function ADTriggerManager.loadAllTriggers()
                     table.insert(ADTriggerManager.siloTriggers, object)
                 end
             end
+
+            if object.exactFillRootNode ~= nil then
+                table.insert(ADTriggerManager.tipTriggers, object)
+			end
         end
     end
 
@@ -214,6 +218,7 @@ function ADTriggerManager.loadAllTriggers()
             end
         end
     end
+    
     for _, trigger in pairs(ADTriggerManager.siloTriggers) do
         if trigger.stoppedTimer == nil then
             trigger.stoppedTimer = AutoDriveTON:new()
@@ -345,13 +350,11 @@ end
 
 function ADTriggerManager.getTriggerPos(trigger)
     local x, y, z = 0, 0, 0
-    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil and entityExists(trigger.triggerNode) then
+    if trigger.triggerNode ~= nil and g_currentMission.nodeToObject[trigger.triggerNode] ~= nil and entityExists(trigger.triggerNode) then 
         x, y, z = getWorldTranslation(trigger.triggerNode)
-    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
     if trigger.exactFillRootNode ~= nil and g_currentMission.nodeToObject[trigger.exactFillRootNode] ~= nil and entityExists(trigger.exactFillRootNode) then
         x, y, z = getWorldTranslation(trigger.exactFillRootNode)
-    --g_logManager:devInfo("Got triggerpos: " .. x .. "/" .. y .. "/" .. z);
     end
     return x, y, z
 end
@@ -377,4 +380,25 @@ end
 
 function ADTriggerManager:onPlaceableBuy()
     ADTriggerManager.searchedForTriggers = false
+end
+
+function ADTriggerManager.triggerSupportsFillType(trigger, fillType)
+    if fillType > 0 then
+        if trigger ~= nil and trigger.getIsFillTypeSupported then
+            return trigger:getIsFillTypeSupported(fillType)
+        end
+    end  
+    return false  
+end
+
+function ADTriggerManager.getAllTriggersForFillType(fillType)
+    local triggers = {}
+
+    for _, trigger in pairs(ADTriggerManager.getUnloadTriggers()) do
+        if ADTriggerManager.triggerSupportsFillType(trigger, fillType) then
+            table.insert(triggers, trigger)
+        end
+    end
+
+    return triggers
 end

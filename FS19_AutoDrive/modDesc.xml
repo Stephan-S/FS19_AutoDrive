@@ -8,87 +8,31 @@
 		<en>
 			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
 
-Changelog 1.1.1.0:
-FIX collision handling caused unloader to stop-and-go behind chopper
-FIX multiple trailer unload harvester 
-
-ADDED combine open pipe when precall-level is reached
-ADDED CP interface for co-operation with newer CP versions
-ADDED experimental features:
-- blue Line Route Finder: default OFF, enable if AD could not find a route via multiple passes dark blue connections, feedback if issues occure
-- detect Gras Field: default ON, harvester will detect gras field and assign the correct side to unloader
-
-TWEAK improved liquid overload:
-- only start loading in silo-trigger-range and if trigger is found
-TWEAK harvester - unloader - co-operation:
-- increased reverse distance for unloader
-- CP harvester should wait some seconds while unloader is driving reverse
-TWEAK rework park destination:
-- MP synchronized
-- all destinations handled now internally in vehicles.xml in tag AutoDriveVehicleData parkDestination, AD will update automatical
-TWEAK debug road network:
-- performance optimisation, especial when deactivating route network debug
-- changed: known markers for open / dead route ends now named with "1_..."
-- new: route network with connections AD might not use due to issues named "2_...", i.e. reverse section (light blue) within one-way direction (green)
-TWEAK reset AD modes if started should fix/avoid unusual behaviour(s)
+Changelog 1.1.1.2:
+- several bugfixes, among others concerning parking lot assignment, pathfinding and camera of the interior view
+- several improvements, among others concerning downhill, performance and pathfinding/calculation
+- new functions: Tip of the day, side routes and BGA unloading mode
+Check our github wiki for the full release notes!
 ]]>
 		</en>
 		<de>
 			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
 
-Changelog 1.1.1.0:
-FIX Kollisionsbehandlung führte zu Stop-and-Go des Entladers hinter dem Häcksler
-FIX mehrere Anhänger entladen Mähdrescher 
-
-ADDED Mähdrescher fährt Rohr bei Erreichen des eingestellten Füllstandes aus
-ADDED CP-Schnittstelle für die Zusammenarbeit mit neueren CP-Versionen aktualisiert
-ADDED experimentelle Funktionen:
-- blue Line Route Finder: standardmäßig AUS, aktivieren, wenn AD über mehrere Durchgänge keine Route finden konnte für dunkelblaue Verbindungen, Rückmeldung, wenn Probleme auftreten
-- Grasfeld erkennen: standardmäßig EIN, Ernter erkennen Grasfeld und weisen dem Entlader die richtige Seite zu
-
-TWEAK verbesserte Flüssigkeitsüberladung:
-- Start der Beladung nur im Silo-Trigger-Bereich und wenn Trigger gefunden wird
-TWEAK Mähdrescher - Ablader - Zusammenarbeit:
-- Rückwärtsstrecke für Ablader erhöht
-- CP Harvester sollte einige Sekunden warten, während der Entlader rückwärts fährt
-TWEAK Überarbeitete Parkziel-Zuweisung:
-- MP synchronisiert
-- alle Ziele werden jetzt intern in vehicles.xml im Tag AutoDriveVehicleData parkDestination behandelt, wird von AD automatisch aktualisiert
-TWEAK Debuggen Straßennetz:
-- Performance-Optimierung, insbesondere bei Deaktivierung von Routennetz-Debug
-- geändert: bekannte Marker für offene / tote Routenenden jetzt mit "1_..." benannt
-- neu: Streckennetz mit Verbindungen, die AD wegen Problemen nicht verwenden könnte werden mit "2_..." benannt, z.B. Rückwärtsstrecke (hellblau) in Einbahnrichtung (grün)
-TWEAK Reset der AD-Modi sollte ungewöhnliche(s) Verhalten beheben/verhindern
+Changelog 1.1.1.2:
+- verschiedene Bugfixe, unter anderem bzgl. Parkplatzzuweisung, Pfadfindung und Kamera der Innenansicht
+- verschiedene Verbesserungen, unter anderem bzgl. Abfahrer, Performance und Pfadfindung/-berechnung
+- neue Funktionen: Tip of the day, Nebenstrecken und BGA-Entlademodus
+In unserem Github-Wiki findet man die vollständigen Release Notes!
 ]]>
 		</de>
 		<it>
 			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
 
-Log delle modifiche 1.1.1.0:
-FIX la gestione delle collisioni causava lo stop-and-go dello scaricatore dietro l'elicottero
-FIX scarico di più rimorchi della mietitrebbia 
-
-AGGIUNTO tubo di apertura della mietitrebbia quando viene raggiunto il livello di precarico
-AGGIUNTA interfaccia CP per la cooperazione con le versioni CP più recenti
-AGGIUNTA funzionalità sperimentale:
-- blue Line Route Finder: default OFF, abilitare se AD non è riuscito a trovare un percorso attraverso più passaggi connessioni blu scuro, feedback se si verificano problemi
-- rilevare campo Gras: default ON, la mietitrice rileverà il campo Gras e assegnerà il lato corretto allo scaricatore
-
-TWEAK migliorato sovraccarico liquidi:
-- inizia a caricare solo nel campo silo-trigger e se viene trovato il trigger
-TWEAK cooperazione tra mietitrice e scaricatore:
-- aumento della distanza inversa per lo scaricatore
-- CP harvester dovrebbe aspettare alcuni secondi mentre lo scaricatore guida in retromarcia
-TWEAK rielaborazione destinazione parco:
-- MP sincronizzato
-- tutte le destinazioni gestite ora internamente in vehicles.xml nel tag AutoDriveVehicleData parkDestination, AD si aggiornerà automaticamente
-TWEAK debug rete stradale:
-- ottimizzazione delle prestazioni, specialmente quando si disattiva il debug della rete stradale
-- cambiato: i marcatori noti per i terminali di percorso aperti / morti ora sono nominati con "1_..."
-- nuovo: rete stradale con connessioni che AD potrebbe non utilizzare a causa di problemi denominata "2_...", cioè sezione inversa (blu chiaro) all'interno di una direzione a senso unico (verde)
-TWEAK ripristina le modalità AD se avviato dovrebbe risolvere/evitare comportamenti insoliti
-
-Tradotto con www.DeepL.com/Translator (versione gratuita)
+Log delle modifiche 1.1.1.2:
+- diversi bugfix, tra cui quelli riguardanti l'assegnazione dei parcheggi, il pathfinding e la telecamera della vista interna
+- diversi miglioramenti, tra cui quelli riguardanti la discesa, le prestazioni e la ricerca/calcolo del percorso
+- nuove funzioni: Suggerimento del giorno, percorsi laterali e modalità di scarico BGA.
+Controlla il nostro wiki Github per le note di rilascio complete!
 ]]>
 		</it>
 		<fr>
@@ -96,29 +40,11 @@ Tradotto con www.DeepL.com/Translator (versione gratuita)
 Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
 Différents modes d'utilisation ont été ajoutés depuis les premières versions, et peuvent être combinés à l'utilisation du bien connu "Courseplay".
 
-Changelog 1.1.1.0:
-Correction de la gestion des collisions qui provoquait l'arrêt et le déplacement du déchargeur derrière l'hélico.
-FIXE le déchargement de plusieurs remorques sur la moissonneuse 
-
-Ajout d'un tuyau d'ouverture de la moissonneuse-batteuse lorsque le niveau de précaution est atteint.
-Ajout d'une interface CP pour coopérer avec les nouvelles versions du CP.
-Ajout de fonctionnalités expérimentales :
-- blue Line Route Finder : par défaut OFF, activer si AD n'a pas pu trouver une route via des connexions bleu foncé à passages multiples, feedback si des problèmes surviennent
-- detect Gras Field : ON par défaut, la moissonneuse détectera le champ de graminées et assignera le bon côté au déchargeur.
-
-TWEAK a amélioré la surcharge de liquide :
-- ne commence le chargement que dans la zone de déclenchement du silo et si le déclencheur est trouvé.
-TWEAK coopération moissonneuse - déchargeur :
-- augmentation de la distance de recul du déchargeur
-- La moissonneuse CP doit attendre quelques secondes pendant que le déchargeur fait marche arrière.
-TWEAK destination du parc de retraitement :
-- MP synchronisé
-- toutes les destinations sont maintenant gérées en interne dans vehicles.xml dans le tag AutoDriveVehicleData parkDestination, AD sera mis à jour automatiquement
-TWEAK déboguer le réseau routier :
-- optimisation des performances, en particulier lors de la désactivation du débogage du réseau routier
-- modifié : les marqueurs connus pour les fins de route ouvertes / mortes sont maintenant nommés avec "1_...".
-- nouveau : réseau routier avec des connexions que AD pourrait ne pas utiliser en raison de problèmes nommés "2_...", c.-à-d. section inverse (bleu clair) dans un sens unique (vert)
-TWEAK réinitialise les modes AD s'ils sont lancés, ce qui devrait corriger/éviter les comportements inhabituels.
+Changelog 1.1.1.2:
+- plusieurs corrections de bugs, entre autres concernant l'affectation des parkings, le pathfinding et la caméra de la vue intérieure
+- plusieurs améliorations, notamment en ce qui concerne la descente, les performances et la localisation/le calcul de la trajectoire
+- de nouvelles fonctions : Conseil du jour, routes secondaires et mode de déchargement des BGA.
+Consultez notre wiki Github pour les notes de version complètes !
 
 Traduit avec www.DeepL.com/Translator (version gratuite)
 ]]>
@@ -130,7 +56,7 @@ Traduit avec www.DeepL.com/Translator (version gratuite)
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.1.0</version>
+	<version>1.1.1.2</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>
@@ -170,6 +96,8 @@ Traduit avec www.DeepL.com/Translator (version gratuite)
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_open_tipOfTheDay" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADRefuelVehicle" category="VEHICLE" ignoreComboMask="false" />		
 	</actions>
 
 	<inputBinding>

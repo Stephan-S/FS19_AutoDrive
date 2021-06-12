@@ -19,7 +19,7 @@ function AutoDrive.initTelemetry()
 	g_logManager:info("[AD] AutoDrive.xmlFileName_telemetry " .. AutoDrive.xmlFileName_telemetry)
 
 	
-	AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.triggerStaticOutput)
+	--AutoDrive:registerDestinationListener(AutoDrive, AutoDrive.triggerStaticOutput)
 end
 
 function AutoDrive.triggerStaticOutput()

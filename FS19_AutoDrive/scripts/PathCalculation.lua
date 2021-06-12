@@ -1,6 +1,6 @@
 ADPathCalculator = {}
 
-function ADPathCalculator:GetPath(startID, targetID)
+function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
 	local count = 0
 
     if not ADGraphManager:areWayPointsPrepared() then
@@ -11,7 +11,6 @@ function ADPathCalculator:GetPath(startID, targetID)
 
     local network = ADGraphManager:getWayPoints()
     local addedWeights = self:getDetourWeights()
-
     
     if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil then
         return {}
@@ -32,8 +31,12 @@ function ADPathCalculator:GetPath(startID, targetID)
         return sqrt(a * a + b * b)
     end
 
+    local isSubPrio = function(pointToTest) 
+        return bitAND(pointToTest.flags, AutoDrive.FLAG_SUBPRIO) > 0
+    end
+
     local lastPredecessor = nil
-    while not candidates:empty() and not foundTarget and count < 200000 do
+    while not candidates:empty() and not foundTarget do
         local next = candidates:dequeue()
         local point, distance, previousPoint = next.p, next.distance, next.pre
         while point ~= nil do
@@ -54,8 +57,8 @@ function ADPathCalculator:GetPath(startID, targetID)
                     for _, outId in pairs(outMap) do
                         local outPoint = network[outId]
                         
--- axel  TODO implement automatic network check for such issue: waypoint linked to itself -> DONE with AutoDrive.checkWaypointsLinkedtothemselve(true)
-                        if point.id ~= outPoint.id then
+                        -- axel  TODO implement automatic network check for such issue: waypoint linked to itself -> DONE with AutoDrive.checkWaypointsLinkedtothemselve(true)
+                        --if point.id ~= outPoint.id then
 							-- First check if this point needs to be added to the candidate list or if it has already been tested
 							local toBeAdded = true
 							if results[outId] ~= nil then
@@ -69,8 +72,18 @@ function ADPathCalculator:GetPath(startID, targetID)
 									toBeAdded = false
 								end
 							end
-							if toBeAdded or (#point.incoming > 1) then
-								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)), pre=point.id})
+							if toBeAdded then --or (#point.incoming > 1)
+                                local factor = 1
+                                if isSubPrio(outPoint) then
+                                    factor = 20
+                                end
+                                local preventTurnaroundWeight = 0
+                                if point.id == startID then
+                                    if not table.contains(preferredStartIds, outPoint.id) then
+                                        preventTurnaroundWeight = 5000000
+                                    end
+                                end
+								candidates:enqueue({p=outPoint, distance=(distance + (distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)) * factor + preventTurnaroundWeight), pre=point.id})
 							end
 
 							if results[point.id][outId] == nil then
@@ -80,7 +93,7 @@ function ADPathCalculator:GetPath(startID, targetID)
 									results[point.id][outId] = {distance=distance, pre=previousPoint}
 								end
 							end
-						end
+						--end
                     end
                     point = nil
                 else
@@ -94,7 +107,13 @@ function ADPathCalculator:GetPath(startID, targetID)
                             end
                         end
                         previousPoint = point.id
-                        distance = distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)
+
+                        local factor = 1
+                        if isSubPrio(outPoint) then
+                            factor = 20
+                        end
+
+                        distance = distance + (distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)) * factor
                         point = outPoint
                     else
                         point = nil
@@ -102,8 +121,7 @@ function ADPathCalculator:GetPath(startID, targetID)
                 end
             end
         end
-    		count = count + 1
-end
+    end
     
     if not foundTarget then
         return {}

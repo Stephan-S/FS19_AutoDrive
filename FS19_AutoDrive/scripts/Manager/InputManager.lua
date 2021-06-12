@@ -4,6 +4,8 @@ ADInputManager.actionsToInputs = {
     ADSilomode = "input_silomode",
     ADRecord = "input_record",
     ADRecord_Dual = "input_record_dual",
+    ADRecord_SubPrio = "input_record_subPrio",
+    ADRecord_SubPrioDual = "input_record_subPrioDual",    
     ADEnDisable = "input_start_stop",
     ADSelectTarget = "input_nextTarget",
     ADSelectPreviousTarget = "input_previousTarget",
@@ -36,8 +38,11 @@ ADInputManager.actionsToInputs = {
     AD_open_notification_history = "input_openNotificationHistory",
     AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle",
-    AD_devAction = "input_devAction"
+    AD_devAction = "input_devAction",
+    AD_open_tipOfTheDay = "input_openTipOfTheDay",
+    ADRefuelVehicle = "input_refuelVehicle"
 }
+
 
 --[[
 tool selection not proper on dedi servers as known!
@@ -71,7 +76,11 @@ ADInputManager.inputsToIds = {
     input_nextTarget = 23,
     input_previousTarget = 24,
     input_startCp = 25,
-    input_toggleCP_AIVE = 26
+    input_toggleCP_AIVE = 26,
+    input_record_subPrio = 27,
+    input_record_subPrioDual = 28,
+    input_bunkerUnloadType = 29,
+    input_refuelVehicle = 30
 }
 
 ADInputManager.idsToInputs = {}
@@ -115,6 +124,12 @@ end
 function ADInputManager:input_openNotificationHistory(vehicle)
     AutoDrive.onOpenNotificationsHistory()
 end
+
+function ADInputManager:input_openTipOfTheDay(vehicle)
+    AutoDrive.onOpenTipOfTheDay()
+end
+
+
 
 function ADInputManager:input_editMapMarker(vehicle)
     if AutoDrive.isEditorModeEnabled() then
@@ -233,6 +248,25 @@ function ADInputManager:input_start_stop(vehicle)
         vehicle:stopAutoDrive()
     else
         vehicle.ad.stateModule:getCurrentMode():start()
+
+        if AutoDrive.rightSHIFTmodifierKeyPressed then
+            for _, otherVehicle in pairs(g_currentMission.vehicles) do
+                if otherVehicle ~= nil and otherVehicle ~= vehicle and otherVehicle.ad ~= nil and otherVehicle.ad.stateModule ~= nil then
+                    --Doesn't work yet, if vehicle hasn't been entered before apparently. So we need to check what to call before, to setup all required variables.
+                    
+                    if otherVehicle.ad.stateModule.activeBeforeSave then
+                        g_currentMission:requestToEnterVehicle(otherVehicle)
+                        otherVehicle.ad.stateModule:getCurrentMode():start()
+                    end
+                    if otherVehicle.ad.stateModule.AIVEActiveBeforeSave and otherVehicle.acParameters ~= nil then
+                        g_currentMission:requestToEnterVehicle(otherVehicle)
+                        otherVehicle.acParameters.enabled = true
+                        otherVehicle:startAIVehicle(nil, false, g_currentMission.player.farmId)
+                    end                    
+				end
+			end
+            g_currentMission:requestToEnterVehicle(vehicle)
+        end
     end
 end
 
@@ -257,7 +291,7 @@ function ADInputManager:input_previousMode(vehicle)
 end
 
 function ADInputManager:input_record(vehicle)
-    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
         vehicle.ad.stateModule:startNormalCreationMode()
     else
         vehicle.ad.stateModule:disableCreationMode()
@@ -265,8 +299,24 @@ function ADInputManager:input_record(vehicle)
 end
 
 function ADInputManager:input_record_dual(vehicle)
-    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() then
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
         vehicle.ad.stateModule:startDualCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
+end
+
+function ADInputManager:input_record_subPrio(vehicle)
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
+        vehicle.ad.stateModule:startSubPrioCreationMode()
+    else
+        vehicle.ad.stateModule:disableCreationMode()
+    end
+end
+
+function ADInputManager:input_record_subPrioDual(vehicle)
+    if not vehicle.ad.stateModule:isInCreationMode() and not vehicle.ad.stateModule:isInDualCreationMode() and not vehicle.ad.stateModule:isInSubPrioCreationMode() and not vehicle.ad.stateModule:isInSubPrioDualCreationMode() then
+        vehicle.ad.stateModule:startSubPrioDualCreationMode()
     else
         vehicle.ad.stateModule:disableCreationMode()
     end
@@ -406,5 +456,34 @@ end
 function ADInputManager:input_devAction(vehicle)
     if AutoDrive.devAction ~= nil then
         AutoDrive.devAction(vehicle)
+    end
+end
+
+function ADInputManager:input_bunkerUnloadType(vehicle)    
+    vehicle.ad.stateModule:nextBunkerUnloadType()
+end
+
+function ADInputManager:input_refuelVehicle(vehicle)
+    -- make sure we know which refuel type to check for   
+    local refuelFillType = AutoDrive.getRequiredRefuel(vehicle, true)
+    if refuelFillType > 0 then
+        if vehicle.ad.stateModule:getRefuelFillType() ~= refuelFillType then
+            vehicle.ad.stateModule:setRefuelFillType(refuelFillType)
+        end
+    end
+
+    local refuelDestination = ADTriggerManager.getClosestRefuelDestination(vehicle)
+    if refuelDestination ~= nil and refuelDestination >= 1 then
+        vehicle.ad.stateModule:setFirstMarker(refuelDestination)
+        vehicle.ad.stateModule:removeCPCallback()
+        if vehicle.ad.stateModule:isActive() then
+            self:input_start_stop(vehicle) --disable if already active
+        end
+        vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+        vehicle.ad.onRouteToRefuel = true
+        self:input_start_stop(vehicle)
+    else       
+        local refuelFillTypeTitle = g_fillTypeManager:getFillTypeByIndex(vehicle.ad.stateModule:getRefuelFillType()).title
+        AutoDriveMessageEvent.sendMessageOrNotification(vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Refuel_Station; %s", 5000, vehicle.ad.stateModule:getName(), refuelFillTypeTitle)
     end
 end

@@ -1,17 +1,17 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.1.0"
+AutoDrive.version = "1.1.1.2"
 
 AutoDrive.directory = g_currentModDirectory
 
 g_autoDriveUIFilename = AutoDrive.directory .. "textures/GUI_Icons.dds"
 g_autoDriveDebugUIFilename = AutoDrive.directory .. "textures/gui_debug_Icons.dds"
+g_autoDriveTipOfTheDayUIFilename = AutoDrive.directory .. "textures/tipOfTheDay_icons.dds"
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
-AutoDrive.experimentalFeatures.blueLineRouteFinder = false
 AutoDrive.experimentalFeatures.detectGrasField = true
 
 AutoDrive.smootherDriving = true
@@ -45,6 +45,7 @@ AutoDrive.DC_NETWORKINFO = 64
 AutoDrive.DC_EXTERNALINTERFACEINFO = 128
 AutoDrive.DC_RENDERINFO = 256
 AutoDrive.DC_ROADNETWORKINFO = 512
+AutoDrive.DC_BGA_MODE = 1024
 AutoDrive.DC_ALL = 65535
 
 AutoDrive.currentDebugChannelMask = AutoDrive.DC_NONE
@@ -62,8 +63,15 @@ AutoDrive.EDITOR_SHOW = 4
 
 AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed should be lowered
 
+-- number of frames for performance modulo operation
+AutoDrive.PERF_FRAMES = 20
+AutoDrive.PERF_FRAMES_HIGH = 4
+
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
+
+AutoDrive.FLAG_NONE = 0
+AutoDrive.FLAG_SUBPRIO = 1
 
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
@@ -94,7 +102,9 @@ AutoDrive.actions = {
 	{"AD_open_notification_history", false, 0},
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
-	{"AD_devAction", false, 0}
+	{"AD_devAction", false, 0},
+	{"AD_open_tipOfTheDay", false, 0},
+	{"ADRefuelVehicle", false, 0}
 	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 
@@ -184,6 +194,7 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	ADMultipleTargetsManager:load()
 
 	AutoDrive.initTelemetry()
+	AutoDrive.initTipOfTheDay()
 end
 
 function AutoDrive:init()
@@ -192,6 +203,7 @@ function AutoDrive:init()
 		AutoDriveUserConnectedEvent.sendEvent()
 	else
 		ADGraphManager:checkYPositionIntegrity()
+		ADGraphManager:checkSubPrioIntegrity()
 	end
 
 	AutoDrive.updateDestinationsMapHotspots()
@@ -247,6 +259,7 @@ function AutoDrive:keyEvent(unicode, sym, modifier, isDown)
 	AutoDrive.leftLSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_LSHIFT) > 0
 	AutoDrive.isCAPSKeyActive = bitAND(modifier, Input.MOD_CAPS) > 0
 	AutoDrive.rightCTRLmodifierKeyPressed = bitAND(modifier, Input.MOD_RCTRL) > 0
+	AutoDrive.rightSHIFTmodifierKeyPressed = bitAND(modifier, Input.MOD_RSHIFT) > 0
 
     if AutoDrive.isInExtendedEditorMode() then
         if (AutoDrive.rightCTRLmodifierKeyPressed and AutoDrive.toggleSphrere == true) then
@@ -317,6 +330,7 @@ function AutoDrive:update(dt)
 	ADRoutesManager:update(dt)
 
 	AutoDrive.handleTelemetry(dt)
+	AutoDrive.handleTipOfTheDay(dt)
 end
 
 function AutoDrive:draw()
