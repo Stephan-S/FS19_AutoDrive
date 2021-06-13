@@ -129,6 +129,7 @@ function AutoDrive:onLoad(savegame)
     self.ad.nodeToMoveId = nil
     self.ad.hoveredNodeId = nil
     self.ad.newcreated = nil
+    self.ad.sectionWayPoints = {}
 end
 
 function AutoDrive:onPostLoad(savegame)
@@ -488,6 +489,7 @@ function AutoDrive:onDelete()
 end
 
 function AutoDrive:onDrawEditorMode()
+-- g_logManager:info("[AD] AutoDrive:onDrawEditorMode start... %d", g_updateLoopIndex)
     local isActive = self.ad.stateModule:isActive()
     local DrawingManager = ADDrawingManager
 
@@ -500,6 +502,19 @@ function AutoDrive:onDrawEditorMode()
     local dy = y1 + 3.5 - AutoDrive.getSetting("lineHeight")
     local maxDistance = AutoDrive.drawDistance
     local arrowPosition = DrawingManager.arrows.position.start
+
+    local previewDirection =
+                    not AutoDrive.leftLSHIFTmodifierKeyPressed
+                    and AutoDrive.leftCTRLmodifierKeyPressed
+                    and not AutoDrive.leftALTmodifierKeyPressed
+                    and not AutoDrive.rightSHIFTmodifierKeyPressed
+
+    local previewSubPrio =
+                    AutoDrive.leftLSHIFTmodifierKeyPressed
+                    and not AutoDrive.leftCTRLmodifierKeyPressed
+                    and not AutoDrive.leftALTmodifierKeyPressed
+                    and not AutoDrive.rightSHIFTmodifierKeyPressed
+
 
     --Draw close destinations
     for _, marker in pairs(ADGraphManager:getMapMarkers()) do
@@ -583,12 +598,26 @@ function AutoDrive:onDrawEditorMode()
             end
         end
 
+-- draw connection lines
         if point.out ~= nil then
+
             for _, neighbor in pairs(point.out) do
+                -- if a section is active, skip these connections, they are drawn below
+                local skipSectionDraw = false
+                if self.ad.sectionWayPoints ~= nil and #self.ad.sectionWayPoints > 2 then
+                    if 
+                        table.contains(self.ad.sectionWayPoints, point.id) 
+                        and table.contains(self.ad.sectionWayPoints, neighbor) 
+                        and (previewDirection or previewSubPrio) 
+                        then
+                        skipSectionDraw = true
+                    end
+                end
+                
                 table.insert(outPointsSeen, neighbor)
                 local target = ADGraphManager:getWayPointById(neighbor)
                 local targetIsSubPrio = ADGraphManager:getIsPointSubPrio(neighbor)
-                if target ~= nil then
+                if target ~= nil and not skipSectionDraw then
                     --check if outgoing connection is a dual way connection
                     local nWp = ADGraphManager:getWayPointById(neighbor)
                     if point.incoming == nil or table.contains(point.incoming, neighbor) then
@@ -625,6 +654,74 @@ function AutoDrive:onDrawEditorMode()
         if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) then
             y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z) + 0.5
             DrawingManager:addCrossTask(x, y, z)
+        end
+    end
+
+-- draw the section, with respect to preview types, active or next connections and SubPrio
+    if (previewDirection or previewSubPrio) and self.ad.sectionWayPoints ~= nil and #self.ad.sectionWayPoints > 2 then
+        local sectionPrio = ADGraphManager:getIsPointSubPrio(self.ad.sectionWayPoints[2])   -- 2nd WayPoint is the 1st in section and has the actual Prio
+        local wayPointsDirection = ADGraphManager:getIsWayPointJunction(self.ad.sectionWayPoints[1], self.ad.sectionWayPoints[2])
+        for i = 1, #self.ad.sectionWayPoints - 1 do
+            local start = ADGraphManager:getWayPointById(self.ad.sectionWayPoints[i])
+            local target = ADGraphManager:getWayPointById(self.ad.sectionWayPoints[i+1])
+
+            if wayPointsDirection == 1 then
+                if previewSubPrio then
+                    if not sectionPrio then
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 1, 0.531, 0.14) -- orange
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 1, 0.531, 0.14)
+                    else
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 1, 0)        -- green
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 0, 1, 0)
+                    end
+                elseif previewDirection then
+                    -- new direction backward
+                    if not sectionPrio then
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  0, 1, 0)       -- green
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 0, 1, 0)
+                    else
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  1, 0.531, 0.14)    -- orange
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 1, 0.531, 0.14)
+                    end
+                else
+                end
+            elseif wayPointsDirection == 2 then
+                if previewSubPrio then
+                    if not sectionPrio then
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  1, 0.531, 0.14)    -- orange
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 1, 0.531, 0.14)
+                    else
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  0, 1, 0)       -- green
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 0, 1, 0)
+                    end
+                elseif previewDirection then
+                    -- new direction dual
+                    if not sectionPrio then
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 0, 1)    -- blue
+                    else
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0.389, 0.177, 0)    -- dark orange
+                    end
+                else
+                end
+            elseif wayPointsDirection == 3 then
+                if previewSubPrio then
+                    if not sectionPrio then
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0.389, 0.177, 0)    -- dark orange
+                    else
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 0, 1)    -- blue
+                    end
+                elseif previewDirection then
+                    -- new direction forward
+                    if not sectionPrio then
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 1, 0)        -- green
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 0, 1, 0)
+                    else
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 1, 0.531, 0.14) -- orange
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 1, 0.531, 0.14)
+                    end
+                else
+                end
+            end
         end
     end
 end
