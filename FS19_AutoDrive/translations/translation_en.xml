@@ -189,7 +189,7 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" />
 		<text name="gui_ad_autoTrailerCover"                    text="Automatic Trailer Covers" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Yes - AutoDrive open and close trailer covers as needed / No - trailer covers will not be opened or closed by AutoDrive" />
-		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning maneuver" />
 		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
 
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
@@ -352,11 +352,11 @@
 		
 		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
 		
-		4. Side road - This type of road segment is ususally avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
+		4. Side road - This type of road segment is usually avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
 		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
 		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
 		
-		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should ususally be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to seach for any available unloader in a range of 300m.
+		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should usually be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to search for any available unloader in a range of 300m.
 		
 		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
 		<text name="ad_totd_04_title" 							text="Settings - 1" />
@@ -368,7 +368,7 @@
 
 		3. Vehicle settings - Applied only for the current vehicle.
 
-		4. Harvester settings - Only visisble when inside a harvester. Here you can control how this harevster calls it's unloaders.
+		4. Harvester settings - Only visible when inside a harvester. Here you can control how this harvester calls it's unloaders.
 
 		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
 		

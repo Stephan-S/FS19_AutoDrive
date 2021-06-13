@@ -36,6 +36,7 @@
     <text name="input_ADParkVehicle"                                                                    text="AD: Aracı park et"  />
 		<text name="input_ADRefuelVehicle"						                                                      text="AD: Refuel vehicle" />
     <text name="input_ADSwapTargets"                                                                    text="AD: Hedefleri değiştir"  />
+		<text name="input_AD_devAction"                         			text="AD: Developer Action" />		
 		<text name="input_AD_open_tipOfTheDay" 					                                                    text="AD: Open Tip of the day" />
     <text name="hud_avoidFruit"                                                                         text="AD: Meyvelerden kaçının"  />
     <text name="hud_startCp"                                                                            text="AD: CP / AIVE'ı varış noktasında başlatın"  />
