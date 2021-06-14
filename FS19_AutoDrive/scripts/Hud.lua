@@ -8,7 +8,7 @@ AutoDrive.pullDownListExpanded = 0
 AutoDrive.pullDownListDirection = 0
 AutoDrive.mouseWheelActive = false
 
-AutoDriveHud.debug = false
+AutoDriveHud.debug = true
 
 function AutoDriveHud:new()
 	local o = {}
@@ -668,40 +668,50 @@ end
 
 function AutoDrive.handleWayPointSection(vehicle, button, isUp)
 -- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection vehicle.ad.selectedNodeId %s vehicle.ad.hoveredNodeId %s", tostring(vehicle.ad.selectedNodeId), tostring(vehicle.ad.hoveredNodeId))
-    if vehicle.ad.selectedNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
-        if vehicle.ad.hoveredNodeId ~= nil then
-
-            local wayPointsDirection = ADGraphManager:getIsWayPointJunction(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
-            if wayPointsDirection > 0 then
-                vehicle.ad.sectionWayPoints = ADGraphManager:getWayPointsInSection(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId, wayPointsDirection)
+    if vehicle.ad.selectedNodeId ~= nil and vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
+        local wayPointsDirection = ADGraphManager:getIsWayPointJunction(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
+        if wayPointsDirection > 0 and  wayPointsDirection < 4 then
+            vehicle.ad.sectionWayPoints = ADGraphManager:getWayPointsInSection(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId, wayPointsDirection)
 -- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection button %d isUp %s AutoDrive.leftCTRLmodifierKeyPressed %s", button, tostring(isUp), tostring(AutoDrive.leftCTRLmodifierKeyPressed))
-                if button == 1 and isUp
-                    and not AutoDrive.leftLSHIFTmodifierKeyPressed
-                    and AutoDrive.leftCTRLmodifierKeyPressed
-                    and not AutoDrive.leftALTmodifierKeyPressed
-                    and not AutoDrive.rightSHIFTmodifierKeyPressed
-                    then
-                    ADGraphManager:toggleWayPointsInSection(vehicle, wayPointsDirection)
+            if button == 1 and isUp
+                and not AutoDrive.leftLSHIFTmodifierKeyPressed
+                and AutoDrive.leftCTRLmodifierKeyPressed
+                and not AutoDrive.leftALTmodifierKeyPressed
+                and not AutoDrive.rightSHIFTmodifierKeyPressed
+                then
+                wayPointsDirection = wayPointsDirection + 1
+                if wayPointsDirection > 3 then
+                    wayPointsDirection = 1
                 end
+                ADGraphManager:setConnectionBetweenWayPointsInSection(vehicle, wayPointsDirection)
+            end
 
-                if button == 1 and isUp
-                    and AutoDrive.leftLSHIFTmodifierKeyPressed
-                    and not AutoDrive.leftCTRLmodifierKeyPressed
-                    and not AutoDrive.leftALTmodifierKeyPressed
-                    and not AutoDrive.rightSHIFTmodifierKeyPressed
-                    then
-                    ADGraphManager:toggleAsSubPrioInSection(vehicle)
+            if button == 1 and isUp
+                and AutoDrive.leftLSHIFTmodifierKeyPressed
+                and not AutoDrive.leftCTRLmodifierKeyPressed
+                and not AutoDrive.leftALTmodifierKeyPressed
+                and not AutoDrive.rightSHIFTmodifierKeyPressed
+                then
+                if vehicle.ad.sectionWayPoints ~= nil and #vehicle.ad.sectionWayPoints > 2 then
+                    local sectionPrio = ADGraphManager:getIsPointSubPrio(vehicle.ad.sectionWayPoints[2])   -- 2nd WayPoint is the 1st in section and has the actual Prio
+                    local flags = 0
+                    if sectionPrio then
+                        flags = AutoDrive.FLAG_NONE
+                    else
+                        flags = AutoDrive.FLAG_SUBPRIO
+                    end
+                    ADGraphManager:setWayPointsFlagsInSection(vehicle, flags)
                 end
+            end
 
-                if button == 1 and isUp
-                    and AutoDrive.leftLSHIFTmodifierKeyPressed
-                    and AutoDrive.leftCTRLmodifierKeyPressed
-                    and AutoDrive.leftALTmodifierKeyPressed
-                    and not AutoDrive.rightSHIFTmodifierKeyPressed
-                    then
-                    ADGraphManager:deleteWayPointsInSection(vehicle)
-                    vehicle.ad.selectedNodeId = nil -- unselect the current node to prevent further deletions nearby by mouse clicks
-                end
+            if button == 1 and isUp
+                and AutoDrive.leftLSHIFTmodifierKeyPressed
+                and AutoDrive.leftCTRLmodifierKeyPressed
+                and AutoDrive.leftALTmodifierKeyPressed
+                and not AutoDrive.rightSHIFTmodifierKeyPressed
+                then
+                ADGraphManager:deleteWayPointsInSection(vehicle)
+                vehicle.ad.selectedNodeId = nil -- unselect the current node to prevent further deletions nearby by mouse clicks
             end
         end
     end
