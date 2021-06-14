@@ -8,7 +8,7 @@ AutoDrive.pullDownListExpanded = 0
 AutoDrive.pullDownListDirection = 0
 AutoDrive.mouseWheelActive = false
 
-AutoDriveHud.debug = true
+AutoDriveHud.debug = false
 
 function AutoDriveHud:new()
 	local o = {}
