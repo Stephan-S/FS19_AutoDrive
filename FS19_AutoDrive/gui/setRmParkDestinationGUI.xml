@@ -8,12 +8,12 @@
             <GuiElement type="text" profile="dialogHeaderText" text="$l10n_gui_ad_setRmParkDestinationTitle" />
         </GuiElement>
 
-        <GuiElement type="text" profile="sleepDialogText" text="$l10n_gui_ad_setRmParkDestinationText" />
-        <GuiElement type="text" profile="sleepDialogText" id="setRmParkDestinationText" text="" position="5px 4px"/>
+        <GuiElement type="text" profile="sleepDialogText" id="SelectedWorktoolText" text="" />
+        <GuiElement type="text" profile="sleepDialogText" id="CurrentParkDestinationText" text="" position="0px 0px"/>
 
         <GuiElement type="flowLayout" profile="buttonBoxDocked">
-            <GuiElement type="button" profile="buttonOK" text="$l10n_button_set" onClick="onClickOk" />
-            <GuiElement type="button" profile="buttonCancel" text="$l10n_button_rm" onClick="onClickCancel" />
+            <GuiElement type="button" profile="buttonOK" text="$l10n_button_set" onClick="onClickOk" id="Button_ok" />
+            <GuiElement type="button" profile="buttonCancel" text="$l10n_button_rm" onClick="onClickCancel" id="Button_cancel" />
             <GuiElement type="button" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
         </GuiElement>
     </GuiElement>
