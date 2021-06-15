@@ -338,8 +338,8 @@ function AutoDrive:onDraw()
         local eWP = self.ad.stateModule:getNextWayPoint()
         if sWP ~= nil and eWP ~= nil then
             --draw line with direction markers (arrow)
-            ADDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, 1, 1, 1)
-            ADDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, ADDrawingManager.arrows.position.start, 1, 1, 1)
+            ADDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, unpack(AutoDrive.colors.currentConnection))
+            ADDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, ADDrawingManager.arrows.position.start, unpack(AutoDrive.colors.currentConnection))
         end
     end
 
@@ -526,20 +526,18 @@ function AutoDrive:onDrawEditorMode()
     end
 
     if ADGraphManager:getWayPointById(1) ~= nil and not AutoDrive.isEditorShowEnabled() then
-        local g = 0
         --Draw line to selected neighbor point
         local neighbour = self.ad.stateModule:getSelectedNeighbourPoint()
         if neighbour ~= nil then
             DrawingManager:addLineTask(x1, dy, z1, neighbour.x, neighbour.y, neighbour.z, 1, 1, 0)
-            g = 0.4
         end
 
         --Draw line to closest point
         local closest, _ = self:getClosestWayPoint()
         local wp = ADGraphManager:getWayPointById(closest)
         if wp ~= nil then
-            DrawingManager:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, 1, 0, 0)
-            DrawingManager:addSmallSphereTask(x1, dy, z1, 1, g, 0)
+            DrawingManager:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, unpack(AutoDrive.colors.closestLine))
+            DrawingManager:addSmallSphereTask(x1, dy, z1, unpack(AutoDrive.colors.closestLine))
         end
     end
 
@@ -554,27 +552,35 @@ function AutoDrive:onDrawEditorMode()
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.enableSphrere == true then
                 if AutoDrive.mouseIsAtPos(point, 0.01) then
-                    DrawingManager:addSphereTask(x, y, z, 3, 0, 0, 1, 0.3)
+                    DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.hoveredNode))
                 else
                     if point.id == self.ad.selectedNodeId then
-                        DrawingManager:addSphereTask(x, y, z, 3, 0, 1, 0, 0.3)
+                        DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.selectedNode))
                     else
-                        DrawingManager:addSphereTask(x, y, z, 3, 1, 0, 0, 0.3)
+                        if isSubPrio then
+                            DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.subPrioNode))
+                        else
+                            DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.defaultNode))
+                        end
                     end
                 end
 
                 -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
                 if AutoDrive.getSettingState("lineHeight") > 1 then
                     local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
-                    DrawingManager:addLineTask(x, y, z, x, gy, z, 1, 1, 1)
+                    DrawingManager:addLineTask(x, y, z, x, gy, z, unpack(AutoDrive.colors.editorHeightLine))
 
                     if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
-                        DrawingManager:addSphereTask(x, gy, z, 3, 0, 0, 1, 0.15)
+                        DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.hoveredNode))
                     else
                         if point.id == self.ad.selectedNodeId then
-                            DrawingManager:addSphereTask(x, gy, z, 3, 0, 1, 0, 0.15)
+                            DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.selectedNode))
                         else
-                            DrawingManager:addSphereTask(x, gy, z, 3, 1, 0, 0, 0.15)
+                            if isSubPrio then
+                                DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.subPrioNode))
+                            else
+                                DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.defaultNode))
+                            end
                         end
                     end
                 end
@@ -586,11 +592,11 @@ function AutoDrive:onDrawEditorMode()
                         if nWp ~= nil then
                             if AutoDrive.mouseIsAtPos(nWp, 0.01) then
                                 -- draw previous point in GOLDHOFER_PINK1
-                                DrawingManager:addSphereTask(point.x, point.y, point.z, 3.4, 1, 0.2195, 0.6524, 0.5)
+                                DrawingManager:addSphereTask(point.x, point.y, point.z, 3.4, unpack(AutoDrive.colors.previousNode))
                             end
                             if AutoDrive.mouseIsAtPos(point, 0.01) then
                                 -- draw next point
-                                DrawingManager:addSphereTask(nWp.x, nWp.y, nWp.z, 3.2, 1, 0.7, 0, 0.5)
+                                DrawingManager:addSphereTask(nWp.x, nWp.y, nWp.z, 3.2, unpack(AutoDrive.colors.nextNode))
                             end
                         end
                     end
@@ -624,9 +630,9 @@ function AutoDrive:onDrawEditorMode()
                         --draw dual way line
                         if point.id > nWp.id then
                             if isSubPrio or targetIsSubPrio then
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.389, 0.177, 0)
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.subPrioDualConnection))
                             else
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 0, 1)
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.dualConnection))
                             end
                         end
                     else
@@ -634,16 +640,16 @@ function AutoDrive:onDrawEditorMode()
                         if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
                             -- one way line
                             if isSubPrio or targetIsSubPrio then
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 1, 0.531, 0.14)
-                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 1, 0.531, 0.14)
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.subPrioSingleConnection))
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
                             else
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0, 1, 0)
-                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0, 1, 0)
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.singleConnection))
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
                             end
                         else
                             -- reverse way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, 0.0, 0.569, 0.835)
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, 0.0, 0.569, 0.835)
+                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.reverseConnection))
+                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.colors.reverseConnection))
                         end
                     end
                 end
@@ -668,56 +674,56 @@ function AutoDrive:onDrawEditorMode()
             if wayPointsDirection == 1 then
                 if previewSubPrio then
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 1, 0.531, 0.14) -- orange
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 1, 0.531, 0.14)
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioSingleConnection))
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 1, 0)        -- green
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 0, 1, 0)
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.singleConnection))
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
                     end
                 elseif previewDirection then
                     -- new direction backward
                     if not sectionPrio then
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  0, 1, 0)       -- green
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 0, 1, 0)
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.singleConnection))       -- green
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
                     else
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  1, 0.531, 0.14)    -- orange
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 1, 0.531, 0.14)
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.subPrioSingleConnection))    -- orange
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
                     end
                 else
                 end
             elseif wayPointsDirection == 2 then
                 if previewSubPrio then
                     if not sectionPrio then
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  1, 0.531, 0.14)    -- orange
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 1, 0.531, 0.14)
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.subPrioSingleConnection))    -- orange
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
                     else
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  0, 1, 0)       -- green
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, 0, 1, 0)
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.singleConnection))       -- green
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
                     end
                 elseif previewDirection then
                     -- new direction dual
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 0, 1)    -- blue
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.dualConnection))  -- blue
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0.389, 0.177, 0)    -- dark orange
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioDualConnection))    -- dark orange
                     end
                 else
                 end
             elseif wayPointsDirection == 3 then
                 if previewSubPrio then
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0.389, 0.177, 0)    -- dark orange
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioDualConnection))    -- dark orange
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 0, 1)    -- blue
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.dualConnection))    -- blue
                     end
                 elseif previewDirection then
                     -- new direction forward
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 0, 1, 0)        -- green
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 0, 1, 0)
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.singleConnection))        -- green
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, 1, 0.531, 0.14) -- orange
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, 1, 0.531, 0.14)
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioSingleConnection)) -- orange
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
                     end
                 else
                 end
@@ -892,31 +898,29 @@ function AutoDrive:onStartAutoDrive()
 
     self.ad.isActive = true
 
-    self.ad.helper = g_helperManager
+    if self.spec_aiVehicle.currentHelper == nil then
+        self.spec_aiVehicle.currentHelper = g_helperManager:getRandomHelper()
 
-    if self.currentHelper == nil then
-        self.currentHelper = g_helperManager:getRandomHelper()
-
-        if self.currentHelper == nil then
+        if self.spec_aiVehicle.currentHelper == nil then
             g_currentMission.maxNumHirables = g_currentMission.maxNumHirables + 1;
             --g_helperManager:addHelper("AD_" .. math.random(100, 1000), "dataS2/character/helper/helper02.xml")
             AutoDrive.AddHelper()
-            self.currentHelper = g_helperManager:getRandomHelper()
+            self.spec_aiVehicle.currentHelper = g_helperManager:getRandomHelper()
         end
 
-        if self.currentHelper ~= nil then
-            g_helperManager:useHelper(self.currentHelper)
+        if self.spec_aiVehicle.currentHelper ~= nil then
+            g_helperManager:useHelper(self.spec_aiVehicle.currentHelper)
         end
         if self.setRandomVehicleCharacter ~= nil then
             self:setRandomVehicleCharacter()
             self.ad.vehicleCharacter = self.spec_enterable.vehicleCharacter
         end
-        if self.spec_enterable.controllerFarmId ~= 0 then
+        if self.spec_enterable.controllerFarmId ~= nil and self.spec_enterable.controllerFarmId ~= 0 then
             self.spec_aiVehicle.startedFarmId = self.spec_enterable.controllerFarmId
         else
-            if g_currentMission ~= nil and g_currentMission.player ~= nil and g_currentMission.player.farmId ~= nil then
+            if g_currentMission ~= nil and g_currentMission.player ~= nil and g_currentMission.player.farmId ~= nil and g_currentMission.player.farmId ~= 0 then
                 self.spec_aiVehicle.startedFarmId = g_currentMission.player.farmId
-            elseif self.getOwnerFarmId ~= nil and self:getOwnerFarmId() ~= nil then
+            elseif self.getOwnerFarmId ~= nil and self:getOwnerFarmId() ~= nil and self:getOwnerFarmId() ~= 0 then
                 self.spec_aiVehicle.startedFarmId = self:getOwnerFarmId()
             else
                 self.spec_aiVehicle.startedFarmId = 1 
@@ -963,10 +967,10 @@ function AutoDrive:onStopAutoDrive(hasCallbacks, isStartingAIVE)
         self.forceIsActive = false
         self.spec_motorized.stopMotorOnLeave = true
         self.spec_enterable.disableCharacterOnLeave = true
-        if self.currentHelper ~= nil then
-            g_helperManager:releaseHelper(self.currentHelper)
+        if self.spec_aiVehicle.currentHelper ~= nil then
+            g_helperManager:releaseHelper(self.spec_aiVehicle.currentHelper)
         end
-        self.currentHelper = nil
+        self.spec_aiVehicle.currentHelper = nil
 
         if self.restoreVehicleCharacter ~= nil then
             self:restoreVehicleCharacter()

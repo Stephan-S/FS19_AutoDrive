@@ -108,6 +108,23 @@ AutoDrive.actions = {
 	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 
+AutoDrive.colors = {
+	closestLine = {1, 0, 0},
+	editorHeightLine = {1, 1, 1},
+	currentConnection = {1, 1, 1},
+	singleConnection = {0, 1, 0},
+	dualConnection = {0, 0, 1},
+	reverseConnection = {0, 0.569, 0.835},
+	subPrioSingleConnection = {1, 0.531, 0.14},
+	subPrioDualConnection = {0.389, 0.177, 0},
+	defaultNode = {1, 0, 0, 0.3},
+	subPrioNode = {1, 0.531, 0.14, 0.3},
+	selectedNode = {0, 1, 0, 0.15},
+	hoveredNode = {0, 0, 1, 0.15},
+	previousNode = {1, 0.2195, 0.6524, 0.5}, --GOLDHOFER_PINK1
+	nextNode = {1, 0.7, 0, 0.5}
+}
+
 function AutoDrive:onAllModsLoaded()
 	ADThirdPartyModsManager:load()
 end
