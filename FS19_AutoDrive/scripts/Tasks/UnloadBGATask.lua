@@ -122,8 +122,8 @@ function UnloadBGATask:update(dt)
     self.lastState = self.state
     self.lastAction = self.action
 
-    if self.targetTrailer ~= nil then
-        self.targetTrailer.ad.noMovementTimer:timer(self.targetTrailer.lastSpeedReal < 0.0004, 3000, dt)
+    if self.targetDriver ~= nil then
+        self.targetDriver.ad.noMovementTimer:timer(self.targetDriver.lastSpeedReal < 0.0004, 3000, dt)
     end
     
     if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_BGA_MODE) then
