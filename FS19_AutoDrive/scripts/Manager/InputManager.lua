@@ -40,7 +40,8 @@ ADInputManager.actionsToInputs = {
     ADParkVehicle = "input_parkVehicle",
     AD_devAction = "input_devAction",
     AD_open_tipOfTheDay = "input_openTipOfTheDay",
-    ADRefuelVehicle = "input_refuelVehicle"
+    ADRefuelVehicle = "input_refuelVehicle",
+    ADToggleHudExtension = "input_toggleHudExtension"
 }
 
 
@@ -209,6 +210,10 @@ end
 
 function ADInputManager:input_toggleHud(vehicle)
     AutoDrive.Hud:toggleHud(vehicle)
+end
+
+function ADInputManager:input_toggleHudExtension(vehicle)
+    AutoDrive.Hud:toggleHudExtension(vehicle)
 end
 
 function ADInputManager:input_toggleMouse()

@@ -10,6 +10,9 @@ AutoDrive.mouseWheelActive = false
 
 AutoDriveHud.debug = false
 
+AutoDriveHud.defaultHeaderHeight = 0.016
+AutoDriveHud.extendedHeaderHeight = 0.180
+
 function AutoDriveHud:new()
 	local o = {}
 	setmetatable(o, self)
@@ -89,6 +92,7 @@ function AutoDriveHud:loadHud()
 	end
 	AutoDriveHud:createHudAt(self.posX, self.posY)
 	self.isMoving = false
+	self.isShowingTips = false
 end
 
 function AutoDriveHud:createHudAt(hudX, hudY)
@@ -103,8 +107,13 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 	local iconSize = 32
 	local gapSize = 3
 	local listItemSize = 20
+	
+	self.headerHeight = AutoDriveHud.defaultHeaderHeight * uiScale
+	self.headerExtensionHeight = (AutoDriveHud.extendedHeaderHeight - AutoDriveHud.defaultHeaderHeight) * uiScale
 
-	self.headerHeight = 0.016 * uiScale
+	if self.isShowingTips then
+		self.headerHeight = AutoDriveHud.extendedHeaderHeight * uiScale
+	end
 
 	self.Background = {}
 	self.Buttons = {}
@@ -166,12 +175,19 @@ function AutoDriveHud:createHudAt(hudX, hudY)
 
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.rowHeader, self.width, self.headerHeight, AutoDrive.directory .. "textures/Header.dds", 1, "header"))
 
-	local closeHeight = self.headerHeight --0.0177 * uiScale;
+	local closeHeight = AutoDriveHud.defaultHeaderHeight * uiScale --0.0177 * uiScale;
 	local closeWidth = closeHeight * (g_screenHeight / g_screenWidth)
+	self.headerIconWidth = closeWidth
 	local posX = self.posX + self.width - (closeWidth * 1.1)
 	local posY = self.rowHeader
 	-- close crossing
 	table.insert(self.hudElements, ADHudButton:new(posX, posY, closeWidth, closeHeight, "input_toggleHud", nil, nil, nil, "", 1, true))
+
+	posX = posX - closeWidth - self.gapWidth
+	table.insert(self.hudElements, ADHudButton:new(posX, posY, closeWidth, closeHeight, "input_toggleHudExtension", nil, nil, nil, "", 1, true))
+
+	posX = posX - closeWidth - self.gapWidth
+	table.insert(self.hudElements, ADHudButton:new(posX, posY, closeWidth, closeHeight, "input_openTipOfTheDay", nil, nil, nil, "", 1, true))
 
 	-- axel - is this used?
 	table.insert(self.hudElements, ADHudIcon:new(self.posX, self.row4, self.iconWidth, self.iconHeight, AutoDrive.directory .. "textures/destination.dds", 1, "destinationOverlay"))
@@ -374,6 +390,11 @@ function AutoDriveHud:update(dt)
 	end
 end
 
+function AutoDriveHud:toggleHudExtension(vehicle)
+	self.isShowingTips = not self.isShowingTips	
+	self:createHudAt(self.posX, self.posY)
+end
+
 function AutoDriveHud:toggleHud(vehicle)
 	if self.statesHud > 0 then
 		if self.stateHud == 0 then
@@ -462,7 +483,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 and vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated
                 then
 				-- if LCTRL is not pressed - no auto-connect to previous created new point, disable selected point
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent selectedNodeId = nil")
+				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent selectedNodeId = nil")
 				vehicle.ad.selectedNodeId = nil
 				vehicle.ad.newcreated = nil
 			end
@@ -477,7 +498,7 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent selectedNodeId = nil")
 			end
 			if vehicle.ad.nodeToMoveId ~= nil then
 				-- move point at mouse position
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent moveNodeToMousePos nodeToMoveId %d", vehicle.ad.nodeToMoveId)
+				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent moveNodeToMousePos nodeToMoveId %d", vehicle.ad.nodeToMoveId)
 				AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
 			end
 			if vehicle.ad.hoveredNodeId ~= nil then
@@ -492,23 +513,23 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent moveNodeToMousePos nodeToMov
 					if vehicle.ad.selectedNodeId ~= nil then
 						if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
 							-- connect selected point with hovered point
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleConnectionBetween 1 vehicle.ad.selectedNodeId %d vehicle.ad.hoveredNodeId %d", vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
+							AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleConnectionBetween 1 vehicle.ad.selectedNodeId %d vehicle.ad.hoveredNodeId %d", vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
 							ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.rightSHIFTmodifierKeyPressed)
 							if AutoDrive.leftLSHIFTmodifierKeyPressed then
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
+								AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
 								ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
 							end
 						end
 
 						-- unselect point
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent unselect point selectedNodeId = nil")
+						AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent unselect point selectedNodeId = nil")
 						vehicle.ad.selectedNodeId = nil
 						adjustedPaths = true
 					else
 						-- select point
 						-- no selectedNodeId: hoveredNodeId is now selectedNodeId
-							vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent select point selectedNodeId %d", vehicle.ad.selectedNodeId)
+						vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+						AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent select point selectedNodeId %d", vehicle.ad.selectedNodeId)
 					end
 				end
 
@@ -549,7 +570,7 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent select point selectedNodeId 
                 then
 				vehicle.ad.newcreated = vehicle.ad.hoveredNodeId
 				vehicle.ad.selectedNodeId = vehicle.ad.newcreated
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
+				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
 			end
 
             if button == 1 and isUp 
@@ -562,7 +583,7 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 1 selectedNo
                 and not adjustedPaths
                 then
 				ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 2 hoveredNodeId %d", vehicle.ad.hoveredNodeId)
+				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 2 hoveredNodeId %d", vehicle.ad.hoveredNodeId)
 			end
 
 			--If no node is hovered / moved - create new node
@@ -618,17 +639,17 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 2 ho
 							
 							if AutoDrive.leftLSHIFTmodifierKeyPressed and not AutoDrive.rightSHIFTmodifierKeyPressed then
 								ADGraphManager:toggleWayPointAsSubPrio(createdId)
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 3 createdId %d", createdId)
+								AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 3 createdId %d", createdId)
 							end
 
 							if vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated then
 								-- connect only if previous created point is selected and newcreated ~= nil
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleConnectionBetween 2 vehicle.ad.selectedNodeId %d to %d", vehicle.ad.selectedNodeId, createdId)
+								AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleConnectionBetween 2 vehicle.ad.selectedNodeId %d to %d", vehicle.ad.selectedNodeId, createdId)
 								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.rightSHIFTmodifierKeyPressed)
 							end
 							vehicle.ad.newcreated = createdId
 							vehicle.ad.selectedNodeId = vehicle.ad.newcreated
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 2 selectedNodeId %d", vehicle.ad.selectedNodeId)
+							AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 2 selectedNodeId %d", vehicle.ad.selectedNodeId)
 						end
 					end
 				end
@@ -642,7 +663,7 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 2 selectedNo
                     and not AutoDrive.rightSHIFTmodifierKeyPressed
                     then
 					-- Left alt for deleting the currently hovered node
-AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent removeWayPoint hoveredNodeId %d", vehicle.ad.hoveredNodeId)
+					AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent removeWayPoint hoveredNodeId %d", vehicle.ad.hoveredNodeId)
 					ADGraphManager:removeWayPoint(vehicle.ad.hoveredNodeId)
 				end
 			end
@@ -667,12 +688,12 @@ AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent removeWayPoint hoveredNodeId
 end
 
 function AutoDrive.handleWayPointSection(vehicle, button, isUp)
--- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection vehicle.ad.selectedNodeId %s vehicle.ad.hoveredNodeId %s", tostring(vehicle.ad.selectedNodeId), tostring(vehicle.ad.hoveredNodeId))
+	-- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection vehicle.ad.selectedNodeId %s vehicle.ad.hoveredNodeId %s", tostring(vehicle.ad.selectedNodeId), tostring(vehicle.ad.hoveredNodeId))
     if vehicle.ad.selectedNodeId ~= nil and vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
         local wayPointsDirection = ADGraphManager:getIsWayPointJunction(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
         if wayPointsDirection > 0 and  wayPointsDirection < 4 then
             vehicle.ad.sectionWayPoints = ADGraphManager:getWayPointsInSection(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId, wayPointsDirection)
--- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection button %d isUp %s AutoDrive.leftCTRLmodifierKeyPressed %s", button, tostring(isUp), tostring(AutoDrive.leftCTRLmodifierKeyPressed))
+			-- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection button %d isUp %s AutoDrive.leftCTRLmodifierKeyPressed %s", button, tostring(isUp), tostring(AutoDrive.leftCTRLmodifierKeyPressed))
             if button == 1 and isUp
                 and not AutoDrive.leftLSHIFTmodifierKeyPressed
                 and AutoDrive.leftCTRLmodifierKeyPressed

@@ -104,7 +104,8 @@ AutoDrive.actions = {
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
 	{"AD_open_tipOfTheDay", false, 0},
-	{"ADRefuelVehicle", false, 0}
+	{"ADRefuelVehicle", false, 0},
+	{"ADToggleHudExtension", true, 1},
 	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
 

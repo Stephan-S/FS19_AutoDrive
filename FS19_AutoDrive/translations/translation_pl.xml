@@ -4,6 +4,7 @@
 	<texts>
 		<text name="UNKNOWN"									text="Nieznany" />
 		<text name="input_ADToggleHud"							text="AD: Pokaż/ukryj interfejs" />
+		<text name="input_ADToggleHudExtension"					text="AD: Show HUD infos" />
 		<text name="input_ADToggleMouse"						text="AD: Pokaż/ukryj kursor" />
 		<text name="input_ADEnDisable"							text="AD: wł./wył." />
 		<text name="input_ADSilomode"							text="AD: Zmień tryb" />
@@ -372,5 +373,19 @@
 		5. Ustawienia debugowania - Tes ustawienia włączają wyświetlanie dodatkowych informacji na ekranie oraz w logu gry. Należy włączyć je w przypadku wystąpienia problemów lub błędów przed wysłaniem logu gry do deweloperów.
 		
 		6. Ustawienia funkcji eksperymentalnych - Te ustawienia związane są z funkcjonalnościami, które są obecnie w fazie testów/rozwijania, ale nie są uznane za stabilne. Korzystaj z nich na własną odpowiedzialność." />
+		
+		<text name = "gui_ad_editorTip_1"								text = "Simple left mouse click:"/>
+		<text name = "gui_ad_editorTip_2"								text = "Mouse only: Select 1. point"/>
+		<text name = "gui_ad_editorTip_3"								text = "LCTRL = Create node"/>
+		<text name = "gui_ad_editorTip_4"								text = "LALT = Delete node"/>
+		<text name = "gui_ad_editorTip_5"								text = "LSHIFT = Toggle point as side road"/>
+
+		<text name = "gui_ad_editorTip_6"								text = "Clicking on second node:"/>
+		<text name = "gui_ad_editorTip_7"								text = "Toggle connection"/>
+		<text name = "gui_ad_editorTip_8"								text = "RSHIFT = Create reverse road"/>
+
+		<text name = "gui_ad_editorTip_9"								text = "1. node is intersection, second it's neighbor:"/>
+		<text name = "gui_ad_editorTip_10"								text = "LCTRL: Toggle segment type (normal/dual)"/>
+		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Toggle side road"/>
 	</texts>
 </l10n>
