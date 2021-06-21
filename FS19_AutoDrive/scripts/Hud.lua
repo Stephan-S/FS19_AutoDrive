@@ -528,8 +528,19 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					else
 						-- select point
 						-- no selectedNodeId: hoveredNodeId is now selectedNodeId
-						vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
-						AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent select point selectedNodeId %d", vehicle.ad.selectedNodeId)
+                        vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
+                        AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent select point selectedNodeId %d", vehicle.ad.selectedNodeId)
+
+                        -- color assignment goes in here
+                        if AutoDrive.experimentalFeatures.colorAssignmentMode and g_server ~= nil and g_client ~= nil and g_dedicatedServerInfo == nil then
+                            local colorPoint = ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId)
+                            if colorPoint ~= nil and colorPoint.colors ~= nil then
+                                AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent point.colors %.3f %.3f %.3f", colorPoint.colors[1], colorPoint.colors[2], colorPoint.colors[3])
+                                vehicle.ad.selectedColorNodeId = vehicle.ad.selectedNodeId
+                                    -- only allowed in single player game
+                                ADInputManager:input_openColorSettings()
+                            end
+                        end
 					end
 				end
 
@@ -631,7 +642,12 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							end
 						end
 
-						ADGraphManager:createWayPoint(minX, minY, minZ)
+                        if AutoDrive.experimentalFeatures.colorAssignmentMode and g_server ~= nil and g_client ~= nil and g_dedicatedServerInfo == nil then
+                            -- only allowed in single player game to create the color selection
+                            AutoDrive.createColorSelectionWayPoints(vehicle)
+                        else
+                            ADGraphManager:createWayPoint(minX, minY, minZ)
+                        end
 						-- auto connect to previous created point not working proper in MP, so deactivated at all
 						if g_server ~= nil and g_client ~= nil then -- this will be true on dedi servers !!!
 							-- auto connect only working in single player properly !
@@ -705,6 +721,7 @@ function AutoDrive.handleWayPointSection(vehicle, button, isUp)
                     wayPointsDirection = 1
                 end
                 ADGraphManager:setConnectionBetweenWayPointsInSection(vehicle, wayPointsDirection)
+                vehicle.ad.selectedNodeId = nil -- unselect the current node after action done
             end
 
             if button == 1 and isUp
@@ -722,6 +739,7 @@ function AutoDrive.handleWayPointSection(vehicle, button, isUp)
                         flags = AutoDrive.FLAG_SUBPRIO
                     end
                     ADGraphManager:setWayPointsFlagsInSection(vehicle, flags)
+                    vehicle.ad.selectedNodeId = nil -- unselect the current node after action done
                 end
             end
 
@@ -922,6 +940,35 @@ function AutoDrive.updateDestinationsMapHotspots()
             mh.markerID = index
             g_currentMission:addMapHotspot(mh)
             table.insert(AutoDrive.mapHotspotsBuffer, mh)
+        end
+    end
+end
+
+function AutoDrive.createColorSelectionWayPoints(vehicle)
+    if vehicle ~= nil and vehicle.ad ~= nil  then
+        local startNode = vehicle.ad.frontNode
+        local x1, _, z1 = getWorldTranslation(startNode)
+        local y1 = AutoDrive:getTerrainHeightAtWorldPos(x1, z1)
+        local z= 19
+        for blue = 0, z do
+            for red = 1, 2*blue+1 do
+                local b = 1-(blue/z)
+                local r = 0
+                if b < 1 then
+                    r = (red-1)/(2*blue+1-1) * (1-b)
+                    if r > (1-b) then
+                        r = (1-b)
+                    end
+                end
+                local g = 0
+                if (b + r) < 1 then
+                    g = 1 - (b + r)
+                end
+                
+                local colors = {r, g, b}
+                local rx, _, rz = localDirectionToWorld(startNode, blue-red, 0, blue+2)
+                ADGraphManager:createWayPointColored(x1 + rx, y1 + 1, z1 + rz, colors)
+            end
         end
     end
 end

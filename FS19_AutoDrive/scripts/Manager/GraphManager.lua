@@ -628,6 +628,16 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	end
 end
 
+function ADGraphManager:createWayPointColored(x, y, z, colors)
+    local prevId = self:getWayPointsCount()
+    local newId = prevId + 1
+    local newWp = self:createNode(newId, x, y, z, {}, {}, 0, colors)
+    self:setWayPoint(newWp)
+    self:markChanges()
+
+    return newWp
+end
+
 function ADGraphManager:changeWayPointPosition(wayPointId)
 	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
@@ -899,7 +909,7 @@ function ADGraphManager:getWayPointsInRange(point, rangeMin, rangeMax)
 	return inRange
 end
 
-function ADGraphManager:createNode(id, x, y, z, out, incoming, flags)
+function ADGraphManager:createNode(id, x, y, z, out, incoming, flags, colors)
 	return {
 		id = id,
 		x = x,
@@ -907,7 +917,8 @@ function ADGraphManager:createNode(id, x, y, z, out, incoming, flags)
 		z = z,
 		out = out,
 		incoming = incoming,
-		flags = flags
+		flags = flags,
+        colors = colors
 	}
 end
 
@@ -1348,6 +1359,22 @@ function ADGraphManager:deleteWayPointsInSection(vehicle)
         table.sort(pointsToDelete, sort_func)
         for i = 1, #pointsToDelete do
             ADGraphManager:removeWayPoint(pointsToDelete[i])
+        end
+    end
+end
+
+function ADGraphManager:deleteColorSelectionWayPoints()
+    -- delete the color selection wayPoints in descant order to ensure correct linkage deletion
+    local actualID = self:getWayPointsCount()
+    local count = 1
+    while count < (10000000) and actualID > 1 do
+        count = count + 1
+        local wp = ADGraphManager:getWayPointById(actualID)
+        if wp.colors ~= nil then
+            ADGraphManager:removeWayPoint(actualID, false)
+            actualID = self:getWayPointsCount()     -- removed a wayPoint so check from highest again
+        else
+            actualID = actualID - 1
         end
     end
 end

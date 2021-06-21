@@ -91,6 +91,7 @@ Consultez notre wiki Github pour les notes de version complètes !
 		<action name="ADRenameMapMarker" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSwapTargets" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
+		<!-- <action name="AD_open_colorSettings" category="VEHICLE" ignoreComboMask="false" /> -->
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />

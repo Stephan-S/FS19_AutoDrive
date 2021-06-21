@@ -223,7 +223,26 @@
 		<text name="gui_ad_debugChannelBGA"						text="BGA Mode" />
 		<text name="gui_ad_debugChannelAll" 					text="Mind" />
 		<text name="gui_ad_notificationHistoryTitle" 			text="Értesítések" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Color Assignments" />
+		<text name="ad_color_singleConnection" 			        text="line of single-way connection" />
+		<text name="ad_color_dualConnection" 			        text="line of dual-way connection" />
+		<text name="ad_color_reverseConnection" 			    text="line of reverse connection" />
+		<text name="ad_color_default" 			                text="Default Color" />
+		<text name="ad_color_subPrioSingleConnection" 			text="line of secondary single-way connection" />
+		<text name="ad_color_subPrioDualConnection" 			text="line of secondary dual-way connection" />
+		<text name="ad_color_subPrioNode" 			            text="secondary waypoint" />
+		<text name="ad_color_hoveredNode" 			            text="hovered waypoint" />
+		<text name="ad_color_previousNode" 			            text="connected previous waypoint" />
+		<text name="ad_color_nextNode" 			                text="connected next waypoint" />
+		<text name="ad_color_selectedNode" 			            text="selected waypoint" />
+		<text name="ad_color_currentConnection" 			    text="line of driving direction" />
+		<text name="ad_color_closestLine" 			            text="line from vehicle to closest waypoint" />
+		<text name="ad_color_editorHeightLine" 			        text="line from surface waypoint to the one above vehicle" />
+
 		<text name="button_delete_all" 							text="Összes törlése" />
+		<text name="button_reset_selected" 					    text="Reset selected" />
+
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		<text name="ad_helpTitle_01"							text="AD - Bevezetés" />
 		<text name="ad_helpText_01_01"							text="Az AutoDrive egy olyan vezetéssegítő program, amely lehetővé teszi a járművek számára, hogy önállóan mozogjanak a Farming Simulator világában." />

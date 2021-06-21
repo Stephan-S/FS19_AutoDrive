@@ -338,8 +338,8 @@ function AutoDrive:onDraw()
         local eWP = self.ad.stateModule:getNextWayPoint()
         if sWP ~= nil and eWP ~= nil then
             --draw line with direction markers (arrow)
-            ADDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, unpack(AutoDrive.colors.currentConnection))
-            ADDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, ADDrawingManager.arrows.position.start, unpack(AutoDrive.colors.currentConnection))
+            ADDrawingManager:addLineTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, unpack(AutoDrive.currentColors.ad_color_currentConnection))
+            ADDrawingManager:addArrowTask(sWP.x, sWP.y, sWP.z, eWP.x, eWP.y, eWP.z, ADDrawingManager.arrows.position.start, unpack(AutoDrive.currentColors.ad_color_currentConnection))
         end
     end
 
@@ -489,7 +489,6 @@ function AutoDrive:onDelete()
 end
 
 function AutoDrive:onDrawEditorMode()
--- g_logManager:info("[AD] AutoDrive:onDrawEditorMode start... %d", g_updateLoopIndex)
     local isActive = self.ad.stateModule:isActive()
     local DrawingManager = ADDrawingManager
 
@@ -536,8 +535,8 @@ function AutoDrive:onDrawEditorMode()
         local closest, _ = self:getClosestWayPoint()
         local wp = ADGraphManager:getWayPointById(closest)
         if wp ~= nil then
-            DrawingManager:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, unpack(AutoDrive.colors.closestLine))
-            DrawingManager:addSmallSphereTask(x1, dy, z1, unpack(AutoDrive.colors.closestLine))
+            DrawingManager:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, unpack(AutoDrive.currentColors.ad_color_closestLine))
+            DrawingManager:addSmallSphereTask(x1, dy, z1, unpack(AutoDrive.currentColors.ad_color_closestLine))
         end
     end
 
@@ -552,15 +551,19 @@ function AutoDrive:onDrawEditorMode()
             arrowPosition = DrawingManager.arrows.position.middle
             if AutoDrive.enableSphrere == true then
                 if AutoDrive.mouseIsAtPos(point, 0.01) then
-                    DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.hoveredNode))
+                    DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.currentColors.ad_color_hoveredNode))
                 else
                     if point.id == self.ad.selectedNodeId then
-                        DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.selectedNode))
+                        DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.currentColors.ad_color_selectedNode))
                     else
                         if isSubPrio then
-                            DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.subPrioNode))
+                            DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.currentColors.ad_color_subPrioNode))
                         else
-                            DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.colors.defaultNode))
+                            if point.colors ~= nil then
+                                DrawingManager:addSphereTask(x, y, z, 3, unpack(point.colors))
+                            else
+                                DrawingManager:addSphereTask(x, y, z, 3, unpack(AutoDrive.currentColors.ad_color_default))
+                            end
                         end
                     end
                 end
@@ -568,18 +571,18 @@ function AutoDrive:onDrawEditorMode()
                 -- If the lines are drawn above the vehicle, we have to draw a line to the reference point on the ground and a second cube there for moving the node position
                 if AutoDrive.getSettingState("lineHeight") > 1 then
                     local gy = y - AutoDrive.drawHeight - AutoDrive.getSetting("lineHeight")
-                    DrawingManager:addLineTask(x, y, z, x, gy, z, unpack(AutoDrive.colors.editorHeightLine))
+                    DrawingManager:addLineTask(x, y, z, x, gy, z, unpack(AutoDrive.currentColors.ad_color_editorHeightLine))
 
                     if AutoDrive.mouseIsAtPos(point, 0.01) or AutoDrive.mouseIsAtPos({x = x, y = gy, z = z}, 0.01) then
-                        DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.hoveredNode))
+                        DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.currentColors.ad_color_hoveredNode))
                     else
                         if point.id == self.ad.selectedNodeId then
-                            DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.selectedNode))
+                            DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.currentColors.ad_color_selectedNode))
                         else
                             if isSubPrio then
-                                DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.subPrioNode))
+                                DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.currentColors.ad_color_subPrioNode))
                             else
-                                DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.colors.defaultNode))
+                                DrawingManager:addSphereTask(x, gy, z, 3, unpack(AutoDrive.currentColors.ad_color_default))
                             end
                         end
                     end
@@ -592,11 +595,11 @@ function AutoDrive:onDrawEditorMode()
                         if nWp ~= nil then
                             if AutoDrive.mouseIsAtPos(nWp, 0.01) then
                                 -- draw previous point in GOLDHOFER_PINK1
-                                DrawingManager:addSphereTask(point.x, point.y, point.z, 3.4, unpack(AutoDrive.colors.previousNode))
+                                DrawingManager:addSphereTask(point.x, point.y, point.z, 3.4, unpack(AutoDrive.currentColors.ad_color_previousNode))
                             end
                             if AutoDrive.mouseIsAtPos(point, 0.01) then
                                 -- draw next point
-                                DrawingManager:addSphereTask(nWp.x, nWp.y, nWp.z, 3.2, unpack(AutoDrive.colors.nextNode))
+                                DrawingManager:addSphereTask(nWp.x, nWp.y, nWp.z, 3.2, unpack(AutoDrive.currentColors.ad_color_nextNode))
                             end
                         end
                     end
@@ -630,9 +633,9 @@ function AutoDrive:onDrawEditorMode()
                         --draw dual way line
                         if point.id > nWp.id then
                             if isSubPrio or targetIsSubPrio then
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.subPrioDualConnection))
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.currentColors.ad_color_subPrioDualConnection))
                             else
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.dualConnection))
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.currentColors.ad_color_dualConnection))
                             end
                         end
                     else
@@ -640,16 +643,16 @@ function AutoDrive:onDrawEditorMode()
                         if (nWp.incoming == nil or table.contains(nWp.incoming, point.id)) then
                             -- one way line
                             if isSubPrio or targetIsSubPrio then
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.subPrioSingleConnection))
-                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
                             else
-                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.singleConnection))
-                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
+                                DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.currentColors.ad_color_singleConnection))
+                                DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_singleConnection))
                             end
                         else
                             -- reverse way line
-                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.colors.reverseConnection))
-                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.colors.reverseConnection))
+                            DrawingManager:addLineTask(x, y, z, nWp.x, nWp.y, nWp.z, unpack(AutoDrive.currentColors.ad_color_reverseConnection))
+                            DrawingManager:addArrowTask(x, y, z, nWp.x, nWp.y, nWp.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_reverseConnection))
                         end
                     end
                 end
@@ -657,7 +660,7 @@ function AutoDrive:onDrawEditorMode()
         end
 
         --just a quick way to highlight single (forgotten) points with no connections
-        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) then
+        if (#point.out == 0) and (#point.incoming == 0) and not table.contains(outPointsSeen, point.id) and point.colors == nil then
             y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z) + 0.5
             DrawingManager:addCrossTask(x, y, z)
         end
@@ -674,56 +677,56 @@ function AutoDrive:onDrawEditorMode()
             if wayPointsDirection == 1 then
                 if previewSubPrio then
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioSingleConnection))
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.singleConnection))
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_singleConnection))
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_singleConnection))
                     end
                 elseif previewDirection then
                     -- new direction backward
                     if not sectionPrio then
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.singleConnection))       -- green
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.currentColors.ad_color_singleConnection))       -- green
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_singleConnection))
                     else
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.subPrioSingleConnection))    -- orange
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))    -- orange
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
                     end
                 else
                 end
             elseif wayPointsDirection == 2 then
                 if previewSubPrio then
                     if not sectionPrio then
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.subPrioSingleConnection))    -- orange
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))    -- orange
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
                     else
-                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.colors.singleConnection))       -- green
-                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
+                        DrawingManager:addLineTask(target.x, target.y, target.z, start.x, start.y, start.z,  unpack(AutoDrive.currentColors.ad_color_singleConnection))       -- green
+                        DrawingManager:addArrowTask(target.x, target.y, target.z, start.x, start.y, start.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_singleConnection))
                     end
                 elseif previewDirection then
                     -- new direction dual
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.dualConnection))  -- blue
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_dualConnection))  -- blue
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioDualConnection))    -- dark orange
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_subPrioDualConnection))    -- dark orange
                     end
                 else
                 end
             elseif wayPointsDirection == 3 then
                 if previewSubPrio then
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioDualConnection))    -- dark orange
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_subPrioDualConnection))    -- dark orange
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.dualConnection))    -- blue
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_dualConnection))    -- blue
                     end
                 elseif previewDirection then
                     -- new direction forward
                     if not sectionPrio then
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.singleConnection))        -- green
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.singleConnection))
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_singleConnection))        -- green
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_singleConnection))
                     else
-                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.colors.subPrioSingleConnection)) -- orange
-                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.colors.subPrioSingleConnection))
+                        DrawingManager:addLineTask(start.x, start.y, start.z, target.x, target.y, target.z, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection)) -- orange
+                        DrawingManager:addArrowTask(start.x, start.y, start.z, target.x, target.y, target.z, arrowPosition, unpack(AutoDrive.currentColors.ad_color_subPrioSingleConnection))
                     end
                 else
                 end

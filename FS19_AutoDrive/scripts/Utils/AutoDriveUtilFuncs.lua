@@ -237,11 +237,16 @@ function AutoDrive.cycleEditMode()
             vehicle.ad.nodeToMoveId = nil
             vehicle.ad.hoveredNodeId = nil
 			vehicle.ad.newcreated = nil
+            vehicle.ad.sectionWayPoints = {}
         end
         if (AutoDrive.getSetting("EditorMode") == AutoDrive.EDITOR_OFF) then
             AutoDrive.setEditorMode(AutoDrive.EDITOR_EXTENDED)
         else
             AutoDrive.setEditorMode(AutoDrive.EDITOR_OFF)
+            if g_server ~= nil and g_client ~= nil and g_dedicatedServerInfo == nil then
+                -- in SP always delete color selection wayPoints if there are any
+                ADGraphManager:deleteColorSelectionWayPoints()
+            end
             if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
                 vehicle.ad.stateModule:disableCreationMode()
             end
@@ -388,4 +393,52 @@ function AutoDrive:getIsEntered(vehicle)
         user = g_currentMission.userManager:getUserByConnection(vehicle:getOwner())
     end
     return user ~= nil
+end
+
+function AutoDrive:getColorKeyNames()
+    local colorKeyNames = {}
+	for k, v in pairs(AutoDrive.colors) do
+		local tagName = string.format("%s",k)
+        table.insert(colorKeyNames, tagName)
+    end
+    return colorKeyNames
+end
+
+function AutoDrive:getColorAssignment(colorKey)
+    if AutoDrive.currentColors[colorKey] ~= nil then
+        local r = AutoDrive.currentColors[colorKey][1]
+        local g = AutoDrive.currentColors[colorKey][2]
+        local b = AutoDrive.currentColors[colorKey][3]
+        local a = AutoDrive.currentColors[colorKey][4]
+        return {r, g, b, a}
+    else
+        return {AutoDrive.currentColors.ad_color_default[1], AutoDrive.currentColors.ad_color_default[2], AutoDrive.currentColors.ad_color_default[3], AutoDrive.currentColors.ad_color_default[4]}
+    end
+end
+
+function AutoDrive:setColorAssignment(colorKey, r, g, b, a)
+    if AutoDrive.currentColors[colorKey] ~= nil then
+        AutoDrive.currentColors[colorKey][1] = r
+        AutoDrive.currentColors[colorKey][2] = g
+        AutoDrive.currentColors[colorKey][3] = b
+        if a ~= nil then
+            AutoDrive.currentColors[colorKey][4] = a
+        end
+    end
+end
+
+function AutoDrive:resetColorAssignment(colorKey, all)
+    if all ~= nil and all == true then
+        AutoDrive.currentColors = {}
+        for k, v in pairs(AutoDrive.colors) do
+            AutoDrive.currentColors[k] = {}
+            for i = 1, 4 do
+                AutoDrive.currentColors[k][i] = AutoDrive.colors[k][i]
+            end
+        end
+    elseif AutoDrive.currentColors[colorKey] ~= nil then
+        for i = 1, 4 do
+            AutoDrive.currentColors[colorKey][i] = AutoDrive.colors[colorKey][i]
+        end
+    end
 end

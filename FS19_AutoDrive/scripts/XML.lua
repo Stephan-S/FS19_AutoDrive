@@ -296,6 +296,8 @@ function AutoDrive.saveToXML(xmlFile)
 		setXMLBool(xmlFile, "AutoDrive.experimentalFeatures." .. feature .. "#enabled", enabled)
 	end
 
+    ADGraphManager:deleteColorSelectionWayPoints() -- delete color selection wayPoints if there are any -> do not save them in config!
+
 	local idFullTable = {}
 
 	local xTable = {}
@@ -517,4 +519,53 @@ function AutoDrive.readGraphFromXml(xmlId, rootNode)
 	end
 
 	return wayPoints, mapMarkers, groups
+end
+
+function AutoDrive.readLocalSettingsFromXML()
+    local rootFolder = getUserProfileAppPath() .. "autoDrive/"
+    local xmlFileName = rootFolder .. "AutoDrive_LocalSettings.xml"
+
+	if fileExists(xmlFileName) then
+		local xmlFile = loadXMLFile("AutoDrive_LocalSettings", xmlFileName)
+        if xmlFile == nil then
+            return
+        end
+
+        local i = 1
+        while true do
+            local key = "AutoDrive_LocalSettings.Color" .. i
+            local color = getXMLString(xmlFile, key .. "#color")
+            if color == nil then
+                break
+            end
+            local red = getXMLFloat(xmlFile, key .. "#red")
+            local green = getXMLFloat(xmlFile, key .. "#green")
+            local blue = getXMLFloat(xmlFile, key .. "#blue")
+            local alpha = getXMLFloat(xmlFile, key .. "#alpha")
+
+            AutoDrive:setColorAssignment(color, red, green, blue, alpha)
+            i = i + 1
+        end
+    end
+end
+
+function AutoDrive.writeLocalSettingsToXML()
+    local rootFolder = getUserProfileAppPath() .. "autoDrive/"
+    createFolder(rootFolder)
+    local xmlFileName = rootFolder .. "AutoDrive_LocalSettings.xml"
+
+	-- create empty xml file
+	local xmlFile = createXMLFile("AutoDrive_XML", xmlFileName, "AutoDrive_LocalSettings") -- use the new file name onwards
+
+    local i = 1
+	for k, v in pairs(AutoDrive.currentColors) do
+		local colorKey = string.format("%s",k)
+        setXMLString(xmlFile, "AutoDrive_LocalSettings.Color" .. tostring(i) .. "#color", colorKey)
+        setXMLFloat(xmlFile, "AutoDrive_LocalSettings.Color" .. tostring(i) .. "#red", AutoDrive.currentColors[colorKey][1])
+        setXMLFloat(xmlFile, "AutoDrive_LocalSettings.Color" .. tostring(i) .. "#green", AutoDrive.currentColors[colorKey][2])
+        setXMLFloat(xmlFile, "AutoDrive_LocalSettings.Color" .. tostring(i) .. "#blue", AutoDrive.currentColors[colorKey][3])
+        setXMLFloat(xmlFile, "AutoDrive_LocalSettings.Color" .. tostring(i) .. "#alpha", AutoDrive.currentColors[colorKey][4])
+        i = i + 1
+    end
+    saveXMLFile(xmlFile)
 end

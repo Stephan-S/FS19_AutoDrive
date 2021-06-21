@@ -36,6 +36,7 @@ ADInputManager.actionsToInputs = {
     ADIncLoopCounter = "input_incLoopCounter",
     ADSwapTargets = "input_swapTargets",
     AD_open_notification_history = "input_openNotificationHistory",
+    -- AD_open_colorSettings = "input_openColorSettings",
     AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle",
     AD_devAction = "input_devAction",
@@ -124,6 +125,10 @@ end
 
 function ADInputManager:input_openNotificationHistory(vehicle)
     AutoDrive.onOpenNotificationsHistory()
+end
+
+function ADInputManager:input_openColorSettings()
+    AutoDrive.onOpenColorSettings()
 end
 
 function ADInputManager:input_openTipOfTheDay(vehicle)

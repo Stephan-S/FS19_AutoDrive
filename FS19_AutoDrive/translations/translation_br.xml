@@ -230,7 +230,25 @@
 		<text name="gui_ad_debugChannelAll" 					text="Everything" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Color Assignments" />
+		<text name="ad_color_singleConnection" 			        text="line of single-way connection" />
+		<text name="ad_color_dualConnection" 			        text="line of dual-way connection" />
+		<text name="ad_color_reverseConnection" 			    text="line of reverse connection" />
+		<text name="ad_color_default" 			                text="Default Color" />
+		<text name="ad_color_subPrioSingleConnection" 			text="line of secondary single-way connection" />
+		<text name="ad_color_subPrioDualConnection" 			text="line of secondary dual-way connection" />
+		<text name="ad_color_subPrioNode" 			            text="secondary waypoint" />
+		<text name="ad_color_hoveredNode" 			            text="hovered waypoint" />
+		<text name="ad_color_previousNode" 			            text="connected previous waypoint" />
+		<text name="ad_color_nextNode" 			                text="connected next waypoint" />
+		<text name="ad_color_selectedNode" 			            text="selected waypoint" />
+		<text name="ad_color_currentConnection" 			    text="line of driving direction" />
+		<text name="ad_color_closestLine" 			            text="line from vehicle to closest waypoint" />
+		<text name="ad_color_editorHeightLine" 			        text="line from surface waypoint to the one above vehicle" />
+
 		<text name="button_delete_all" 							text="Delete All" />
+		<text name="button_reset_selected" 					    text="Reset selected" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		

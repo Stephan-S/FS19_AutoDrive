@@ -13,6 +13,7 @@ AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
 AutoDrive.experimentalFeatures.detectGrasField = true
+AutoDrive.experimentalFeatures.colorAssignmentMode = false
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -100,6 +101,7 @@ AutoDrive.actions = {
 	{"ADRenameMapMarker", false, 0},
 	{"ADSwapTargets", false, 0},
 	{"AD_open_notification_history", false, 0},
+	-- {"AD_open_colorSettings", false, 0},
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
@@ -110,21 +112,23 @@ AutoDrive.actions = {
 }
 
 AutoDrive.colors = {
-	closestLine = {1, 0, 0},
-	editorHeightLine = {1, 1, 1},
-	currentConnection = {1, 1, 1},
-	singleConnection = {0, 1, 0},
-	dualConnection = {0, 0, 1},
-	reverseConnection = {0, 0.569, 0.835},
-	subPrioSingleConnection = {1, 0.531, 0.14},
-	subPrioDualConnection = {0.389, 0.177, 0},
-	defaultNode = {1, 0, 0, 0.3},
-	subPrioNode = {1, 0.531, 0.14, 0.3},
-	selectedNode = {0, 1, 0, 0.15},
-	hoveredNode = {0, 0, 1, 0.15},
-	previousNode = {1, 0.2195, 0.6524, 0.5}, --GOLDHOFER_PINK1
-	nextNode = {1, 0.7, 0, 0.5}
+	ad_color_singleConnection = {0, 1, 0, 1},
+	ad_color_dualConnection = {0, 0, 1, 1},
+	ad_color_reverseConnection = {0, 0.569, 0.835, 1},
+	ad_color_default = {1, 0, 0, 0.3},
+	ad_color_subPrioSingleConnection = {1, 0.531, 0.14, 1},
+	ad_color_subPrioDualConnection = {0.389, 0.177, 0, 1},
+	ad_color_subPrioNode = {1, 0.531, 0.14, 0.3},
+	ad_color_hoveredNode = {0, 0, 1, 0.15},
+	ad_color_previousNode = {1, 0.2195, 0.6524, 0.5}, --GOLDHOFER_PINK1
+	ad_color_nextNode = {1, 0.7, 0, 0.5},
+	ad_color_selectedNode = {0, 1, 0, 0.15},
+	ad_color_currentConnection = {1, 1, 1, 1},
+	ad_color_closestLine = {1, 0, 0, 1},
+	ad_color_editorHeightLine = {1, 1, 1, 1}
 }
+
+AutoDrive.currentColors = {} -- this will hold the current colors, derived from default colors above, overwritten by local settings
 
 function AutoDrive:onAllModsLoaded()
 	ADThirdPartyModsManager:load()
@@ -171,6 +175,9 @@ g_logManager:info("[AD] Start register later loaded mods end")
 
 	AutoDrive.loadStoredXML()
 
+    AutoDrive:resetColorAssignment(0, true)     -- set default colors
+    AutoDrive.readLocalSettingsFromXML()
+    
 	ADUserDataManager:load()
 	if g_server ~= nil then
 		ADUserDataManager:loadFromXml()

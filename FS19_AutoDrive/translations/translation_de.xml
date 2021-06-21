@@ -15,6 +15,7 @@
 		<text name="input_AD_Speed_down"						text="AD: Geschwindigkeit verringern" />
 		<text name="input_AD_routes_manager"					text="AD: Open routes manager" />
 		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
+		<text name="input_AD_open_colorSettings" 		        text="AD: Farbzuweisungen" />
 		<text name="input_AD_continue"							text="AD: Weiterfahren" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Nächster Abladepunkt" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Voriger Abladepunkt" />
@@ -229,7 +230,25 @@
 		<text name="gui_ad_debugChannelAll" 					text="Alles" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
-		<text name="button_delete_all" 							text="Delete All" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Farbzuweisungen" />
+		<text name="ad_color_singleConnection" 			        text="Linie Hauptstrecke eine Richtung" />
+		<text name="ad_color_dualConnection" 			        text="Linie Hauptstrecke zwei Richtungen" />
+		<text name="ad_color_reverseConnection" 			    text="Linie Rückwärtsstrecke" />
+		<text name="ad_color_default" 			                text="Wegpunkt Hauptstrecke und Rückwärtsstrecke" />
+		<text name="ad_color_subPrioSingleConnection" 			text="Linie Nebenstrecken eine Richtung" />
+		<text name="ad_color_subPrioDualConnection" 			text="Linie Nebenstrecken zwei Richtungen" />
+		<text name="ad_color_subPrioNode" 			            text="Wegpunkt Nebenstrecke" />
+		<text name="ad_color_hoveredNode" 			            text="Wegpunkt unter Mauszeiger (hover)" />
+		<text name="ad_color_previousNode" 			            text="vorheriger verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
+		<text name="ad_color_nextNode" 			                text="nächster verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
+		<text name="ad_color_selectedNode" 			            text="mit Mausklick markierter Wegpunkt" />
+		<text name="ad_color_currentConnection" 			    text="Pfeil nächster Pfad" />
+		<text name="ad_color_closestLine" 			            text="Linie Fahrzeug <-> naheliegendster Wegpunkt" />
+		<text name="ad_color_editorHeightLine" 			        text="senkrechte Linie Wegpunkt am Boden <-> Wegpunkt über dem Fahrzeug" />
+
+		<text name="button_delete_all" 							text="Alle löschen" />
+		<text name="button_reset_selected" 					    text="Ausgewählten zurücksetzen" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
