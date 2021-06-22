@@ -34,7 +34,9 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Augmenter le nombre de répétitions" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
+		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
+		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Éviter les cultures" />
 		<text name="hud_startCp"								text="AD: Démarrer CP/AIVE à la destination" />

@@ -39,7 +39,8 @@ ADInputManager.actionsToInputs = {
     AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle",
     AD_devAction = "input_devAction",
-    AD_open_tipOfTheDay = "input_openTipOfTheDay"
+    AD_open_tipOfTheDay = "input_openTipOfTheDay",
+    ADRefuelVehicle = "input_refuelVehicle"
 }
 
 
@@ -78,7 +79,8 @@ ADInputManager.inputsToIds = {
     input_toggleCP_AIVE = 26,
     input_record_subPrio = 27,
     input_record_subPrioDual = 28,
-    input_bunkerUnloadType = 29
+    input_bunkerUnloadType = 29,
+    input_refuelVehicle = 30
 }
 
 ADInputManager.idsToInputs = {}
@@ -459,4 +461,29 @@ end
 
 function ADInputManager:input_bunkerUnloadType(vehicle)    
     vehicle.ad.stateModule:nextBunkerUnloadType()
+end
+
+function ADInputManager:input_refuelVehicle(vehicle)
+    -- make sure we know which refuel type to check for   
+    local refuelFillType = AutoDrive.getRequiredRefuel(vehicle, true)
+    if refuelFillType > 0 then
+        if vehicle.ad.stateModule:getRefuelFillType() ~= refuelFillType then
+            vehicle.ad.stateModule:setRefuelFillType(refuelFillType)
+        end
+    end
+
+    local refuelDestination = ADTriggerManager.getClosestRefuelDestination(vehicle)
+    if refuelDestination ~= nil and refuelDestination >= 1 then
+        vehicle.ad.stateModule:setFirstMarker(refuelDestination)
+        vehicle.ad.stateModule:removeCPCallback()
+        if vehicle.ad.stateModule:isActive() then
+            self:input_start_stop(vehicle) --disable if already active
+        end
+        vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+        vehicle.ad.onRouteToRefuel = true
+        self:input_start_stop(vehicle)
+    else       
+        local refuelFillTypeTitle = g_fillTypeManager:getFillTypeByIndex(vehicle.ad.stateModule:getRefuelFillType()).title
+        AutoDriveMessageEvent.sendMessageOrNotification(vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Refuel_Station; %s", 5000, vehicle.ad.stateModule:getName(), refuelFillTypeTitle)
+    end
 end

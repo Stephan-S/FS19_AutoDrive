@@ -4,7 +4,6 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
 	local count = 0
 
     if not ADGraphManager:areWayPointsPrepared() then
-        print("ADPathCalculator - preparing waypoints")
 		AutoDrive.checkWaypointsLinkedtothemselve(true)		-- find WP linked to themselve, with parameter true issues will be fixed
 		AutoDrive.checkWaypointsMultipleSameOut(true)		-- find WP with multiple same out ID, with parameter true issues will be fixed
         ADGraphManager:prepareWayPoints()
@@ -12,7 +11,6 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
 
     local network = ADGraphManager:getWayPoints()
     local addedWeights = self:getDetourWeights()
-    local subPrioNode = ADGraphManager:getSubPrioMarkerNode()
     
     if startID == nil or targetID == nil or network[startID] == nil or network[targetID] == nil then
         return {}
@@ -34,19 +32,7 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
     end
 
     local isSubPrio = function(pointToTest) 
-        if subPrioNode == nil then
-            return false
-        end
-        for _, neighborId in pairs(pointToTest.out) do
-            local neighbor = network[neighborId]
-            if neighbor ~= nil then			
-                if neighbor.id == subPrioNode.id then
-                    return true
-                end
-            end
-        end
-    
-        return false
+        return bitAND(pointToTest.flags, AutoDrive.FLAG_SUBPRIO) > 0
     end
 
     local lastPredecessor = nil
@@ -97,7 +83,7 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
                                         preventTurnaroundWeight = 5000000
                                     end
                                 end
-								candidates:enqueue({p=outPoint, distance=(distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) * factor + (addedWeights[outPoint.id] or 0) + preventTurnaroundWeight), pre=point.id})
+								candidates:enqueue({p=outPoint, distance=(distance + (distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)) * factor + preventTurnaroundWeight), pre=point.id})
 							end
 
 							if results[point.id][outId] == nil then
@@ -121,7 +107,13 @@ function ADPathCalculator:GetPath(startID, targetID, preferredStartIds)
                             end
                         end
                         previousPoint = point.id
-                        distance = distance + distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)
+
+                        local factor = 1
+                        if isSubPrio(outPoint) then
+                            factor = 20
+                        end
+
+                        distance = distance + (distanceFunc(outPoint.x - point.x, outPoint.z - point.z) + (addedWeights[outPoint.id] or 0)) * factor
                         point = outPoint
                     else
                         point = nil

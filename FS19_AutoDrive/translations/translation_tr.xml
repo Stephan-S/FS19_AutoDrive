@@ -34,7 +34,9 @@
     <text name="input_ADIncLoopCounter"                                                                 text="AD: Döngü sayacını artırın"  />
 		<text name="input_ADbunkerUnloadType"					                                                      text="AD: Unload to Trailer or BGA" />
     <text name="input_ADParkVehicle"                                                                    text="AD: Aracı park et"  />
+		<text name="input_ADRefuelVehicle"						                                                      text="AD: Refuel vehicle" />
     <text name="input_ADSwapTargets"                                                                    text="AD: Hedefleri değiştir"  />
+		<text name="input_AD_devAction"                         			text="AD: Developer Action" />		
 		<text name="input_AD_open_tipOfTheDay" 					                                                    text="AD: Open Tip of the day" />
     <text name="hud_avoidFruit"                                                                         text="AD: Meyvelerden kaçının"  />
     <text name="hud_startCp"                                                                            text="AD: CP / AIVE'ı varış noktasında başlatın"  />
@@ -60,7 +62,7 @@
     <text name="AD_lctrl_for_extendedEditor"                                                            text="Genişletilmiş düzenleyici modu için LCTRL"  />
     <text name="AD_lctrl_for_creation"                                                                  text="Oluşturmak için LCTRL"  />
     <text name="AD_lalt_for_deletion"                                                                   text="Silmek için LALT"  />
-    <text name="AD_lshift_for_reverse"                                                                  text="LSHIFT geri sürüşü"  />
+    <text name="AD_lshift_for_reverse"                                                                  text="RSHIFT geri sürüşü"  />
     <text name="gui_ad_Setting"                                                                         text="AutoDrive - Ayarlar"  />
     <text name="gui_ad_collisionHeigth"                                                                 text="Yerde çarpışma yüksekliği"  />
     <text name="gui_ad_collisionHeigth_tooltip"                                                         text="Aracın önünde çarpışma algılaması için ayar. Sürüş sırasında diğer araçlar algılanmazsa, adım adım azaltın. (Varsayılan 2m)"  />

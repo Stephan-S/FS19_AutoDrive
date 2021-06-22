@@ -34,6 +34,7 @@
 		<text name="input_ADIncLoopCounter"						text="AD: Anzahl Wiederholungen erhöhen" />
 		<text name="input_ADbunkerUnloadType"					text="AD: In Trailer oder BGA abladen" />
 		<text name="input_ADParkVehicle"						text="AD: Fahrzeug parken" />
+		<text name="input_ADRefuelVehicle"						text="AD: Fahrzeug tanken" />
 		<text name="input_ADSwapTargets"						text="AD: Ziele tauschen" />
 		<text name="input_AD_devAction"                         text="AD: Entwickler Aktion" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Öffne Tip of the day" />
@@ -62,7 +63,7 @@
 		<text name="AD_lctrl_for_extendedEditor" 				text="LSTRG zum erweiterten Modus" />
 		<text name="AD_lctrl_for_creation" 						text="LSTRG zum Erstellen" />
 		<text name="AD_lalt_for_deletion" 						text="LALT zum Löschen" />
-		<text name="AD_lshift_for_reverse" 						text="LUMSCH rückwärts fahren" />
+		<text name="AD_lshift_for_reverse" 						text="RUMSCH rückwärts fahren" />
 		<text name="gui_ad_Setting"								text="AutoDrive - Einstellungen" />
 		<text name="gui_ad_collisionHeigth"						text="Kollisionshöhe über Grund" />
 		<text name="gui_ad_collisionHeigth_tooltip"				text="Einstellung der Kollisionserkennung vor dem Fahrzeug. Wenn andere Fahrzeuge während des Fahrens nicht erkannt werden, verringern. (Standard 2m)" />
