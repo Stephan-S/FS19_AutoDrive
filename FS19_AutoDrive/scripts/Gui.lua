@@ -10,6 +10,7 @@ function AutoDrive:loadGUI()
 	AutoDrive.gui.ADRoutesManagerGui = ADRoutesManagerGui:new()
 	AutoDrive.gui.ADNotificationsHistoryGui = ADNotificationsHistoryGui:new()
 	AutoDrive.gui.ADTipOfTheDayGUI = ADTipOfTheDayGUI:new()
+	AutoDrive.gui.ADSetRmParkDestinationGui = ADSetRmParkDestinationGui:new()
 
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterTargetNameGUI.xml", "ADEnterTargetNameGui", AutoDrive.gui.ADEnterTargetNameGui)
@@ -18,6 +19,7 @@ function AutoDrive:loadGUI()
 	g_gui:loadGui(AutoDrive.directory .. "gui/routesManagerGUI.xml", "ADRoutesManagerGui", AutoDrive.gui.ADRoutesManagerGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/notificationsHistoryGUI.xml", "ADNotificationsHistoryGui", AutoDrive.gui.ADNotificationsHistoryGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/tipOfTheDayGUI.xml", "ADTipOfTheDayGui", AutoDrive.gui.ADTipOfTheDayGUI)
+	g_gui:loadGui(AutoDrive.directory .. "gui/setRmParkDestinationGUI.xml", "ADSetRmParkDestinationGui", AutoDrive.gui.ADSetRmParkDestinationGui)
 
 	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
 	AutoDrive.gui.ADUserSettingsPage = ADSettingsPage:new()
@@ -100,5 +102,11 @@ end
 function AutoDrive.onOpenTipOfTheDay()
 	if not AutoDrive.gui.ADTipOfTheDayGUI.isOpen then
 		g_gui:showGui("ADTipOfTheDayGui")
+	end
+end
+
+function AutoDrive.onOpenSetRmParkDestination()
+	if not AutoDrive.gui.ADSetRmParkDestinationGui.isOpen then
+		g_gui:showGui("ADSetRmParkDestinationGui")
 	end
 end

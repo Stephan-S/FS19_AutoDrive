@@ -279,7 +279,7 @@ function ADInputManager:input_decLoopCounter(vehicle)
 end
 
 function ADInputManager:input_setParkDestination(vehicle)
-    AutoDrive.setActualParkDestination(vehicle)
+    AutoDrive.onOpenSetRmParkDestination(vehicle)
 end
 
 function ADInputManager:input_silomode(vehicle)

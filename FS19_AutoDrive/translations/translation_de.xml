@@ -327,6 +327,14 @@
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
         <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
 
+		<text name="gui_ad_setRmParkDestinationTitle"			text="Setze / Lösche Parkplatz" />
+		<text name="gui_ad_currentParkDestinationText"			text="Aktueller Parkplatz " />
+		<text name="gui_ad_noCurrentParkDestinationText"		text="Kein Parkplatz zugewiesen " />
+		<text name="gui_ad_selectedMarkerText"					text="Ausgewähltes Ziel: " />
+		<text name="button_set"									text="Setze" />
+		<text name="button_rm"									text="Löschen" />
+		<text name="gui_ad_targetEmpty"							text="Kein Ziel ausgewählt" />
+
 		<text name = "gui_CPAD_off"								text = "aus"/>
 		<text name = "gui_CPAD_simple"							text = "einfach"/>
 		<text name = "gui_CPAD_full"							text = "voll"/>

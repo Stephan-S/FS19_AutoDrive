@@ -131,6 +131,7 @@ source(Utils.getFilename("scripts/Gui/ExperimentalFeaturesSettingsPage.lua", g_c
 source(Utils.getFilename("scripts/Gui/Settings.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/TipOfTheDayGUI.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/TipOfTheDayHandler.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/SetRmParkDestinationGUI.lua", g_currentModDirectory))
 
 AutoDriveRegister = {}
 AutoDriveRegister.version = g_modManager:getModByName(g_currentModName).version
