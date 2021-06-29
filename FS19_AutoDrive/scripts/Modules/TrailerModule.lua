@@ -479,6 +479,12 @@ function ADTrailerModule:updateUnload(dt)
             elseif self.unloadRetryTimer:done() and self.isUnloadingWithTrailer ~= nil and self.unloadingToBunkerSilo == false then
                 self.isUnloadingWithTrailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OBJECT)
                 self.unloadRetryTimer:timer(false)      -- clear timer
+            elseif self.unloadingToBunkerSilo == true and (self.vehicle.lastSpeedReal * 3600 < 1) then
+                -- stuck in silo bunker
+                self.isUnloadingWithTrailer:setDischargeState(Dischargeable.DISCHARGE_STATE_OFF)
+                self.unloadDelayTimer:timer(false)      -- clear timer
+                self.isUnloading = false
+                self.unloadingToBunkerSilo = false
             end
         end
     end
@@ -597,15 +603,17 @@ function ADTrailerModule:startUnloadingIntoTrigger(trailer, trigger)
     else
         if (not self.vehicle.ad.drivePathModule:getIsReversing()) or self.vehicle:getLastSpeed() < 1 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "Start unloading into bunkersilo - fillUnitIndex: %s", tostring(trailer:getCurrentDischargeNode().fillUnitIndex))
-            trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
-            if self.unloadingToBunkerSilo == false then
-                self.bunkerStartFillLevel = self.fillLevel
-            end 
-            self.isUnloading = true
-            self.unloadingToBunkerSilo = true
-            self.bunkerTrailer = trailer
-            self.isUnloadingWithTrailer = trailer
-            self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+            if not (self.vehicle.lastSpeedReal * 3600 < 1) then
+                trailer:setDischargeState(Dischargeable.DISCHARGE_STATE_GROUND)
+                if self.unloadingToBunkerSilo == false then
+                    self.bunkerStartFillLevel = self.fillLevel
+                end 
+                self.isUnloading = true
+                self.unloadingToBunkerSilo = true
+                self.bunkerTrailer = trailer
+                self.isUnloadingWithTrailer = trailer
+                self.isUnloadingWithFillUnit = trailer:getCurrentDischargeNode().fillUnitIndex
+            end
         end
     end
 end

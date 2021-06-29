@@ -923,10 +923,12 @@ function AutoDrive:onStartAutoDrive()
         else
             if g_currentMission ~= nil and g_currentMission.player ~= nil and g_currentMission.player.farmId ~= nil and g_currentMission.player.farmId ~= 0 then
                 self.spec_aiVehicle.startedFarmId = g_currentMission.player.farmId
-            elseif self.getOwnerFarmId ~= nil and self:getOwnerFarmId() ~= nil and self:getOwnerFarmId() ~= 0 then
-                self.spec_aiVehicle.startedFarmId = self:getOwnerFarmId()
-            else
-                self.spec_aiVehicle.startedFarmId = 1 
+            elseif self.spec_aiVehicle.startedFarmId == nil or self.spec_aiVehicle.startedFarmId == 0 then
+                if self.getOwnerFarmId ~= nil and self:getOwnerFarmId() ~= nil and self:getOwnerFarmId() ~= 0 then
+                    self.spec_aiVehicle.startedFarmId = self:getOwnerFarmId()
+                else
+                    self.spec_aiVehicle.startedFarmId = 1
+                end
             end
         end
     end

@@ -232,20 +232,21 @@
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
 
 		<text name="gui_ad_colorSettingsTitle" 			        text="Farbzuweisungen" />
-		<text name="ad_color_singleConnection" 			        text="Linie Hauptstrecke eine Richtung" />
-		<text name="ad_color_dualConnection" 			        text="Linie Hauptstrecke zwei Richtungen" />
-		<text name="ad_color_reverseConnection" 			    text="Linie Rückwärtsstrecke" />
-		<text name="ad_color_default" 			                text="Wegpunkt Hauptstrecke und Rückwärtsstrecke" />
-		<text name="ad_color_subPrioSingleConnection" 			text="Linie Nebenstrecken eine Richtung" />
-		<text name="ad_color_subPrioDualConnection" 			text="Linie Nebenstrecken zwei Richtungen" />
-		<text name="ad_color_subPrioNode" 			            text="Wegpunkt Nebenstrecke" />
-		<text name="ad_color_hoveredNode" 			            text="Wegpunkt unter Mauszeiger (hover)" />
-		<text name="ad_color_previousNode" 			            text="vorheriger verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
-		<text name="ad_color_nextNode" 			                text="nächster verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
-		<text name="ad_color_selectedNode" 			            text="mit Mausklick markierter Wegpunkt" />
-		<text name="ad_color_currentConnection" 			    text="Pfeil nächster Pfad" />
-		<text name="ad_color_closestLine" 			            text="Linie Fahrzeug <-> naheliegendster Wegpunkt" />
-		<text name="ad_color_editorHeightLine" 			        text="senkrechte Linie Wegpunkt am Boden <-> Wegpunkt über dem Fahrzeug" />
+        <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
+		<text name="ad_color_singleConnection" 			        text="01 Linie Hauptstrecke eine Richtung" />
+		<text name="ad_color_dualConnection" 			        text="02 Linie Hauptstrecke zwei Richtungen" />
+		<text name="ad_color_reverseConnection" 			    text="03 Linie Rückwärtsstrecke" />
+		<text name="ad_color_default" 			                text="04 Wegpunkt Hauptstrecke und Rückwärtsstrecke" />
+		<text name="ad_color_subPrioSingleConnection" 			text="05 Linie Nebenstrecke eine Richtung" />
+		<text name="ad_color_subPrioDualConnection" 			text="06 Linie Nebenstrecke zwei Richtungen" />
+		<text name="ad_color_subPrioNode" 			            text="07 Wegpunkt Nebenstrecke" />
+		<text name="ad_color_hoveredNode" 			            text="08 Wegpunkt unter Mauszeiger (hover)" />
+		<text name="ad_color_previousNode" 			            text="09 vorheriger verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
+		<text name="ad_color_nextNode" 			                text="10 nächster verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
+		<text name="ad_color_selectedNode" 			            text="11 mit Mausklick markierter Wegpunkt" />
+		<text name="ad_color_currentConnection" 			    text="12 Pfeil nächster Pfad" />
+		<text name="ad_color_closestLine" 			            text="13 Linie Fahrzeug <-> naheliegendster Wegpunkt" />
+		<text name="ad_color_editorHeightLine" 			        text="14 senkrechte Linie Wegpunkt am Boden <-> Wegpunkt über dem Fahrzeug" />
 
 		<text name="button_delete_all" 							text="Alle löschen" />
 		<text name="button_reset_selected" 					    text="Ausgewählten zurücksetzen" />

@@ -1223,7 +1223,7 @@ function ADGraphManager:getIsWayPointJunction(startId, targetId)
     local startConnectedIds = {}
     local startConnectedIdsIncoming = {}
     local startConnectedIdsOut = {}
-    -- local targetConnectedIds = {}
+    local targetConnectedIds = {}
     local targetConnectedIdsIncoming = {}
     local targetConnectedIdsOut = {}
 
@@ -1242,37 +1242,35 @@ function ADGraphManager:getIsWayPointJunction(startId, targetId)
     addConnections(wayPointStart.incoming, startConnectedIdsIncoming)
     addConnections(wayPointStart.out, startConnectedIdsOut)
 
-    -- addConnections(wayPointTarget.incoming, targetConnectedIds)
-    -- addConnections(wayPointTarget.out, targetConnectedIds)
+    addConnections(wayPointTarget.incoming, targetConnectedIds)
+    addConnections(wayPointTarget.out, targetConnectedIds)
     addConnections(wayPointTarget.incoming, targetConnectedIdsIncoming)
     addConnections(wayPointTarget.out, targetConnectedIdsOut)
 
     if 
-        table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId) and 
-        (#startConnectedIds >= 3) and
-        #targetConnectedIdsIncoming == 1 and #targetConnectedIdsOut == 1
+        not (table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId)) and
+        table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId) and
+        (#startConnectedIds >= 3) and (#targetConnectedIds == 2)
         then
         -- one way ahead
         return 1
     elseif 
-        table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId) and 
-        (#startConnectedIds >= 3) and
-        #targetConnectedIdsIncoming == 1 and #targetConnectedIdsOut == 1
+        table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId) and
+        not (table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId)) and
+        (#startConnectedIds >= 3) and (#targetConnectedIds == 2)
         then
         -- one way backward
         return 2
     elseif 
-        table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId) and 
-        table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId) and 
-        (#startConnectedIds >= 3) and
-        #targetConnectedIdsIncoming == 2 and #targetConnectedIdsOut == 2
+        table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId) and
+        table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId) and
+        (#startConnectedIds >= 3) and (#targetConnectedIds == 2)
         then
         -- two way
         return 3
     elseif 
         table.contains(startConnectedIdsOut, targetId) and not table.contains(targetConnectedIdsIncoming, startId) and 
-        (#startConnectedIds >= 3) and
-        #targetConnectedIdsIncoming == 0 and #targetConnectedIdsOut == 1
+        (#startConnectedIds >= 3)
         then
         -- reverse
         return 4

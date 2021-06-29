@@ -230,6 +230,7 @@
 		<text name="gui_ad_notificationHistoryTitle" 			text="Powiadomienia" />
 
 		<text name="gui_ad_colorSettingsTitle" 			        text="Przypisywanie kolorów" />
+            <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
 		<text name="ad_color_singleConnection" 			        text="linia drogi jednokierunkowej" />
 		<text name="ad_color_dualConnection" 			        text="linia drogi dwukierunkowej" />
 		<text name="ad_color_reverseConnection" 			    text="linia drogi cofania" />
