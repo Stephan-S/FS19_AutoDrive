@@ -264,7 +264,10 @@ function ADStateModule:update(dt)
 		self.calculateRemainingDriveTimeInterval = self.calculateRemainingDriveTimeInterval + dt
 		if self.calculateRemainingDriveTimeInterval > ADStateModule.CALCULATE_REMAINING_DRIVETIME_INTERVAL then
 			self.calculateRemainingDriveTimeInterval = 0
-			self:calculateRemainingDriveTime()
+			if AutoDrive:getIsEntered(self.vehicle) then
+				-- performance: calculation only useful if vehicle is entered by any user
+				self:calculateRemainingDriveTime()
+			end
 		end
 	end
 

@@ -9,6 +9,7 @@ function AutoDrive:loadGUI()
 	AutoDrive.gui.ADEnterDestinationFilterGui = ADEnterDestinationFilterGui:new()
 	AutoDrive.gui.ADRoutesManagerGui = ADRoutesManagerGui:new()
 	AutoDrive.gui.ADNotificationsHistoryGui = ADNotificationsHistoryGui:new()
+	AutoDrive.gui.ADColorSettingsGui = ADColorSettingsGui:new()
 	AutoDrive.gui.ADTipOfTheDayGUI = ADTipOfTheDayGUI:new()
 
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDriverNameGUI.xml", "ADEnterDriverNameGui", AutoDrive.gui.ADEnterDriverNameGui)
@@ -17,6 +18,7 @@ function AutoDrive:loadGUI()
 	g_gui:loadGui(AutoDrive.directory .. "gui/enterDestinationFilterGUI.xml", "ADEnterDestinationFilterGui", AutoDrive.gui.ADEnterDestinationFilterGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/routesManagerGUI.xml", "ADRoutesManagerGui", AutoDrive.gui.ADRoutesManagerGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/notificationsHistoryGUI.xml", "ADNotificationsHistoryGui", AutoDrive.gui.ADNotificationsHistoryGui)
+	g_gui:loadGui(AutoDrive.directory .. "gui/colorSettingsGUI.xml", "ADColorSettingsGui", AutoDrive.gui.ADColorSettingsGui)
 	g_gui:loadGui(AutoDrive.directory .. "gui/tipOfTheDayGUI.xml", "ADTipOfTheDayGui", AutoDrive.gui.ADTipOfTheDayGUI)
 
 	AutoDrive.gui.ADSettingsPage = ADSettingsPage:new()
@@ -94,6 +96,12 @@ end
 function AutoDrive.onOpenNotificationsHistory()
 	if not AutoDrive.gui.ADNotificationsHistoryGui.isOpen then
 		g_gui:showGui("ADNotificationsHistoryGui")
+	end
+end
+
+function AutoDrive.onOpenColorSettings()
+	if not AutoDrive.gui.ADColorSettingsGui.isOpen then
+		g_gui:showGui("ADColorSettingsGui")
 	end
 end
 

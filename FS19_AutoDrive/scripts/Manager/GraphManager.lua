@@ -3,6 +3,7 @@ ADGraphManager = {}
 ADGraphManager.debugGroupName = "AD_Debug"
 ADGraphManager.SUB_PRIO_FACTOR = 20
 ADGraphManager.MIN_START_DISTANCE = 8
+ADGraphManager.MAX_POINTS_IN_SECTION = 100000
 
 function ADGraphManager:load()
 	self.wayPoints = {}
@@ -218,6 +219,26 @@ function ADGraphManager:checkYPositionIntegrity()
 	for _, wp in pairs(self.wayPoints) do
 		if wp.y == -1 then
 			wp.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wp.x, 1, wp.z)
+		end
+	end
+end
+
+function ADGraphManager:checkSubPrioIntegrity()
+	for _, wp in pairs(self.wayPoints) do
+		if wp.x >= -1.01 and wp.x <= -0.99 and wp.z >= -1.01 and wp.z <= -0.99 then
+			-- Found old sub prio marker
+			-- Transfer to new style now
+			for __, wpInner in pairs(self.wayPoints) do
+				if wpInner.id ~= wp.id then
+					for _, neighborId in pairs(wpInner.out) do
+						if neighborId == wp.id then
+							self:toggleWayPointAsSubPrio(wpInner.id)
+						end
+					end
+				end
+			end
+
+			self:removeWayPoint(wp.id)
 		end
 	end
 end
@@ -543,6 +564,55 @@ function ADGraphManager:toggleConnectionBetween(startNode, endNode, reverseDirec
 	end
 end
 
+--[[
+single connection ahead                      1
+single connection backward (not reverse)     2
+dual connection                              3
+reverse connection                           4
+]]
+function ADGraphManager:setConnectionBetween(startNode, endNode, direction, sendEvent)
+	if startNode == nil or endNode == nil or direction < 1 or direction > 4 then
+		return
+	end
+	if sendEvent == nil or sendEvent == true then
+		-- Propagating connection toggling all over the network
+		AutoDriveSetConnectionEvent.sendEvent(startNode, endNode, direction)
+	else
+        -- remove all connections between the 2 nodes
+		if table.contains(startNode.out, endNode.id) then
+			table.removeValue(startNode.out, endNode.id)
+        end
+		if table.contains(startNode.incoming, endNode.id) then
+			table.removeValue(startNode.incoming, endNode.id)
+        end
+		if table.contains(endNode.out, startNode.id) then
+			table.removeValue(endNode.out, startNode.id)
+        end
+		if table.contains(endNode.incoming, startNode.id) then
+			table.removeValue(endNode.incoming, startNode.id)
+        end
+        if direction == 1 then
+            -- forward
+            table.insert(startNode.out, endNode.id)
+            table.insert(endNode.incoming, startNode.id)
+        elseif direction == 2 then
+            -- backward
+            table.insert(startNode.incoming, endNode.id)
+            table.insert(endNode.out, startNode.id)
+        elseif direction == 3 then
+            -- dual
+            table.insert(startNode.out, endNode.id)
+            table.insert(endNode.incoming, startNode.id)
+            table.insert(startNode.incoming, endNode.id)
+            table.insert(endNode.out, startNode.id)
+        elseif direction == 4 then
+            -- reverse
+            table.insert(startNode.out, endNode.id)
+        end
+		self:markChanges()
+	end
+end
+
 function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	if sendEvent == nil or sendEvent == true then
 		-- Propagating waypoint creation all over the network
@@ -550,7 +620,7 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	else
 		local prevId = self:getWayPointsCount()
 		local newId = prevId + 1
-		local newWp = self:createNode(newId, x, y, z, {}, {})
+		local newWp = self:createNode(newId, x, y, z, {}, {}, 0)
 		self:setWayPoint(newWp)
 		self:markChanges()
 
@@ -558,29 +628,40 @@ function ADGraphManager:createWayPoint(x, y, z, sendEvent)
 	end
 end
 
-function ADGraphManager:changeWayPointPosition(wayPonitId)
-	local wayPoint = self:getWayPointById(wayPonitId)
+function ADGraphManager:createWayPointColored(x, y, z, colors)
+    local prevId = self:getWayPointsCount()
+    local newId = prevId + 1
+    local newWp = self:createNode(newId, x, y, z, {}, {}, 0, colors)
+    self:setWayPoint(newWp)
+    self:markChanges()
+
+    return newWp
+end
+
+function ADGraphManager:changeWayPointPosition(wayPointId)
+	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
-		self:moveWayPoint(wayPonitId, wayPoint.x, wayPoint.y, wayPoint.z)
+		self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, wayPoint.flags)
 	end
 end
 
-function ADGraphManager:moveWayPoint(wayPonitId, x, y, z, sendEvent)
-	local wayPoint = self:getWayPointById(wayPonitId)
+function ADGraphManager:moveWayPoint(wayPointId, x, y, z, flags, sendEvent)
+	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
 		if sendEvent == nil or sendEvent == true then
 			-- Propagating waypoint moving all over the network
-			AutoDriveMoveWayPointEvent.sendEvent(wayPonitId, x, y, z)
+			AutoDriveMoveWayPointEvent.sendEvent(wayPointId, x, y, z, flags)
 		else
 			wayPoint.x = x
 			wayPoint.y = y
 			wayPoint.z = z
+			wayPoint.flags = flags
 			self:markChanges()
 		end
 	end
 end
 
-function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, isSubPrio, sendEvent)
+function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse, previousId, flags, sendEvent)
 	previousId = previousId or 0
 	local previous
 	if connectPrevious then
@@ -592,7 +673,7 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 	if g_server ~= nil then
 		if sendEvent ~= false then
 			-- Propagating waypoint recording to clients
-			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId, isSubPrio)
+			AutoDriveRecordWayPointEvent.sendEvent(x, y, z, connectPrevious, dual, isReverse, previousId, flags)
 		end
 	else
 		if sendEvent ~= false then
@@ -601,17 +682,13 @@ function ADGraphManager:recordWayPoint(x, y, z, connectPrevious, dual, isReverse
 		end
 	end
 	local newId = self:getWayPointsCount() + 1
-	local newWp = self:createNode(newId, x, y, z, {}, {})
+	local newWp = self:createNode(newId, x, y, z, {}, {}, flags)
 	self:setWayPoint(newWp)
 	if connectPrevious then
 		self:toggleConnectionBetween(previous, newWp, isReverse, false)
 		if dual then
 			self:toggleConnectionBetween(newWp, previous, isReverse, false)
 		end
-	end
-
-	if isSubPrio then
-		self:toggleWayPointAsSubPrio(newId)
 	end
 
 	self:markChanges()
@@ -631,10 +708,10 @@ function ADGraphManager:isDualRoad(start, target)
 end
 
 function ADGraphManager:isReverseRoad(start, target)
-	if start == nil or target == nil or start.incoming == nil or target.id == nil then
-		return false
-	end
-	return not table.contains(target.incoming, start.id)
+    if start == nil or target == nil or start.out == nil or start.id == nil or target.id == nil then
+        return false
+    end
+    return (not table.contains(target.incoming, start.id) and table.contains(start.out, target.id))
 end
 
 function ADGraphManager:getDistanceBetweenNodes(start, target)
@@ -832,14 +909,16 @@ function ADGraphManager:getWayPointsInRange(point, rangeMin, rangeMax)
 	return inRange
 end
 
-function ADGraphManager:createNode(id, x, y, z, out, incoming)
+function ADGraphManager:createNode(id, x, y, z, out, incoming, flags, colors)
 	return {
 		id = id,
 		x = x,
 		y = y,
 		z = z,
 		out = out,
-		incoming = incoming
+		incoming = incoming,
+		flags = flags,
+        colors = colors
 	}
 end
 
@@ -1034,53 +1113,31 @@ end
 function ADGraphManager:toggleWayPointAsSubPrio(wayPointId)
 	local wayPoint = self:getWayPointById(wayPointId)
 	if wayPoint ~= nil then
-		-- check if debug node for subPrio exists
-		local subPrioNode = self:getSubPrioMarkerNode()
-
-		self:toggleConnectionBetween(wayPoint, subPrioNode, false)
-	end
-end
-
-function ADGraphManager:getSubPrioMarkerNode()
-	if self.subPrioMarkerNode == nil then
-		for _, wp in pairs(self.wayPoints) do
-			if self:getIsPointSubPrioMarker(wp.id) then
-				self.subPrioMarkerNode = wp
-				break
-			end
+		if self:getIsPointSubPrio(wayPointId) then
+			wayPoint.flags = wayPoint.flags - AutoDrive.FLAG_SUBPRIO
+		else
+			wayPoint.flags = wayPoint.flags + AutoDrive.FLAG_SUBPRIO
 		end
 	end
 
-	if self.subPrioMarkerNode == nil then
-		self.subPrioMarkerNode = self:createWayPoint(-1, -1, -1)
-	end
+	self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, wayPoint.flags)
 
-	return self.subPrioMarkerNode
+	self:markChanges()
 end
 
 function ADGraphManager:getIsPointSubPrio(wayPointId)
 	local wayPoint = self:getWayPointById(wayPointId)
-	
-	for _, neighborId in pairs(wayPoint.out) do
-		local neighbor = ADGraphManager:getWayPointById(neighborId)
-		if neighbor ~= nil then			
-			if neighbor.id == self:getSubPrioMarkerNode().id then
-				return true
-			end
-		end
-	end
-
-	return false
+		
+	return bitAND(wayPoint.flags, AutoDrive.FLAG_SUBPRIO) > 0
 end
 
-function ADGraphManager:getIsPointSubPrioMarker(wayPointId)
+function ADGraphManager:setWayPointFlags(wayPointId, flags)
 	local wayPoint = self:getWayPointById(wayPointId)
-	
-	if wayPoint.x >= -1.01 and wayPoint.x <= -0.99 and wayPoint.z >= -1.01 and wayPoint.z <= -0.99 then
-		return true
-	end
+	if wayPoint ~= nil and flags ~= nil then
+        self:moveWayPoint(wayPointId, wayPoint.x, wayPoint.y, wayPoint.z, flags)
 
-	return false
+        self:markChanges()
+	end
 end
 
 function ADGraphManager:getBestOutPoints(vehicle, nodeId)
@@ -1101,4 +1158,221 @@ function ADGraphManager:getBestOutPoints(vehicle, nodeId)
 	end
 
 	return neighbors
+end
+
+--[[
+TODO: at the moment only supported for directions:
+single connection ahead                      1
+single connection backward (not reverse)     2
+dual connection                              3
+reverse connection                          not tested !!!
+]]
+function ADGraphManager:getIsWayPointInSection(wayPointId, direction)
+	local wayPoint = self:getWayPointById(wayPointId)
+    if wayPoint == nil then
+        return false
+    end
+
+    local connectedIds = {}
+    for _, incomingId in pairs(wayPoint.incoming) do
+        if not table.contains(connectedIds, incomingId) then
+            table.insert(connectedIds, incomingId)
+        end
+    end
+    for _, outId in pairs(wayPoint.out) do
+        if not table.contains(connectedIds, outId) then
+            table.insert(connectedIds, outId)
+        end
+    end
+    if #connectedIds == 2 and not (direction == 4) then
+        -- single or dual connection
+        -- check for reverse wayPoint -> if found as connected wayPoint the current is reported as not in section
+        -- this is used to treat this wayPoint as last in a section
+        local foundReverse = false
+        for _, connectedId in pairs(connectedIds) do
+            connectedWayPoint = self:getWayPointById(connectedId)
+            foundReverse = foundReverse or ADGraphManager:isReverseRoad(wayPoint, connectedWayPoint)
+        end
+        return not foundReverse
+    elseif #connectedIds == 1 and direction == 4 then
+        -- single end -> used for reverse section TODO: to be checked
+        return true
+    else
+        return false
+    end
+end
+
+--[[
+no junction                                  return 0
+single connection ahead                      return 1
+single connection backward (not reverse)     return 2
+dual connection                              return 3
+reverse connection                           return 4
+]]
+function ADGraphManager:getIsWayPointJunction(startId, targetId)
+    if startId <= 0 or targetId <=0 then
+        return 0
+    end
+
+	local wayPointStart = self:getWayPointById(startId)
+	local wayPointTarget = self:getWayPointById(targetId)
+    if wayPointTarget == nil or  wayPointStart == nil then
+        return 0
+    end
+
+    local startConnectedIds = {}
+    local startConnectedIdsIncoming = {}
+    local startConnectedIdsOut = {}
+    local targetConnectedIds = {}
+    local targetConnectedIdsIncoming = {}
+    local targetConnectedIdsOut = {}
+
+    local function addConnections(input, connections)
+        if connections ~= nil and #input > 0 then
+            for _, connectedId in pairs(input) do
+                if not table.contains(connections, connectedId) then
+                    table.insert(connections, connectedId)
+                end
+            end
+        end
+    end
+
+    addConnections(wayPointStart.incoming, startConnectedIds)
+    addConnections(wayPointStart.out, startConnectedIds)
+    addConnections(wayPointStart.incoming, startConnectedIdsIncoming)
+    addConnections(wayPointStart.out, startConnectedIdsOut)
+
+    addConnections(wayPointTarget.incoming, targetConnectedIds)
+    addConnections(wayPointTarget.out, targetConnectedIds)
+    addConnections(wayPointTarget.incoming, targetConnectedIdsIncoming)
+    addConnections(wayPointTarget.out, targetConnectedIdsOut)
+
+    if 
+        not (table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId)) and
+        table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId) and
+        (#startConnectedIds >= 3) and (#targetConnectedIds == 2)
+        then
+        -- one way ahead
+        return 1
+    elseif 
+        table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId) and
+        not (table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId)) and
+        (#startConnectedIds >= 3) and (#targetConnectedIds == 2)
+        then
+        -- one way backward
+        return 2
+    elseif 
+        table.contains(startConnectedIdsIncoming, targetId) and table.contains(targetConnectedIdsOut, startId) and
+        table.contains(startConnectedIdsOut, targetId) and table.contains(targetConnectedIdsIncoming, startId) and
+        (#startConnectedIds >= 3) and (#targetConnectedIds == 2)
+        then
+        -- two way
+        return 3
+    elseif 
+        table.contains(startConnectedIdsOut, targetId) and not table.contains(targetConnectedIdsIncoming, startId) and 
+        (#startConnectedIds >= 3)
+        then
+        -- reverse
+        return 4
+    else
+        return 0
+    end
+end
+
+--[[
+at the moment only supported for directions:
+single connection ahead                      1
+single connection backward (not reverse)     2
+dual connection                              3
+]]
+function ADGraphManager:getWayPointsInSection(startId, targetId, direction)
+	local previousId = startId
+	local nextId = targetId
+    local sectionWayPoints = {}
+
+    if direction < 1 or direction > 3 then
+        return sectionWayPoints
+    end
+
+    if not table.contains(sectionWayPoints, previousId) then
+        -- add the first wayPoint
+        table.insert(sectionWayPoints, previousId)
+    end
+    local count = 1
+    while count < ADGraphManager.MAX_POINTS_IN_SECTION and self:getIsWayPointInSection(nextId, direction) do
+        count = count + 1
+        table.insert(sectionWayPoints, nextId)
+        local nextwayPoint = self:getWayPointById(nextId)
+
+        if nextwayPoint.incoming[1] ~= nil and nextwayPoint.incoming[1] ~= previousId  then
+            previousId = nextId
+            nextId = nextwayPoint.incoming[1]
+        elseif nextwayPoint.incoming[2] ~= nil and nextwayPoint.incoming[2] ~= previousId  then
+            previousId = nextId
+            nextId = nextwayPoint.incoming[2]
+        elseif nextwayPoint.out[1] ~= nil and nextwayPoint.out[1] ~= previousId  then
+            previousId = nextId
+            nextId = nextwayPoint.out[1]
+        elseif nextwayPoint.out[2] ~= nil and nextwayPoint.out[2] ~= previousId  then
+            previousId = nextId
+            nextId = nextwayPoint.out[2]
+        else
+            break
+        end
+    end
+    if not table.contains(sectionWayPoints, nextId) then
+        -- add the last wayPoint
+        table.insert(sectionWayPoints, nextId)
+    end
+    return sectionWayPoints
+end
+
+function ADGraphManager:setConnectionBetweenWayPointsInSection(vehicle, direction)
+    if vehicle.ad.sectionWayPoints ~= nil and #vehicle.ad.sectionWayPoints > 2 then
+        for i = 1, #vehicle.ad.sectionWayPoints - 1 do
+            ADGraphManager:setConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.sectionWayPoints[i]), ADGraphManager:getWayPointById(vehicle.ad.sectionWayPoints[i+1]), direction)
+        end
+    end
+end
+
+function ADGraphManager:setWayPointsFlagsInSection(vehicle, flags)
+    if vehicle.ad.sectionWayPoints ~= nil and #vehicle.ad.sectionWayPoints > 2 then
+        for i = 2, #vehicle.ad.sectionWayPoints - 1 do
+            -- do not set start and end wayPoint as these are the connections to other lines
+            ADGraphManager:setWayPointFlags(vehicle.ad.sectionWayPoints[i], flags)
+        end
+    end
+end
+
+function ADGraphManager:deleteWayPointsInSection(vehicle)
+    if vehicle.ad.sectionWayPoints ~= nil and #vehicle.ad.sectionWayPoints > 2 then
+        local pointsToDelete = {}
+        for i = 2, #vehicle.ad.sectionWayPoints - 1 do
+            table.insert(pointsToDelete, vehicle.ad.sectionWayPoints[i])
+        end
+        -- sort the wayPoints to delete in descant order to ensure correct linkage deletion
+        local sort_func = function(a, b)
+            return a > b
+        end
+        table.sort(pointsToDelete, sort_func)
+        for i = 1, #pointsToDelete do
+            ADGraphManager:removeWayPoint(pointsToDelete[i])
+        end
+    end
+end
+
+function ADGraphManager:deleteColorSelectionWayPoints()
+    -- delete the color selection wayPoints in descant order to ensure correct linkage deletion
+    local actualID = self:getWayPointsCount()
+    local count = 1
+    while count < (10000000) and actualID > 1 do
+        count = count + 1
+        local wp = ADGraphManager:getWayPointById(actualID)
+        if wp.colors ~= nil then
+            ADGraphManager:removeWayPoint(actualID, false)
+            actualID = self:getWayPointsCount()     -- removed a wayPoint so check from highest again
+        else
+            actualID = actualID - 1
+        end
+    end
 end

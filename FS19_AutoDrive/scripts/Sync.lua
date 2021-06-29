@@ -4,6 +4,7 @@ AutoDriveSync.MWPC_SNB_SEND_NUM_BITS = 5 -- 0 -> 31
 AutoDriveSync.OIWPC_SEND_NUM_BITS = 6 -- 0 -> 63
 AutoDriveSync.MC_SEND_NUM_BITS = 12 -- 0 -> 4095
 AutoDriveSync.GC_SEND_NUM_BITS = 10 -- 0 -> 1023
+AutoDriveSync.FLAG_SEND_NUM_BITS = 5 -- 0 -> 31
 
 AutoDriveSync_mt = Class(AutoDriveSync, Object)
 
@@ -111,6 +112,8 @@ function AutoDriveSync.streamWriteGraph(streamId, wayPoints, mapMarkers, groups)
         for _, incoming in pairs(wp.incoming) do
             streamWriteUIntN(streamId, incoming, self.MWPC_SEND_NUM_BITS)
         end
+        
+        streamWriteUIntN(streamId, wp.flags, self.FLAG_SEND_NUM_BITS)
     end
 
     -- writing the amount of markers we are going to send
@@ -179,6 +182,10 @@ function AutoDriveSync.streamReadGraph(streamId)
         for ii = 1, incomingCount do
             wp.incoming[ii] = streamReadUIntN(streamId, self.MWPC_SEND_NUM_BITS)
         end
+        
+        local flags = streamReadUIntN(streamId, self.FLAG_SEND_NUM_BITS)
+
+        wp.flags = flags
 
         wayPoints[i] = wp
     end

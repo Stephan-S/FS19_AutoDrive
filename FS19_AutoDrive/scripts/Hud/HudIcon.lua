@@ -7,7 +7,7 @@ function ADHudIcon:new(posX, posY, width, height, image, layer, name)
     o.name = name
     o.image = image
     o.isVisible = true
-
+    o.lastLineCount = 1
     o.ov = Overlay:new(o.image, o.position.x, o.position.y, o.size.width, o.size.height)
 
     return o
@@ -33,47 +33,32 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
     local adPosX = self.position.x + AutoDrive.Hud.gapWidth
     local adPosY = self.position.y + (self.size.height - textHeight) / 2
 
+    if AutoDrive.Hud.isShowingTips then
+        adPosY = self.position.y + (AutoDrive.Hud.gapHeight)
+    end
+
     setTextBold(false)
     setTextColor(1, 1, 1, 1)
     setTextAlignment(RenderText.ALIGN_LEFT)
-    local firstLineText = ""
-    local secondLineText = ""
+    self:renderDefaultText(vehicle, uiScale, adFontSize, adPosX, adPosY)
+    if AutoDrive.Hud.isShowingTips then
+        adPosY = adPosY + textHeight + AutoDrive.Hud.gapHeight
+        adPosY = adPosY + (textHeight + AutoDrive.Hud.gapHeight) * (self.lastLineCount - 1)        
+        self:renderEditorTips(textHeight, adFontSize, adPosX, adPosY)
+    end
+end
 
+function ADHudIcon:renderDefaultText(vehicle, uiScale, fontSize, posX, posY)  
+    local textHeight = getTextHeight(fontSize, "text")
     local textToShow = "AutoDrive"
     textToShow = textToShow .. " - " .. AutoDrive.version
     textToShow = textToShow .. " - " .. AutoDriveHud:getModeName(vehicle)
-
-    local remainingTime = vehicle.ad.stateModule:getRemainingDriveTime()
-    if remainingTime ~= 0 then
-        local remainingMinutes = math.floor(remainingTime / 60)
-        local remainingSeconds = remainingTime % 60
-        if remainingMinutes > 0 then
-            textToShow = textToShow .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds))
-        elseif remainingSeconds ~= 0 then
-            textToShow = textToShow .. " - " .. string.format("%2.0f", remainingSeconds) .. "s"
-        end
-    end
-
-    if vehicle.ad.sToolTip ~= "" and AutoDrive.getSetting("showTooltips") then
-        if vehicle.ad.toolTipIsSetting then
-            textToShow = textToShow .. " - " .. g_i18n:getText(vehicle.ad.sToolTip)
-        else
-            textToShow = textToShow .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
-        end
-
-        if vehicle.ad.sToolTipInfo ~= nil then
-            textToShow = textToShow .. " - " .. vehicle.ad.sToolTipInfo
-        end
-    end
+    textToShow = self:addVehicleDriveTimeString(vehicle, textToShow)
+    textToShow = self:addTooltipString(vehicle, textToShow)    
 
     local taskInfo = vehicle.ad.stateModule:getCurrentLocalizedTaskInfo()
     if taskInfo ~= "" then
         textToShow = textToShow .. " - " .. taskInfo
-    end
-
-    if AutoDrive.isInExtendedEditorMode() then
-        textToShow = textToShow .. " - " .. g_i18n:getText("AD_lshift_for_reverse")
-        textToShow = textToShow .. " / " .. g_i18n:getText("AD_lalt_for_deletion")
     end
 
     if AutoDrive.isEditorModeEnabled() and AutoDrive.getDebugChannelIsSet(AutoDrive.DC_PATHINFO) then
@@ -82,60 +67,91 @@ function ADHudIcon:onDrawHeader(vehicle, uiScale)
         end
     end
 
-    local textWidth = getTextWidth(adFontSize, textToShow)
-    if textWidth > self.size.width - 4 * AutoDrive.Hud.gapWidth then
-        --expand header bar and split text
-        if self.isExpanded == nil or self.isExpanded == false then
-            self.ov:setDimension(nil, self.size.height + textHeight + AutoDrive.Hud.gapHeight)
-            self.isExpanded = true
-        end
+    local lines = self:splitTextByLength(textToShow, fontSize, self.size.width - 4 * AutoDrive.Hud.gapWidth - 3 * AutoDrive.Hud.headerIconWidth)
+    
+    if #lines ~= self.lastLineCount then
+        self.ov:setDimension(nil, self.size.height + (textHeight + AutoDrive.Hud.gapHeight) * (#lines - 1))        
+    end
 
-        local textParts = textToShow:split("-")
-
-        local width = 0
-        local textIndex = 1
-        while (width < self.size.width - 4 * AutoDrive.Hud.gapWidth) and textParts[textIndex] ~= nil do
-            local textToAdd = ""
-            if textIndex > 1 then
-                textToAdd = textToAdd .. "-"
-            end
-            textToAdd = textToAdd .. textParts[textIndex]
-            width = getTextWidth(adFontSize, firstLineText .. textToAdd)
-
-            if (width < self.size.width - 4 * AutoDrive.Hud.gapWidth) then
-                firstLineText = firstLineText .. textToAdd
-                textIndex = textIndex + 1
-            end
-        end
-
-        local secondLineIndex = 1
-        while textParts[textIndex] ~= nil do
-            if secondLineIndex > 1 then
-                secondLineText = secondLineText .. "-"
-            end
-            secondLineText = secondLineText .. textParts[textIndex]
-            if secondLineIndex == 1 then
-                secondLineText = textParts[textIndex]:sub(2)
-            end
-            secondLineIndex = secondLineIndex + 1
-            textIndex = textIndex + 1
-        end
-
+    for lineNumber, lineText in pairs(lines) do
         if AutoDrive.pullDownListExpanded == 0 then
-            renderText(adPosX, adPosY, adFontSize, firstLineText)
-            adPosY = adPosY + textHeight + AutoDrive.Hud.gapHeight
-            renderText(adPosX, adPosY, adFontSize, secondLineText)
-        end
-    else
-        if self.isExpanded ~= nil and self.isExpanded == true then
-            self.isExpanded = false
-            self.ov:resetDimensions()
-        end
-
-        if AutoDrive.pullDownListExpanded == 0 then
-            renderText(adPosX, adPosY, adFontSize, textToShow)
+            renderText(posX, posY, fontSize, lineText)
+            posY = posY + textHeight + AutoDrive.Hud.gapHeight
         end
     end
+    self.lastLineCount = #lines
+end
+
+function ADHudIcon:renderEditorTips(textHeight, fontSize, posX, posY)
+    local editorTips = {}
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_11"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_10"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_9"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_8"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_7"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_6"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_5"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_4"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_3"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_2"))
+    table.insert(editorTips, g_i18n:getText("gui_ad_editorTip_1"))
+
+    for tipId, tip in pairs(editorTips) do
+        if AutoDrive.pullDownListExpanded == 0 then
+            renderText(posX, posY, fontSize, tip)
+            posY = posY + textHeight + AutoDrive.Hud.gapHeight
+            if tipId == 3 or tipId == 6 then
+                posY = posY + textHeight + AutoDrive.Hud.gapHeight
+            end
+        end
+    end
+end
+
+function ADHudIcon:addVehicleDriveTimeString(vehicle, currentText)
+    local remainingTime = vehicle.ad.stateModule:getRemainingDriveTime()
+    if remainingTime ~= 0 then
+        local remainingMinutes = math.floor(remainingTime / 60)
+        local remainingSeconds = remainingTime % 60
+        if remainingMinutes > 0 then
+            currentText = currentText .. " - " .. string.format("%.0f", remainingMinutes) .. ":" .. string.format("%02d", math.floor(remainingSeconds))
+        elseif remainingSeconds ~= 0 then
+            currentText = currentText .. " - " .. string.format("%2.0f", remainingSeconds) .. "s"
+        end
+    end
+    return currentText
+end
+
+function ADHudIcon:addTooltipString(vehicle, currentText)
+    if vehicle.ad.sToolTip ~= "" and AutoDrive.getSetting("showTooltips") then
+        if vehicle.ad.toolTipIsSetting then
+            currentText = currentText .. " - " .. g_i18n:getText(vehicle.ad.sToolTip)
+        else
+            currentText = currentText .. " - " .. string.sub(g_i18n:getText(vehicle.ad.sToolTip), 5, string.len(g_i18n:getText(vehicle.ad.sToolTip)))
+        end
+
+        if vehicle.ad.sToolTipInfo ~= nil then
+            currentText = currentText .. " - " .. vehicle.ad.sToolTipInfo
+        end
+    end
+    return currentText
+end
+
+function ADHudIcon:splitTextByLength(text, fontSize, maxLength)
+    local lines = {}
+    local textParts = text:split("-")
+    local line = textParts[1]
+    local index = 2
+    while index <= #textParts do
+        if getTextWidth(fontSize, line .. "-" .. textParts[index]) > maxLength then
+            table.insert(lines, line)
+            line = textParts[index]:sub(2)
+        else
+            line = line .. "-" .. textParts[index]
+        end
+        index = index + 1
+    end
+    table.insert(lines, line)
+    return lines
 end
 
 function ADHudIcon:updateVisibility(vehicle)

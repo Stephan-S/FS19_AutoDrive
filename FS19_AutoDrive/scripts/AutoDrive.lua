@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.1.1-RC3"
+AutoDrive.version = "1.1.1.3-RC1"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -12,8 +12,8 @@ AutoDrive.experimentalFeatures.redLinePosition = false
 AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
-AutoDrive.experimentalFeatures.blueLineRouteFinder = false
 AutoDrive.experimentalFeatures.detectGrasField = true
+AutoDrive.experimentalFeatures.colorAssignmentMode = false
 
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
@@ -64,8 +64,15 @@ AutoDrive.EDITOR_SHOW = 4
 
 AutoDrive.MAX_BUNKERSILO_LENGTH = 100 -- length of bunker silo where speed should be lowered
 
+-- number of frames for performance modulo operation
+AutoDrive.PERF_FRAMES = 20
+AutoDrive.PERF_FRAMES_HIGH = 4
+
 AutoDrive.toggleSphrere = true
 AutoDrive.enableSphrere = true
+
+AutoDrive.FLAG_NONE = 0
+AutoDrive.FLAG_SUBPRIO = 1
 
 AutoDrive.actions = {
 	{"ADToggleMouse", true, 1},
@@ -94,12 +101,34 @@ AutoDrive.actions = {
 	{"ADRenameMapMarker", false, 0},
 	{"ADSwapTargets", false, 0},
 	{"AD_open_notification_history", false, 0},
+	-- {"AD_open_colorSettings", false, 0},
 	{"AD_continue", false, 3},
 	{"ADParkVehicle", false, 0},
 	{"AD_devAction", false, 0},
-	{"AD_open_tipOfTheDay", false, 0}
+	{"AD_open_tipOfTheDay", false, 0},
+	{"ADRefuelVehicle", false, 0},
+	{"ADToggleHudExtension", true, 1},
 	-- {"COURSEPLAY_MOUSEACTION_SECONDARY", true, 1}
 }
+
+AutoDrive.colors = {
+	ad_color_singleConnection = {0, 1, 0, 1},
+	ad_color_dualConnection = {0, 0, 1, 1},
+	ad_color_reverseConnection = {0, 0.569, 0.835, 1},
+	ad_color_default = {1, 0, 0, 0.3},
+	ad_color_subPrioSingleConnection = {1, 0.531, 0.14, 1},
+	ad_color_subPrioDualConnection = {0.389, 0.177, 0, 1},
+	ad_color_subPrioNode = {1, 0.531, 0.14, 0.3},
+	ad_color_hoveredNode = {0, 0, 1, 0.15},
+	ad_color_previousNode = {1, 0.2195, 0.6524, 0.5}, --GOLDHOFER_PINK1
+	ad_color_nextNode = {1, 0.7, 0, 0.5},
+	ad_color_selectedNode = {0, 1, 0, 0.15},
+	ad_color_currentConnection = {1, 1, 1, 1},
+	ad_color_closestLine = {1, 0, 0, 1},
+	ad_color_editorHeightLine = {1, 1, 1, 1}
+}
+
+AutoDrive.currentColors = {} -- this will hold the current colors, derived from default colors above, overwritten by local settings
 
 function AutoDrive:onAllModsLoaded()
 	ADThirdPartyModsManager:load()
@@ -146,6 +175,9 @@ g_logManager:info("[AD] Start register later loaded mods end")
 
 	AutoDrive.loadStoredXML()
 
+    AutoDrive:resetColorAssignment(0, true)     -- set default colors
+    AutoDrive.readLocalSettingsFromXML()
+    
 	ADUserDataManager:load()
 	if g_server ~= nil then
 		ADUserDataManager:loadFromXml()
@@ -196,6 +228,7 @@ function AutoDrive:init()
 		AutoDriveUserConnectedEvent.sendEvent()
 	else
 		ADGraphManager:checkYPositionIntegrity()
+		ADGraphManager:checkSubPrioIntegrity()
 	end
 
 	AutoDrive.updateDestinationsMapHotspots()
