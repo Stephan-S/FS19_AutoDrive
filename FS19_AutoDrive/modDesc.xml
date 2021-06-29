@@ -45,8 +45,6 @@ Changelog 1.1.1.2:
 - plusieurs améliorations, notamment en ce qui concerne la descente, les performances et la localisation/le calcul de la trajectoire
 - de nouvelles fonctions : Conseil du jour, routes secondaires et mode de déchargement des BGA.
 Consultez notre wiki Github pour les notes de version complètes !
-
-Traduit avec www.DeepL.com/Translator (version gratuite)
 ]]>
 		</fr>
 		<es>
@@ -93,11 +91,13 @@ Traduit avec www.DeepL.com/Translator (version gratuite)
 		<action name="ADRenameMapMarker" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSwapTargets" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
+		<!-- <action name="AD_open_colorSettings" category="VEHICLE" ignoreComboMask="false" /> -->
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_tipOfTheDay" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADRefuelVehicle" category="VEHICLE" ignoreComboMask="false" />		
+		<action name="ADRefuelVehicle" category="VEHICLE" ignoreComboMask="false" />	
+		<action name="ADToggleHudExtension" category="VEHICLE" ignoreComboMask="false" />	
 	</actions>
 
 	<inputBinding>

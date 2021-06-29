@@ -277,6 +277,44 @@
         <Value name="textFocusedOffset" value="46px 2px" />
     </Profile>
     
+    <Profile name="autoDriveColorSettingsNavigationBox" extends="emptyPanel" with="lightFrame">
+        <Value name="size" value="720px 692px" />
+        <Value name="position" value="0px -45px" />
+        <Value name="screenAlign" value="topCenter" />
+        <Value name="positionOrigin" value="topCenter" />
+    </Profile>
+
+    <Profile name="autoDriveColorSettingsList" extends="list">
+        <Value name="size" value="692px 692px" />
+        <Value name="selectOnScroll" value="true" />
+        <Value name="screenAlign" value="topLeft" />
+        <Value name="positionOrigin" value="topLeft" />
+        <Value name="isHorizontalList" value="false" />
+        <Value name="itemsPerCol" value="15" />
+        <Value name="listItemHeight" value="46px" />
+        <Value name="listItemWidth" value="690px" />
+        <Value name="rowBackgroundProfile" value="autoDriveRoutesManagerListItem" />
+        <Value name="rowBackgroundProfileAlternate" value="autoDriveRoutesManagerListItemAlternate" />
+    </Profile>
+
+    <Profile name="autoDriveColorSettingsListItem" extends="listItem">
+        <Value name="imageColor" value="$preset_colorListRowBackground" />
+        <Value name="imageFocusedColor" value="$preset_colorMainUI" />
+        <Value name="imageSelectedColor" value="$preset_colorMainUI" />
+        <Value name="size" value="690px 46px" />
+        <Value name="position" value="0px 0px" />
+    </Profile>
+
+    <Profile name="autoDriveColorSettingsItemText" extends="textDefault">
+        <Value name="size" value="692px 46px" />
+        <Value name="textMaxWidth" value="586px" />
+        <Value name="textVerticalAlignment" value="middle" />
+        <Value name="textSize" value="16px" />
+        <Value name="textBold" value="true" />
+        <Value name="textOffset" value="46px 2px" />
+        <Value name="textFocusedOffset" value="46px 2px" />
+    </Profile>
+    
     <Profile name="autoDriveTipOfTheDayNavigationBox" extends="emptyPanel" with="lightFrame">
         <Value name="size" value="720px 662px" />
         <Value name="position" value="0px -45px" />

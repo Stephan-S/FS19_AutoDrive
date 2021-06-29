@@ -165,6 +165,13 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
         self:stopVehicle(true, lx, lz)
         self:update(dt)
     else
+        self:releaseVehicle()
+        if self.vehicle.startMotor and self.vehicle.stopMotor then
+            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+                self.vehicle:startMotor()
+            end
+        end
+
         self.isBlocked = self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028, 15000, dt)
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
         if (self.vehicle.lastSpeedReal * 3600) > (speed + ADSpecialDrivingModule.MAX_SPEED_DEVIATION) then

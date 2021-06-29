@@ -4,6 +4,7 @@
 	<texts>
 		<text name="UNKNOWN"									text="Unbekannt" />
 		<text name="input_ADToggleHud"							text="AD: HUD ein/ausblenden" />
+		<text name="input_ADToggleHudExtension"					text="AD: Show HUD infos" />
 		<text name="input_ADToggleMouse"						text="AD: Maus ein/ausblenden" />
 		<text name="input_ADEnDisable"							text="AD: Ein/Ausschalten" />
 		<text name="input_ADSilomode"							text="AD: Modus wechseln" />
@@ -14,6 +15,7 @@
 		<text name="input_AD_Speed_down"						text="AD: Geschwindigkeit verringern" />
 		<text name="input_AD_routes_manager"					text="AD: Open routes manager" />
 		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
+		<text name="input_AD_open_colorSettings" 		        text="AD: Farbzuweisungen" />
 		<text name="input_AD_continue"							text="AD: Weiterfahren" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Nächster Abladepunkt" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Voriger Abladepunkt" />
@@ -228,7 +230,26 @@
 		<text name="gui_ad_debugChannelAll" 					text="Alles" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Notifications" />
-		<text name="button_delete_all" 							text="Delete All" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Farbzuweisungen" />
+        <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
+		<text name="ad_color_singleConnection" 			        text="01 Linie Hauptstrecke eine Richtung" />
+		<text name="ad_color_dualConnection" 			        text="02 Linie Hauptstrecke zwei Richtungen" />
+		<text name="ad_color_reverseConnection" 			    text="03 Linie Rückwärtsstrecke" />
+		<text name="ad_color_default" 			                text="04 Wegpunkt Hauptstrecke und Rückwärtsstrecke" />
+		<text name="ad_color_subPrioSingleConnection" 			text="05 Linie Nebenstrecke eine Richtung" />
+		<text name="ad_color_subPrioDualConnection" 			text="06 Linie Nebenstrecke zwei Richtungen" />
+		<text name="ad_color_subPrioNode" 			            text="07 Wegpunkt Nebenstrecke" />
+		<text name="ad_color_hoveredNode" 			            text="08 Wegpunkt unter Mauszeiger (hover)" />
+		<text name="ad_color_previousNode" 			            text="09 vorheriger verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
+		<text name="ad_color_nextNode" 			                text="10 nächster verbundener Wegpunkt zum Wegpunkt unter Mauszeiger" />
+		<text name="ad_color_selectedNode" 			            text="11 mit Mausklick markierter Wegpunkt" />
+		<text name="ad_color_currentConnection" 			    text="12 Pfeil nächster Pfad" />
+		<text name="ad_color_closestLine" 			            text="13 Linie Fahrzeug <-> naheliegendster Wegpunkt" />
+		<text name="ad_color_editorHeightLine" 			        text="14 senkrechte Linie Wegpunkt am Boden <-> Wegpunkt über dem Fahrzeug" />
+
+		<text name="button_delete_all" 							text="Alle löschen" />
+		<text name="button_reset_selected" 					    text="Ausgewählten zurücksetzen" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
@@ -342,7 +363,7 @@
 		<text name="ad_totd_01_title" 							text="Verschiedene Funktionen" />
 		<text name="ad_totd_01_text" 							text="Viele Knöpfe im AutoDrive HUD haben mehrere Funktionen. Dabei ist die Hauptfunktion immer mit der linken Maustaste zu erreichen. Die zweite Funktion liegt dann auf der mittleren und der rechten Maustaste. 
 		
-		Und ein paar Knöpfe haben sogar eine dritte und vierte Belegung die durch das Mausrad bedient werden kann. Aktuell sind das die Geschwindigkeitseinstellungen und der Aufnahme-Knopf." />
+		Und ein paar Knöpfe haben sogar eine dritte und vierte Belegung die durch gleichzeitiges Drücken der linken Shift Taste bedient werden kann. Aktuell ist dies der Aufnahme-Knopf." />
 		<text name="ad_totd_02_title" 							text="Verschiedene Streckentypen" />
 		<text name="ad_totd_02_text" 							text="Ein AutoDrive Netzwerk kann aktuell aus 4 verschiedenen Streckentypen bestehen.
 
@@ -352,7 +373,7 @@
 		
 		3. Rückwärtsstrecken (hellblau) - Hier können die Fahrzeuge entlang der Pfeilrichtung zurücksetzen. Diese Pfade können während einer normalen Aufzeichnung erstellt werden indem man einfach rückwärts fährt.
 		
-		4. Nebenstrecken - Diese werden bei der Pfadplanung nach Möglichkeit vermieden und nur benutzt wenn das Ziel auf diesem Weg liegt oder ein Umweg unverhältnismäßig lang wäre. Eine Aufnahme kann durch Mausrad - Hoch über dem 'Aufzeichnen' Knopf gestartet werden." />
+		4. Nebenstrecken - Diese werden bei der Pfadplanung nach Möglichkeit vermieden und nur benutzt wenn das Ziel auf diesem Weg liegt oder ein Umweg unverhältnismäßig lang wäre. Eine Aufnahme kann durch gleichzeitiges Drücken von LSHIFT + Maustaste links (bzw. mittlere oder rechte für duale Strecken) auf den 'Aufzeichnen' Knopf gestartet werden." />
 		<text name="ad_totd_03_title" 							text="Drescher Abfahren - 1" />
 		<text name="ad_totd_03_text" 							text="Das Drescher Abfahren ist ein sehr komplexes Thema zu dem man vermutlich ganze Vorträge halten könnte :-)
 		
@@ -376,6 +397,18 @@
 		
 		6. Experimentelle Features - Hier findet ihr Einstellungen die sich explizit auf Features beziehen die wir aktuell testen möchten und noch nicht als 100% getestet und/oder geeignet für den nächsten Release ansehen." />
 		
+		<text name = "gui_ad_editorTip_1"								text = "Einfacher Mausklick links:"/>
+		<text name = "gui_ad_editorTip_2"								text = "Nur Maus: 1. Punkt auswählen"/>
+		<text name = "gui_ad_editorTip_3"								text = "LSTRG = Punkt erstellen"/>
+		<text name = "gui_ad_editorTip_4"								text = "LALT = Punkt löschen"/>
+		<text name = "gui_ad_editorTip_5"								text = "LSHIFT = Punkt als Nebenstrecke markieren"/>
 
+		<text name = "gui_ad_editorTip_6"								text = "Auf zweiten Punkt klicken:"/>
+		<text name = "gui_ad_editorTip_7"								text = "Verbindung erstellen/entfernen"/>
+		<text name = "gui_ad_editorTip_8"								text = "RSHIFT = Rückwärtsstrecke erzeugen"/>
+
+		<text name = "gui_ad_editorTip_9"								text = "Erster Punkt ist Kreuzungspunkt, zweiter Nachbar:"/>
+		<text name = "gui_ad_editorTip_10"								text = "LSTRG: Streckentyp wechseln"/>
+		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Nebenstrecke wechseln"/>
 	</texts>
 </l10n>

@@ -4,6 +4,7 @@
 	<texts>
 		<text name="UNKNOWN"									text="Nieznany" />
 		<text name="input_ADToggleHud"							text="AD: Pokaż/ukryj interfejs" />
+		<text name="input_ADToggleHudExtension"					text="AD: Pokaż informacje w interfejsie" />
 		<text name="input_ADToggleMouse"						text="AD: Pokaż/ukryj kursor" />
 		<text name="input_ADEnDisable"							text="AD: wł./wył." />
 		<text name="input_ADSilomode"							text="AD: Zmień tryb" />
@@ -227,7 +228,26 @@
 		<text name="gui_ad_debugChannelAll" 					text="Wszystko" />
 		
 		<text name="gui_ad_notificationHistoryTitle" 			text="Powiadomienia" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Przypisywanie kolorów" />
+            <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
+		<text name="ad_color_singleConnection" 			        text="linia drogi jednokierunkowej" />
+		<text name="ad_color_dualConnection" 			        text="linia drogi dwukierunkowej" />
+		<text name="ad_color_reverseConnection" 			    text="linia drogi cofania" />
+		<text name="ad_color_default" 			                text="Kolor domyślny" />
+		<text name="ad_color_subPrioSingleConnection" 			text="linia bocznej drogi jednokierunkowej" />
+		<text name="ad_color_subPrioDualConnection" 			text="linia bocznej drogi dwukierunkowej" />
+		<text name="ad_color_subPrioNode" 			            text="punkt drogi bocznej" />
+		<text name="ad_color_hoveredNode" 			            text="podświetlony punkt" />
+		<text name="ad_color_previousNode" 			            text="poprzedni połączony punkt" />
+		<text name="ad_color_nextNode" 			                text="następny połączony punkt" />
+		<text name="ad_color_selectedNode" 			            text="wybrany punkt" />
+		<text name="ad_color_currentConnection" 			    text="linia kierunku jazdy" />
+		<text name="ad_color_closestLine" 			            text="linia od pojazdu do najbliższego punktu" />
+		<text name="ad_color_editorHeightLine" 			        text="linia od punktu na ziemi do punktu nad pojazdem" />
+
 		<text name="button_delete_all" 							text="Usuń wszystkie" />
+		<text name="button_reset_selected" 					    text="Zresetuj wybrane" />
 
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		
@@ -349,7 +369,7 @@
 		
 		2. Trasa dwukierunkowa (niebieska). W tym przypadku pojazdy mogą jeździć w obu kierunkach i będą blokować inne nadjeżdżające z przeciwnego kierunku. Trasę dwukierunkową można nagrywać za pomocą drugorzędnej funkcji przycisku nagrywania. Aby ją włączyć należy użyć środkowego lub prawego przycisku myszy.
 		
-		3. Sekcja cofania (jasny niebieski) - pojazdy po tej sekcji mogą jeździć tylko na wstecznym. Użyteczna do parkowania w ciasnych miejscach. Nagrywania się podczas cofania przy włączonym trybie nagrywania standardowej trasy.
+		3. Sekcja cofania (jasny niebieski) - pojazdy po tej sekcji mogą jeździć tylko na wstecznym. Użyteczna do parkowania w ciasnych miejscach. Nagrywa się ją podczas cofania przy włączonym trybie nagrywania standardowej trasy.
 		
 		4. Droga boczna - Tend typ segmentu trasy jest zazwyczaj pomijany przy planowaniu celu, chyba, że cel znajduje się bezpośredni na nim. W celu wybrania trybu nagrywania drogi bocznej należy użyć kółka myszy po najechaniu kursorem na przycisk nagrywania." />
 		<text name="ad_totd_03_title" 							text="Koszenie upraw - 1" />
@@ -372,5 +392,19 @@
 		5. Ustawienia debugowania - Tes ustawienia włączają wyświetlanie dodatkowych informacji na ekranie oraz w logu gry. Należy włączyć je w przypadku wystąpienia problemów lub błędów przed wysłaniem logu gry do deweloperów.
 		
 		6. Ustawienia funkcji eksperymentalnych - Te ustawienia związane są z funkcjonalnościami, które są obecnie w fazie testów/rozwijania, ale nie są uznane za stabilne. Korzystaj z nich na własną odpowiedzialność." />
+		
+		<text name = "gui_ad_editorTip_1"								text = "Prosty klik lewym przyciskiem:"/>
+		<text name = "gui_ad_editorTip_2"								text = "Tylko mysz: Zaznacz pierwszy punkt"/>
+		<text name = "gui_ad_editorTip_3"								text = "LCTRL = Utwórz węzeł"/>
+		<text name = "gui_ad_editorTip_4"								text = "LALT = Skasuj węzeł"/>
+		<text name = "gui_ad_editorTip_5"								text = "LSHIFT = Oznacz punkt jako droga boczna"/>
+
+		<text name = "gui_ad_editorTip_6"								text = "Klikanie na drugim punkcie:"/>
+		<text name = "gui_ad_editorTip_7"								text = "Utwórz połączenie"/>
+		<text name = "gui_ad_editorTip_8"								text = "RSHIFT = Utwórz drogę cofania"/>
+
+		<text name = "gui_ad_editorTip_9"								text = "Pierwszy punkt to skrzyżowanie, drugi to punkt sąsiedni:"/>
+		<text name = "gui_ad_editorTip_10"								text = "LCTRL: Zamień typ segmentu (normalny/podwójny)"/>
+		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Zamień na drogę boczną"/>
 	</texts>
 </l10n>

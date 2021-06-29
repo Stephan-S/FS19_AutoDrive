@@ -4,6 +4,7 @@
 	<texts>
 		<text name="UNKNOWN"									text="Ismeretlen" />
 		<text name="input_ADToggleHud"							text="AD: HUD be/ki" />
+		<text name="input_ADToggleHudExtension"					text="AD: Show HUD infos" />
 		<text name="input_ADToggleMouse"						text="AD: Egér be/ki" />
 		<text name="input_ADEnDisable"							text="AD: Bekapcsolás/Kikapcsolás" />
 		<text name="input_ADSilomode"							text="AD: Módváltás" />
@@ -222,7 +223,27 @@
 		<text name="gui_ad_debugChannelBGA"						text="BGA Mode" />
 		<text name="gui_ad_debugChannelAll" 					text="Mind" />
 		<text name="gui_ad_notificationHistoryTitle" 			text="Értesítések" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Color Assignments" />
+        <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
+		<text name="ad_color_singleConnection" 			        text="01 line of single-way connection" />
+		<text name="ad_color_dualConnection" 			        text="02 line of dual-way connection" />
+		<text name="ad_color_reverseConnection" 			    text="03 line of reverse connection" />
+		<text name="ad_color_default" 			                text="04 waypoint on sinle and reverse connection" />
+		<text name="ad_color_subPrioSingleConnection" 			text="05 line of secondary single-way connection" />
+		<text name="ad_color_subPrioDualConnection" 			text="06 line of secondary dual-way connection" />
+		<text name="ad_color_subPrioNode" 			            text="07 secondary waypoint" />
+		<text name="ad_color_hoveredNode" 			            text="08 hovered waypoint" />
+		<text name="ad_color_previousNode" 			            text="09 connected previous waypoint" />
+		<text name="ad_color_nextNode" 			                text="10 connected next waypoint" />
+		<text name="ad_color_selectedNode" 			            text="11 selected waypoint" />
+		<text name="ad_color_currentConnection" 			    text="12 line next path" />
+		<text name="ad_color_closestLine" 			            text="13 line from vehicle to closest waypoint" />
+		<text name="ad_color_editorHeightLine" 			        text="14 line from surface waypoint to the one above vehicle" />
+
 		<text name="button_delete_all" 							text="Összes törlése" />
+		<text name="button_reset_selected" 					    text="Reset selected" />
+
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 		<text name="ad_helpTitle_01"							text="AD - Bevezetés" />
 		<text name="ad_helpText_01_01"							text="Az AutoDrive egy olyan vezetéssegítő program, amely lehetővé teszi a járművek számára, hogy önállóan mozogjanak a Farming Simulator világában." />
@@ -321,7 +342,7 @@
 		<text name="ad_totd_01_title" 							text="Multiple functions" />
 		<text name="ad_totd_01_text" 							text="Many buttons in AutoDrive have multiple functions. The main function can always be activated with the left mouse. The secondary function can be activated with either the middle or the right mouse button. 
 		
-		Several buttons even have a third and fourth function which can be used with scrolling with the mouse wheel on top of said buttons. For now, those are the speed limiters and the recording button." />
+		Several buttons even have a third and fourth function which can be used by holding down the left shift key while clicking on the button. Currently this only applies for the record button." />
 		<text name="ad_totd_02_title" 							text="Different types of roads" />
 		<text name="ad_totd_02_text" 							text="An AutoDrive network can contain of 4 different types of roads.
 
@@ -331,11 +352,11 @@
 		
 		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
 		
-		4. Side road - This type of road segment is ususally avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
+		4. Side road - This type of road segment is usually avoided by the path planning unless the target is on this road segment. To record a side road, use the third and fourth function of the record button." />
 		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
 		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
 		
-		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should ususally be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to seach for any available unloader in a range of 300m.
+		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should usually be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to search for any available unloader in a range of 300m.
 		
 		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
 		<text name="ad_totd_04_title" 							text="Settings - 1" />
@@ -347,10 +368,24 @@
 
 		3. Vehicle settings - Applied only for the current vehicle.
 
-		4. Harvester settings - Only visisble when inside a harvester. Here you can control how this harevster calls it's unloaders.
+		4. Harvester settings - Only visible when inside a harvester. Here you can control how this harvester calls it's unloaders.
 
 		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
 		
 		6. Experimental features - These settings relate to features we are currently testing/developing but which are not yet considered stable. Use at your own risk." />
+		
+		<text name = "gui_ad_editorTip_1"								text = "Simple left mouse click:"/>
+		<text name = "gui_ad_editorTip_2"								text = "Mouse only: Select 1. point"/>
+		<text name = "gui_ad_editorTip_3"								text = "LCTRL = Create node"/>
+		<text name = "gui_ad_editorTip_4"								text = "LALT = Delete node"/>
+		<text name = "gui_ad_editorTip_5"								text = "LSHIFT = Toggle point as side road"/>
+
+		<text name = "gui_ad_editorTip_6"								text = "Clicking on second node:"/>
+		<text name = "gui_ad_editorTip_7"								text = "Toggle connection"/>
+		<text name = "gui_ad_editorTip_8"								text = "RSHIFT = Create reverse road"/>
+
+		<text name = "gui_ad_editorTip_9"								text = "1. node is intersection, second it's neighbor:"/>
+		<text name = "gui_ad_editorTip_10"								text = "LCTRL: Toggle segment type (normal/dual)"/>
+		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Toggle side road"/>
 	</texts>
 </l10n>
