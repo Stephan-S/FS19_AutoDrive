@@ -36,8 +36,8 @@
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
 		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
-		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
-		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
+		<text name="input_AD_devAction"                         text="AD: Azione dello sviluppatore" />
+		<text name="input_AD_open_tipOfTheDay" 					text="AD: Suggerimento del giorno aperto" />
 		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />
 		<text name="hud_startCp"								text="AD: Avvia CP/AIVE a destinazione" />
 		<text name="AD_parkVehicle_noPosSet"					text="Nessuna destinazione di parcheggio assegnata. Si prega di assegnare l'obiettivo attualmente selezionato con il tasto destro del mouse." />
@@ -190,8 +190,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"                 text="Sì - AutoDrive seleziona automaticamente il lato da usare / No - verrà utilizzato il lato già selezionato" />
 		<text name="gui_ad_autoTrailerCover"                    text="Copertura automatica del rimorchio" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sì - AutoDrive apre e chiude le coperture del rimorchio secondo necessità / No - le coperture del rimorchio non verranno aperte o chiuse da AutoDrive" />
-		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
-		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Manovra di svolta in avanti" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Sì - gli scaricatori AutoDrive cercano di pianificare un percorso in avanti per adattarsi alla svolta a 90° della mietitrebbia. / No - Gli scaricatori si invertiranno prima del turno" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Impostazioni" />
 		<text name="gui_ad_userSettingsPage_title"				text="Impostazioni Utente" />
@@ -328,50 +328,50 @@
 		<text name="AD_task_reversing_from_collision"			text="Retromarcia per collisione" />
         <text name="AD_task_drive_to_park"				        text="Guida al parcheggio" />
 
-		<text name = "gui_CPAD_off"								text = "off"/>
-		<text name = "gui_CPAD_simple"							text = "simple"/>
-		<text name = "gui_CPAD_full"							text = "full"/>		
-		<text name = "gui_ad_combineCPADHudMouse"				text = "combine CP/AD Buttons"/>
-    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "off: default / simple: CP: sec mouse action > mouse on + off, AD: Toggle Hud > both huds on + off / full: as simple but huds toggle in single steps / Required: Disable right click HUD at CP settings"/>
+		<text name = "gui_CPAD_off"								text = "spento"/>
+		<text name = "gui_CPAD_simple"							text = "semplice"/>
+		<text name = "gui_CPAD_full"							text = "completo"/>		
+		<text name = "gui_ad_combineCPADHudMouse"				text = "combinare i pulsanti CP/AD"/>
+    	<text name = "gui_ad_combineCPADHudMouse_tooltip"		text = "spento: standard / semplice: CP: sec azione del mouse > mouse on + off, AD: attiva/disattiva Hud > entrambi gli hud on + off / completo: come semplice ma gli hud si attivano in singoli passaggi / Richiesto: disabilita il tasto destro del mouse HUD nelle impostazioni CP"/>
 	
-		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
-		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
-		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />
-		<text name="gui_ad_tipOfTheDayActive" 					text="Show on next start" />
-		<text name="ad_next_tip" 								text="Next" />
-		<text name="ad_totd_01_title" 							text="Multiple functions" />
-		<text name="ad_totd_01_text" 							text="Many buttons in AutoDrive have multiple functions. The main function can always be activated with the left mouse. The secondary function can be activated with either the middle or the right mouse button. 
-		
-		Several buttons even have a third and fourth function which can be used with scrolling with the mouse wheel on top of said buttons. For now, those are the speed limiters and the recording button." />
-		<text name="ad_totd_02_title" 							text="Different types of roads" />
-		<text name="ad_totd_02_text" 							text="An AutoDrive network can contain of 4 different types of roads.
+		<text name="gui_ad_showTipOfTheDay"						text="Consiglio del giorno" />
+		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Suggerimento del giorno visualizzato ad ogni inizio del gioco" />
+		<text name="gui_ad_tipOfTheDayTitle" 					text="Consiglio del giorno" />
+		<text name="gui_ad_tipOfTheDayActive" 					text="Mostra al prossimo avvio" />
+		<text name="ad_next_tip" 								text="Nuovo consiglio" />
+		<text name="ad_totd_01_title" 							text="Funzioni multiple" />
+		<text name="ad_totd_01_text" 							text="Molti pulsanti in AutoDrive hanno più funzioni. La funzione principale è sempre attivabile con il tasto sinistro del mouse. La funzione secondaria può essere attivata con il tasto centrale o con il tasto destro del mouse.
 
-		1. A standard road segment (green). Vehicles can travel along the direction marked with the arrows. To start recording a standard road, simply left click the record button.
-		
-		2. Dual direction roads (blue). Here, vehicles may travel in both directions and will block incoming traffic in the opposite direction. You can record dual direction routes with the secondary function on the record button. So use either the middle or the right mouse button.
-		
-		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
-		
-		4. Side road - This type of road segment is ususally avoided by the path planning unless the target is on this road segment. To record a side road, use the mouse wheel up while hovering the record button." />
-		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
-		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
-		
-		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should ususally be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to seach for any available unloader in a range of 300m.
-		
-		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
-		<text name="ad_totd_04_title" 							text="Settings - 1" />
-		<text name="ad_totd_04_text" 							text="There are currently 6 different setting pages.
+Diversi pulsanti hanno anche una terza e una quarta funzione che possono essere utilizzate scorrendo con la rotella del mouse sopra detti pulsanti. Per ora, quelli sono i limitatori di velocità e il pulsante di registrazione." />
+		<text name="ad_totd_02_title" 							text="Diversi tipi di strade" />
+		<text name="ad_totd_02_text" 							text="Una rete AutoDrive può contenere 4 diversi tipi di strade.
 
-		1. General settings - Applied for all vehicles.
+1. Un segmento di strada standard (verde). I veicoli possono viaggiare lungo la direzione contrassegnata dalle frecce. Per iniziare a registrare una strada standard, è sufficiente fare clic con il pulsante sinistro del mouse sul pulsante di registrazione.
 
-		2. User settings - Applied to the current player (also in MP). These are settings to control how AutoDrive is displayed and not how it works.
+2. Strade a doppia direzione (blu). Qui, i veicoli possono viaggiare in entrambe le direzioni e bloccheranno il traffico in entrata nella direzione opposta. È possibile registrare percorsi a doppia direzione con la funzione secondaria sul pulsante di registrazione. Quindi usa il tasto centrale o il tasto destro del mouse.
 
-		3. Vehicle settings - Applied only for the current vehicle.
+3. Sezioni di retromarcia (azzurro) - I veicoli possono viaggiare solo in retromarcia lungo queste sezioni. Utile per parcheggiare e scaricare in spazi ristretti. Guida semplicemente all'indietro durante una sessione di registrazione standard.
 
-		4. Harvester settings - Only visisble when inside a harvester. Here you can control how this harevster calls it's unloaders.
+4. Strada laterale - Questo tipo di segmento di strada viene solitamente evitato dalla pianificazione del percorso a meno che l'obiettivo non sia su questo segmento di strada. Per registrare una strada laterale, usa la rotellina del mouse verso l'alto mentre tieni premuto il pulsante di registrazione." />
+		<text name="ad_totd_03_title" 							text="Trebbiatura - 1" />
+		<text name="ad_totd_03_text" 							text="Alcuni suggerimenti di base per l'utilizzo di AutoDrive per scaricare le mietitrebbie:
 
-		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
-		
-		6. Experimental features - These settings relate to features we are currently testing/developing but which are not yet considered stable. Use at your own risk." />
+1. Per consentire a una mietitrice di chiamare automaticamente uno scaricatore, seleziona semplicemente la stessa destinazione nell'HUD AutoDrive della mietitrice che hai selezionato per lo scaricatore. Questo punto dovrebbe di solito essere un obiettivo vicino al campo in modo che lo scaricatore possa pianificare un percorso verso la mietitrice. In alternativa è anche possibile abilitare l'impostazione 'Trova conducente' che farà sì che la mietitrice cercherà qualsiasi scaricatore disponibile in un raggio di 300 m.
+
+2. AutoDrive può scaricare sia mietitrebbie che trebbiatrici in movimento. Per abilitare questa funzione per le mietitrebbie, è sufficiente impostare l'impostazione "Livello pre-chiamata" su 0%." />
+		<text name="ad_totd_04_title" 							text="Impostazione - 1" />
+		<text name="ad_totd_04_text" 							text="Attualmente ci sono 6 diverse pagine di impostazione.
+
+1. Impostazioni generali: valide per tutti i veicoli.
+
+2. Impostazioni utente - Applicate al lettore corrente (anche in MP). Queste sono le impostazioni per controllare come viene visualizzato AutoDrive e non come funziona.
+
+3. Impostazioni veicolo - Applicate solo per il veicolo corrente.
+
+4. Impostazioni della mietitrice - Visibile solo all'interno di una mietitrice. Qui puoi controllare come questo harevster chiama scaricatori.
+
+5. Impostazioni di debug: queste impostazioni abilitano alcuni feedback visivi di debug e, soprattutto, messaggi di registro aggiuntivi. Quindi abilitalo se riscontri problemi o bug e ti stai preparando a inviare un file di registro agli sviluppatori.
+
+6. Funzionalità sperimentali - Queste impostazioni si riferiscono a funzionalità che stiamo attualmente testando/sviluppando ma che non sono ancora considerate stabili. Utilizzare a proprio rischio." />
 	</texts>
 </l10n>
