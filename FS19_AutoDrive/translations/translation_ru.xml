@@ -33,12 +33,12 @@
 		<text name="input_ADGoToVehicle"						text="AD: Пересесть в прибывшую технику" />
 		<text name="input_ADNameDriver"							text="AD: Назначить водителю имя" />
 		<text name="input_ADIncLoopCounter"						text="AD: Установить к-во рейсов" />
-		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
+		<text name="input_ADbunkerUnloadType"					text="AD: Выгрузить на трейлер или BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Отправить на парковку" />
-		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
+		<text name="input_ADRefuelVehicle"						text="AD: Заправить технику" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
-		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
-		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
+		<text name="input_AD_devAction"                         text="AD: Действия разработчика" />
+		<text name="input_AD_open_tipOfTheDay" 					text="AD: Открыть совет на день" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
 		<text name="hud_startCp"								text="AD: Запустить CP/AIVE в пункте назначения" />
 		<text name="AD_parkVehicle_noPosSet"					text="Место для парковки не назначено. Чтобы назначить выбранную локацию, как место парковки, нажмите правой кнопкой мыши на этой же кнопке." />
@@ -192,8 +192,8 @@
 		<text name="gui_ad_autoTipSide_tooltip"					text="Да - AutoDrive автоматически выбирает сторону разгрузки / Нет - будет использоваться уже выбранная сторона разгрузки." />
 		<text name="gui_ad_autoTrailerCover"					text="Тенты на прицепах" />
 		<text name="gui_ad_autoTrailerCover_tooltip"			text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
-    <text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
-		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Yes - AutoDrive unloaders try to plan a path forwards to adapt to 90° turns of the combine. / No - Unloaders will reverse before turn" />
+		<text name="gui_ad_useForwardTurningManoeuvre"          text="Планирование поворота" />
+		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Да - Разгрузчики AutoDrive пытаются планировать путь вперед чтобы адаптироваться к повороту комбайна на 90°. / Нет - Разгрузчики сдадут назад перед поворотом." />
 
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
@@ -357,45 +357,45 @@
 		<text name="gui_ad_combineCPADHudMouse"					text="Объединение клавиш CP/AD"/>
 		<text name="gui_ad_combineCPADHudMouse_tooltip"			text="ВЫКЛ: по умолчанию. ПРОСТОЕ: CP: ПКМ > указатель вкл+выкл, AD: скрыть/отобразить HUD > оба HUD вкл+выкл. ПОЛНОЕ: как и ПРОСТОЕ, но оба HUD вкл/выкл индивидуально (у CP необходимо отключить открытие HUD правой кнопкой)."/>
 
-		<text name="gui_ad_showTipOfTheDay"						text="Tip of the day" />
-		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Tip of the day displayed on each start of the game" />
-		<text name="gui_ad_tipOfTheDayTitle" 					text="Tip of the day" />
-		<text name="gui_ad_tipOfTheDayActive" 					text="Show on next start" />
-		<text name="ad_next_tip" 								text="Next" />
-		<text name="ad_totd_01_title" 							text="Multiple functions" />
-		<text name="ad_totd_01_text" 							text="Many buttons in AutoDrive have multiple functions. The main function can always be activated with the left mouse. The secondary function can be activated with either the middle or the right mouse button. 
-		
-		Several buttons even have a third and fourth function which can be used by holding down the left shift key while clicking on the button. Currently this only applies for the record button." />
-		<text name="ad_totd_02_title" 							text="Different types of roads" />
-		<text name="ad_totd_02_text" 							text="An AutoDrive network can contain of 4 different types of roads.
+		<text name="gui_ad_showTipOfTheDay"						text="Совет дня" />
+		<text name="gui_ad_showTipOfTheDay_tooltip"				text="Совет дня отображается на каждом запуске игры." />
+		<text name="gui_ad_tipOfTheDayTitle" 					text="Совет дня" />
+		<text name="gui_ad_tipOfTheDayActive" 					text="Отображать при следующем запуске" />
+		<text name="ad_next_tip" 								text="Следующий" />
+		<text name="ad_totd_01_title" 							text="Несколько функций" />
+		<text name="ad_totd_01_text" 							text="Многие кнопки в AutoDrive имеют по несколько функций. Основная функция всегда может быть активирована левой кнопкой мыши. Вторичная - средней или правой кнопкой мыши.
 
-		1. A standard road segment (green). Vehicles can travel along the direction marked with the arrows. To start recording a standard road, simply left click the record button.
-		
-		2. Dual direction roads (blue). Here, vehicles may travel in both directions and will block incoming traffic in the opposite direction. You can record dual direction routes with the secondary function on the record button. So use either the middle or the right mouse button.
-		
-		3. Reverse sections (light blue) - Vehicles can only travel in reverse gear along these sections. Useful for parking and unloading in tight spots. Simply drive backwards during a standard recording session.
-		
-		4. Side road - This type of road segment is usually avoided by the path planning unless the target is on this road segment. To record a side road, use the third and fourth function of the record button." />
-		<text name="ad_totd_03_title" 							text="Combine harvesting - 1" />
-		<text name="ad_totd_03_text" 							text="A few basic tips for using AutoDrive to unload combine harvesters:
-		
-		1. To allow a harvester to automatically call an unloader, simply select the same destination in the AutoDrive HUD of the harvester as you have selected for the unloader. This point should usually be a target close to the field so the unloader can then plan a route towards the harvester. Alternatively you can also enable the setting 'Find driver' which will cause the harvester to search for any available unloader in a range of 300m.
-		
-		2. AutoDrive can unload both combine harvesters and threshers on-the-go. To enable this feature for combine harvesters, simple set the setting 'Pre call level' to 0%." />
-		<text name="ad_totd_04_title" 							text="Settings - 1" />
-		<text name="ad_totd_04_text" 							text="There are currently 6 different setting pages.
+    Несколько кнопок даже имеют третью и четвертую функцию, которая может использоваться прокруткой колёсиком мыши над указанными кнопками. На данный момент это ограничители скорости и кнопка записи." />
+		<text name="ad_totd_02_title" 							text="Различные виды дорог" />
+		<text name="ad_totd_02_text" 							text="Сеть AutoDrive может состоять из 4 различных типов дорог.
 
-		1. General settings - Applied for all vehicles.
-
-		2. User settings - Applied to the current player (also in MP). These are settings to control how AutoDrive is displayed and not how it works.
-
-		3. Vehicle settings - Applied only for the current vehicle.
-
-		4. Harvester settings - Only visible when inside a harvester. Here you can control how this harvester calls it's unloaders.
-
-		5. Debug settings - These settings enable some visual debug feedback and more importantly additional log messages. So enable this if you run into problems or bugs and are preparing to send a log file to the developers.
+		1.Стандартные дороги (зеленые). Транспортные средства могут двигаться лишь по направлению, отмеченным стрелками. Чтобы начать запись стандартной дороги, просто щелкните кнопку записи.
 		
-		6. Experimental features - These settings relate to features we are currently testing/developing but which are not yet considered stable. Use at your own risk." />
+		2. Двунаправленные дороги (синие). Здесь транспортные средства могут двигаться в обоих направлениях, и блокировать входящий трафик в противоположном направлении на этом участке. Вы можете записать маршруты  с двойным направлением из вторичной функцией на кнопке записи. Для этого используйте среднюю или правую кнопку мыши.
+		
+		3. Сегменты заднего хода (светло-голубые) - транспортные средства могут двигаться только задним ходом вдоль этих сегментов. Полезно для парковки и разгрузки в узких местах. Просто едьте задним ходом во время записи стандартной дороги.
+
+		4. Боковая дорога - этот тип дорожного сегмента обычно избегается при планировании пути, если цель не находятся на этом участке дороги. Чтобы записать боковую дорогу, прокрутите колесико мыши вверх, удерживая указатель над кнопкой записи." />
+		<text name="ad_totd_03_title" 							text="Комбайны - 1" />
+		<text name="ad_totd_03_text" 							text="Несколько основных советов по использованию AutoDrive для разгрузки комбайнов:
+		
+		1. Чтобы позволить комбайну автоматически вызывать разгрузчика, просто в HUD AutoDrive у комбайна выберите тот же пункт назначения, что выбран для разгрузчика. Этой точкой обычно должна быть цель, близкая к полю, чтобы разгрузчик смог затем спланировать маршрут к комбайну. Как вариант, вы также можете включить настройку 'Поиск разгружающего водителя', что приведёт к тому, что комбайн будет использовать любой доступный разгрузчик в радиусе 300 м.
+		
+		2. AutoDrive может разгружать на ходу как зерноуборочные так и кормоуборочные комбайны. Чтобы включить эту функцию для зерноуборочных комбайнов, просто установите настройку 'Уровень предварительного вызова' равной 0%." />
+		<text name="ad_totd_04_title" 							text="Настройки - 1" />
+		<text name="ad_totd_04_text" 							text="В настоящее время есть 6 различных страниц настроек.
+
+		1. Общие настройки - применяется для всей техники.
+
+		2. Пользовательские настройки - применяется к текущему игроку (также в MP). Это настройки для управления, как выглядит AutoDrive, а не то, как он работает.
+
+		3. Настройки техники - применяются только для текущей техники.
+
+		4. Настройки разгрузки комбайна - видны только в том случае, когда вы внутри комбайна. Здесь вы можете контролировать, как этот комбайн вызывает свои разгрузчики.
+
+		5. Настройки отладки - эти настройки включают в себя некоторые визуальные отладки для обратной связи и записи дополнительных сообщений в лог. Включайте их, если вы столкнулись с проблемами или ошибками, и готовитесь отправлять файл журнала для разработчиков.
+		
+		6. Настройки экспериментальных функций - эти настройки относятся к функциям, которые мы в настоящее время тестируем / разрабатываем, но еще не считаются стабильными. Используйте на свой страх и риск." />
 		
 		<text name = "gui_ad_editorTip_1"								text = "Simple left mouse click:"/>
 		<text name = "gui_ad_editorTip_2"								text = "Mouse only: Select 1. point"/>
@@ -410,5 +410,6 @@
 		<text name = "gui_ad_editorTip_9"								text = "1. node is intersection, second it's neighbor:"/>
 		<text name = "gui_ad_editorTip_10"								text = "LCTRL: Toggle segment type (normal/dual)"/>
 		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Toggle side road"/>
-	</texts>
+
+  </texts>
 </l10n>

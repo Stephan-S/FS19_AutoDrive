@@ -185,8 +185,8 @@
 		<text name="gui_ad_syncMultiTargets_tooltip"			text="Múltiples conductores usando la misma carpeta para múltiples objetivos se coordinarán con los siguientes objetivos" />
 		<text name="gui_ad_enableParkAtJobFinished"				text="Aparcar al terminar el trabajo" />
 		<text name="gui_ad_enableParkAtJobFinished_tooltip"		text="Solo disponible en los modos Recoger y entregar. Entregar: si el trabajo se ha terminado y el vehículo tiene posición de aparcamiento, los aperos o remolques se llevarán al aparcamiento también. En servidores dedicados, solo está disponible para aparcar el vehículo." />
-		<text name="gui_ad_autoTipSide"                         text="Automatic Tip Side" /> <!-- POR TRADUCIR -->
-		<text name="gui_ad_autoTipSide_tooltip"                 text="Yes - AutoDrive select tip side automatically / No - the already selected tip side will be used" /> <!-- POR TRADUCIR -->
+		<text name="gui_ad_autoTipSide"                         text="Lado Descarga Automático" />
+		<text name="gui_ad_autoTipSide_tooltip"                 text="Sí - AD selecciona automaticamente el lado de descarga / No - Se utilizará el lado de descarga ya seleccionado" />
 		<text name="gui_ad_autoTrailerCover"                    text="Lonas de remolque automáticas" />
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Sí - AutoDrive abrirá y cerrará las lonas según necesite / No - las lonas no se abrirán ni cerrarán automáticamente" />
 		<text name="gui_ad_useForwardTurningManoeuvre"          text="Forwards turning manoeuvre" />
