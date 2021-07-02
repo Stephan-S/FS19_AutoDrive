@@ -36,11 +36,13 @@ ADInputManager.actionsToInputs = {
     ADIncLoopCounter = "input_incLoopCounter",
     ADSwapTargets = "input_swapTargets",
     AD_open_notification_history = "input_openNotificationHistory",
+    -- AD_open_colorSettings = "input_openColorSettings",
     AD_continue = "input_continue",
     ADParkVehicle = "input_parkVehicle",
     AD_devAction = "input_devAction",
     AD_open_tipOfTheDay = "input_openTipOfTheDay",
-    ADRefuelVehicle = "input_refuelVehicle"
+    ADRefuelVehicle = "input_refuelVehicle",
+    ADToggleHudExtension = "input_toggleHudExtension"
 }
 
 
@@ -123,6 +125,10 @@ end
 
 function ADInputManager:input_openNotificationHistory(vehicle)
     AutoDrive.onOpenNotificationsHistory()
+end
+
+function ADInputManager:input_openColorSettings()
+    AutoDrive.onOpenColorSettings()
 end
 
 function ADInputManager:input_openTipOfTheDay(vehicle)
@@ -209,6 +215,10 @@ end
 
 function ADInputManager:input_toggleHud(vehicle)
     AutoDrive.Hud:toggleHud(vehicle)
+end
+
+function ADInputManager:input_toggleHudExtension(vehicle)
+    AutoDrive.Hud:toggleHudExtension(vehicle)
 end
 
 function ADInputManager:input_toggleMouse()

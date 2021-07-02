@@ -4,6 +4,7 @@
 	<texts>
 		<text name="UNKNOWN"									text="НЕИЗВЕСТНО" />
 		<text name="input_ADToggleHud"							text="AD: Отображение HUD" />
+		<text name="input_ADToggleHudExtension"					text="AD: Show HUD infos" />
 		<text name="input_ADToggleMouse"						text="AD: Отображение курсора" />
 		<text name="input_ADEnDisable"							text="AD: Вкл/Выкл" />
 		<text name="input_ADSilomode"							text="AD: Изменить режим" />
@@ -231,7 +232,27 @@
 		<text name="gui_ad_debugChannelAll" 					text="Все" />
 
 		<text name="gui_ad_notificationHistoryTitle" 			text="Уведомления" />
+
+		<text name="gui_ad_colorSettingsTitle" 			        text="Color Assignments" />
+        <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
+		<text name="ad_color_singleConnection" 			        text="01 line of single-way connection" />
+		<text name="ad_color_dualConnection" 			        text="02 line of dual-way connection" />
+		<text name="ad_color_reverseConnection" 			    text="03 line of reverse connection" />
+		<text name="ad_color_default" 			                text="04 waypoint on sinle and reverse connection" />
+		<text name="ad_color_subPrioSingleConnection" 			text="05 line of secondary single-way connection" />
+		<text name="ad_color_subPrioDualConnection" 			text="06 line of secondary dual-way connection" />
+		<text name="ad_color_subPrioNode" 			            text="07 secondary waypoint" />
+		<text name="ad_color_hoveredNode" 			            text="08 hovered waypoint" />
+		<text name="ad_color_previousNode" 			            text="09 connected previous waypoint" />
+		<text name="ad_color_nextNode" 			                text="10 connected next waypoint" />
+		<text name="ad_color_selectedNode" 			            text="11 selected waypoint" />
+		<text name="ad_color_currentConnection" 			    text="12 line next path" />
+		<text name="ad_color_closestLine" 			            text="13 line from vehicle to closest waypoint" />
+		<text name="ad_color_editorHeightLine" 			        text="14 line from surface waypoint to the one above vehicle" />
+
 		<text name="button_delete_all" 							text="Удалить все" />
+		<text name="button_reset_selected" 					    text="Reset selected" />
+
 		<text name="ad_helpCategory_1"							text="AutoDrive" />
 
 		<text name="ad_helpTitle_01"							text="AD - Введение" />
@@ -344,7 +365,7 @@
 		<text name="ad_totd_01_title" 							text="Несколько функций" />
 		<text name="ad_totd_01_text" 							text="Многие кнопки в AutoDrive имеют по несколько функций. Основная функция всегда может быть активирована левой кнопкой мыши. Вторичная - средней или правой кнопкой мыши.
 
-Несколько кнопок даже имеют третью и четвертую функцию, которая может использоваться прокруткой колёсиком мыши над указанными кнопками. На данный момент это ограничители скорости и кнопка записи." />
+    Несколько кнопок даже имеют третью и четвертую функцию, которая может использоваться прокруткой колёсиком мыши над указанными кнопками. На данный момент это ограничители скорости и кнопка записи." />
 		<text name="ad_totd_02_title" 							text="Различные виды дорог" />
 		<text name="ad_totd_02_text" 							text="Сеть AutoDrive может состоять из 4 различных типов дорог.
 
@@ -353,7 +374,7 @@
 		2. Двунаправленные дороги (синие). Здесь транспортные средства могут двигаться в обоих направлениях, и блокировать входящий трафик в противоположном направлении на этом участке. Вы можете записать маршруты  с двойным направлением из вторичной функцией на кнопке записи. Для этого используйте среднюю или правую кнопку мыши.
 		
 		3. Сегменты заднего хода (светло-голубые) - транспортные средства могут двигаться только задним ходом вдоль этих сегментов. Полезно для парковки и разгрузки в узких местах. Просто едьте задним ходом во время записи стандартной дороги.
-		
+
 		4. Боковая дорога - этот тип дорожного сегмента обычно избегается при планировании пути, если цель не находятся на этом участке дороги. Чтобы записать боковую дорогу, прокрутите колесико мыши вверх, удерживая указатель над кнопкой записи." />
 		<text name="ad_totd_03_title" 							text="Комбайны - 1" />
 		<text name="ad_totd_03_text" 							text="Несколько основных советов по использованию AutoDrive для разгрузки комбайнов:
@@ -375,5 +396,20 @@
 		5. Настройки отладки - эти настройки включают в себя некоторые визуальные отладки для обратной связи и записи дополнительных сообщений в лог. Включайте их, если вы столкнулись с проблемами или ошибками, и готовитесь отправлять файл журнала для разработчиков.
 		
 		6. Настройки экспериментальных функций - эти настройки относятся к функциям, которые мы в настоящее время тестируем / разрабатываем, но еще не считаются стабильными. Используйте на свой страх и риск." />
-	</texts>
+		
+		<text name = "gui_ad_editorTip_1"								text = "Simple left mouse click:"/>
+		<text name = "gui_ad_editorTip_2"								text = "Mouse only: Select 1. point"/>
+		<text name = "gui_ad_editorTip_3"								text = "LCTRL = Create node"/>
+		<text name = "gui_ad_editorTip_4"								text = "LALT = Delete node"/>
+		<text name = "gui_ad_editorTip_5"								text = "LSHIFT = Toggle point as side road"/>
+
+		<text name = "gui_ad_editorTip_6"								text = "Clicking on second node:"/>
+		<text name = "gui_ad_editorTip_7"								text = "Toggle connection"/>
+		<text name = "gui_ad_editorTip_8"								text = "RSHIFT = Create reverse road"/>
+
+		<text name = "gui_ad_editorTip_9"								text = "1. node is intersection, second it's neighbor:"/>
+		<text name = "gui_ad_editorTip_10"								text = "LCTRL: Toggle segment type (normal/dual)"/>
+		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Toggle side road"/>
+
+  </texts>
 </l10n>

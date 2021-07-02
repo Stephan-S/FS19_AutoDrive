@@ -121,6 +121,10 @@ function UnloadBGATask:update(dt)
 
     self.lastState = self.state
     self.lastAction = self.action
+
+    if self.targetDriver ~= nil then
+        self.targetDriver.ad.noMovementTimer:timer(self.targetDriver.lastSpeedReal < 0.0004, 3000, dt)
+    end
     
     if AutoDrive.getDebugChannelIsSet(AutoDrive.DC_BGA_MODE) then
         self:drawDebug()
@@ -660,7 +664,7 @@ function UnloadBGATask:findCloseTrailer()
     local closest = nil
     local closestTrailer = nil
     for _, vehicle in pairs(g_currentMission.vehicles) do
-        if vehicle ~= self.vehicle and self:vehicleHasTrailersAttached(vehicle) and vehicle.ad ~= nil then
+        if vehicle ~= self.vehicle and self:vehicleHasTrailersAttached(vehicle) and vehicle.ad ~= nil and vehicle.ad.noMovementTimer ~= nil then
             if AutoDrive.getDistanceBetween(vehicle, self.vehicle) < closestDistance and vehicle.ad.noMovementTimer:timer(vehicle.lastSpeedReal < 0.0004, 3000, 16) and (not vehicle.ad.trailerModule:isActiveAtTrigger()) then
                 local _, trailers = self:vehicleHasTrailersAttached(vehicle)
                 for _, trailer in pairs(trailers) do
@@ -1013,6 +1017,14 @@ function UnloadBGATask:handleDriveStrategy(dt)
         end
         self:driveInDirection(dt, 30, acc, 0.2, 20, allowedToDrive, driveForwards, lx, lz, finalSpeed, 1)
     end
+
+    if self.vehicle.isServer then
+        if self.vehicle.startMotor and self.vehicle.stopMotor then
+            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+                self.vehicle:startMotor()
+            end
+        end
+    end
 end
 
 function UnloadBGATask:getDriveStrategyToTarget(drivingForward, dt)
@@ -1245,7 +1257,7 @@ end
 
 function UnloadBGATask:driveToBGAUnload(dt)
     if self.targetTrailer == nil and not self.unloadToTrigger then
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Trailer;", 5000, self.vehicle.stateModule:getName())
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Trailer;", 5000, self.vehicle.ad.stateModule:getName())
         self:getVehicleToPause()
         self.vehicle.ad.specialDrivingModule:stopVehicle()
         self.vehicle.ad.specialDrivingModule:update(dt)
@@ -1435,7 +1447,7 @@ function UnloadBGATask:setShovelOffsetToNonEmptyRow()
     end
 
     if ((currentFillLevel == 0) and (iterations < 0)) then
-        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.stateModule:getName())
+        AutoDriveMessageEvent.sendMessageOrNotification(self.vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_Driver_of; %s $l10n_AD_No_Bunker;", 5000, self.vehicle.ad.stateModule:getName())
         self.state = self.STATE_IDLE
         self.vehicle:stopAutoDrive()
     end

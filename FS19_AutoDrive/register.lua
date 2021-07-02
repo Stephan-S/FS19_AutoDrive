@@ -51,6 +51,7 @@ source(Utils.getFilename("scripts/Events/Graph/CreateWayPointEvent.lua", g_curre
 source(Utils.getFilename("scripts/Events/Graph/RecordWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/MoveWayPointEvent.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Events/Graph/RoutesUploadEvent.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Events/Graph/SetConnectionEvent.lua", g_currentModDirectory))
 
 source(Utils.getFilename("scripts/Utils/AutoDriveTON.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Utils/TrailerUtil.lua", g_currentModDirectory))
@@ -121,6 +122,7 @@ source(Utils.getFilename("scripts/Sensors/FieldSensor.lua", g_currentModDirector
 
 source(Utils.getFilename("scripts/Gui/RoutesManagerGUI.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/NotificationsHistoryGUI.lua", g_currentModDirectory))
+source(Utils.getFilename("scripts/Gui/ColorSettingsGUI.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/EnterDriverNameGUI.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/EnterGroupNameGUI.lua", g_currentModDirectory))
 source(Utils.getFilename("scripts/Gui/EnterTargetNameGUI.lua", g_currentModDirectory))
