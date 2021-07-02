@@ -231,20 +231,20 @@
 
 		<text name="gui_ad_colorSettingsTitle" 			        text="Przypisywanie kolorów" />
             <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
-		<text name="ad_color_singleConnection" 			        text="linia drogi jednokierunkowej" />
-		<text name="ad_color_dualConnection" 			        text="linia drogi dwukierunkowej" />
-		<text name="ad_color_reverseConnection" 			    text="linia drogi cofania" />
-		<text name="ad_color_default" 			                text="Kolor domyślny" />
-		<text name="ad_color_subPrioSingleConnection" 			text="linia bocznej drogi jednokierunkowej" />
-		<text name="ad_color_subPrioDualConnection" 			text="linia bocznej drogi dwukierunkowej" />
-		<text name="ad_color_subPrioNode" 			            text="punkt drogi bocznej" />
-		<text name="ad_color_hoveredNode" 			            text="podświetlony punkt" />
-		<text name="ad_color_previousNode" 			            text="poprzedni połączony punkt" />
-		<text name="ad_color_nextNode" 			                text="następny połączony punkt" />
-		<text name="ad_color_selectedNode" 			            text="wybrany punkt" />
-		<text name="ad_color_currentConnection" 			    text="linia kierunku jazdy" />
-		<text name="ad_color_closestLine" 			            text="linia od pojazdu do najbliższego punktu" />
-		<text name="ad_color_editorHeightLine" 			        text="linia od punktu na ziemi do punktu nad pojazdem" />
+		<text name="ad_color_singleConnection" 			        text="01 linia drogi jednokierunkowej" />
+		<text name="ad_color_dualConnection" 			        text="02 linia drogi dwukierunkowej" />
+		<text name="ad_color_reverseConnection" 			    text="03 linia drogi cofania" />
+		<text name="ad_color_default" 			                text="04 Kolor domyślny" />
+		<text name="ad_color_subPrioSingleConnection" 			text="05 linia bocznej drogi jednokierunkowej" />
+		<text name="ad_color_subPrioDualConnection" 			text="06 linia bocznej drogi dwukierunkowej" />
+		<text name="ad_color_subPrioNode" 			            text="07 punkt drogi bocznej" />
+		<text name="ad_color_hoveredNode" 			            text="08 podświetlony punkt" />
+		<text name="ad_color_previousNode" 			            text="09 poprzedni połączony punkt" />
+		<text name="ad_color_nextNode" 			                text="10 następny połączony punkt" />
+		<text name="ad_color_selectedNode" 			            text="11 wybrany punkt" />
+		<text name="ad_color_currentConnection" 			    text="12 linia kierunku jazdy" />
+		<text name="ad_color_closestLine" 			            text="13 linia od pojazdu do najbliższego punktu" />
+		<text name="ad_color_editorHeightLine" 			        text="14 linia od punktu na ziemi do punktu nad pojazdem" />
 
 		<text name="button_delete_all" 							text="Usuń wszystkie" />
 		<text name="button_reset_selected" 					    text="Zresetuj wybrane" />

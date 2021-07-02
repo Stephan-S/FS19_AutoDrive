@@ -335,7 +335,7 @@ end
 function FollowCombineTask:getInfoText()
     local text = ""
     if self.state == FollowCombineTask.STATE_CHASING then
-        text = g_i18n:getText("AD_task_chasing_combine") .. "-"
+        text = g_i18n:getText("AD_task_chasing_combine") .. " - "
         if not self:isCaughtCurrentChaseSide() then
             text = text .. g_i18n:getText("AD_task_catching_chase_side") .. ": "
         else
@@ -361,7 +361,7 @@ end
 function FollowCombineTask:getI18nInfo()
     local text = ""
     if self.state == FollowCombineTask.STATE_CHASING then
-        text = "$l10n_AD_task_chasing_combine;" .. "-"
+        text = "$l10n_AD_task_chasing_combine;" .. " - "
         if not self:isCaughtCurrentChaseSide() then
             text = text .. "$l10n_AD_task_catching_chase_side;" .. ": "
         else
