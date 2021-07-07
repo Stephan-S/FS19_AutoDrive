@@ -62,7 +62,7 @@ function ADScheduler:update(dt)
                 -- the average is calculated, so use it from now onwards
                 averagefps = self.average_fps
             end
-            AutoDrive.debugPrint(nil, AutoDrive.DC_PATHINFO, "[AD] Scheduler update self.actual_fps %s averagefps %s self.stepsPerFrame %s", tostring(self.actual_fps), tostring(averagefps), tostring(self.stepsPerFrame))
+            AutoDrive.debugPrint(nil, AutoDrive.DC_PATHINFO, "[AD] Scheduler update self.actual_fps %.1f averagefps %.1f self.stepsPerFrame %s", self.actual_fps, averagefps, tostring(self.stepsPerFrame))
 
             if self.actual_fps > averagefps * (1 + ADScheduler.FPS_DIFFERENCE) then
                 -- actual FPS is higher than average, so we can increase stepsPerFrame

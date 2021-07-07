@@ -266,3 +266,7 @@ function AutoDrive:holdCPCombine(combine)
         end
     end
 end
+
+function AutoDrive:getIsCPActive(vehicle)
+    return vehicle ~= nil and g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving()
+end

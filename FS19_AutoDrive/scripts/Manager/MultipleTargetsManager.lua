@@ -82,7 +82,7 @@ function ADMultipleTargetsManager:getNextPickup(driver, forcedSkip)
     local target = driver.ad.stateModule:getFirstMarker().markerIndex
     local groupName = driver.ad.stateModule:getFirstMarker().group
     if self.pickups[groupName] == nil then
-        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup self.groups[groupName] == nil")
+        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup self.pickups[groupName] == nil")
         self.pickups[groupName] = {}
         self.pickups[groupName].lastTarget = nil
         self.pickups[groupName].lastVehicle = nil
