@@ -126,7 +126,7 @@ function PickupAndDeliverMode:getNextTask(forced)
 
     if self.state == PickupAndDeliverMode.STATE_INIT then
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask STATE_INIT self.state %s distanceToStart %s", tostring(self.state), tostring(distanceToStart))
-        if (AutoDrive.checkIsOnField(x, y, z) and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30) or AutoDrive:getIsCPActive(vehicle) then
+        if (AutoDrive.checkIsOnField(x, y, z) and ADGraphManager:getDistanceFromNetwork(self.vehicle) > 30) or AutoDrive:getIsCPActive(self.vehicle) then
             -- is activated on a field - use ExitFieldTask to leave field according to setting
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] PickupAndDeliverMode:getNextTask set STATE_EXIT_FIELD")
             self.state = PickupAndDeliverMode.STATE_EXIT_FIELD
