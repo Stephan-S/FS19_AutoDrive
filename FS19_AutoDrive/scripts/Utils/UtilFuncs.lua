@@ -742,22 +742,29 @@ function AutoDrive:onActivateObject(superFunc, vehicle)
 	superFunc(self, vehicle)
 end
 
-function AutoDrive:onFillTypeSelection(superFunc, fillType)
-	if fillType ~= nil and fillType ~= FillType.UNKNOWN then
-		if self.validFillableObject == nil then
-			for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
-				if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
-					self.validFillableObject = fillableObject.object
-					self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
-				end
-			end
-		end
-		local validFillableObject = self.validFillableObject
-		if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
-			local fillUnitIndex = self.validFillableFillUnitIndex
-			self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
-		end
-	end
+function AutoDrive:onFillTypeSelection(fillType)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "AutoDrive:onFillTypeSelection start... fillType %s self.validFillableObject %s self.isLoading %s", tostring(fillType), tostring(self.validFillableObject), tostring(self.isLoading))
+    if not self.isLoading then
+        if fillType ~= nil and fillType ~= FillType.UNKNOWN then
+            if self.validFillableObject == nil then
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "AutoDrive:onFillTypeSelection self.validFillableObject == nil")
+                for _, fillableObject in pairs(self.fillableObjects) do --copied from gdn getIsActivatable to get a valid Fillable Object even without entering vehicle (needed for refuel first time)
+                    if fillableObject.object:getFillUnitSupportsToolType(fillableObject.fillUnitIndex, ToolType.TRIGGER) then
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "AutoDrive:onFillTypeSelection getFillUnitSupportsToolType")
+                        self.validFillableObject = fillableObject.object
+                        self.validFillableFillUnitIndex = fillableObject.fillUnitIndex
+                    end
+                end
+            end
+            local validFillableObject = self.validFillableObject
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "AutoDrive:onFillTypeSelection validFillableObject %s", tostring(validFillableObject))
+            if validFillableObject ~= nil then --and validFillableObject:getRootVehicle() == g_currentMission.controlledVehicle
+                local fillUnitIndex = self.validFillableFillUnitIndex
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "AutoDrive:onFillTypeSelection setIsLoading")
+                self:setIsLoading(true, validFillableObject, fillUnitIndex, fillType)
+            end
+        end
+    end
 end
 
 function AutoDrive:getDriveData(superFunc,dt, vX,vY,vZ)		--combine helper function, copied from GDN and modified to open combine pipe when an unloader is assigned to the combine

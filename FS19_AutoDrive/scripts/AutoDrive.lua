@@ -192,7 +192,15 @@ g_logManager:info("[AD] Start register later loaded mods end")
 	LoadTrigger.onActivateObject = Utils.overwrittenFunction(LoadTrigger.onActivateObject, AutoDrive.onActivateObject)
 	AIDriveStrategyCombine.getDriveData = Utils.overwrittenFunction(AIDriveStrategyCombine.getDriveData, AutoDrive.getDriveData)
 	LoadTrigger.getIsActivatable = Utils.overwrittenFunction(LoadTrigger.getIsActivatable, AutoDrive.getIsActivatable)
-	LoadTrigger.onFillTypeSelection = Utils.overwrittenFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
+	LoadTrigger.onFillTypeSelection = Utils.appendedFunction(LoadTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection)
+
+    if g_company then
+        if g_company.loadingTrigger then 
+            if g_company.loadingTrigger.onFillTypeSelection then
+                g_company.loadingTrigger.onFillTypeSelection = Utils.appendedFunction(g_company.loadingTrigger.onFillTypeSelection, AutoDrive.onFillTypeSelection);
+            end
+        end
+    end
 
 	VehicleCamera.zoomSmoothly = Utils.overwrittenFunction(VehicleCamera.zoomSmoothly, AutoDrive.zoomSmoothly)
 
