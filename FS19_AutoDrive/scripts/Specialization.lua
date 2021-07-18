@@ -236,7 +236,8 @@ function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
         if self:getIsAIActive() and spec.startedFarmId ~= nil and spec.startedFarmId > 0 and self.ad.stateModule:isActive() then
             local driverWages = AutoDrive.getSetting("driverWages")
             local difficultyMultiplier = g_currentMission.missionInfo.buyPriceMultiplier
-            local price = -dt * difficultyMultiplier * (driverWages - 1) * spec.pricePerMS
+            local price = -dt * difficultyMultiplier * (driverWages) * spec.pricePerMS
+            price = price + (dt * difficultyMultiplier * spec.pricePerMS)   -- add the price which AI internal already substracted
             g_currentMission:addMoney(price, spec.startedFarmId, MoneyType.AI, true)
         end
     end
