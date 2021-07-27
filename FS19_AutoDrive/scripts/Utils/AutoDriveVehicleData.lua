@@ -29,6 +29,7 @@ function AutoDriveVehicleData.registerEventListeners(vehicleType)
             "onPostLoad",
             "onSelect",
             "onEnterVehicle",
+            "onPreDetach",
             "saveToXMLFile",
             "onReadStream",
             "onWriteStream"
@@ -123,6 +124,31 @@ function AutoDriveVehicleData:onSelect()
             end
 
             local rootVehicle = self:getRootVehicle()
+            if rootVehicle ~= nil and rootVehicle.ad ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) then
+                -- propagate park destination only if vehicle is entered, as Giants engine also select vehicle, tools on startup
+                AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
+            end
+        end
+    end
+end
+
+--[[
+tool selection seems strange on dedi servers as known!
+That's why the following event is only taken on clients and send as event in the network
+onPreDetach is used here, as with automatic engine start the vehicle is not selectable, to detect an actualy selected worktool and send it's park destination over network as job end position and display in HUD
+]]
+function AutoDriveVehicleData:onPreDetach(attacherVehicle, implement)
+    local actualparkDestination = -1
+    if g_dedicatedServerInfo == nil then
+        -- only send the client event to server
+        if attacherVehicle.advd ~= nil then
+            actualparkDestination = attacherVehicle.advd.parkDestination
+
+            if actualparkDestination == nil then
+                actualparkDestination = -1
+            end
+
+            local rootVehicle = attacherVehicle:getRootVehicle()
             if rootVehicle ~= nil and rootVehicle.ad ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) then
                 -- propagate park destination only if vehicle is entered, as Giants engine also select vehicle, tools on startup
                 AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
