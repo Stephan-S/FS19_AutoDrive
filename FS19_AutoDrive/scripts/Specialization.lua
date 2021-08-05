@@ -34,7 +34,6 @@ end
 function AutoDrive.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateAILights", AutoDrive.updateAILights)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "getCanMotorRun", AutoDrive.getCanMotorRun)
-    SpecializationUtil.registerOverwrittenFunction(vehicleType, "leaveVehicle", AutoDrive.leaveVehicle)
 end
 
 function AutoDrive.registerFunctions(vehicleType)
@@ -451,7 +450,9 @@ function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointD
     local storedSelectedFillType = self.ad.stateModule:getFillType()
     if #supportedFillTypes > 0 and not table.contains(supportedFillTypes, storedSelectedFillType) then
         self.ad.stateModule:setFillType(supportedFillTypes[1])
-        AutoDrive.Hud.lastUIScale = 0
+        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle == self then
+            AutoDrive.Hud.lastUIScale = 0
+        end
     end
 end
 
@@ -475,12 +476,22 @@ function AutoDrive:onPreDetachImplement(implement)
 end
 
 function AutoDrive:onEnterVehicle()
-    AutoDrive.Hud.lastUIScale = 0
+    if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle == self then
+        AutoDrive.Hud.lastUIScale = 0
+    end
 end
 
 function AutoDrive:onLeaveVehicle()
     if self.ad ~= nil and self.ad.stateModule ~= nil then
         self.ad.stateModule:disableCreationMode()
+    end
+    if self.ad ~= nil then
+        if self.getIsEntered ~= nil and self:getIsEntered() then
+            if g_inputBinding:getShowMouseCursor() then
+                g_inputBinding:setShowMouseCursor(false)
+            end
+            AutoDrive.Hud:closeAllPullDownLists(self)
+        end
     end
 end
 
@@ -1107,18 +1118,6 @@ function AutoDrive:toggleMouse()
         end
     end
     self.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
-end
-
-function AutoDrive:leaveVehicle(superFunc)
-    if self.ad ~= nil then
-        if self.getIsEntered ~= nil and self:getIsEntered() then
-            if g_inputBinding:getShowMouseCursor() then
-                g_inputBinding:setShowMouseCursor(false)
-            end
-            AutoDrive.Hud:closeAllPullDownLists(self)
-        end
-    end
-    superFunc(self)
 end
 
 function AutoDrive:updateAILights(superFunc)
