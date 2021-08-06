@@ -34,6 +34,7 @@ end
 function AutoDrive.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateAILights", AutoDrive.updateAILights)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "getCanMotorRun", AutoDrive.getCanMotorRun)
+    SpecializationUtil.registerOverwrittenFunction(vehicleType, "leaveVehicle", AutoDrive.leaveVehicle)
 end
 
 function AutoDrive.registerFunctions(vehicleType)
@@ -484,14 +485,6 @@ end
 function AutoDrive:onLeaveVehicle()
     if self.ad ~= nil and self.ad.stateModule ~= nil then
         self.ad.stateModule:disableCreationMode()
-    end
-    if self.ad ~= nil then
-        if self.getIsEntered ~= nil and self:getIsEntered() then
-            if g_inputBinding:getShowMouseCursor() then
-                g_inputBinding:setShowMouseCursor(false)
-            end
-            AutoDrive.Hud:closeAllPullDownLists(self)
-        end
     end
 end
 
@@ -1118,6 +1111,18 @@ function AutoDrive:toggleMouse()
         end
     end
     self.ad.lastMouseState = g_inputBinding:getShowMouseCursor()
+end
+
+function AutoDrive:leaveVehicle(superFunc)
+    if self.ad ~= nil then
+        if self.getIsEntered ~= nil and self:getIsEntered() then
+            if g_inputBinding:getShowMouseCursor() then
+                g_inputBinding:setShowMouseCursor(false)
+            end
+            AutoDrive.Hud:closeAllPullDownLists(self)
+        end
+    end
+    superFunc(self)
 end
 
 function AutoDrive:updateAILights(superFunc)
