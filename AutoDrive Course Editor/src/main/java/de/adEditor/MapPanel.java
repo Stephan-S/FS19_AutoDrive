@@ -2,7 +2,6 @@ package de.adEditor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -30,6 +29,7 @@ public class MapPanel extends JPanel{
     private RoadMap roadMap;
     private MapNode hoveredNode = null;
     private MapNode movingNode = null;
+    private MapNode changingNode = null;
     private MapNode selected = null;
 
     private int mousePosX = 0;
@@ -40,6 +40,9 @@ public class MapPanel extends JPanel{
     private int lastX = 0;
     private int lastY = 0;
     private Point2D rectangleStart;
+
+    private Color BROWN = new Color(152, 104, 50 );
+
 
     public MapPanel(AutoDriveEditor editor) {
         this.editor = editor;
@@ -74,25 +77,34 @@ public class MapPanel extends JPanel{
 
             if (this.roadMap != null) {
                 for (MapNode mapNode : this.roadMap.mapNodes) {
-                    g.setColor(Color.BLUE);
-                    if (mapNode == selected) {
-                        g.setColor(Color.PINK);
+                    if (mapNode.flag == 0) {
+                        g.setColor(Color.RED);
+                    } else {
+                        g.setColor(Color.ORANGE);
                     }
+
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z );
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
+
                     for (MapNode outgoing : mapNode.outgoing) {
-                        g.setColor(Color.GREEN);
                         boolean dual = RoadMap.isDual(mapNode, outgoing);
-                        if (dual) {
-                            g.setColor(Color.RED);
+                        if (dual && mapNode.flag !=1) {
+                            g.setColor(Color.BLUE);
+                        } else if (dual && mapNode.flag ==1) {
+                            g.setColor(BROWN);
+                        } else if (mapNode.flag == 1) {
+                            g.setColor(Color.ORANGE);
+                        } else {
+                            g.setColor(Color.GREEN);
                         }
+
                         Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
                         drawArrowBetween(g, nodePos, outPos, dual);
                     }
                 }
 
                 for (MapMarker mapMarker : this.roadMap.mapMarkers) {
-                    g.setColor(Color.BLUE);
+                    g.setColor(Color.WHITE);
                     Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x + 3, mapMarker.mapNode.z);
                     g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
                 }
@@ -236,12 +248,12 @@ public class MapPanel extends JPanel{
         }
     }
 
-    public void createNode(int screenX, int screenY) {
+    public void createNode(int screenX, int screenY, int flag) {
         if (this.roadMap == null || this.image == null) {
             return;
         }
         LOG.info("createNode: {}, {}", screenX, screenY);
-        MapNode mapNode = new MapNode(this.roadMap.mapNodes.size()+1, screenX, -1, screenY);
+        MapNode mapNode = new MapNode(this.roadMap.mapNodes.size()+1, screenX, -1, screenY, flag); //flag = 0 causes created node to be regular by default
 
         this.roadMap.mapNodes.add(mapNode);
         editor.setStale(true);
@@ -312,6 +324,16 @@ public class MapPanel extends JPanel{
             this.roadMap.addMapMarker(mapMarker);
             editor.setStale(true);
         }
+    }
+
+    public void changeNodePriority(MapNode nodeToChange) {
+        if (nodeToChange.flag == 0) {
+            nodeToChange.flag = 1;
+        } else {
+            nodeToChange.flag = 0;
+        }
+        editor.setStale(true);
+        this.repaint();
     }
 
     public void removeAllNodesInScreenArea(Point2D rectangleStartScreen, Point2D rectangleEndScreen) {
@@ -413,9 +435,9 @@ public class MapPanel extends JPanel{
                 repaint();
             }
         }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING) {
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
-            createNode((int)worldPos.getX(), (int)worldPos.getY());
+            createNode((int)worldPos.getX(), (int)worldPos.getY(),0);
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
             movingNode = getNodeAt(x, y);
@@ -426,6 +448,16 @@ public class MapPanel extends JPanel{
                     repaint();
                 }
             }
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
+            Point2D worldPos = screenPosToWorldPos(x, y);
+            changingNode = getNodeAt(x, y);
+            changeNodePriority(changingNode);
+
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY) {
+            Point2D worldPos = screenPosToWorldPos(x, y);
+            createNode((int)worldPos.getX(), (int)worldPos.getY(),1);
         }
     }
 
