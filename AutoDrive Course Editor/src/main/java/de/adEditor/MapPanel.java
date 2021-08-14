@@ -370,6 +370,42 @@ public class MapPanel extends JPanel{
         }
     }
 
+    public void changeAllNodesPriInScreenArea(Point2D rectangleStartScreen, Point2D rectangleEndScreen) {
+        if (this.roadMap == null || this.image == null) {
+            return;
+        }
+        int screenStartX = (int) rectangleStartScreen.getX();
+        int screenStartY = (int) rectangleStartScreen.getY();
+        int width = (int)(rectangleEndScreen.getX() - rectangleStartScreen.getX());
+        int height = (int)(rectangleEndScreen.getY() - rectangleStartScreen.getY());
+
+        Rectangle2D rectangle = ADUtils.getNormalizedRectangleFor(screenStartX, screenStartY, width, height);
+        screenStartX = (int) rectangle.getX();
+        screenStartY = (int) rectangle.getY();
+        width = (int) rectangle.getWidth();
+        height = (int) rectangle.getHeight();
+
+        LinkedList<MapNode> toChangePri = new LinkedList<>();
+        for (MapNode mapNode : this.roadMap.mapNodes) {
+            double currentNodeSize = nodeSize * zoomLevel * 0.5;
+
+            Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
+
+            if (screenStartX < nodePos.getX() + currentNodeSize && (screenStartX + width) > nodePos.getX() - currentNodeSize && screenStartY < nodePos.getY() + currentNodeSize && (screenStartY + height) > nodePos.getY() - currentNodeSize) {
+                toChangePri.add(mapNode);
+            }
+        }
+        if (!toChangePri.isEmpty()) {
+            editor.setStale(true);
+
+            for (MapNode node : toChangePri) {
+                changeNodePriority(node);
+            }
+        }
+    }
+
+
+
     public void drawArrowBetween(Graphics g, Point2D start, Point2D target, boolean dual) {
         double vecX = start.getX() - target.getX();
         double vecY = start.getY() - target.getY();
@@ -452,7 +488,9 @@ public class MapPanel extends JPanel{
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
             changingNode = getNodeAt(x, y);
-            changeNodePriority(changingNode);
+            if (changingNode != null) {
+                changeNodePriority(changingNode);
+            }
 
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY) {
@@ -495,6 +533,8 @@ public class MapPanel extends JPanel{
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING && rectangleStart != null) {
             repaint();
+        } else if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY && rectangleStart != null) {
+            repaint();
         }
     }
 
@@ -535,6 +575,12 @@ public class MapPanel extends JPanel{
 
                 LOG.info("Removing all nodes in area");
                 removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
+                repaint();
+            }
+            if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
+
+                LOG.info("toggling all nodes priority in area");
+                changeAllNodesPriInScreenArea(rectangleStart, rectangleEnd);
                 repaint();
             }
         }
