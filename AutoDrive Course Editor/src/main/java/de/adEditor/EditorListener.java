@@ -39,12 +39,19 @@ public class EditorListener implements ActionListener {
         if (e.getActionCommand().equals(AutoDriveEditor.CONNECT_NODES)) {
             this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
         }
-        if (e.getActionCommand().equals(AutoDriveEditor.CREATE_NODES)) {
-            this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING;
+        if (e.getActionCommand().equals(AutoDriveEditor.CREATE_PRIMARY_NODES)) {
+            this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY;
         }
         if (e.getActionCommand().equals(AutoDriveEditor.CREATE_DESTINATIONS)) {
             this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION;
         }
+        if (e.getActionCommand().equals(AutoDriveEditor.CHANGE_NODE_PRIORITY)) {
+            this.editor.editorState = AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY;
+        }
+        if (e.getActionCommand().equals(AutoDriveEditor.CREATE_SECONDARY_NODES)) {
+            this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY;
+        }
+
         editor.updateButtons();
         if (e.getActionCommand().equals("Load")) {
             JFileChooser fc = new JFileChooser();
