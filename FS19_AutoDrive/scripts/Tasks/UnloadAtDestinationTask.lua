@@ -81,6 +81,11 @@ function UnloadAtDestinationTask:update(dt)
                     -- Wait at unload point until unloaded somehow
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
+                    if self.vehicle.ad.trailerModule.hasAL == true then
+                    	-- AutoLoad
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update unloadALAll start")
+                        AutoDrive:unloadALAll(self.vehicle)
+                    end
                 end
             else
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger")

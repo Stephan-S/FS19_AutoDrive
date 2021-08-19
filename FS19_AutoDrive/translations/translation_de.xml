@@ -193,7 +193,14 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Ja - AutoDrive öffnet und schließt Abdeckungen von Anhängern wenn notwendig / Nein - die Abdeckungen werden von AutoDrive nicht geöffnet oder geschlossen" />
 		<text name="gui_ad_useForwardTurningManoeuvre"          text="Vorwärts Wendemanöver" />
 		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Ja - Abfahrer planen eine Vorwärtswende wenn Drescher wendet. / Nein - Abfahrer setzen kurz zurück." />
-		
+		<text name="gui_ad_ALUnload"                            text="AutoLoad: Abladeposition" />
+		<text name="gui_ad_ALUnload_tooltip"                    text="aus-kein Abladen, mittig-auf Ladefläche abladen, links-, hinten-, rechts-auf Standard-Entladeposition" />
+		<text name="gui_ad_AL_off"                              text="abladen aus" />
+		<text name="gui_ad_AL_center"                           text="abladen mittig" />
+		<text name="gui_ad_AL_left"                             text="abladen links" />
+		<text name="gui_ad_AL_behind"                           text="abladen hinten" />
+		<text name="gui_ad_AL_right"                            text="abladen rechts" />
+
 		<text name="gui_ad_settingsPage_title"					text="Einstellungen - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Benutzereinstellungen - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Fahrzeugeinstellungen - AutoDrive" />

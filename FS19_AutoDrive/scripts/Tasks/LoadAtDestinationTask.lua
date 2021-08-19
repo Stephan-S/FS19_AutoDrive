@@ -80,6 +80,11 @@ function LoadAtDestinationTask:update(dt)
 
                         if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
                             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update leftCapacity <= -> self:finished")
+                            if self.vehicle.ad.trailerModule.hasAL == true then
+                                -- AutoLoad
+                                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update deactivateTrailerAL start")
+                                AutoDrive.deactivateTrailerAL(self.vehicle, trailers)
+                            end
                             self:finished()
                         end
                     end

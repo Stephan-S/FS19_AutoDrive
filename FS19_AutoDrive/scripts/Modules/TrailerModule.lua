@@ -54,6 +54,11 @@ function ADTrailerModule:reset()
     AutoDrive.setAugerPipeOpen(self.trailers, false)
     self:handleTrailerReversing(false)
     self.count = 0
+    self.hasAL = false
+    for i=1, self.trailerCount do
+        self.hasAL = self.hasAL or AutoDrive:hasAL(self.trailers[i])
+    end
+    self.activeAL = false
 end
 
 function ADTrailerModule:isActiveAtTrigger()
@@ -145,7 +150,17 @@ function ADTrailerModule:update(dt)
             self:updateStates()
             updateStatesDone = true
         end
-        self:updateLoad(dt)
+        if self.hasAL == true then
+            -- activate AutoLoad only once when in destination range
+            if self.activeAL == false then
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad trailer with AL found -> activate AL in all trailers")
+                self.activeAL = true
+                AutoDrive.activateTrailerAL(self.vehicle, self.trailers)
+                -- no further actions required, monitoring via fill level - see load from source without trigger
+            end
+        else
+            self:updateLoad(dt)
+        end
     end
     self:handleTrailerCovers()
 
@@ -354,7 +369,7 @@ function ADTrailerModule:updateLoad(dt)
             checkFillUnitFull = true
         elseif self.trigger ~= nil and self.trigger.stoppedTimer == nil and self.trigger == self and self.loadDelayTimer:done() and self.lastFillLevel >= self.fillLevel then
             -- load from source without trigger
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad WaterTrailer full")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "[AD] ADTrailerModule:updateLoad trailers full")
             checkFillUnitFull = true
         else
             -- still loading from trigger
