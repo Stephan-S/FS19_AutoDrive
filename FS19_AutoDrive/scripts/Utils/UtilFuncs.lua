@@ -497,17 +497,23 @@ end
 
 function AutoDrive.debugPrint(vehicle, debugChannel, debugText, ...)
 	if AutoDrive.getDebugChannelIsSet(debugChannel) then
-		local printText = ""
-		if vehicle ~= nil then
-			if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
-				printText = vehicle.ad.stateModule:getName() .. ": "
-			else
-				printText = vehicle:getName() .. ": "
-			end
-		end
-
-		g_logManager:info(printText .. debugText, ...)
+        AutoDrive.debugMsg(vehicle, debugText, ...)
 	end
+end
+
+function AutoDrive.debugMsg(vehicle, debugText, ...)
+    local printText = "[AD] " .. tostring(g_updateLoopIndex) .. " "
+    if vehicle ~= nil then
+        if vehicle.ad ~= nil and vehicle.ad.stateModule ~= nil then
+            printText = printText .. vehicle.ad.stateModule:getName() .. ": "
+        elseif vehicle.getName ~= nil then
+            printText = printText .. vehicle:getName() .. ": "
+        else
+            printText = printText .. tostring(vehicle) .. ": "
+        end
+    end
+
+    g_logManager:info(printText .. debugText, ...)
 end
 
 AutoDrive.debug = {}
@@ -1084,7 +1090,7 @@ function AutoDrive.checkWaypointsLinkedtothemselve(correctit)
 		end
 	end
 	if count > 0 then
-		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "[AD] removed %s waypoint links to themselve", tostring(count))
+		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "removed %s waypoint links to themselve", tostring(count))
 	end
 end
 
@@ -1122,7 +1128,7 @@ function AutoDrive.checkWaypointsMultipleSameOut(correctit)
 		end
 	end
 	if count > 0 then
-		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "[AD] removed %s waypoint with multiple same out links", tostring(count))
+		AutoDrive.debugPrint(nil, AutoDrive.DC_ROADNETWORKINFO, "removed %s waypoint with multiple same out links", tostring(count))
 	end
 end
 

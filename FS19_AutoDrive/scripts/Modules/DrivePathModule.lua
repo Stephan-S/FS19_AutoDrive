@@ -348,7 +348,7 @@ end
 function ADDrivePathModule:getHighestApproachingAngle()
     self.turnAngle = 0
     self.distanceToLookAhead = self:getCurrentLookAheadDistance()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> Lookahead distance: " .. self.distanceToLookAhead)
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "ADDrivePathModule:getHighestApproachingAngle -> Lookahead distance: " .. self.distanceToLookAhead)
     local pointsToLookAhead = ADDrivePathModule.MAXLOOKAHEADPOINTS
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
 
@@ -367,13 +367,13 @@ function ADDrivePathModule:getHighestApproachingAngle()
             local wp_current = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 1]
             local wp_ref = self.wayPoints[self:getCurrentWayPointIndex() + currentLookAheadPoint - 2]
             
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> wp_ahead: " .. wp_ahead.x .. " / " .. wp_ahead.z)
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> wp_current: " .. wp_current.x .. " / " .. wp_current.z)
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> wp_ref: " .. wp_ref.x .. " / " .. wp_ref.z)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "ADDrivePathModule:getHighestApproachingAngle -> wp_ahead: " .. wp_ahead.x .. " / " .. wp_ahead.z)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "ADDrivePathModule:getHighestApproachingAngle -> wp_current: " .. wp_current.x .. " / " .. wp_current.z)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "ADDrivePathModule:getHighestApproachingAngle -> wp_ref: " .. wp_ref.x .. " / " .. wp_ref.z)
 
             local angle = AutoDrive.angleBetween({x = wp_ahead.x - wp_current.x, z = wp_ahead.z - wp_current.z}, {x = wp_current.x - wp_ref.x, z = wp_current.z - wp_ref.z})
             
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "[AD] ADDrivePathModule:getHighestApproachingAngle -> angle: " .. angle)
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_DEVINFO, "ADDrivePathModule:getHighestApproachingAngle -> angle: " .. angle)
 
             self.turnAngle = self.turnAngle + math.clamp(-90, angle, 90)
 

@@ -162,8 +162,7 @@ end
 
 function PathFinderModule:startPathPlanningToNetwork(destinationId)
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningToNetwork destinationId %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningToNetwork destinationId %s",
             tostring(destinationId)
         )
     )
@@ -174,8 +173,7 @@ end
 
 function PathFinderModule:startPathPlanningToWayPoint(wayPointId, destinationId)
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningToWayPoint wayPointId %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningToWayPoint wayPointId %s",
             tostring(wayPointId)
         )
     )
@@ -195,8 +193,7 @@ end
 function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:startPathPlanningToPipe")
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningToPipe combine %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningToPipe combine %s",
             tostring(combine:getName())
         )
     )
@@ -263,8 +260,7 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
                 local fruitType = g_fruitTypeManager:getFruitTypeByIndex(fillType)
 
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s startPathPlanningToPipe self.fruitToCheck %s Fruit name %s title %s",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM startPathPlanningToPipe self.fruitToCheck %s Fruit name %s title %s",
                         tostring(self.fruitToCheck),
                         tostring(fruitType.fillType.name),
                         tostring(fruitType.fillType.title)
@@ -280,8 +276,7 @@ end
 
 function PathFinderModule:startPathPlanningToVehicle(targetVehicle, targetDistance)
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningToVehicle targetVehicle %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningToVehicle targetVehicle %s",
             tostring(targetVehicle:getName())
         )
     )
@@ -299,8 +294,7 @@ end
 
 function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningTo targetPoint x,z %d %d",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningTo targetPoint x,z %d %d",
             math.floor(targetPoint.x),
             math.floor(targetPoint.z)
         )
@@ -392,8 +386,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     -- end
     self.chainStartToTarget = {}
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningTo self.minTurnRadius %s vectorX.x,vectorX.z %s %s vectorZ.x,vectorZ.z %s %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningTo self.minTurnRadius %s vectorX.x,vectorX.z %s %s vectorZ.x,vectorZ.z %s %s",
             tostring(self.minTurnRadius),
             tostring(self.vectorX.x),
             tostring(self.vectorX.z),
@@ -402,30 +395,26 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
         )
     )
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningTo startCell xz %d %d direction %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningTo startCell xz %d %d direction %s",
             math.floor(self.startCell.x),
             math.floor(self.startCell.z),
             tostring(PathFinderModule.direction_to_text[self.startCell.direction+1])
         )
     )
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningTo start targetCell xz %d %d direction %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningTo start targetCell xz %d %d direction %s",
             math.floor(self.targetCell.x),
             math.floor(self.targetCell.z),
             tostring(PathFinderModule.direction_to_text[self.targetCell.direction+1])
         )
     )
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningTo getSetting restrictToField %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningTo getSetting restrictToField %s",
             tostring(self.restrictToField)
         )
     )
     PathFinderModule.debugVehicleMsg(self.vehicle,
-        string.format("[AD] PFM %s startPathPlanningTo self.fruitToCheck %s getSetting avoidFruit %s",
-            tostring(self.vehicle:getName()),
+        string.format("PFM startPathPlanningTo self.fruitToCheck %s getSetting avoidFruit %s",
             tostring(self.fruitToCheck),
             tostring(self.avoidFruitSetting)
         )
@@ -580,8 +569,7 @@ function PathFinderModule:update(dt)
         if fallBackModeAllowed1 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: no -> fallBackModeAllowed1: yes -> going fallback now -> disable restrict to field #self.grid %d", table.count(self.grid))
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s update - error - retryAllowed: no -> fallBackModeAllowed1: yes -> going fallback now -> disable restrict to field #self.grid %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM update - error - retryAllowed: no -> fallBackModeAllowed1: yes -> going fallback now -> disable restrict to field #self.grid %d",
                     table.count(self.grid)
                 )
             )
@@ -590,8 +578,7 @@ function PathFinderModule:update(dt)
         elseif fallBackModeAllowed2 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: no -> fallBackModeAllowed2: yes -> going fallback now -> disable field borders #self.grid %d", table.count(self.grid))
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s update - error - retryAllowed: no -> fallBackModeAllowed2: yes -> going fallback now -> disable field borders #self.grid %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM update - error - retryAllowed: no -> fallBackModeAllowed2: yes -> going fallback now -> disable field borders #self.grid %d",
                     table.count(self.grid)
                 )
             )
@@ -600,8 +587,7 @@ function PathFinderModule:update(dt)
         elseif fallBackModeAllowed3 then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: no -> fallBackModeAllowed3: yes -> going fallback now -> disable avoid fruit #self.grid %d", table.count(self.grid))
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s update - error - retryAllowed: no -> fallBackModeAllowed3: yes -> going fallback now -> disable avoid fruit #self.grid %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM update - error - retryAllowed: no -> fallBackModeAllowed3: yes -> going fallback now -> disable avoid fruit #self.grid %d",
                     table.count(self.grid)
                 )
             )
@@ -613,8 +599,7 @@ function PathFinderModule:update(dt)
             if self.appendWayPoints ~= nil and #self.appendWayPoints > 2 then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: yes -> retry now retryCounter %d", self.retryCounter)
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s update - error - retryAllowed: yes -> retry now retryCounter %d",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM update - error - retryAllowed: yes -> retry now retryCounter %d",
                         self.retryCounter
                     )
                 )
@@ -622,8 +607,7 @@ function PathFinderModule:update(dt)
             else
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: yes -> but no appendWayPoints")
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s update - error - retryAllowed: yes -> but no appendWayPoints",
-                        tostring(self.vehicle:getName())
+                    string.format("PFM update - error - retryAllowed: yes -> but no appendWayPoints"
                     )
                 )
                 self:abort()
@@ -634,8 +618,7 @@ function PathFinderModule:update(dt)
             end
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: no -> fallBackModeAllowed: no -> aborting now")
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s update - error - retryAllowed: no -> fallBackModeAllowed: no -> aborting now",
-                    tostring(self.vehicle:getName())
+                string.format("PFM update - error - retryAllowed: no -> fallBackModeAllowed: no -> aborting now"
                 )
             )
             self:abort()
@@ -672,8 +655,7 @@ function PathFinderModule:update(dt)
                 --Mark process stopped if we have no more cells to check
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - Mark process stopped if we have no more cells to check")
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s update - Mark process stopped if we have no more cells to check #self.grid %d",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM update - Mark process stopped if we have no more cells to check #self.grid %d",
                         table.count(self.grid)
                     )
                 )
@@ -716,8 +698,7 @@ function PathFinderModule:reachedTargetsNeighbor(cells)
 
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - path found")
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s update - path found #self.grid %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM update - path found #self.grid %d",
                     table.count(self.grid)
                 )
             )
@@ -756,8 +737,7 @@ end
 function PathFinderModule:testNextCells(cell)
     if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
         PathFinderModule.debugVehicleMsg(self.vehicle,
-            string.format("[AD] PFM %s testNextCells start cell xz %d %d isRestricted %s hasFruit %s direction %s",
-                tostring(self.vehicle:getName()),
+            string.format("PFM testNextCells start cell xz %d %d isRestricted %s hasFruit %s direction %s",
                 math.floor(cell.x),
                 math.floor(cell.z),
                 tostring(cell.isRestricted),
@@ -771,8 +751,7 @@ function PathFinderModule:testNextCells(cell)
         local duplicatePointDirection = -1
         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s testNextCells location xz %d %d direction %s",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM testNextCells location xz %d %d direction %s",
                     math.floor(location.x),
                     math.floor(location.z),
                     tostring(PathFinderModule.direction_to_text[location.direction+1])
@@ -785,8 +764,7 @@ function PathFinderModule:testNextCells(cell)
                 -- cell is already in the grid
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
-                        string.format("[AD] PFM %s testNextCells gridKey %s cell.x,cell.z %s %s direction %s",
-                            tostring(self.vehicle:getName()),
+                        string.format("PFM testNextCells gridKey %s cell.x,cell.z %s %s direction %s",
                             tostring(gridKey),
                             tostring(self.grid[gridKey].x),
                             tostring(self.grid[gridKey].z),
@@ -819,8 +797,7 @@ function PathFinderModule:testNextCells(cell)
             local gridKey
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s testNextCells location xz %d %d createPoint %s",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM testNextCells location xz %d %d createPoint %s",
                         math.floor(location.x),
                         math.floor(location.z),
                         tostring(PathFinderModule.direction_to_text[location.direction+1])
@@ -847,8 +824,7 @@ function PathFinderModule:testNextCells(cell)
 
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
-                        string.format("[AD] PFM %s testNextCells different direction xz %d %d createPoint %s",
-                            tostring(self.vehicle:getName()),
+                        string.format("PFM testNextCells different direction xz %d %d createPoint %s",
                             math.floor(location.x),
                             math.floor(location.z),
                             tostring(PathFinderModule.direction_to_text[location.direction+1])
@@ -888,8 +864,7 @@ function PathFinderModule:checkGridCell(cell)
         if cell.bordercells > 0 then
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s checkGridCell - xz %d %d cell.bordercells %d #self.grid %d",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM checkGridCell - xz %d %d cell.bordercells %d #self.grid %d",
                         math.floor(cell.x),
                         math.floor(cell.z),
                         math.floor(cell.bordercells),
@@ -909,8 +884,7 @@ function PathFinderModule:checkGridCell(cell)
         if cell.isRestricted then
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s checkGridCell isRestricted self.restrictToField %s self.fallBackMode1 %s isOnField %s x,z %d %d",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM checkGridCell isRestricted self.restrictToField %s self.fallBackMode1 %s isOnField %s x,z %d %d",
                         tostring(self.restrictToField),
                         tostring(self.fallBackMode1),
                         tostring(isOnField),
@@ -947,8 +921,7 @@ function PathFinderModule:checkGridCell(cell)
         if cell.hasCollision then
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s checkGridCell hasCollision = (shapes > 0) %d x,z %d %d x,z %d %d ",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM checkGridCell hasCollision = (shapes > 0) %d x,z %d %d x,z %d %d ",
                         shapes,
                         math.floor(worldPos.x),
                         math.floor(worldPos.z),
@@ -1161,8 +1134,7 @@ function PathFinderModule:checkForFruitTypeInArea(cell, fruitType, corners)
     if cell.hasFruit then
         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s checkForFruitTypeInArea cell.hasFruit xz %d %d fruitValue %s direction %s",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM checkForFruitTypeInArea cell.hasFruit xz %d %d fruitValue %s direction %s",
                     math.floor(cell.x),
                     math.floor(cell.z),
                     tostring(fruitValue),
@@ -1603,8 +1575,7 @@ function PathFinderModule:createWayPoints()
             end
             self.smoothStep = 3
             --PathFinderModule.debugVehicleMsg(self.vehicle,
-                --string.format("[AD] PFM %s createWayPoints appendWayPoints %s",
-                    --tostring(self.vehicle:getName()),
+                --string.format("PFM createWayPoints appendWayPoints %s",
                     --tostring(#self.appendWayPoints)
                 --)
             --)
@@ -1650,8 +1621,7 @@ function PathFinderModule:smoothResultingPPPath()
 
     self.wayPoints = filteredWPs
     --PathFinderModule.debugVehicleMsg(self.vehicle,
-        --string.format("[AD] PFM %s smoothResultingPPPath self.wayPoints %s",
-            --tostring(self.vehicle:getName()),
+        --string.format("PFM smoothResultingPPPath self.wayPoints %s",
             --tostring(#self.wayPoints)
         --)
     --)
@@ -1682,8 +1652,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
             
             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                    string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d ",
-                        tostring(self.vehicle:getName()),
+                    string.format("PFM smoothResultingPPPath_Refined self.smoothIndex %d ",
                         self.smoothIndex
                     )
                 )
@@ -1722,8 +1691,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
-                        string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d",
-                            tostring(self.vehicle:getName()),
+                        string.format("PFM smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d",
                             self.smoothIndex,
                             self.totalEagerSteps
                         )
@@ -1742,8 +1710,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                     
                     if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                         PathFinderModule.debugVehicleMsg(self.vehicle,
-                            string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                tostring(self.vehicle:getName()),
+                            string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                 1
                             )
                         )
@@ -1757,8 +1724,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                         
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
-                                string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                    tostring(self.vehicle:getName()),
+                                string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                     2
                                 )
                             )
@@ -1771,8 +1737,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                         
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
-                                string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                    tostring(self.vehicle:getName()),
+                                string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                     3
                                 )
                             )
@@ -1786,8 +1751,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                         
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
-                                string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                    tostring(self.vehicle:getName()),
+                                string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                     4
                                 )
                             )
@@ -1823,8 +1787,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                     if hasCollision then
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
-                                string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                    tostring(self.vehicle:getName()),
+                                string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                     5
                                 )
                             )
@@ -1843,8 +1806,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                         if hasCollision then
                             if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                                 PathFinderModule.debugVehicleMsg(self.vehicle,
-                                    string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                        tostring(self.vehicle:getName()),
+                                    string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                         6
                                     )
                                 )
@@ -1880,8 +1842,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                                     
                                     if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                                         PathFinderModule.debugVehicleMsg(self.vehicle,
-                                            string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                                tostring(self.vehicle:getName()),
+                                            string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                                 7
                                             )
                                         )
@@ -1904,8 +1865,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                             if hasCollision then
                                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                                     PathFinderModule.debugVehicleMsg(self.vehicle,
-                                        string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                            tostring(self.vehicle:getName()),
+                                        string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                             8
                                         )
                                     )
@@ -1922,8 +1882,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                     if hasCollision then
                         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                             PathFinderModule.debugVehicleMsg(self.vehicle,
-                                string.format("[AD] PFM %s smoothResultingPPPath_Refined hasCollision %d",
-                                    tostring(self.vehicle:getName()),
+                                string.format("PFM smoothResultingPPPath_Refined hasCollision %d",
                                     9
                                 )
                             )
@@ -1943,8 +1902,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
                 
                 if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
                     PathFinderModule.debugVehicleMsg(self.vehicle,
-                        string.format("[AD] PFM %s smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d self.filteredIndex %d foundCollision %s",
-                            tostring(self.vehicle:getName()),
+                        string.format("PFM smoothResultingPPPath_Refined self.smoothIndex %d self.totalEagerSteps %d self.filteredIndex %d foundCollision %s",
                             self.smoothIndex,
                             self.totalEagerSteps,
                             self.filteredIndex,
@@ -1979,8 +1937,7 @@ function PathFinderModule:smoothResultingPPPath_Refined()
         self.smoothDone = true
         
         PathFinderModule.debugVehicleMsg(self.vehicle,
-            string.format("[AD] PFM %s smoothResultingPPPath_Refined self.wayPoints %s",
-                tostring(self.vehicle:getName()),
+            string.format("PFM smoothResultingPPPath_Refined self.wayPoints %s",
                 tostring(#self.wayPoints)
             )
         )
@@ -2004,8 +1961,7 @@ function PathFinderModule:checkSlopeAngle(x1, z1, x2, z2)
     if belowGroundLevel then
         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s checkSlopeAngle belowGroundLevel x,z %d %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM checkSlopeAngle belowGroundLevel x,z %d %d",
                     math.floor(x1),
                     math.floor(z1)
                 )
@@ -2016,8 +1972,7 @@ function PathFinderModule:checkSlopeAngle(x1, z1, x2, z2)
     if (angleBetween * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s checkSlopeAngle (angleBetween * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD  x,z %d %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM checkSlopeAngle (angleBetween * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD  x,z %d %d",
                     math.floor(x1),
                     math.floor(z1)
                 )
@@ -2028,8 +1983,7 @@ function PathFinderModule:checkSlopeAngle(x1, z1, x2, z2)
     if (angleBetweenCenter * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD then
         if self.vehicle ~= nil and self.vehicle.ad ~= nil and self.vehicle.ad.debug ~= nil and AutoDrive.debugVehicleMsg ~= nil then
             PathFinderModule.debugVehicleMsg(self.vehicle,
-                string.format("[AD] PFM %s checkSlopeAngle (angleBetweenCenter * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD  x,z %d %d",
-                    tostring(self.vehicle:getName()),
+                string.format("PFM checkSlopeAngle (angleBetweenCenter * 1.25) > AITurnStrategy.SLOPE_DETECTION_THRESHOLD  x,z %d %d",
                     math.floor(x1),
                     math.floor(z1)
                 )
@@ -2061,11 +2015,11 @@ function PathFinderModule:buildMask()
     return mask
 end
 
-function PathFinderModule.debugVehicleMsg(vehicle, msg)
+function PathFinderModule.debugVehicleMsg(vehicle, msg, ...)
     -- collect output for single vehicle - help to examine sequences for a single vehicle
     if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.debug ~= nil then
         if AutoDrive.debugVehicleMsg ~= nil then
-            AutoDrive.debugVehicleMsg(vehicle, msg)
+            AutoDrive.debugVehicleMsg(vehicle, msg, ...)
         end
     end
 end

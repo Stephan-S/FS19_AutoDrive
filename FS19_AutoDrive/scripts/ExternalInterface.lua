@@ -289,6 +289,7 @@ function AutoDrive:setALOn(object)
     if object == nil or not AutoDrive:hasAL(object) then
         return false
     end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:setALOn")
     local workMode = true
     if object.easyAutoLoaderActionEvents ~= nil then
         workMode = object.workMode
@@ -307,6 +308,7 @@ function AutoDrive:setALOff(object)
     if object == nil or not AutoDrive:hasAL(object) then
         return false
     end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:setALOff")
     local workMode = false
     if object.easyAutoLoaderActionEvents ~= nil then
         workMode = object.workMode
@@ -325,6 +327,7 @@ function AutoDrive.activateTrailerAL(vehicle, trailers)
     if vehicle == nil or trailers == nil then
         return false
     end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:activateTrailerAL")
     if #trailers > 0 then
         for i=1, #trailers do
             AutoDrive:setALOn(trailers[i])
@@ -336,6 +339,7 @@ function AutoDrive.deactivateTrailerAL(vehicle, trailers)
     if vehicle == nil or trailers == nil then
         return false
     end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:deactivateTrailerAL")
     if #trailers > 0 then
         for i=1, #trailers do
             AutoDrive:setALOff(trailers[i])
@@ -353,11 +357,11 @@ function AutoDrive:unloadAL(object)
     if object == nil or not AutoDrive:hasAL(object) then
         return false
     end
-    -- g_logManager:info("[AD] AutoDrive:unloadAL start ")
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:unloadAL")
     local rootVehicle = object:getRootVehicle()
     local unloadPosition = AutoDrive.getSetting("ALUnload", rootVehicle)
     if unloadPosition ~= nil and unloadPosition > 0 then
-        -- g_logManager:info("[AD] AutoDrive:unloadAL should unload unloadPosition %s", tostring(unloadPosition))
+        AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:unloadAL should unload")
         -- should unload
         AutoDrive:setALOff(object)
         if unloadPosition > 1 then
@@ -367,21 +371,19 @@ function AutoDrive:unloadAL(object)
         end
         object:setUnload()
     end
-    -- g_logManager:info("[AD] AutoDrive:unloadAL end")
 end
 
 function AutoDrive:unloadALAll(vehicle)
     if vehicle == nil then
         return false
     end
-    -- g_logManager:info("[AD] AutoDrive:unloadALAll start ")
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:unloadALAll")
     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, false)
     if trailerCount > 0 then
         for i=1, trailerCount do
             AutoDrive:unloadAL(trailers[i])
         end
     end
-    -- g_logManager:info("[AD] AutoDrive:unloadALAll end")
 end
 
 function AutoDrive:getALOverallFillLevelPercentage(vehicle, trailers)
@@ -400,6 +402,7 @@ function AutoDrive:getALOverallFillLevelPercentage(vehicle, trailers)
         end
         percentage = percentages / #trailers
     end
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:getALOverallFillLevelPercentage percentage %s", tostring(percentage))
     return percentage
 end
 
@@ -419,6 +422,7 @@ function AutoDrive:getALFillLevelPercentage(object)
     if maxNumObjects == 0 then
         maxNumObjects = 1
     end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:getALFillLevelPercentage currentNumObjects %s maxNumObjects %s", tostring(currentNumObjects), tostring(maxNumObjects))
     return (currentNumObjects / maxNumObjects)
 end
 
@@ -436,5 +440,6 @@ function AutoDrive:getALFillLevelAndCapacityOfAllUnits(object)
         fillLevel = object.spec_easyAutoLoader.currentNumObjects
         leftCapacity = object.spec_easyAutoLoader.autoLoadObjects[object.spec_easyAutoLoader.state].maxNumObjects - fillLevel
     end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:getALFillLevelAndCapacityOfAllUnits fillLevel %s leftCapacity %s", tostring(fillLevel), tostring(leftCapacity))
     return fillLevel, leftCapacity
 end

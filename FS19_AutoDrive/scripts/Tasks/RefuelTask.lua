@@ -119,9 +119,11 @@ function RefuelTask:startRefueling()
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling")
 
         local fillType = self.vehicle.ad.stateModule:getRefuelFillType()
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start refueling fillType %s", tostring(fillType))
         if fillType > 0 then
             self.refuelTrigger.autoStart = true
             self.refuelTrigger.selectedFillType = fillType
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "Start onFillTypeSelection")
             self.refuelTrigger:onFillTypeSelection(fillType)
             self.refuelTrigger.selectedFillType = fillType
             self.hasRefueled = true

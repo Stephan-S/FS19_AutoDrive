@@ -66,51 +66,51 @@ function UnloadAtDestinationTask:update(dt)
             self.vehicle.ad.trailerModule:update(dt)
         end
         if self.vehicle.ad.drivePathModule:isTargetReached() then
-            --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached")
+            --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached")
             if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
-                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached isActiveAtTrigger")
+                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached isActiveAtTrigger")
                 local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
                 AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
                 local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                 if fillLevel <= 1 or self.isContinued or (((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) and (not ((self.vehicle.ad.drivePathModule:getIsReversing() and self.vehicle.ad.trailerModule:getBunkerTrigger() ~= nil)))) then
-                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update fillLevel <= 1")
+                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "UnloadAtDestinationTask:update fillLevel <= 1")
                     AutoDrive.setAugerPipeOpen(trailers, false)
                     self:finished()
                 else
-                   -- AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update Wait at unload point until unloaded somehow")
+                   -- AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update Wait at unload point until unloaded somehow")
                     -- Wait at unload point until unloaded somehow
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
                     if self.vehicle.ad.trailerModule.hasAL == true then
                     	-- AutoLoad
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] UnloadAtDestinationTask:update unloadALAll start")
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "UnloadAtDestinationTask:update unloadALAll start")
                         AutoDrive:unloadALAll(self.vehicle)
                     end
                 end
             else
-                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger")
+                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger")
                 if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
-                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger isUnloadingToBunkerSilo")
+                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger isUnloadingToBunkerSilo")
                     self.vehicle.ad.drivePathModule:update(dt)
                 else
-                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger stopVehicle")
+                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached NOT isActiveAtTrigger stopVehicle")
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
                 end
             end
         else
             if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
-                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isActiveAtTrigger")
+                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isActiveAtTrigger")
                 if self.vehicle.ad.trailerModule:isUnloadingToBunkerSilo() then
-                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isActiveAtTrigger isUnloadingToBunkerSilo")
+                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isActiveAtTrigger isUnloadingToBunkerSilo")
                     self.vehicle.ad.drivePathModule:update(dt)
                 else
-                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isActiveAtTrigger stopVehicle")
+                    --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isActiveAtTrigger stopVehicle")
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
                 end
             else
-                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtDestinationTask:update isActiveAtTrigger drivePathModule:update")
+                --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isActiveAtTrigger drivePathModule:update")
                 self.vehicle.ad.drivePathModule:update(dt)
             end
         end
