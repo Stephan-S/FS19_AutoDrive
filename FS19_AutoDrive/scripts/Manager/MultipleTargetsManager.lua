@@ -63,7 +63,6 @@ function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
                     self.groups[groupName].lastTarget = target
                     self.groups[groupName].lastVehicle = driver
                 end
-                AutoDrive.Hud.lastUIScale = 0
             end
         end
     end
@@ -124,7 +123,6 @@ function ADMultipleTargetsManager:getNextPickup(driver, forcedSkip)
                     self.pickups[groupName].lastTarget = target
                     self.pickups[groupName].lastVehicle = driver
                 end
-                AutoDrive.Hud.lastUIScale = 0
             end
         end
     end

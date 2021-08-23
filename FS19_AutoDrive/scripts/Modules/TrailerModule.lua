@@ -155,7 +155,7 @@ function ADTrailerModule:update(dt)
             if self.activeAL == false then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "ADTrailerModule:updateLoad trailer with AL found -> activate AL in all trailers")
                 self.activeAL = true
-                AutoDrive.activateTrailerAL(self.vehicle, self.trailers)
+                AutoDrive.activateALTrailers(self.vehicle, self.trailers)
                 -- no further actions required, monitoring via fill level - see load from source without trigger
             end
         else

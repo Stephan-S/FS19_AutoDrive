@@ -289,9 +289,9 @@ function AutoDrive.getFillLevelAndCapacityOf(trailer)
         else
             for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
 
-                    local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex)
-                    fillLevel = fillLevel + trailerFillLevel
-                    leftCapacity = leftCapacity + trailerLeftCapacity
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfOneUnit(trailer, fillUnitIndex)
+                fillLevel = fillLevel + trailerFillLevel
+                leftCapacity = leftCapacity + trailerLeftCapacity
             end
         end
     end

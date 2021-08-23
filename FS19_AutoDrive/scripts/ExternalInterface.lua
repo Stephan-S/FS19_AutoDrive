@@ -281,8 +281,21 @@ function AutoDrive:hasAL(object)
     if object == nil then
         return false
     end
-    -- g_logManager:info("[AD] AutoDrive:hasAL object.easyAutoLoaderActionEvents %s object.spec_easyAutoLoader %s", tostring(object.easyAutoLoaderActionEvents), tostring(object.easyAutoLoaderActionEvents))
+    -- AutoDrive.debugMsg(object, "AutoDrive:hasAL object.easyAutoLoaderActionEvents %s object.spec_easyAutoLoader %s", tostring(object.easyAutoLoaderActionEvents), tostring(object.easyAutoLoaderActionEvents))
     return object.easyAutoLoaderActionEvents ~= nil or (object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil )
+end
+
+function AutoDrive:getALWorkMode(object)
+    if object == nil or not AutoDrive:hasAL(object) then
+        return nil
+    end
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:getALWorkMode")
+    if object.easyAutoLoaderActionEvents ~= nil then
+        return object.workMode
+    elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
+        return object.spec_easyAutoLoader.workMode
+    end
+    return nil
 end
 
 function AutoDrive:setALOn(object)
@@ -290,18 +303,13 @@ function AutoDrive:setALOn(object)
         return false
     end
     AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:setALOn")
-    local workMode = true
-    if object.easyAutoLoaderActionEvents ~= nil then
-        workMode = object.workMode
-    elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
-        workMode = object.spec_easyAutoLoader.workMode
-    end
-    -- g_logManager:info("[AD] AutoDrive:setALOn object.workMode %s", tostring(object.workMode))
+    local workMode = AutoDrive:getALWorkMode(object)
+    -- AutoDrive.debugMsg(object, "AutoDrive:setALOn object.workMode %s", tostring(object.workMode))
     if workMode == false then
-        -- g_logManager:info("[AD] AutoDrive:setALOn setWorkMode")
+        -- AutoDrive.debugMsg(object, "AutoDrive:setALOn setWorkMode")
         object:setWorkMode()
     end
-    -- g_logManager:info("[AD] AutoDrive:setALOn object.workMode %s", tostring(object.workMode))
+    -- AutoDrive.debugMsg(object, "AutoDrive:setALOn object.workMode %s", tostring(object.workMode))
 end
 
 function AutoDrive:setALOff(object)
@@ -309,25 +317,20 @@ function AutoDrive:setALOff(object)
         return false
     end
     AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:setALOff")
-    local workMode = false
-    if object.easyAutoLoaderActionEvents ~= nil then
-        workMode = object.workMode
-    elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
-        workMode = object.spec_easyAutoLoader.workMode
-    end
-    -- g_logManager:info("[AD] AutoDrive:setALOff object.workMode %s", tostring(object.workMode))
+    local workMode = AutoDrive:getALWorkMode(object)
+    -- AutoDrive.debugMsg(object, "AutoDrive:setALOff object.workMode %s", tostring(object.workMode))
     if workMode == true then
-        -- g_logManager:info("[AD] AutoDrive:setALOff setWorkMode")
+        -- AutoDrive.debugMsg(object, "AutoDrive:setALOff setWorkMode")
         object:setWorkMode()
     end
-    -- g_logManager:info("[AD] AutoDrive:setALOff object.workMode %s", tostring(object.workMode))
+    -- AutoDrive.debugMsg(object, "AutoDrive:setALOff object.workMode %s", tostring(object.workMode))
 end
 
-function AutoDrive.activateTrailerAL(vehicle, trailers)
+function AutoDrive.activateALTrailers(vehicle, trailers)
     if vehicle == nil or trailers == nil then
         return false
     end
-    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:activateTrailerAL")
+    AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:activateALTrailers")
     if #trailers > 0 then
         for i=1, #trailers do
             AutoDrive:setALOn(trailers[i])
@@ -335,7 +338,7 @@ function AutoDrive.activateTrailerAL(vehicle, trailers)
     end
 end
 
-function AutoDrive.deactivateTrailerAL(vehicle, trailers)
+function AutoDrive.deactivateALTrailers(vehicle, trailers)
     if vehicle == nil or trailers == nil then
         return false
     end
@@ -352,7 +355,6 @@ end
     texts = {"gui_ad_AL_off", "gui_ad_AL_center", "gui_ad_AL_left", "gui_ad_AL_behind", "gui_ad_AL_right"},
 
 ]]
-
 function AutoDrive:unloadAL(object)
     if object == nil or not AutoDrive:hasAL(object) then
         return false
@@ -379,6 +381,7 @@ function AutoDrive:unloadALAll(vehicle)
     end
     AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:unloadALAll")
     local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, false)
+    -- AutoDrive.debugMsg(object, "AutoDrive:unloadALAll trailerCount %s", tostring(trailerCount))
     if trailerCount > 0 then
         for i=1, trailerCount do
             AutoDrive:unloadAL(trailers[i])
@@ -394,10 +397,11 @@ function AutoDrive:getALOverallFillLevelPercentage(vehicle, trailers)
     local percentages = 0
     if #trailers > 0 then
         for i=1, #trailers do
-            if trailers[i].easyAutoLoaderActionEvents ~= nil then
-                    percentages = percentages + (trailers[i].currentNumObjects / trailers[i].autoLoadObjects[trailers[i].state].maxNumObjects)
-            elseif trailers[i].spec_easyAutoLoader ~= nil and trailers[i].spec_easyAutoLoader.workMode ~= nil then
-                    percentages = percentages + (trailers[i].spec_easyAutoLoader.currentNumObjects / trailers[i].spec_easyAutoLoader.autoLoadObjects[trailers[i].spec_easyAutoLoader.state].maxNumObjects)
+            local object = trailers[i]
+            if object.easyAutoLoaderActionEvents ~= nil then
+                percentages = percentages + (object.currentNumObjects / object.autoLoadObjects[object.state].maxNumObjects)
+            elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
+                percentages = percentages + (object.spec_easyAutoLoader.currentNumObjects / object.spec_easyAutoLoader.autoLoadObjects[object.spec_easyAutoLoader.state].maxNumObjects)
             end
         end
         percentage = percentages / #trailers
@@ -443,3 +447,65 @@ function AutoDrive:getALFillLevelAndCapacityOfAllUnits(object)
     AutoDrive.debugPrint(object, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:getALFillLevelAndCapacityOfAllUnits fillLevel %s leftCapacity %s", tostring(fillLevel), tostring(leftCapacity))
     return fillLevel, leftCapacity
 end
+
+function AutoDrive:getALFillTypes(object)
+    if object == nil then
+        return {}
+    end
+    local fillTypes = {}
+    if object.easyAutoLoaderActionEvents ~= nil then
+    	for i = 1, #object.autoLoadObjects do
+            table.insert(fillTypes, object.autoLoadObjects[i].nameL)
+        end
+    elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
+    	for i = 1, #object.spec_easyAutoLoader.autoLoadObjects do
+            table.insert(fillTypes, object.spec_easyAutoLoader.autoLoadObjects[i].nameL)
+        end
+    end
+    return fillTypes
+end
+
+function AutoDrive:getALCurrentFillType(object)
+    if object == nil then
+        return nil
+    end
+    if object.easyAutoLoaderActionEvents ~= nil then
+        return object.state
+    elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
+        return object.spec_easyAutoLoader.state
+    end
+    return nil
+end
+
+function AutoDrive:setALFillType(vehicle, fillType)
+    if vehicle == nil or fillType == nil then
+        return false
+    end
+    AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:setALFillType")
+    local trailers, trailerCount = AutoDrive.getTrailersOf(vehicle, false)
+    if trailerCount > 0 then
+        for i=1, trailerCount do
+            local object = trailers[i]
+            local currentWorkMode = AutoDrive:getALWorkMode(object)
+            if currentWorkMode == true then
+                -- if enabled disable to change fillType
+                -- AutoDrive.debugMsg(object, "AutoDrive:setALOn setWorkMode")
+                object:setWorkMode()
+            end
+
+            if object.easyAutoLoaderActionEvents ~= nil then
+                object:doStateChange(3, false, fillType, 0, object.palletIcon, object.squareBaleIcon, object.roundBaleIcon, false)
+            elseif object.spec_easyAutoLoader ~= nil and object.spec_easyAutoLoader.workMode ~= nil then
+                object:doStateChange(3, false, fillType, 0, object.spec_easyAutoLoader.palletIcon, object.spec_easyAutoLoader.squareBaleIcon, object.spec_easyAutoLoader.roundBaleIcon, false)
+            end
+
+            if currentWorkMode == true then
+                -- now enable again
+                -- AutoDrive.debugMsg(object, "AutoDrive:setALOn setWorkMode")
+                object:setWorkMode()
+            end
+
+        end
+    end
+end
+

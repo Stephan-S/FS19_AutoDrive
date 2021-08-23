@@ -433,26 +433,37 @@ function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointD
         attachable.ad = self.ad
     end
 
-    local supportedFillTypes = {}
-    for _, trailer in pairs(AutoDrive.getTrailersOf(self, false)) do
-        if trailer.getFillUnits ~= nil then
-            for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
-                if trailer.getFillUnitSupportedFillTypes ~= nil then
-                    for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                        if supported then
-                            table.insert(supportedFillTypes, fillType)
+    if attachable ~= nil and AutoDrive:hasAL(attachable) then
+        -- AutoLoad
+        local currentFillType = AutoDrive:getALCurrentFillType(attachable)
+        if currentFillType ~= nil then
+            self.ad.stateModule:setFillType(currentFillType)
+            if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle == self then
+                AutoDrive.Hud.lastUIScale = 0
+            end
+        end
+    else
+        local supportedFillTypes = {}
+        for _, trailer in pairs(AutoDrive.getTrailersOf(self, false)) do
+            if trailer.getFillUnits ~= nil then
+                for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
+                    if trailer.getFillUnitSupportedFillTypes ~= nil then
+                        for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                            if supported then
+                                table.insert(supportedFillTypes, fillType)
+                            end
                         end
                     end
                 end
             end
         end
-    end
 
-    local storedSelectedFillType = self.ad.stateModule:getFillType()
-    if #supportedFillTypes > 0 and not table.contains(supportedFillTypes, storedSelectedFillType) then
-        self.ad.stateModule:setFillType(supportedFillTypes[1])
-        if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle == self then
-            AutoDrive.Hud.lastUIScale = 0
+        local storedSelectedFillType = self.ad.stateModule:getFillType()
+        if #supportedFillTypes > 0 and not table.contains(supportedFillTypes, storedSelectedFillType) then
+            self.ad.stateModule:setFillType(supportedFillTypes[1])
+            if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle == self then
+                AutoDrive.Hud.lastUIScale = 0
+            end
         end
     end
 end
@@ -477,6 +488,15 @@ function AutoDrive:onPreDetachImplement(implement)
 end
 
 function AutoDrive:onEnterVehicle()
+    local trailers, trailerCount = AutoDrive.getTrailersOf(self, false)
+    -- AutoDrive.debugMsg(object, "AutoDrive:onEnterVehicle trailerCount %s", tostring(trailerCount))
+    if trailerCount > 0 then
+        -- AutoLoad
+        local currentFillType = AutoDrive:getALCurrentFillType(trailers[1])
+        if currentFillType ~= nil then
+            self.ad.stateModule:setFillType(currentFillType)
+        end
+    end
     if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil and g_currentMission.controlledVehicle == self then
         AutoDrive.Hud.lastUIScale = 0
     end

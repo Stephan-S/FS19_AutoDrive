@@ -49,6 +49,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     o.selected = selected
     o.type = type
     o.size.height = AutoDrive.Hud.buttonHeight  -- uiScale * 32
+    self.autoLoadFillTypes = nil
 
     AutoDrive.pullDownListExpanded = 0
 -- icons in list 1/2 size of HUD icons?
@@ -110,6 +111,7 @@ end
 
 function ADPullDownList:onDraw(vehicle, uiScale)
     if not (self.type ~= ADPullDownList.TYPE_FILLTYPE or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_LOAD or vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER) then
+        -- do not show fruit pulldownlist in modes where it makes no sense
         return
     end
     self:updateState(vehicle)
@@ -479,15 +481,21 @@ end
 
 function ADPullDownList:createSelection_FillType()
     local supportedFillTypes = nil
+    self.autoLoadFillTypes = nil
     if g_currentMission.controlledVehicle ~= nil then
         for _, trailer in pairs(AutoDrive.getTrailersOf(g_currentMission.controlledVehicle, false)) do
             supportedFillTypes = {}
-            if trailer.getFillUnits ~= nil then
-                for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
-                    if trailer.getFillUnitSupportedFillTypes ~= nil then
-                        for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
-                            if supported then
-                                table.insert(supportedFillTypes, fillType)
+            if AutoDrive:hasAL(trailer) then
+                -- AutoLoad
+                self.autoLoadFillTypes = AutoDrive:getALFillTypes(trailer)
+            else
+                if trailer.getFillUnits ~= nil then
+                    for fillUnitIndex, _ in pairs(trailer:getFillUnits()) do
+                        if trailer.getFillUnitSupportedFillTypes ~= nil then
+                            for fillType, supported in pairs(trailer:getFillUnitSupportedFillTypes(fillUnitIndex)) do
+                                if supported then
+                                    table.insert(supportedFillTypes, fillType)
+                                end
                             end
                         end
                     end
@@ -501,16 +509,25 @@ function ADPullDownList:createSelection_FillType()
     local fillTypeIndex = 1
     local itemListIndex = 1
     local lastIndexReached = false
-    while not lastIndexReached do
-        if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
-            if (not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex)) and (supportedFillTypes == nil or table.contains(supportedFillTypes, fillTypeIndex)) then
-                self.options[1][itemListIndex] = {displayName = g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue = fillTypeIndex}
-                itemListIndex = itemListIndex + 1
-            end
-        else
-            lastIndexReached = true
+
+    if self.autoLoadFillTypes ~= nil and #self.autoLoadFillTypes > 0 then
+        -- AutoLoad
+        for i = 1, #self.autoLoadFillTypes do
+            self.options[1][itemListIndex] = {displayName = self.autoLoadFillTypes[i], returnValue = i}
+            itemListIndex = itemListIndex + 1
         end
-        fillTypeIndex = fillTypeIndex + 1
+    else
+        while not lastIndexReached do
+            if g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) ~= nil then
+                if (not AutoDriveHud:has_value(AutoDrive.ItemFilterList, fillTypeIndex)) and (supportedFillTypes == nil or table.contains(supportedFillTypes, fillTypeIndex)) then
+                    self.options[1][itemListIndex] = {displayName = g_fillTypeManager:getFillTypeByIndex(fillTypeIndex).title, returnValue = fillTypeIndex}
+                    itemListIndex = itemListIndex + 1
+                end
+            else
+                lastIndexReached = true
+            end
+            fillTypeIndex = fillTypeIndex + 1
+        end
     end
 end
 
@@ -560,7 +577,19 @@ function ADPullDownList:getNewState_FillType(vehicle)
     local newState = self.state
     local newSelection = self.selected
     if self.state == ADPullDownList.STATE_COLLAPSED then
-        self.text = g_fillTypeManager:getFillTypeByIndex(vehicle.ad.stateModule:getFillType()).title
+        if self.autoLoadFillTypes ~= nil and #self.autoLoadFillTypes > 0 then
+            -- AutoDrive.debugMsg(vehicle, "ADPullDownList:getNewState_FillType 0 self.text %s", tostring(self.text))
+            if vehicle.ad.stateModule:getFillType() <= #self.autoLoadFillTypes then
+                self.text = self.autoLoadFillTypes[vehicle.ad.stateModule:getFillType()]
+                -- AutoDrive.debugMsg(vehicle, "ADPullDownList:getNewState_FillType 1 vehicle.ad.stateModule:getFillType() %s self.text %s", tostring(vehicle.ad.stateModule:getFillType()), tostring(self.text))
+            else
+                self.text = self.autoLoadFillTypes[1]
+                -- AutoDrive.debugMsg(vehicle, "ADPullDownList:getNewState_FillType 2 self.text %s", tostring(self.text))
+            end
+        else
+            self.text = g_fillTypeManager:getFillTypeByIndex(vehicle.ad.stateModule:getFillType()).title
+            -- AutoDrive.debugMsg(vehicle, "ADPullDownList:getNewState_FillType 3 self.text %s", tostring(self.text))
+        end
     end
     return newState, newSelection
 end
@@ -727,7 +756,12 @@ function ADPullDownList:collapse(vehicle, setItem)
                     AutoDriveHudInputEventEvent:sendSecondMarkerEvent(vehicle, selectedEntry.returnValue)
                 end
             elseif self.type == ADPullDownList.TYPE_FILLTYPE then
+                -- AutoDrive.debugMsg(vehicle, "ADPullDownList:collapse self.hovered %s selectedEntry.returnValue %s", tostring(self.hovered), tostring(selectedEntry.returnValue))
                 AutoDriveHudInputEventEvent:sendFillTypeEvent(vehicle, selectedEntry.returnValue)
+                if self.autoLoadFillTypes ~= nil and #self.autoLoadFillTypes > 0 then
+                    -- AutoLoad
+                    AutoDrive:setALFillType(vehicle, selectedEntry.returnValue)
+                end
             end
         end
     end

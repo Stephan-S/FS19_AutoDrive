@@ -82,8 +82,8 @@ function LoadAtDestinationTask:update(dt)
                             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update leftCapacity <= -> self:finished")
                             if self.vehicle.ad.trailerModule.hasAL == true then
                                 -- AutoLoad
-                                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update deactivateTrailerAL start")
-                                AutoDrive.deactivateTrailerAL(self.vehicle, trailers)
+                                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update deactivateALTrailers start")
+                                AutoDrive.deactivateALTrailers(self.vehicle, trailers)
                             end
                             self:finished()
                         end
