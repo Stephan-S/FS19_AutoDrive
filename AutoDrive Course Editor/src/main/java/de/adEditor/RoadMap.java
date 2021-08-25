@@ -1,5 +1,8 @@
 package de.adEditor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.LinkedList;
 
 public class RoadMap {
@@ -63,9 +66,13 @@ public class RoadMap {
     }
 
     public static boolean isDual(MapNode start, MapNode target) {
-        for (MapNode outgoing : start.outgoing) {
+        LinkedList<MapNode> nodes = start.outgoing;
+        for (int i = 0; i < nodes.size(); i++) {
+            MapNode outgoing = nodes.get(i);
             if (outgoing == target) {
-                for (MapNode outgoingTarget : target.outgoing) {
+                LinkedList<MapNode> mapNodeLinkedList = target.outgoing;
+                for (int j = 0; j < mapNodeLinkedList.size(); j++) {
+                    MapNode outgoingTarget = mapNodeLinkedList.get(j);
                     if (outgoingTarget == start) {
                         return true;
                     }
@@ -76,4 +83,24 @@ public class RoadMap {
         return false;
     }
 
-}
+    public static boolean isReverse(MapNode start, MapNode target) {
+        LinkedList<MapNode> startnodes = target.incoming;
+        if (startnodes.size() >0) {
+            for (int s = 0; s < startnodes.size(); s++) {
+                MapNode incoming = startnodes.get(s);
+                if (incoming.id == start.id) {
+                    return false;
+                }
+            }
+        }
+        LinkedList<MapNode> outnodes = start.outgoing;
+        for (int i = 0; i < outnodes.size(); i++) {
+            MapNode outgoing = outnodes.get(i);
+            if (outgoing.id == target.id) {
+                return true;
+            }
+        }
+
+        return false;
+        }
+    }
