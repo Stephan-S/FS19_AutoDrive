@@ -43,6 +43,8 @@ public class MapPanel extends JPanel{
 
     private Color BROWN = new Color(152, 104, 50 );
 
+    private static final int NODE_STANDARD = 0;
+    private static final int NODE_SUBPRIO = 1;
 
     public MapPanel(AutoDriveEditor editor) {
         this.editor = editor;
@@ -86,14 +88,21 @@ public class MapPanel extends JPanel{
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z );
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
 
-                    for (MapNode outgoing : mapNode.outgoing) {
+                    LinkedList<MapNode> mapNodes = mapNode.outgoing;
+                    for (int i = 0; i < mapNodes.size(); i++) {
+                        MapNode outgoing = mapNodes.get(i);
                         boolean dual = RoadMap.isDual(mapNode, outgoing);
-                        if (dual && mapNode.flag !=1) {
+                        boolean reverse = RoadMap.isReverse(mapNode, outgoing);
+
+                        if (dual && mapNode.flag != 1) {
                             g.setColor(Color.BLUE);
-                        } else if (dual && mapNode.flag ==1) {
+                        } else if (dual && mapNode.flag == 1) {
                             g.setColor(BROWN);
                         } else if (mapNode.flag == 1) {
                             g.setColor(Color.ORANGE);
+                        } else if (reverse) {
+                            g.setColor(Color.CYAN);
+                            //LOG.info("REVERSE");
                         } else {
                             g.setColor(Color.GREEN);
                         }
@@ -273,9 +282,6 @@ public class MapPanel extends JPanel{
         double diffScaledX = screenX / zoomLevel;
         double diffScaledY = screenY / zoomLevel;
 
-        LOG.info("topLeftX: {}, diffScaledX: {}", topLeftX, diffScaledX);
-        LOG.info("topLeftY: {}, diffScaledY: {}", topLeftY, diffScaledY);
-
         int centerPointOffset = 1024 * mapZoomFactor;
 
         double worldPosX = ((topLeftX + diffScaledX) * mapZoomFactor) - centerPointOffset;
@@ -327,7 +333,7 @@ public class MapPanel extends JPanel{
     }
 
     public void changeNodePriority(MapNode nodeToChange) {
-        if (nodeToChange.flag == 0) {
+        if (nodeToChange.flag == 0) { // lazy way of doing nodeToChange.flag = 1 - nodeToChange.flag;
             nodeToChange.flag = 1;
         } else {
             nodeToChange.flag = 0;
@@ -473,7 +479,7 @@ public class MapPanel extends JPanel{
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
-            createNode((int)worldPos.getX(), (int)worldPos.getY(),0);
+            createNode((int)worldPos.getX(), (int)worldPos.getY(),NODE_STANDARD);
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
             movingNode = getNodeAt(x, y);
@@ -495,7 +501,7 @@ public class MapPanel extends JPanel{
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
-            createNode((int)worldPos.getX(), (int)worldPos.getY(),1);
+            createNode((int)worldPos.getX(), (int)worldPos.getY(),NODE_SUBPRIO);
         }
     }
 
