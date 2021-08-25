@@ -19,7 +19,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -40,6 +46,11 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_CREATING_DESTINATION = 5;
     public static final int EDITORSTATE_CHANGE_PRIORITY = 6;
     public static final int EDITORSTATE_CREATING_SECONDARY = 7;
+    public static final int EDITORSTATE_CREATING_REVERSE = 8;
+
+    public static final int NODE_STANDARD = 0;
+    public static final int NODE_SUBPRIO = 1;
+
 
     public static final String MOVE_NODES = "Move Nodes";
     public static final String CONNECT_NODES = "Connect Nodes";
@@ -49,11 +60,12 @@ public class AutoDriveEditor extends JFrame {
     public static final String CREATE_DESTINATIONS = "Create Destinations";
     public static final String CHANGE_NODE_PRIORITY = "Change Priority";
     public static final String CREATE_SECONDARY_NODES = "Create Secondary Node";
+    public static final String CREATE_REVERSE_NODES = "Create Reverse Node";
     public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.11 Alpha";
 
-
     private MapPanel mapPanel;
-    private JButton saveButton;
+    private JButton loadConfigButton;
+    private JButton saveConfigButton;
     private JButton loadImageButton;
     private JToggleButton removeNode;
     private JToggleButton removeDestination;
@@ -63,10 +75,13 @@ public class AutoDriveEditor extends JFrame {
     private JToggleButton createDestination;
     private JToggleButton changePriority;
     private JToggleButton createSecondaryNode;
+    private JToggleButton createReverseNode;
 
     private JRadioButton oneTimesMap;
     private JRadioButton fourTimesMap;
     private JRadioButton sixteenTimesMap;
+
+    public EditorListener editorListener = new EditorListener(this);
 
     public int editorState = EDITORSTATE_NOOP;
     private File xmlConfigFile;
@@ -79,7 +94,7 @@ public class AutoDriveEditor extends JFrame {
     public AutoDriveEditor() {
         super();
 
-        LOG.info("AutoDrive start.............................................................................................");
+        LOG.info("Starting AutoDrive Editor.....");
         setTitle(createTitle());
         setTractorIcon();
         addWindowListener(new WindowAdapter() {
@@ -106,108 +121,115 @@ public class AutoDriveEditor extends JFrame {
         // add the panel to this frame
         add(mapPanel, BorderLayout.CENTER);
 
-        EditorListener editorListener = new EditorListener(this);
+        //EditorListener editorListener = new EditorListener(this);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JMenuBar menuBar;
+        JMenu menu, submenu;
+
+        menuBar = new JMenuBar();
+
+        menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_A);
+        menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
+        menuBar.add(menu);
 
         JPanel configBox = new JPanel();
         configBox.setBorder(BorderFactory.createTitledBorder("Config"));
         buttonPanel.add(configBox);
 
-        JButton loadRoadMapButton = new JButton("Load");
-        loadRoadMapButton.addActionListener(editorListener);
-        loadRoadMapButton.setActionCommand("Load");
-        configBox.add(loadRoadMapButton);
-
-        saveButton = new JButton("Save");
-        saveButton.addActionListener(editorListener);
-        saveButton.setActionCommand("Save");
-        saveButton.setEnabled(false);
-        configBox.add(saveButton);
+        loadConfigButton = makeButton("Load","Load config from Disk","Load", configBox);
+        saveConfigButton = makeButton("Save","Save config to disk","Save", configBox);
 
         JPanel mapBox = new JPanel();
         mapBox.setBorder(BorderFactory.createTitledBorder("Map and zoom factor"));
         buttonPanel.add(mapBox);
 
-        loadImageButton = new JButton("Load Map");
-        loadImageButton.addActionListener(editorListener);
-        loadImageButton.setActionCommand("Load Image");
-        mapBox.add(loadImageButton);
+        loadImageButton = makeButton("Load Image","Load map image from disk ( must be 2048x2048 .PNG format)","Load Map", mapBox);
 
         ButtonGroup zoomGroup = new ButtonGroup();
-        oneTimesMap = new JRadioButton(" 1x");
-        oneTimesMap.addActionListener(editorListener);
-        oneTimesMap.setActionCommand("OneTimesMap");
-        oneTimesMap.setSelected(true);
-        mapBox.add(oneTimesMap);
-        zoomGroup.add(oneTimesMap);
 
-        fourTimesMap = new JRadioButton(" 4x");
-        fourTimesMap.addActionListener(editorListener);
-        fourTimesMap.setActionCommand("FourTimesMap");
-        mapBox.add(fourTimesMap);
-        zoomGroup.add(fourTimesMap);
-
-        sixteenTimesMap = new JRadioButton(" 16x");
-        sixteenTimesMap.addActionListener(editorListener);
-        sixteenTimesMap.setActionCommand("SixteenTimesMap");
-        mapBox.add(sixteenTimesMap);
-        zoomGroup.add(sixteenTimesMap);
+        oneTimesMap = makeRadioButton(" 1x","OneTimesMap","Change scale to 1x map size",true, mapBox, zoomGroup);
+        fourTimesMap = makeRadioButton(" 4x","FourTimesMap","Change scale to 4x map size",false, mapBox, zoomGroup);
+        sixteenTimesMap = makeRadioButton(" 16x","SixteenTimesMap","Change scale to 16x map size",false, mapBox, zoomGroup);
 
         JPanel nodeBox = new JPanel();
         nodeBox.setBorder(BorderFactory.createTitledBorder("Nodes"));
         buttonPanel.add(nodeBox);
 
-        moveNode = new JToggleButton("Move Nodes");
-        moveNode.addActionListener(editorListener);
-        moveNode.setActionCommand(MOVE_NODES);
-        nodeBox.add(moveNode);
+        moveNode = makeToggleButton("movenode",MOVE_NODES,"Move route nodes","Move Nodes", nodeBox);
+        connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"Connect nodes together","Connect Nodes", nodeBox);
+        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"Remove nodes ( hold right mouse to area select )","Delete Nodes", nodeBox);
+        createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"Create a primary node","Create Primary Node", nodeBox);
+        changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"Swap a nodes priority ( hold right mouse to area select )","Node Priority", nodeBox);
+        createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"Create a secondary node","Create Secondary Node", nodeBox);
+        createReverseNode = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse node","Create Reverse Node", nodeBox);
 
-        connectNodes = new JToggleButton("Connect Nodes");
-        connectNodes.addActionListener(editorListener);
-        connectNodes.setActionCommand(CONNECT_NODES);
-        connectNodes.setName(CONNECT_NODES);
-        nodeBox.add(connectNodes);
+        JPanel markerBox = new JPanel();
+        markerBox.setBorder(BorderFactory.createTitledBorder("Markers"));
+        buttonPanel.add(markerBox);
 
-        removeNode = new JToggleButton("Delete Nodes");
-        removeNode.addActionListener(editorListener);
-        removeNode.setActionCommand(REMOVE_NODES);
-        nodeBox.add(removeNode);
-
-        removeDestination = new JToggleButton("Delete Destination");
-        removeDestination.addActionListener(editorListener);
-        removeDestination.setActionCommand(REMOVE_DESTINATIONS);
-        nodeBox.add(removeDestination);
-
-        createPrimaryNode = new JToggleButton("Create Primary Node");
-        createPrimaryNode.addActionListener(editorListener);
-        createPrimaryNode.setActionCommand(CREATE_PRIMARY_NODES);
-        nodeBox.add(createPrimaryNode);
-
-        createDestination = new JToggleButton("Create Destination");
-        createDestination.addActionListener(editorListener);
-        createDestination.setActionCommand(CREATE_DESTINATIONS);
-        nodeBox.add(createDestination);
-
-        changePriority = new JToggleButton("Node Priority");
-        changePriority.addActionListener(editorListener);
-        changePriority.setActionCommand(CHANGE_NODE_PRIORITY);
-        nodeBox.add(changePriority);
-
-        createSecondaryNode = new JToggleButton("Create Secondary Node");
-        createSecondaryNode.addActionListener(editorListener);
-        createSecondaryNode.setActionCommand(CREATE_SECONDARY_NODES);
-        nodeBox.add(createSecondaryNode);
+        createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"Create map marker","Create Map Marker", markerBox);
+        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"Delete a map marker","Delete Map Marker", markerBox);
 
         updateButtons();
         nodeBoxSetEnabled(false);
         mapBoxSetEnabled(false);
 
+        this.setJMenuBar(menuBar);
         this.add(buttonPanel, BorderLayout.NORTH);
 
         pack();
         setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public JButton makeButton(String actionCommand,String toolTipText,String altText, JPanel panel) {
+        JButton button = new JButton();
+        button.setActionCommand(actionCommand);
+        button.setToolTipText(toolTipText);
+        button.addActionListener(editorListener);
+        button.setText(altText);
+        panel.add(button);
+
+        return button;
+    }
+
+    public JRadioButton makeRadioButton(String text,String actionCommand,String toolTipText,boolean selected, JPanel panel, ButtonGroup group) {
+        JRadioButton radioButton = new JRadioButton(text);
+        radioButton.setActionCommand(actionCommand);
+        radioButton.setToolTipText(toolTipText);
+        radioButton.setSelected(selected);
+        radioButton.addActionListener(editorListener);
+        panel.add(radioButton);
+        group.add(radioButton);
+
+        return radioButton;
+    }
+
+    public JToggleButton makeToggleButton(String imageName,String actionCommand,String toolTipText,String altText, JPanel panel) {
+        JToggleButton toggleButton = new JToggleButton();
+
+        //Load image
+        String imgLocation = "/images/" + imageName + ".png";
+        URL imageURL = AutoDriveEditor.class.getResource(imgLocation);
+
+        toggleButton.setActionCommand(actionCommand);
+        toggleButton.setToolTipText(toolTipText);
+        toggleButton.addActionListener(editorListener);
+
+        if (imageURL != null) {  //image found
+            toggleButton.setIcon(new ImageIcon(imageURL, altText));
+            toggleButton.setBorder(BorderFactory.createEmptyBorder());
+            toggleButton.setRolloverEnabled(true);
+        } else {                 //no image found
+            toggleButton.setText(altText);
+        }
+
+        panel.add(toggleButton);
+
+        return toggleButton;
     }
 
     private void setTractorIcon() {
@@ -229,14 +251,9 @@ public class AutoDriveEditor extends JFrame {
         removeDestination.setEnabled(enabled);
         createPrimaryNode.setEnabled(enabled);
         createDestination.setEnabled(enabled);
-        if (hasFlagTag == true) {
-            changePriority.setEnabled(enabled);
-            createSecondaryNode.setEnabled(enabled);
-        }
-        else {
-            changePriority.setEnabled(false);
-            createSecondaryNode.setEnabled(false);
-        }
+        changePriority.setEnabled(enabled);
+        createSecondaryNode.setEnabled(enabled);
+        createReverseNode.setEnabled(enabled);
 
     }
 
@@ -253,6 +270,7 @@ public class AutoDriveEditor extends JFrame {
         createDestination.setSelected(false);
         changePriority.setSelected(false);
         createSecondaryNode.setSelected(false);
+        createReverseNode.setSelected(false);
 
         switch (editorState) {
             case EDITORSTATE_MOVING:
@@ -278,6 +296,9 @@ public class AutoDriveEditor extends JFrame {
                 break;
             case EDITORSTATE_CREATING_SECONDARY:
                 createSecondaryNode.setSelected(true);
+                break;
+            case EDITORSTATE_CREATING_REVERSE:
+                createReverseNode.setSelected(true);
                 break;
         }
     }
@@ -411,7 +432,7 @@ public class AutoDriveEditor extends JFrame {
                         nodes.add(mapNode);
                     }
                 } else {
-                    LOG.info("old config format detected, no <flags> element found. disabling subPriority route features");
+                    LOG.info("outdated config format detected, no <flags> element found. Save config from ingame or editor to add it");
                     hasFlagTag = false;
                     JOptionPane.showMessageDialog(this, "This config file was saved with a older version of AutoDrive. Please update to the latest version and reload and save ingame to enable the new features", "AutoDrive", JOptionPane.WARNING_MESSAGE);
                     for (int i=0; i<ids.length; i++) {
@@ -502,7 +523,7 @@ public class AutoDriveEditor extends JFrame {
             mapPanel.repaint();
         }
 
-        saveButton.setEnabled(true);
+        saveConfigButton.setEnabled(true);
         nodeBoxSetEnabled(true);
         editorState = EDITORSTATE_MOVING;
         updateButtons();
@@ -527,7 +548,7 @@ public class AutoDriveEditor extends JFrame {
         }
     }
 
-    public void saveXmlConfig(File file, RoadMap roadMap) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+    public void saveXmlConfig(File file, RoadMap roadMap) throws ParserConfigurationException, IOException, SAXException, TransformerException, XPathExpressionException {
 
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -537,6 +558,15 @@ public class AutoDriveEditor extends JFrame {
         Element root = doc.getDocumentElement();
 
         Node waypoints = doc.getElementsByTagName("waypoints").item(0);
+
+        // If no <flags> tag was detected on config load, create it
+
+        if (hasFlagTag == false) {
+            Element flagtag = doc.createElement("flags");
+            waypoints.appendChild(flagtag);
+        }
+
+
 
         // loop the staff child node
         NodeList list = waypoints.getChildNodes();
@@ -656,6 +686,15 @@ public class AutoDriveEditor extends JFrame {
             }
         }
 
+
+        NodeList testwaypoints = doc.getElementsByTagName("mapmarker");
+
+        if (roadMap.mapMarkers.size() > 0 && testwaypoints.getLength() == 0 ) {
+            LOG.info("New map markers to save, but no <mapmarker> tag in loaded XML.. creating tag for output file");
+            Element test = doc.createElement("mapmarker");
+            AutoDrive.appendChild(test);
+        }
+
         NodeList markerList = doc.getElementsByTagName("mapmarker");
         Node markerNode = markerList.item(0);
         int mapMarkerCount = 1;
@@ -686,6 +725,17 @@ public class AutoDriveEditor extends JFrame {
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
         DOMSource source = new DOMSource(doc);
+
+        // Clean all the empty whitespaces from XML before save
+
+        XPath xp = XPathFactory.newInstance().newXPath();
+        NodeList nl = (NodeList) xp.evaluate("//text()[normalize-space(.)='']", doc, XPathConstants.NODESET);
+
+        for (int i=0; i < nl.getLength(); ++i) {
+            Node node = nl.item(i);
+            node.getParentNode().removeChild(node);
+        }
+
         StreamResult result = new StreamResult(xmlConfigFile);
         transformer.transform(source, result);
 
