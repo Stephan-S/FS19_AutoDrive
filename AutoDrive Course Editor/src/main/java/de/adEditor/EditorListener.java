@@ -1,5 +1,6 @@
 package de.adEditor;
 
+import org.apache.logging.log4j.core.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class EditorListener implements ActionListener {
 
@@ -54,7 +56,10 @@ public class EditorListener implements ActionListener {
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY;
                 break;
             case AutoDriveEditor.CREATE_REVERSE_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_REVERSE;
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION;
+                break;
+            case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION_GROUPS;
                 break;
             case "OneTimesMap":
                 editor.updateMapZoomFactor(1);
@@ -65,7 +70,7 @@ public class EditorListener implements ActionListener {
             case "SixteenTimesMap":
                 editor.updateMapZoomFactor(4);
                 break;
-            case "Load":
+            case "Load Config":
                 fc.setDialogTitle("Select AutoDrive Config");
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setAcceptAllFileFilterUsed(false);
@@ -80,8 +85,8 @@ public class EditorListener implements ActionListener {
                     editor.getMapPanel().repaint();
                 }
                 break;
-            case "Save":
-                editor.saveMap();
+            case "Save Config":
+                editor.saveMap(null);
                 break;
             case "Load Image":
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
@@ -96,8 +101,34 @@ public class EditorListener implements ActionListener {
                     }
                 }
                 break;
+            case "Save As":
+                if (editor.xmlConfigFile == null) break;
+                LOG.info("current filename is {}",editor.xmlConfigFile);
+                fc.setDialogTitle("Select Save Destination");
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setAcceptAllFileFilterUsed(false);
+                FileNameExtensionFilter savefilter = new FileNameExtensionFilter("AutoDrive config", "xml");
+                fc.setSelectedFile(editor.xmlConfigFile);
+                fc.addChoosableFileFilter(savefilter);
+
+                if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    LOG.info("new save filename is {}", editor.getSelectedFileWithExtension(fc));
+                    //LOG.info("xmlConfigFile = ", editor.xmlConfigFile);
+                    editor.saveMap(editor.getSelectedFileWithExtension(fc).toString());
+
+                }
+                break;
+            case "About":
+                showAbout();
+                break;
         }
 
         editor.updateButtons();
     }
+
+    private void showAbout() {
+        JOptionPane.showMessageDialog(editor, "Current editor version - 0.2 Beta\n\nCredits...... Coming Soon!", "AutoDrive Editor", JOptionPane.INFORMATION_MESSAGE);
+    }
 }
+
+
