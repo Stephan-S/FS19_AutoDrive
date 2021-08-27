@@ -102,7 +102,6 @@ public class MapPanel extends JPanel{
                             g.setColor(Color.ORANGE);
                         } else if (reverse) {
                             g.setColor(Color.CYAN);
-                            //LOG.info("REVERSE");
                         } else {
                             g.setColor(Color.GREEN);
                         }
@@ -118,7 +117,7 @@ public class MapPanel extends JPanel{
                     g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
                 }
 
-                if (selected != null && editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
+                if (selected != null && (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING || editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION)) {
                     Point2D nodePos = worldPosToScreenPos(selected.x, selected.z);
                     g.setColor(Color.WHITE);
                     g.drawLine((int) (nodePos.getX()), (int) (nodePos.getY()), mousePosX, mousePosY);
@@ -324,6 +323,21 @@ public class MapPanel extends JPanel{
         editor.setStale(true);
     }
 
+    public void createReverseConnectionBetween(MapNode start, MapNode target) {
+        if (start == target) {
+            return;
+        }
+        if (!start.outgoing.contains(target)) {
+            start.outgoing.add(target);
+            target.incoming.remove(start);
+        }
+        else {
+            start.outgoing.remove(target);
+            target.incoming.add(start);
+        }
+        editor.setStale(true);
+    }
+
     public void createDestinationAt(MapNode mapNode, String destinationName) {
         if (mapNode != null && destinationName != null && destinationName.length() > 0) {
             MapMarker mapMarker = new MapMarker(mapNode, destinationName, "All");
@@ -477,6 +491,18 @@ public class MapPanel extends JPanel{
                 repaint();
             }
         }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION) {
+            movingNode = getNodeAt(x, y);
+            if (movingNode != null) {
+                if (selected == null) {
+                    selected = movingNode;
+                } else {
+                    createReverseConnectionBetween(selected, movingNode);
+                    selected = null;
+                }
+                repaint();
+            }
+        }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
             createNode((int)worldPos.getX(), (int)worldPos.getY(),NODE_STANDARD);
@@ -509,6 +535,9 @@ public class MapPanel extends JPanel{
         mousePosX = x;
         mousePosY = y;
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING && selected != null) {
+            repaint();
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION && selected != null) {
             repaint();
         }
         movingNode = getNodeAt(x, y);
@@ -578,9 +607,12 @@ public class MapPanel extends JPanel{
         LOG.info("Rectangle end set at {}/{}", x, y);
         if (rectangleStart != null) {
             if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING) {
+                int result = JOptionPane.showConfirmDialog(this,"Are you sure?","Confirm Area Deletion",JOptionPane.OK_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+                if (result == 0) {
+                    LOG.info("Removing all nodes in area");
+                    removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
+                }
 
-                LOG.info("Removing all nodes in area");
-                removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
                 repaint();
             }
             if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
