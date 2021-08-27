@@ -10,6 +10,8 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,6 +27,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -36,6 +39,18 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
+/* TODO:
+    (1) Change map scrolling to either middle mouse button and/or keyboard
+        - Avoids annoying map scrolls by accident when trying to connecting nodes but node selection fails
+    (2) Marker group editing and add ability to specify group on new marker creation
+    (3) improve node selection on connection creation.. fails way too often requiring multiple retry's
+    (4) Add more menu items - About window for credits to AD team and original editor author..
+    (5) Remove load and save config buttons?.. use menu instead?
+    (6) Fix map refresh on window resizing... fails sometimes
+    (7) New button icons ( replacing my age 5 art skills :-P )
+    (8) Misc things i can't think of right now :-)
+ */
+
 public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_NOOP = -1;
     public static final int EDITORSTATE_MOVING = 0;
@@ -46,10 +61,16 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_CREATING_DESTINATION = 5;
     public static final int EDITORSTATE_CHANGE_PRIORITY = 6;
     public static final int EDITORSTATE_CREATING_SECONDARY = 7;
-    public static final int EDITORSTATE_CREATING_REVERSE = 8;
+    public static final int EDITORSTATE_CREATING_REVERSE_CONNECTION = 8;
+    public static final int EDITORSTATE_EDITING_DESTINATION_GROUPS = 9;
 
     public static final int NODE_STANDARD = 0;
     public static final int NODE_SUBPRIO = 1;
+
+    public static final int SAVE_OVERWRITE = 1;
+    public static final int SAVE_NEW = 2;
+
+
 
 
     public static final String MOVE_NODES = "Move Nodes";
@@ -60,8 +81,9 @@ public class AutoDriveEditor extends JFrame {
     public static final String CREATE_DESTINATIONS = "Create Destinations";
     public static final String CHANGE_NODE_PRIORITY = "Change Priority";
     public static final String CREATE_SECONDARY_NODES = "Create Secondary Node";
-    public static final String CREATE_REVERSE_NODES = "Create Reverse Node";
-    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.11 Alpha";
+    public static final String CREATE_REVERSE_NODES = "Create Reverse Connection";
+    public static final String EDIT_DESTINATIONS_GROUPS = "Manage Destination Groups";
+    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
 
     private MapPanel mapPanel;
     private JButton loadConfigButton;
@@ -75,7 +97,8 @@ public class AutoDriveEditor extends JFrame {
     private JToggleButton createDestination;
     private JToggleButton changePriority;
     private JToggleButton createSecondaryNode;
-    private JToggleButton createReverseNode;
+    private JToggleButton createReverseConnection;
+    private JToggleButton manageDestination;
 
     private JRadioButton oneTimesMap;
     private JRadioButton fourTimesMap;
@@ -84,7 +107,7 @@ public class AutoDriveEditor extends JFrame {
     public EditorListener editorListener = new EditorListener(this);
 
     public int editorState = EDITORSTATE_NOOP;
-    private File xmlConfigFile;
+    public File xmlConfigFile;
     private boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
 
@@ -103,7 +126,7 @@ public class AutoDriveEditor extends JFrame {
                 if (isStale()) {
                     int response = JOptionPane.showConfirmDialog(null, "There are unsaved changes. Should they be saved now?", "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
-                        saveMap();
+                        saveMap(null);
                     }
                 }
                 super.windowClosing(e);
@@ -125,22 +148,57 @@ public class AutoDriveEditor extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
+        // Menu bar init
+
         JMenuBar menuBar;
-        JMenu menu, submenu;
+        JMenuItem menuItem;
+        JMenu fileMenu, helpMenu;
 
         menuBar = new JMenuBar();
 
-        menu = new JMenu("File");
-        menu.setMnemonic(KeyEvent.VK_A);
-        menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
-        menuBar.add(menu);
+        fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        fileMenu.getAccessibleContext().setAccessibleDescription("File Control");
+        menuBar.add(fileMenu);
+
+        menuItem = new JMenuItem("Load Config");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.ALT_MASK));
+        menuItem.getAccessibleContext().setAccessibleDescription("Loads a config");
+        menuItem.addActionListener(editorListener);
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Save Config");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+        menuItem.getAccessibleContext().setAccessibleDescription("Saves a config");
+        menuItem.addActionListener(editorListener);
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Save As");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
+        menuItem.getAccessibleContext().setAccessibleDescription("Saves a config to a different location");
+        menuItem.addActionListener(editorListener);
+        fileMenu.add(menuItem);
+
+        helpMenu = new JMenu("Help");
+        helpMenu.setMnemonic(KeyEvent.VK_F);
+        helpMenu.getAccessibleContext().setAccessibleDescription("Help Items");
+        menuBar.add(helpMenu);
+
+        menuItem = new JMenuItem("About");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
+        menuItem.getAccessibleContext().setAccessibleDescription("About The Editor");
+        menuItem.addActionListener(editorListener);
+        helpMenu.add(menuItem);
+
+
+        // GUI init
 
         JPanel configBox = new JPanel();
         configBox.setBorder(BorderFactory.createTitledBorder("Config"));
         buttonPanel.add(configBox);
 
-        loadConfigButton = makeButton("Load","Load config from Disk","Load", configBox);
-        saveConfigButton = makeButton("Save","Save config to disk","Save", configBox);
+        loadConfigButton = makeButton("Load Config","Load config from Disk","Load", configBox);
+        saveConfigButton = makeButton("Save Config","Save config to disk","Save", configBox);
 
         JPanel mapBox = new JPanel();
         mapBox.setBorder(BorderFactory.createTitledBorder("Map and zoom factor"));
@@ -164,7 +222,7 @@ public class AutoDriveEditor extends JFrame {
         createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"Create a primary node","Create Primary Node", nodeBox);
         changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"Swap a nodes priority ( hold right mouse to area select )","Node Priority", nodeBox);
         createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"Create a secondary node","Create Secondary Node", nodeBox);
-        createReverseNode = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse node","Create Reverse Node", nodeBox);
+        createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse connection (coming soon)","Create Reverse Connection", nodeBox);
 
         JPanel markerBox = new JPanel();
         markerBox.setBorder(BorderFactory.createTitledBorder("Markers"));
@@ -172,6 +230,7 @@ public class AutoDriveEditor extends JFrame {
 
         createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"Create map marker","Create Map Marker", markerBox);
         removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"Delete a map marker","Delete Map Marker", markerBox);
+        manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"Edit Marker groups (coming soon)","Edit Marker Groups", markerBox);
 
         updateButtons();
         nodeBoxSetEnabled(false);
@@ -212,7 +271,7 @@ public class AutoDriveEditor extends JFrame {
         JToggleButton toggleButton = new JToggleButton();
 
         //Load image
-        String imgLocation = "/images/" + imageName + ".png";
+        String imgLocation = "/editor/" + imageName + ".png";
         URL imageURL = AutoDriveEditor.class.getResource(imgLocation);
 
         toggleButton.setActionCommand(actionCommand);
@@ -253,7 +312,10 @@ public class AutoDriveEditor extends JFrame {
         createDestination.setEnabled(enabled);
         changePriority.setEnabled(enabled);
         createSecondaryNode.setEnabled(enabled);
-        createReverseNode.setEnabled(enabled);
+        createReverseConnection.setEnabled(enabled);
+
+        // Temporary disable marker groups editing until it is complete
+        manageDestination.setEnabled(false);
 
     }
 
@@ -270,7 +332,7 @@ public class AutoDriveEditor extends JFrame {
         createDestination.setSelected(false);
         changePriority.setSelected(false);
         createSecondaryNode.setSelected(false);
-        createReverseNode.setSelected(false);
+        createReverseConnection.setSelected(false);
 
         switch (editorState) {
             case EDITORSTATE_MOVING:
@@ -297,8 +359,8 @@ public class AutoDriveEditor extends JFrame {
             case EDITORSTATE_CREATING_SECONDARY:
                 createSecondaryNode.setSelected(true);
                 break;
-            case EDITORSTATE_CREATING_REVERSE:
-                createReverseNode.setSelected(true);
+            case EDITORSTATE_CREATING_REVERSE_CONNECTION:
+                createReverseConnection.setSelected(true);
                 break;
         }
     }
@@ -434,7 +496,7 @@ public class AutoDriveEditor extends JFrame {
                 } else {
                     LOG.info("outdated config format detected, no <flags> element found. Save config from ingame or editor to add it");
                     hasFlagTag = false;
-                    JOptionPane.showMessageDialog(this, "This config file was saved with a older version of AutoDrive. Please update to the latest version and reload and save ingame to enable the new features", "AutoDrive", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "This config file was saved with a older version of AutoDrive. Please update to the latest version and reload and save ingame to enable all the new features", "AutoDrive", JOptionPane.WARNING_MESSAGE);
                     for (int i=0; i<ids.length; i++) {
                         int id = Integer.parseInt(ids[i]);
                         double x = Double.parseDouble(xValues[i]);
@@ -533,13 +595,16 @@ public class AutoDriveEditor extends JFrame {
 
     }
 
-    public void saveMap() {
+    // this way to save a file under a new name is ugly.. but it works :-/
+
+    public void saveMap(String newName) {
         LOG.info("SaveMap called");
         RoadMap roadMap = mapPanel.getRoadMap();
 
         try
         {
-            saveXmlConfig(xmlConfigFile, roadMap);
+            if (xmlConfigFile == null) return;
+            saveXmlConfig(xmlConfigFile, roadMap, newName);
             setStale(false);
             JOptionPane.showMessageDialog(this, xmlConfigFile.getName() + " has been successfully saved.", "AutoDrive", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
@@ -548,7 +613,7 @@ public class AutoDriveEditor extends JFrame {
         }
     }
 
-    public void saveXmlConfig(File file, RoadMap roadMap) throws ParserConfigurationException, IOException, SAXException, TransformerException, XPathExpressionException {
+    public void saveXmlConfig(File file, RoadMap roadMap, String newName) throws ParserConfigurationException, IOException, SAXException, TransformerException, XPathExpressionException {
 
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -736,7 +801,13 @@ public class AutoDriveEditor extends JFrame {
             node.getParentNode().removeChild(node);
         }
 
-        StreamResult result = new StreamResult(xmlConfigFile);
+        StreamResult result;
+
+        if (newName == null) {
+            result = new StreamResult(xmlConfigFile);
+        } else {
+            result = new StreamResult(new File(newName));
+        }
         transformer.transform(source, result);
 
         LOG.info("Done save");
@@ -775,4 +846,19 @@ public class AutoDriveEditor extends JFrame {
         }
     }
 
+    public static File getSelectedFileWithExtension(JFileChooser c) {
+        File file = c.getSelectedFile();
+        if (c.getFileFilter() instanceof FileNameExtensionFilter) {
+            String[] exts = ((FileNameExtensionFilter)c.getFileFilter()).getExtensions();
+            String nameLower = file.getName().toLowerCase();
+            for (String ext : exts) { // check if it already has a valid extension
+                if (nameLower.endsWith('.' + ext.toLowerCase())) {
+                    return file; // if yes, return as-is
+                }
+            }
+            // if not, append the first extension from the selected filter
+            file = new File(file.toString() + '.' + exts[0]);
+        }
+        return file;
+    }
 }
