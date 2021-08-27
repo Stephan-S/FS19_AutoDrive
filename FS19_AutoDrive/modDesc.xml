@@ -8,12 +8,8 @@
 		<en>
 			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
 
-Changelog 1.1.1.4:
-- Network section modification
-- Color assignment for users with different color perception
-- Editor tips for the HUD
-- Bunkersilo unloader stopp if blocked
-- User initiated refuel with key shortcut
+Changelog 1.1.1.6:
+- Support EasyAutoLoad - mod embedded versions < 0.1.1.0 and standalone mod FS19_EasyAutoLoad versions 0.1.1.0
 - several bugfixes
 Check our github wiki for the full release notes!
 ]]>
@@ -21,12 +17,8 @@ Check our github wiki for the full release notes!
 		<de>
 			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
 
-Changelog 1.1.1.4:
-- Änderung von Streckenabschnitten
-- Farbauswahl für Nutzer mit unterschiedlicher Farbwahrnehmung 
-- Editor tipps im HUD
-- Ablader im Bunkersilo stoppen abladen wenn sie blockiert sind
-- belegbare Tastenkombination für Fahrzeug tanken schicken
+Changelog 1.1.1.6:
+- Support EasyAutoLoad - in mods integrierte Versionen < 0.1.1.0 und Einzelmod FS19_EasyAutoLoad Version 0.1.1.0
 - verschiedene Bugfixe
 In unserem Github-Wiki findet man die vollständigen Release Notes!
 ]]>
@@ -34,12 +26,8 @@ In unserem Github-Wiki findet man die vollständigen Release Notes!
 		<it>
 			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
 
-Log delle modifiche 1.1.1.4:
-- Modifica della sezione di rete
-- Assegnazione del colore per utenti con diversa percezione del colore
-- Suggerimenti dell'editor per l'HUD
-- Blocco scaricatore Bunkersilo se bloccato
-- Rifornimento avviato dall'utente con scorciatoia da tastiera
+Log delle modifiche 1.1.1.6:
+- Supporto EasyAutoLoad - nelle versioni integrate di mods < 0.1.1.0 e mod singolo FS19_EasyAutoLoad versione 0.1.1.0
 - diverse correzioni di bug Controlla il nostro wiki Github per le note di rilascio complete!
 ]]>
 		</it>
@@ -48,12 +36,8 @@ Log delle modifiche 1.1.1.4:
 Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
 Différents modes d'utilisation ont été ajoutés depuis les premières versions, et peuvent être combinés à l'utilisation du bien connu "Courseplay".
 
-Changelog 1.1.1.4:
-- Modification de la section réseau
-- Affectation des couleurs pour les utilisateurs ayant une perception différente des couleurs
-- Conseils de l'éditeur pour le HUD
-- Bunkersilo déchargeur stopp si bloqué
-- L'utilisateur a lancé le ravitaillement avec un raccourci clavier
+Changelog 1.1.1.6:
+- Prise en charge de EasyAutoLoad - dans les versions intégrées des mods < 0.1.1.0 et le mod unique FS19_EasyAutoLoad version 0.1.1.0
 - plusieurs corrections de bugs 
 Consultez notre wiki Github pour les notes de version complètes !
 ]]>
@@ -65,7 +49,7 @@ Consultez notre wiki Github pour les notes de version complètes !
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.1.4</version>
+	<version>1.1.1.6</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>
