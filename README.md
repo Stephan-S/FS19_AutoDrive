@@ -32,7 +32,7 @@ and also
 
 # Downloads
 
-### Latest Release: 1.1.1.4
+### Latest Release: 1.1.1.6
 ![GitHub all releases](https://img.shields.io/github/downloads/Stephan-S/FS19_AutoDrive/total?label=Downloads&style=plastic)  
 [Release@github](https://github.com/Stephan-S/FS19_AutoDrive/releases/latest)  
    
