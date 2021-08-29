@@ -89,8 +89,7 @@ public class MapPanel extends JPanel{
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
 
                     LinkedList<MapNode> mapNodes = mapNode.outgoing;
-                    for (int i = 0; i < mapNodes.size(); i++) {
-                        MapNode outgoing = mapNodes.get(i);
+                    for (MapNode outgoing : mapNodes) {
                         boolean dual = RoadMap.isDual(mapNode, outgoing);
                         boolean reverse = RoadMap.isReverse(mapNode, outgoing);
 
@@ -129,6 +128,7 @@ public class MapPanel extends JPanel{
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
                     for (MapMarker mapMarker : this.roadMap.mapMarkers) {
                         if (hoveredNode.id == mapMarker.mapNode.id) {
+                            g.setColor(Color.MAGENTA);
                             Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x + 3, mapMarker.mapNode.z);
                             g.drawString(mapMarker.name, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
                         }
@@ -479,30 +479,7 @@ public class MapPanel extends JPanel{
     }
 
     public void mouseButton1Clicked(int x, int y) {
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
-            movingNode = getNodeAt(x, y);
-            if (movingNode != null) {
-                if (selected == null) {
-                    selected = movingNode;
-                } else {
-                    createConnectionBetween(selected, movingNode);
-                    selected = null;
-                }
-                repaint();
-            }
-        }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION) {
-            movingNode = getNodeAt(x, y);
-            if (movingNode != null) {
-                if (selected == null) {
-                    selected = movingNode;
-                } else {
-                    createReverseConnectionBetween(selected, movingNode);
-                    selected = null;
-                }
-                repaint();
-            }
-        }
+
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
             createNode((int)worldPos.getX(), (int)worldPos.getY(),NODE_STANDARD);
@@ -578,6 +555,35 @@ public class MapPanel extends JPanel{
         lastX = x;
         lastY = y;
         movingNode = getNodeAt(x, y);
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
+            movingNode = getNodeAt(x, y);
+            if (movingNode != null) {
+                if (selected == null) {
+                    selected = movingNode;
+                } else {
+                    createConnectionBetween(selected, movingNode);
+                    selected = null;
+                }
+                repaint();
+            }
+        }
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION) {
+            if (movingNode != null) {
+                if (selected == null) {
+                    selected = movingNode;
+                } else if (selected == hoveredNode) {
+                    selected = null;
+                } else {
+                    createReverseConnectionBetween(selected, movingNode);
+                    if (AutoDriveEditor.bContinuousConnections == true) {
+                        selected = movingNode;
+                    } else {
+                        selected = null;
+                    }
+                }
+                repaint();
+            }
+        }
         if (movingNode != null) {
             isDragging = false;
             if (editor.editorState == AutoDriveEditor.EDITORSTATE_MOVING) {

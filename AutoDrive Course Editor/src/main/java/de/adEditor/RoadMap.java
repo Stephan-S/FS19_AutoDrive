@@ -64,12 +64,10 @@ public class RoadMap {
 
     public static boolean isDual(MapNode start, MapNode target) {
         LinkedList<MapNode> nodes = start.outgoing;
-        for (int i = 0; i < nodes.size(); i++) {
-            MapNode outgoing = nodes.get(i);
+        for (MapNode outgoing : nodes) {
             if (outgoing == target) {
                 LinkedList<MapNode> mapNodeLinkedList = target.outgoing;
-                for (int j = 0; j < mapNodeLinkedList.size(); j++) {
-                    MapNode outgoingTarget = mapNodeLinkedList.get(j);
+                for (MapNode outgoingTarget : mapNodeLinkedList) {
                     if (outgoingTarget == start) {
                         return true;
                     }
@@ -83,21 +81,19 @@ public class RoadMap {
     public static boolean isReverse(MapNode start, MapNode target) {
         LinkedList<MapNode> startnodes = target.incoming;
         if (startnodes.size() >0) {
-            for (int s = 0; s < startnodes.size(); s++) {
-                MapNode incoming = startnodes.get(s);
+            for (MapNode incoming : startnodes) {
                 if (incoming.id == start.id) {
                     return false;
                 }
             }
         }
         LinkedList<MapNode> outnodes = start.outgoing;
-        for (int i = 0; i < outnodes.size(); i++) {
-            MapNode outgoing = outnodes.get(i);
+        for (MapNode outgoing : outnodes) {
             if (outgoing.id == target.id) {
                 return true;
             }
         }
-
         return false;
-        }
+
     }
+}

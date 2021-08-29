@@ -1,7 +1,5 @@
 package de.adEditor;
 
-import org.apache.logging.log4j.core.util.FileUtils;
-import org.apache.logging.log4j.core.util.SystemClock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +9,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
-public class EditorListener implements ActionListener {
+public class EditorListener implements ActionListener, ItemListener {
 
     private static Logger LOG = LoggerFactory.getLogger(EditorListener.class);
     public AutoDriveEditor editor;
@@ -72,7 +71,7 @@ public class EditorListener implements ActionListener {
                 editor.updateMapZoomFactor(4);
                 break;
             case "Load Config":
-                fc.setDialogTitle("Select AutoDrive Config");
+                fc.setDialogTitle("Load AutoDrive Config");
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setAcceptAllFileFilterUsed(false);
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("AutoDrive config", "xml");
@@ -127,9 +126,22 @@ public class EditorListener implements ActionListener {
         editor.updateButtons();
     }
 
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        AbstractButton button = (AbstractButton) e.getItem();
+        LOG.info("ItemCommand: {}", button.getText());
+        switch (button.getText()) {
+            case "Continuous Connections":
+                AutoDriveEditor.bContinuousConnections = button.isSelected();
+                break;
+        }
+    }
+
     private void showAbout() {
         JOptionPane.showMessageDialog(editor, "<html><center>Editor version : 0.2 Beta<br>Build info : Java 11 SDK - IntelliJ IDEA 2021.2.1 Community Edition<br><br><u>AutoDrive Development Team</u><br><br><b>Stephan (Founder & Modder)</b><br><br>TyKonKet (Modder)<br>Oliver (Modder)<br>Axel (Co-Modder)<br>Aletheist (Co-Modder)<br>Willi (Supporter & Tester)<br>Iwan1803 (Community Manager & Supporter)", "AutoDrive Editor", JOptionPane.PLAIN_MESSAGE);
     }
+
+
 }
 
 
