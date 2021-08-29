@@ -1,6 +1,7 @@
 package de.adEditor;
 
 import org.apache.logging.log4j.core.util.FileUtils;
+import org.apache.logging.log4j.core.util.SystemClock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,9 +113,9 @@ public class EditorListener implements ActionListener {
                 fc.addChoosableFileFilter(savefilter);
 
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    LOG.info("new save filename is {}", editor.getSelectedFileWithExtension(fc));
+                    LOG.info("new save filename is {}", AutoDriveEditor.getSelectedFileWithExtension(fc));
                     //LOG.info("xmlConfigFile = ", editor.xmlConfigFile);
-                    editor.saveMap(editor.getSelectedFileWithExtension(fc).toString());
+                    editor.saveMap(AutoDriveEditor.getSelectedFileWithExtension(fc).toString());
 
                 }
                 break;
@@ -127,7 +128,7 @@ public class EditorListener implements ActionListener {
     }
 
     private void showAbout() {
-        JOptionPane.showMessageDialog(editor, "Current editor version - 0.2 Beta\n\nCredits...... Coming Soon!", "AutoDrive Editor", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(editor, "<html><center>Editor version : 0.2 Beta<br>Build info : Java 11 SDK - IntelliJ IDEA 2021.2.1 Community Edition<br><br><u>AutoDrive Development Team</u><br><br><b>Stephan (Founder & Modder)</b><br><br>TyKonKet (Modder)<br>Oliver (Modder)<br>Axel (Co-Modder)<br>Aletheist (Co-Modder)<br>Willi (Supporter & Tester)<br>Iwan1803 (Community Manager & Supporter)", "AutoDrive Editor", JOptionPane.PLAIN_MESSAGE);
     }
 }
 
