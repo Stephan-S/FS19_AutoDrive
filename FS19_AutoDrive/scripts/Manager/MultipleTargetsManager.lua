@@ -16,12 +16,12 @@ function ADMultipleTargetsManager:load()
 end
 
 function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
-    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextTarget driver.ad.stateModule:getSecondMarkerName() %s", tostring(driver.ad.stateModule:getSecondMarkerName()))
+    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextTarget driver.ad.stateModule:getSecondMarkerName() %s", tostring(driver.ad.stateModule:getSecondMarkerName()))
     local target = driver.ad.stateModule:getSecondMarker().markerIndex
     local groupName = driver.ad.stateModule:getSecondMarker().group
 
     if self.groups[groupName] == nil then
-        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextTarget self.groups[groupName] == nil")
+        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextTarget self.groups[groupName] == nil")
         self.groups[groupName] = {}
         self.groups[groupName].lastTarget = nil
         self.groups[groupName].lastVehicle = nil
@@ -32,7 +32,7 @@ function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
             if self.groups[groupName] ~= nil then
                 if self.groups[groupName].lastTarget == nil then
                     self.groups[groupName].lastTarget = driver.ad.stateModule:getSecondMarker().markerIndex
-                    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextTarget lastTarget == nil lastTarget %s", tostring(driver.ad.stateModule:getSecondMarkerName()))
+                    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextTarget lastTarget == nil lastTarget %s", tostring(driver.ad.stateModule:getSecondMarkerName()))
                 else
                     local nextMarkerInGroup = nil
                     local markerSeen = false
@@ -55,15 +55,14 @@ function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
 
                     if nextMarkerInGroup ~= nil then
                         target = nextMarkerInGroup
-                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextTarget nextMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
+                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextTarget nextMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
                     elseif firstMarkerInGroup ~= nil then
                         target = firstMarkerInGroup
-                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextTarget firstMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
+                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextTarget firstMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
                     end
                     self.groups[groupName].lastTarget = target
                     self.groups[groupName].lastVehicle = driver
                 end
-                AutoDrive.Hud.lastUIScale = 0
             end
         end
     end
@@ -72,17 +71,17 @@ function ADMultipleTargetsManager:getNextTarget(driver, forcedSkip)
         self.groups[groupName].lastVehicle = driver
         self.groups[groupName].lastTarget = target
     end
-    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextTarget end target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
+    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextTarget end target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
 
     return target
 end
 
 function ADMultipleTargetsManager:getNextPickup(driver, forcedSkip)
-    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup driver.ad.stateModule:getFirstMarkerName() %s", tostring(driver.ad.stateModule:getFirstMarkerName()))
+    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextPickup driver.ad.stateModule:getFirstMarkerName() %s", tostring(driver.ad.stateModule:getFirstMarkerName()))
     local target = driver.ad.stateModule:getFirstMarker().markerIndex
     local groupName = driver.ad.stateModule:getFirstMarker().group
     if self.pickups[groupName] == nil then
-        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup self.groups[groupName] == nil")
+        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextPickup self.pickups[groupName] == nil")
         self.pickups[groupName] = {}
         self.pickups[groupName].lastTarget = nil
         self.pickups[groupName].lastVehicle = nil
@@ -93,7 +92,7 @@ function ADMultipleTargetsManager:getNextPickup(driver, forcedSkip)
             if self.pickups[groupName] ~= nil then
                 if self.pickups[groupName].lastTarget == nil then
                     self.pickups[groupName].lastTarget = driver.ad.stateModule:getFirstMarker().markerIndex
-                    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup lastTarget == nil lastTarget %s", tostring(driver.ad.stateModule:getFirstMarkerName()))
+                    AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextPickup lastTarget == nil lastTarget %s", tostring(driver.ad.stateModule:getFirstMarkerName()))
                 else
                     local nextMarkerInGroup = nil
                     local markerSeen = false
@@ -116,15 +115,14 @@ function ADMultipleTargetsManager:getNextPickup(driver, forcedSkip)
 
                     if nextMarkerInGroup ~= nil then
                         target = nextMarkerInGroup
-                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup nextMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
+                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextPickup nextMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
                     elseif firstMarkerInGroup ~= nil then
                         target = firstMarkerInGroup
-                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup firstMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
+                        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextPickup firstMarkerInGroup ~= nil target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
                     end
                     self.pickups[groupName].lastTarget = target
                     self.pickups[groupName].lastVehicle = driver
                 end
-                AutoDrive.Hud.lastUIScale = 0
             end
         end
     end
@@ -133,7 +131,7 @@ function ADMultipleTargetsManager:getNextPickup(driver, forcedSkip)
         self.pickups[groupName].lastVehicle = driver
         self.pickups[groupName].lastTarget = target
     end
-        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "[AD] ADMultipleTargetsManager:getNextPickup end target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
+        AutoDrive.debugPrint(driver, AutoDrive.DC_PATHINFO, "ADMultipleTargetsManager:getNextPickup end target %s", tostring(ADGraphManager:getMapMarkerById(target).name))
 
     return target
 end

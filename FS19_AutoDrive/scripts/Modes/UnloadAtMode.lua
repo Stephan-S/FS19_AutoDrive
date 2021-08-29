@@ -48,23 +48,23 @@ function UnloadAtMode:stop()
 end
 
 function UnloadAtMode:getNextTask()
-	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask start self.state %s", tostring(self.state))
+	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtMode:getNextTask start self.state %s", tostring(self.state))
     local nextTask
 
 	if self.state == UnloadAtMode.STATE_TO_TARGET then
 		-- STATE_TO_TARGET - drive to unload destination
-		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask STATE_TO_TARGET UnloadAtDestinationTask...")
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtMode:getNextTask STATE_TO_TARGET UnloadAtDestinationTask...")
 		nextTask = UnloadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
 		self.state = UnloadAtMode.STATE_PARK
     elseif self.state == UnloadAtMode.STATE_PARK then
         -- job done - drive to park position
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask STATE_PARK ParkTask...")
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtMode:getNextTask STATE_PARK ParkTask...")
         nextTask = ParkTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
         self.state = UnloadAtMode.STATE_FINISHED
         -- message for reached park position send by ParkTask as only there the correct destination is known
 	else
 		-- self.state == UnloadAtMode.STATE_FINISHED then
-		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "[AD] UnloadAtMode:getNextTask STATE_FINISHED StopAndDisableADTask...")
+		AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtMode:getNextTask STATE_FINISHED StopAndDisableADTask...")
 		nextTask = StopAndDisableADTask:new(self.vehicle, ADTaskModule.DONT_PROPAGATE)
     end
     return nextTask

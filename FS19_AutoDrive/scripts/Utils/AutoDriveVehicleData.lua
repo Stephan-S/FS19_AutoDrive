@@ -21,7 +21,7 @@ function AutoDriveVehicleData.prerequisitesPresent(specializations)
 end
 
 function AutoDriveVehicleData.registerEventListeners(vehicleType)
-    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.registerEventListeners ")
+    AutoDrive.debugPrint(nil, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.registerEventListeners ")
     for _, n in pairs(
         {
             "onPreLoad",
@@ -29,6 +29,7 @@ function AutoDriveVehicleData.registerEventListeners(vehicleType)
             "onPostLoad",
             "onSelect",
             "onEnterVehicle",
+            "onPreDetach",
             "saveToXMLFile",
             "onReadStream",
             "onWriteStream"
@@ -52,7 +53,7 @@ function AutoDriveVehicleData:onPreLoad(savegame)
 end
 
 function AutoDriveVehicleData:onLoad(savegame)
-    AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onLoad vehicle %s savegame %s", tostring(self:getName()), tostring(savegame))
+    AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onLoad vehicle %s savegame %s", tostring(self:getName()), tostring(savegame))
     if self.advd == nil then
         self.advd = {}
     end
@@ -62,13 +63,13 @@ function AutoDriveVehicleData:onLoad(savegame)
 end
 
 function AutoDriveVehicleData:onPostLoad(savegame)
-    AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onPostLoad vehicle %s savegame %s self %s", tostring(self:getName()), tostring(savegame), tostring(self))
+    AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onPostLoad vehicle %s savegame %s self %s", tostring(self:getName()), tostring(savegame), tostring(self))
     if self.advd == nil then
         return
     end
     if self.isServer then
         if savegame ~= nil then
-            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onPostLoad self.isServer")
+            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onPostLoad self.isServer")
             local xmlFile = savegame.xmlFile
             local key = savegame.key .. ".FS19_AutoDrive.AutoDriveVehicleData"
             self.advd.parkDestination = Utils.getNoNil(getXMLInt(xmlFile, key .. "#WorkToolParkDestination"), -1)
@@ -131,8 +132,33 @@ function AutoDriveVehicleData:onSelect()
     end
 end
 
+--[[
+tool selection seems strange on dedi servers as known!
+That's why the following event is only taken on clients and send as event in the network
+onPreDetach is used here, as with automatic engine start the vehicle is not selectable, to detect an actualy selected worktool and send it's park destination over network as job end position and display in HUD
+]]
+function AutoDriveVehicleData:onPreDetach(attacherVehicle, implement)
+    local actualparkDestination = -1
+    if g_dedicatedServerInfo == nil then
+        -- only send the client event to server
+        if attacherVehicle.advd ~= nil then
+            actualparkDestination = attacherVehicle.advd.parkDestination
+
+            if actualparkDestination == nil then
+                actualparkDestination = -1
+            end
+
+            local rootVehicle = attacherVehicle:getRootVehicle()
+            if rootVehicle ~= nil and rootVehicle.ad ~= nil and (rootVehicle.getIsEntered ~= nil and rootVehicle:getIsEntered()) then
+                -- propagate park destination only if vehicle is entered, as Giants engine also select vehicle, tools on startup
+                AutoDriveVehicleData:assignRootVehicleParkDestination(rootVehicle, actualparkDestination)
+            end
+        end
+    end
+end
+
 function AutoDriveVehicleData:saveToXMLFile(xmlFile, key)
-    AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.saveToXMLFile vehicle %s", tostring(self:getName()))
+    AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.saveToXMLFile vehicle %s", tostring(self:getName()))
 
     if self.advd == nil then
         return
@@ -142,7 +168,7 @@ function AutoDriveVehicleData:saveToXMLFile(xmlFile, key)
         actualparkDestination = -1
     end
     if actualparkDestination ~= nil and actualparkDestination > 0 then
-        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.saveToXMLFile parkDestination %s", tostring(self.advd.parkDestination))
+        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.saveToXMLFile parkDestination %s", tostring(self.advd.parkDestination))
         if self.isServer then
             setXMLInt(xmlFile, key .. "#saved_by_server", 1)
         end
@@ -153,7 +179,7 @@ end
 -- this is important to sync the park destinations from server to clients, later only clients will send the park destination to server as event!
 function AutoDriveVehicleData:onReadStream(streamId, connection) -- Called on client side on join
     if self ~= nil and self.getName ~= nil then
-        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadStream vehicle %s", tostring(self:getName()))
+        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onReadStream vehicle %s", tostring(self:getName()))
     end
     self.advd.parkDestination = streamReadUIntN(streamId, 20) - 1
 end
@@ -161,18 +187,18 @@ end
 -- this is important to sync the park destinations from server to clients, later only clients will send the park destination to server as event!
 function AutoDriveVehicleData:onWriteStream(streamId, connection) -- Called on server side on join
     if self ~= nil and self.getName ~= nil then
-        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onWriteStream vehicle %s", tostring(self:getName()))
+        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onWriteStream vehicle %s", tostring(self:getName()))
     end
     streamWriteUIntN(streamId, self.advd.parkDestination + 1, 20)
 end
 
 function AutoDriveVehicleData:onReadUpdateStream(streamId, timestamp, connection) -- Called on on update
     if self ~= nil and self.getName ~= nil then
-        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadUpdateStream vehicle %s", tostring(self:getName()))
+        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onReadUpdateStream vehicle %s", tostring(self:getName()))
     end
     if connection:getIsServer() then
         if streamReadBool(streamId) then
-            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onReadUpdateStream streamReadBool ")
+            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onReadUpdateStream streamReadBool ")
             self.advd.parkDestination = streamReadUIntN(streamId, 20) - 1
         end
     end
@@ -180,11 +206,11 @@ end
 
 function AutoDriveVehicleData:onWriteUpdateStream(streamId, connection, dirtyMask) -- Called on on update
     if self ~= nil and self.getName ~= nil then
-        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onWriteUpdateStream vehicle %s", tostring(self:getName()))
+        AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onWriteUpdateStream vehicle %s", tostring(self:getName()))
     end
     if not connection:getIsServer() then
         if streamWriteBool(streamId, bitAND(dirtyMask, self.advd.dirtyFlag) ~= 0) then
-            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData.onWriteUpdateStream streamReadBool ")
+            AutoDrive.debugPrint(self, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData.onWriteUpdateStream streamReadBool ")
             streamWriteUIntN(streamId, self.advd.parkDestination + 1, 20)
         end
     end
@@ -196,7 +222,7 @@ end
 
 function AutoDriveVehicleData:getParkDestination(vehicle)
     if vehicle ~= nil then
-        AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData:getParkDestination vehicle %s", tostring(vehicle:getName()))
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData:getParkDestination vehicle %s", tostring(vehicle:getName()))
     end
     if vehicle == nil or vehicle.advd == nil then
         return -1
@@ -207,7 +233,7 @@ end
 
 -- set the park destination for vehicle, which could be a worktool, attachment or vehicle itself
 function AutoDriveVehicleData:setParkDestination(vehicle, parkDestination, sendEvent)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleData:setParkDestination vehicle %s parkDestination %s", tostring(vehicle), tostring(parkDestination))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleData:setParkDestination vehicle %s parkDestination %s", tostring(vehicle), tostring(parkDestination))
     if vehicle == nil or vehicle.advd == nil then
         return
     end
@@ -262,13 +288,13 @@ function AutoDriveVehicleDataEventAssignParkDestination:new(vehicle, parkDestina
 end
 
 function AutoDriveVehicleDataEventAssignParkDestination:writeStream(streamId, connection)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleDataEventAssignParkDestination:writeStream connection %s", tostring(connection))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleDataEventAssignParkDestination:writeStream connection %s", tostring(connection))
     NetworkUtil.writeNodeObjectId(streamId, NetworkUtil.getObjectId(self.vehicle))
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
 end
 
 function AutoDriveVehicleDataEventAssignParkDestination:readStream(streamId, connection)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleDataEventAssignParkDestination:readStream connection %s", tostring(connection))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleDataEventAssignParkDestination:readStream connection %s", tostring(connection))
     self.vehicle = NetworkUtil.getObject(NetworkUtil.readNodeObjectId(streamId))
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
     self:run(connection)
@@ -316,13 +342,13 @@ function AutoDriveVehicleDataEventSetToolParkDestination:new(vehicle, parkDestin
 end
 
 function AutoDriveVehicleDataEventSetToolParkDestination:writeStream(streamId, connection)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleDataEventSetToolParkDestination:writeStream connection %s", tostring(connection))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleDataEventSetToolParkDestination:writeStream connection %s", tostring(connection))
     NetworkUtil.writeNodeObjectId(streamId, NetworkUtil.getObjectId(self.vehicle))
     streamWriteUIntN(streamId, self.parkDestination + 1, 20)
 end
 
 function AutoDriveVehicleDataEventSetToolParkDestination:readStream(streamId, connection)
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "[AD] AutoDriveVehicleDataEventSetToolParkDestination:readStream connection %s", tostring(connection))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDriveVehicleDataEventSetToolParkDestination:readStream connection %s", tostring(connection))
     self.vehicle = NetworkUtil.getObject(NetworkUtil.readNodeObjectId(streamId))
     self.parkDestination = streamReadUIntN(streamId, 20) - 1
     self:run(connection)

@@ -191,7 +191,14 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"            text="Tak - AutoDrive zdejmuje i zakłada plandekę w razie potrzeby / Nie - plandeka nie będzie zdejmowana lub zakładana przez AutoDrive" />
 		<text name="gui_ad_useForwardTurningManoeuvre"          text="Manewr wyprzedzający" />
 		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"  text="Tak - rozładowujący spróbują zaplanować ścieżkę i dostosować jazdę do kombajnu skręcającego o 90°. / Nie - Rozładowujący będą cofać przed skrętem" />
-		
+		<text name="gui_ad_ALUnload"                            text="EasyAutoLoad: Unload Position" />
+		<text name="gui_ad_ALUnload_tooltip"                    text="Off-no automatic unload, center-unload on loading platform, left / behind / right vehicle unload position (Position depend on vehicle setup, not AD!)" />
+		<text name="gui_ad_AL_off"                              text="Unload Off" />
+		<text name="gui_ad_AL_center"                           text="Unload center" />
+		<text name="gui_ad_AL_left"                             text="Unload left" />
+		<text name="gui_ad_AL_behind"                           text="Unload behind" />
+		<text name="gui_ad_AL_right"                            text="Unload right" />
+
 		<text name="gui_ad_settingsPage_title"					text="Ustawienia - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Ustawienia użytkownika - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Ustawienia pojazdu - AutoDrive" />

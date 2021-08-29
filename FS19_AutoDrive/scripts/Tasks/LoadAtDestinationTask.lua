@@ -27,7 +27,7 @@ function LoadAtDestinationTask:setUp()
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
     self.vehicle.ad.trailerModule:reset()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:setUp end self.state %s", tostring(self.state))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:setUp end self.state %s", tostring(self.state))
 end
 
 function LoadAtDestinationTask:update(dt)
@@ -51,54 +51,59 @@ function LoadAtDestinationTask:update(dt)
         end
     else
         -- STATE_DRIVING
-        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update self.state %s", tostring(self.state))
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update self.state %s", tostring(self.state))
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             --Check if we have actually loaded / tried to load
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update isTargetReached")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update isTargetReached")
             local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
             AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
             if (self.vehicle.ad.callBackFunction ~= nil or (g_courseplay ~= nil and self.vehicle.ad.stateModule:getStartCP_AIVE())) and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update ERROR stopAutoDrive")
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update ERROR stopAutoDrive")
                 self.vehicle:stopAutoDrive()
             else
                 if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
-                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update not isActiveAtTrigger")
+                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update not isActiveAtTrigger")
                     if self.vehicle.ad.trailerModule:wasAtSuitableTrigger() then
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update wasAtSuitableTrigger -> self:finished")
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update wasAtSuitableTrigger -> self:finished")
                         self:finished()
                     else
                         -- Wait to be loaded manally - check filllevel
                         AutoDrive.startFillFillableTrailer(self.vehicle)        -- try to load fillable trailer
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update Wait to be loaded manally")
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update Wait to be loaded manally")
                         self.vehicle.ad.specialDrivingModule:stopVehicle()
                         self.vehicle.ad.specialDrivingModule:update(dt)
 
                         local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
                         local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
                         local maxCapacity = fillLevel + leftCapacity
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update leftCapacity %s maxCapacity %s", tostring(leftCapacity), tostring(maxCapacity))
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update leftCapacity %s maxCapacity %s", tostring(leftCapacity), tostring(maxCapacity))
 
                         if (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001))) or ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
-                            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update leftCapacity <= -> self:finished")
+                            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update leftCapacity <= -> self:finished")
+                            if self.vehicle.ad.trailerModule.hasAL == true then
+                                -- AutoLoad
+                                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update deactivateALTrailers start")
+                                AutoDrive.deactivateALTrailers(self.vehicle, trailers)
+                            end
                             self:finished()
                         end
                     end
                 else
-                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update 1 isActiveAtTrigger -> specialDrivingModule:stopVehicle")
+                    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update 1 isActiveAtTrigger -> specialDrivingModule:stopVehicle")
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
                 end
             end
         else
-            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update NOT isTargetReached")
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update NOT isTargetReached")
             self.vehicle.ad.trailerModule:update(dt)
             --self.vehicle.ad.specialDrivingModule:releaseVehicle()
             if self.vehicle.ad.trailerModule:isActiveAtTrigger() then
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update 2 isActiveAtTrigger -> specialDrivingModule:stopVehicle")
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update 2 isActiveAtTrigger -> specialDrivingModule:stopVehicle")
                 self.vehicle.ad.specialDrivingModule:stopVehicle()
                 self.vehicle.ad.specialDrivingModule:update(dt)
             else
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:update not isActiveAtTrigger -> drivePathModule:update")
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update not isActiveAtTrigger -> drivePathModule:update")
                 self.vehicle.ad.drivePathModule:update(dt)
             end
         end
@@ -106,7 +111,7 @@ function LoadAtDestinationTask:update(dt)
 end
 
 function LoadAtDestinationTask:continue()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:continue -> trailerModule:stopLoading")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:continue -> trailerModule:stopLoading")
     self.vehicle.ad.trailerModule:stopLoading()
 end
 
@@ -114,7 +119,7 @@ function LoadAtDestinationTask:abort()
 end
 
 function LoadAtDestinationTask:finished()
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "[AD] LoadAtDestinationTask:finished -> specialDrivingModule:releaseVehicle / setCurrentTaskFinished")
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:finished -> specialDrivingModule:releaseVehicle / setCurrentTaskFinished")
     self.vehicle.ad.specialDrivingModule:releaseVehicle()
     self.vehicle.ad.taskModule:setCurrentTaskFinished()
 end

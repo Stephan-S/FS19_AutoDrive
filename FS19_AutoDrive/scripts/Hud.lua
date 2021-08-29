@@ -483,7 +483,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 and vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated
                 then
 				-- if LCTRL is not pressed - no auto-connect to previous created new point, disable selected point
-				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent selectedNodeId = nil")
+				AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent selectedNodeId = nil")
 				vehicle.ad.selectedNodeId = nil
 				vehicle.ad.newcreated = nil
 			end
@@ -498,7 +498,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end
 			if vehicle.ad.nodeToMoveId ~= nil then
 				-- move point at mouse position
-				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent moveNodeToMousePos nodeToMoveId %d", vehicle.ad.nodeToMoveId)
+				AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent moveNodeToMousePos nodeToMoveId %d", vehicle.ad.nodeToMoveId)
 				AutoDrive.moveNodeToMousePos(vehicle.ad.nodeToMoveId)
 			end
 			if vehicle.ad.hoveredNodeId ~= nil then
@@ -513,29 +513,29 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 					if vehicle.ad.selectedNodeId ~= nil then
 						if vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
 							-- connect selected point with hovered point
-							AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleConnectionBetween 1 vehicle.ad.selectedNodeId %d vehicle.ad.hoveredNodeId %d", vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
+							AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent toggleConnectionBetween 1 vehicle.ad.selectedNodeId %d vehicle.ad.hoveredNodeId %d", vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
 							ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(vehicle.ad.hoveredNodeId), AutoDrive.rightSHIFTmodifierKeyPressed)
 							if AutoDrive.leftLSHIFTmodifierKeyPressed then
-								AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
+								AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
 								ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.selectedNodeId)
 							end
 						end
 
 						-- unselect point
-						AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent unselect point selectedNodeId = nil")
+						AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent unselect point selectedNodeId = nil")
 						vehicle.ad.selectedNodeId = nil
 						adjustedPaths = true
 					else
 						-- select point
 						-- no selectedNodeId: hoveredNodeId is now selectedNodeId
                         vehicle.ad.selectedNodeId = vehicle.ad.hoveredNodeId
-                        AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent select point selectedNodeId %d", vehicle.ad.selectedNodeId)
+                        AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent select point selectedNodeId %d", vehicle.ad.selectedNodeId)
 
                         -- color assignment goes in here
                         if AutoDrive.experimentalFeatures.colorAssignmentMode and g_server ~= nil and g_client ~= nil and g_dedicatedServerInfo == nil then
                             local colorPoint = ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId)
                             if colorPoint ~= nil and colorPoint.colors ~= nil then
-                                AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent point.colors %.3f %.3f %.3f", colorPoint.colors[1], colorPoint.colors[2], colorPoint.colors[3])
+                                AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent point.colors %.3f %.3f %.3f", colorPoint.colors[1], colorPoint.colors[2], colorPoint.colors[3])
                                 vehicle.ad.selectedColorNodeId = vehicle.ad.selectedNodeId
                                     -- only allowed in single player game
                                 ADInputManager:input_openColorSettings()
@@ -581,7 +581,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 then
 				vehicle.ad.newcreated = vehicle.ad.hoveredNodeId
 				vehicle.ad.selectedNodeId = vehicle.ad.newcreated
-				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
+				AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent auto connection 1 selectedNodeId %d", vehicle.ad.selectedNodeId)
 			end
 
             if button == 1 and isUp 
@@ -594,7 +594,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                 and not adjustedPaths
                 then
 				ADGraphManager:toggleWayPointAsSubPrio(vehicle.ad.hoveredNodeId)
-				AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 2 hoveredNodeId %d", vehicle.ad.hoveredNodeId)
+				AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 2 hoveredNodeId %d", vehicle.ad.hoveredNodeId)
 			end
 
 			--If no node is hovered / moved - create new node
@@ -655,17 +655,17 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 							
 							if AutoDrive.leftLSHIFTmodifierKeyPressed and not AutoDrive.rightSHIFTmodifierKeyPressed then
 								ADGraphManager:toggleWayPointAsSubPrio(createdId)
-								AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 3 createdId %d", createdId)
+								AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent toggleWayPointAsSubPrio 3 createdId %d", createdId)
 							end
 
 							if vehicle.ad.newcreated ~= nil and vehicle.ad.selectedNodeId == vehicle.ad.newcreated then
 								-- connect only if previous created point is selected and newcreated ~= nil
-								AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent toggleConnectionBetween 2 vehicle.ad.selectedNodeId %d to %d", vehicle.ad.selectedNodeId, createdId)
+								AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent toggleConnectionBetween 2 vehicle.ad.selectedNodeId %d to %d", vehicle.ad.selectedNodeId, createdId)
 								ADGraphManager:toggleConnectionBetween(ADGraphManager:getWayPointById(vehicle.ad.selectedNodeId), ADGraphManager:getWayPointById(createdId), AutoDrive.rightSHIFTmodifierKeyPressed)
 							end
 							vehicle.ad.newcreated = createdId
 							vehicle.ad.selectedNodeId = vehicle.ad.newcreated
-							AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent auto connection 2 selectedNodeId %d", vehicle.ad.selectedNodeId)
+							AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent auto connection 2 selectedNodeId %d", vehicle.ad.selectedNodeId)
 						end
 					end
 				end
@@ -679,7 +679,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
                     and not AutoDrive.rightSHIFTmodifierKeyPressed
                     then
 					-- Left alt for deleting the currently hovered node
-					AutoDriveHud.debugMsg("[AD] AutoDriveHud:mouseEvent removeWayPoint hoveredNodeId %d", vehicle.ad.hoveredNodeId)
+					AutoDriveHud.debugMsg(vehicle, "AutoDriveHud:mouseEvent removeWayPoint hoveredNodeId %d", vehicle.ad.hoveredNodeId)
 					ADGraphManager:removeWayPoint(vehicle.ad.hoveredNodeId)
 				end
 			end
@@ -704,12 +704,12 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 end
 
 function AutoDrive.handleWayPointSection(vehicle, button, isUp)
-	-- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection vehicle.ad.selectedNodeId %s vehicle.ad.hoveredNodeId %s", tostring(vehicle.ad.selectedNodeId), tostring(vehicle.ad.hoveredNodeId))
+	-- AutoDriveHud.debugMsg(vehicle, "AutoDrive.handleWayPointSection vehicle.ad.selectedNodeId %s vehicle.ad.hoveredNodeId %s", tostring(vehicle.ad.selectedNodeId), tostring(vehicle.ad.hoveredNodeId))
     if vehicle.ad.selectedNodeId ~= nil and vehicle.ad.hoveredNodeId ~= nil and vehicle.ad.selectedNodeId ~= vehicle.ad.hoveredNodeId then
         local wayPointsDirection = ADGraphManager:getIsWayPointJunction(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId)
         if wayPointsDirection > 0 and  wayPointsDirection < 4 then
             vehicle.ad.sectionWayPoints = ADGraphManager:getWayPointsInSection(vehicle.ad.selectedNodeId, vehicle.ad.hoveredNodeId, wayPointsDirection)
-			-- AutoDriveHud.debugMsg("[AD] AutoDrive.handleWayPointSection button %d isUp %s AutoDrive.leftCTRLmodifierKeyPressed %s", button, tostring(isUp), tostring(AutoDrive.leftCTRLmodifierKeyPressed))
+			-- AutoDriveHud.debugMsg(vehicle, "AutoDrive.handleWayPointSection button %d isUp %s AutoDrive.leftCTRLmodifierKeyPressed %s", button, tostring(isUp), tostring(AutoDrive.leftCTRLmodifierKeyPressed))
             if button == 1 and isUp
                 and not AutoDrive.leftLSHIFTmodifierKeyPressed
                 and AutoDrive.leftCTRLmodifierKeyPressed
@@ -861,12 +861,6 @@ function AutoDriveHud:deleteMapHotspot(vehicle)
 	end
 end
 
-function AutoDriveHud.debugMsg(...)
-    if AutoDriveHud.debug == true then
-        g_logManager:info(...)
-    end
-end
-
 function AutoDrive:mapHotSpotClicked(superFunc)
 	if self.isADMarker and AutoDrive.getSetting("showMarkersOnMap") and AutoDrive.getSetting("switchToMarkersOnMap") then
 		if g_currentMission.controlledVehicle ~= nil and g_currentMission.controlledVehicle.ad ~= nil then
@@ -970,5 +964,11 @@ function AutoDrive.createColorSelectionWayPoints(vehicle)
                 ADGraphManager:createWayPointColored(x1 + rx, y1 + 1, z1 + rz, colors)
             end
         end
+    end
+end
+
+function AutoDriveHud.debugMsg(vehicle, debugText, ...)
+    if AutoDriveHud.debug == true then
+        AutoDrive.debugMsg(vehicle, debugText, ...)
     end
 end

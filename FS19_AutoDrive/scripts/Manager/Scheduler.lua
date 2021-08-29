@@ -62,7 +62,7 @@ function ADScheduler:update(dt)
                 -- the average is calculated, so use it from now onwards
                 averagefps = self.average_fps
             end
-            AutoDrive.debugPrint(nil, AutoDrive.DC_PATHINFO, "[AD] Scheduler update self.actual_fps %s averagefps %s self.stepsPerFrame %s", tostring(self.actual_fps), tostring(averagefps), tostring(self.stepsPerFrame))
+            AutoDrive.debugPrint(nil, AutoDrive.DC_PATHINFO, "Scheduler update self.actual_fps %.1f averagefps %.1f self.stepsPerFrame %s", self.actual_fps, averagefps, tostring(self.stepsPerFrame))
 
             if self.actual_fps > averagefps * (1 + ADScheduler.FPS_DIFFERENCE) then
                 -- actual FPS is higher than average, so we can increase stepsPerFrame
@@ -104,11 +104,11 @@ end
 function ADScheduler:addPathfinderVehicle(vehicle)
     -- add a vehicle in the queue
     if not table.contains(self.pathFinderVehicles, vehicle) then
-        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "[AD] Scheduler addPathfinderVehicle ")
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "Scheduler addPathfinderVehicle ")
         table.insert(self.pathFinderVehicles, vehicle)
         -- set new vehicle a delay
         if table.getn(self.pathFinderVehicles) > 1 then
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "[AD] Scheduler addPathfinderVehicle addDelayTimer 10000")
+            AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "Scheduler addPathfinderVehicle addDelayTimer 10000")
             -- if already vehicle in table, pause this new one
             vehicle.ad.pathFinderModule:addDelayTimer(10000)
         end
@@ -118,7 +118,7 @@ end
 function ADScheduler:removePathfinderVehicle(vehicle)
     -- remove a vehicle from the queue
     if table.contains(self.pathFinderVehicles, vehicle) then
-        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "[AD] Scheduler removePathfinderVehicle")
+        AutoDrive.debugPrint(vehicle, AutoDrive.DC_PATHINFO, "Scheduler removePathfinderVehicle")
         table.removeValue(self.pathFinderVehicles, vehicle)
     end
 end
@@ -133,7 +133,7 @@ function ADScheduler:updateActiveVehicle()
     self.activePathFinderVehicle = self.pathFinderVehicles[1]
 
     if self.activePathFinderVehicle ~= nil then
-        AutoDrive.debugPrint(self.activePathFinderVehicle, AutoDrive.DC_PATHINFO, "[AD] Scheduler updateActiveVehicle activePathFinderVehicle")
+        AutoDrive.debugPrint(self.activePathFinderVehicle, AutoDrive.DC_PATHINFO, "Scheduler updateActiveVehicle activePathFinderVehicle")
         -- found vehicle
         -- add this vehicle to end of queue
         self:removePathfinderVehicle(self.activePathFinderVehicle)
