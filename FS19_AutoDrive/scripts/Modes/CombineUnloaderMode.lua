@@ -193,18 +193,6 @@ function CombineUnloaderMode:getNextTask()
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local point = nil
-    local distanceToStart = 0
-    if
-        self.vehicle.ad ~= nil and ADGraphManager.getWayPointById ~= nil and self.vehicle.ad.stateModule ~= nil and self.vehicle.ad.stateModule.getFirstMarker ~= nil and self.vehicle.ad.stateModule:getFirstMarker() ~= nil and
-            self.vehicle.ad.stateModule:getFirstMarker() ~= 0 and
-            self.vehicle.ad.stateModule:getFirstMarker().id ~= nil
-     then
-        point = ADGraphManager:getWayPointById(self.vehicle.ad.stateModule:getFirstMarker().id)
-        if point ~= nil then
-            distanceToStart = MathUtil.vector2Length(x - point.x, z - point.z)
-        end
-    end
-
     local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local maxCapacity = fillLevel + leftCapacity

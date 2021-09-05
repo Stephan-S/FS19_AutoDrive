@@ -271,6 +271,16 @@ function AutoDrive:getIsCPActive(vehicle)
     return vehicle ~= nil and g_courseplay ~= nil and vehicle.cp ~= nil and vehicle.getIsCourseplayDriving ~= nil and vehicle:getIsCourseplayDriving()
 end
 
+function AutoDrive:getIsCPCombineInPocket(combine)
+    local ret = true -- assume combine make a pocket or drive to fruit-free room to unload
+    if combine ~= nil and g_courseplay ~= nil and combine.cp and combine.cp.driver and combine.cp.driver.isWaitingForUnload and combine.cp.driver.isWaitingInPocket and combine.cp.driver.isWaitingForUnloadAfterPulledBack then
+        if combine.cp.driver:isWaitingForUnload() and (not combine.cp.driver:isWaitingInPocket() and not combine.cp.driver:isWaitingForUnloadAfterPulledBack()) then
+            ret = false
+        end
+    end
+    return ret
+end
+
 -- Autoloader
 --[[
 easyAutoLoader:

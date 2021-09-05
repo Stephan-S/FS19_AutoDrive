@@ -98,8 +98,8 @@ function EmptyHarvesterTask:update(dt)
             if combineFillLevel <= 0.1 or leftCapacity <= 0.1 then
                 local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
                 self.reverseStartLocation = {x = x, y = y, z = z}
-                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_REVERSING")
-                self.state = EmptyHarvesterTask.STATE_REVERSING
+                AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_UNLOADING_FINISHED")
+                self.state = EmptyHarvesterTask.STATE_UNLOADING_FINISHED
             else
                 -- Drive forward with collision checks active and only for a limited distance
                 if distanceToCombine > 30 then
@@ -108,6 +108,13 @@ function EmptyHarvesterTask:update(dt)
                     self.vehicle.ad.specialDrivingModule:driveForward(dt)
                 end
             end
+        end
+    elseif self.state == EmptyHarvesterTask.STATE_UNLOADING_FINISHED then
+        if AutoDrive:getIsCPActive(self.combine) and AutoDrive:getIsCPCombineInPocket(self.combine) then
+            -- reverse if CP unload in a pocket
+            self.state = EmptyHarvesterTask.STATE_REVERSING
+        else
+            self.state = EmptyHarvesterTask.STATE_WAITING 
         end
     elseif self.state == EmptyHarvesterTask.STATE_REVERSING then
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
