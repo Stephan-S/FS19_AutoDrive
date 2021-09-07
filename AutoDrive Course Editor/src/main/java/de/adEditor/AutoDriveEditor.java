@@ -1,7 +1,5 @@
 package de.adEditor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -10,7 +8,6 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,6 +33,9 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.GUIUtils.*;
 
 /* TODO:
     (1) Change map scrolling to either middle mouse button and/or keyboard
@@ -72,24 +72,18 @@ public class AutoDriveEditor extends JFrame {
     public static final String EDIT_DESTINATIONS_GROUPS = "Manage Destination Groups";
     public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
 
-    private MapPanel mapPanel;
-    private JButton loadConfigButton;
-    private JButton saveConfigButton;
-    private JButton loadImageButton;
-    private JToggleButton removeNode;
-    private JToggleButton removeDestination;
-    private JToggleButton moveNode;
-    private JToggleButton connectNodes;
-    private JToggleButton createPrimaryNode;
-    private JToggleButton createDestination;
-    private JToggleButton changePriority;
-    private JToggleButton createSecondaryNode;
-    private JToggleButton createReverseConnection;
-    private JToggleButton manageDestination;
-
-    private JRadioButton oneTimesMap;
-    private JRadioButton fourTimesMap;
-    private JRadioButton sixteenTimesMap;
+    private final MapPanel mapPanel;
+    private final JButton loadImageButton;
+    private final JToggleButton removeNode;
+    private final JToggleButton removeDestination;
+    private final JToggleButton moveNode;
+    private final JToggleButton connectNodes;
+    private final JToggleButton createPrimaryNode;
+    private final JToggleButton createDestination;
+    private final JToggleButton changePriority;
+    private final JToggleButton createSecondaryNode;
+    private final JToggleButton createReverseConnection;
+    private final JToggleButton manageDestination;
 
     public EditorListener editorListener = new EditorListener(this);
 
@@ -97,16 +91,14 @@ public class AutoDriveEditor extends JFrame {
     public File xmlConfigFile;
     private boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
-
+    public static BufferedImage tractorImage;
     public static boolean bContinuousConnections = false; // default value
-
-    private static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
-
 
     public AutoDriveEditor() {
         super();
 
         LOG.info("Starting AutoDrive Editor.....");
+
         setTitle(createTitle());
         setTractorIcon();
         addWindowListener(new WindowAdapter() {
@@ -194,44 +186,37 @@ public class AutoDriveEditor extends JFrame {
 
         // GUI init
 
-        /*JPanel configBox = new JPanel();
-        configBox.setBorder(BorderFactory.createTitledBorder("Config"));
-        buttonPanel.add(configBox);
-
-        loadConfigButton = makeButton("Load Config","Load config from Disk","Load", configBox);
-        saveConfigButton = makeButton("Save Config","Save config to disk","Save", configBox);*/
-
         JPanel mapBox = new JPanel();
         mapBox.setBorder(BorderFactory.createTitledBorder("Map and zoom factor"));
         buttonPanel.add(mapBox);
 
-        loadImageButton = makeButton("Load Image","Load map image from disk ( must be 2048x2048 .PNG format)","Load Map", mapBox);
+        loadImageButton = makeButton("Load Image","Load map image from disk ( must be 2048x2048 .PNG format)","Load Map", mapBox, editorListener);
 
         ButtonGroup zoomGroup = new ButtonGroup();
 
-        oneTimesMap = makeRadioButton(" 1x","OneTimesMap","Change scale to 1x map size",true, mapBox, zoomGroup);
-        fourTimesMap = makeRadioButton(" 4x","FourTimesMap","Change scale to 4x map size",false, mapBox, zoomGroup);
-        sixteenTimesMap = makeRadioButton(" 16x","SixteenTimesMap","Change scale to 16x map size",false, mapBox, zoomGroup);
+        makeRadioButton(" 1x","OneTimesMap","Change scale to 1x map size",true, mapBox, zoomGroup, editorListener);
+        makeRadioButton(" 4x","FourTimesMap","Change scale to 4x map size",false, mapBox, zoomGroup, editorListener);
+        makeRadioButton(" 16x","SixteenTimesMap","Change scale to 16x map size",false, mapBox, zoomGroup, editorListener);
 
         JPanel nodeBox = new JPanel();
         nodeBox.setBorder(BorderFactory.createTitledBorder("Nodes"));
         buttonPanel.add(nodeBox);
 
-        moveNode = makeToggleButton("movenode",MOVE_NODES,"Move route nodes","Move Nodes", nodeBox);
-        connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"Connect nodes together","Connect Nodes", nodeBox);
-        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"Remove nodes ( hold right mouse to area select )","Delete Nodes", nodeBox);
-        createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"Create a primary node","Create Primary Node", nodeBox);
-        changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"Swap a nodes priority ( hold right mouse to area select )","Node Priority", nodeBox);
-        createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"Create a secondary node","Create Secondary Node", nodeBox);
-        createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse connection","Create Reverse Connection", nodeBox);
+        moveNode = makeToggleButton("movenode",MOVE_NODES,"Move route nodes","Move Nodes", nodeBox, editorListener);
+        connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"Connect nodes together","Connect Nodes", nodeBox, editorListener);
+        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"Remove nodes ( hold right mouse to area select )","Delete Nodes", nodeBox, editorListener);
+        createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"Create a primary node","Create Primary Node", nodeBox, editorListener);
+        changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"Swap a nodes priority ( hold right mouse to area select )","Node Priority", nodeBox, editorListener);
+        createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"Create a secondary node","Create Secondary Node", nodeBox, editorListener);
+        createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse connection","Create Reverse Connection", nodeBox, editorListener);
 
         JPanel markerBox = new JPanel();
         markerBox.setBorder(BorderFactory.createTitledBorder("Markers"));
         buttonPanel.add(markerBox);
 
-        createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"Create map marker","Create Map Marker", markerBox);
-        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"Delete a map marker","Delete Map Marker", markerBox);
-        manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"Edit Marker groups (coming soon)","Edit Marker Groups", markerBox);
+        createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"Create map marker","Create Map Marker", markerBox, editorListener);
+        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"Delete a map marker","Delete Map Marker", markerBox, editorListener);
+        manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"Edit Marker groups (coming soon)","Edit Marker Groups", markerBox, editorListener);
 
         updateButtons();
         nodeBoxSetEnabled(false);
@@ -249,12 +234,16 @@ public class AutoDriveEditor extends JFrame {
         try {
             URL url = AutoDriveEditor.class.getResource("/tractor.png");
             if (url != null) {
-                BufferedImage tractorImage = ImageIO.read(url);
+                tractorImage = ImageIO.read(url);
                 setIconImage(tractorImage);
             }
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    public static BufferedImage getTractorIcon() {
+        return tractorImage;
     }
 
     private void nodeBoxSetEnabled(boolean enabled) {
@@ -269,7 +258,7 @@ public class AutoDriveEditor extends JFrame {
         createReverseConnection.setEnabled(enabled);
 
         // Temporary disable marker groups editing until it is complete
-        manageDestination.setEnabled(false);
+        manageDestination.setEnabled(enabled);
 
     }
 
@@ -492,7 +481,7 @@ public class AutoDriveEditor extends JFrame {
 
         RoadMap roadMap = new RoadMap();
         roadMap.mapNodes = nodes;
-        roadMap.mapMarkers = mapMarkers;
+        RoadMap.mapMarkers = mapMarkers;
 
         NodeList mapNameNode = doc.getElementsByTagName("MapName");
         Element mapNameElement = (Element) mapNameNode.item(0);
@@ -505,7 +494,7 @@ public class AutoDriveEditor extends JFrame {
 
         BufferedImage image = null;
         try {
-            image = ImageIO.read(url);
+            if (url !=null) image = ImageIO.read(url);
         } catch (Exception e) {
             try {
                 mapPath = "./mapImages/" + mapName + ".png";
@@ -548,7 +537,7 @@ public class AutoDriveEditor extends JFrame {
 
     }
 
-    // this way to save a file under a new name is ugly.. but it works :-/
+    // this way to save a file under a new name is ugly but works :-/
 
     public void saveMap(String newName) {
         LOG.info("SaveMap called");
@@ -573,7 +562,7 @@ public class AutoDriveEditor extends JFrame {
         Document doc = docBuilder.parse(file);
 
         Node AutoDrive = doc.getFirstChild();
-        Element root = doc.getDocumentElement();
+        //Element root = doc.getDocumentElement();
 
         Node waypoints = doc.getElementsByTagName("waypoints").item(0);
 
@@ -695,7 +684,7 @@ public class AutoDriveEditor extends JFrame {
 
 
 
-        for (int markerIndex = 1; markerIndex < roadMap.mapMarkers.size() + 100; markerIndex++) {
+        for (int markerIndex = 1; markerIndex < RoadMap.mapMarkers.size() + 100; markerIndex++) {
             Element element = (Element) doc.getElementsByTagName("mm" + (markerIndex)).item(0);
             if (element != null) {
                 Element parent = (Element) element.getParentNode();
@@ -707,7 +696,7 @@ public class AutoDriveEditor extends JFrame {
 
         NodeList testwaypoints = doc.getElementsByTagName("mapmarker");
 
-        if (roadMap.mapMarkers.size() > 0 && testwaypoints.getLength() == 0 ) {
+        if (RoadMap.mapMarkers.size() > 0 && testwaypoints.getLength() == 0 ) {
             LOG.info("New map markers to save, but no <mapmarker> tag in loaded XML.. creating tag for output file");
             Element test = doc.createElement("mapmarker");
             AutoDrive.appendChild(test);
@@ -716,7 +705,7 @@ public class AutoDriveEditor extends JFrame {
         NodeList markerList = doc.getElementsByTagName("mapmarker");
         Node markerNode = markerList.item(0);
         int mapMarkerCount = 1;
-        for (MapMarker mapMarker : roadMap.mapMarkers) {
+        for (MapMarker mapMarker : RoadMap.mapMarkers) {
             Element newMapMarker = doc.createElement("mm" + mapMarkerCount);
 
             Element markerID = doc.createElement("id");
@@ -784,10 +773,6 @@ public class AutoDriveEditor extends JFrame {
         return mapPanel;
     }
 
-    public void setMapPanel(MapPanel mapPanel) {
-        this.mapPanel = mapPanel;
-    }
-
     public boolean isStale() {
         return stale;
     }
@@ -797,68 +782,5 @@ public class AutoDriveEditor extends JFrame {
             this.stale = stale;
             setTitle(createTitle());
         }
-    }
-
-    public static File getSelectedFileWithExtension(JFileChooser c) {
-        File file = c.getSelectedFile();
-        if (c.getFileFilter() instanceof FileNameExtensionFilter) {
-            String[] exts = ((FileNameExtensionFilter)c.getFileFilter()).getExtensions();
-            String nameLower = file.getName().toLowerCase();
-            for (String ext : exts) { // check if it already has a valid extension
-                if (nameLower.endsWith('.' + ext.toLowerCase())) {
-                    return file; // if yes, return as-is
-                }
-            }
-            // if not, append the first extension from the selected filter
-            file = new File(file.toString() + '.' + exts[0]);
-        }
-        return file;
-    }
-
-    public JButton makeButton(String actionCommand,String toolTipText,String altText, JPanel panel) {
-        JButton button = new JButton();
-        button.setActionCommand(actionCommand);
-        button.setToolTipText(toolTipText);
-        button.addActionListener(editorListener);
-        button.setText(altText);
-        panel.add(button);
-
-        return button;
-    }
-
-    public JRadioButton makeRadioButton(String text,String actionCommand,String toolTipText,boolean selected, JPanel panel, ButtonGroup group) {
-        JRadioButton radioButton = new JRadioButton(text);
-        radioButton.setActionCommand(actionCommand);
-        radioButton.setToolTipText(toolTipText);
-        radioButton.setSelected(selected);
-        radioButton.addActionListener(editorListener);
-        panel.add(radioButton);
-        group.add(radioButton);
-
-        return radioButton;
-    }
-
-    public JToggleButton makeToggleButton(String imageName,String actionCommand,String toolTipText,String altText, JPanel panel) {
-        JToggleButton toggleButton = new JToggleButton();
-
-        //Load image
-        String imgLocation = "/editor/" + imageName + ".png";
-        URL imageURL = AutoDriveEditor.class.getResource(imgLocation);
-
-        toggleButton.setActionCommand(actionCommand);
-        toggleButton.setToolTipText(toolTipText);
-        toggleButton.addActionListener(editorListener);
-
-        if (imageURL != null) {  //image found
-            toggleButton.setIcon(new ImageIcon(imageURL, altText));
-            toggleButton.setBorder(BorderFactory.createEmptyBorder());
-            toggleButton.setRolloverEnabled(true);
-        } else {                 //no image found
-            toggleButton.setText(altText);
-        }
-
-        panel.add(toggleButton);
-
-        return toggleButton;
     }
 }

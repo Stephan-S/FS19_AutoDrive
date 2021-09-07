@@ -1,11 +1,15 @@
 package de.adEditor;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+
+import static de.adEditor.ADUtils.LOG;
 
 public class RoadMap {
 
     public LinkedList<MapNode> mapNodes;
-    public LinkedList<MapMarker> mapMarkers;
+    public static LinkedList<MapMarker> mapMarkers;
 
     public RoadMap () {
         this.mapMarkers = new LinkedList<>();
@@ -18,6 +22,7 @@ public class RoadMap {
 
     public void addMapMarker(MapMarker mapMarker) {
         this.mapMarkers.add(mapMarker);
+        Initiater.sendUpdateEvent();
     }
 
     public void removeMapNode(MapNode toDelete) {
@@ -60,6 +65,7 @@ public class RoadMap {
             }
         }
         this.mapMarkers = mapMarkersToKeep;
+        Initiater.sendUpdateEvent();  // "Hello!" and "Hello there!"
     }
 
     public static boolean isDual(MapNode start, MapNode target) {
@@ -95,5 +101,23 @@ public class RoadMap {
         }
         return false;
 
+    }
+
+    interface EventListener {
+        void mapMarkersUpdate();
+    }
+
+    static class Initiater {
+        private static List<EventListener> listeners = new ArrayList<EventListener>();
+
+        public static void addListener(EventListener toAdd) {
+            listeners.add(toAdd);
+        }
+
+        public static void sendUpdateEvent() {
+            // Notify everybody that may be interested.
+            for (EventListener evlist : listeners)
+                evlist.mapMarkersUpdate();
+        }
     }
 }

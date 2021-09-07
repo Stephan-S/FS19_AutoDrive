@@ -13,6 +13,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static de.adEditor.GUIUtils.frame;
 
 public class EditorListener implements ActionListener, ItemListener {
 
@@ -60,6 +64,11 @@ public class EditorListener implements ActionListener, ItemListener {
                 break;
             case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION_GROUPS;
+                if (frame == null) {
+                    GUIUtils.createFrame();
+                } else {
+                    frame.setLocationRelativeTo(null);
+                }
                 break;
             case "OneTimesMap":
                 editor.updateMapZoomFactor(1);
@@ -83,6 +92,7 @@ public class EditorListener implements ActionListener, ItemListener {
                     editor.pack();
                     editor.repaint();
                     editor.getMapPanel().repaint();
+                    RoadMap.Initiater.sendUpdateEvent();
                 }
                 break;
             case "Save Config":
@@ -112,9 +122,9 @@ public class EditorListener implements ActionListener, ItemListener {
                 fc.addChoosableFileFilter(savefilter);
 
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    LOG.info("new save filename is {}", AutoDriveEditor.getSelectedFileWithExtension(fc));
+                    LOG.info("new save filename is {}", ADUtils.getSelectedFileWithExtension(fc));
                     //LOG.info("xmlConfigFile = ", editor.xmlConfigFile);
-                    editor.saveMap(AutoDriveEditor.getSelectedFileWithExtension(fc).toString());
+                    editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
 
                 }
                 break;
@@ -140,8 +150,6 @@ public class EditorListener implements ActionListener, ItemListener {
     private void showAbout() {
         JOptionPane.showMessageDialog(editor, "<html><center>Editor version : 0.2 Beta<br>Build info : Java 11 SDK - IntelliJ IDEA 2021.2.1 Community Edition<br><br><u>AutoDrive Development Team</u><br><br><b>Stephan (Founder & Modder)</b><br><br>TyKonKet (Modder)<br>Oliver (Modder)<br>Axel (Co-Modder)<br>Aletheist (Co-Modder)<br>Willi (Supporter & Tester)<br>Iwan1803 (Community Manager & Supporter)", "AutoDrive Editor", JOptionPane.PLAIN_MESSAGE);
     }
-
-
 }
 
 

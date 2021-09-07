@@ -4,11 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class MapPanel extends JPanel{
@@ -244,7 +247,9 @@ public class MapPanel extends JPanel{
 
     public void removeDestination(MapNode toDelete) {
         MapMarker destinationToDelete = null;
-        for (MapMarker mapMarker : this.roadMap.mapMarkers) {
+        LinkedList<MapMarker> mapMarkers = this.roadMap.mapMarkers;
+        for (int i = 0; i < mapMarkers.size(); i++) {
+            MapMarker mapMarker = mapMarkers.get(i);
             if (mapMarker.mapNode.id == toDelete.id) {
                 destinationToDelete = mapMarker;
             }
@@ -338,9 +343,10 @@ public class MapPanel extends JPanel{
         editor.setStale(true);
     }
 
-    public void createDestinationAt(MapNode mapNode, String destinationName) {
+    public void createDestinationAt(MapNode mapNode, String destinationName, String groupName) {
         if (mapNode != null && destinationName != null && destinationName.length() > 0) {
-            MapMarker mapMarker = new MapMarker(mapNode, destinationName, "All");
+            if (groupName == null) groupName = "All";
+            MapMarker mapMarker = new MapMarker(mapNode, destinationName, groupName);
             this.roadMap.addMapMarker(mapMarker);
             editor.setStale(true);
         }
@@ -487,9 +493,9 @@ public class MapPanel extends JPanel{
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
             movingNode = getNodeAt(x, y);
             if (movingNode != null) {
-                String destinationName = JOptionPane.showInputDialog("New destination name:", "" + movingNode.id );
-                if (destinationName != null) {
-                    createDestinationAt(movingNode, destinationName);
+                destInfo info = showNewDestinationDialog();
+                if (info.getName() != null) {
+                    createDestinationAt(movingNode, info.getName(),info.getGroup());
                     repaint();
                 }
             }
@@ -623,12 +629,100 @@ public class MapPanel extends JPanel{
             }
             if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
 
-                LOG.info("toggling all nodes priority in area");
+                LOG.info("toggle all nodes priority in area");
                 changeAllNodesPriInScreenArea(rectangleStart, rectangleEnd);
                 repaint();
             }
         }
         rectangleStart = null;
+    }
+
+    private destInfo showNewDestinationDialog() {
+
+        final JTextField textField1 = new JTextField();
+
+        // can't use 
+        // String group;
+        // it has to be final and [1] size array for the ActionListener to access it :/
+        //
+
+        final String[] group = new String[1];
+
+        // ComboBox can only use String[], as they are not dynamic, we can put
+        // all the groups names in an array and get the number from that
+
+        ArrayList<String> groupArray = new ArrayList<String>();
+        LinkedList<MapMarker> mapMarkers = this.roadMap.mapMarkers;
+        for (int i = 0; i < mapMarkers.size(); i++) {
+            MapMarker mapMarker = mapMarkers.get(i);
+            if (!mapMarker.group.equals("All")) {
+                if (!groupArray.contains(mapMarker.group)) {
+                    LOG.info("adding {} to group",mapMarker.group);
+                    groupArray.add(mapMarker.group);
+                }
+            }
+        }
+
+        // sort the groups alphabetically
+
+        groupArray.sort(String::compareToIgnoreCase);
+
+        // use .size to set the string[] length and loop through the
+        // array adding the names into it
+        //
+        // set None as the first in list so if the user doesn't choose a group
+        // the function return null for the group name
+
+        String[] groupString = new String[groupArray.size() + 1];
+        groupString[0] = "None";
+        for (int i = 0; i < groupArray.size(); i++) {
+            groupString[i+1] = groupArray.get(i);
+        }
+
+        final JComboBox comboBox = new JComboBox(groupString);
+        comboBox.setEditable(true);
+        comboBox.setSelectedIndex(0);
+        comboBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                group[0] = (String)cb.getSelectedItem();
+            }
+        });
+
+        Object[] inputFields = {"Destination Name", textField1,
+                "Select a Group or enter a new name", comboBox};
+
+        int option = JOptionPane.showConfirmDialog(this, inputFields, "Create New Destination", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+        if (option == JOptionPane.OK_OPTION) {
+
+            if (group[0] == null || group[0] == "None" ) group[0] = "All";
+
+            // since we can't return more than 1 string, we have to package them up
+            destInfo r = new destInfo(textField1.getText(),group[0]);
+            return r;
+        }
+         return null;
+    }
+
+    public class destInfo{
+        private String name;
+        private String group;
+        public destInfo(String destName, String groupName){
+            name = destName;
+            group = groupName;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+        // getter setters
     }
 
 
