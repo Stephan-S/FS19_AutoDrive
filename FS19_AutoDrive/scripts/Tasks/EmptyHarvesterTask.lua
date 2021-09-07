@@ -24,6 +24,8 @@ function EmptyHarvesterTask:setUp()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Setting up EmptyHarvesterTask")
     self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
     self.vehicle.ad.trailerModule:reset()
+    self.trailers, self.trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
 end
 
 function EmptyHarvesterTask:update(dt)
@@ -66,8 +68,6 @@ function EmptyHarvesterTask:update(dt)
         else
             self.vehicle.ad.drivePathModule:update(dt)
         end
-        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-        AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = true
         -- Stopping CP drivers for now
@@ -91,8 +91,7 @@ function EmptyHarvesterTask:update(dt)
             self.vehicle.ad.specialDrivingModule:update(dt)
         else
             --Is the current trailer filled or is the combine empty?
-            local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-            local _, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+            local _, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
             local distanceToCombine = AutoDrive.getDistanceBetween(self.vehicle, self.combine)
 
             if combineFillLevel <= 0.1 or leftCapacity <= 0.1 then
@@ -120,9 +119,8 @@ function EmptyHarvesterTask:update(dt)
         self.vehicle.ad.specialDrivingModule.motorShouldNotBeStopped = false
         local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
-        local  _,trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
         local overallLength
-        if trailercount <= 1 then
+        if self.trailercount <= 1 then
             overallLength = math.max(self.vehicle.sizeLength * 2, 15) -- 2x tractor length, min. 15m
         else
             overallLength = AutoDrive.getTractorTrainLength(self.vehicle, true, true) -- complete train length
