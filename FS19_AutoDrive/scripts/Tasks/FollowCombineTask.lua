@@ -94,7 +94,6 @@ function FollowCombineTask:update(dt)
         if (not self.combine:getIsBufferCombine()) and self.combineFillPercent > 70 and self.chaseSide == AutoDrive.CHASEPOS_REAR then
             -- Only chase the rear on low fill levels of the combine. This should prevent getting into unneccessarily tight spots for the final approach to the pipe.
             -- Also for small fields, there is often no purpose in chasing so far behind the combine as it will already start a turn soon
-            FollowCombineTask.debugMsg(self.vehicle, "FollowCombineTask:update STATE_CHASING ??? self.combineFillPercent > 70 ... -> finished")
             self:finished()
             return
         end
