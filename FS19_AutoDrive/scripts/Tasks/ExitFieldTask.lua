@@ -10,6 +10,7 @@ ExitFieldTask.STRATEGY_CLOSEST = 2
 function ExitFieldTask:new(vehicle)
     local o = ExitFieldTask:create()
     o.vehicle = vehicle
+    o.trailers = nil
     return o
 end
 
@@ -17,7 +18,8 @@ function ExitFieldTask:setUp()
     self.state = ExitFieldTask.STATE_PATHPLANNING
     self.nextExitStrategy = AutoDrive.getSetting("exitField", self.vehicle)
     self:startPathPlanning()
-    self.vehicle.ad.trailerModule:reset()
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function ExitFieldTask:update(dt)

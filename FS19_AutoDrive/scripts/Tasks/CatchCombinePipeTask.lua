@@ -22,6 +22,7 @@ function CatchCombinePipeTask:new(vehicle, combine)
     o.waitForCheckTimer = AutoDriveTON:new()
     o.waitForCheckTimer.elapsedTime = 4000
     o.taskType = "CatchCombinePipeTask"
+    o.trailers = nil
     return o
 end
 
@@ -33,6 +34,8 @@ function CatchCombinePipeTask:setUp()
     if angleToCombineHeading < 35 and angleToCombine < 90 and AutoDrive.getDistanceBetween(self.vehicle, self.combine) < 60 then
         self:finished()
     end
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
 end
 
 function CatchCombinePipeTask:update(dt)

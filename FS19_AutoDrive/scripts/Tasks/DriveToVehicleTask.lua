@@ -12,11 +12,14 @@ function DriveToVehicleTask:new(vehicle, targetVehicle)
     o.state = DriveToVehicleTask.STATE_PATHPLANNING
     o.wayPoints = nil
     o.delayRestartTimer = 10000
+    o.trailers = nil
     return o
 end
 
 function DriveToVehicleTask:setUp()
     self.vehicle.ad.pathFinderModule:startPathPlanningToVehicle(self.targetVehicle, DriveToVehicleTask.TARGET_DISTANCE)
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function DriveToVehicleTask:update(dt)

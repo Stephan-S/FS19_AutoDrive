@@ -10,6 +10,8 @@ function ADTrailerModule:new(vehicle)
     self.__index = self
     o.vehicle = vehicle
     ADTrailerModule.reset(o)
+    o.trailers = nil
+    o.trailerCount = 0
     return o
 end
 

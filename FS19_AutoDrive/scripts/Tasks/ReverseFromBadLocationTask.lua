@@ -5,6 +5,7 @@ ReverseFromBadLocationTask.STATE_REVERSING = 1
 function ReverseFromBadLocationTask:new(vehicle)
     local o = ReverseFromBadLocationTask:create()
     o.vehicle = vehicle
+    o.trailers = nil
     return o
 end
 
@@ -13,6 +14,8 @@ function ReverseFromBadLocationTask:setUp()
     self.startLocation = {x=x, y=y, z=z}
     self.timeOut = AutoDriveTON:new()
     self.frontFreeTimer = AutoDriveTON:new()
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function ReverseFromBadLocationTask:update(dt)

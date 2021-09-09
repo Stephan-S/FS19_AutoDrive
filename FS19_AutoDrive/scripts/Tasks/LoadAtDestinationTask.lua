@@ -7,6 +7,7 @@ function LoadAtDestinationTask:new(vehicle, destinationID)
     local o = LoadAtDestinationTask:create()
     o.vehicle = vehicle
     o.destinationID = destinationID
+    o.trailers = nil
     return o
 end
 
@@ -26,6 +27,7 @@ function LoadAtDestinationTask:setUp()
         self.state = LoadAtDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     self.vehicle.ad.trailerModule:reset()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:setUp end self.state %s", tostring(self.state))
 end
@@ -55,8 +57,7 @@ function LoadAtDestinationTask:update(dt)
         if self.vehicle.ad.drivePathModule:isTargetReached() then
             --Check if we have actually loaded / tried to load
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update isTargetReached")
-            local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-            AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
+            AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
             if (self.vehicle.ad.callBackFunction ~= nil or (g_courseplay ~= nil and self.vehicle.ad.stateModule:getStartCP_AIVE())) and self.vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER then
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update ERROR stopAutoDrive")
                 self.vehicle:stopAutoDrive()
@@ -73,8 +74,7 @@ function LoadAtDestinationTask:update(dt)
                         self.vehicle.ad.specialDrivingModule:stopVehicle()
                         self.vehicle.ad.specialDrivingModule:update(dt)
 
-                        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-                        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                        local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
                         local maxCapacity = fillLevel + leftCapacity
                         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update leftCapacity %s maxCapacity %s", tostring(leftCapacity), tostring(maxCapacity))
 
@@ -83,7 +83,7 @@ function LoadAtDestinationTask:update(dt)
                             if self.vehicle.ad.trailerModule.hasAL == true then
                                 -- AutoLoad
                                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "LoadAtDestinationTask:update deactivateALTrailers start")
-                                AutoDrive.deactivateALTrailers(self.vehicle, trailers)
+                                AutoDrive.deactivateALTrailers(self.vehicle, self.trailers)
                             end
                             self:finished()
                         end

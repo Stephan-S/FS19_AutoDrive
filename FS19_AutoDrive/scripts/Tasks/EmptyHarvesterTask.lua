@@ -17,13 +17,13 @@ function EmptyHarvesterTask:new(vehicle, combine)
     o.reverseStartLocation = nil
     o.waitTimer = AutoDriveTON:new()
     o.holdCPCombineTimer = AutoDriveTON:new()
+    o.trailers = nil
     return o
 end
 
 function EmptyHarvesterTask:setUp()
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "Setting up EmptyHarvesterTask")
     self.vehicle.ad.pathFinderModule:startPathPlanningToPipe(self.combine, false)
-    self.vehicle.ad.trailerModule:reset()
     self.trailers, self.trailercount = AutoDrive.getTrailersOf(self.vehicle, false)
     AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
 end

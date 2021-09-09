@@ -15,6 +15,7 @@ end
 function UnloadAtMode:reset()
     self.state = UnloadAtMode.STATE_TO_TARGET
     self.activeTask = nil
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function UnloadAtMode:start()

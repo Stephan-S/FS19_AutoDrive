@@ -9,6 +9,7 @@ LoadMode.STATE_FINISHED = 5
 function LoadMode:new(vehicle)
     local o = LoadMode:create()
     o.vehicle = vehicle
+    o.trailers = nil
     LoadMode.reset(o)
     return o
 end
@@ -16,6 +17,8 @@ end
 function LoadMode:reset()
     self.state = LoadMode.STATE_INIT
     self.activeTask = nil
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function LoadMode:start()
@@ -64,8 +67,7 @@ function LoadMode:getNextTask()
 		end
 	end
 
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
     local maxCapacity = fillLevel + leftCapacity
     local filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
 

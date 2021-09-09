@@ -19,6 +19,8 @@ CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER = 2.7
 function CombineUnloaderMode:new(vehicle)
     local o = CombineUnloaderMode:create()
     o.vehicle = vehicle
+    o.trailers = nil
+    o.trailerCount = 0
     CombineUnloaderMode.reset(o)
     return o
 end
@@ -32,6 +34,8 @@ function CombineUnloaderMode:reset()
     self.breadCrumbs = Queue:new()
     self.lastBreadCrumb = nil
     self.failedPathFinder = 0
+    self.trailers, self.trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function CombineUnloaderMode:start()
@@ -45,7 +49,6 @@ function CombineUnloaderMode:start()
     end
 
     self:reset()
-    self.vehicle.ad.trailerModule:reset()
 
     self.activeTask = self:getNextTask()
     if self.activeTask ~= nil then
@@ -193,8 +196,7 @@ function CombineUnloaderMode:getNextTask()
 
     local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
     local point = nil
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
     local maxCapacity = fillLevel + leftCapacity
     local filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
 
@@ -287,8 +289,6 @@ end
 
 function CombineUnloaderMode:assignToHarvester(harvester)
     if self.state == self.STATE_WAIT_TO_BE_CALLED then
-        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-        AutoDrive.setAugerPipeOpen(trailers, false)
 
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.combine = harvester
@@ -320,9 +320,6 @@ end
 
 function CombineUnloaderMode:driveToUnloader(unloader)
     if self.state == self.STATE_WAIT_TO_BE_CALLED then
-        local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-        AutoDrive.setAugerPipeOpen(trailers, false)
-
         self.vehicle.ad.taskModule:abortCurrentTask()
         self.vehicle.ad.taskModule:addTask(DriveToVehicleTask:new(self.vehicle, unloader))
         unloader.ad.modes[AutoDrive.MODE_UNLOAD]:registerFollowingUnloader(self.vehicle)
@@ -493,23 +490,22 @@ function CombineUnloaderMode:getPipeSlopeCorrection()
 end
 
 function CombineUnloaderMode:getTargetTrailer()
-    local trailers, trailerCount = AutoDrive.getTrailersOf(self.vehicle, false)
     local currentTrailer = 1
-    local targetTrailer = trailers[1]
+    local targetTrailer = self.trailers[1]
     local fillRatio = 0
     local trailerFillLevel = 0
     local trailerLeftCapacity = 0
     -- Get the next trailer that hasn't reached fill level yet
-    for trailerIndex, trailer in ipairs(trailers) do
+    for trailerIndex, trailer in ipairs(self.trailers) do
         trailerFillLevel, trailerLeftCapacity = AutoDrive.getFillLevelAndCapacityOf(targetTrailer)
         fillRatio = trailerFillLevel / (trailerFillLevel + trailerLeftCapacity)
-        if (trailerLeftCapacity < 1) and currentTrailer < trailerCount then
+        if (trailerLeftCapacity < 1) and currentTrailer < self.trailerCount then
             currentTrailer = trailerIndex
             targetTrailer = trailer
         end
     end
     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getTargetTrailer - " ..
-    --currentTrailer .. "/" .. trailerCount .. ":" .. trailerFillLevel .. "/" .. trailerLeftCapacity)
+    --currentTrailer .. "/" .. self.trailerCount .. ":" .. trailerFillLevel .. "/" .. trailerLeftCapacity)
     return targetTrailer, fillRatio
 end
 
