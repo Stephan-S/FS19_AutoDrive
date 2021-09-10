@@ -1,11 +1,7 @@
 package de.adEditor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
@@ -14,9 +10,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class MapPanel extends JPanel{
+import static de.adEditor.ADUtils.LOG;
 
-    private static Logger LOG = LoggerFactory.getLogger(MapPanel.class);
+public class MapPanel extends JPanel{
 
     private BufferedImage image;
     private BufferedImage resizedImage;
@@ -32,7 +28,6 @@ public class MapPanel extends JPanel{
     private RoadMap roadMap;
     private MapNode hoveredNode = null;
     private MapNode movingNode = null;
-    private MapNode changingNode = null;
     private MapNode selected = null;
 
     private int mousePosX = 0;
@@ -113,9 +108,9 @@ public class MapPanel extends JPanel{
                     }
                 }
 
-                for (MapMarker mapMarker : this.roadMap.mapMarkers) {
+                for (MapMarker mapMarker : RoadMap.mapMarkers) {
                     g.setColor(Color.WHITE);
-                    Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x + 3, mapMarker.mapNode.z);
+                    Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1 );
                     g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
                 }
 
@@ -129,11 +124,12 @@ public class MapPanel extends JPanel{
                     g.setColor(Color.WHITE);
                     Point2D nodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
                     g.fillArc((int) (nodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
-                    for (MapMarker mapMarker : this.roadMap.mapMarkers) {
+                    for (MapMarker mapMarker : RoadMap.mapMarkers) {
                         if (hoveredNode.id == mapMarker.mapNode.id) {
-                            g.setColor(Color.MAGENTA);
-                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x + 3, mapMarker.mapNode.z);
-                            g.drawString(mapMarker.name, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
+                            g.setColor(Color.WHITE);
+                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z -1);
+                            String text = mapMarker.name + " ( " + mapMarker.group + " )";
+                            g.drawString(text, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
                         }
                     }
                 }
@@ -198,7 +194,7 @@ public class MapPanel extends JPanel{
         y -= diffY / (zoomLevel * image.getHeight());
 
         resizeMap();
-        this.repaint();
+        repaint();
     }
 
     public void increaseZoomLevelBy(int rotations) {
@@ -247,9 +243,8 @@ public class MapPanel extends JPanel{
 
     public void removeDestination(MapNode toDelete) {
         MapMarker destinationToDelete = null;
-        LinkedList<MapMarker> mapMarkers = this.roadMap.mapMarkers;
-        for (int i = 0; i < mapMarkers.size(); i++) {
-            MapMarker mapMarker = mapMarkers.get(i);
+        LinkedList<MapMarker> mapMarkers = RoadMap.mapMarkers;
+        for (MapMarker mapMarker : mapMarkers) {
             if (mapMarker.mapNode.id == toDelete.id) {
                 destinationToDelete = mapMarker;
             }
@@ -493,16 +488,23 @@ public class MapPanel extends JPanel{
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
             movingNode = getNodeAt(x, y);
             if (movingNode != null) {
+                for (int i = 0; i < RoadMap.mapMarkers.size(); i++) {
+                    MapMarker mapMarker = RoadMap.mapMarkers.get(i);
+                    if (mapMarker.mapNode == movingNode) {
+                        LOG.info("Cannot add new destination to an node where one already exists");
+                        return;
+                    }
+                }
                 destInfo info = showNewDestinationDialog();
-                if (info.getName() != null) {
-                    createDestinationAt(movingNode, info.getName(),info.getGroup());
+                if (info != null && info.getName() != null) {
+                    createDestinationAt(movingNode, info.getName(), info.getGroup());
                     repaint();
                 }
             }
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
-            Point2D worldPos = screenPosToWorldPos(x, y);
-            changingNode = getNodeAt(x, y);
+            //Point2D worldPos = screenPosToWorldPos(x, y);
+            MapNode changingNode = getNodeAt(x, y);
             if (changingNode != null) {
                 changeNodePriority(changingNode);
             }
@@ -562,13 +564,18 @@ public class MapPanel extends JPanel{
         lastY = y;
         movingNode = getNodeAt(x, y);
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
-            movingNode = getNodeAt(x, y);
             if (movingNode != null) {
                 if (selected == null) {
                     selected = movingNode;
+                } else if (selected == hoveredNode) {
+                    selected = null;
                 } else {
                     createConnectionBetween(selected, movingNode);
-                    selected = null;
+                    if (AutoDriveEditor.bContinuousConnections) {
+                        selected = movingNode;
+                    } else {
+                        selected = null;
+                    }
                 }
                 repaint();
             }
@@ -581,7 +588,7 @@ public class MapPanel extends JPanel{
                     selected = null;
                 } else {
                     createReverseConnectionBetween(selected, movingNode);
-                    if (AutoDriveEditor.bContinuousConnections == true) {
+                    if (AutoDriveEditor.bContinuousConnections) {
                         selected = movingNode;
                     } else {
                         selected = null;
@@ -651,13 +658,11 @@ public class MapPanel extends JPanel{
         // ComboBox can only use String[], as they are not dynamic, we can put
         // all the groups names in an array and get the number from that
 
-        ArrayList<String> groupArray = new ArrayList<String>();
-        LinkedList<MapMarker> mapMarkers = this.roadMap.mapMarkers;
-        for (int i = 0; i < mapMarkers.size(); i++) {
-            MapMarker mapMarker = mapMarkers.get(i);
+        ArrayList<String> groupArray = new ArrayList<>();
+        LinkedList<MapMarker> mapMarkers = RoadMap.mapMarkers;
+        for (MapMarker mapMarker : mapMarkers) {
             if (!mapMarker.group.equals("All")) {
                 if (!groupArray.contains(mapMarker.group)) {
-                    LOG.info("adding {} to group",mapMarker.group);
                     groupArray.add(mapMarker.group);
                 }
             }
@@ -682,13 +687,9 @@ public class MapPanel extends JPanel{
         final JComboBox comboBox = new JComboBox(groupString);
         comboBox.setEditable(true);
         comboBox.setSelectedIndex(0);
-        comboBox.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                group[0] = (String)cb.getSelectedItem();
-            }
+        comboBox.addActionListener(e -> {
+            JComboBox cb = (JComboBox)e.getSource();
+            group[0] = (String)cb.getSelectedItem();
         });
 
         Object[] inputFields = {"Destination Name", textField1,
@@ -698,18 +699,17 @@ public class MapPanel extends JPanel{
 
         if (option == JOptionPane.OK_OPTION) {
 
-            if (group[0] == null || group[0] == "None" ) group[0] = "All";
+            if (group[0] == null || group[0].equals("None")) group[0] = "All";
 
             // since we can't return more than 1 string, we have to package them up
-            destInfo r = new destInfo(textField1.getText(),group[0]);
-            return r;
+            return new destInfo(textField1.getText(), group[0]);
         }
          return null;
     }
 
-    public class destInfo{
-        private String name;
-        private String group;
+    public static class destInfo{
+        private final String name;
+        private final String group;
         public destInfo(String destName, String groupName){
             name = destName;
             group = groupName;
