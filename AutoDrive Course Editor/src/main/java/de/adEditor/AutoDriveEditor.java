@@ -38,9 +38,7 @@ import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.GUIUtils.*;
 
 /* TODO:
-    (1) Change map scrolling to either middle mouse button and/or keyboard
-        - Avoids annoying map scrolls by accident when trying to connecting nodes but node selection fails
-    (2) Marker group editing and add ability to specify group on new marker creation
+    (2) Marker group editing
     (3) Add more menu items?
     (5) Fix map refresh on window resizing...
     (6) New button icons ( replacing my age 5 art skills :-P )
@@ -72,18 +70,20 @@ public class AutoDriveEditor extends JFrame {
     public static final String EDIT_DESTINATIONS_GROUPS = "Manage Destination Groups";
     public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
 
-    private final MapPanel mapPanel;
-    private final JButton loadImageButton;
-    private final JToggleButton removeNode;
-    private final JToggleButton removeDestination;
-    private final JToggleButton moveNode;
-    private final JToggleButton connectNodes;
-    private final JToggleButton createPrimaryNode;
-    private final JToggleButton createDestination;
-    private final JToggleButton changePriority;
-    private final JToggleButton createSecondaryNode;
-    private final JToggleButton createReverseConnection;
-    private final JToggleButton manageDestination;
+    private MapPanel mapPanel;
+    private JMenuItem loadImageButton;
+    private JMenuItem saveConfigMenuItem;
+    private JMenuItem saveConfigAsMenuItem;
+    private JToggleButton removeNode;
+    private JToggleButton removeDestination;
+    private JToggleButton moveNode;
+    private JToggleButton connectNodes;
+    private JToggleButton createPrimaryNode;
+    private JToggleButton createDestination;
+    private JToggleButton changePriority;
+    private JToggleButton createSecondaryNode;
+    private JToggleButton createReverseConnection;
+    private JToggleButton manageDestination;
 
     public EditorListener editorListener = new EditorListener(this);
 
@@ -101,6 +101,7 @@ public class AutoDriveEditor extends JFrame {
 
         setTitle(createTitle());
         setTractorIcon();
+        setPreferredSize(new Dimension(1024,768));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -133,44 +134,40 @@ public class AutoDriveEditor extends JFrame {
 
         JMenuBar menuBar;
         JMenuItem menuItem;
-        JMenu fileMenu, optionsMenu, helpMenu;
-        JCheckBoxMenuItem cbMenuItem;
+        JMenu fileMenu, mapMenu, optionsMenu, helpMenu, subMenu;
 
         menuBar = new JMenuBar();
 
-        fileMenu = new JMenu("File");
-        fileMenu.setMnemonic(KeyEvent.VK_F);
-        fileMenu.getAccessibleContext().setAccessibleDescription("File Control");
-        menuBar.add(fileMenu);
+        // Create the file Menu
 
-        menuItem = new JMenuItem("Load Config");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Loads a config");
-        menuItem.addActionListener(editorListener);
-        fileMenu.add(menuItem);
+        fileMenu = makeNewMenu("File", KeyEvent.VK_F, "File Control", menuBar);
 
-        menuItem = new JMenuItem("Save Config");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Saves a config");
-        menuItem.addActionListener(editorListener);
-        fileMenu.add(menuItem);
+        makeMenuItem("Load Config", KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK, "Loads a config", fileMenu, editorListener,  true );
+        saveConfigMenuItem = makeMenuItem("Save Config", KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK, "Saves a config", fileMenu, editorListener,  false );
+        saveConfigAsMenuItem = makeMenuItem("Save As", KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK, "Saves a config to a different location", fileMenu, editorListener,  false );
 
-        menuItem = new JMenuItem("Save As");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Saves a config to a different location");
-        menuItem.addItemListener(editorListener);
-        fileMenu.add(menuItem);
+        // Create the Map Menu and it's scale sub menu
 
-        optionsMenu = new JMenu("Options");
-        optionsMenu.setMnemonic(KeyEvent.VK_O);
-        optionsMenu.getAccessibleContext().setAccessibleDescription("Options");
-        menuBar.add(optionsMenu);
+        mapMenu = makeNewMenu("Map", KeyEvent.VK_M, "Map Options", menuBar);
 
-        cbMenuItem = new JCheckBoxMenuItem("Continuous Connections" );
-        cbMenuItem.setMnemonic(KeyEvent.VK_C);
-        cbMenuItem.setSelected(bContinuousConnections);
-        cbMenuItem.addItemListener(editorListener);
-        optionsMenu.add(cbMenuItem);
+        loadImageButton = makeMenuItem("Load Map Image", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK, "Load a Map Image", mapMenu,editorListener,  false );
+        mapMenu.addSeparator();
+
+        subMenu = makeSubMenu("Set Map Scale", KeyEvent.VK_M, "Adjust scaling to map size", mapMenu);
+
+        ButtonGroup menuZoomGroup = new ButtonGroup();
+
+        makeRadioButtonMenuItem("1x", KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, "Set map scale to default", subMenu, editorListener, true, menuZoomGroup, true);
+        makeRadioButtonMenuItem("4x", KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, "Set map scale to 4 times default", subMenu, editorListener, true, menuZoomGroup, false);
+        makeRadioButtonMenuItem("16x", KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, "Set map scale to 16 times default", subMenu, editorListener, true, menuZoomGroup, false);
+
+        // Create the Options menu
+
+        optionsMenu = makeNewMenu("Options", KeyEvent.VK_O, "Editor Options", menuBar);
+
+        makeCheckBoxMenuItem("Continuous Connections", KeyEvent.VK_C, bContinuousConnections, optionsMenu, editorListener);
+
+        // Create the Help menu
 
         helpMenu = new JMenu("Help");
         helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -186,8 +183,8 @@ public class AutoDriveEditor extends JFrame {
 
         // GUI init
 
-        JPanel mapBox = new JPanel();
-        mapBox.setBorder(BorderFactory.createTitledBorder("Map and zoom factor"));
+        /*JPanel mapBox = new JPanel();
+        mapBox.setBorder(BorderFactory.createTitledBorder("Map and scale factor"));
         buttonPanel.add(mapBox);
 
         loadImageButton = makeButton("Load Image","Load map image from disk ( must be 2048x2048 .PNG format)","Load Map", mapBox, editorListener);
@@ -196,10 +193,11 @@ public class AutoDriveEditor extends JFrame {
 
         makeRadioButton(" 1x","OneTimesMap","Change scale to 1x map size",true, mapBox, zoomGroup, editorListener);
         makeRadioButton(" 4x","FourTimesMap","Change scale to 4x map size",false, mapBox, zoomGroup, editorListener);
-        makeRadioButton(" 16x","SixteenTimesMap","Change scale to 16x map size",false, mapBox, zoomGroup, editorListener);
+        makeRadioButton(" 16x","SixteenTimesMap","Change scale to 16x map size",false, mapBox, zoomGroup, editorListener);*/
 
         JPanel nodeBox = new JPanel();
         nodeBox.setBorder(BorderFactory.createTitledBorder("Nodes"));
+        JLabel label = new JLabel("test");
         buttonPanel.add(nodeBox);
 
         moveNode = makeToggleButton("movenode",MOVE_NODES,"Move route nodes","Move Nodes", nodeBox, editorListener);
@@ -220,7 +218,7 @@ public class AutoDriveEditor extends JFrame {
 
         updateButtons();
         nodeBoxSetEnabled(false);
-        mapBoxSetEnabled(false);
+        //mapBoxSetEnabled(false);
 
         this.setJMenuBar(menuBar);
         this.add(buttonPanel, BorderLayout.NORTH);
@@ -262,8 +260,13 @@ public class AutoDriveEditor extends JFrame {
 
     }
 
-    private void mapBoxSetEnabled(boolean enabled) {
+    private void mapMenuEnabled(boolean enabled) {
         loadImageButton.setEnabled(enabled);
+    }
+
+    private void saveMenuEnabled(boolean enabled) {
+        saveConfigMenuItem.setEnabled(enabled);
+        saveConfigAsMenuItem.setEnabled(enabled);
     }
 
     public void updateButtons() {
@@ -508,7 +511,7 @@ public class AutoDriveEditor extends JFrame {
                         mapPath = "./" + mapName + ".png";
                         image = ImageIO.read(new File(mapPath));
                     } catch (Exception e3) {
-                        mapBoxSetEnabled(true);
+                        loadImageButton.setEnabled(true);
                         LOG.info("Editor has no map file for map: {}", mapName);
                     }
                 }
@@ -527,7 +530,9 @@ public class AutoDriveEditor extends JFrame {
             mapPanel.repaint();
         }
 
-        //saveConfigButton.setEnabled(true);
+        mapMenuEnabled(true);
+        saveMenuEnabled(true);
+
         nodeBoxSetEnabled(true);
         editorState = EDITORSTATE_MOVING;
         updateButtons();
