@@ -1,5 +1,7 @@
 package de.adEditor;
 
+import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -17,31 +19,6 @@ import static de.adEditor.ADUtils.LOG;
 public class GUIUtils {
 
     public static JFrame frame;
-
-    public static JToggleButton makeToggleButton(String imageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener, boolean hasBorder) {
-        JToggleButton toggleButton = new JToggleButton();
-
-        //Load image
-        String imgLocation = "/editor/" + imageName + ".png";
-        URL imageURL = AutoDriveEditor.class.getResource(imgLocation);
-
-        toggleButton.setActionCommand(actionCommand);
-        toggleButton.setToolTipText(toolTipText);
-        toggleButton.addActionListener(editorListener);
-        toggleButton.setBorderPainted(hasBorder);
-
-        if (imageURL != null) {  //image found
-            toggleButton.setIcon(new ImageIcon(imageURL, altText));
-            toggleButton.setBorder(BorderFactory.createEmptyBorder());
-            toggleButton.setRolloverEnabled(true);
-        } else {                 //no image found
-            toggleButton.setText(altText);
-        }
-
-        panel.add(toggleButton);
-
-        return toggleButton;
-    }
 
     public static JButton makeButton(String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
         JButton button = new JButton();
@@ -90,22 +67,30 @@ public class GUIUtils {
         return radioButton;
     }
 
-    public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, int keyEvent, Boolean selected, JMenu menu, EditorListener editorListener) {
-        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(text);
+    public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, int keyEvent, Boolean isSelected, JMenu menu, EditorListener editorListener) {
+        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(text, isSelected);
         cbMenuItem.setMnemonic(keyEvent);
-        cbMenuItem.setSelected(selected);
+        cbMenuItem.setSelected(isSelected);
         cbMenuItem.addItemListener(editorListener);
         menu.add(cbMenuItem);
 
         return cbMenuItem;
     }
 
-    public static JMenu makeMenu(String menuName, int event, String accString, JMenuBar menu) {
-        JMenu fileMenu = new JMenu(menuName);
-        fileMenu.setMnemonic(event);
-        fileMenu.getAccessibleContext().setAccessibleDescription(accString);
-        menu.add(fileMenu);
-        return fileMenu;
+    public static JMenu makeNewMenu(String menuName, int keyEvent, String accString, JMenuBar parentMenu) {
+        JMenu newMenu = new JMenu(menuName);
+        newMenu.setMnemonic(keyEvent);
+        newMenu.getAccessibleContext().setAccessibleDescription(accString);
+        parentMenu.add(newMenu);
+        return newMenu;
+    }
+
+    public static JMenu makeSubMenu(String menuName, int keyEvent, String accString, JMenu parentMenu) {
+        JMenu newMenu = new JMenu(menuName);
+        newMenu.setMnemonic(keyEvent);
+        newMenu.getAccessibleContext().setAccessibleDescription(accString);
+        parentMenu.add(newMenu);
+        return newMenu;
     }
 
     public static JMenuItem makeMenuItem(String menuName, int keyEvent, int inputEvent, String accString, JMenu menu, EditorListener listener, Boolean enabled) {
@@ -114,6 +99,25 @@ public class GUIUtils {
         menuItem.getAccessibleContext().setAccessibleDescription(accString);
         menuItem.setEnabled(enabled);
         menuItem.addActionListener(listener);
+        menu.add(menuItem);
+        return menuItem;
+    }
+
+    // if no button group is required, set buttonGroup to null and isGroupDefault will be ignored
+
+    public static JRadioButtonMenuItem makeRadioButtonMenuItem(String menuName, int keyEvent, int inputEvent, String accString, JMenu menu, EditorListener listener, Boolean enabled, ButtonGroup buttonGroup, boolean isGroupDefault) {
+        JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(menuName);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, inputEvent));
+        menuItem.getAccessibleContext().setAccessibleDescription(accString);
+        menuItem.setEnabled(enabled);
+        menuItem.addActionListener(listener);
+        if (buttonGroup != null) {
+            buttonGroup.add(menuItem);
+            if (isGroupDefault) {
+                //ButtonModel groupDefault = menuItem.getModel();
+                buttonGroup.setSelected(menuItem.getModel(), true);
+            }
+        }
         menu.add(menuItem);
         return menuItem;
     }
@@ -156,7 +160,7 @@ public class GUIUtils {
                     }
                 }
 
-                protected Comparator nodeComparator = new Comparator () {
+                protected final Comparator nodeComparator = new Comparator() {
                     @Override
                     public int compare(Object o1, Object o2) {
                         return o1.toString().compareToIgnoreCase(o2.toString());
@@ -164,7 +168,7 @@ public class GUIUtils {
 
                     @Override
                     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-                    public boolean equals(Object obj)    {
+                    public boolean equals(Object obj) {
                         return false;
                     }
 
@@ -210,14 +214,8 @@ public class GUIUtils {
 
             class MarkerTree extends JPanel implements TreeSelectionListener {
 
-                private JTree tree;
-                public SimpleTreeNode top;
-
-
-                //Optionally play with line styles.  Possible values are
-                //"Angled" (the default), "Horizontal", and "None".
-                private String lineStyle = "Horizontal";
-
+                private final JTree tree;
+                public final SimpleTreeNode top;
 
 
                 public MarkerTree() {
@@ -233,7 +231,7 @@ public class GUIUtils {
                     tree.setRootVisible(true);
                     tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
                     tree.addTreeSelectionListener(this);
-                    tree.putClientProperty("JTree.lineStyle", lineStyle);
+                    tree.putClientProperty("JTree.lineStyle", "Horizontal");
 
 
 
@@ -366,23 +364,14 @@ public class GUIUtils {
 
                 }
 
-
-
                 class Responder implements EventListener, RoadMap.EventListener {
                     @Override
                     public void mapMarkersUpdate() {
                         createMarkerTreeNodes();
                     }
                 }
-
-
-
-
             }
-
-
         });
-
     }
 
     interface EventListener {
