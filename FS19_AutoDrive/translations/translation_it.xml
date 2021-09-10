@@ -386,7 +386,7 @@
 
 		1. Per consentire a una mietitrice di chiamare automaticamente uno scaricatore, seleziona semplicemente la stessa destinazione nell'HUD AutoDrive della mietitrice che hai selezionato per lo scaricatore. Questo punto dovrebbe di solito essere un obiettivo vicino al campo in modo che lo scaricatore possa pianificare un percorso verso la mietitrice. In alternativa è anche possibile abilitare l'impostazione 'Trova conducente' che farà sì che la mietitrice cercherà qualsiasi scaricatore disponibile in un raggio di 300 m.
 
-		2. AutoDrive può scaricare sia mietitrebbie che trebbiatrici in movimento. Per abilitare questa funzione per le mietitrebbie, è sufficiente impostare l'impostazione "Livello pre-chiamata" su 0%." />
+		2. AutoDrive può scaricare sia mietitrebbie che trebbiatrici in movimento. Per abilitare questa funzione per le mietitrebbie, è sufficiente impostare l'impostazione 'Livello pre-chiamata' su 0%." />
 		<text name="ad_totd_04_title" 							text="Impostazione - 1" />
 
 		<text name="ad_totd_04_text" 							text="Attualmente ci sono 6 diverse pagine di impostazione.
