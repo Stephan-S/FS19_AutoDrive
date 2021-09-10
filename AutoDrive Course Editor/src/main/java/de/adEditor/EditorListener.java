@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,14 +15,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.GUIUtils.frame;
 
 public class EditorListener implements ActionListener, ItemListener {
 
-    private static Logger LOG = LoggerFactory.getLogger(EditorListener.class);
     public AutoDriveEditor editor;
 
     public EditorListener (AutoDriveEditor editor) {
@@ -64,11 +64,7 @@ public class EditorListener implements ActionListener, ItemListener {
                 break;
             case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION_GROUPS;
-                if (frame == null) {
-                    GUIUtils.createFrame();
-                } else {
-                    frame.setLocationRelativeTo(null);
-                }
+                if (frame == null) GUIUtils.createFrame();
                 break;
             case "OneTimesMap":
                 editor.updateMapZoomFactor(1);
@@ -98,14 +94,16 @@ public class EditorListener implements ActionListener, ItemListener {
             case "Save Config":
                 editor.saveMap(null);
                 break;
-            case "Load Image":
+            case "Load Map Image":
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     try {
                         editor.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
                         editor.getMapPanel().setPreferredSize(new Dimension(1024, 768));
                         editor.getMapPanel().setMinimumSize(new Dimension(1024, 768));
                         editor.getMapPanel().revalidate();
+                        editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
                         editor.pack();
+
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);
                     }
