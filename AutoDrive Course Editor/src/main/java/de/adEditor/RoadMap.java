@@ -4,24 +4,18 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static de.adEditor.ADUtils.LOG;
-
 public class RoadMap {
 
     public LinkedList<MapNode> mapNodes;
     public static LinkedList<MapMarker> mapMarkers;
 
     public RoadMap () {
-        this.mapMarkers = new LinkedList<>();
+        mapMarkers = new LinkedList<>();
         this.mapNodes = new LinkedList<>();
     }
 
-    public void addMapNode(MapNode mapNode) {
-        this.mapNodes.add(mapNode);
-    }
-
     public void addMapMarker(MapMarker mapMarker) {
-        this.mapMarkers.add(mapMarker);
+        mapMarkers.add(mapMarker);
         Initiater.sendUpdateEvent();
     }
 
@@ -45,7 +39,7 @@ public class RoadMap {
         }
 
         LinkedList<MapMarker> mapMarkersToDelete = new LinkedList<>();
-        for (MapMarker mapMarker : this.mapMarkers) {
+        for (MapMarker mapMarker : mapMarkers) {
             if (mapMarker.mapNode == toDelete) {
 
                 mapMarkersToDelete.add(mapMarker);
@@ -53,19 +47,19 @@ public class RoadMap {
         }
         for (MapMarker mapMarker : mapMarkersToDelete) {
             removeMapMarker(mapMarker);
-            this.mapMarkers.remove(mapMarker);
+            mapMarkers.remove(mapMarker);
         }
     }
 
     public void removeMapMarker(MapMarker mapMarker) {
         LinkedList<MapMarker> mapMarkersToKeep = new LinkedList<>();
-        for (MapMarker mapMarkerIter : this.mapMarkers) {
+        for (MapMarker mapMarkerIter : mapMarkers) {
             if (mapMarkerIter.mapNode.id != mapMarker.mapNode.id) {
                 mapMarkersToKeep.add(mapMarkerIter);
             }
         }
-        this.mapMarkers = mapMarkersToKeep;
-        Initiater.sendUpdateEvent();  // "Hello!" and "Hello there!"
+        mapMarkers = mapMarkersToKeep;
+        Initiater.sendUpdateEvent();
     }
 
     public static boolean isDual(MapNode start, MapNode target) {
