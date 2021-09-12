@@ -204,7 +204,7 @@
 		<text name="gui_ad_lightsOnRain"                        text="Vehicle Lights: Turn on in bad weather" />
 		<text name="gui_ad_lightsOnRain_tooltip"                text="Use vehicle lights in inclement weather (rain and snow)" />
 		<text name="gui_ad_lightsDaytimeRunning"                text="Vehicle Lights: Daytime Running" />
-		<text name="gui_ad_lightsDaytimeRunning_tooltip"        text="Use vehicle lights in the day time (first light style)" />
+		<text name="gui_ad_lightsDaytimeRunning_tooltip"        text="Use vehicle lights in the day time (first light state)" />
 		<text name="gui_ad_lightsOffFieldState"                 text="Vehicle Lights: Off Field State" />
 		<text name="gui_ad_lightsOffFieldState_tooltip"         text="Vehicle light setting to use off field (number of times to press the 'lights' key)" />
 
