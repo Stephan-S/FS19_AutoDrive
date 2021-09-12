@@ -11,6 +11,7 @@ function UnloadAtDestinationTask:new(vehicle, destinationID)
     o.isContinued = false
     o.waitForALUnloadTimer = AutoDriveTON:new()
     o.waitForALUnload = false
+    o.trailers = nil
     return o
 end
 

@@ -14,13 +14,17 @@ end
 
 function AutoDrive.getDischargeNode(combine)
     local dischargeNode = nil
-    for _, dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
-        dischargeNode = dischargeNodeIter
+    if combine.spec_dischargeable ~= nil then
+        for _, dischargeNodeIter in pairs(combine.spec_dischargeable.dischargeNodes) do
+            dischargeNode = dischargeNodeIter
+        end
+        if combine.getPipeDischargeNodeIndex ~= nil then
+            dischargeNode = combine.spec_dischargeable.dischargeNodes[combine:getPipeDischargeNodeIndex()]
+        end
+        return dischargeNode.node
+    else
+        return nil
     end
-    if combine.getPipeDischargeNodeIndex ~= nil then
-        dischargeNode = combine.spec_dischargeable.dischargeNodes[combine:getPipeDischargeNodeIndex()]
-    end
-    return dischargeNode.node
 end
 
 function AutoDrive.getPipeRoot(combine)
@@ -38,17 +42,17 @@ function AutoDrive.getPipeRoot(combine)
 
     local translationMagnitude = 0
     local pipeRootX, pipeRootY, pipeRootZ
-    local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ
-    local heightUnderRoot, pipeRootAgl
-    local lastPipeRoot = pipeRoot
+    -- local pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ
+    -- local heightUnderRoot, pipeRootAgl
+    -- local lastPipeRoot = pipeRoot
 
     repeat
         pipeRoot = parentStack:Get()
         if pipeRoot ~= nil and pipeRoot ~= 0 then
             pipeRootX, pipeRootY, pipeRootZ = getTranslation(pipeRoot)
-            pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
-            heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
-            pipeRootAgl = pipeRootWorldY - heightUnderRoot
+            -- pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ = getWorldTranslation(pipeRoot)
+            -- heightUnderRoot = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, pipeRootWorldX, pipeRootWorldY, pipeRootWorldZ)
+            -- pipeRootAgl = pipeRootWorldY - heightUnderRoot
             translationMagnitude = MathUtil.vector3Length(pipeRootX, pipeRootY, pipeRootZ)
         end
     until ((translationMagnitude > 0.01 and translationMagnitude < 100) and
