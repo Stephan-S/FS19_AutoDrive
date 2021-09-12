@@ -671,6 +671,14 @@ function ADDrivePathModule:checkActiveAttributesSet(dt)
                     end
                 end
             end
+
+            -- here be reverse driving warning lights
+            if self.isReversing then
+                self.vehicle:setReverseLightsVisibility(true)
+            else
+                self.vehicle:setReverseLightsVisibility(false)
+            end
+            
         end
         -- Only the server has to start/stop motor
         if self.vehicle.startMotor and self.vehicle.stopMotor then
