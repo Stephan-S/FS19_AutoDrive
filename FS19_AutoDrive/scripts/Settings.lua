@@ -979,6 +979,16 @@ AutoDrive.settings.lightsOnRain = {
     isVehicleSpecific = false
 }
 
+AutoDrive.settings.lightsDaytimeRunning = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsDaytimeRunning",
+    tooltip = "gui_ad_lightsDaytimeRunning_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
 
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then

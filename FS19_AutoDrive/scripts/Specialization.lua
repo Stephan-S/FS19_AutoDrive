@@ -1167,8 +1167,27 @@ function AutoDrive:updateAILights(superFunc)
                 self:setLightsTypesMask(1)
             end
         else
-            if spec.lightsTypesMask ~= 0 then
-                self:setLightsTypesMask(0)
+            -- Daytime running
+            if AutoDrive.getSetting("lightsDaytimeRunning", self) then
+                -- Check for existance of first light state, build mask from it, or use mask of "1"
+                local specFirstStyle = 0
+
+                if spec.lightStates ~= nil and spec.lightStates[1] ~= nil then
+                    for _, lightType in pairs(spec.lightStates[1]) do
+                        specFirstStyle = bitOR(specFirstStyle, 2^lightType)
+                    end
+                else
+                    specFirstStyle = 1
+                end
+
+                if spec.lightsTypesMask ~= specFirstStyle then
+                    self:setLightsTypesMask(specFirstStyle)
+                end
+                
+            else
+                if spec.lightsTypesMask ~= 0 then
+                    self:setLightsTypesMask(0)
+                end
             end
         end
         return
