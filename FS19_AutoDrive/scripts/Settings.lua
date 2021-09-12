@@ -976,8 +976,7 @@ AutoDrive.settings.lightsOnRain = {
     text = "gui_ad_lightsOnRain",
     tooltip = "gui_ad_lightsOnRain_tooltip",
     translate = true,
-    isVehicleSpecific = false,
-    isUserSpecific = true
+    isVehicleSpecific = false
 }
 
 AutoDrive.settings.lightsDaytimeRunning = {
