@@ -990,6 +990,17 @@ AutoDrive.settings.lightsDaytimeRunning = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.lightsOffFieldState = {
+    values = {0, 1, 2, 3, 4, 5},
+    texts = {"0", "1", "2", "3", "4", "5"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_lightsOffFieldState",
+    tooltip = "gui_ad_lightsOffFieldState_tooltip",
+    translate = false,
+    isVehicleSpecific = true
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

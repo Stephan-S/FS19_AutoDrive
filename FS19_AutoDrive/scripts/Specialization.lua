@@ -1160,11 +1160,27 @@ function AutoDrive:updateAILights(superFunc)
         
         if needLights then
             local x, y, z = getWorldTranslation(self.components[1].node)
-            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive.checkIsOnField(x, y, z) then
-                self:setLightsTypesMask(spec.aiLightsTypesMask)
-            end
-            if spec.lightsTypesMask ~= 1 and not AutoDrive.checkIsOnField(x, y, z) then
-                self:setLightsTypesMask(1)
+            -- Reorder checks a little
+            if AutoDrive.checkIsOnField(x, y, z) then
+                if spec.lightsTypesMask ~= spec.aiLightsTypesMask then
+                    self:setLightsTypesMask(spec.aiLightsTypesMask)
+                end
+            else
+                -- Not on field, grab the prefered state, or if it doesn't exist, default to mask of "1" (lightType = 0)
+                local specOffFieldState = 0
+                local indexOffFieldState = AutoDrive.getSetting("lightsOffFieldState", self)
+                
+                if spec.lightStates ~= nil and spec.lightStates[indexOffFieldState] ~= nil then
+                    for _, lightType in pairs(spec.lightStates[indexOffFieldState]) do
+                        specOffFieldState = bitOR(specOffFieldState, 2^lightType)
+                    end
+                else
+                    specOffFieldState = 1
+                end
+
+                if spec.lightsTypesMask ~= specOffFieldState then
+                    self:setLightsTypesMask(specOffFieldState)
+                end
             end
         else
             -- Daytime running
