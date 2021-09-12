@@ -3,10 +3,14 @@ package de.adEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 public class ADUtils {
 
@@ -38,5 +42,17 @@ public class ADUtils {
             file = new File(file.toString() + '.' + exts[0]);
         }
         return file;
+    }
+
+    public static BufferedImage getIcon(String name) {
+        try {
+            URL url = AutoDriveEditor.class.getResource("/" + name);
+            if (url != null) {
+                return ImageIO.read(url);
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
     }
 }

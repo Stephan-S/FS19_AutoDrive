@@ -1,12 +1,7 @@
 package de.adEditor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static de.adEditor.ADUtils.LOG;
-import static de.adEditor.GUIUtils.frame;
 
 public class EditorListener implements ActionListener, ItemListener {
 
@@ -63,8 +57,7 @@ public class EditorListener implements ActionListener, ItemListener {
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION;
                 break;
             case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION_GROUPS;
-                if (frame == null) GUIUtils.createFrame();
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION;
                 break;
             case "OneTimesMap":
                 editor.updateMapZoomFactor(1);
@@ -88,7 +81,6 @@ public class EditorListener implements ActionListener, ItemListener {
                     editor.pack();
                     editor.repaint();
                     editor.getMapPanel().repaint();
-                    RoadMap.Initiater.sendUpdateEvent();
                 }
                 break;
             case "Save Config":
@@ -121,7 +113,6 @@ public class EditorListener implements ActionListener, ItemListener {
 
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     LOG.info("new save filename is {}", ADUtils.getSelectedFileWithExtension(fc));
-                    //LOG.info("xmlConfigFile = ", editor.xmlConfigFile);
                     editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
 
                 }

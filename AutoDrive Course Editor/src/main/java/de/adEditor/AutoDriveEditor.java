@@ -34,15 +34,13 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.ADUtils.*;
 import static de.adEditor.GUIUtils.*;
 
 /* TODO:
-    (2) Marker group editing
-    (3) Add more menu items?
-    (5) Fix map refresh on window resizing...
-    (6) New button icons ( replacing my age 5 art skills :-P )
-    (7) Misc things i can't think of right now :-)
+    (1) New features?
+    (2) Fix map refresh on window resizing...
+    (3) New button icons
  */
 
 public class AutoDriveEditor extends JFrame {
@@ -56,7 +54,7 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_CHANGE_PRIORITY = 6;
     public static final int EDITORSTATE_CREATING_SECONDARY = 7;
     public static final int EDITORSTATE_CREATING_REVERSE_CONNECTION = 8;
-    public static final int EDITORSTATE_EDITING_DESTINATION_GROUPS = 9;
+    public static final int EDITORSTATE_EDITING_DESTINATION = 9;
 
     public static final String MOVE_NODES = "Move Nodes";
     public static final String CONNECT_NODES = "Connect Nodes";
@@ -92,6 +90,7 @@ public class AutoDriveEditor extends JFrame {
     private boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
     public static BufferedImage tractorImage;
+    public static ImageIcon markerIcon;
     public static boolean bContinuousConnections = false; // default value
 
     public AutoDriveEditor() {
@@ -101,6 +100,7 @@ public class AutoDriveEditor extends JFrame {
 
         setTitle(createTitle());
         setTractorIcon();
+        setMarkerIcon();
         setPreferredSize(new Dimension(1024,768));
         addWindowListener(new WindowAdapter() {
             @Override
@@ -183,18 +183,7 @@ public class AutoDriveEditor extends JFrame {
 
         // GUI init
 
-        /*JPanel mapBox = new JPanel();
-        mapBox.setBorder(BorderFactory.createTitledBorder("Map and scale factor"));
-        buttonPanel.add(mapBox);
-
-        loadImageButton = makeButton("Load Image","Load map image from disk ( must be 2048x2048 .PNG format)","Load Map", mapBox, editorListener);
-
-        ButtonGroup zoomGroup = new ButtonGroup();
-
-        makeRadioButton(" 1x","OneTimesMap","Change scale to 1x map size",true, mapBox, zoomGroup, editorListener);
-        makeRadioButton(" 4x","FourTimesMap","Change scale to 4x map size",false, mapBox, zoomGroup, editorListener);
-        makeRadioButton(" 16x","SixteenTimesMap","Change scale to 16x map size",false, mapBox, zoomGroup, editorListener);*/
-
+        // Create node panel
         JPanel nodeBox = new JPanel();
         nodeBox.setBorder(BorderFactory.createTitledBorder("Nodes"));
         JLabel label = new JLabel("test");
@@ -208,6 +197,7 @@ public class AutoDriveEditor extends JFrame {
         createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"Create a secondary node","Create Secondary Node", nodeBox, editorListener);
         createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse connection","Create Reverse Connection", nodeBox, editorListener);
 
+        // Create markers panel
         JPanel markerBox = new JPanel();
         markerBox.setBorder(BorderFactory.createTitledBorder("Markers"));
         buttonPanel.add(markerBox);
@@ -218,7 +208,6 @@ public class AutoDriveEditor extends JFrame {
 
         updateButtons();
         nodeBoxSetEnabled(false);
-        //mapBoxSetEnabled(false);
 
         this.setJMenuBar(menuBar);
         this.add(buttonPanel, BorderLayout.NORTH);
@@ -229,19 +218,17 @@ public class AutoDriveEditor extends JFrame {
     }
 
     private void setTractorIcon() {
-        try {
-            URL url = AutoDriveEditor.class.getResource("/tractor.png");
-            if (url != null) {
-                tractorImage = ImageIO.read(url);
-                setIconImage(tractorImage);
-            }
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        }
+        tractorImage = getIcon("tractor.png");
+        setIconImage(tractorImage);
     }
 
-    public static BufferedImage getTractorIcon() {
-        return tractorImage;
+    private void setMarkerIcon() {
+        BufferedImage markerImage = getIcon("marker.png");
+        markerIcon = new ImageIcon(markerImage);
+    }
+
+    public static ImageIcon getMarkerIcon() {
+        return markerIcon;
     }
 
     private void nodeBoxSetEnabled(boolean enabled) {
@@ -254,8 +241,6 @@ public class AutoDriveEditor extends JFrame {
         changePriority.setEnabled(enabled);
         createSecondaryNode.setEnabled(enabled);
         createReverseConnection.setEnabled(enabled);
-
-        // Temporary disable marker groups editing until it is complete
         manageDestination.setEnabled(enabled);
 
     }
@@ -729,7 +714,7 @@ public class AutoDriveEditor extends JFrame {
             mapMarkerCount += 1;
         }
 
-        // write the content into xml file
+
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -747,6 +732,8 @@ public class AutoDriveEditor extends JFrame {
             Node node = nl.item(i);
             node.getParentNode().removeChild(node);
         }
+
+        // write the content into xml file
 
         StreamResult result;
 
