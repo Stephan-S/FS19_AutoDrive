@@ -1151,6 +1151,13 @@ function AutoDrive:updateAILights(superFunc)
         local spec = self.spec_lights
         local dayMinutes = g_currentMission.environment.dayTime / (1000 * 60)
         local needLights = (dayMinutes > g_currentMission.environment.nightStartMinutes or dayMinutes < g_currentMission.environment.nightEndMinutes)
+        local isRaining = g_currentMission.environment.weather:getRainFallScale() > 0
+
+        -- If it's not night, and the lightsOnRain setting is on, needLights should be the status of the weather
+        if not needLights and AutoDrive.getSetting("lightsOnRain") then
+            needLights = isRaining
+        end
+        
         if needLights then
             local x, y, z = getWorldTranslation(self.components[1].node)
             if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive.checkIsOnField(x, y, z) then

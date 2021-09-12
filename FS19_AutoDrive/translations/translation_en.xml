@@ -201,6 +201,10 @@
 		<text name="gui_ad_AL_behind"                           text="Unload behind" />
 		<text name="gui_ad_AL_right"                            text="Unload right" />
 
+		<text name="gui_ad_lightsOnRain"                        text="Vehicle Lights: Turn on in bad weather" />
+		<text name="gui_ad_lightsOnRain_tooltip"                text="Use vehicle lights in inclement weather (rain and snow)" />
+
+
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />
