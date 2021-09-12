@@ -29,10 +29,10 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.TreeMap;
+import java.net.URLClassLoader;
+import java.util.*;
 
 import static de.adEditor.ADUtils.*;
 import static de.adEditor.GUIUtils.*;
@@ -92,11 +92,16 @@ public class AutoDriveEditor extends JFrame {
     public static BufferedImage tractorImage;
     public static ImageIcon markerIcon;
     public static boolean bContinuousConnections = false; // default value
+    public static ResourceBundle localeString;
+    public static Locale locale;
 
     public AutoDriveEditor() {
         super();
 
-        LOG.info("Starting AutoDrive Editor.....");
+        localeString = ADUtils.getLocale();
+        locale = Locale.getDefault();
+
+        LOG.info(localeString.getString("console_start"));
 
         setTitle(createTitle());
         setTractorIcon();
@@ -106,7 +111,7 @@ public class AutoDriveEditor extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (isStale()) {
-                    int response = JOptionPane.showConfirmDialog(null, "There are unsaved changes. Should they be saved now?", "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
                         saveMap(null);
                     }
@@ -121,7 +126,7 @@ public class AutoDriveEditor extends JFrame {
 
         // set border for the panel
         mapPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Map Panel"));
+                BorderFactory.createEtchedBorder(), localeString.getString("panels_map")));
 
         // add the panel to this frame
         add(mapPanel, BorderLayout.CENTER);
@@ -140,71 +145,64 @@ public class AutoDriveEditor extends JFrame {
 
         // Create the file Menu
 
-        fileMenu = makeNewMenu("File", KeyEvent.VK_F, "File Control", menuBar);
+        fileMenu = makeNewMenu("menu_file", KeyEvent.VK_F, "menu_file_accstring", menuBar);
 
-        makeMenuItem("Load Config", KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK, "Loads a config", fileMenu, editorListener,  true );
-        saveConfigMenuItem = makeMenuItem("Save Config", KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK, "Saves a config", fileMenu, editorListener,  false );
-        saveConfigAsMenuItem = makeMenuItem("Save As", KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK, "Saves a config to a different location", fileMenu, editorListener,  false );
+        makeMenuItem("menu_file_loadconfig", KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK, "menu_file_loadconfig_accstring", fileMenu, editorListener,  true );
+        saveConfigMenuItem = makeMenuItem("menu_file_saveconfig", KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK, "menu_file_saveconfig_accstring", fileMenu, editorListener,  false );
+        saveConfigAsMenuItem = makeMenuItem("menu_file_saveasconfig", KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK, "menu_file_saveasconfig_accstring", fileMenu, editorListener,  false );
 
         // Create the Map Menu and it's scale sub menu
 
-        mapMenu = makeNewMenu("Map", KeyEvent.VK_M, "Map Options", menuBar);
+        mapMenu = makeNewMenu("menu_map", KeyEvent.VK_M, "menu_map_accstring", menuBar);
 
-        loadImageButton = makeMenuItem("Load Map Image", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK, "Load a Map Image", mapMenu,editorListener,  false );
+        loadImageButton = makeMenuItem("menu_map_loadimage", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK, "menu_map_loadimage_accstring", mapMenu,editorListener,  false );
         mapMenu.addSeparator();
 
-        subMenu = makeSubMenu("Set Map Scale", KeyEvent.VK_M, "Adjust scaling to map size", mapMenu);
+        subMenu = makeSubMenu("menu_map_scale", KeyEvent.VK_M, "menu_map_scale_accstring", mapMenu);
 
         ButtonGroup menuZoomGroup = new ButtonGroup();
 
-        makeRadioButtonMenuItem("1x", KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, "Set map scale to default", subMenu, editorListener, true, menuZoomGroup, true);
-        makeRadioButtonMenuItem("4x", KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, "Set map scale to 4 times default", subMenu, editorListener, true, menuZoomGroup, false);
-        makeRadioButtonMenuItem("16x", KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, "Set map scale to 16 times default", subMenu, editorListener, true, menuZoomGroup, false);
+        makeRadioButtonMenuItem("menu_map_scale_1x", KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, "menu_map_scale_1x_accstring", subMenu, editorListener, true, menuZoomGroup, true);
+        makeRadioButtonMenuItem("menu_map_scale_4x", KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, "menu_map_scale_4x_accstring", subMenu, editorListener, true, menuZoomGroup, false);
+        makeRadioButtonMenuItem("menu_map_scale_16x", KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, "menu_map_scale_16x_accstring", subMenu, editorListener, true, menuZoomGroup, false);
 
         // Create the Options menu
 
-        optionsMenu = makeNewMenu("Options", KeyEvent.VK_O, "Editor Options", menuBar);
+        optionsMenu = makeNewMenu("menu_options", KeyEvent.VK_O, "menu_options_accstring", menuBar);
 
-        makeCheckBoxMenuItem("Continuous Connections", KeyEvent.VK_C, bContinuousConnections, optionsMenu, editorListener);
+        makeCheckBoxMenuItem("menu_conconnect", KeyEvent.VK_C, "menu_conconnect_accstring", bContinuousConnections, optionsMenu, editorListener);
 
         // Create the Help menu
 
-        helpMenu = new JMenu("Help");
-        helpMenu.setMnemonic(KeyEvent.VK_H);
-        helpMenu.getAccessibleContext().setAccessibleDescription("Help Items");
-        menuBar.add(helpMenu);
+        helpMenu = makeNewMenu("menu_help", KeyEvent.VK_H, "menu_help_accstring", menuBar);
 
-        menuItem = new JMenuItem("About");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("About The Editor");
-        menuItem.addActionListener(editorListener);
-        helpMenu.add(menuItem);
+        makeMenuItem("menu_help_about", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, "menu_help_about_accstring", helpMenu,editorListener,  true );
 
 
         // GUI init
 
+
         // Create node panel
         JPanel nodeBox = new JPanel();
-        nodeBox.setBorder(BorderFactory.createTitledBorder("Nodes"));
-        JLabel label = new JLabel("test");
+        nodeBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_nodes")));
         buttonPanel.add(nodeBox);
 
-        moveNode = makeToggleButton("movenode",MOVE_NODES,"Move route nodes","Move Nodes", nodeBox, editorListener);
-        connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"Connect nodes together","Connect Nodes", nodeBox, editorListener);
-        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"Remove nodes ( hold right mouse to area select )","Delete Nodes", nodeBox, editorListener);
-        createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"Create a primary node","Create Primary Node", nodeBox, editorListener);
-        changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"Swap a nodes priority ( hold right mouse to area select )","Node Priority", nodeBox, editorListener);
-        createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"Create a secondary node","Create Secondary Node", nodeBox, editorListener);
-        createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"Create a reverse connection","Create Reverse Connection", nodeBox, editorListener);
+        moveNode = makeToggleButton("movenode",MOVE_NODES,"nodes_move_tooltip","nodes_move_alt", nodeBox, editorListener);
+        connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"nodes_connect_tooltip","nodes_connect_alt", nodeBox, editorListener);
+        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
+        createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"nodes_createprimary_tooltip","nodes_createprimary_alt", nodeBox, editorListener);
+        changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"nodes_priority_tooltip","nodes_priority_alt", nodeBox, editorListener);
+        createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"nodes_createsecondary_tooltip","nodes_createsecondary_alt", nodeBox, editorListener);
+        createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"nodes_createreverse_tooltip","nodes_createreverse_alt", nodeBox, editorListener);
 
         // Create markers panel
         JPanel markerBox = new JPanel();
         markerBox.setBorder(BorderFactory.createTitledBorder("Markers"));
         buttonPanel.add(markerBox);
 
-        createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"Create map marker","Create Map Marker", markerBox, editorListener);
-        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"Delete a map marker","Delete Map Marker", markerBox, editorListener);
-        manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"Edit Marker groups (coming soon)","Edit Marker Groups", markerBox, editorListener);
+        createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"markers_add_tooltip","markers_add_alt", markerBox, editorListener);
+        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
+        manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"markers_edit_tooltip","markers_edit_alt", markerBox, editorListener);
 
         updateButtons();
         nodeBoxSetEnabled(false);
@@ -320,7 +318,7 @@ public class AutoDriveEditor extends JFrame {
             xmlConfigFile = fXmlFile;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            JOptionPane.showMessageDialog(this, "The AutoDrive Config could not be loaded.", "AutoDrive", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, localeString.getString("dialog_config_loadfailed"), "AutoDrive", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -330,7 +328,7 @@ public class AutoDriveEditor extends JFrame {
         Document doc = dBuilder.parse(fXmlFile);
         doc.getDocumentElement().normalize();
 
-        LOG.info("Root element :{}", doc.getDocumentElement().getNodeName());
+        LOG.info("{} :{}", localeString.getString("console_root_node"), doc.getDocumentElement().getNodeName());
 
         NodeList markerList = doc.getElementsByTagName("mapmarker");
         LinkedList<MapMarker> mapMarkers = new LinkedList<>();
@@ -424,9 +422,9 @@ public class AutoDriveEditor extends JFrame {
                         nodes.add(mapNode);
                     }
                 } else {
-                    LOG.info("outdated config format detected, no <flags> element found. Save config from ingame or editor to add it");
+                    LOG.info("{}", localeString.getString("console_config_old"));
                     hasFlagTag = false;
-                    JOptionPane.showMessageDialog(this, "This config file was saved with a older version of AutoDrive. Please update to the latest version and reload and save ingame to enable all the new features", "AutoDrive", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, localeString.getString("dialog_config_old"), "AutoDrive", JOptionPane.WARNING_MESSAGE);
                     for (int i=0; i<ids.length; i++) {
                         int id = Integer.parseInt(ids[i]);
                         double x = Double.parseDouble(xValues[i]);
@@ -475,7 +473,7 @@ public class AutoDriveEditor extends JFrame {
         Element mapNameElement = (Element) mapNameNode.item(0);
         NodeList fstNm = mapNameElement.getChildNodes();
         String mapName =(fstNm.item(0)).getNodeValue();
-        LOG.info("Loaded config for map: {}", mapName);
+        LOG.info("{}: {}", localeString.getString("console_config_load"), mapName);
 
         String mapPath = "/mapImages/" + mapName + ".png";
         URL url = AutoDriveEditor.class.getResource(mapPath);
@@ -497,7 +495,7 @@ public class AutoDriveEditor extends JFrame {
                         image = ImageIO.read(new File(mapPath));
                     } catch (Exception e3) {
                         loadImageButton.setEnabled(true);
-                        LOG.info("Editor has no map file for map: {}", mapName);
+                        LOG.info("{}}: {}", localeString.getString("console_editor_no_map"), mapName);
                     }
                 }
             }
@@ -522,7 +520,7 @@ public class AutoDriveEditor extends JFrame {
         editorState = EDITORSTATE_MOVING;
         updateButtons();
 
-        LOG.info("loadFile end.");
+        LOG.info("{}", localeString.getString("console_config_load_end"));
         return roadMap;
 
     }
@@ -530,7 +528,7 @@ public class AutoDriveEditor extends JFrame {
     // this way to save a file under a new name is ugly but works :-/
 
     public void saveMap(String newName) {
-        LOG.info("SaveMap called");
+        LOG.info("{}", localeString.getString("console_config_save_start"));
         RoadMap roadMap = mapPanel.getRoadMap();
 
         try
@@ -538,10 +536,10 @@ public class AutoDriveEditor extends JFrame {
             if (xmlConfigFile == null) return;
             saveXmlConfig(xmlConfigFile, roadMap, newName);
             setStale(false);
-            JOptionPane.showMessageDialog(this, xmlConfigFile.getName() + " has been successfully saved.", "AutoDrive", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, xmlConfigFile.getName() + " " + localeString.getString("dialog_save_success"), "AutoDrive", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            JOptionPane.showMessageDialog(this, "The AutoDrive Config could not be saved.", "AutoDrive", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, localeString.getString("dialog_save_fail"), "AutoDrive", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -687,7 +685,7 @@ public class AutoDriveEditor extends JFrame {
         NodeList testwaypoints = doc.getElementsByTagName("mapmarker");
 
         if (RoadMap.mapMarkers.size() > 0 && testwaypoints.getLength() == 0 ) {
-            LOG.info("New map markers to save, but no <mapmarker> tag in loaded XML.. creating tag for output file");
+            LOG.info("{}", localeString.getString("console_markers_new"));
             Element test = doc.createElement("mapmarker");
             AutoDrive.appendChild(test);
         }
@@ -744,7 +742,7 @@ public class AutoDriveEditor extends JFrame {
         }
         transformer.transform(source, result);
 
-        LOG.info("Done save");
+        LOG.info("{}", localeString.getString("console_config_save_end"));
     }
 
     public void updateMapZoomFactor(int zoomFactor) {

@@ -7,10 +7,13 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 import static de.adEditor.ADUtils.*;
+import static de.adEditor.AutoDriveEditor.localeString;
 
 public class MapPanel extends JPanel{
 
@@ -492,13 +495,13 @@ public class MapPanel extends JPanel{
                 for (int i = 0; i < RoadMap.mapMarkers.size(); i++) {
                     MapMarker mapMarker = RoadMap.mapMarkers.get(i);
                     if (mapMarker.mapNode == movingNode) {
-                        LOG.info("Cannot add new destination to an node where one already exists");
+                        LOG.info("{}", localeString.getString("console_marker_add_exists"));
                         return;
                     }
                 }
                 destInfo info = showNewMarkerDialog(movingNode.id);
                 if (info != null && info.getName() != null) {
-                    LOG.info("Adding marker to node ID {} - Name = {} , Group = {}", movingNode.id, info.getName(), info.getGroup());
+                    LOG.info("{} {} - Name = {} , Group = {}", localeString.getString("console_marker_add"), movingNode.id, info.getName(), info.getGroup());
                     createDestinationAt(movingNode, info.getName(), info.getGroup());
                     repaint();
                 }
@@ -524,7 +527,7 @@ public class MapPanel extends JPanel{
                     if (mapMarker.mapNode == movingNode) {
                         destInfo info = showEditMarkerDialog(mapMarker.mapNode.id, mapMarker.name, mapMarker.group);
                         if (info != null && info.getName() != null) {
-                            LOG.info("Modifying marker at node ID {} - Name = {} , Group = {}", movingNode.id, info.getName(), info.getGroup());
+                            LOG.info("{} {} - Name = {} , Group = {}", localeString.getString("console_marker_modify"), movingNode.id, info.getName(), info.getGroup());
                             mapMarker.name = info.getName();
                             mapMarker.group = info.getGroup();
                             editor.setStale(true);
@@ -632,7 +635,7 @@ public class MapPanel extends JPanel{
     }
 
     public void mouseButton3Pressed(int x, int y) {
-        LOG.info("Rectangle start set at {}/{}", x, y);
+        LOG.info("{} {}/{}", localeString.getString("console_rect_start"), x, y);
         rectangleStart = new Point2D.Double(x, y);
     }
 
@@ -643,12 +646,12 @@ public class MapPanel extends JPanel{
 
     public void mouseButton3Released(int x, int y) {
         Point2D rectangleEnd = new Point2D.Double(x, y);
-        LOG.info("Rectangle end set at {}/{}", x, y);
+        LOG.info("{} {}/{}", localeString.getString("console_rect_end"), x, y);
         if (rectangleStart != null) {
             if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING) {
-                int result = JOptionPane.showConfirmDialog(this,"Are you sure?","Confirm Area Deletion",JOptionPane.OK_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+                int result = JOptionPane.showConfirmDialog(this, localeString.getString("dialog_node_area_delete"),localeString.getString("dialog_node_area_delete_title"), JOptionPane.OK_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
                 if (result == 0) {
-                    LOG.info("Removing all nodes in area");
+                    LOG.info("{}", localeString.getString("console_node_area_remove"));
                     removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
                 }
 
@@ -656,7 +659,7 @@ public class MapPanel extends JPanel{
             }
             if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY) {
 
-                LOG.info("toggle all nodes priority in area");
+                LOG.info("{}", localeString.getString("console_node_priority_toggle"));
                 changeAllNodesPriInScreenArea(rectangleStart, rectangleEnd);
                 repaint();
             }
@@ -679,7 +682,9 @@ public class MapPanel extends JPanel{
             }
         }
 
-        groupArray.sort(String::compareToIgnoreCase);
+        Collator coll = Collator.getInstance(AutoDriveEditor.locale);
+        coll.setStrength(Collator.PRIMARY);
+        Collections.sort(groupArray, coll);
 
         String[] groupString = new String[groupArray.size() + 1];
         groupString[0] = "None";
@@ -695,10 +700,10 @@ public class MapPanel extends JPanel{
             group[0] = (String)cb.getSelectedItem();
         });
 
-        Object[] inputFields = {"Destination Name ", destName,
-                "Select a group or enter a new name", comboBox};
+        Object[] inputFields = {localeString.getString("dialog_marker_select_name"), destName,
+                localeString.getString("dialog_marker_add_select_group"), comboBox};
 
-        int option = JOptionPane.showConfirmDialog(this, inputFields, "New Destination ( Node ID " + id +" )", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, AutoDriveEditor.getMarkerIcon());
+        int option = JOptionPane.showConfirmDialog(this, inputFields, ""+ localeString.getString("dialog_marker_add_title") + " ( Node ID " + id +" )", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, AutoDriveEditor.getMarkerIcon());
 
         if (option == JOptionPane.OK_OPTION) {
 
@@ -707,12 +712,12 @@ public class MapPanel extends JPanel{
                 // since we can't return more than 1 string, we have to package them up
                 return new destInfo(destName.getText(), group[0]);
             } else {
-                LOG.info("Cancelling marker creation... You must specify a name");
+                LOG.info("{}", localeString.getString("console_marker_add_cancel_noname"));
                 // null's are bad mmmmmkay.....
                 return null;
             }
         }
-        LOG.info("Cancelling marker creation");
+        LOG.info("{}" , localeString.getString("console_marker_add_cancel"));
         return null;
     }
 
@@ -736,7 +741,10 @@ public class MapPanel extends JPanel{
             }
         }
 
-        groupArray.sort(String::compareToIgnoreCase);
+        Collator coll = Collator.getInstance(AutoDriveEditor.locale);
+        coll.setStrength(Collator.PRIMARY);
+        Collections.sort(groupArray, coll);
+
 
         String[] groupString = new String[groupArray.size() + 1];
         groupString[0] = "None";
@@ -761,20 +769,20 @@ public class MapPanel extends JPanel{
             group[0] = (String)cb.getSelectedItem();
         });
 
-        Object[] inputFields = {"Destination Name", destName," ",
-                "Current Group ( Change or enter a new name )", comboBox," ",
-                separator, "<html><center><b><u>NOTE</b></u>:<center>Empty groups will be removed on config save",
+        Object[] inputFields = {localeString.getString("dialog_marker_select_name"), destName," ",
+                localeString.getString("dialog_marker_group_change"), comboBox," ",
+                separator, "<html><center><b><u>NOTE</b></u>:</center>" + localeString.getString("dialog_marker_group_empty_warning") + " ",
                 " "
         };
 
-        int option = JOptionPane.showConfirmDialog(this, inputFields, "Edit Destination ( Node ID " + id +" )", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, AutoDriveEditor.getMarkerIcon());
+        int option = JOptionPane.showConfirmDialog(this, inputFields, "" + localeString.getString("dialog_marker_edit_title") + " ( Node ID " + id +" )", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, AutoDriveEditor.getMarkerIcon());
 
         if (option == JOptionPane.OK_OPTION) {
 
             if (group[0] == null || group[0].equals("None")) group[0] = "All";
             if (destName.getText() != null && destName.getText().length() > 0) {
                 if (markerName.equals(destName.getText()) && markerGroup.equals(group[0])) {
-                    LOG.info("Cancelling marker edit... No Changes made");
+                    LOG.info("{}", localeString.getString("console_marker_edit_cancel_nochange"));
                     return null;
                 } else {
                     // since we can't return more than 1 string, we have to package them up
@@ -782,7 +790,7 @@ public class MapPanel extends JPanel{
                 }
             }
         }
-        LOG.info("Cancelling marker edit");
+        LOG.info("{}", localeString.getString("console_marker_edit_cancel"));
         return null;
     }
 
@@ -793,7 +801,7 @@ public class MapPanel extends JPanel{
             name = destName;
             group = groupName;
         }
-
+        // getter setters
         public String getName() {
             return name;
         }
@@ -801,7 +809,7 @@ public class MapPanel extends JPanel{
         public String getGroup() {
             return group;
         }
-        // getter setters
+
     }
 
 

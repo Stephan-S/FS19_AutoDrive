@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.AutoDriveEditor.localeString;
 
 public class EditorListener implements ActionListener, ItemListener {
 
@@ -59,17 +60,17 @@ public class EditorListener implements ActionListener, ItemListener {
             case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION;
                 break;
-            case "OneTimesMap":
+            case "1x":
                 editor.updateMapZoomFactor(1);
                 break;
-            case "FourTimesMap":
+            case "4x":
                 editor.updateMapZoomFactor(2);
                 break;
-            case "SixteenTimesMap":
+            case "16x":
                 editor.updateMapZoomFactor(4);
                 break;
             case "Load Config":
-                fc.setDialogTitle("Load AutoDrive Config");
+                fc.setDialogTitle(localeString.getString("dialog_load_config_title"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setAcceptAllFileFilterUsed(false);
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("AutoDrive config", "xml");
@@ -87,6 +88,9 @@ public class EditorListener implements ActionListener, ItemListener {
                 editor.saveMap(null);
                 break;
             case "Load Map Image":
+                fc.setDialogTitle(localeString.getString("dialog_load_image_title"));
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     try {
                         editor.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
@@ -103,8 +107,7 @@ public class EditorListener implements ActionListener, ItemListener {
                 break;
             case "Save As":
                 if (editor.xmlConfigFile == null) break;
-                LOG.info("current filename is {}",editor.xmlConfigFile);
-                fc.setDialogTitle("Select Save Destination");
+                fc.setDialogTitle(localeString.getString("dialog_save_destination"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setAcceptAllFileFilterUsed(false);
                 FileNameExtensionFilter savefilter = new FileNameExtensionFilter("AutoDrive config", "xml");
@@ -112,7 +115,7 @@ public class EditorListener implements ActionListener, ItemListener {
                 fc.addChoosableFileFilter(savefilter);
 
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    LOG.info("new save filename is {}", ADUtils.getSelectedFileWithExtension(fc));
+                    LOG.info("{} {}", localeString.getString("console_config_saveas"), ADUtils.getSelectedFileWithExtension(fc));
                     editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
 
                 }
