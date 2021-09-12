@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.ADUtils.*;
 
 public class MapPanel extends JPanel{
 
@@ -481,12 +481,13 @@ public class MapPanel extends JPanel{
 
     public void mouseButton1Clicked(int x, int y) {
 
+        movingNode = getNodeAt(x, y);
+
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
             createNode((int)worldPos.getX(), (int)worldPos.getY(),NODE_STANDARD);
         }
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
-            movingNode = getNodeAt(x, y);
             if (movingNode != null) {
                 for (int i = 0; i < RoadMap.mapMarkers.size(); i++) {
                     MapMarker mapMarker = RoadMap.mapMarkers.get(i);
@@ -495,8 +496,9 @@ public class MapPanel extends JPanel{
                         return;
                     }
                 }
-                destInfo info = showNewDestinationDialog();
+                destInfo info = showNewMarkerDialog(movingNode.id);
                 if (info != null && info.getName() != null) {
+                    LOG.info("Adding marker to node ID {} - Name = {} , Group = {}", movingNode.id, info.getName(), info.getGroup());
                     createDestinationAt(movingNode, info.getName(), info.getGroup());
                     repaint();
                 }
@@ -513,6 +515,24 @@ public class MapPanel extends JPanel{
         if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY) {
             Point2D worldPos = screenPosToWorldPos(x, y);
             createNode((int)worldPos.getX(), (int)worldPos.getY(),NODE_SUBPRIO);
+        }
+
+        if (editor.editorState == AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION) {
+            if (movingNode != null) {
+                for (int i = 0; i < RoadMap.mapMarkers.size(); i++) {
+                    MapMarker mapMarker = RoadMap.mapMarkers.get(i);
+                    if (mapMarker.mapNode == movingNode) {
+                        destInfo info = showEditMarkerDialog(mapMarker.mapNode.id, mapMarker.name, mapMarker.group);
+                        if (info != null && info.getName() != null) {
+                            LOG.info("Modifying marker at node ID {} - Name = {} , Group = {}", movingNode.id, info.getName(), info.getGroup());
+                            mapMarker.name = info.getName();
+                            mapMarker.group = info.getGroup();
+                            editor.setStale(true);
+                        }
+                    }
+                }
+            }
+            //;
         }
     }
 
@@ -644,19 +664,10 @@ public class MapPanel extends JPanel{
         rectangleStart = null;
     }
 
-    private destInfo showNewDestinationDialog() {
+    private destInfo showNewMarkerDialog(int id) {
 
-        final JTextField textField1 = new JTextField();
-
-        // can't use 
-        // String group;
-        // it has to be final and [1] size array for the ActionListener to access it :/
-        //
-
-        final String[] group = new String[1];
-
-        // ComboBox can only use String[], as they are not dynamic, we can put
-        // all the groups names in an array and get the number from that
+        JTextField destName = new JTextField();
+        String[] group = new String[1];
 
         ArrayList<String> groupArray = new ArrayList<>();
         LinkedList<MapMarker> mapMarkers = RoadMap.mapMarkers;
@@ -668,15 +679,7 @@ public class MapPanel extends JPanel{
             }
         }
 
-        // sort the groups alphabetically
-
         groupArray.sort(String::compareToIgnoreCase);
-
-        // use .size to set the string[] length and loop through the
-        // array adding the names into it
-        //
-        // set None as the first in list so if the user doesn't choose a group
-        // the function return null for the group name
 
         String[] groupString = new String[groupArray.size() + 1];
         groupString[0] = "None";
@@ -684,7 +687,7 @@ public class MapPanel extends JPanel{
             groupString[i+1] = groupArray.get(i);
         }
 
-        final JComboBox comboBox = new JComboBox(groupString);
+        JComboBox comboBox = new JComboBox(groupString);
         comboBox.setEditable(true);
         comboBox.setSelectedIndex(0);
         comboBox.addActionListener(e -> {
@@ -692,19 +695,95 @@ public class MapPanel extends JPanel{
             group[0] = (String)cb.getSelectedItem();
         });
 
-        Object[] inputFields = {"Destination Name", textField1,
-                "Select a Group or enter a new name", comboBox};
+        Object[] inputFields = {"Destination Name ", destName,
+                "Select a group or enter a new name", comboBox};
 
-        int option = JOptionPane.showConfirmDialog(this, inputFields, "Create New Destination", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        int option = JOptionPane.showConfirmDialog(this, inputFields, "New Destination ( Node ID " + id +" )", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, AutoDriveEditor.getMarkerIcon());
 
         if (option == JOptionPane.OK_OPTION) {
 
             if (group[0] == null || group[0].equals("None")) group[0] = "All";
-
-            // since we can't return more than 1 string, we have to package them up
-            return new destInfo(textField1.getText(), group[0]);
+            if (destName.getText() != null && destName.getText().length() > 0) {
+                // since we can't return more than 1 string, we have to package them up
+                return new destInfo(destName.getText(), group[0]);
+            } else {
+                LOG.info("Cancelling marker creation... You must specify a name");
+                // null's are bad mmmmmkay.....
+                return null;
+            }
         }
-         return null;
+        LOG.info("Cancelling marker creation");
+        return null;
+    }
+
+    private destInfo showEditMarkerDialog(int id, String markerName, String markerGroup) {
+
+        String[] group = new String[1];
+        int groupIndex = 0;
+
+
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        JLabel label1 = new JLabel("Destination Name");
+        JTextField destName = new JTextField(markerName);
+
+        ArrayList<String> groupArray = new ArrayList<>();
+        LinkedList<MapMarker> mapMarkers = RoadMap.mapMarkers;
+        for (MapMarker mapMarker : mapMarkers) {
+            if (!mapMarker.group.equals("All")) {
+                if (!groupArray.contains(mapMarker.group)) {
+                    groupArray.add(mapMarker.group);
+                }
+            }
+        }
+
+        groupArray.sort(String::compareToIgnoreCase);
+
+        String[] groupString = new String[groupArray.size() + 1];
+        groupString[0] = "None";
+
+        for (int i = 0; i < groupArray.size(); i++) {
+            groupString[i+1] = groupArray.get(i);
+            if (groupString[i+1].equals(markerGroup)) {
+                groupIndex = i + 1;
+            }
+
+        }
+
+        // edge case - set the output group to the selected one, this only
+        // applies if the group isn't changed, otherwise it would return null
+        group[0] = groupString[groupIndex];
+
+        JComboBox comboBox = new JComboBox(groupString);
+        comboBox.setEditable(true);
+        comboBox.setSelectedIndex(groupIndex);
+        comboBox.addActionListener(e -> {
+            JComboBox cb = (JComboBox)e.getSource();
+            group[0] = (String)cb.getSelectedItem();
+        });
+
+        Object[] inputFields = {"Destination Name", destName," ",
+                "Current Group ( Change or enter a new name )", comboBox," ",
+                separator, "<html><center><b><u>NOTE</b></u>:<center>Empty groups will be removed on config save",
+                " "
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, inputFields, "Edit Destination ( Node ID " + id +" )", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, AutoDriveEditor.getMarkerIcon());
+
+        if (option == JOptionPane.OK_OPTION) {
+
+            if (group[0] == null || group[0].equals("None")) group[0] = "All";
+            if (destName.getText() != null && destName.getText().length() > 0) {
+                if (markerName.equals(destName.getText()) && markerGroup.equals(group[0])) {
+                    LOG.info("Cancelling marker edit... No Changes made");
+                    return null;
+                } else {
+                    // since we can't return more than 1 string, we have to package them up
+                    return new destInfo(destName.getText(), group[0]);
+                }
+            }
+        }
+        LOG.info("Cancelling marker edit");
+        return null;
     }
 
     public static class destInfo{
