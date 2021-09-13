@@ -552,6 +552,7 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
 
     local targetNode = self.targetTrailer.components[1].node
 --[[
+    -- AimTargetNode - not used as it not always fit to the fill area of trailers
     if self.targetTrailer.getFillUnitAutoAimTargetNode ~= nil then
         local node = self.targetTrailer:getFillUnitAutoAimTargetNode(1)
         if node ~= nil then
@@ -571,7 +572,7 @@ function CombineUnloaderMode:getDynamicSideChaseOffsetZ()
     local constantAdditionsZ = 1 + self.vehicle.sizeLength / 2 - self.targetTrailer.sizeLength / 2
     -- We then gradually move back, but don't use the last part of trailer for cosmetic reasons
     local dynamicAdditionsZ = diffZ + pipeZOffsetToCombine
-    -- dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength * 0.5 - 2) ^ self.targetTrailerFillRatio, 0)
+    dynamicAdditionsZ = dynamicAdditionsZ + math.max((self.targetTrailer.sizeLength * 0.5 - 2) ^ self.targetTrailerFillRatio, 0)
     local sideChaseTermZ = constantAdditionsZ + dynamicAdditionsZ
     return sideChaseTermZ
 end
