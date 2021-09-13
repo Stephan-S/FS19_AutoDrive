@@ -1001,6 +1001,17 @@ AutoDrive.settings.lightsOffFieldState = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.lightsHazardsOffField = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsHazardsOffField",
+    tooltip = "gui_ad_lightsHazardsOffField_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]

@@ -658,9 +658,26 @@ function ADDrivePathModule:checkActiveAttributesSet(dt)
                     self.vehicle:setBeaconLightsVisibility(false)
                 end
             end
+            local skipblinkangle = false
             local blinkangle = AutoDrive.getSetting("blinkValue") or 0
 
-            if blinkangle > 0 then
+            -- Hazards on road
+
+            if AutoDrive.getSetting("lightsHazardsOffField", self.vehicle) then
+                local x, y, z = getWorldTranslation(self.vehicle.components[1].node)
+                if not AutoDrive.checkIsOnField(x, y, z) and self.vehicle.spec_motorized.isMotorStarted then
+                    skipblinkangle = true
+                    self.vehicle:setTurnLightState(Lights.TURNLIGHT_HAZARD)
+                else
+                    skipblinkangle = false
+                    -- Turn them off when on field if we aren't using angle based turn state?
+                    if ( blinkangle == 0 ) then
+                        self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
+                    end
+                end
+            end
+
+            if blinkangle > 0 and not skipblinkangle then
                 if self.blinkTimer:timer(math.abs(self.turnAngle) < blinkangle, ADDrivePathModule.BLINK_TIMEOUT, dt * AutoDrive.PERF_FRAMES) then -- Rough estimate for the dt time. But should be fine
                     self.vehicle:setTurnLightState(Lights.TURNLIGHT_OFF)
                 else
