@@ -209,6 +209,11 @@
 		<text name="gui_ad_lightsOffFieldState_tooltip"         text="Vehicle light setting to use off field (number of times to press the 'lights' key)" />
 		<text name="gui_ad_lightsHazardsOffField"               text="Vehicle Lights: Hazards Off Field" />
 		<text name="gui_ad_lightsHazardsOffField_tooltip"       text="Use hazards (both turn lights) when off field." />
+		<text name="gui_ad_lightsTurnOffTime"                   text="Vehicle Lights: Time to turn off" />
+		<text name="gui_ad_lightsTurnOffTime_tooltip"           text="Time of day that vehicles lights should stop being used.  Set to '--' to use map settings" />
+		<text name="gui_ad_lightsTurnOnTime"                    text="Vehicle Lights: Time to turn on" />
+		<text name="gui_ad_lightsTurnOnTime_tooltip"            text="Time of day that vehicles lights should start being used.  Set to '--' to use map settings" />
+		
 
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />

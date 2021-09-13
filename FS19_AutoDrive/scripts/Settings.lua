@@ -1012,6 +1012,27 @@ AutoDrive.settings.lightsHazardsOffField = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.lightsTurnOffTime = {
+    values = {false, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 540, 570, 600},
+    texts = {"--", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsTurnOffTime",
+    tooltip = "gui_ad_lightsTurnOffTime_tooltip",
+    translate = false,
+}
+
+AutoDrive.settings.lightsTurnOnTime = {
+    values = {false, 960, 990, 1020, 1050, 1080, 1110, 1140, 1170, 1200, 1230, 1260, 1290, 1320, 1350, 1380, 1410},
+    texts = {"--", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsTurnOnTime",
+    tooltip = "gui_ad_lightsTurnOnTime_tooltip",
+    translate = false,
+}
+
+
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
         local setting = AutoDrive.settings[settingName]
