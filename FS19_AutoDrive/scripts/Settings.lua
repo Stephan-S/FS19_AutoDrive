@@ -1001,6 +1001,17 @@ AutoDrive.settings.lightsOffFieldState = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.lightsLoadUnloadState = {
+    values = {0, 1, 2, 3, 4, 5},
+    texts = {"0", "1", "2", "3", "4", "5"},
+    default = 4,
+    current = 4,
+    text = "gui_ad_lightsLoadUnloadState",
+    tooltip = "gui_ad_lightsLoadUnloadState_tooltip",
+    translate = false,
+    isVehicleSpecific = true
+}
+
 AutoDrive.settings.lightsHazardsOffField = {
     values = {false, true},
     texts = {"gui_ad_no", "gui_ad_yes"},

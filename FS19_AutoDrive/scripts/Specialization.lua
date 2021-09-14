@@ -1164,6 +1164,7 @@ function AutoDrive:updateAILights(superFunc)
         
         if needLights then
             local x, y, z = getWorldTranslation(self.components[1].node)
+
             -- Reorder checks a little
             if AutoDrive.checkIsOnField(x, y, z) then
                 if spec.lightsTypesMask ~= spec.aiLightsTypesMask then
@@ -1173,6 +1174,10 @@ function AutoDrive:updateAILights(superFunc)
                 -- Not on field, grab the prefered state, or if it doesn't exist, default to mask of "1" (lightType = 0)
                 local specOffFieldState = 0
                 local indexOffFieldState = AutoDrive.getSetting("lightsOffFieldState", self)
+
+                if AutoDrive.isInRangeToLoadUnloadTarget(self) then
+                    indexOffFieldState = AutoDrive.getSetting("lightsLoadUnloadState", self)
+                end
                 
                 if indexOffFieldState > 0 then
                     if spec.lightStates ~= nil and spec.lightStates[indexOffFieldState] ~= nil then
