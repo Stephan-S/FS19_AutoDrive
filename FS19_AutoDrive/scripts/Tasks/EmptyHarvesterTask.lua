@@ -177,36 +177,19 @@ function EmptyHarvesterTask:getExcludedVehiclesForCollisionCheck()
     return excludedVehicles
 end
 
-function EmptyHarvesterTask:getInfoText()
-    if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
-        local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
-        return g_i18n:getText("AD_task_pathfinding") .. string.format(" %d / %d ", actualState, maxStates)
-    elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
-        return g_i18n:getText("AD_task_drive_to_combine_pipe")
-    elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
-        return g_i18n:getText("AD_task_unloading_combine")
-    elseif self.state == EmptyHarvesterTask.STATE_REVERSING then
-        return g_i18n:getText("AD_task_reversing_from_combine")
-    elseif self.state == EmptyHarvesterTask.STATE_WAITING then
-        return g_i18n:getText("AD_task_waiting_for_room")
-    else
-        return g_i18n:getText("AD_task_unloading_combine")
-    end
-end
-
 function EmptyHarvesterTask:getI18nInfo()
+    local text = "$l10n_AD_task_unloading_combine;"
     if self.state == EmptyHarvesterTask.STATE_PATHPLANNING then
         local actualState, maxStates = self.vehicle.ad.pathFinderModule:getCurrentState()
-        return "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
+        text = text .. " - " .. "$l10n_AD_task_pathfinding;" .. string.format(" %d / %d ", actualState, maxStates)
     elseif self.state == EmptyHarvesterTask.STATE_DRIVING then
-        return "$l10n_AD_task_drive_to_combine_pipe;"
+        text = text .. " - " .. "$l10n_AD_task_drive_to_combine_pipe;"
     elseif self.state == EmptyHarvesterTask.STATE_UNLOADING then
-        return "$l10n_AD_task_unloading_combine;"
+        text = text .. " - " .. "$l10n_AD_task_unloading_combine;"
     elseif self.state == EmptyHarvesterTask.STATE_REVERSING then
-        return "$l10n_AD_task_reversing_from_combine;"
+        text = text .. " - " .. "$l10n_AD_task_reversing_from_combine;"
     elseif self.state == EmptyHarvesterTask.STATE_WAITING then
-        return "$l10n_AD_task_waiting_for_room;"
-    else
-        return "$l10n_AD_task_unloading_combine;"
+        text = text .. " - " .. "$l10n_AD_task_waiting_for_room;"
     end
+    return text 
 end
