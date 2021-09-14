@@ -1174,12 +1174,14 @@ function AutoDrive:updateAILights(superFunc)
                 local specOffFieldState = 0
                 local indexOffFieldState = AutoDrive.getSetting("lightsOffFieldState", self)
                 
-                if spec.lightStates ~= nil and spec.lightStates[indexOffFieldState] ~= nil then
-                    for _, lightType in pairs(spec.lightStates[indexOffFieldState]) do
-                        specOffFieldState = bitOR(specOffFieldState, 2^lightType)
+                if indexOffFieldState > 0 then
+                    if spec.lightStates ~= nil and spec.lightStates[indexOffFieldState] ~= nil then
+                        for _, lightType in pairs(spec.lightStates[indexOffFieldState]) do
+                            specOffFieldState = bitOR(specOffFieldState, 2^lightType)
+                        end
+                    else
+                        specOffFieldState = 1
                     end
-                else
-                    specOffFieldState = 1
                 end
 
                 if spec.lightsTypesMask ~= specOffFieldState then
