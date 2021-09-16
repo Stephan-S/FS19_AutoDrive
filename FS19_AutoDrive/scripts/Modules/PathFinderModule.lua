@@ -61,6 +61,7 @@ PathFinderModule = {}
 PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 2
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
+PathFinderModule.MAX_PATHFINDER_STEPS_COMBINE_TURN = 100
 PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 45
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 16
@@ -271,6 +272,10 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     end
 
     self.goingToPipe = true
+    if AutoDrive.getDistanceBetween(self.vehicle, combine) < 50 then
+        -- shorten path calculation for close combine
+        self.max_pathfinder_steps = PathFinderModule.MAX_PATHFINDER_STEPS_COMBINE_TURN
+    end
     self.chasingVehicle = chasing
 end
 
@@ -325,6 +330,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.fallBackMode1 = false  -- disable restrict to field
     self.fallBackMode2 = false  -- disable restrict to field border
     self.fallBackMode3 = false  -- disable avoid fruit
+    self.max_pathfinder_steps = PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")
 
     self.fruitToCheck = nil
 
@@ -549,7 +555,7 @@ function PathFinderModule:update(dt)
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - self.steps %d #self.grid %d", self.steps, table.count(self.grid))
     end
 
-    if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
+    if self.completelyBlocked or self.targetBlocked or self.steps > (self.max_pathfinder_steps) then
         --[[ We need some better logic here. 
         Some situations might be solved by the module itself by either
             a) 'fallBackMode (ignore fruit and field restrictions)'

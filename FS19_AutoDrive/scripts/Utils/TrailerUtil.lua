@@ -265,12 +265,23 @@ end
 function AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local leftCapacity = 0
     local fillLevel = 0
+    local hasAL = false
 
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
-            fillLevel = fillLevel + trailerFillLevel
-            leftCapacity = leftCapacity + trailerLeftCapacity
+            hasAL = hasAL or AutoDrive:hasAL(trailer)
+        end
+        if hasAL then
+            -- AutoLoad
+            for _, trailer in pairs(trailers) do
+                fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
+            end
+        else
+            for _, trailer in pairs(trailers) do
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
+                fillLevel = fillLevel + trailerFillLevel
+                leftCapacity = leftCapacity + trailerLeftCapacity
+            end
         end
     end
 
@@ -280,7 +291,6 @@ end
 function AutoDrive.getFillLevelAndCapacityOf(trailer)
     local leftCapacity = 0
     local fillLevel = 0
-
 
     if trailer ~= nil then
         if AutoDrive:hasAL(trailer) then
@@ -621,19 +631,20 @@ function AutoDrive.getWaterTrailerInWater(vehicle, dt)
     return nil
 end
 
-function AutoDrive.startFillFillableTrailer(vehicle)
+function AutoDrive.startFillTrigger(trailers)
     local ret = nil
-    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
     if trailers == nil then
-        return nil
+        return ret
     end
     for _, trailer in pairs(trailers) do
         local spec = trailer.spec_fillUnit
         if spec ~= nil and spec.fillTrigger ~= nil and spec.fillTrigger.triggers ~= nil and #spec.fillTrigger.triggers >0 then
-            spec:setFillUnitIsFilling(true)
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "AutoDrive.startFillFillableTrailer setFillUnitIsFilling currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
-            if spec.fillTrigger.currentTrigger ~= nil then
-                return spec.fillTrigger.currentTrigger
+            if not spec.fillTrigger.isFilling then
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "AutoDrive.startFillTrigger currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
+                spec:setFillUnitIsFilling(true)
+            end
+            if spec.fillTrigger.isFilling ~= nil and spec.fillTrigger.currentTrigger ~= nil then
+                return spec.fillTrigger
             end
         end
     end

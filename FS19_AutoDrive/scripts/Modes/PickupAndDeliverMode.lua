@@ -178,7 +178,10 @@ function PickupAndDeliverMode:getNextTask(forced)
             nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PickupAndDeliverMode:getNextTask set STATE_PICKUP_FROM_NEXT_TARGET")
             self.state = PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET
-            self.vehicle.ad.stateModule:setLoopsDone(self.vehicle.ad.stateModule:getLoopsDone() + 1)
+            if not ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
+                -- increase loops only if not rotate targets
+                self.vehicle.ad.stateModule:setLoopsDone(self.vehicle.ad.stateModule:getLoopsDone() + 1)
+            end
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PickupAndDeliverMode:getNextTask loopsDone %s", tostring(self.vehicle.ad.stateModule:getLoopsDone()))
         else
             -- if loops are finished - drive to park destination and stop AD
