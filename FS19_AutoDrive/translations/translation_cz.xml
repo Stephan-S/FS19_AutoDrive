@@ -354,6 +354,7 @@
 		<text name="AD_task_exiting_field"						text="Opouštím pole" />
 		<text name="AD_task_reversing_from_collision"			text="Vyhledávám čistou oblast" />
         <text name="AD_task_drive_to_park"				        text="Jedu na parkovací místo" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "vypnutý"/>
 		<text name = "gui_CPAD_simple"							text = "jednoduchý"/>

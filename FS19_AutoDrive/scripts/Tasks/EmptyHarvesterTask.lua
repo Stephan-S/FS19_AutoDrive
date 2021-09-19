@@ -146,7 +146,7 @@ function EmptyHarvesterTask:update(dt)
             self.reverseTimer:timer(false)
             self.state = EmptyHarvesterTask.STATE_WAITING
         else
-            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 5, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
+            self.vehicle.ad.specialDrivingModule:driveReverse(dt, 10, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
         end
     elseif self.state == EmptyHarvesterTask.STATE_WAITING then
         self.waitTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)

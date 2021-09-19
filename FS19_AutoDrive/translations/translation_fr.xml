@@ -356,6 +356,7 @@
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 		<text name="AD_task_reversing_from_collision"			text="Recherche d'une zone dégagée" />
     	<text name="AD_task_drive_to_park"				        text="Conduire vers le parking" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "off"/>
 		<text name = "gui_CPAD_simple"							text = "simple"/>

@@ -696,23 +696,33 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
         local angleToSideChaseSide = self:getAngleToChasePos(sideChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
 
---[[
-        TODO: usual harvesters have only 1 side for pipe - does all this make sense ???
         if
-            (((self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)) and combineFillPercent < self.MAX_COMBINE_FILLLEVEL_CHASING and
-                ((not AutoDrive.isSugarcaneHarvester(self.combine)) or self:isUnloaderOnCorrectSide(self.pipeSide) and math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide))) or
-                (self.combine.ad.noMovementTimer.elapsedTime > 1000)
+            (
+                (
+                    (self.pipeSide == AutoDrive.CHASEPOS_LEFT and not leftBlocked) 
+                    or (self.pipeSide == AutoDrive.CHASEPOS_RIGHT and not rightBlocked)
+                ) 
+                and
+                (
+                    (
+                        self:isUnloaderOnCorrectSide(self.pipeSide) 
+                        and math.abs(angleToSideChaseSide) < math.abs(angleToRearChaseSide)
+                    )
+                    or (planningPhase == true)
+                )
+            )
+            or
+            (
+                (planningPhase == true) and (self.combine.ad.noMovementTimer.elapsedTime > 1000)
+            )
          then
-]]
             -- Take into account a right sided harvester, e.g. potato harvester.
             chaseNode = sideChasePos
             sideIndex = self.pipeSide
---[[
-        else
+         else
             sideIndex = AutoDrive.CHASEPOS_REAR
             chaseNode = rearChasePos
-        end
-]]
+         end
     end
 
     self.chasePosIndex = sideIndex

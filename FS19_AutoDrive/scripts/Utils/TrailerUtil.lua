@@ -274,7 +274,9 @@ function AutoDrive.getFillLevelAndCapacityOfAll(trailers)
         if hasAL then
             -- AutoLoad
             for _, trailer in pairs(trailers) do
-                fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOf(trailer)
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive:getALFillLevelAndCapacityOfAllUnits(trailer)
+                fillLevel = fillLevel + trailerFillLevel
+                leftCapacity = leftCapacity + trailerLeftCapacity
             end
         else
             for _, trailer in pairs(trailers) do

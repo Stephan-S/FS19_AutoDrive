@@ -356,6 +356,7 @@
 		<text name="AD_task_exiting_field"						text="Verlasse Feld" />
 		<text name="AD_task_reversing_from_collision"			text="Freiraum suchen" />
         <text name="AD_task_drive_to_park"				        text="Fahre zum Parkplatz" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Drescher Entladebereich blockiert" />
 
 		<text name = "gui_CPAD_off"								text = "aus"/>
 		<text name = "gui_CPAD_simple"							text = "einfach"/>

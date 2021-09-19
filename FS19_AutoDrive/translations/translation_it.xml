@@ -354,6 +354,7 @@
 		<text name="AD_task_exiting_field"						text="Uscita dal campo" />
 		<text name="AD_task_reversing_from_collision"			text="Retromarcia per collisione" />
         <text name="AD_task_drive_to_park"				        text="Guida al parcheggio" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "spento"/>
 		<text name = "gui_CPAD_simple"							text = "semplice"/>

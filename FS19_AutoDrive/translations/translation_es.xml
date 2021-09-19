@@ -352,6 +352,7 @@
 		<text name="AD_task_exiting_field"						text="Saliendo del campo" />
 		<text name="AD_task_reversing_from_collision"			text="Buscando un área libre" />
         <text name="AD_task_drive_to_park"				        text="Conduciendo al aparcamiento" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "Off"/>
 		<text name = "gui_CPAD_simple"							text = "Simple"/>

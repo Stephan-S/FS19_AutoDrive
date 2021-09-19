@@ -33,6 +33,7 @@ function FollowCombineTask:new(vehicle, combine)
     o.angleToCombineHeading = vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombineHeading()
     o.angleToCombine = vehicle.ad.modes[AutoDrive.MODE_UNLOAD]:getAngleToCombine()
     o.trailers = nil
+    o.combinePreCallLevel = 0
     return o
 end
 
@@ -180,7 +181,7 @@ function FollowCombineTask:update(dt)
             else
                 AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "passby timer elapsed - heading looks bad - set finished now")
                 self.stayOnField = true
-                self:finished()
+                self.state = FollowCombineTask.STATE_WAIT_BEFORE_FINISH
                 return
             end
         end
@@ -257,6 +258,7 @@ function FollowCombineTask:updateStates(dt)
         local maxCapacity = self.fillLevel + self.leftCapacity
         self.filledToUnload = (self.leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
         self.filled = self.leftCapacity <= 1
+        self.combinePreCallLevel = AutoDrive.getSetting("preCallLevel", self.combine)
     end
     self:shouldWaitForChasePos(dt)
 end

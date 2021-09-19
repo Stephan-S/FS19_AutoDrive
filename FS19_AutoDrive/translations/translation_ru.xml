@@ -356,6 +356,7 @@
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
 		<text name="AD_task_reversing_from_collision"			text="Ищет свободное пространство" />
 		<text name="AD_task_drive_to_park"						text="Движется на место парковки" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name="gui_CPAD_off"								text="ВЫКЛ"/>
 		<text name="gui_CPAD_simple"							text="простое"/>
