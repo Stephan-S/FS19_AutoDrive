@@ -18,6 +18,9 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
         if (e.getButton() == MouseEvent.BUTTON1) {
             mapPanel.mouseButton1Clicked(e.getX(), e.getY());
         }
+        if (e.getButton() == MouseEvent.BUTTON3) {
+            mapPanel.mouseButton3Clicked(e.getX(), e.getY());
+        }
     }
 
     @Override

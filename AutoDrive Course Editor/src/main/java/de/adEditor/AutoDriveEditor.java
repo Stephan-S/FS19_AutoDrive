@@ -55,6 +55,9 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_CREATING_SECONDARY = 7;
     public static final int EDITORSTATE_CREATING_REVERSE_CONNECTION = 8;
     public static final int EDITORSTATE_EDITING_DESTINATION = 9;
+    public static final int EDITORSTATE_ALIGN_HORIZONTAL = 10;
+    public static final int EDITORSTATE_ALIGN_VERTICAL = 11;
+
 
     public static final String MOVE_NODES = "Move Nodes";
     public static final String CONNECT_NODES = "Connect Nodes";
@@ -67,6 +70,13 @@ public class AutoDriveEditor extends JFrame {
     public static final String CREATE_REVERSE_NODES = "Create Reverse Connection";
     public static final String EDIT_DESTINATIONS_GROUPS = "Manage Destination Groups";
     public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
+
+    // OCD modes
+
+    public static final String ALIGN_HORIZONTAL = "Horizontally Align Nodes";
+    public static final String ALIGN_VERTICAL = "Vertically Align Nodes";
+
+
 
     private MapPanel mapPanel;
     private JMenuItem loadImageButton;
@@ -82,6 +92,8 @@ public class AutoDriveEditor extends JFrame {
     private JToggleButton createSecondaryNode;
     private JToggleButton createReverseConnection;
     private JToggleButton manageDestination;
+    private JToggleButton alignHorizontal;
+    private JToggleButton alignVertical;
 
     public EditorListener editorListener = new EditorListener(this);
 
@@ -184,28 +196,42 @@ public class AutoDriveEditor extends JFrame {
 
         // Create node panel
         JPanel nodeBox = new JPanel();
+        //nodeBox.setLayout(new BoxLayout(nodeBox, BoxLayout.LINE_AXIS));
         nodeBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_nodes")));
         buttonPanel.add(nodeBox);
 
         moveNode = makeToggleButton("movenode",MOVE_NODES,"nodes_move_tooltip","nodes_move_alt", nodeBox, editorListener);
         connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"nodes_connect_tooltip","nodes_connect_alt", nodeBox, editorListener);
-        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
         createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"nodes_createprimary_tooltip","nodes_createprimary_alt", nodeBox, editorListener);
         changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"nodes_priority_tooltip","nodes_priority_alt", nodeBox, editorListener);
         createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"nodes_createsecondary_tooltip","nodes_createsecondary_alt", nodeBox, editorListener);
         createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"nodes_createreverse_tooltip","nodes_createreverse_alt", nodeBox, editorListener);
+        nodeBox.add(Box.createRigidArea(new Dimension(8, 0)));
+        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
 
         // Create markers panel
         JPanel markerBox = new JPanel();
-        markerBox.setBorder(BorderFactory.createTitledBorder("Markers"));
+        markerBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_markers")));
         buttonPanel.add(markerBox);
 
         createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"markers_add_tooltip","markers_add_alt", markerBox, editorListener);
-        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
         manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"markers_edit_tooltip","markers_edit_alt", markerBox, editorListener);
+        markerBox.add(Box.createRigidArea(new Dimension(8, 0)));
+        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
+
+
+        // Create alignment panel
+        JPanel alignBox = new JPanel();
+        alignBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_align")));
+        buttonPanel.add(alignBox);
+
+        alignHorizontal = makeToggleButton("horizontalalign",ALIGN_HORIZONTAL,"align_horizontal_tooltip","align_horizontal_alt", alignBox, editorListener);
+        alignVertical = makeToggleButton("verticalalign",ALIGN_VERTICAL,"align_vertical_tooltip","align_vertical_alt", alignBox, editorListener);
+        alignBox.add(Box.createRigidArea(new Dimension(16, 0)));
 
         updateButtons();
         nodeBoxSetEnabled(false);
+        alignBoxSetEnabled(false);
 
         this.setJMenuBar(menuBar);
         this.add(buttonPanel, BorderLayout.NORTH);
@@ -243,6 +269,11 @@ public class AutoDriveEditor extends JFrame {
 
     }
 
+    private void alignBoxSetEnabled(boolean enabled) {
+        alignHorizontal.setEnabled(enabled);
+        alignVertical.setEnabled(enabled);
+    }
+
     private void mapMenuEnabled(boolean enabled) {
         loadImageButton.setEnabled(enabled);
     }
@@ -262,6 +293,8 @@ public class AutoDriveEditor extends JFrame {
         changePriority.setSelected(false);
         createSecondaryNode.setSelected(false);
         createReverseConnection.setSelected(false);
+        alignHorizontal.setSelected(false);
+        alignVertical.setSelected(false);
 
         switch (editorState) {
             case EDITORSTATE_MOVING:
@@ -290,6 +323,12 @@ public class AutoDriveEditor extends JFrame {
                 break;
             case EDITORSTATE_CREATING_REVERSE_CONNECTION:
                 createReverseConnection.setSelected(true);
+                break;
+            case EDITORSTATE_ALIGN_HORIZONTAL:
+                alignHorizontal.setSelected(true);
+                break;
+            case EDITORSTATE_ALIGN_VERTICAL:
+                alignVertical.setSelected(true);
                 break;
         }
     }
@@ -353,7 +392,7 @@ public class AutoDriveEditor extends JFrame {
                     node = groupNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerGroup = node.getNodeValue();
 
-                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0, 0);
+                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0, 0, false);
                     MapMarker mapMarker = new MapMarker(dummyNode, markerName, markerGroup);
                     mapMarkerTree.put((int)Double.parseDouble(markerNodeId), mapMarker);
                 }
@@ -418,7 +457,7 @@ public class AutoDriveEditor extends JFrame {
                         double z = Double.parseDouble(zValues[i]);
                         int flag = Integer.parseInt(flagsValue[i]);
 
-                        MapNode mapNode = new MapNode(id, x, y, z, flag);
+                        MapNode mapNode = new MapNode(id, x, y, z, flag, false);
                         nodes.add(mapNode);
                     }
                 } else {
@@ -432,7 +471,7 @@ public class AutoDriveEditor extends JFrame {
                         double z = Double.parseDouble(zValues[i]);
                         int flag = 0;
 
-                        MapNode mapNode = new MapNode(id, x, y, z, flag);
+                        MapNode mapNode = new MapNode(id, x, y, z, flag, false);
                         nodes.add(mapNode);
                     }
                 }
@@ -517,7 +556,8 @@ public class AutoDriveEditor extends JFrame {
         saveMenuEnabled(true);
 
         nodeBoxSetEnabled(true);
-        editorState = EDITORSTATE_MOVING;
+        alignBoxSetEnabled(true);
+        editorState = EDITORSTATE_NOOP;
         updateButtons();
 
         LOG.info("{}", localeString.getString("console_config_load_end"));

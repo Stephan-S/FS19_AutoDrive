@@ -70,6 +70,12 @@ public class EditorListener implements ActionListener, ItemListener {
                 editor.updateMapZoomFactor(4);
                 break;
             case "Load Config":
+                if (editor.isStale()) {
+                    int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (response == JOptionPane.YES_OPTION) {
+                        editor.saveMap(null);
+                    }
+                }
                 fc.setDialogTitle(localeString.getString("dialog_load_config_title"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setAcceptAllFileFilterUsed(false);
@@ -119,6 +125,12 @@ public class EditorListener implements ActionListener, ItemListener {
                     editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
 
                 }
+                break;
+            case AutoDriveEditor.ALIGN_HORIZONTAL:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_ALIGN_HORIZONTAL;
+                break;
+            case AutoDriveEditor.ALIGN_VERTICAL:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_ALIGN_VERTICAL;
                 break;
             case "About":
                 showAbout();
