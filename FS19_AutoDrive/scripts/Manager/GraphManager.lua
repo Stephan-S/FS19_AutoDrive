@@ -1127,8 +1127,8 @@ end
 
 function ADGraphManager:getIsPointSubPrio(wayPointId)
 	local wayPoint = self:getWayPointById(wayPointId)
-		
-	return bitAND(wayPoint.flags, AutoDrive.FLAG_SUBPRIO) > 0
+
+	return wayPoint ~= nil and bitAND(wayPoint.flags, AutoDrive.FLAG_SUBPRIO) > 0
 end
 
 function ADGraphManager:setWayPointFlags(wayPointId, flags)

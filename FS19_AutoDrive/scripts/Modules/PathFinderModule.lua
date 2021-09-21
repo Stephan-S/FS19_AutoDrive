@@ -1636,6 +1636,7 @@ end
 
 function PathFinderModule:smoothResultingPPPath_Refined()
     if self.smoothStep == 0 then
+        self.lookAheadIndex = 1
         self.smoothIndex = 1
         self.filteredIndex = 1
         self.filteredWPs = {}
