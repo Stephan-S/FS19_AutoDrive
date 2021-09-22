@@ -1031,6 +1031,7 @@ AutoDrive.settings.lightsTurnOffTime = {
     text = "gui_ad_lightsTurnOffTime",
     tooltip = "gui_ad_lightsTurnOffTime_tooltip",
     translate = false,
+    isVehicleSpecific = false
 }
 
 AutoDrive.settings.lightsTurnOnTime = {
@@ -1041,6 +1042,7 @@ AutoDrive.settings.lightsTurnOnTime = {
     text = "gui_ad_lightsTurnOnTime",
     tooltip = "gui_ad_lightsTurnOnTime_tooltip",
     translate = false,
+    isVehicleSpecific = false
 }
 
 
