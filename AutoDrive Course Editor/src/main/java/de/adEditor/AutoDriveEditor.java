@@ -29,9 +29,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
 import static de.adEditor.ADUtils.*;
@@ -57,6 +55,8 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_EDITING_DESTINATION = 9;
     public static final int EDITORSTATE_ALIGN_HORIZONTAL = 10;
     public static final int EDITORSTATE_ALIGN_VERTICAL = 11;
+    public static final int EDITORSTATE_LINEARLINE = 12;
+    public static final int EDITORSTATE_QUADRATICBEZIER = 13;
 
 
     public static final String MOVE_NODES = "Move Nodes";
@@ -76,6 +76,9 @@ public class AutoDriveEditor extends JFrame {
     public static final String ALIGN_HORIZONTAL = "Horizontally Align Nodes";
     public static final String ALIGN_VERTICAL = "Vertically Align Nodes";
 
+    public static final String CREATE_LINEARLINE = "Test";
+    public static final String CREATE_QUADRATICBEZIER = "TestTwo";
+
 
 
     private MapPanel mapPanel;
@@ -94,6 +97,11 @@ public class AutoDriveEditor extends JFrame {
     private JToggleButton manageDestination;
     private JToggleButton alignHorizontal;
     private JToggleButton alignVertical;
+
+
+    private JToggleButton linearLine;
+    private JToggleButton quadBezier;
+
 
     public EditorListener editorListener = new EditorListener(this);
 
@@ -200,24 +208,24 @@ public class AutoDriveEditor extends JFrame {
         nodeBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_nodes")));
         buttonPanel.add(nodeBox);
 
-        moveNode = makeToggleButton("movenode",MOVE_NODES,"nodes_move_tooltip","nodes_move_alt", nodeBox, editorListener);
-        connectNodes = makeToggleButton("connectnodes",CONNECT_NODES,"nodes_connect_tooltip","nodes_connect_alt", nodeBox, editorListener);
-        createPrimaryNode = makeToggleButton("createprimary",CREATE_PRIMARY_NODES,"nodes_createprimary_tooltip","nodes_createprimary_alt", nodeBox, editorListener);
-        changePriority = makeToggleButton("swappriority",CHANGE_NODE_PRIORITY,"nodes_priority_tooltip","nodes_priority_alt", nodeBox, editorListener);
-        createSecondaryNode = makeToggleButton("createsecondary",CREATE_SECONDARY_NODES,"nodes_createsecondary_tooltip","nodes_createsecondary_alt", nodeBox, editorListener);
-        createReverseConnection = makeToggleButton("createreverse",CREATE_REVERSE_NODES,"nodes_createreverse_tooltip","nodes_createreverse_alt", nodeBox, editorListener);
+        moveNode = makeImageToggleButton("movenode",MOVE_NODES,"nodes_move_tooltip","nodes_move_alt", nodeBox, editorListener);
+        connectNodes = makeImageToggleButton("connectnodes",CONNECT_NODES,"nodes_connect_tooltip","nodes_connect_alt", nodeBox, editorListener);
+        createPrimaryNode = makeImageToggleButton("createprimary",CREATE_PRIMARY_NODES,"nodes_createprimary_tooltip","nodes_createprimary_alt", nodeBox, editorListener);
+        changePriority = makeImageToggleButton("swappriority",CHANGE_NODE_PRIORITY,"nodes_priority_tooltip","nodes_priority_alt", nodeBox, editorListener);
+        createSecondaryNode = makeImageToggleButton("createsecondary",CREATE_SECONDARY_NODES,"nodes_createsecondary_tooltip","nodes_createsecondary_alt", nodeBox, editorListener);
+        createReverseConnection = makeImageToggleButton("createreverse",CREATE_REVERSE_NODES,"nodes_createreverse_tooltip","nodes_createreverse_alt", nodeBox, editorListener);
         nodeBox.add(Box.createRigidArea(new Dimension(8, 0)));
-        removeNode = makeToggleButton("deletenodes",REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
+        removeNode = makeImageToggleButton("deletenodes",REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
 
         // Create markers panel
         JPanel markerBox = new JPanel();
         markerBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_markers")));
         buttonPanel.add(markerBox);
 
-        createDestination = makeToggleButton("addmarker",CREATE_DESTINATIONS,"markers_add_tooltip","markers_add_alt", markerBox, editorListener);
-        manageDestination = makeToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"markers_edit_tooltip","markers_edit_alt", markerBox, editorListener);
+        createDestination = makeImageToggleButton("addmarker",CREATE_DESTINATIONS,"markers_add_tooltip","markers_add_alt", markerBox, editorListener);
+        manageDestination = makeImageToggleButton("markergroup",EDIT_DESTINATIONS_GROUPS,"markers_edit_tooltip","markers_edit_alt", markerBox, editorListener);
         markerBox.add(Box.createRigidArea(new Dimension(8, 0)));
-        removeDestination = makeToggleButton("deletemarker",REMOVE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
+        removeDestination = makeImageToggleButton("deletemarker",REMOVE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
 
 
         // Create alignment panel
@@ -225,9 +233,16 @@ public class AutoDriveEditor extends JFrame {
         alignBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_align")));
         buttonPanel.add(alignBox);
 
-        alignHorizontal = makeToggleButton("horizontalalign",ALIGN_HORIZONTAL,"align_horizontal_tooltip","align_horizontal_alt", alignBox, editorListener);
-        alignVertical = makeToggleButton("verticalalign",ALIGN_VERTICAL,"align_vertical_tooltip","align_vertical_alt", alignBox, editorListener);
+        alignHorizontal = makeImageToggleButton("horizontalalign",ALIGN_HORIZONTAL,"align_horizontal_tooltip","align_horizontal_alt", alignBox, editorListener);
+        alignVertical = makeImageToggleButton("verticalalign",ALIGN_VERTICAL,"align_vertical_tooltip","align_vertical_alt", alignBox, editorListener);
         alignBox.add(Box.createRigidArea(new Dimension(16, 0)));
+
+        JPanel testBox = new JPanel();
+        testBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_helper")));
+        buttonPanel.add(testBox);
+
+        linearLine = makeImageToggleButton("linearline", CREATE_LINEARLINE,"helper_linearline_tooltip","helper_linearline_alt", testBox, editorListener);
+        quadBezier = makeImageToggleButton("quadbezier", CREATE_QUADRATICBEZIER,"helper_quadbezier_tooltip","helper_quadbezier_alt", testBox, editorListener);
 
         updateButtons();
         nodeBoxSetEnabled(false);

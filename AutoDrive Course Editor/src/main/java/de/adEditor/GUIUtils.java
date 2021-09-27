@@ -3,6 +3,7 @@ package de.adEditor;
 import javax.swing.*;
 import java.net.URL;
 
+import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.localeString;
 
 public class GUIUtils {
@@ -20,22 +21,33 @@ public class GUIUtils {
         return button;
     }
 
-    public static JToggleButton makeToggleButton(String imageName,String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
-        JToggleButton toggleButton = new JToggleButton();
+    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
 
-        //Load image
-        String imgLocation = "/editor/" + imageName + ".png";
-        URL imageURL = AutoDriveEditor.class.getResource(imgLocation);
+        JToggleButton toggleButton = new JToggleButton();
 
         toggleButton.setActionCommand(actionCommand);
         toggleButton.setToolTipText(localeString.getString(toolTipText));
         toggleButton.addActionListener(editorListener);
 
-        if (imageURL != null) {  //image found
+        //Load image
+
+        String imgLocation = "/editor/" + imageName + ".png";
+        URL imageURL = AutoDriveEditor.class.getResource(imgLocation);
+        if (imageURL != null) {
+            //image found
             toggleButton.setIcon(new ImageIcon(imageURL, altText));
             toggleButton.setBorder(BorderFactory.createEmptyBorder());
-            toggleButton.setRolloverEnabled(true);
-        } else {                 //no image found
+            if (selectedImageName !=  null) {
+                String selectedImgLocation = "/editor/" + selectedImageName + ".png";
+                URL selectedImageURL = AutoDriveEditor.class.getResource(selectedImageName);
+                if (selectedImageURL != null) {
+                    toggleButton.setSelectedIcon(new ImageIcon(selectedImageURL, altText));
+                    //toggleButton.setRolloverSelectedIcon(new ImageIcon(rollimageURL, altText));
+                    //toggleButton.setRolloverIcon(new ImageIcon(rollimageURL, altText));
+                }
+            }
+        } else {
+            //no image found
             toggleButton.setText(localeString.getString(altText));
         }
 
@@ -43,6 +55,11 @@ public class GUIUtils {
 
         return toggleButton;
     }
+
+    public static JToggleButton makeImageToggleButton(String imageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
+        return makeImageToggleButton(imageName, null, actionCommand, toolTipText, altText, panel, editorListener);
+    }
+
 
     public static JRadioButton makeRadioButton(String text,String actionCommand,String toolTipText,boolean selected, JPanel panel, ButtonGroup group, EditorListener editorListener) {
         JRadioButton radioButton = new JRadioButton(localeString.getString(text));

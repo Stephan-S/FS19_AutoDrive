@@ -135,6 +135,12 @@ public class EditorListener implements ActionListener, ItemListener {
             case "About":
                 showAbout();
                 break;
+            case AutoDriveEditor.CREATE_LINEARLINE:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_LINEARLINE;
+                break;
+            case AutoDriveEditor.CREATE_QUADRATICBEZIER:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER;
+                break;
         }
 
         editor.updateButtons();
