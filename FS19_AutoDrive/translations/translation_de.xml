@@ -209,6 +209,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Abfahrereinstellungen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug Einstellungen - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimentelle Features - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Nichtfunktionale Einstellungen - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Wiederherstellen" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Alle Änderungen gehen verloren" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Wirklich ohne Speichern schließen?" />

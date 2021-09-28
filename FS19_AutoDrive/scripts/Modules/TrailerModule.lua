@@ -168,7 +168,7 @@ function ADTrailerModule:update(dt)
     end
     self:handleTrailerCovers()
 
-    self:handleTrailerReversing()
+    -- self:handleTrailerReversing()
     
     self.lastFillLevel = self.fillLevel
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "ADTrailerModule:update end %s", tostring(self.lastFillLevel))
@@ -294,7 +294,7 @@ function ADTrailerModule:updateLoad(dt)
     -- update retry timer
     self.loadRetryTimer:timer(true, ADTrailerModule.LOAD_RETRY_TIME, dt) 
     -- update load delay timer
-    self.loadDelayTimer:timer(true, ADTrailerModule.LOAD_DELAY_TIME, dt) 
+    self.loadDelayTimer:timer(self.lastFillLevel >= self.fillLevel and self.trigger == self, ADTrailerModule.LOAD_DELAY_TIME, dt) 
 
     if self.trigger == nil then
         -- look for triggers with requested fill type
@@ -711,4 +711,10 @@ function ADTrailerModule:getCanStopMotor()
         end
     end
     return ret
+end
+
+function ADTrailerModule.debugMsg(vehicle, debugText, ...)
+    if ADTrailerModule.debug == true then
+        AutoDrive.debugMsg(vehicle, debugText, ...)
+    end
 end

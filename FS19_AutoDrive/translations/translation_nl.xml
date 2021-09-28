@@ -207,6 +207,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combineer Ontladingsinstellingen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug-instellingen - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimentele functies Instellingen - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Herstel" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Alle veranderingen zullen verloren gaan" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Weet u zeker dat u de instellingen wilt sluiten zonder op te slaan?" />

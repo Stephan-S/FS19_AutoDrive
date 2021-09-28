@@ -207,6 +207,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Configurações de descarga da ceifeira - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Configurações de depuração - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title"			text="Configurações de recursos experimentais - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText"					text="Restaurar" />
 		<text name="gui_ad_settingsClosingDialog_title"			text="Todas as alterações serão perdidas" />
 		<text name="gui_ad_settingsClosingDialog_text"			text="Tem certeza de que deseja fechar as configurações sem guardar?" />

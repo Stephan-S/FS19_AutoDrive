@@ -7,7 +7,8 @@ EmptyHarvesterTask.STATE_REVERSING = 4
 EmptyHarvesterTask.STATE_WAITING = 5
 EmptyHarvesterTask.STATE_UNLOADING_FINISHED = 6
 
-EmptyHarvesterTask.REVERSE_TIME = 7000
+EmptyHarvesterTask.REVERSE_TIME = 30000
+EmptyHarvesterTask.WAITING_TIME = 7000
 
 function EmptyHarvesterTask:new(vehicle, combine)
     local o = EmptyHarvesterTask:create()
@@ -130,6 +131,10 @@ function EmptyHarvesterTask:update(dt)
         else
             overallLength = self.tractorTrainLength -- complete train length
         end
+        if AutoDrive:getIsCPActive(self.combine) then
+            -- if CP harvester
+            overallLength = overallLength + AutoDrive.getFrontToolWidth(self.combine) + 10
+        end
         if self.combine.trailingVehicle ~= nil then
             -- if the harvester is trailed reverse 5m more
             -- overallLength = overallLength + 5
@@ -139,7 +144,7 @@ function EmptyHarvesterTask:update(dt)
             -- Stopping CP drivers while reverse driving
             AutoDrive:holdCPCombine(self.combine)
         end
-        self.reverseTimer:timer(true, 5 * EmptyHarvesterTask.REVERSE_TIME, dt)
+        self.reverseTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
         if (distanceToReversStart > overallLength) or self.reverseTimer:done() then
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "EmptyHarvesterTask:update - next: EmptyHarvesterTask.STATE_WAITING")
             self.holdCPCombineTimer:timer(false)
@@ -149,7 +154,12 @@ function EmptyHarvesterTask:update(dt)
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, 10, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
         end
     elseif self.state == EmptyHarvesterTask.STATE_WAITING then
-        self.waitTimer:timer(true, EmptyHarvesterTask.REVERSE_TIME, dt)
+        local waitTime = EmptyHarvesterTask.WAITING_TIME
+        if AutoDrive:getIsCPActive(self.combine) then
+            -- wait some more time to let CP combine move away
+            waitTime = 3 * EmptyHarvesterTask.WAITING_TIME
+        end
+        self.waitTimer:timer(true, waitTime, dt)
         if self.waitTimer:done() then
             self.waitTimer:timer(false)
             self:finished()
@@ -192,4 +202,10 @@ function EmptyHarvesterTask:getI18nInfo()
         text = text .. " - " .. "$l10n_AD_task_waiting_for_room;"
     end
     return text 
+end
+
+function EmptyHarvesterTask.debugMsg(vehicle, debugText, ...)
+    if EmptyHarvesterTask.debug == true then
+        AutoDrive.debugMsg(vehicle, debugText, ...)
+    end
 end

@@ -14,7 +14,7 @@ CombineUnloaderMode.STATE_EXIT_FIELD = 11
 CombineUnloaderMode.STATE_REVERSE_FROM_BAD_LOCATION = 12
 
 CombineUnloaderMode.MAX_COMBINE_FILLLEVEL_CHASING = 101
-CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER = 2.7
+CombineUnloaderMode.STATIC_X_OFFSET_FROM_HEADER = 0
 
 function CombineUnloaderMode:new(vehicle)
     local o = CombineUnloaderMode:create()
@@ -656,9 +656,10 @@ function CombineUnloaderMode:getPipeChasePosition(planningPhase)
     local rearChaseTermZ = self:getRearChaseOffsetZ()
 
     if self.combine.getIsBufferCombine ~= nil and self.combine:getIsBufferCombine() then
+        -- chopper
         --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_COMBINEINFO, "CombineUnloaderMode:getPipeChasePosition=IsBufferCombine")
-        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX + self:getPipeSlopeCorrection(), sideChaseTermZ)
-        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -(sideChaseTermX + self:getPipeSlopeCorrection()), sideChaseTermZ)
+        local leftChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, sideChaseTermX + self:getPipeSlopeCorrection(), sideChaseTermZ - 2)
+        local rightChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, -(sideChaseTermX + self:getPipeSlopeCorrection()), sideChaseTermZ - 2)
         local rearChasePos = AutoDrive.createWayPointRelativeToVehicle(self.combine, 0, rearChaseTermZ)
         local angleToLeftChaseSide = self:getAngleToChasePos(leftChasePos)
         local angleToRearChaseSide = self:getAngleToChasePos(rearChasePos)
@@ -770,4 +771,10 @@ end
 
 function CombineUnloaderMode:unregisterFollowingUnloader()
     self.followingUnloader = nil
+end
+
+function CombineUnloaderMode.debugMsg(vehicle, debugText, ...)
+    if CombineUnloaderMode.debug == true then
+        AutoDrive.debugMsg(vehicle, debugText, ...)
+    end
 end

@@ -205,6 +205,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Ajustes de descarga cosechadora - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Ajustes de depuración - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Ajustes de funciones experimentales - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Restaurar" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Todos los cambios se perderán" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="¿Estás seguro de que quieres cerrar los ajustes sin guardar?" />

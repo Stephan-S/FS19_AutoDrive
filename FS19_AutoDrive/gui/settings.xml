@@ -23,6 +23,7 @@
             <GuiElement type="frameReference" ref="autoDriveUserSettings" name="autoDriveUserSettings" id="autoDriveUserSettings" />
             <GuiElement type="frameReference" ref="autoDriveVehicleSettings" name="autoDriveVehicleSettings" id="autoDriveVehicleSettings" />
             <GuiElement type="frameReference" ref="autoDriveCombineUnloadSettings" name="autoDriveCombineUnloadSettings" id="autoDriveCombineUnloadSettings" />
+            <GuiElement type="frameReference" ref="autoDriveEnvironmentSettings" name="autoDriveEnvironmentSettings" id="autoDriveEnvironmentSettings" />
             <GuiElement type="frameReference" ref="autoDriveDebugSettings" name="autoDriveDebugSettings" id="autoDriveDebugSettings" />
             <GuiElement type="frameReference" ref="autoDriveExperimentalFeaturesSettings" name="autoDriveExperimentalFeaturesSettings" id="autoDriveExperimentalFeaturesSettings" />
         </GuiElement>

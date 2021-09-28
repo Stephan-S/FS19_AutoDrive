@@ -141,21 +141,88 @@ function AutoDrive.isSugarcaneHarvester(combine)
     return isSugarCaneHarvester
 end
 
-function AutoDrive.getFrontToolWidth(vehicle)
-    if vehicle.ad ~= nil and vehicle.ad.frontToolWidth ~= nil then
+function AutoDrive.getAIMarkerWidth(object)
+    local retWidth = 0
+    if object ~= nil and object.getAIMarkers ~= nil then
+        local aiLeftMarker, aiRightMarker = object:getAIMarkers()
+        if aiLeftMarker ~= nil and aiRightMarker ~= nil then
+            local left, _, _ = localToLocal(aiLeftMarker, object.rootNode, 0, 0, 0)
+            local right, _, _ = localToLocal(aiRightMarker, object.rootNode, 0, 0, 0)
+            if left < right then
+                left, right = right, left
+            end
+            retWidth = left - right
+        end
+    end
+    return retWidth
+end
+
+function AutoDrive.getAISizeMarkerWidth(object)
+    local retWidth = 0
+    if object ~= nil and object.getAISizeMarkers ~= nil then
+        local aiLeftMarker, aiRightMarker = object:getAISizeMarkers()
+        if aiLeftMarker ~= nil and aiRightMarker ~= nil then
+            local left, _, _ = localToLocal(aiLeftMarker, object.rootNode, 0, 0, 0)
+            local right, _, _ = localToLocal(aiRightMarker, object.rootNode, 0, 0, 0)
+            if left < right then
+                left, right = right, left
+            end
+            retWidth = left - right
+        end
+    end
+    return retWidth
+end
+
+function AutoDrive.getFrontToolWidth(vehicle, forced)
+    if vehicle.ad ~= nil and vehicle.ad.frontToolWidth ~= nil and not (forced == true) then
         return vehicle.ad.frontToolWidth
     end
     local widthOfFrontTool = 0
 
     if vehicle.getAttachedImplements ~= nil then
+        -- check for AIMarkers
         for _, impl in pairs(vehicle:getAttachedImplements()) do
             local tool = impl.object
-            if tool ~= nil and tool.sizeWidth ~= nil then
+            if tool ~= nil then
                 --Check if tool is in front of vehicle
                 local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
                 local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
                 if offsetZ > 0 then
-                    widthOfFrontTool = math.abs(tool.sizeWidth)
+                    if AutoDrive.getAIMarkerWidth(tool) > widthOfFrontTool then
+                        widthOfFrontTool = AutoDrive.getAIMarkerWidth(tool)
+                    end
+                end
+            end
+        end
+
+        if widthOfFrontTool == 0 then
+            -- check for AISizeMarkers
+            for _, impl in pairs(vehicle:getAttachedImplements()) do
+                local tool = impl.object
+                if tool ~= nil then
+                    --Check if tool is in front of vehicle
+                    local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
+                    local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
+                    if offsetZ > 0 then
+                        if AutoDrive.getAISizeMarkerWidth(tool) > widthOfFrontTool then
+                            widthOfFrontTool = AutoDrive.getAISizeMarkerWidth(tool)
+                        end
+                    end
+                end
+            end
+        end
+
+        if widthOfFrontTool == 0 then
+            -- if AIMarkers not available or returned 0, get tool size as defined in vehicle XML - the worst case, see rsmDS900.xml
+            for _, impl in pairs(vehicle:getAttachedImplements()) do
+                local tool = impl.object
+                if tool ~= nil and tool.sizeWidth ~= nil then
+                    --Check if tool is in front of vehicle
+                    local toolX, toolY, toolZ = getWorldTranslation(tool.components[1].node)
+                    local _, _, offsetZ =  worldToLocal(vehicle.components[1].node, toolX, toolY, toolZ)
+                    if offsetZ > 0 then
+                        widthOfFrontTool = math.abs(tool.sizeWidth)
+                    end
                 end
             end
         end
