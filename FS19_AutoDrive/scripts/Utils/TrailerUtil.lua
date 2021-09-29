@@ -377,15 +377,25 @@ function AutoDrive.setTrailerCoverOpen(vehicle, trailers, open)
     if (AutoDrive.getSetting("autoTrailerCover", vehicle) ~= true) then
         return
     end
-
+	local fillType = vehicle.ad.stateModule:getFillType() --Nad42: Added to read the required fill type from HUD.
     for _, trailer in pairs(trailers) do
         local targetState = 0
+        local fillUnitIndex
+        for index,fillU in pairs(trailer.spec_fillUnit.fillUnits) do	--Nad42: Added to see what fill units are available for trailer
+            for supportedfilltype,bool in pairs(fillU.supportedFillTypes) do
+				if supportedfilltype == fillType then
+					fillUnitIndex = index   --Nad42: This now makes sure the correct cover is opened according to fill type for seeders.
+					break
+				end
+            end
+        end
+        local coverToOpen = fillUnitIndex or #trailer.spec_cover.covers --Nad42: kept the count of covers in here as i dont know if it would break something
         if open then
             targetState = 1
         end
         if trailer.spec_cover ~= nil and trailer.spec_cover.state ~= nil then
             if trailer.spec_cover.covers ~= nil then
-                targetState = targetState * #trailer.spec_cover.covers
+                targetState = targetState * coverToOpen
             end
             if trailer.spec_cover.state ~= targetState and trailer:getIsNextCoverStateAllowed(targetState) then
                 trailer:setCoverState(targetState, false)
