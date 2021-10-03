@@ -1,5 +1,8 @@
 package de.adEditor;
 
+import de.adEditor.MapHelpers.MapMarker;
+import de.adEditor.MapHelpers.MapNode;
+import de.adEditor.MapHelpers.RoadMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -8,6 +11,8 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,6 +42,7 @@ import static de.adEditor.GUIUtils.*;
 
 /* TODO:
     (1) New features?
+    (2) Undo function
     (2) Fix map refresh on window resizing...
     (3) New button icons
  */
@@ -58,6 +64,7 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_LINEARLINE = 12;
     public static final int EDITORSTATE_QUADRATICBEZIER = 13;
 
+    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
 
     public static final String MOVE_NODES = "Move Nodes";
     public static final String CONNECT_NODES = "Connect Nodes";
@@ -69,15 +76,17 @@ public class AutoDriveEditor extends JFrame {
     public static final String CREATE_SECONDARY_NODES = "Create Secondary Node";
     public static final String CREATE_REVERSE_NODES = "Create Reverse Connection";
     public static final String EDIT_DESTINATIONS_GROUPS = "Manage Destination Groups";
-    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
+
 
     // OCD modes
 
     public static final String ALIGN_HORIZONTAL = "Horizontally Align Nodes";
     public static final String ALIGN_VERTICAL = "Vertically Align Nodes";
 
-    public static final String CREATE_LINEARLINE = "Test";
-    public static final String CREATE_QUADRATICBEZIER = "TestTwo";
+    public static final String CREATE_LINEARLINE = "Linear Line";
+    public static final String CREATE_QUADRATICBEZIER = "Quadratic Bezier";
+    public static final String COMMIT_CURVE = "Confirm Curve";
+    public static final String CANCEL_CURVE = "Cancel Curve";
 
 
 
@@ -97,11 +106,13 @@ public class AutoDriveEditor extends JFrame {
     private JToggleButton manageDestination;
     private JToggleButton alignHorizontal;
     private JToggleButton alignVertical;
-
-
     private JToggleButton linearLine;
     private JToggleButton quadBezier;
+    private JToggleButton commitCurve;
+    private JToggleButton cancelCurve;
 
+    public static JSlider numIterationsSlider;
+    public static JPanel curvePanel;
 
     public EditorListener editorListener = new EditorListener(this);
 
@@ -114,6 +125,7 @@ public class AutoDriveEditor extends JFrame {
     public static boolean bContinuousConnections = false; // default value
     public static ResourceBundle localeString;
     public static Locale locale;
+    public static JTextArea textArea;
 
     public AutoDriveEditor() {
         super();
@@ -155,7 +167,9 @@ public class AutoDriveEditor extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
+        //
         // init menu bar
+        //
 
         JMenuBar menuBar;
         JMenuItem menuItem;
@@ -164,24 +178,17 @@ public class AutoDriveEditor extends JFrame {
         menuBar = new JMenuBar();
 
         // Create the file Menu
-
         fileMenu = makeNewMenu("menu_file", KeyEvent.VK_F, "menu_file_accstring", menuBar);
-
         makeMenuItem("menu_file_loadconfig", KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK, "menu_file_loadconfig_accstring", fileMenu, editorListener,  true );
         saveConfigMenuItem = makeMenuItem("menu_file_saveconfig", KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK, "menu_file_saveconfig_accstring", fileMenu, editorListener,  false );
         saveConfigAsMenuItem = makeMenuItem("menu_file_saveasconfig", KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK, "menu_file_saveasconfig_accstring", fileMenu, editorListener,  false );
 
         // Create the Map Menu and it's scale sub menu
-
         mapMenu = makeNewMenu("menu_map", KeyEvent.VK_M, "menu_map_accstring", menuBar);
-
         loadImageButton = makeMenuItem("menu_map_loadimage", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK, "menu_map_loadimage_accstring", mapMenu,editorListener,  false );
         mapMenu.addSeparator();
-
         subMenu = makeSubMenu("menu_map_scale", KeyEvent.VK_M, "menu_map_scale_accstring", mapMenu);
-
         ButtonGroup menuZoomGroup = new ButtonGroup();
-
         makeRadioButtonMenuItem("menu_map_scale_1x", KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, "menu_map_scale_1x_accstring", subMenu, editorListener, true, menuZoomGroup, true);
         makeRadioButtonMenuItem("menu_map_scale_4x", KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, "menu_map_scale_4x_accstring", subMenu, editorListener, true, menuZoomGroup, false);
         makeRadioButtonMenuItem("menu_map_scale_16x", KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, "menu_map_scale_16x_accstring", subMenu, editorListener, true, menuZoomGroup, false);
@@ -189,22 +196,19 @@ public class AutoDriveEditor extends JFrame {
         // Create the Options menu
 
         optionsMenu = makeNewMenu("menu_options", KeyEvent.VK_O, "menu_options_accstring", menuBar);
-
         makeCheckBoxMenuItem("menu_conconnect", KeyEvent.VK_C, "menu_conconnect_accstring", bContinuousConnections, optionsMenu, editorListener);
 
         // Create the Help menu
 
         helpMenu = makeNewMenu("menu_help", KeyEvent.VK_H, "menu_help_accstring", menuBar);
-
         makeMenuItem("menu_help_about", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, "menu_help_about_accstring", helpMenu,editorListener,  true );
 
-
+        //
         // GUI init
-
+        //
 
         // Create node panel
         JPanel nodeBox = new JPanel();
-        //nodeBox.setLayout(new BoxLayout(nodeBox, BoxLayout.LINE_AXIS));
         nodeBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_nodes")));
         buttonPanel.add(nodeBox);
 
@@ -228,7 +232,10 @@ public class AutoDriveEditor extends JFrame {
         removeDestination = makeImageToggleButton("deletemarker",REMOVE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
 
 
+        //
         // Create alignment panel
+        //
+
         JPanel alignBox = new JPanel();
         alignBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_align")));
         buttonPanel.add(alignBox);
@@ -237,6 +244,10 @@ public class AutoDriveEditor extends JFrame {
         alignVertical = makeImageToggleButton("verticalalign",ALIGN_VERTICAL,"align_vertical_tooltip","align_vertical_alt", alignBox, editorListener);
         alignBox.add(Box.createRigidArea(new Dimension(16, 0)));
 
+        //
+        // create test panel
+        //
+
         JPanel testBox = new JPanel();
         testBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_helper")));
         buttonPanel.add(testBox);
@@ -244,12 +255,73 @@ public class AutoDriveEditor extends JFrame {
         linearLine = makeImageToggleButton("linearline", CREATE_LINEARLINE,"helper_linearline_tooltip","helper_linearline_alt", testBox, editorListener);
         quadBezier = makeImageToggleButton("quadbezier", CREATE_QUADRATICBEZIER,"helper_quadbezier_tooltip","helper_quadbezier_alt", testBox, editorListener);
 
+        //
+        // TEST - console area?
+        //
+
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textArea = new JTextArea("this is just a test\n ",3,0);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        textArea.setEditable(false);
+        textPanel.add(scrollPane, BorderLayout.CENTER);
+        this.add(textPanel, BorderLayout.PAGE_END);
+
+        //
+        // curve panel (hidden by default)
+        //
+
+        //create container ( left to right layout)
+        curvePanel = new JPanel();
+        curvePanel.setLayout(new BoxLayout(curvePanel, BoxLayout.X_AXIS));
+        curvePanel.setBorder(BorderFactory.createEmptyBorder());
+        curvePanel.setVisible(false);
+        curvePanel.setOpaque(false);
+
+        // create panel for slider using vertical layout
+        JPanel slidePanel = new JPanel();
+        slidePanel.setLayout(new BoxLayout(slidePanel, BoxLayout.Y_AXIS));
+        //slidePanel.setVisible(true);
+        slidePanel.setOpaque(false);
+
+        JLabel label = new JLabel(localeString.getString("panel_slider_label"));
+        label.setForeground(Color.ORANGE);
+
+        numIterationsSlider = new JSlider(JSlider.HORIZONTAL,0, 50, 10);
+        numIterationsSlider.setVisible(true);
+        numIterationsSlider.setOpaque(false);
+        numIterationsSlider.setForeground(Color.ORANGE);
+        numIterationsSlider.setMajorTickSpacing(10);
+        numIterationsSlider.setPaintTicks(true);
+        numIterationsSlider.setPaintLabels(true);
+        numIterationsSlider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent event) {
+                int value = numIterationsSlider.getValue();
+                    if (MapPanel.quadCurve != null) {
+                        if (value < 2) value =2;
+                        MapPanel.quadCurve.setNumInterpolationPoints(value);
+                        mapPanel.repaint();
+                    }
+            }
+        });
+
+        slidePanel.add(label);
+        slidePanel.add(numIterationsSlider);
+        curvePanel.add(slidePanel);
+        curvePanel.add(Box.createRigidArea(new Dimension(8, 0)));
+        commitCurve = makeImageToggleButton("confirm","confirm_select", COMMIT_CURVE,"panel_slider_confirm","panel_slider_confirm_alt", curvePanel, editorListener);
+        curvePanel.add(Box.createRigidArea(new Dimension(8, 0)));
+        cancelCurve = makeImageToggleButton("cancel","cancel_select", CANCEL_CURVE,"panel_slider_cancel","panel_slider_cancel_alt", curvePanel, editorListener);
+        mapPanel.add(curvePanel);
+
+
+
+
         updateButtons();
         nodeBoxSetEnabled(false);
         alignBoxSetEnabled(false);
 
         this.setJMenuBar(menuBar);
-        this.add(buttonPanel, BorderLayout.NORTH);
+        this.add(buttonPanel, BorderLayout.PAGE_START);
 
         pack();
         setLocationRelativeTo(null);
@@ -525,12 +597,23 @@ public class AutoDriveEditor extends JFrame {
 
         NodeList mapNameNode = doc.getElementsByTagName("MapName");
         Element mapNameElement = (Element) mapNameNode.item(0);
-        NodeList fstNm = mapNameElement.getChildNodes();
-        String mapName =(fstNm.item(0)).getNodeValue();
-        LOG.info("{}: {}", localeString.getString("console_config_load"), mapName);
 
-        String mapPath = "/mapImages/" + mapName + ".png";
-        URL url = AutoDriveEditor.class.getResource(mapPath);
+        String mapName, mapPath;
+        URL url;
+
+        if ( mapNameElement != null) {
+            NodeList fstNm = mapNameElement.getChildNodes();
+             mapName=(fstNm.item(0)).getNodeValue();
+            LOG.info("{}: {}", localeString.getString("console_config_load"), mapName);
+            mapPath = "/mapImages/" + mapName + ".png";
+            url = AutoDriveEditor.class.getResource(mapPath);
+        } else {
+            mapName=null;
+            mapPath=null;
+            url=null;
+        }
+
+
 
         BufferedImage image = null;
         try {

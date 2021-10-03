@@ -21,7 +21,7 @@ public class GUIUtils {
         return button;
     }
 
-    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
+    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String rollOverImageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
 
         JToggleButton toggleButton = new JToggleButton();
 
@@ -37,13 +37,23 @@ public class GUIUtils {
             //image found
             toggleButton.setIcon(new ImageIcon(imageURL, altText));
             toggleButton.setBorder(BorderFactory.createEmptyBorder());
+            //selectedImageName="deletemarker";
             if (selectedImageName !=  null) {
-                String selectedImgLocation = "/editor/" + selectedImageName + ".png";
-                URL selectedImageURL = AutoDriveEditor.class.getResource(selectedImageName);
+                String selectedImagePath = "/editor/" + selectedImageName + ".png";
+                URL selectedImageURL = AutoDriveEditor.class.getResource(selectedImagePath);
                 if (selectedImageURL != null) {
                     toggleButton.setSelectedIcon(new ImageIcon(selectedImageURL, altText));
-                    //toggleButton.setRolloverSelectedIcon(new ImageIcon(rollimageURL, altText));
-                    //toggleButton.setRolloverIcon(new ImageIcon(rollimageURL, altText));
+                    //toggleButton.setRolloverSelectedIcon(new ImageIcon(selectedImageURL, altText));
+                    //toggleButton.setRolloverIcon(new ImageIcon(selectedImageURL, altText));
+                }
+            }
+            if (rollOverImageName !=  null) {
+                String selectedImagePath = "/editor/" + rollOverImageName + ".png";
+                URL selectedImageURL = AutoDriveEditor.class.getResource(selectedImagePath);
+                if (selectedImageURL != null) {
+                    //toggleButton.setSelectedIcon(new ImageIcon(selectedImageURL, altText));
+                    //toggleButton.setRolloverSelectedIcon(new ImageIcon(selectedImageURL, altText));
+                    toggleButton.setRolloverIcon(new ImageIcon(selectedImageURL, altText));
                 }
             }
         } else {
@@ -57,7 +67,11 @@ public class GUIUtils {
     }
 
     public static JToggleButton makeImageToggleButton(String imageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
-        return makeImageToggleButton(imageName, null, actionCommand, toolTipText, altText, panel, editorListener);
+        return makeImageToggleButton(imageName, null, null, actionCommand, toolTipText, altText, panel, editorListener);
+    }
+
+    public static JToggleButton makeImageToggleButton(String imageName, String rollOverImage, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
+        return makeImageToggleButton(imageName, null, rollOverImage, actionCommand, toolTipText, altText, panel, editorListener);
     }
 
 

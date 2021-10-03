@@ -2,6 +2,8 @@ package de.adEditor;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,8 +15,9 @@ import java.io.IOException;
 
 import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.localeString;
+import static de.adEditor.MapPanel.quadCurve;
 
-public class EditorListener implements ActionListener, ItemListener {
+public class EditorListener implements ActionListener, ItemListener, ChangeListener {
 
     public AutoDriveEditor editor;
 
@@ -104,7 +107,7 @@ public class EditorListener implements ActionListener, ItemListener {
                         editor.getMapPanel().setMinimumSize(new Dimension(1024, 768));
                         editor.getMapPanel().revalidate();
                         editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
-                        editor.pack();
+                        //editor.pack();
 
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);
@@ -141,6 +144,18 @@ public class EditorListener implements ActionListener, ItemListener {
             case AutoDriveEditor.CREATE_QUADRATICBEZIER:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER;
                 break;
+            case AutoDriveEditor.CANCEL_CURVE:
+                if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
+                    quadCurve.clear();
+                    editor.getMapPanel().stopCurveEdit();
+                }
+                break;
+            case AutoDriveEditor.COMMIT_CURVE:
+                if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
+                    // TODO : add quad bezier nodes to network
+                    quadCurve.clear();
+                    editor.getMapPanel().stopCurveEdit();
+                }
         }
 
         editor.updateButtons();
@@ -157,9 +172,16 @@ public class EditorListener implements ActionListener, ItemListener {
         }
     }
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+
+    }
+
     private void showAbout() {
         JOptionPane.showMessageDialog(editor, "<html><center>Editor version : 0.2 Beta<br>Build info : Java 11 SDK - IntelliJ IDEA 2021.2.1 Community Edition<br><br><u>AutoDrive Development Team</u><br><br><b>Stephan (Founder & Modder)</b><br><br>TyKonKet (Modder)<br>Oliver (Modder)<br>Axel (Co-Modder)<br>Aletheist (Co-Modder)<br>Willi (Supporter & Tester)<br>Iwan1803 (Community Manager & Supporter)", "AutoDrive Editor", JOptionPane.PLAIN_MESSAGE);
     }
+
+
 }
 
 
