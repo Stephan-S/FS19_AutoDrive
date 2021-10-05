@@ -187,7 +187,7 @@ function ADTrailerModule:updateStates()
         self.lastFillLevel = self.fillLevel
     end
     self.blocked = self.lastFillLevel <= self.fillLevel
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "ADTrailerModule:updateStates start self.isUnloading %s self.lastFillLevel %s self.fillLevel %s self.blocked %s", tostring(self.isUnloading), tostring(self.lastFillLevel), tostring(self.fillLevel), tostring(self.blocked))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "ADTrailerModule:updateStates start self.isLoading %s self.isUnloading %s self.lastFillLevel %s self.fillLevel %s self.blocked %s", tostring(self.isLoading), tostring(self.isUnloading), tostring(self.lastFillLevel), tostring(self.fillLevel), tostring(self.blocked))
     for _, trailer in pairs(self.trailers) do
         if trailer.getFillUnits ~= nil then
             self.fillUnits = self.fillUnits + #trailer:getFillUnits()
@@ -201,7 +201,7 @@ function ADTrailerModule:updateStates()
     if self.isUnloading then
         self.startedUnloadingAtTrigger = true
     end
-    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "ADTrailerModule:updateStates end self.isUnloading %s self.fillUnits %s self.blocked %s", tostring(self.isUnloading), tostring(self.fillUnits), tostring(self.blocked))
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_TRAILERINFO, "ADTrailerModule:updateStates end self.isLoading %s self.isUnloading %s self.fillUnits %s self.blocked %s", tostring(self.isLoading), tostring(self.isUnloading), tostring(self.fillUnits), tostring(self.blocked))
 end
 
 function ADTrailerModule:canBeHandledInReverse()
@@ -320,7 +320,7 @@ function ADTrailerModule:updateLoad(dt)
         end
 
         -- check for load water from ground
-        local waterTrailer = AutoDrive.getWaterTrailerInWater(self.vehicle, dt)
+        local waterTrailer = AutoDrive.getWaterTrailerInWater(self.vehicle, self.trailers)
         if waterTrailer ~= nil and waterTrailer.setIsWaterTrailerFilling ~= nil then
             waterTrailer:setIsWaterTrailerFilling(true)
             fillFound = true
@@ -711,6 +711,10 @@ function ADTrailerModule:getCanStopMotor()
         end
     end
     return ret
+end
+
+function ADTrailerModule:getHasAL()
+    return self.hasAL
 end
 
 function ADTrailerModule.debugMsg(vehicle, debugText, ...)

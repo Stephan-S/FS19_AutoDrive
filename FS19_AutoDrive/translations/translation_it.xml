@@ -8,7 +8,11 @@
 		<text name="input_ADToggleMouse"						text="AD: Mostra/Nascondi mouse" />
 		<text name="input_ADEnDisable"							text="AD: Abilita/Disabilita" />
 		<text name="input_ADSilomode"							text="AD: Cambia modalità" />
+		<text name="input_ADPreviousMode"						text="AD: Previous mode" />
 		<text name="input_ADRecord"								text="AD: Registra" />
+		<text name="input_ADRecord_Dual"						text="AD: Record 2 way route" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Record secondary route" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Record 2 way secondary route route" />
 		<text name="input_ADSelectTarget"						text="AD: Destinazione successiva" />
 		<text name="input_ADSelectPreviousTarget"				text="AD: Destinazione precedente" />
 		<text name="input_AD_Speed_up"							text="AD: Aumenta velocità" />
@@ -19,9 +23,12 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Punto di scarico successivo" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Punto di scarico precedente" />
 		<text name="input_ADActivateDebug"						text="AD: Modalità di modifica" />
+		<text name="input_ADDisplayMapPoints"					text="AD: Show waypoints" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Seleziona un punto vicino" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Prossimo punto vicino" />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Select previous Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Connetti/Disconnetti" />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Toggle connection between inverted" />
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Crea nuova destinazione" />
 		<text name="input_ADRenameMapMarker"					text="AD: Rinomina destinazione corrente" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Elimina punto" />
@@ -32,11 +39,18 @@
 		<text name="input_ADCallDriver"							text="AD: Chiama autista" />
 		<text name="input_ADGoToVehicle"						text="AD: Passa al veicolo arrivato" />
 		<text name="input_ADNameDriver"							text="AD: Assegna un nome all'autista" />
+		<text name="input_ADSetDestinationFilter"				text="AD: Destination filter" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Increase Field Speed" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Decrease Field Speed" />
 		<text name="input_ADIncLoopCounter"						text="AD: Aumenta contatore ciclo" />
+		<text name="input_ADDecLoopCounter"						text="AD: Decrease loop counter" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Parcheggio Veicolo" />
+		<text name="input_ADSetParkDestination"					text="AD: assign 1st Destination for parking" />
 		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Scambia Destinazione" />
+		<text name="input_ADStartCP"							text="AD: Pass to CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: Toggle CP/AIVE" />
 		<text name="input_AD_devAction"                         text="AD: Azione dello sviluppatore" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Suggerimento del giorno aperto" />
 		<text name="hud_avoidFruit"								text="AD: Evita raccolto" />

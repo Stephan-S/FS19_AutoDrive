@@ -53,6 +53,29 @@ end
 function LoadMode:stop()
 end
 
+function LoadMode:continue()
+	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "LoadMode:continue start self.state %s", tostring(self.state))
+    local shouldChangeState = false
+    if self.state == LoadMode.STATE_LOAD then
+        shouldChangeState = true
+    elseif self.state == LoadMode.STATE_FINISHED then
+        self.state = LoadMode.STATE_TO_TARGET
+        shouldChangeState = true
+    end
+    if shouldChangeState == true then
+        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "LoadMode:continue changed to self.state %s", tostring(self.state))
+        if self.activeTask ~= nil then
+            self.vehicle.ad.taskModule:abortCurrentTask()
+        end
+        self.vehicle.ad.trailerModule:reset()
+        self.activeTask = self:getNextTask()
+        if self.activeTask ~= nil then
+            self.vehicle.ad.taskModule:addTask(self.activeTask)
+        end
+    end
+    AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "LoadMode:continue end")
+end
+
 function LoadMode:getNextTask()
 	AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "LoadMode:getNextTask start self.state %s", tostring(self.state))
     local nextTask

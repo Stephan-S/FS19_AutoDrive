@@ -4,25 +4,32 @@
 	<texts>
 		<text name="UNKNOWN"									text="Unbekannt" />
 		<text name="input_ADToggleHud"							text="AD: HUD ein/ausblenden" />
-		<text name="input_ADToggleHudExtension"					text="AD: Show HUD infos" />
+		<text name="input_ADToggleHudExtension"					text="AD: HUD Infos" />
 		<text name="input_ADToggleMouse"						text="AD: Maus ein/ausblenden" />
 		<text name="input_ADEnDisable"							text="AD: Ein/Ausschalten" />
 		<text name="input_ADSilomode"							text="AD: Modus wechseln" />
+		<text name="input_ADPreviousMode"						text="AD: vorheriger Modus" />
 		<text name="input_ADRecord"								text="AD: Aufzeichnen" />
+		<text name="input_ADRecord_Dual"						text="AD: Aufzeichnen 2-Weg" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Aufzeichnen Nebenstrecke" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Aufzeichnen Nebenstrecke 2-Weg" />
 		<text name="input_ADSelectTarget"						text="AD: Ziel wählen" />
 		<text name="input_ADSelectPreviousTarget"				text="AD: Voriges Ziel wählen" />
 		<text name="input_AD_Speed_up"							text="AD: Geschwindigkeit erhöhen" />
 		<text name="input_AD_Speed_down"						text="AD: Geschwindigkeit verringern" />
-		<text name="input_AD_routes_manager"					text="AD: Open routes manager" />
-		<text name="input_AD_open_notification_history" 		text="AD: Open notification history" />
-		<text name="input_AD_open_colorSettings" 		        text="AD: Farbzuweisungen" />
+		<text name="input_AD_routes_manager"					text="AD: Routenmanager öffnen" />
+		<text name="input_AD_open_notification_history" 		text="AD: Benachrichtigungen öffnen" />
+		<text name="input_AD_open_colorSettings" 				text="AD: Farbzuweisungen" />
 		<text name="input_AD_continue"							text="AD: Weiterfahren" />
 		<text name="input_ADSelectTargetUnload"					text="AD: Nächster Abladepunkt" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Voriger Abladepunkt" />
 		<text name="input_ADActivateDebug"						text="AD: Editor Modus" />
+		<text name="input_ADDisplayMapPoints"					text="AD: Wegpunkte anzeigen" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Nachbarpunkt wählen" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Nächsten Nachbarpunkt wählen" />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Vorherigen Nachbarpunkt wählen" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Verbindung an/aus" />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: umgekehrte Verbindung an/aus" />
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Neues Ziel erstellen" />
 		<text name="input_ADRenameMapMarker"					text="AD: Aktuelles Ziel umbenennen" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Wegpunkt löschen" />
@@ -33,12 +40,19 @@
 		<text name="input_ADCallDriver"							text="AD: Abfahrer rufen" />
 		<text name="input_ADGoToVehicle"						text="AD: Zu angekommenem Fahrzeug wechseln" />
 		<text name="input_ADNameDriver"							text="AD: Vergebe Fahrer Namen" />
+		<text name="input_ADSetDestinationFilter"				text="AD: Zielfilter" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Feld-Geschwindigkeit erhöhen" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Feld-Geschwindigkeit verringern" />
 		<text name="input_ADIncLoopCounter"						text="AD: Anzahl Wiederholungen erhöhen" />
+		<text name="input_ADDecLoopCounter"						text="AD: Anzahl Wiederholungen verringern" />
 		<text name="input_ADbunkerUnloadType"					text="AD: In Trailer oder BGA abladen" />
 		<text name="input_ADParkVehicle"						text="AD: Fahrzeug parken" />
+		<text name="input_ADSetParkDestination"					text="AD: 1. Ziel als Parkplatz setzen" />
 		<text name="input_ADRefuelVehicle"						text="AD: Fahrzeug tanken" />
 		<text name="input_ADSwapTargets"						text="AD: Ziele tauschen" />
-		<text name="input_AD_devAction"                         text="AD: Entwickler Aktion" />
+		<text name="input_ADStartCP"							text="AD: Übergabe an CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: CP/AIVE umschalten" />
+		<text name="input_AD_devAction"							text="AD: Entwickler Aktion" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Öffne Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Fruchtumfahrung" />
 		<text name="hud_startCp" 								text="AD: Starte CP / AIVE Fahrer am Zielpunkt" />

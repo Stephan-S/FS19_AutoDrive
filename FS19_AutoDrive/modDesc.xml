@@ -59,36 +59,52 @@ Consultez notre wiki Github pour les notes de version complètes !
 	<l10n filenamePrefix="translations/translation" />
 
 	<actions>
-		<action name="ADToggleMouse" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADToggleHud" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADSilomode" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADPreviousMode" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADRecord" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADRecord_Dual" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADRecord_SubPrio" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADRecord_SubPrioDual" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADEnDisable" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectTarget" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectPreviousTarget" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectTargetUnload" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectPreviousTargetUnload" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADActivateDebug" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADDisplayMapPoints" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugSelectNeighbor" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADDebugChangeNeighbor" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugCreateConnection" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADDebugToggleConnectionInverted" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADDebugChangeNeighbor" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADDebugPreviousNeighbor" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugCreateMapMarker" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADDebugDeleteWayPoint" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADRenameMapMarker" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADDebugDeleteDestination" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADNameDriver" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADSetDestinationFilter" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_Speed_up" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_Speed_down" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_FieldSpeed_up" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_FieldSpeed_down" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADToggleHud" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADToggleMouse" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADDebugDeleteWayPoint" category="VEHICLE" ignoreComboMask="false" />
+		<action name="AD_routes_manager" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectNextFillType" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSelectPreviousFillType" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADRecord" category="VEHICLE" ignoreComboMask="false" />
-		<action name="AD_routes_manager" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADSilomode" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADOpenGUI" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADCallDriver" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADGoToVehicle" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADNameDriver" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADIncLoopCounter" category="VEHICLE" ignoreComboMask="false" />
-		<action name="ADRenameMapMarker" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADDecLoopCounter" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSwapTargets" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADStartCP" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADToggleCP_AIVE" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
 		<!-- <action name="AD_open_colorSettings" category="VEHICLE" ignoreComboMask="false" /> -->
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
+		<action name="ADSetParkDestination" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_devAction" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_tipOfTheDay" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADRefuelVehicle" category="VEHICLE" ignoreComboMask="false" />	

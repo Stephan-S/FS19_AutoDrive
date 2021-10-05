@@ -118,7 +118,8 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
         vehicle.ad.callBackFunction = callBackFunction
         vehicle.ad.callBackArg = callBackArg
 
-        if destinationID ~= nil and destinationID >= 0 and ADGraphManager:getMapMarkerById(destinationID) ~= nil then
+        if destinationID ~= nil and destinationID >= 0 and ADGraphManager:getMapMarkerById(destinationID) ~= nil 
+            and unloadDestinationID ~= nil and unloadDestinationID >= 0 and ADGraphManager:getMapMarkerById(unloadDestinationID) ~= nil then
             vehicle.ad.stateModule:setFirstMarker(destinationID)
         end
         if unloadDestinationID ~= nil then
@@ -126,13 +127,21 @@ function AutoDrive:StartDriving(vehicle, destinationID, unloadDestinationID, cal
                 vehicle.ad.stateModule:setSecondMarker(unloadDestinationID)
                 vehicle.ad.stateModule:getCurrentMode():start()
             elseif unloadDestinationID == -3 then --park
-                --must be using 'Drive' mode if only one destination is supplied. For now, also set the onRouteToPark variable to true, so AD will shutdown motor and lights on arrival
                 local parkDestinationAtJobFinished = vehicle.ad.stateModule:getParkDestinationAtJobFinished()
                 if parkDestinationAtJobFinished >= 1 then
-                    vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
-                    vehicle.ad.stateModule:setFirstMarker(parkDestinationAtJobFinished)
+                    local trailers, _ = AutoDrive.getTrailersOf(vehicle, true)
+                    local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                    if vehicle.ad.stateModule:getMode() == AutoDrive.MODE_PICKUPANDDELIVER and fillLevel > 0 then
+                        -- unload before going to park
+                        AutoDrive.debugPrint(vehicle, AutoDrive.DC_EXTERNALINTERFACEINFO, "AutoDrive:StartDriving unload before going to park")
+                        vehicle.ad.stateModule:setMode(AutoDrive.MODE_DELIVERTO)
+                        vehicle.ad.stateModule:setFirstMarker(vehicle.ad.stateModule:getSecondMarkerId())
+                    else
+                        vehicle.ad.stateModule:setMode(AutoDrive.MODE_DRIVETO)
+                        vehicle.ad.stateModule:setFirstMarker(parkDestinationAtJobFinished)
+                        vehicle.ad.onRouteToPark = true
+                    end
                     vehicle.ad.stateModule:getCurrentMode():start()
-                    vehicle.ad.onRouteToPark = true
                 else
                     AutoDriveMessageEvent.sendMessage(vehicle, ADMessagesManager.messageTypes.ERROR, "$l10n_AD_parkVehicle_noPosSet;", 5000)
                     -- stop vehicle movement

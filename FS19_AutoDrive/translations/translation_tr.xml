@@ -8,7 +8,11 @@
         <text name="input_ADToggleMouse"                                                                    text="AD: Fareyi Değiştir"  />
         <text name="input_ADEnDisable"                                                                      text="AD: Etkinleştir / Devre Dışı Bırak"  />
         <text name="input_ADSilomode"                                                                       text="AD: Modu değiştir"  />
+		<text name="input_ADPreviousMode"						text="AD: Previous mode" />
         <text name="input_ADRecord"                                                                         text="AD: Kaydet"  />
+		<text name="input_ADRecord_Dual"						text="AD: Record 2 way route" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Record secondary route" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Record 2 way secondary route route" />
         <text name="input_ADSelectTarget"                                                                   text="AD: Sonraki Hedefi Seçin"  />
         <text name="input_ADSelectPreviousTarget"                                                           text="AD: Önceki Hedefi Seçin"  />
         <text name="input_AD_Speed_up"                                                                      text="AD: Hızı Artırın"  />
@@ -19,9 +23,12 @@
         <text name="input_ADSelectTargetUnload"                                                             text="AD: Sonraki Boşaltmayı Seçin"  />
         <text name="input_ADSelectPreviousTargetUnload"                                                     text="AD: Önceki Boşaltmayı Seçin"  />
         <text name="input_ADActivateDebug"                                                                  text="AD: Düzenleme Modu"  />
+		<text name="input_ADDisplayMapPoints"					text="AD: Show waypoints" />
         <text name="input_ADDebugSelectNeighbor"                                                            text="AD: Komşu Noktayı Seçin"  />
         <text name="input_ADDebugChangeNeighbor"                                                            text="AD: Sonraki Komşu Noktasını Seçin"  />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Select previous Neighbour Point" />
         <text name="input_ADDebugCreateConnection"                                                          text="AD: Bağlantıyı değiştir."  />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Toggle connection between inverted" />
         <text name="input_ADDebugCreateMapMarker"                                                           text="AD: Hedef Ekle / Düzenle"  />
         <text name="input_ADRenameMapMarker"                                                                text="AD: Seçili Hedefi düzenleyin"  />
         <text name="input_ADDebugDeleteWayPoint"                                                            text="AD: Ara Noktayı Sil"  />
@@ -32,11 +39,18 @@
         <text name="input_ADCallDriver"                                                                     text="AD: Sürücüyü Arayın"  />
         <text name="input_ADGoToVehicle"                                                                    text="AD: Gelen araca git"  />
         <text name="input_ADNameDriver"                                                                     text="AD: Sürücü adını atayın"  />
+		<text name="input_ADSetDestinationFilter"				text="AD: Destination filter" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Increase Field Speed" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Decrease Field Speed" />
         <text name="input_ADIncLoopCounter"                                                                 text="AD: Döngü sayacını artırın"  />
+		<text name="input_ADDecLoopCounter"						text="AD: Decrease loop counter" />
 		<text name="input_ADbunkerUnloadType"					                                                      text="AD: Unload to Trailer or BGA" />
         <text name="input_ADParkVehicle"                                                                    text="AD: Aracı park et"  />
+		<text name="input_ADSetParkDestination"					text="AD: assign 1st Destination for parking" />
 		<text name="input_ADRefuelVehicle"						                                                      text="AD: Refuel vehicle" />
         <text name="input_ADSwapTargets"                                                                    text="AD: Hedefleri değiştir"  />
+		<text name="input_ADStartCP"							text="AD: Pass to CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: Toggle CP/AIVE" />
 		<text name="input_AD_devAction"                         			                                      text="AD: Developer Action" />		
 		<text name="input_AD_open_tipOfTheDay" 					                                                    text="AD: Open Tip of the day" />
         <text name="hud_avoidFruit"                                                                         text="AD: Meyvelerden kaçının"  />

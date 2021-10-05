@@ -86,7 +86,7 @@ function UnloadAtDestinationTask:update(dt)
                     -- Wait at unload point until unloaded somehow
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
-                    if self.vehicle.ad.trailerModule.hasAL == true then
+                    if self.vehicle.ad.trailerModule:getHasAL() == true then
                     	-- AutoLoad
                         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update unloadALAll start")
                         if AutoDrive.getSetting("ALUnloadWaitTime", self.vehicle) > 0 then

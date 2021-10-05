@@ -110,6 +110,7 @@ function ADSpecialDrivingModule:driveForward(dt)
     local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, 20)
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
 
+    self:releaseVehicle()
     if self.vehicle.startMotor then
         if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
             self.vehicle:startMotor()
@@ -130,6 +131,8 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration, guid
         if guided ~= true then
             local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, -20)
             local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
+
+            self:releaseVehicle()
             if self.vehicle.startMotor then
                 if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
                     self.vehicle:startMotor()
@@ -429,6 +432,7 @@ function ADSpecialDrivingModule:reverseToPoint(dt, maxSpeed)
         end
     end
 
+    self:releaseVehicle()
     if self.vehicle.startMotor then
         if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
             self.vehicle:startMotor()
