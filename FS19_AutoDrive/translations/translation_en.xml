@@ -201,6 +201,22 @@
 		<text name="gui_ad_AL_behind"                           text="Unload behind" />
 		<text name="gui_ad_AL_right"                            text="Unload right" />
 
+		<text name="gui_ad_lightsOnRain"                        text="Vehicle Lights: Inclement Weather" />
+		<text name="gui_ad_lightsOnRain_tooltip"                text="Use vehicle lights in inclement weather (rain and snow)" />
+		<text name="gui_ad_lightsDaytimeRunning"                text="Vehicle Lights: Daytime Running" />
+		<text name="gui_ad_lightsDaytimeRunning_tooltip"        text="Use vehicle lights in the day time (first light state)" />
+		<text name="gui_ad_lightsOffFieldState"                 text="Vehicle Lights: Off Field State" />
+		<text name="gui_ad_lightsOffFieldState_tooltip"         text="Vehicle light state to use off field (number of times to press the 'lights' key)" />
+		<text name="gui_ad_lightsLoadUnloadState"               text="Vehicle Lights: Load/Unload State" />
+		<text name="gui_ad_lightsLoadUnloadState_tooltip"       text="Vehicle light state to use near load / unload trigger (number of times to press the 'lights' key)" />
+		<text name="gui_ad_lightsHazardsOffField"               text="Vehicle Lights: Hazards Off Field" />
+		<text name="gui_ad_lightsHazardsOffField_tooltip"       text="Use hazards (both turn lights) when off field." />
+		<text name="gui_ad_lightsTurnOffTime"                   text="Vehicle Lights: Time to turn off" />
+		<text name="gui_ad_lightsTurnOffTime_tooltip"           text="Time of day that vehicles lights should stop being used.  Set to '--' to use map settings" />
+		<text name="gui_ad_lightsTurnOnTime"                    text="Vehicle Lights: Time to turn on" />
+		<text name="gui_ad_lightsTurnOnTime_tooltip"            text="Time of day that vehicles lights should start being used.  Set to '--' to use map settings" />
+		
+
 		<text name="gui_ad_settingsPage_title"					text="Settings - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
 		<text name="gui_ad_vehicleSettingsPage_title"			text="Vehicle Settings - AutoDrive" />

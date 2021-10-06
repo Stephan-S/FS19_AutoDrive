@@ -1150,18 +1150,71 @@ function AutoDrive:updateAILights(superFunc)
         -- If AutoDrive is active, then we take care of lights our self
         local spec = self.spec_lights
         local dayMinutes = g_currentMission.environment.dayTime / (1000 * 60)
-        local needLights = (dayMinutes > g_currentMission.environment.nightStartMinutes or dayMinutes < g_currentMission.environment.nightEndMinutes)
+
+        local nightEnd = (AutoDrive.getSettingState("lightsTurnOffTime") > 1) and AutoDrive.getSetting("lightsTurnOffTime") or g_currentMission.environment.nightEndMinutes
+        local nightStart = (AutoDrive.getSettingState("lightsTurnOnTime") > 1) and AutoDrive.getSetting("lightsTurnOnTime") or g_currentMission.environment.nightStartMinutes
+
+        local needLights = (dayMinutes > nightStart or dayMinutes < nightEnd)
+        local isRaining = g_currentMission.environment.weather:getRainFallScale() > 0
+
+        -- If it's not night, and the lightsOnRain setting is on, needLights should be the status of the weather
+        if not needLights and AutoDrive.getSetting("lightsOnRain") then
+            needLights = isRaining
+        end
+        
         if needLights then
             local x, y, z = getWorldTranslation(self.components[1].node)
-            if spec.lightsTypesMask ~= spec.aiLightsTypesMask and AutoDrive.checkIsOnField(x, y, z) then
-                self:setLightsTypesMask(spec.aiLightsTypesMask)
-            end
-            if spec.lightsTypesMask ~= 1 and not AutoDrive.checkIsOnField(x, y, z) then
-                self:setLightsTypesMask(1)
+
+            -- Reorder checks a little
+            if AutoDrive.checkIsOnField(x, y, z) then
+                if spec.lightsTypesMask ~= spec.aiLightsTypesMask then
+                    self:setLightsTypesMask(spec.aiLightsTypesMask)
+                end
+            else
+                -- Not on field, grab the prefered state, or if it doesn't exist, default to mask of "1" (lightType = 0)
+                local specOffFieldState = 0
+                local indexOffFieldState = AutoDrive.getSetting("lightsOffFieldState", self)
+
+                if AutoDrive.isInRangeToLoadUnloadTarget(self) then
+                    indexOffFieldState = AutoDrive.getSetting("lightsLoadUnloadState", self)
+                end
+                
+                if indexOffFieldState > 0 then
+                    if spec.lightStates ~= nil and spec.lightStates[indexOffFieldState] ~= nil then
+                        for _, lightType in pairs(spec.lightStates[indexOffFieldState]) do
+                            specOffFieldState = bitOR(specOffFieldState, 2^lightType)
+                        end
+                    else
+                        specOffFieldState = 1
+                    end
+                end
+
+                if spec.lightsTypesMask ~= specOffFieldState then
+                    self:setLightsTypesMask(specOffFieldState)
+                end
             end
         else
-            if spec.lightsTypesMask ~= 0 then
-                self:setLightsTypesMask(0)
+            -- Daytime running
+            if AutoDrive.getSetting("lightsDaytimeRunning", self) then
+                -- Check for existance of first light state, build mask from it, or use mask of "1"
+                local specFirstStyle = 0
+
+                if spec.lightStates ~= nil and spec.lightStates[1] ~= nil then
+                    for _, lightType in pairs(spec.lightStates[1]) do
+                        specFirstStyle = bitOR(specFirstStyle, 2^lightType)
+                    end
+                else
+                    specFirstStyle = 1
+                end
+
+                if spec.lightsTypesMask ~= specFirstStyle then
+                    self:setLightsTypesMask(specFirstStyle)
+                end
+                
+            else
+                if spec.lightsTypesMask ~= 0 then
+                    self:setLightsTypesMask(0)
+                end
             end
         end
         return

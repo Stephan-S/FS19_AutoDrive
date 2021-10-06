@@ -968,6 +968,83 @@ AutoDrive.settings.ALUnload = {
     isVehicleSpecific = true
 }
 
+AutoDrive.settings.lightsOnRain = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_lightsOnRain",
+    tooltip = "gui_ad_lightsOnRain_tooltip",
+    translate = true,
+    isVehicleSpecific = false
+}
+
+AutoDrive.settings.lightsDaytimeRunning = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsDaytimeRunning",
+    tooltip = "gui_ad_lightsDaytimeRunning_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
+AutoDrive.settings.lightsOffFieldState = {
+    values = {0, 1, 2, 3, 4, 5},
+    texts = {"0", "1", "2", "3", "4", "5"},
+    default = 2,
+    current = 2,
+    text = "gui_ad_lightsOffFieldState",
+    tooltip = "gui_ad_lightsOffFieldState_tooltip",
+    translate = false,
+    isVehicleSpecific = true
+}
+
+AutoDrive.settings.lightsLoadUnloadState = {
+    values = {0, 1, 2, 3, 4, 5},
+    texts = {"0", "1", "2", "3", "4", "5"},
+    default = 3,
+    current = 3,
+    text = "gui_ad_lightsLoadUnloadState",
+    tooltip = "gui_ad_lightsLoadUnloadState_tooltip",
+    translate = false,
+    isVehicleSpecific = true
+}
+
+AutoDrive.settings.lightsHazardsOffField = {
+    values = {false, true},
+    texts = {"gui_ad_no", "gui_ad_yes"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsHazardsOffField",
+    tooltip = "gui_ad_lightsHazardsOffField_tooltip",
+    translate = true,
+    isVehicleSpecific = true
+}
+
+AutoDrive.settings.lightsTurnOffTime = {
+    values = {false, 1, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720},
+    texts = {"--", "00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsTurnOffTime",
+    tooltip = "gui_ad_lightsTurnOffTime_tooltip",
+    translate = false,
+    isVehicleSpecific = false
+}
+
+AutoDrive.settings.lightsTurnOnTime = {
+    values = {false, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1439},
+    texts = {"--", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "24:00"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_lightsTurnOnTime",
+    tooltip = "gui_ad_lightsTurnOnTime_tooltip",
+    translate = false,
+    isVehicleSpecific = false
+}
+
 
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then
