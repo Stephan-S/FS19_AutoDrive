@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.localeString;
-import static de.adEditor.MapPanel.quadCurve;
+import static de.adEditor.MapPanel.*;
 
 public class EditorListener implements ActionListener, ItemListener, ChangeListener {
 
@@ -37,28 +37,35 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_MOVING;
                 break;
             case AutoDriveEditor.REMOVE_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETING;
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETE_NODES;
                 break;
-            case AutoDriveEditor.REMOVE_DESTINATIONS:
+            case AutoDriveEditor.DELETE_DESTINATIONS:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETING_DESTINATION;
                 break;
             case AutoDriveEditor.CONNECT_NODES:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_STANDARD;
                 break;
-            case AutoDriveEditor.CREATE_PRIMARY_NODES:
+            case AutoDriveEditor.CREATE_PRIMARY_NODE:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY;
                 break;
             case AutoDriveEditor.CREATE_DESTINATIONS:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION;
                 break;
             case AutoDriveEditor.CHANGE_NODE_PRIORITY:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CHANGE_PRIORITY;
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CHANGE_NODE_PRIORITY;
                 break;
-            case AutoDriveEditor.CREATE_SECONDARY_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_SECONDARY;
+            case AutoDriveEditor.CREATE_SUBPRIO_NODE:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_SUBPRIO;
                 break;
-            case AutoDriveEditor.CREATE_REVERSE_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_REVERSE_CONNECTION;
+            case AutoDriveEditor.CREATE_REVERSE_CONNECTION:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_REVERSE;
+                break;
+            case AutoDriveEditor.CREATE_DUAL_CONNECTION:
+                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_DUAL;
                 break;
             case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
                 this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION;
@@ -88,9 +95,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     File fileName = fc.getSelectedFile();
                     editor.loadConfigFile(fileName);
-                    editor.pack();
-                    editor.repaint();
-                    editor.getMapPanel().repaint();
+                    editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
                 }
                 break;
             case "Save Config":
@@ -103,11 +108,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     try {
                         editor.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
-                        editor.getMapPanel().setPreferredSize(new Dimension(1024, 768));
-                        editor.getMapPanel().setMinimumSize(new Dimension(1024, 768));
-                        editor.getMapPanel().revalidate();
                         editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
-                        //editor.pack();
 
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);

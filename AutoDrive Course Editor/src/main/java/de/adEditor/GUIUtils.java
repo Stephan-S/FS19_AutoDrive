@@ -21,13 +21,22 @@ public class GUIUtils {
         return button;
     }
 
-    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String rollOverImageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
+    public static JToggleButton makeImageToggleButton(String imageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
+        return makeImageToggleButton(imageName, null, null, actionCommand, toolTipText, altText, panel, editorListener);
+    }
+
+    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
+        return makeImageToggleButton(imageName, selectedImageName, null, actionCommand, toolTipText, altText, panel, editorListener);
+    }
+
+    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String rollOverImageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
 
         JToggleButton toggleButton = new JToggleButton();
 
         toggleButton.setActionCommand(actionCommand);
         toggleButton.setToolTipText(localeString.getString(toolTipText));
         toggleButton.addActionListener(editorListener);
+        toggleButton.setFocusPainted(false);
 
         //Load image
 
@@ -65,15 +74,7 @@ public class GUIUtils {
 
         return toggleButton;
     }
-
-    public static JToggleButton makeImageToggleButton(String imageName, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
-        return makeImageToggleButton(imageName, null, null, actionCommand, toolTipText, altText, panel, editorListener);
-    }
-
-    public static JToggleButton makeImageToggleButton(String imageName, String rollOverImage, String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
-        return makeImageToggleButton(imageName, null, rollOverImage, actionCommand, toolTipText, altText, panel, editorListener);
-    }
-
+    
 
     public static JRadioButton makeRadioButton(String text,String actionCommand,String toolTipText,boolean selected, JPanel panel, ButtonGroup group, EditorListener editorListener) {
         JRadioButton radioButton = new JRadioButton(localeString.getString(text));
