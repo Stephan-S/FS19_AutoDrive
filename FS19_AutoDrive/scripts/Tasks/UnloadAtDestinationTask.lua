@@ -89,7 +89,8 @@ function UnloadAtDestinationTask:update(dt)
                     if self.vehicle.ad.trailerModule:getHasAL() == true then
                     	-- AutoLoad
                         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update unloadALAll start")
-                        if AutoDrive.getSetting("ALUnloadWaitTime", self.vehicle) > 0 then
+                        if AutoDrive.getSetting("ALUnloadWaitTime", self.vehicle) > 0 and AutoDrive.getSetting("ALUnload", self.vehicle) > 0 then
+                            -- wait only if unload is not disabled and wait time > 0
                             self.waitForALUnload = true
                             self.waitForALUnloadTimer:timer(false)
                             self.state = UnloadAtDestinationTask.STATE_WAIT_FOR_AL_UNLOAD
