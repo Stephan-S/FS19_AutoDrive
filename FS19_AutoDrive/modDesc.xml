@@ -8,8 +8,11 @@
 		<en>
 			<![CDATA[This mod can be used to create a network of routes for vehicles to drive autonomously. Once setup you can tell a tractor which is standing anywhere close to the network to drive to any point, such as the shop, field 1 or to a sell point.
 
-Changelog 1.1.1.6:
-- Support EasyAutoLoad - mod embedded versions < 0.1.1.0 and standalone mod FS19_EasyAutoLoad versions 0.1.1.0
+Changelog 1.1.1.8:
+- network section modification
+- color assignment for users with different color perception
+- support EasyAutoload, not Wood!
+- optimisations of harvester and chopper unload
 - several bugfixes
 Check our github wiki for the full release notes!
 ]]>
@@ -17,18 +20,25 @@ Check our github wiki for the full release notes!
 		<de>
 			<![CDATA[Dieser Mod erlaubt es ein Netzwerk von Routen aufzuzeichnen, um dann ein Fahrzeug von jedem beliebigen Punkt zu speziell definierten Zielen, wie zum Beispiel der eigenen Farm, Feld 1 oder auch zu jedem Verkaufspunkt fahren zu lassen.
 
-Changelog 1.1.1.6:
-- Support EasyAutoLoad - in mods integrierte Versionen < 0.1.1.0 und Einzelmod FS19_EasyAutoLoad Version 0.1.1.0
-- verschiedene Bugfixe
+Changelog 1.1.1.8:
+- Änderung von Steckenabschnitten
+- Farbzuordnung für Benutzer mit unterschiedlicher Farbwahrnehmung
+- Unterstützung von EasyAutoload, nicht Holz (Wood)!
+- Optimierungen beim Abfahrern von Mähdreschern und Häckslern
+- Verschiedene Bugfixe
 In unserem Github-Wiki findet man die vollständigen Release Notes!
 ]]>
 		</de>
 		<it>
 			<![CDATA[Questa mod può essere usata per creare una rete di percorsi per permettere ai veicoli di guidare autonomamente. Una volta effettuata la configurazione puoi dire a un veicolo di guidare tramite la rete verso un qualsiasi punto, come il negozio, il campo 1 o un punto vendita.
 
-Log delle modifiche 1.1.1.6:
-- Supporto EasyAutoLoad - nelle versioni integrate di mods < 0.1.1.0 e mod singolo FS19_EasyAutoLoad versione 0.1.1.0
-- diverse correzioni di bug Controlla il nostro wiki Github per le note di rilascio complete!
+Log delle modifiche 1.1.1.8:
+- Modifica della sezione di rete
+- Assegnazione del colore per gli utenti con diversa percezione del colore
+- Supporto EasyAutoload, non Wood!
+- Ottimizzazione dello scarico della mietitrice/chopper
+- Diversi bugfix
+Controlla il nostro wiki github per le note di rilascio complete!
 ]]>
 		</it>
 		<fr>
@@ -36,10 +46,13 @@ Log delle modifiche 1.1.1.6:
 Créer, ajouter, modifier, supprimer vos routes ou points de destination à l'aide de l'éditeur intégré très pratique !
 Différents modes d'utilisation ont été ajoutés depuis les premières versions, et peuvent être combinés à l'utilisation du bien connu "Courseplay".
 
-Changelog 1.1.1.6:
-- Prise en charge de EasyAutoLoad - dans les versions intégrées des mods < 0.1.1.0 et le mod unique FS19_EasyAutoLoad version 0.1.1.0
-- plusieurs corrections de bugs 
-Consultez notre wiki Github pour les notes de version complètes !
+Changelog 1.1.1.8:
+- Modification de la section réseau
+- Attribution de couleurs pour les utilisateurs ayant une perception différente des couleurs
+- Supporter EasyAutoload, pas Wood !
+- Optimisations du déchargement de la moissonneuse/hacheuse
+- Plusieurs corrections de bugs
+Consultez notre wiki github pour les notes de version complètes !
 ]]>
 		</fr>
 		<es>
@@ -49,7 +62,7 @@ Consultez notre wiki Github pour les notes de version complètes !
 			<![CDATA[Этот мод может быть использован для создания сети маршрутов для транспортных средств для автономного вождения. После настройки вы можете указать трактору, стоящему где-угодно рядом с сетью, проехать в любую точку, например, в магазин, поле №1 или в точку продажи.]]>
 		</ru>
 	</description>
-	<version>1.1.1.6</version>
+	<version>1.1.1.8</version>
 	<multiplayer supported="true" />
 	<iconFilename>icon.dds</iconFilename>
 	<extraSourceFiles>
@@ -101,7 +114,6 @@ Consultez notre wiki Github pour les notes de version complètes !
 		<action name="ADStartCP" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADToggleCP_AIVE" category="VEHICLE" ignoreComboMask="false" />
 		<action name="AD_open_notification_history" category="VEHICLE" ignoreComboMask="false" />
-		<!-- <action name="AD_open_colorSettings" category="VEHICLE" ignoreComboMask="false" /> -->
 		<action name="AD_continue" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADParkVehicle" category="VEHICLE" ignoreComboMask="false" />
 		<action name="ADSetParkDestination" category="VEHICLE" ignoreComboMask="false" />
