@@ -35,16 +35,22 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_MOVING = 0;
     public static final int EDITORSTATE_DELETING = 1;
     public static final int EDITORSTATE_CONNECTING = 2;
-    public static final int EDITORSTATE_CREATING = 3;
+    public static final int EDITORSTATE_CREATING_PRIMARY = 3;
     public static final int EDITORSTATE_DELETING_DESTINATION = 4;
     public static final int EDITORSTATE_CREATING_DESTINATION = 5;
+    public static final int EDITORSTATE_CHANGE_PRIORITY = 6;
+    public static final int EDITORSTATE_CREATING_SECONDARY = 7;
+
     public static final String MOVE_NODES = "Move Nodes";
     public static final String CONNECT_NODES = "Connect Nodes";
     public static final String REMOVE_NODES = "Remove Nodes";
     public static final String REMOVE_DESTINATIONS = "Remove Destinations";
-    public static final String CREATE_NODES = "Create Nodes";
+    public static final String CREATE_PRIMARY_NODES = "Create Primary Node";
     public static final String CREATE_DESTINATIONS = "Create Destinations";
-    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.1";
+    public static final String CHANGE_NODE_PRIORITY = "Change Priority";
+    public static final String CREATE_SECONDARY_NODES = "Create Secondary Node";
+    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.11 Alpha";
+
 
     private MapPanel mapPanel;
     private JButton saveButton;
@@ -53,8 +59,11 @@ public class AutoDriveEditor extends JFrame {
     private JToggleButton removeDestination;
     private JToggleButton moveNode;
     private JToggleButton connectNodes;
-    private JToggleButton createNode;
+    private JToggleButton createPrimaryNode;
     private JToggleButton createDestination;
+    private JToggleButton changePriority;
+    private JToggleButton createSecondaryNode;
+
     private JRadioButton oneTimesMap;
     private JRadioButton fourTimesMap;
     private JRadioButton sixteenTimesMap;
@@ -62,6 +71,7 @@ public class AutoDriveEditor extends JFrame {
     public int editorState = EDITORSTATE_NOOP;
     private File xmlConfigFile;
     private boolean stale = false;
+    private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
 
     private static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
 
@@ -169,15 +179,25 @@ public class AutoDriveEditor extends JFrame {
         removeDestination.setActionCommand(REMOVE_DESTINATIONS);
         nodeBox.add(removeDestination);
 
-        createNode = new JToggleButton("Create Node");
-        createNode.addActionListener(editorListener);
-        createNode.setActionCommand(CREATE_NODES);
-        nodeBox.add(createNode);
+        createPrimaryNode = new JToggleButton("Create Primary Node");
+        createPrimaryNode.addActionListener(editorListener);
+        createPrimaryNode.setActionCommand(CREATE_PRIMARY_NODES);
+        nodeBox.add(createPrimaryNode);
 
         createDestination = new JToggleButton("Create Destination");
         createDestination.addActionListener(editorListener);
         createDestination.setActionCommand(CREATE_DESTINATIONS);
         nodeBox.add(createDestination);
+
+        changePriority = new JToggleButton("Node Priority");
+        changePriority.addActionListener(editorListener);
+        changePriority.setActionCommand(CHANGE_NODE_PRIORITY);
+        nodeBox.add(changePriority);
+
+        createSecondaryNode = new JToggleButton("Create Secondary Node");
+        createSecondaryNode.addActionListener(editorListener);
+        createSecondaryNode.setActionCommand(CREATE_SECONDARY_NODES);
+        nodeBox.add(createSecondaryNode);
 
         updateButtons();
         nodeBoxSetEnabled(false);
@@ -207,8 +227,17 @@ public class AutoDriveEditor extends JFrame {
         connectNodes.setEnabled(enabled);
         removeNode.setEnabled(enabled);
         removeDestination.setEnabled(enabled);
-        createNode.setEnabled(enabled);
+        createPrimaryNode.setEnabled(enabled);
         createDestination.setEnabled(enabled);
+        if (hasFlagTag == true) {
+            changePriority.setEnabled(enabled);
+            createSecondaryNode.setEnabled(enabled);
+        }
+        else {
+            changePriority.setEnabled(false);
+            createSecondaryNode.setEnabled(false);
+        }
+
     }
 
     private void mapBoxSetEnabled(boolean enabled) {
@@ -220,8 +249,10 @@ public class AutoDriveEditor extends JFrame {
         connectNodes.setSelected(false);
         removeNode.setSelected(false);
         removeDestination.setSelected(false);
-        createNode.setSelected(false);
+        createPrimaryNode.setSelected(false);
         createDestination.setSelected(false);
+        changePriority.setSelected(false);
+        createSecondaryNode.setSelected(false);
 
         switch (editorState) {
             case EDITORSTATE_MOVING:
@@ -233,14 +264,20 @@ public class AutoDriveEditor extends JFrame {
             case EDITORSTATE_CONNECTING:
                 connectNodes.setSelected(true);
                 break;
-            case EDITORSTATE_CREATING:
-                createNode.setSelected(true);
+            case EDITORSTATE_CREATING_PRIMARY:
+                createPrimaryNode.setSelected(true);
                 break;
             case EDITORSTATE_DELETING_DESTINATION:
                 removeDestination.setSelected(true);
                 break;
             case EDITORSTATE_CREATING_DESTINATION:
                 createDestination.setSelected(true);
+                break;
+            case EDITORSTATE_CHANGE_PRIORITY:
+                changePriority.setSelected(true);
+                break;
+            case EDITORSTATE_CREATING_SECONDARY:
+                createSecondaryNode.setSelected(true);
                 break;
         }
     }
@@ -305,7 +342,7 @@ public class AutoDriveEditor extends JFrame {
                     node = groupNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerGroup = node.getNodeValue();
 
-                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0);
+                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0, 0);
                     MapMarker mapMarker = new MapMarker(dummyNode, markerName, markerGroup);
                     mapMarkerTree.put((int)Double.parseDouble(markerNodeId), mapMarker);
                 }
@@ -354,14 +391,39 @@ public class AutoDriveEditor extends JFrame {
                 String incomingString = node.getNodeValue();
                 String[] incomingValueArrays = incomingString.split(";");
 
-                for (int i=0; i<ids.length; i++) {
-                    int id = Integer.parseInt(ids[i]);
-                    double x = Double.parseDouble(xValues[i]);
-                    double y = Double.parseDouble(yValues[i]);
-                    double z = Double.parseDouble(zValues[i]);
 
-                    MapNode mapNode = new MapNode(id, x, y, z);
-                    nodes.add(mapNode);
+
+                if (eElement.getElementsByTagName("flags").item(0) != null ) {
+                    nodeList = eElement.getElementsByTagName("flags").item(0).getChildNodes();
+                    node = nodeList.item(0);
+                    String flagsString = node.getNodeValue();
+                    String[] flagsValue = flagsString.split(",");
+                    hasFlagTag = true;
+
+                    for (int i=0; i<ids.length; i++) {
+                        int id = Integer.parseInt(ids[i]);
+                        double x = Double.parseDouble(xValues[i]);
+                        double y = Double.parseDouble(yValues[i]);
+                        double z = Double.parseDouble(zValues[i]);
+                        int flag = Integer.parseInt(flagsValue[i]);
+
+                        MapNode mapNode = new MapNode(id, x, y, z, flag);
+                        nodes.add(mapNode);
+                    }
+                } else {
+                    LOG.info("old config format detected, no <flags> element found. disabling subPriority route features");
+                    hasFlagTag = false;
+                    JOptionPane.showMessageDialog(this, "This config file was saved with a older version of AutoDrive. Please update to the latest version and reload and save ingame to enable the new features", "AutoDrive", JOptionPane.WARNING_MESSAGE);
+                    for (int i=0; i<ids.length; i++) {
+                        int id = Integer.parseInt(ids[i]);
+                        double x = Double.parseDouble(xValues[i]);
+                        double y = Double.parseDouble(yValues[i]);
+                        double z = Double.parseDouble(zValues[i]);
+                        int flag = 0;
+
+                        MapNode mapNode = new MapNode(id, x, y, z, flag);
+                        nodes.add(mapNode);
+                    }
                 }
 
 
@@ -570,7 +632,20 @@ public class AutoDriveEditor extends JFrame {
                 }
                 node.setTextContent(outgoingString.toString());
             }
+            if ("flags".equals(node.getNodeName())) {
+                StringBuilder flags = new StringBuilder();
+                for (int j = 0; j < roadMap.mapNodes.size(); j++) {
+                    MapNode mapNode = roadMap.mapNodes.get(j);
+                    flags.append(mapNode.flag);
+                    if (j < (roadMap.mapNodes.size() - 1)) {
+                        flags.append(",");
+                    }
+                }
+                node.setTextContent(flags.toString());
+            }
         }
+
+
 
         for (int markerIndex = 1; markerIndex < roadMap.mapMarkers.size() + 100; markerIndex++) {
             Element element = (Element) doc.getElementsByTagName("mm" + (markerIndex)).item(0);
