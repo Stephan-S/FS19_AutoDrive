@@ -1,18 +1,25 @@
 package de.adEditor.MapHelpers;
 
+import de.adEditor.ADUtils;
 import de.adEditor.AutoDriveEditor;
 import de.adEditor.MapPanel;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
+
+import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.MapPanel.*;
 
 public class QuadCurve{
 
     public LinkedList<MapNode> curveNodesList;
     private MapNode curveStartNode = null;
     private MapNode curveEndNode = null;
-    private int numInterpPoints = 1;
     private MapNode controlPoint;
 
+    private int numInterpPoints = 1;
+    private int nodeType=0;
+    private boolean isReversePath = false;
+    private boolean isDualPath = false;
 
     public QuadCurve(MapNode startNode, MapNode endNode, int numPoints) {
         this.curveNodesList = new LinkedList<>();
@@ -20,6 +27,9 @@ public class QuadCurve{
         this.curveEndNode = endNode;
         this.numInterpPoints = numPoints;
         this.controlPoint = null;
+        this.isReversePath = AutoDriveEditor.curvePathReverse.isSelected();
+        this.isDualPath = AutoDriveEditor.curvePathDual.isSelected();
+        this.nodeType = AutoDriveEditor.curvePathRegular.isSelected() ? NODE_STANDARD : NODE_SUBPRIO;
         this.updateCurve();
         AutoDriveEditor.curvePanel.setVisible(true);
 
@@ -48,19 +58,25 @@ public class QuadCurve{
         double step = 1/(double)this.numInterpPoints;
         curveNodesList.clear();
 
-        // clunky fix for precision of the for(.. loop, cannot use i<=1 as a comparison due to the rounding up of fractions
-        // the last node would be outside the comparison range (1.0) by a tiny amount ( and i mean tiny :/ )
-        // e.g. it would not calculate the last node as it would be just above 1
-        // ( e.g. ranging between 1.0000000000000001 to 1.0000000000000028 for upto 100 steps )
-        // i<=1.00001 fixes that and doesn't allow more nodes to calculate than needed...
+        // first we add the starting node
+        curveNodesList.add(curveStartNode);
 
-        int id = 1;
+        // now we calculate all the points in-between the start and end nodes
+        // i=step makes sure we skip the first node to calculate as it's the curveStartNode
+        //
+        // i+step<1.0001 means we compare one node ahead so we don't calculate the end node (as it's curveEndNode)
+        // rounding errors mean we can't compare i+step<1 as the last node would make i = 1.0000000000004 - 1.00000000000010
+        // and we would be one node missing due to the comparison being fulfilled.
 
-        for(double i=0;i<=1.00001;i += step) {
+        int id = 0;
+        for(double i=step;i+step<1.0001;i += step) {
             Point2D.Double point = pointsForQuadraticBezier(startNode, endNode, this.controlPoint.x, this.controlPoint.z, i);
-            curveNodesList.add(new MapNode((int)id,point.getX(),point.getY(),0,MapPanel.NODE_STANDARD, false));
+            curveNodesList.add(new MapNode((int)id,point.getX(),-1,point.getY(),MapPanel.NODE_STANDARD, false));
+            if (i+step >=1.0001 ) LOG.info("WARNING -- last node was not calculated, this should not happen!! -- step = {} ,  ", i+step);
             id++;
         }
+        //add the end node to complete the curve
+        curveNodesList.add(curveEndNode);
     }
 
     private Point2D.Double pointsForQuadraticBezier(MapNode startNode, MapNode endNode, double pointerx, double pointery, double precision) {
@@ -85,6 +101,27 @@ public class QuadCurve{
         if ((this.curveStartNode != null && this.curveEndNode !=null && this.numInterpPoints >= 1)) {
             getInterpolationPointsForCurve(this.curveStartNode,this.curveEndNode);
         }
+    }
+
+    public void commitCurve(int pathType) {
+        for (int j = 0; j < curveNodesList.size() - 1; j++) {
+            MapNode startNode = curveNodesList.get(j);
+            MapNode endNode = curveNodesList.get(j+1);
+            if (this.nodeType == NODE_SUBPRIO) {
+                startNode.flag = 1;
+                endNode.flag = 1;
+            }
+            if (endNode != curveEndNode ) roadMap.mapNodes.add(endNode);
+            if (isReversePath) {
+                MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_REVERSE);
+            } else if (isDualPath) {
+                MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_DUAL);
+            } else {
+                MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_STANDARD);
+            }
+
+        }
+        LOG.info("Curve created {} nodes", curveNodesList.size() - 2 );
     }
 
     public void clear() {
@@ -136,4 +173,17 @@ public class QuadCurve{
         this.controlPoint = controlPoint;
         this.updateCurve();
     }
+
+    public void setNodeType(int nodeType) {
+        this.nodeType = nodeType;
+    }
+
+    public void setReversePath(boolean isSelected) {
+        this.isReversePath = isSelected;
+    }
+
+    public void setDualPath(boolean isSelected) {
+        this.isDualPath = isSelected;
+    }
+
 }

@@ -13,7 +13,7 @@ public class LinearLine {
     private MapNode lineStartNode;
     private int interpPointDistance = 12;
 
-    public LinearLine(MapNode startNode, int mousex, int mousey, int nodeDistance) {
+    public LinearLine(MapNode startNode, double mousex, double mousey, int nodeDistance) {
 
         this.lineNodeList = new LinkedList<>();
         this.lineStartNode = startNode;
@@ -21,13 +21,13 @@ public class LinearLine {
         getLinearInterpolationPointsForLine(this.lineStartNode, mousex, mousey);
     }
 
-    public LinearLine(MapNode startNode, int mousex, int mousey) {
+    public LinearLine(MapNode startNode, double mousex, double mousey) {
         this(startNode, mousex, mousey, 12);
     }
 
     // to fix - zoom in/out updates the drawn line position but not the nodes coords along the line
 
-    private void getLinearInterpolationPointsForLine(MapNode startNode, int endx, int endy) {
+    private void getLinearInterpolationPointsForLine(MapNode startNode, double endx, double endy) {
 
         lineNodeList.clear();
 
@@ -51,7 +51,7 @@ public class LinearLine {
         }
     }
 
-    public void updateLine(int mouseX, int mouseY) {
+    public void updateLine(double mouseX, double mouseY) {
         if ((this.lineStartNode != null && this.interpPointDistance >0)) {
             getLinearInterpolationPointsForLine(this.lineStartNode, mouseX, mouseY);
         }

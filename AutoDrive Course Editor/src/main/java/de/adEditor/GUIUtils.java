@@ -1,14 +1,43 @@
 package de.adEditor;
 
 import javax.swing.*;
+import java.awt.*;
 import java.net.URL;
 
-import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.localeString;
 
 public class GUIUtils {
 
+    public static class AlphaContainer extends JComponent
+    {
+        private JComponent component;
+
+        public AlphaContainer(JComponent component)
+        {
+            this.component = component;
+            setLayout( new BorderLayout() );
+            setOpaque( false );
+            component.setOpaque( false );
+            add( component );
+        }
+
+        /**
+         *  Paint the background using the background Color of the
+         *  contained component
+         */
+        @Override
+        public void paintComponent(Graphics g)
+        {
+            g.setColor( component.getBackground() );
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
+    }
+
     public static JFrame frame;
+
+    //
+    // Button Creation functions
+    //
 
     public static JButton makeButton(String actionCommand,String toolTipText,String altText, JPanel panel, EditorListener editorListener) {
         JButton button = new JButton();
@@ -37,6 +66,7 @@ public class GUIUtils {
         toggleButton.setToolTipText(localeString.getString(toolTipText));
         toggleButton.addActionListener(editorListener);
         toggleButton.setFocusPainted(false);
+        toggleButton.setSelected(false);
 
         //Load image
 
@@ -74,32 +104,41 @@ public class GUIUtils {
 
         return toggleButton;
     }
-    
 
-    public static JRadioButton makeRadioButton(String text,String actionCommand,String toolTipText,boolean selected, JPanel panel, ButtonGroup group, EditorListener editorListener) {
-        JRadioButton radioButton = new JRadioButton(localeString.getString(text));
+    public static JRadioButton makeRadioButton(String text, String actionCommand, String toolTipText, Color textColour, boolean isSelected, boolean isOpaque, JPanel panel, ButtonGroup group, EditorListener actionListener) {
+        return makeRadioButton(text, actionCommand, toolTipText, textColour, isSelected, isOpaque, panel, group, actionListener);
+    }
+
+    public static JRadioButton makeRadioButton(String text, String actionCommand, String toolTipText, Color textColour, boolean isSelected, boolean isOpaque, JPanel panel, ButtonGroup group, EditorListener actionListener, EditorListener itemListener) {
+        TransparentRadioButton radioButton = new TransparentRadioButton(localeString.getString(text));
         radioButton.setActionCommand(actionCommand);
         radioButton.setToolTipText(localeString.getString(toolTipText));
-        radioButton.setSelected(selected);
-        radioButton.addActionListener(editorListener);
+        radioButton.setSelected(isSelected);
+        radioButton.setOpaque(false);
+        radioButton.setForeground(textColour);
+        radioButton.setHorizontalAlignment(SwingConstants.LEADING);
+        if (actionListener != null ) radioButton.addActionListener(actionListener);
+        if (itemListener !=null ) radioButton.addItemListener(itemListener);
         panel.add(radioButton);
-        group.add(radioButton);
+        if (group != null) group.add(radioButton);
 
         return radioButton;
     }
 
-    public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, int keyEvent, String accString, Boolean isSelected, JMenu menu, EditorListener editorListener) {
-        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(localeString.getString(text), isSelected);
-        cbMenuItem.setMnemonic(keyEvent);
-        cbMenuItem.setSelected(isSelected);
-        cbMenuItem.getAccessibleContext().setAccessibleDescription(localeString.getString(accString));
-        cbMenuItem.addItemListener(editorListener);
-        menu.add(cbMenuItem);
-
-        return cbMenuItem;
+    static class TransparentRadioButton extends JRadioButton {
+        public TransparentRadioButton(String string) {
+            super(string);
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setForeground(Color.ORANGE);
+            setBackground(new Color(0,0,0,0));
+        }
     }
+    //
+    // Menu Creation Functions
 
-    public static JMenu makeNewMenu(String menuName, int keyEvent, String accString, JMenuBar parentMenu) {
+    public static JMenu makeMenu(String menuName, int keyEvent, String accString, JMenuBar parentMenu) {
         JMenu newMenu = new JMenu(localeString.getString(menuName));
         newMenu.setMnemonic(keyEvent);
         newMenu.getAccessibleContext().setAccessibleDescription(localeString.getString(accString));
@@ -115,24 +154,37 @@ public class GUIUtils {
         return newMenu;
     }
 
-    public static JMenuItem makeMenuItem(String menuName, int keyEvent, int inputEvent, String accString, JMenu menu, EditorListener listener, Boolean enabled) {
+    public static JMenuItem makeMenuItem(String menuName, String accString,  int keyEvent, int inputEvent, JMenu menu, EditorListener listener, String actionCommand, Boolean enabled) {
         JMenuItem menuItem = new JMenuItem(localeString.getString(menuName));
         menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, inputEvent));
         menuItem.getAccessibleContext().setAccessibleDescription(localeString.getString(accString));
         menuItem.setEnabled(enabled);
+        if (actionCommand != null) menuItem.setActionCommand(actionCommand);
         menuItem.addActionListener(listener);
         menu.add(menuItem);
         return menuItem;
     }
 
-    // if no button group is required, set buttonGroup to null and isGroupDefault will be ignored
+    public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, String accString, int keyEvent, Boolean isSelected, JMenu menu, EditorListener itemListener, String actionCommand) {
+        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(localeString.getString(text), isSelected);
+        cbMenuItem.setActionCommand(actionCommand);
+        cbMenuItem.setMnemonic(keyEvent);
+        cbMenuItem.setSelected(isSelected);
+        cbMenuItem.getAccessibleContext().setAccessibleDescription(localeString.getString(accString));
+        cbMenuItem.addItemListener(itemListener);
+        menu.add(cbMenuItem);
 
-    public static JRadioButtonMenuItem makeRadioButtonMenuItem(String menuName, int keyEvent, int inputEvent, String accString, JMenu menu, EditorListener listener, Boolean enabled, ButtonGroup buttonGroup, boolean isGroupDefault) {
+        return cbMenuItem;
+    }
+
+    // if no button group is required, set buttonGroup to null and isGroupDefault will be ignored
+    public static JRadioButtonMenuItem makeRadioButtonMenuItem(String menuName, String accString, int keyEvent, int inputEvent, JMenu menu, EditorListener itemListener, String actionCommand, Boolean enabled, ButtonGroup buttonGroup, boolean isGroupDefault) {
         JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(localeString.getString(menuName));
         menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, inputEvent));
         menuItem.getAccessibleContext().setAccessibleDescription(localeString.getString(accString));
         menuItem.setEnabled(enabled);
-        menuItem.addActionListener(listener);
+        if (actionCommand != null) menuItem.setActionCommand(actionCommand);
+        menuItem.addActionListener(itemListener);
         if (buttonGroup != null) {
             buttonGroup.add(menuItem);
             if (isGroupDefault) {

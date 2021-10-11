@@ -18,6 +18,9 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
         if (e.getButton() == MouseEvent.BUTTON1) {
             mapPanel.mouseButton1Clicked(e.getX(), e.getY());
         }
+        if (e.getButton() == MouseEvent.BUTTON2) {
+            mapPanel.mouseButton2Clicked(e.getX(), e.getY());
+        }
         if (e.getButton() == MouseEvent.BUTTON3) {
             mapPanel.mouseButton3Clicked(e.getX(), e.getY());
         }
@@ -28,6 +31,9 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
         if (e.getButton() == MouseEvent.BUTTON1) {
             mapPanel.mouseButton1Pressed(e.getX(), e.getY());
         }
+        if (e.getButton() == MouseEvent.BUTTON2) {
+            mapPanel.mouseButton2Pressed(e.getX(), e.getY());
+        }
         if (e.getButton() == MouseEvent.BUTTON3) {
             mapPanel.mouseButton3Pressed(e.getX(), e.getY());
         }
@@ -37,6 +43,9 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             mapPanel.mouseButton1Released();
+        }
+        if (e.getButton() == MouseEvent.BUTTON2) {
+            mapPanel.mouseButton2Released();
         }
         if (e.getButton() == MouseEvent.BUTTON3) {
             mapPanel.mouseButton3Released(e.getX(), e.getY());

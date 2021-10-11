@@ -39,6 +39,19 @@ public class ADUtils {
         return new Rectangle2D.Double(x,y,width,height);
     }
 
+    public static double normalizeAngle(double input) {
+        if (input > (2*Math.PI)) {
+            input = input - (2*Math.PI);
+        }
+        else {
+            if (input < -(2*Math.PI)) {
+                input = input + (2*Math.PI);
+            }
+        }
+
+        return input;
+    }
+
     public static File getSelectedFileWithExtension(JFileChooser c) {
         File file = c.getSelectedFile();
         if (c.getFileFilter() instanceof FileNameExtensionFilter) {

@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -14,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static de.adEditor.ADUtils.LOG;
-import static de.adEditor.AutoDriveEditor.localeString;
+import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
 
 public class EditorListener implements ActionListener, ItemListener, ChangeListener {
@@ -33,53 +32,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
         JFileChooser fc = new JFileChooser();
 
         switch (e.getActionCommand()) {
-            case AutoDriveEditor.MOVE_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_MOVING;
-                break;
-            case AutoDriveEditor.REMOVE_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETE_NODES;
-                break;
-            case AutoDriveEditor.DELETE_DESTINATIONS:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_DELETING_DESTINATION;
-                break;
-            case AutoDriveEditor.CONNECT_NODES:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
-                connectionType=CONNECTION_STANDARD;
-                break;
-            case AutoDriveEditor.CREATE_PRIMARY_NODE:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_PRIMARY;
-                break;
-            case AutoDriveEditor.CREATE_DESTINATIONS:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION;
-                break;
-            case AutoDriveEditor.CHANGE_NODE_PRIORITY:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CHANGE_NODE_PRIORITY;
-                break;
-            case AutoDriveEditor.CREATE_SUBPRIO_NODE:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
-                connectionType=CONNECTION_SUBPRIO;
-                break;
-            case AutoDriveEditor.CREATE_REVERSE_CONNECTION:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
-                connectionType=CONNECTION_REVERSE;
-                break;
-            case AutoDriveEditor.CREATE_DUAL_CONNECTION:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_CONNECTING;
-                connectionType=CONNECTION_DUAL;
-                break;
-            case AutoDriveEditor.EDIT_DESTINATIONS_GROUPS:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION;
-                break;
-            case "1x":
-                editor.updateMapZoomFactor(1);
-                break;
-            case "4x":
-                editor.updateMapZoomFactor(2);
-                break;
-            case "16x":
-                editor.updateMapZoomFactor(4);
-                break;
-            case "Load Config":
+            case MENU_LOAD_CONFIG:
                 if (editor.isStale()) {
                     int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
@@ -93,29 +46,16 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 fc.addChoosableFileFilter(filter);
 
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    editor.getMapPanel().stopCurveEdit();
                     File fileName = fc.getSelectedFile();
                     editor.loadConfigFile(fileName);
                     editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
                 }
                 break;
-            case "Save Config":
+            case MENU_SAVE_CONFIG:
                 editor.saveMap(null);
                 break;
-            case "Load Map Image":
-                fc.setDialogTitle(localeString.getString("dialog_load_image_title"));
-                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-                if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        editor.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
-                        editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
-
-                    } catch (IOException e1) {
-                        LOG.error(e1.getMessage(), e1);
-                    }
-                }
-                break;
-            case "Save As":
+            case MENU_SAVE_SAVEAS:
                 if (editor.xmlConfigFile == null) break;
                 fc.setDialogTitle(localeString.getString("dialog_save_destination"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -130,52 +70,136 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
 
                 }
                 break;
-            case AutoDriveEditor.ALIGN_HORIZONTAL:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_ALIGN_HORIZONTAL;
+            case MENU_LOAD_IMAGE:
+                fc.setDialogTitle(localeString.getString("dialog_load_image_title"));
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+                if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        editor.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
+                        editor.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+
+                    } catch (IOException e1) {
+                        LOG.error(e1.getMessage(), e1);
+                    }
+                }
                 break;
-            case AutoDriveEditor.ALIGN_VERTICAL:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_ALIGN_VERTICAL;
+            case MENU_ZOOM_1x:
+                editor.updateMapZoomFactor(1);
                 break;
-            case "About":
+            case MENU_ZOOM_4x:
+                editor.updateMapZoomFactor(2);
+                break;
+            case MENU_ZOOM_16x:
+                editor.updateMapZoomFactor(4);
+                break;
+            case MENU_ABOUT:
                 showAbout();
                 break;
-            case AutoDriveEditor.CREATE_LINEARLINE:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_LINEARLINE;
+            case BUTTON_MOVE_NODES:
+                this.editor.editorState = EDITORSTATE_MOVING;
                 break;
-            case AutoDriveEditor.CREATE_QUADRATICBEZIER:
-                this.editor.editorState = AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER;
+            case BUTTON_REMOVE_NODES:
+                this.editor.editorState = EDITORSTATE_DELETE_NODES;
                 break;
-            case AutoDriveEditor.CANCEL_CURVE:
-                if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
-                    quadCurve.clear();
+            case BUTTON_DELETE_DESTINATIONS:
+                this.editor.editorState = EDITORSTATE_DELETING_DESTINATION;
+                break;
+            case BUTTON_CONNECT_NODES:
+                this.editor.editorState = EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_STANDARD;
+                break;
+            case BUTTON_CREATE_PRIMARY_NODE:
+                this.editor.editorState = EDITORSTATE_CREATE_PRIMARY_NODE;
+                break;
+            case BUTTON_CREATE_DESTINATIONS:
+                this.editor.editorState = EDITORSTATE_CREATING_DESTINATION;
+                break;
+            case BUTTON_CHANGE_NODE_PRIORITY:
+                this.editor.editorState = EDITORSTATE_CHANGE_NODE_PRIORITY;
+                break;
+            case BUTTON_CREATE_SUBPRIO_NODE:
+                this.editor.editorState = EDITORSTATE_CREATE_SUBPRIO_NODE;
+                break;
+            case BUTTON_CREATE_REVERSE_CONNECTION:
+                this.editor.editorState = EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_REVERSE;
+                break;
+            case BUTTON_CREATE_DUAL_CONNECTION:
+                this.editor.editorState = EDITORSTATE_CONNECTING;
+                connectionType=CONNECTION_DUAL;
+                break;
+            case BUTTON_EDIT_DESTINATIONS_GROUPS:
+                this.editor.editorState = EDITORSTATE_EDITING_DESTINATION;
+                break;
+            case BUTTON_ALIGN_HORIZONTAL:
+                this.editor.editorState = EDITORSTATE_ALIGN_HORIZONTAL;
+                break;
+            case BUTTON_ALIGN_VERTICAL:
+                this.editor.editorState = EDITORSTATE_ALIGN_VERTICAL;
+                break;
+            case BUTTON_CREATE_LINEARLINE:
+                this.editor.editorState = EDITORSTATE_LINEARLINE;
+                break;
+            case BUTTON_CREATE_QUADRATICBEZIER:
+                this.editor.editorState = EDITORSTATE_QUADRATICBEZIER;
+                break;
+            case BUTTON_CANCEL_CURVE:
+                if (editor.editorState == EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
                     editor.getMapPanel().stopCurveEdit();
                 }
                 break;
-            case AutoDriveEditor.COMMIT_CURVE:
-                if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
+            case BUTTON_COMMIT_CURVE:
+                if (editor.editorState == EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
+                    quadCurve.commitCurve(NODE_STANDARD);
                     // TODO : add quad bezier nodes to network
-                    quadCurve.clear();
                     editor.getMapPanel().stopCurveEdit();
+                    editor.setStale(true);
                 }
+                break;
+            case BUTTON_COPYPASTE_SELECT:
+                this.editor.editorState = EDITORSTATE_CNP_SELECT;
+                JToggleButton tBtn = (JToggleButton)e.getSource();
+                if (tBtn.isSelected()) {
+                    System.out.println("button selected");
+                } else {
+                    System.out.println("button not selected");
+                }
+                break;
         }
-
         editor.updateButtons();
     }
 
     @Override
     public void itemStateChanged(ItemEvent e) {
         AbstractButton button = (AbstractButton) e.getItem();
-        LOG.info("ItemCommand: {}", button.getText());
-        switch (button.getText()) {
-            case "Continuous Connections":
+        switch (button.getActionCommand()) {
+            case MENU_CHECKBOX_CONTINUECONNECT:
                 AutoDriveEditor.bContinuousConnections = button.isSelected();
                 break;
+            case RADIOBUTTON_PATHTYPE_REGULAR:
+                quadCurve.setNodeType(NODE_STANDARD);
+                break;
+            case RADIOBUTTON_PATHTYPE_SUBPRIO:
+                quadCurve.setNodeType(NODE_SUBPRIO);
+                break;
+            case RADIOBUTTON_PATHTYPE_REVERSE:
+                //LOG.info("reverse = {}", button.isSelected());
+                if (button.isSelected()) {
+                    curvePathDual.setSelected(false);
+                    quadCurve.setDualPath(false);
+                }
+                quadCurve.setReversePath(button.isSelected());
+                break;
+            case RADIOBUTTON_PATHTYPE_DUAL:
+                //LOG.info("dual = {}", button.isSelected());
+                if (button.isSelected()) {
+                    curvePathReverse.setSelected(false);
+                    quadCurve.setReversePath(false);
+                }
+                quadCurve.setDualPath(button.isSelected());
+                break;
         }
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-
     }
 
     private void showAbout() {
@@ -183,6 +207,18 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
     }
 
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (source.getValueIsAdjusting()) {
+            int value = source.getValue();
+            if (MapPanel.quadCurve != null) {
+                if (value < 2) value = 2;
+                MapPanel.quadCurve.setNumInterpolationPoints(value);
+                editor.getMapPanel().repaint();
+            }
+        }
+    }
 }
 
 
