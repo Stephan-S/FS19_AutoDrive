@@ -104,7 +104,7 @@ public class QuadCurve{
     }
 
     public void commitCurve(int pathType) {
-        for (int j = 0; j < curveNodesList.size() - 1; j++) {
+        /*for (int j = 0; j < curveNodesList.size() - 1; j++) {
             MapNode startNode = curveNodesList.get(j);
             MapNode endNode = curveNodesList.get(j+1);
             if (this.nodeType == NODE_SUBPRIO) {
@@ -121,7 +121,7 @@ public class QuadCurve{
             }
 
         }
-        LOG.info("Curve created {} nodes", curveNodesList.size() - 2 );
+        LOG.info("Curve created {} nodes", curveNodesList.size() - 2 );*/
     }
 
     public void clear() {
