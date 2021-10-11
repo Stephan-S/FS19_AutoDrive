@@ -154,6 +154,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     quadCurve.commitCurve(NODE_STANDARD);
                     // TODO : add quad bezier nodes to network
                     editor.getMapPanel().stopCurveEdit();
+                    editor.getMapPanel().repaint();
                     editor.setStale(true);
                 }
                 break;

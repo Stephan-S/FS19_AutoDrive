@@ -779,11 +779,10 @@ public class AutoDriveEditor extends JFrame {
         }
 
         if (mapPanel.getImage() != null) {
-            mapPanel.setPreferredSize(new Dimension(1024, 768));
-            mapPanel.setMinimumSize(new Dimension(1024, 768));
-            pack();
+            /*mapPanel.setPreferredSize(new Dimension(1024, 768));
+            mapPanel.setMinimumSize(new Dimension(1024, 768));*/
             repaint();
-            mapPanel.repaint();
+            //mapPanel.repaint();
         }
 
         mapMenuEnabled(true);

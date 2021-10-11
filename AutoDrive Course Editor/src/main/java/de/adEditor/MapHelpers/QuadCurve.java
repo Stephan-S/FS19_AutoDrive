@@ -104,14 +104,24 @@ public class QuadCurve{
     }
 
     public void commitCurve(int pathType) {
-        /*for (int j = 0; j < curveNodesList.size() - 1; j++) {
-            MapNode startNode = curveNodesList.get(j);
-            MapNode endNode = curveNodesList.get(j+1);
-            if (this.nodeType == NODE_SUBPRIO) {
-                startNode.flag = 1;
-                endNode.flag = 1;
-            }
-            if (endNode != curveEndNode ) roadMap.mapNodes.add(endNode);
+
+        LinkedList<MapNode> mergeNodesList  = new LinkedList<>();
+        MapNode newNode, lastNode;
+
+        mergeNodesList.add(curveStartNode);
+
+        for (int j = 1; j < curveNodesList.size() - 1; j++) {
+            MapNode tempNode = curveNodesList.get(j);
+            newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.z, this.nodeType, false);
+            roadMap.mapNodes.add(newNode);
+            mergeNodesList.add(newNode);
+        }
+
+        mergeNodesList.add(curveEndNode);
+
+        for (int j = 0; j < mergeNodesList.size() - 1; j++) {
+            MapNode startNode = mergeNodesList.get(j);
+            MapNode endNode = mergeNodesList.get(j+1);
             if (isReversePath) {
                 MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_REVERSE);
             } else if (isDualPath) {
@@ -119,9 +129,9 @@ public class QuadCurve{
             } else {
                 MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_STANDARD);
             }
-
         }
-        LOG.info("Curve created {} nodes", curveNodesList.size() - 2 );*/
+
+        LOG.info("Curve created {} nodes", mergeNodesList.size() - 2 );
     }
 
     public void clear() {
