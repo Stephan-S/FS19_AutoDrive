@@ -394,7 +394,7 @@ end
 -- This is the alternative MP approach
 function AutoDrive:getIsEntered(vehicle)
     local user = nil
-    if g_server == nil and vehicle ~= nil and g_currentMission.userManager ~= nil and g_currentMission.userManager.getUserByConnection ~= nil and vehicle.getOwner ~= nil then
+    if g_dedicatedServerInfo ~= nil and vehicle ~= nil and g_currentMission.userManager ~= nil and g_currentMission.userManager.getUserByConnection ~= nil and vehicle.getOwner ~= nil then
         -- MP
         user = g_currentMission.userManager:getUserByConnection(vehicle:getOwner())
     else

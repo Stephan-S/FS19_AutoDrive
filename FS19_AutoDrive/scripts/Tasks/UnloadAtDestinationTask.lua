@@ -2,12 +2,16 @@ UnloadAtDestinationTask = ADInheritsFrom(AbstractTask)
 
 UnloadAtDestinationTask.STATE_PATHPLANNING = 1
 UnloadAtDestinationTask.STATE_DRIVING = 2
+UnloadAtDestinationTask.STATE_WAIT_FOR_AL_UNLOAD = 3
 
 function UnloadAtDestinationTask:new(vehicle, destinationID)
     local o = UnloadAtDestinationTask:create()
     o.vehicle = vehicle
     o.destinationID = destinationID
     o.isContinued = false
+    o.waitForALUnloadTimer = AutoDriveTON:new()
+    o.waitForALUnload = false
+    o.trailers = nil
     return o
 end
 
@@ -27,7 +31,9 @@ function UnloadAtDestinationTask:setUp()
         self.state = UnloadAtDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
     self.vehicle.ad.trailerModule:reset()
+    self.waitForALUnload = false
 end
 
 function UnloadAtDestinationTask:update(dt)
@@ -61,7 +67,7 @@ function UnloadAtDestinationTask:update(dt)
             self.vehicle.ad.specialDrivingModule:stopVehicle()
             self.vehicle.ad.specialDrivingModule:update(dt)
         end
-    else
+    elseif self.state == UnloadAtDestinationTask.STATE_DRIVING then
         if not self.isContinued then
             self.vehicle.ad.trailerModule:update(dt)
         end
@@ -69,21 +75,26 @@ function UnloadAtDestinationTask:update(dt)
             --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached")
             if not self.vehicle.ad.trailerModule:isActiveAtTrigger() then
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isTargetReached isActiveAtTrigger")
-                local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-                AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, true)
-                local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+                AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, true)
+                local fillLevel, _ = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
                 if fillLevel <= 1 or self.isContinued or (((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYDELIVER or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) and (not ((self.vehicle.ad.drivePathModule:getIsReversing() and self.vehicle.ad.trailerModule:getBunkerTrigger() ~= nil)))) then
                     --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "UnloadAtDestinationTask:update fillLevel <= 1")
-                    AutoDrive.setAugerPipeOpen(trailers, false)
+                    AutoDrive.setAugerPipeOpen(self.trailers, false)
                     self:finished()
                 else
                    -- AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update Wait at unload point until unloaded somehow")
                     -- Wait at unload point until unloaded somehow
                     self.vehicle.ad.specialDrivingModule:stopVehicle()
                     self.vehicle.ad.specialDrivingModule:update(dt)
-                    if self.vehicle.ad.trailerModule.hasAL == true then
+                    if self.vehicle.ad.trailerModule:getHasAL() == true then
                     	-- AutoLoad
-                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_VEHICLEINFO, "UnloadAtDestinationTask:update unloadALAll start")
+                        AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update unloadALAll start")
+                        if AutoDrive.getSetting("ALUnloadWaitTime", self.vehicle) > 0 and AutoDrive.getSetting("ALUnload", self.vehicle) > 0 then
+                            -- wait only if unload is not disabled and wait time > 0
+                            self.waitForALUnload = true
+                            self.waitForALUnloadTimer:timer(false)
+                            self.state = UnloadAtDestinationTask.STATE_WAIT_FOR_AL_UNLOAD
+                        end
                         AutoDrive:unloadALAll(self.vehicle)
                     end
                 end
@@ -113,6 +124,21 @@ function UnloadAtDestinationTask:update(dt)
                 --AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "UnloadAtDestinationTask:update isActiveAtTrigger drivePathModule:update")
                 self.vehicle.ad.drivePathModule:update(dt)
             end
+        end
+    else -- UnloadAtDestinationTask.STATE_WAIT_FOR_AL_UNLOAD
+        local waitForALUnloadTime = AutoDrive.getSetting("ALUnloadWaitTime", self.vehicle)
+        if (waitForALUnloadTime >= 0 and self.waitForALUnloadTimer:timer(self.waitForALUnload, waitForALUnloadTime, dt)) or self.isContinued then
+            -- used to wait for AutoLoader to unload
+            self.waitForALUnloadTimer:timer(false)
+            AutoDrive.setAugerPipeOpen(self.trailers, false)
+            self:finished()
+            self.waitForALUnload = false
+        end
+        if self.waitForALUnload then
+            -- AutoLoad - stop driving for the wait time, let autoloaded objects disappear
+            self.vehicle.ad.specialDrivingModule:stopVehicle()
+            self.vehicle.ad.specialDrivingModule:update(dt)
+            return
         end
     end
 end

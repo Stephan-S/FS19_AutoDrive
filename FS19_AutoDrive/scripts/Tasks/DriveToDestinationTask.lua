@@ -7,6 +7,7 @@ function DriveToDestinationTask:new(vehicle, destinationID)
     local o = DriveToDestinationTask:create()
     o.vehicle = vehicle
     o.destinationID = destinationID
+    o.trailers = nil
     return o
 end
 
@@ -18,8 +19,8 @@ function DriveToDestinationTask:setUp()
         self.state = DriveToDestinationTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function DriveToDestinationTask:update(dt)

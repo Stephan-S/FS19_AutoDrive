@@ -14,6 +14,7 @@ function PickupAndDeliverMode:new(vehicle)
     AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PickupAndDeliverMode:new")
     local o = PickupAndDeliverMode:create()
     o.vehicle = vehicle
+    o.trailers = nil
     PickupAndDeliverMode.reset(o)
     return o
 end
@@ -23,6 +24,8 @@ function PickupAndDeliverMode:reset()
     self.state = PickupAndDeliverMode.STATE_INIT
     self.vehicle.ad.stateModule:setLoopsDone(0)
     self.activeTask = nil
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function PickupAndDeliverMode:start()
@@ -89,8 +92,7 @@ function PickupAndDeliverMode:getNextTask(forced)
         end
     end
 
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(trailers)
+    local fillLevel, leftCapacity = AutoDrive.getFillLevelAndCapacityOfAll(self.trailers)
     local maxCapacity = fillLevel + leftCapacity
     local filledToUnload = (leftCapacity <= (maxCapacity * (1 - AutoDrive.getSetting("unloadFillLevel", self.vehicle) + 0.001)))
 
@@ -176,7 +178,10 @@ function PickupAndDeliverMode:getNextTask(forced)
             nextTask = LoadAtDestinationTask:new(self.vehicle, self.vehicle.ad.stateModule:getFirstMarker().id)
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PickupAndDeliverMode:getNextTask set STATE_PICKUP_FROM_NEXT_TARGET")
             self.state = PickupAndDeliverMode.STATE_PICKUP_FROM_NEXT_TARGET
-            self.vehicle.ad.stateModule:setLoopsDone(self.vehicle.ad.stateModule:getLoopsDone() + 1)
+            if not ((AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", self.vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders")) then
+                -- increase loops only if not rotate targets
+                self.vehicle.ad.stateModule:setLoopsDone(self.vehicle.ad.stateModule:getLoopsDone() + 1)
+            end
             AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PickupAndDeliverMode:getNextTask loopsDone %s", tostring(self.vehicle.ad.stateModule:getLoopsDone()))
         else
             -- if loops are finished - drive to park destination and stop AD

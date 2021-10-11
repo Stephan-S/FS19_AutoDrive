@@ -558,7 +558,7 @@ function AutoDriveHud:mouseEvent(vehicle, posX, posY, isDown, isUp, button)
 			end
 
 			if (button == 2 or button == 3) and isUp 
-                and not AutoDrive.leftLSHIFTmodifierKeyPressed
+                -- and not AutoDrive.leftLSHIFTmodifierKeyPressed -- leftLSHIFT needed to be checked in changeWayPointPosition
                 and not AutoDrive.leftCTRLmodifierKeyPressed
                 and not AutoDrive.leftALTmodifierKeyPressed 
                 and not AutoDrive.rightSHIFTmodifierKeyPressed

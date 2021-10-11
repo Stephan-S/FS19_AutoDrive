@@ -323,7 +323,7 @@ function ADHarvestManager.getOpenPipePercent(harvester)
 			fillLevel = harvester:getFillUnitFillLevel(dischargeNode.fillUnitIndex)
 			capacity = harvester:getFillUnitCapacity(dischargeNode.fillUnitIndex)
 		end
-		if capacity ~= nil and capacity > 0 and AutoDrive.getSetting("preCallLevel", harvester) ~= nil and ADHarvestManager:getAssignedUnloader(harvester) ~= nil and AutoDrive.experimentalFeatures.dynamicChaseDistance then
+		if capacity ~= nil and capacity > 0 and AutoDrive.getSetting("preCallLevel", harvester) ~= nil and ADHarvestManager:getAssignedUnloader(harvester) ~= nil and AutoDrive.dynamicChaseDistance then
 			pipePercent = AutoDrive.getSetting("preCallLevel", harvester)
 			if fillLevel > (pipePercent * capacity) then
 				openPipe = true

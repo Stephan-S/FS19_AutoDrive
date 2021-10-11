@@ -47,6 +47,7 @@ function ADPullDownList:new(posX, posY, width, height, type, selected)
     local o = ADPullDownList:create()
     o:init(posX, posY, width, height)
     o.selected = selected
+    o.hovered = selected
     o.type = type
     o.size.height = AutoDrive.Hud.buttonHeight  -- uiScale * 32
     self.autoLoadFillTypes = nil

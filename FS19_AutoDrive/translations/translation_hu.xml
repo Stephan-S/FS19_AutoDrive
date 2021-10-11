@@ -8,7 +8,11 @@
 		<text name="input_ADToggleMouse"						text="AD: Egér be/ki" />
 		<text name="input_ADEnDisable"							text="AD: Bekapcsolás/Kikapcsolás" />
 		<text name="input_ADSilomode"							text="AD: Módváltás" />
+		<text name="input_ADPreviousMode"						text="AD: Previous mode" />
 		<text name="input_ADRecord"								text="AD: felvétel" />
+		<text name="input_ADRecord_Dual"						text="AD: Record 2 way route" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Record secondary route" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Record 2 way secondary route route" />
 		<text name="input_ADSelectTarget"						text="AD: Cél választás" />
 		<text name="input_ADSelectPreviousTarget"				text="AD: Előző cél választás" />
 		<text name="input_AD_Speed_up"							text="AD: Sebesség növelése " />
@@ -19,9 +23,12 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Következő kirakodás " />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Előző kirakodás" />
 		<text name="input_ADActivateDebug"						text="AD: Szerkesztés" />
+		<text name="input_ADDisplayMapPoints"					text="AD: Show waypoints" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Szomszédos pont" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Következő szomszédos pont" />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Select previous Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Kapcsolat be/ki" />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Toggle connection between inverted" />
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Cél létrehozása/szerkesztése" />
 		<text name="input_ADRenameMapMarker"					text="AD: Kijelölt cél szerkesztése" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Útpont törlés" />
@@ -32,11 +39,18 @@
 		<text name="input_ADCallDriver"							text="AD: Sofőr felvétel" />
 		<text name="input_ADGoToVehicle"						text="AD: Váltás az érkezett járműre" />
 		<text name="input_ADNameDriver"							text="AD: Sofőr elnevezése" />
+		<text name="input_ADSetDestinationFilter"				text="AD: Destination filter" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Increase Field Speed" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Decrease Field Speed" />
 		<text name="input_ADIncLoopCounter"						text="AD: Útvonal ismétlése" />
+		<text name="input_ADDecLoopCounter"						text="AD: Decrease loop counter" />
 		<text name="input_ADParkVehicle"						text="AD: Parkolja le a járművet" />
+		<text name="input_ADSetParkDestination"					text="AD: assign 1st Destination for parking" />
 		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADSwapTargets"						text="AD: Cél csere" />
+		<text name="input_ADStartCP"							text="AD: Pass to CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: Toggle CP/AIVE" />
 		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Termény kikerülése" />
@@ -198,6 +212,8 @@
 		<text name="gui_ad_AL_left"                             text="Unload left" />
 		<text name="gui_ad_AL_behind"                           text="Unload behind" />
 		<text name="gui_ad_AL_right"                            text="Unload right" />
+		<text name="gui_ad_ALUnloadWaitTime"                    text="EAL: wait time after unload" />
+		<text name="gui_ad_ALUnloadWaitTime_tooltip"            text="Wait time after unloading, before continue to drive - useful for unload center: 0-no wait, wait selected time" />
 
 		<text name="gui_ad_settingsPage_title"					text="Beállítás - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Felhasználói beállítások - AutoDrive" />
@@ -205,6 +221,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Kombájn ürítés - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Hibakeresési beállítás - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title"			text="Kísérleti szolgáltatások beállításai - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText"					text="Visszaállítás" />
 		<text name="gui_ad_settingsClosingDialog_title"			text="Minden változás elveszik" />
 		<text name="gui_ad_settingsClosingDialog_text"			text="Biztosan bezárja a beállításokat mentés nélkül?" />
@@ -334,7 +351,7 @@
 		<text name="AD_task_exiting_field"						text="Kilépés a fölről" />
 		<text name="AD_task_reversing_from_collision"			text="Tiszta terület keresése" />
         <text name="AD_task_drive_to_park"				        text="Parkolás a területen" />
-
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "off"/>
 		<text name = "gui_CPAD_simple"							text = "simple"/>

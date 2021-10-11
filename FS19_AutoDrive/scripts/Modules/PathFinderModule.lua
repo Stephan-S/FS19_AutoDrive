@@ -61,6 +61,7 @@ PathFinderModule = {}
 PathFinderModule.PATHFINDER_MAX_RETRIES = 3
 PathFinderModule.MAX_PATHFINDER_STEPS_PER_FRAME = 2
 PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL = 400
+PathFinderModule.MAX_PATHFINDER_STEPS_COMBINE_TURN = 100
 PathFinderModule.PATHFINDER_FOLLOW_DISTANCE = 45
 PathFinderModule.PATHFINDER_TARGET_DISTANCE = 7
 PathFinderModule.PATHFINDER_TARGET_DISTANCE_PIPE = 16
@@ -271,6 +272,10 @@ function PathFinderModule:startPathPlanningToPipe(combine, chasing)
     end
 
     self.goingToPipe = true
+    if AutoDrive.getDistanceBetween(self.vehicle, combine) < 50 then
+        -- shorten path calculation for close combine
+        self.max_pathfinder_steps = PathFinderModule.MAX_PATHFINDER_STEPS_COMBINE_TURN
+    end
     self.chasingVehicle = chasing
 end
 
@@ -325,6 +330,7 @@ function PathFinderModule:startPathPlanningTo(targetPoint, targetVector)
     self.fallBackMode1 = false  -- disable restrict to field
     self.fallBackMode2 = false  -- disable restrict to field border
     self.fallBackMode3 = false  -- disable avoid fruit
+    self.max_pathfinder_steps = PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")
 
     self.fruitToCheck = nil
 
@@ -549,7 +555,7 @@ function PathFinderModule:update(dt)
         AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - self.steps %d #self.grid %d", self.steps, table.count(self.grid))
     end
 
-    if self.completelyBlocked or self.targetBlocked or self.steps > (self.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime")) then
+    if self.completelyBlocked or self.targetBlocked or self.steps > (self.max_pathfinder_steps) then
         --[[ We need some better logic here. 
         Some situations might be solved by the module itself by either
             a) 'fallBackMode (ignore fruit and field restrictions)'
@@ -563,6 +569,8 @@ function PathFinderModule:update(dt)
         local fallBackModeAllowed1 = (not self.chasingVehicle) and (not self.isSecondChasingVehicle) and (self.restrictToField) and (not self.fallBackMode1)    -- disable restrict to field
         local fallBackModeAllowed2 = (not self.chasingVehicle) and (not self.isSecondChasingVehicle) and (self.restrictToField) and (not self.fallBackMode2)    -- disable restrict to field border
         local fallBackModeAllowed3 = (not self.chasingVehicle) and (not self.isSecondChasingVehicle) and (self.avoidFruitSetting) and (not self.fallBackMode3)    -- disable avoid fruit
+        local increaseStepsAllowed = (not self.chasingVehicle) and (not self.isSecondChasingVehicle) and (self.max_pathfinder_steps < PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime"))    -- increase number of steps if possible
+
         -- Only allow auto restart when planning path to network and we can adjust target wayPoint
         local retryAllowed = self.destinationId ~= nil and self.retryCounter < self.PATHFINDER_MAX_RETRIES
 
@@ -592,6 +600,20 @@ function PathFinderModule:update(dt)
                 )
             )
             self.fallBackMode3 = true
+            self:autoRestart()
+        elseif increaseStepsAllowed then
+            AutoDrive.debugPrint(self.vehicle, AutoDrive.DC_PATHINFO, "PathFinderModule:update - error - retryAllowed: no -> increaseStepsAllowed: yes -> restart #self.grid %d self.max_pathfinder_steps %d", table.count(self.grid), self.max_pathfinder_steps)
+            PathFinderModule.debugVehicleMsg(self.vehicle,
+                string.format("PFM update - error - retryAllowed: no -> increaseStepsAllowed: yes -> restart -> disable avoid fruit #self.grid %d self.max_pathfinder_steps %d",
+                    table.count(self.grid),
+                    self.max_pathfinder_steps
+                )
+            )
+            self.max_pathfinder_steps = self.max_pathfinder_steps + PathFinderModule.MAX_PATHFINDER_STEPS_COMBINE_TURN
+            self.max_pathfinder_steps = math.min(self.max_pathfinder_steps, PathFinderModule.MAX_PATHFINDER_STEPS_TOTAL * AutoDrive.getSetting("pathFinderTime"))
+            self.fallBackMode1 = false
+            self.fallBackMode2 = false
+            self.fallBackMode3 = false
             self:autoRestart()
         elseif retryAllowed then
             self.retryCounter = self.retryCounter + 1
@@ -1630,6 +1652,7 @@ end
 
 function PathFinderModule:smoothResultingPPPath_Refined()
     if self.smoothStep == 0 then
+        self.lookAheadIndex = 1
         self.smoothIndex = 1
         self.filteredIndex = 1
         self.filteredWPs = {}

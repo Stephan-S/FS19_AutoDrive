@@ -688,24 +688,13 @@ function AutoDrive:getIsActivatable(superFunc, objectToFill)
 		if vehicle ~= nil and vehicle.ad ~= nil and vehicle.ad.stateModule:isActive() then
 			--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
 			if g_currentMission.controlledVehicle ~= vehicle then
-				local oldControlledVehicle = nil
-				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
-					vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
-				else
-					oldControlledVehicle = g_currentMission.controlledVehicle
-				end
-				g_currentMission.controlledVehicle = vehicle or objectToFill
+				local oldControlledVehicle = g_currentMission.controlledVehicle
+
+				g_currentMission.controlledVehicle = vehicle
 
 				local result = superFunc(self, objectToFill)
 
-				if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
-					g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
-					vehicle.ad.oldControlledVehicle = nil
-				else
-					if oldControlledVehicle ~= nil then
-						g_currentMission.controlledVehicle = oldControlledVehicle
-					end
-				end
+                g_currentMission.controlledVehicle = oldControlledVehicle
 				return result
 			end
 		end
@@ -723,24 +712,12 @@ function AutoDrive:onActivateObject(superFunc, vehicle)
 	if vehicle ~= nil then
 		--if i'm in the vehicle, all is good and I can use the normal function, if not, i have to cheat:
 		if g_currentMission.controlledVehicle ~= vehicle or g_currentMission.controlledVehicles[vehicle] == nil then
-			local oldControlledVehicle = nil
-			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle == nil then
-				vehicle.ad.oldControlledVehicle = g_currentMission.controlledVehicle
-			else
-				oldControlledVehicle = g_currentMission.controlledVehicle
-			end
+			local oldControlledVehicle = g_currentMission.controlledVehicle
 			g_currentMission.controlledVehicle = vehicle
 
 			superFunc(self, vehicle)
 
-			if vehicle.ad ~= nil and vehicle.ad.oldControlledVehicle ~= nil then
-				g_currentMission.controlledVehicle = vehicle.ad.oldControlledVehicle
-				vehicle.ad.oldControlledVehicle = nil
-			else
-				if oldControlledVehicle ~= nil then
-					g_currentMission.controlledVehicle = oldControlledVehicle
-				end
-			end
+            g_currentMission.controlledVehicle = oldControlledVehicle
 			return
 		end
 	end

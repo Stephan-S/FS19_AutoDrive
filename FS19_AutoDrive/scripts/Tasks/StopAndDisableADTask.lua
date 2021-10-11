@@ -5,11 +5,14 @@ function StopAndDisableADTask:new(vehicle, propagate, restart)
     o.vehicle = vehicle
     o.propagate = propagate
     o.restart = restart
+    o.trailers = nil
     return o
 end
 
 function StopAndDisableADTask:setUp()
     self.vehicle.ad.specialDrivingModule:stopVehicle()
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function StopAndDisableADTask:update(dt)
