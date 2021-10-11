@@ -11,6 +11,7 @@ function FollowVehicleTask:new(vehicle, targetVehicle)
     o.targetVehicle = targetVehicle
     o.state = FollowVehicleTask.STATE_DRIVING
     o.setFinishedNext = false
+    o.trailers = nil
     return o
 end
 
@@ -36,6 +37,8 @@ function FollowVehicleTask:setUp()
             self.vehicle.ad.drivePathModule:setWayPoints(self:getBreadCrumbsUntilFollowDistance())
         end
     end
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function FollowVehicleTask:getBreadCrumbsUntilFollowDistance()

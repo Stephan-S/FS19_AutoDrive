@@ -265,12 +265,25 @@ end
 function AutoDrive.getFillLevelAndCapacityOfAll(trailers)
     local leftCapacity = 0
     local fillLevel = 0
+    local hasAL = false
 
     if trailers ~= nil then
         for _, trailer in pairs(trailers) do
-            local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
-            fillLevel = fillLevel + trailerFillLevel
-            leftCapacity = leftCapacity + trailerLeftCapacity
+            hasAL = hasAL or AutoDrive:hasAL(trailer)
+        end
+        if hasAL then
+            -- AutoLoad
+            for _, trailer in pairs(trailers) do
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive:getALFillLevelAndCapacityOfAllUnits(trailer)
+                fillLevel = fillLevel + trailerFillLevel
+                leftCapacity = leftCapacity + trailerLeftCapacity
+            end
+        else
+            for _, trailer in pairs(trailers) do
+                local trailerFillLevel, trailerLeftCapacity = AutoDrive.getFilteredFillLevelAndCapacityOfAllUnits(trailer)
+                fillLevel = fillLevel + trailerFillLevel
+                leftCapacity = leftCapacity + trailerLeftCapacity
+            end
         end
     end
 
@@ -600,20 +613,20 @@ function AutoDrive.checkForContinueOnEmptyLoadTrigger(vehicle)
     return AutoDrive.getSetting("continueOnEmptySilo") or ((AutoDrive.getSetting("rotateTargets", vehicle) == AutoDrive.RT_ONLYPICKUP or AutoDrive.getSetting("rotateTargets", vehicle) == AutoDrive.RT_PICKUPANDDELIVER) and AutoDrive.getSetting("useFolders"))
 end
 
-function AutoDrive.getWaterTrailerInWater(vehicle, dt)
-    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
-
-    for _, trailer in pairs(trailers) do
-        local spec = trailer.spec_waterTrailer
-        if spec ~= nil and spec.waterFillNode ~= nil and g_currentMission.waterY ~= nil then
-            local _,y,_ = getWorldTranslation(spec.waterFillNode)
-            local isNearWater = (y <= g_currentMission.waterY + 0.2)
-            local fillUnits = trailer:getFillUnits()
-            for i = 1, #fillUnits do
-                local isNotFilled = trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999
-                local allowedFillType = vehicle.ad.stateModule:getFillType() == FillType.WATER
-                if isNearWater and isNotFilled and allowedFillType then
-                    return trailer
+function AutoDrive.getWaterTrailerInWater(vehicle, trailers)
+    if trailers ~= nil then
+        for _, trailer in pairs(trailers) do
+            local spec = trailer.spec_waterTrailer
+            if spec ~= nil and spec.waterFillNode ~= nil and g_currentMission.waterY ~= nil then
+                local _,y,_ = getWorldTranslation(spec.waterFillNode)
+                local isNearWater = (y <= g_currentMission.waterY + 0.2)
+                local fillUnits = trailer:getFillUnits()
+                for i = 1, #fillUnits do
+                    local isNotFilled = trailer:getFillUnitFillLevelPercentage(i) <= AutoDrive.getSetting("unloadFillLevel", vehicle) * 0.999
+                    local allowedFillType = vehicle.ad.stateModule:getFillType() == FillType.WATER
+                    if isNearWater and isNotFilled and allowedFillType then
+                        return trailer
+                    end
                 end
             end
         end
@@ -621,19 +634,20 @@ function AutoDrive.getWaterTrailerInWater(vehicle, dt)
     return nil
 end
 
-function AutoDrive.startFillFillableTrailer(vehicle)
+function AutoDrive.startFillTrigger(trailers)
     local ret = nil
-    local trailers, _ = AutoDrive.getTrailersOf(vehicle, false)
     if trailers == nil then
-        return nil
+        return ret
     end
     for _, trailer in pairs(trailers) do
         local spec = trailer.spec_fillUnit
         if spec ~= nil and spec.fillTrigger ~= nil and spec.fillTrigger.triggers ~= nil and #spec.fillTrigger.triggers >0 then
-            spec:setFillUnitIsFilling(true)
-            AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "AutoDrive.startFillFillableTrailer setFillUnitIsFilling currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
-            if spec.fillTrigger.currentTrigger ~= nil then
-                return spec.fillTrigger.currentTrigger
+            if not spec.fillTrigger.isFilling then
+                AutoDrive.debugPrint(vehicle, AutoDrive.DC_TRAILERINFO, "AutoDrive.startFillTrigger currentTrigger %s #triggers %s", tostring(spec.fillTrigger.currentTrigger), tostring(#spec.fillTrigger.triggers))
+                spec:setFillUnitIsFilling(true)
+            end
+            if spec.fillTrigger.isFilling ~= nil and spec.fillTrigger.currentTrigger ~= nil then
+                return spec.fillTrigger
             end
         end
     end

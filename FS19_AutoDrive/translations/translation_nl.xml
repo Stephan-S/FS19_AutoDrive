@@ -8,7 +8,11 @@
 		<text name="input_ADToggleMouse"						text="AD: Muis Aan/Uitzetten" />
 		<text name="input_ADEnDisable"							text="AD: In/Uitschakelen" />
 		<text name="input_ADSilomode"							text="AD: Wijzig Modus" />
+		<text name="input_ADPreviousMode"						text="AD: Previous mode" />
 		<text name="input_ADRecord"								text="AD: Opnemen" />
+		<text name="input_ADRecord_Dual"						text="AD: Record 2 way route" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Record secondary route" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Record 2 way secondary route route" />
 		<text name="input_ADSelectTarget"						text="AD: Selecteer Volgende Bestemming" />
 		<text name="input_ADSelectPreviousTarget"				text="AD: Selecteer Vorige Bestemming" />
 		<text name="input_AD_Speed_up"							text="AD: Verhoog Snelheid" />
@@ -19,9 +23,12 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Selecteer Volgende Losplaats" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Selecteer Vorige Losplaats" />
 		<text name="input_ADActivateDebug"						text="AD: Editor Modus" />
+		<text name="input_ADDisplayMapPoints"					text="AD: Show waypoints" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Selecteer Aangrenzend RoutePunt" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Selecteer Volgend Aangrenzend RoutePunt" />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Select previous Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Verbinding Aan/Uit" />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Toggle connection between inverted" />
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Maak Een Nieuwe Bestemming" />
 		<text name="input_ADRenameMapMarker"					text="AD: Hernoem Huidige Bestemming" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Verwijder RoutePunt" />
@@ -32,11 +39,18 @@
 		<text name="input_ADCallDriver"							text="AD: Bestuurder Oproepen" />
 		<text name="input_ADGoToVehicle"						text="AD: Ga naar Aangekomen Voertuig" />
 		<text name="input_ADNameDriver"							text="AD: Wijzig BestuurdersNaam" />
+		<text name="input_ADSetDestinationFilter"				text="AD: Destination filter" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Increase Field Speed" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Decrease Field Speed" />
 		<text name="input_ADIncLoopCounter"						text="AD: Verander het Aantal Herhalingen" />
+		<text name="input_ADDecLoopCounter"						text="AD: Decrease loop counter" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Parkeer Voertuig" />
+		<text name="input_ADSetParkDestination"					text="AD: assign 1st Destination for parking" />
 		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Swap targets" />
+		<text name="input_ADStartCP"							text="AD: Pass to CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: Toggle CP/AIVE" />
 		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Fruit vermijden" />
@@ -200,6 +214,8 @@
 		<text name="gui_ad_AL_left"                             text="Unload left" />
 		<text name="gui_ad_AL_behind"                           text="Unload behind" />
 		<text name="gui_ad_AL_right"                            text="Unload right" />
+		<text name="gui_ad_ALUnloadWaitTime"                    text="EAL: wait time after unload" />
+		<text name="gui_ad_ALUnloadWaitTime_tooltip"            text="Wait time after unloading, before continue to drive - useful for unload center: 0-no wait, wait selected time" />
 		
 		<text name="gui_ad_settingsPage_title"					text="Instellingen - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="User Settings - AutoDrive" />
@@ -207,6 +223,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Combineer Ontladingsinstellingen - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Debug-instellingen - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Experimentele functies Instellingen - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Herstel" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Alle veranderingen zullen verloren gaan" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Weet u zeker dat u de instellingen wilt sluiten zonder op te slaan?" />
@@ -354,6 +371,7 @@
 		<text name="AD_task_exiting_field"						text="Uitgangsveld" />
 		<text name="AD_task_reversing_from_collision"			text="Searching clear area" />
         <text name="AD_task_drive_to_park"				        text="Drive to parking place" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "off"/>
 		<text name = "gui_CPAD_simple"							text = "simple"/>

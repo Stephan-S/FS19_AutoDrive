@@ -10,6 +10,7 @@ end
 function DriveToMode:reset()
     self.driveToDestinationTask = nil
     self.destinationID = nil
+    self.vehicle.ad.trailerModule:reset()
 end
 
 function DriveToMode:start()

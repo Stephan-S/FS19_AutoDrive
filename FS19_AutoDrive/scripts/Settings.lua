@@ -946,17 +946,6 @@ AutoDrive.settings.showTipOfTheDay = {
     isVehicleSpecific = false
 }
 
-AutoDrive.settings.useForwardTurningManoeuvre = {
-    values = {false, true},
-    texts = {"gui_ad_no", "gui_ad_yes"},
-    default = 2,
-    current = 2,
-    text = "gui_ad_useForwardTurningManoeuvre",
-    tooltip = "gui_ad_useForwardTurningManoeuvre_tooltip",
-    translate = true,
-    isVehicleSpecific = true
-}
-
 AutoDrive.settings.ALUnload = {
     values = {0, 1, 2, 3, 4},
     texts = {"gui_ad_AL_off", "gui_ad_AL_center", "gui_ad_AL_left", "gui_ad_AL_behind", "gui_ad_AL_right"},
@@ -967,7 +956,16 @@ AutoDrive.settings.ALUnload = {
     translate = true,
     isVehicleSpecific = true
 }
-
+AutoDrive.settings.ALUnloadWaitTime = {
+    values = {0, 1000, 3000, 5000, 10000, 15000, 20000, 25000, 30000, 60000, 120000, 300000, 600000},
+    texts = {"0", "1s", "3s", "5s", "10s", "15s", "20s", "25s", "30s", "1min", "2min", "5min", "10min"},
+    default = 1,
+    current = 1,
+    text = "gui_ad_ALUnloadWaitTime",
+    tooltip = "gui_ad_ALUnloadWaitTime_tooltip",
+    translate = false,
+    isVehicleSpecific = true
+}
 
 function AutoDrive.getSetting(settingName, vehicle)
     if AutoDrive.settings[settingName] ~= nil then

@@ -87,7 +87,7 @@ function ADSpecialDrivingModule:stopAndHoldVehicle(dt)
 
     if self.stoppedTimer:done() then
         self.motorShouldBeStopped = true
-        if self:shouldStopMotor() and self.vehicle.spec_motorized.isMotorStarted and (not g_currentMission.missionInfo.automaticMotorStartEnabled) then
+        if self:shouldStopMotor() and self.vehicle:getIsMotorStarted() and (not g_currentMission.missionInfo.automaticMotorStartEnabled) then
             self.vehicle:stopMotor()
         end
     end
@@ -110,6 +110,12 @@ function ADSpecialDrivingModule:driveForward(dt)
     local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, 20)
     local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
 
+    self:releaseVehicle()
+    if self.vehicle.startMotor then
+        if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+            self.vehicle:startMotor()
+        end
+    end
     AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 1)
 end
 
@@ -125,6 +131,13 @@ function ADSpecialDrivingModule:driveReverse(dt, maxSpeed, maxAcceleration, guid
         if guided ~= true then
             local targetX, targetY, targetZ = localToWorld(self.vehicle.components[1].node, 0, 0, -20)
             local lx, lz = AIVehicleUtil.getDriveDirection(self.vehicle.components[1].node, targetX, targetY, targetZ)
+
+            self:releaseVehicle()
+            if self.vehicle.startMotor then
+                if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+                    self.vehicle:startMotor()
+                end
+            end
             local storedSmootherDriving = AutoDrive.smootherDriving
             AutoDrive.smootherDriving = false
             AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, false, -lx, -lz, speed, 1)
@@ -166,11 +179,6 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
         self:update(dt)
     else
         self:releaseVehicle()
-        if self.vehicle.startMotor and self.vehicle.stopMotor then
-            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
-                self.vehicle:startMotor()
-            end
-        end
 
         self.isBlocked = self.stoppedTimer:timer(self.vehicle.lastSpeedReal < 0.00028, 15000, dt)
         -- Allow active braking if vehicle is not 'following' targetSpeed precise enough
@@ -178,6 +186,13 @@ function ADSpecialDrivingModule:driveToPoint(dt, point, maxFollowSpeed, checkDyn
             self.acceleration = -0.6
         end
         --ADDrawingManager:addLineTask(x, y, z, point.x, point.y, point.z, 1, 0, 0)
+
+        if self.vehicle.startMotor then
+            if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+                self.vehicle:startMotor()
+            end
+        end
+
         local storedSmootherDriving = AutoDrive.smootherDriving
         AutoDrive.smootherDriving = false
         AIVehicleUtil.driveInDirection(self.vehicle, dt, 30, acc, 0.2, 20, true, true, lx, lz, speed, 0.3)
@@ -414,6 +429,13 @@ function ADSpecialDrivingModule:reverseToPoint(dt, maxSpeed)
             maxAngle = self.vehicle.maxRotation
         else
             maxAngle = math.deg(self.vehicle.maxRotation)
+        end
+    end
+
+    self:releaseVehicle()
+    if self.vehicle.startMotor then
+        if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+            self.vehicle:startMotor()
         end
     end
 

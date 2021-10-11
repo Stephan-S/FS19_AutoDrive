@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.1.6"
+AutoDrive.version = "1.1.1.8"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -9,12 +9,12 @@ g_autoDriveTipOfTheDayUIFilename = AutoDrive.directory .. "textures/tipOfTheDay_
 
 AutoDrive.experimentalFeatures = {}
 AutoDrive.experimentalFeatures.redLinePosition = false
-AutoDrive.experimentalFeatures.dynamicChaseDistance = false
 AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
 AutoDrive.experimentalFeatures.detectGrasField = true
 AutoDrive.experimentalFeatures.colorAssignmentMode = false
 
+AutoDrive.dynamicChaseDistance = true
 AutoDrive.smootherDriving = true
 AutoDrive.developmentControls = false
 

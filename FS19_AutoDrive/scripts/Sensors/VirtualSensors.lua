@@ -1,5 +1,6 @@
 ADSensor = {}
 ADSensor_mt = {__index = ADSensor}
+ADSensor.debug = false
 
 ADSensor.TYPE_COLLISION = 1
 ADSensor.TYPE_FRUIT = 2
@@ -238,10 +239,20 @@ function ADSensor:getLocationByPosition()
         location.x = vehicle.sizeWidth / 2 + 1 + self.width / 2
         location.z = -vehicle.sizeLength / 2 - 2
     elseif self.position == ADSensor.POS_FRONT_LEFT then
-        location.x = vehicle.sizeWidth + 1.5 + self.width / 2
+        local frontToolWidth = AutoDrive.getFrontToolWidth(vehicle)
+        if frontToolWidth ~= nil and frontToolWidth > 0 then
+            location.x = frontToolWidth / 2 + 0.5 + self.width / 2
+        else
+            location.x = vehicle.sizeWidth + 1.5 + self.width / 2
+        end
         location.z = vehicle.sizeLength * 0.3 - 2
     elseif self.position == ADSensor.POS_FRONT_RIGHT then
-        location.x = -vehicle.sizeWidth - 1.5 - self.width / 2
+        local frontToolWidth = AutoDrive.getFrontToolWidth(vehicle)
+        if frontToolWidth ~= nil and frontToolWidth > 0 then
+            location.x = -frontToolWidth / 2 - 0.5 - self.width / 2
+        else
+            location.x = -vehicle.sizeWidth - 1.5 - self.width / 2
+        end
         location.z = vehicle.sizeLength * 0.3 - 2
     elseif self.position == ADSensor.POS_FIXED and self.location ~= nil then
         return self.location
@@ -369,36 +380,51 @@ function ADSensor:onUpdate()
     g_logManager:devWarning("[AutoDrive] ADSensor:onUpdate() called - Please override this in instance class")
 end
 
+
+--[[
+red box outline
+green TYPE_FIELDBORDER
+blue TYPE_FRUIT
+]]
 function ADSensor:onDrawDebug(box)
     if self.drawDebug or AutoDrive.getDebugChannelIsSet(AutoDrive.DC_SENSORINFO) then
-        local red = 0
+        local red = 1
+        local green = 0
         local blue = 0
-        if self:isTriggered() then
-            if self.sensorType == ADSensor.TYPE_FRUIT or self.sensorType == ADSensor.TYPE_FIELDBORDER then
+        local isTriggered = self:isTriggered()
+        if isTriggered then
+            if self.sensorType == ADSensor.TYPE_FRUIT then
+                -- red = 1
+                -- green = 1
                 blue = 1
-            else
-                red = 1
+            end
+            if self.sensorType == ADSensor.TYPE_FIELDBORDER then
+                -- red = 1
+                green = 1
+                -- blue = 1
             end
         end
 
         if self.sensorType == ADSensor.TYPE_FRUIT or self.sensorType == ADSensor.TYPE_FIELDBORDER then
             local corners = self:getCorners(box)
-            corners[1].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[1].x, 1, corners[1].z)
-            corners[2].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[2].x, 1, corners[2].z)
-            corners[3].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[3].x, 1, corners[3].z)
-            corners[4].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[4].x, 1, corners[4].z)
+            corners[1].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[1].x, 1, corners[1].z) + 0.5 -- bottom right
+            corners[2].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[2].x, 1, corners[2].z) + 0.5 -- top right
+            corners[3].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[3].x, 1, corners[3].z) + 0.5 -- bottom left
+            corners[4].y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, corners[4].x, 1, corners[4].z) + 0.5 -- top left
 
             local AutoDriveDM = ADDrawingManager
-
-            AutoDriveDM:addLineTask(corners[1].x, corners[1].y, corners[1].z, corners[2].x, corners[2].y, corners[2].z, 1, blue, 0)
-            AutoDriveDM:addLineTask(corners[2].x, corners[2].y, corners[2].z, corners[3].x, corners[3].y, corners[3].z, 1, blue, 0)
-            AutoDriveDM:addLineTask(corners[3].x, corners[3].y, corners[3].z, corners[1].x, corners[1].y, corners[1].z, 1, blue, 0)
-
-            AutoDriveDM:addLineTask(corners[2].x, corners[2].y, corners[2].z, corners[3].x, corners[3].y, corners[3].z, 1, blue, 1)
-            AutoDriveDM:addLineTask(corners[3].x, corners[3].y, corners[3].z, corners[4].x, corners[4].y, corners[4].z, 1, blue, 1)
-            AutoDriveDM:addLineTask(corners[4].x, corners[4].y, corners[4].z, corners[2].x, corners[2].y, corners[2].z, 1, blue, 1)
+            AutoDriveDM:addLineTask(corners[2].x, corners[2].y, corners[2].z, corners[4].x, corners[4].y, corners[4].z, red, green, blue) -- top
+            AutoDriveDM:addLineTask(corners[3].x, corners[3].y, corners[3].z, corners[4].x, corners[4].y, corners[4].z, red, green, blue) -- left
+            AutoDriveDM:addLineTask(corners[1].x, corners[1].y, corners[1].z, corners[2].x, corners[2].y, corners[2].z, red, green, blue) -- right
+            AutoDriveDM:addLineTask(corners[1].x, corners[1].y, corners[1].z, corners[3].x, corners[3].y, corners[3].z, red, green, blue) -- bottom
+            if isTriggered and self.sensorType == ADSensor.TYPE_FRUIT then
+                AutoDriveDM:addLineTask(corners[3].x, corners[3].y, corners[3].z, corners[2].x, corners[2].y, corners[2].z, 0, green, blue)
+            end
+            if isTriggered and self.sensorType == ADSensor.TYPE_FIELDBORDER then
+                AutoDriveDM:addLineTask(corners[1].x, corners[1].y, corners[1].z, corners[4].x, corners[4].y, corners[4].z, 0, green, blue)
+            end
         else
-            DebugUtil.drawOverlapBox(box.x, box.y, box.z, box.rx, box.ry, 0, box.size[1], box.size[2], box.size[3], red, blue, 0)
+            DebugUtil.drawOverlapBox(box.x, box.y + 0.5, box.z, box.rx, box.ry, 0, box.size[1], box.size[2], box.size[3], 1, 1, 1)
         end
     end
 end
@@ -496,4 +522,10 @@ function ADSensor:getRotatedFront()
         end
 
     return nil
+end
+
+function ADSensor.debugMsg(vehicle, debugText, ...)
+    if ADSensor.debug == true then
+        ADSensor.debugMsg(vehicle, debugText, ...)
+    end
 end

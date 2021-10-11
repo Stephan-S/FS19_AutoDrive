@@ -9,7 +9,7 @@ ADSettings = {}
 
 local ADSettings_mt = Class(ADSettings, TabbedMenu)
 
-ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveUserSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings"}
+ADSettings.CONTROLS = {"autoDriveSettings", "autoDriveUserSettings", "autoDriveVehicleSettings", "autoDriveCombineUnloadSettings", "autoDriveDebugSettings", "autoDriveExperimentalFeaturesSettings", "autoDriveEnvironmentSettings"}
 
 --- Page tab UV coordinates for display elements.
 ADSettings.TAB_UV = {
@@ -20,7 +20,8 @@ ADSettings.TAB_UV = {
     SETTINGS_LOAD = {0, 129, 128, 128},
     SETTINGS_NAVIGATION = {0, 257, 128, 128},
     SETTINGS_DEBUG = {0, 128, 128, 128},
-    SETTINGS_EXPFEAT = {128, 128, 128, 128}
+    SETTINGS_EXPFEAT = {128, 128, 128, 128},
+    SETTINGS_ENVIRONMENT = {65, 144, 65, 65}
 }
 
 ADSettings.ICON_UV = {
@@ -74,6 +75,7 @@ function ADSettings:setupPages()
         {self.autoDriveUserSettings, alwaysEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_USER, false},
         {self.autoDriveVehicleSettings, vehicleEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_VEHICLE, false},
         {self.autoDriveCombineUnloadSettings, combineEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_UNLOAD, false},
+        {self.autoDriveEnvironmentSettings, vehicleEnabled, g_baseUIFilename, ADSettings.TAB_UV.SETTINGS_ENVIRONMENT, false},
         {self.autoDriveDebugSettings, developmentControlsEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_DEBUG, true},
         {self.autoDriveExperimentalFeaturesSettings, alwaysEnabled, g_autoDriveUIFilename, ADSettings.TAB_UV.SETTINGS_EXPFEAT, true}
     }

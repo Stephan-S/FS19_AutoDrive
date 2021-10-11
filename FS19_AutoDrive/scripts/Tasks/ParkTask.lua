@@ -8,6 +8,7 @@ function ParkTask:new(vehicle, destinationID)
     o.vehicle = vehicle
     o.destinationID = destinationID
     o.actualParkDestinationName = nil
+    o.trailers = nil
     return o
 end
 
@@ -32,8 +33,8 @@ function ParkTask:setUp()
         self.state = ParkTask.STATE_DRIVING
         self.vehicle.ad.drivePathModule:setPathTo(self.destinationID)
     end
-    local trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
-    AutoDrive.setTrailerCoverOpen(self.vehicle, trailers, false)
+    self.trailers, _ = AutoDrive.getTrailersOf(self.vehicle, false)
+    AutoDrive.setTrailerCoverOpen(self.vehicle, self.trailers, false)
 end
 
 function ParkTask:update(dt)

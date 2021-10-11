@@ -8,7 +8,11 @@
 		<text name="input_ADToggleMouse"						text="AD: Montrer/cacher Souris" />
 		<text name="input_ADEnDisable"							text="AD: Activer/Désactiver" />
 		<text name="input_ADSilomode"							text="AD: Changer mode" />
+		<text name="input_ADPreviousMode"						text="AD: Previous mode" />
 		<text name="input_ADRecord"								text="AD: Enregistrer" />
+		<text name="input_ADRecord_Dual"						text="AD: Record 2 way route" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Record secondary route" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Record 2 way secondary route route" />
 		<text name="input_ADSelectTarget"						text="AD: Sélect. prochaine destination" />
 		<text name="input_ADSelectPreviousTarget"				text="AD: Sélect. destination précédente" />
 		<text name="input_AD_Speed_up"							text="AD: Augmenter la vitesse" />
@@ -19,9 +23,12 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Sélect. prochain déchargement" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Sélect. déchargement précédent" />
 		<text name="input_ADActivateDebug"						text="AD: Activer mode édition" />
+		<text name="input_ADDisplayMapPoints"					text="AD: Show waypoints" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Sélecteur de connection" />
 		<text name="input_ADDebugChangeNeighbor"				text="AD: Sélect. point suivant" />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Select previous Neighbour Point" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Connecter entre" />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Toggle connection between inverted" />
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Créer nouvelle destination" />
 		<text name="input_ADRenameMapMarker"					text="AD: Renommer destination actuelle" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Effacer point de passage" />
@@ -32,11 +39,18 @@
 		<text name="input_ADCallDriver"							text="AD: Appeler un chauffeur" />
 		<text name="input_ADGoToVehicle"						text="AD: Entrer dans le vehicule arrivé" />
 		<text name="input_ADNameDriver"							text="AD: Donnez un nom au chauffeur" />
+		<text name="input_ADSetDestinationFilter"				text="AD: Destination filter" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Increase Field Speed" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Decrease Field Speed" />
 		<text name="input_ADIncLoopCounter"						text="AD: Augmenter le nombre de répétitions" />
+		<text name="input_ADDecLoopCounter"						text="AD: Decrease loop counter" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Unload to Trailer or BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Garer le véhicule" />
+		<text name="input_ADSetParkDestination"					text="AD: assign 1st Destination for parking" />
 		<text name="input_ADRefuelVehicle"						text="AD: Refuel vehicle" />
 		<text name="input_ADSwapTargets"						text="AD: Échange d'objectifs" />
+		<text name="input_ADStartCP"							text="AD: Pass to CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: Toggle CP/AIVE" />
 		<text name="input_AD_devAction"                         			text="AD: Developer Action" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Open Tip of the day" />
 		<text name="hud_avoidFruit"								text="AD: Éviter les cultures" />
@@ -186,6 +200,8 @@
 		<text name="gui_ad_AL_left"                             text="Unload left" />
 		<text name="gui_ad_AL_behind"                           text="Unload behind" />
 		<text name="gui_ad_AL_right"                            text="Unload right" />
+		<text name="gui_ad_ALUnloadWaitTime"                    text="EAL: wait time after unload" />
+		<text name="gui_ad_ALUnloadWaitTime_tooltip"            text="Wait time after unloading, before continue to drive - useful for unload center: 0-no wait, wait selected time" />
 
 		<text name="gui_ad_followOnlyOnField"					text="Restreindre au champ..." />
 		<text name="gui_ad_followOnlyOnField_tooltip"			text="Restreindre le déchargement au champ pendant le déchargement actif" />
@@ -206,6 +222,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Paramètres de déchargements moissonneuses - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title" 			text="Paramètres de débogage - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title" 		text="Paramètres de fonctionnalités expérimentales - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Restaurer" />
 		<text name="gui_ad_settingsClosingDialog_title"			text="Tous les changements seront perdus" />
 		<text name="gui_ad_settingsClosingDialog_text"			text="Êtes-vous sûr de vouloir fermer les paramètres sans enregistrer ?" />
@@ -356,6 +373,7 @@
 		<text name="AD_task_exiting_field"						text="Champ de sortie" />
 		<text name="AD_task_reversing_from_collision"			text="Recherche d'une zone dégagée" />
     	<text name="AD_task_drive_to_park"				        text="Conduire vers le parking" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
 
 		<text name = "gui_CPAD_off"								text = "off"/>
 		<text name = "gui_CPAD_simple"							text = "simple"/>

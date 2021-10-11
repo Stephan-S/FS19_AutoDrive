@@ -287,9 +287,12 @@ function ADDrivePathModule:followWaypoints(dt)
         --print("Speed: " .. (self.vehicle.lastSpeedReal * 3600) .. "/" .. self.speedLimit .. " acc: " .. self.acceleration .. " maxSpeedDiff: " .. maxSpeedDiff)
         --print("LAD: " .. self.distanceToLookAhead .. " maxAngle: " .. self.maxAngle .. " maxAngleSpeed: " .. self.maxAngleSpeed)
         --ADDrawingManager:addLineTask(x, y, z, self.targetX, y, self.targetZ, 1, 0, 0)
-        if self.vehicle.spec_motorized == nil or self.vehicle.spec_motorized.isMotorStarted then
-            AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
+        if self.vehicle.startMotor then
+            if not self.vehicle:getIsMotorStarted() and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
+                self.vehicle:startMotor()
+            end
         end
+        AIVehicleUtil.driveInDirection(self.vehicle, dt, maxAngle, self.acceleration, 0.8, maxAngle, true, true, lx, lz, self.speedLimit, 1)
     end
 end
 
@@ -672,12 +675,7 @@ function ADDrivePathModule:checkActiveAttributesSet(dt)
                 end
             end
         end
-        -- Only the server has to start/stop motor
-        if self.vehicle.startMotor and self.vehicle.stopMotor then
-            if not self.vehicle.spec_motorized.isMotorStarted and self.vehicle:getCanMotorRun() and not self.vehicle.ad.specialDrivingModule:shouldStopMotor() then
-                self.vehicle:startMotor()
-            end
-        end
+
     end
 end
 

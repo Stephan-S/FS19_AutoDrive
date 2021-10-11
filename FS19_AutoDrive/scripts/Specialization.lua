@@ -466,6 +466,7 @@ function AutoDrive:onPostAttachImplement(attachable, inputJointDescIndex, jointD
             end
         end
     end
+    AutoDrive.getFrontToolWidth(self, true)
 end
 
 function AutoDrive:onPreDetachImplement(implement)

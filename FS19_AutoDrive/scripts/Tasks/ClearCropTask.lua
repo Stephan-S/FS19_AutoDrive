@@ -79,7 +79,7 @@ function ClearCropTask:update(dt)
         local distanceToReversStart = MathUtil.vector2Length(x - self.reverseStartLocation.x, z - self.reverseStartLocation.z)
         if not AutoDrive.isVehicleOrTrailerInCrop(self.vehicle, true) then
             self:finished()
-        elseif distanceToReversStart > 10 then
+        elseif distanceToReversStart > 20 then
             self.state = ClearCropTask.STATE_CLEARING
         else
             self.vehicle.ad.specialDrivingModule:driveReverse(dt, 15, 1, self.vehicle.ad.trailerModule:canBeHandledInReverse())
