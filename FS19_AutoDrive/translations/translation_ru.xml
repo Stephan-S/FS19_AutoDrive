@@ -8,11 +8,11 @@
 		<text name="input_ADToggleMouse"						text="AD: Отображение курсора" />
 		<text name="input_ADEnDisable"							text="AD: Вкл/Выкл" />
 		<text name="input_ADSilomode"							text="AD: Изменить режим" />
-		<text name="input_ADPreviousMode"						text="AD: Previous mode" />
+		<text name="input_ADPreviousMode"						text="AD: Предыдущий режим" />
 		<text name="input_ADRecord"								text="AD: Запись" />
-		<text name="input_ADRecord_Dual"						text="AD: Record 2 way route" />
-		<text name="input_ADRecord_SubPrio"						text="AD: Record secondary route" />
-		<text name="input_ADRecord_SubPrioDual"					text="AD: Record 2 way secondary route route" />
+		<text name="input_ADRecord_Dual"						text="AD: Запись двунаправленного пути" />
+		<text name="input_ADRecord_SubPrio"						text="AD: Запись вторичного пути" />
+		<text name="input_ADRecord_SubPrioDual"					text="AD: Запись двунаправленного вторичного пути" />
 		<text name="input_ADSelectTarget"						text="AD: Следующая локация" />
 		<text name="input_ADSelectPreviousTarget"				text="AD: Предыдущая локация" />
 		<text name="input_AD_Speed_up"							text="AD: Увеличить скорость" />
@@ -23,12 +23,12 @@
 		<text name="input_ADSelectTargetUnload"					text="AD: Следующая точка разгрузки" />
 		<text name="input_ADSelectPreviousTargetUnload"			text="AD: Предыдущая точка разгрузки" />
 		<text name="input_ADActivateDebug"						text="AD: Режим редактирования" />
-		<text name="input_ADDisplayMapPoints"					text="AD: Show waypoints" />
+		<text name="input_ADDisplayMapPoints"					text="AD: Отобразить путевые точки" />
 		<text name="input_ADDebugSelectNeighbor"				text="AD: Выбрать соседнюю точку" />
-		<text name="input_ADDebugChangeNeighbor"				text="AD: Выбрать следующую соседнюю точку" />
-		<text name="input_ADDebugPreviousNeighbor"				text="AD: Select previous Neighbour Point" />
+		<text name="input_ADDebugChangeNeighbor"				text="AD: Выбрать следующую Соседнюю точку" />
+		<text name="input_ADDebugPreviousNeighbor"				text="AD: Выбрать предыдущую Соседнюю точку" />
 		<text name="input_ADDebugCreateConnection"				text="AD: Установить/Убрать связь между выбранными" />
-		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Toggle connection between inverted" />
+		<text name="input_ADDebugToggleConnectionInverted"		text="AD: Переключение соединения между инвертированным" />
 		<text name="input_ADDebugCreateMapMarker"				text="AD: Создать/Редактировать новую локацию" />
 		<text name="input_ADRenameMapMarker"					text="AD: Редактировать выбранную локацию" />
 		<text name="input_ADDebugDeleteWayPoint"				text="AD: Удалить путевую точку" />
@@ -39,18 +39,18 @@
 		<text name="input_ADCallDriver"							text="AD: Вызвать разгружающего водителя" />
 		<text name="input_ADGoToVehicle"						text="AD: Пересесть в прибывшую технику" />
 		<text name="input_ADNameDriver"							text="AD: Назначить водителю имя" />
-		<text name="input_ADSetDestinationFilter"				text="AD: Destination filter" />
-		<text name="input_AD_FieldSpeed_up"						text="AD: Increase Field Speed" />
-		<text name="input_AD_FieldSpeed_down"					text="AD: Decrease Field Speed" />
-		<text name="input_ADIncLoopCounter"						text="AD: Установить к-во рейсов" />
-		<text name="input_ADDecLoopCounter"						text="AD: Decrease loop counter" />
+		<text name="input_ADSetDestinationFilter"				text="AD: Фильтр локаций" />
+		<text name="input_AD_FieldSpeed_up"						text="AD: Увеличить скорость в поле" />
+		<text name="input_AD_FieldSpeed_down"					text="AD: Уменьшить скорость в поле" />
+		<text name="input_ADIncLoopCounter"						text="AD: Увеличить к-во рейсов" />
+		<text name="input_ADDecLoopCounter"						text="AD: Уменьшить к-во рейсов" />
 		<text name="input_ADbunkerUnloadType"					text="AD: Выгрузить на трейлер или BGA" />
 		<text name="input_ADParkVehicle"						text="AD: Отправить на парковку" />
-		<text name="input_ADSetParkDestination"					text="AD: assign 1st Destination for parking" />
+		<text name="input_ADSetParkDestination"					text="AD: Назначить 1-ю локацию как парковку" />
 		<text name="input_ADRefuelVehicle"						text="AD: Заправить технику" />
 		<text name="input_ADSwapTargets"						text="AD: Сменить локации" />
-		<text name="input_ADStartCP"							text="AD: Pass to CP/AIVE" />
-		<text name="input_ADToggleCP_AIVE"						text="AD: Toggle CP/AIVE" />
+		<text name="input_ADStartCP"							text="AD: Перейти к CP/AIVE" />
+		<text name="input_ADToggleCP_AIVE"						text="AD: Переключение CP/AIVE" />
 		<text name="input_AD_devAction"							text="AD: Действия разработчика" />
 		<text name="input_AD_open_tipOfTheDay" 					text="AD: Открыть совет на день" />
 		<text name="hud_avoidFruit"								text="AD: Избегать посевов" />
@@ -208,15 +208,15 @@
 		<text name="gui_ad_autoTrailerCover_tooltip"			text="Да - AutoDrive открывает и закрывает тенты по мере необходимости / Нет - тенты прицепа не открываются или закрываются с помощью AutoDrive." />
 		<text name="gui_ad_useForwardTurningManoeuvre"			text="Планирование поворота" />
 		<text name="gui_ad_useForwardTurningManoeuvre_tooltip"	text="Да - Разгрузчики AutoDrive пытаются планировать путь вперед чтобы адаптироваться к повороту комбайна на 90°. / Нет - Разгрузчики сдадут назад перед поворотом." />
-		<text name="gui_ad_ALUnload"							text="EasyAutoLoad: положение разгрузки" />
+		<text name="gui_ad_ALUnload"							text="EAL: положение разгрузки" />
 		<text name="gui_ad_ALUnload_tooltip"					text="ВЫКЛ-без авторазгрузки, центр-разгрузить на платформу, влево / позади / вправо от техники (Положение зависит от настроек автомобиля, а не AD!)" />
 		<text name="gui_ad_AL_off"								text="Разгрузка ВЫКЛ" />
 		<text name="gui_ad_AL_center"							text="Разгрузка в центр" />
 		<text name="gui_ad_AL_left"								text="Разгрузка влево" />
 		<text name="gui_ad_AL_behind"							text="Разгрузка позади" />
 		<text name="gui_ad_AL_right"							text="Разгрузка вправо" />
-		<text name="gui_ad_ALUnloadWaitTime"                    text="EAL: wait time after unload" />
-		<text name="gui_ad_ALUnloadWaitTime_tooltip"            text="Wait time after unloading, before continue to drive - useful for unload center: 0-no wait, wait selected time" />
+		<text name="gui_ad_ALUnloadWaitTime"					text="EAL: время ожидания после разгрузки" />
+		<text name="gui_ad_ALUnloadWaitTime_tooltip"			text="Время ожидания после разгрузки, прежде чем продолжить движение - полезно для центра разгрузки: 0 - нет ждать, подождать установленное время." />
 
 		<text name="gui_ad_settingsPage_title"					text="Общие настройки - AutoDrive" />
 		<text name="gui_ad_userSettingsPage_title"				text="Пользовательские настройки - AutoDrive" />
@@ -224,7 +224,7 @@
 		<text name="gui_ad_combineUnloadSettingsPage_title"		text="Настройки разгрузки комбайна - AutoDrive" />
 		<text name="gui_ad_debugSettingsPage_title"				text="Настройки отладки - AutoDrive" />
 		<text name="gui_ad_eFeaturesSettingsPage_title"			text="Настройки экспериментальных функций - AutoDrive" />
-		<text name="gui_ad_environmentSettingsPage_title"		text="Non-functional Settings - AutoDrive" />
+		<text name="gui_ad_environmentSettingsPage_title"		text="Нефункциональные настройки - AutoDrive" />
 		<text name="gui_ad_restoreButtonText" 					text="Восстановить" />
 		<text name="gui_ad_settingsClosingDialog_title" 		text="Все изменения будут утеряны" />
 		<text name="gui_ad_settingsClosingDialog_text" 			text="Вы уверены, что хотите закрыть окно настроек без сохранения?" />
@@ -251,21 +251,21 @@
 		<text name="gui_ad_debugChannelExternalInterface" 		text="Внешний интерфейс" />
 		<text name="gui_ad_debugChannelRender" 					text="Рендеринг" />
 		<text name="gui_ad_debugChannelRoadNetwork"	 			text="Дорожная сеть" />
-		<text name="gui_ad_debugChannelBGA"						text="BGA Mode" />
+		<text name="gui_ad_debugChannelBGA"						text="Режим BGA" />
 		<text name="gui_ad_debugChannelAll" 					text="Все" />
 
 		<text name="gui_ad_notificationHistoryTitle" 			text="Уведомления" />
 
 		<text name="gui_ad_colorSettingsTitle" 					text="Назначение цветов" />
         <!-- Please keep the numbers in the translation texts - they are used to sort / group the entries in the list -->
-		<text name="ad_color_singleConnection" 					text="01 линия однонаправлеего соединения" />
+		<text name="ad_color_singleConnection" 					text="01 линия однонаправленного соединения" />
 		<text name="ad_color_dualConnection" 					text="02 линия двунаправленного соединения" />
-		<text name="ad_color_reverseConnection" 				text="03 линия реверивного соединения" />
-		<text name="ad_color_default" 							text="04 путевая точка однонаправлеего и реверивного соединения" />
-		<text name="ad_color_subPrioSingleConnection" 			text="05 линия вторичного однонаправлеего соединения" />
+		<text name="ad_color_reverseConnection" 				text="03 линия реверсивного соединения" />
+		<text name="ad_color_default" 							text="04 путевая точка однонаправленного и реверсивного соединения" />
+		<text name="ad_color_subPrioSingleConnection" 			text="05 линия вторичного однонаправленного соединения" />
 		<text name="ad_color_subPrioDualConnection" 			text="06 линия вторичного двунаправленного соединения" />
 		<text name="ad_color_subPrioNode" 						text="07 вторичная путевая точка" />
-		<text name="ad_color_hoveredNode" 						text="08 зависшая путевая точка????" />
+		<text name="ad_color_hoveredNode" 						text="08 путевая точка под указателем мыши" />
 		<text name="ad_color_previousNode" 						text="09 подсоединённая предыдущая путевая точка" />
 		<text name="ad_color_nextNode" 							text="10 подсоединённая следующая путевая точка" />
 		<text name="ad_color_selectedNode" 						text="11 выделенная путевая точка" />
@@ -305,7 +305,7 @@
 		<text name="ad_helpText_05_04"							text="Этот режим также можно использовать в сочетании с Courseplay. Вам нужно будет выбрать «AutoDrive: Для разгрузки/наполнения» в HUD Courseplay (не является частью этой документации)." />
 
 		<text name="ad_helpTitle_06"							text="Режим AD - Разгрузка комбайна" />
-		<text name="ad_helpText_06_01"							text="В этом режиме вы также можете установить два пункта назначения: первый - локация на поле, откуда можно подъехать к работающему комбайну, второй -  место разгрузки урожая." />
+		<text name="ad_helpText_06_01"							text="В этом режиме вы также можете установить два пункта назначения: первый - локация на поле, откуда можно подъехать к работающему комбайну, второй - место разгрузки урожая." />
 		<text name="ad_helpText_06_02"							text="Это первый режим, в котором водителям AutoDrive разрешается отклоняться от записанного маршрута и ездить по полю. Этот режим довольно сложный и включает в себя множество настроек доступных из Меню настроек." />
 		<text name="ad_helpText_06_03"							text="Таким образом, в этой документации сначала опишем основное поведение, а затем добавим, как настройки влияют на поведение." />
 
@@ -373,7 +373,7 @@
 		<text name="AD_task_exiting_field"						text="Покидает поле" />
 		<text name="AD_task_reversing_from_collision"			text="Ищет свободное пространство" />
 		<text name="AD_task_drive_to_park"						text="Движется на место парковки" />
-		<text name="AD_task_unload_area_in_fruit"			    text="Unload area blocked" />
+		<text name="AD_task_unload_area_in_fruit"			    text="Зона разгрузки занята" />
 
 		<text name="gui_CPAD_off"								text="ВЫКЛ"/>
 		<text name="gui_CPAD_simple"							text="простое"/>
@@ -405,7 +405,7 @@
 		
 		1. Чтобы позволить комбайну автоматически вызывать разгрузчика, просто в HUD AutoDrive у комбайна выберите тот же пункт назначения, что выбран для разгрузчика. Этой точкой обычно должна быть цель, близкая к полю, чтобы разгрузчик смог затем спланировать маршрут к комбайну. Как вариант, вы также можете включить настройку 'Поиск разгружающего водителя', что приведёт к тому, что комбайн будет использовать любого доступного разгрузчика в радиусе 300 м.
 		
-		2. AutoDrive может разгружать на ходу как зерноуборочные так и кормоуборочные комбайны. Чтобы включить эту функцию для зерноуборочных комбайнов, просто установите настройку 'Уровень предварительного вызова' равной 0%." />
+		2. AutoDrive может разгружать на ходу как зерноуборочные, так и кормоуборочные комбайны. Чтобы включить эту функцию для зерноуборочных комбайнов, просто установите настройку 'Уровень предварительного вызова' равной 0%." />
 		<text name="ad_totd_04_title" 							text="Настройки - 1" />
 		<text name="ad_totd_04_text" 							text="В настоящее время есть 6 различных страниц настроек.
 
@@ -421,19 +421,19 @@
 		
 		6. Настройки экспериментальных функций - эти настройки относятся к функциям, которые мы в настоящее время тестируем / разрабатываем, но еще не считаются стабильными. Используйте на свой страх и риск." />
 		
-		<text name = "gui_ad_editorTip_1"								text = "Одинарны клик ЛКМ:"/>
-		<text name = "gui_ad_editorTip_2"								text = "Только мышь: Выбор 1-ой точки"/>
-		<text name = "gui_ad_editorTip_3"								text = "LCTRL = Создать узел"/>
-		<text name = "gui_ad_editorTip_4"								text = "LALT = Удалить узел"/>
-		<text name = "gui_ad_editorTip_5"								text = "LSHIFT = Переключение точки на 'боковую дорогу'"/>
+		<text name = "gui_ad_editorTip_1"						text = "Одинарный клик ЛКМ:"/>
+		<text name = "gui_ad_editorTip_2"						text = "Только мышь: Выбор 1-ой точки"/>
+		<text name = "gui_ad_editorTip_3"						text = "LCTRL = Создать узел"/>
+		<text name = "gui_ad_editorTip_4"						text = "LALT = Удалить узел"/>
+		<text name = "gui_ad_editorTip_5"						text = "LSHIFT = Переключение точки на 'боковую дорогу'"/>
 
-		<text name = "gui_ad_editorTip_6"								text = "Клик по вторичному узлу:"/>
-		<text name = "gui_ad_editorTip_7"								text = "Переключение соединения"/>
-		<text name = "gui_ad_editorTip_8"								text = "RSHIFT = Создание реверсивной дороги"/>
+		<text name = "gui_ad_editorTip_6"						text = "Клик по вторичному узлу:"/>
+		<text name = "gui_ad_editorTip_7"						text = "Переключение соединения"/>
+		<text name = "gui_ad_editorTip_8"						text = "RSHIFT = Создание реверсивной дороги"/>
 
-		<text name = "gui_ad_editorTip_9"								text = "1-й узел это пересечение, 2-й это соседний:"/>
-		<text name = "gui_ad_editorTip_10"								text = "LCTRL: Переключение типа сегмента (одно/двусторонняя)"/>
-		<text name = "gui_ad_editorTip_11"								text = "LSHIFT = Переключение 'боковой дороги'"/>
+		<text name = "gui_ad_editorTip_9"						text = "1-й узел - это пересечение, 2-й - это соседний узел:"/>
+		<text name = "gui_ad_editorTip_10"						text = "LCTRL: Переключение типа сегмента (одно/двусторонняя)"/>
+		<text name = "gui_ad_editorTip_11"						text = "LSHIFT = Переключение 'боковой дороги'"/>
 
   </texts>
 </l10n>
