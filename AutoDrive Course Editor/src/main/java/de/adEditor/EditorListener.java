@@ -147,12 +147,12 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
             case BUTTON_CANCEL_CURVE:
                 if (editor.editorState == EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
                     editor.getMapPanel().stopCurveEdit();
+                    editor.getMapPanel().repaint();
                 }
                 break;
             case BUTTON_COMMIT_CURVE:
                 if (editor.editorState == EDITORSTATE_QUADRATICBEZIER && quadCurve.isCurveCreated()) {
-                    quadCurve.commitCurve(NODE_STANDARD);
-                    // TODO : add quad bezier nodes to network
+                    quadCurve.commitCurve();
                     editor.getMapPanel().stopCurveEdit();
                     editor.getMapPanel().repaint();
                     editor.setStale(true);
@@ -177,6 +177,9 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
         switch (button.getActionCommand()) {
             case MENU_CHECKBOX_CONTINUECONNECT:
                 AutoDriveEditor.bContinuousConnections = button.isSelected();
+                break;
+            case MENU_CHECKBOX_MIDDLEMOUSEMOVE:
+                AutoDriveEditor.bMiddleMouseMove = button.isSelected();
                 break;
             case RADIOBUTTON_PATHTYPE_REGULAR:
                 quadCurve.setNodeType(NODE_STANDARD);

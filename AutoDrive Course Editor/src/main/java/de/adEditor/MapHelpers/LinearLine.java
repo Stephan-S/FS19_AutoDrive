@@ -61,4 +61,15 @@ public class LinearLine {
         this.lineNodeList.clear();
         this.lineStartNode = null;
     }
+
+    public boolean isLineCreated() {
+        return lineNodeList.size() >0;
+    }
+
+    // getters and setters
+
+
+    public MapNode getLineStartNode() {
+        return lineStartNode;
+    }
 }

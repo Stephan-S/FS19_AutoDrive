@@ -3,25 +3,16 @@ package de.adEditor;
 import de.adEditor.MapHelpers.MapMarker;
 import de.adEditor.MapHelpers.MapNode;
 import de.adEditor.MapHelpers.RoadMap;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
@@ -35,6 +26,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -52,7 +45,9 @@ import static de.adEditor.MapPanel.*;
 
 public class AutoDriveEditor extends JFrame {
 
-    public static final String AUTO_DRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
+    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
+    public static final String AUTODRIVE_INTERNAL_VERSION = "0.2.1-beta";
+    private String lastRunVersion;
 
     public static final int EDITORSTATE_NOOP = -1;
     public static final int EDITORSTATE_MOVING = 0;
@@ -74,7 +69,6 @@ public class AutoDriveEditor extends JFrame {
     public static final int EDITORSTATE_LINEARLINE = 13;
     public static final int EDITORSTATE_QUADRATICBEZIER = 14;
 
-
     public static final String MENU_LOAD_CONFIG = "Load Config";
     public static final String MENU_SAVE_CONFIG = "Save Config";
     public static final String MENU_SAVE_SAVEAS = "Save As";
@@ -83,9 +77,8 @@ public class AutoDriveEditor extends JFrame {
     public static final String MENU_ZOOM_4x = "4x";
     public static final String MENU_ZOOM_16x = "16x";
     public static final String MENU_CHECKBOX_CONTINUECONNECT = "Continuous Connections";
+    public static final String MENU_CHECKBOX_MIDDLEMOUSEMOVE = "Middle Mouse Move";
     public static final String MENU_ABOUT = "About";
-
-
 
     public static final String BUTTON_MOVE_NODES = "Move Nodes";
     public static final String BUTTON_CONNECT_NODES = "Connect Nodes";
@@ -166,8 +159,16 @@ public class AutoDriveEditor extends JFrame {
     public static BufferedImage tractorImage;
     public static ImageIcon markerIcon;
     public static BufferedImage nodeImage;
+    public static BufferedImage nodeImageSelected;
+    public static BufferedImage subPrioNodeImage;
+    public static BufferedImage subPrioNodeImageSelected;
+    public static BufferedImage controlPointImage;
+    public static BufferedImage controlPointImageSelected;
+    public static BufferedImage curveNodeImage;
+
 
     public static boolean bContinuousConnections = false; // default value
+    public static boolean bMiddleMouseMove = false; // default value
 
     public AutoDriveEditor() {
         super();
@@ -179,6 +180,7 @@ public class AutoDriveEditor extends JFrame {
 
         setTitle(createTitle());
         loadIcons();
+        loadEditorXMLConfig();
         //setTractorIcon();
         //setMarkerIcon();
         //getNodeIcon();
@@ -192,6 +194,7 @@ public class AutoDriveEditor extends JFrame {
                         saveMap(null);
                     }
                 }
+                saveEditorXMLConfig();
                 super.windowClosing(e);
             }
         });
@@ -241,6 +244,7 @@ public class AutoDriveEditor extends JFrame {
 
         optionsMenu = makeMenu("menu_options", KeyEvent.VK_O, "menu_options_accstring", menuBar);
         makeCheckBoxMenuItem("menu_conconnect", "menu_conconnect_accstring", KeyEvent.VK_C, bContinuousConnections, optionsMenu, editorListener, MENU_CHECKBOX_CONTINUECONNECT);
+        makeCheckBoxMenuItem("menu_middlemousemove", "menu_middlemousemove_accstring", KeyEvent.VK_M, bMiddleMouseMove, optionsMenu, editorListener, MENU_CHECKBOX_MIDDLEMOUSEMOVE);
 
         // Create the Help menu
 
@@ -298,7 +302,7 @@ public class AutoDriveEditor extends JFrame {
 
         JPanel copyBox = new JPanel();
         copyBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_copypaste")));
-        copyBox.setVisible(false);
+        copyBox.setVisible(true);
         buttonPanel.add(copyBox);
 
         select = makeImageToggleButton("select","select_selected", BUTTON_COPYPASTE_SELECT, "copypaste_select_tooltip","copypaste_select_alt", copyBox, editorListener);
@@ -401,6 +405,11 @@ public class AutoDriveEditor extends JFrame {
         pack();
         setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        if (lastRunVersion != null && !lastRunVersion.equals(AUTODRIVE_INTERNAL_VERSION)) {
+            LOG.info("Version Updated Detected");
+            // TODO display new version notes
+        }
+
     }
 
     private void loadIcons() {
@@ -413,6 +422,13 @@ public class AutoDriveEditor extends JFrame {
         // test icon to replace g.fillArc
         nodeImage = getIcon("editor/node.png");
         //markerIcon = new ImageIcon(markerImage);
+        nodeImageSelected = getIcon("editor/node_selected.png");
+        subPrioNodeImage = getIcon("editor/subprionode.png");
+        subPrioNodeImageSelected = getIcon("editor/subprionode_selected.png");
+        controlPointImage = getIcon("editor/controlpoint.png");
+        controlPointImageSelected = getIcon("editor/controlpoint_selected.png");
+        curveNodeImage = getIcon("editor/curvenode.png");
+
 
     }
 
@@ -468,6 +484,19 @@ public class AutoDriveEditor extends JFrame {
         linearLine.setEnabled(enabled);
     }
 
+    private void curveCommitCancelEnabled(boolean enabled) {
+        commitCurve.setEnabled(enabled);
+
+        cancelCurve.setEnabled(enabled);
+        if (enabled) {
+            commitCurve.setToolTipText(localeString.getString("panel_slider_confirm"));
+            cancelCurve.setToolTipText(localeString.getString("panel_slider_cancel"));
+        } else {
+            commitCurve.setToolTipText(localeString.getString("panel_slider_confirm_disabled"));
+            cancelCurve.setToolTipText(localeString.getString("panel_slider_cancel_disabled"));
+        }
+    }
+
     private void mapMenuEnabled(boolean enabled) {
         loadImageButton.setEnabled(enabled);
     }
@@ -501,6 +530,7 @@ public class AutoDriveEditor extends JFrame {
 
         quadBezier.setSelected(false);
         linearLine.setSelected(false);
+        curveCommitCancelEnabled(false);
 
 
 
@@ -551,6 +581,7 @@ public class AutoDriveEditor extends JFrame {
                 break;
             case EDITORSTATE_QUADRATICBEZIER:
                 quadBezier.setSelected(true);
+                curveCommitCancelEnabled(true);
             case EDITORSTATE_LINEARLINE:
                 linearLine.setSelected(true);
         }
@@ -576,7 +607,7 @@ public class AutoDriveEditor extends JFrame {
 
         try {
             mapPanel.setRoadMap(loadXmlConfigFile(fXmlFile));
-            setTitle(AUTO_DRIVE_COURSE_EDITOR_TITLE + " - " + fXmlFile.getAbsolutePath());
+            setTitle(AUTODRIVE_COURSE_EDITOR_TITLE + " - " + fXmlFile.getAbsolutePath());
             xmlConfigFile = fXmlFile;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1021,6 +1052,101 @@ public class AutoDriveEditor extends JFrame {
         LOG.info("{}", localeString.getString("console_config_save_end"));
     }
 
+    public void loadEditorXMLConfig() {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse("EditorConfig.xml");
+            Element e = doc.getDocumentElement();
+
+            lastRunVersion = getTextValue(lastRunVersion, e, "Version");
+            bContinuousConnections = getBooleanValue(bContinuousConnections, e, "Continuous_Connection");
+            bMiddleMouseMove = getBooleanValue(bMiddleMouseMove, e, "MiddleMouseMove");
+
+
+        } catch (ParserConfigurationException | SAXException pce) {
+            LOG.error("Exception in Editor config SAX/Parser Exception");
+            System.out.println(pce.getMessage());
+        } catch (IOException ioe) {
+            LOG.warn("Editor config not found, using defaults.. a new config will be saved on exit");
+        }
+    }
+
+    public void saveEditorXMLConfig() {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.newDocument();
+            Element root = doc.createElement("EditorConfig");
+
+            setTextValue("Version", doc, AUTODRIVE_INTERNAL_VERSION, root);
+            setBooleanValue("Continuous_Connection", doc, bContinuousConnections, root);
+            setBooleanValue("MiddleMouseMove", doc, bMiddleMouseMove, root);
+
+            doc.appendChild(root);
+
+            try {
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                DOMSource source = new DOMSource(doc);
+                StreamResult result;
+
+                try {
+                    result = new StreamResult(new FileOutputStream("EditorConfig.xml"));
+                    transformer.transform(source, result);
+                    LOG.info("{}", localeString.getString("console_editor_config_save_end"));
+                } catch (IOException ioe) {
+                    LOG.error("Editor config could not be saved.. check file/folder access permissions");
+                }
+
+            } catch (TransformerFactoryConfigurationError | TransformerException | IllegalArgumentException transformerFactoryConfigurationError) {
+                transformerFactoryConfigurationError.printStackTrace();
+            }
+        } catch (ParserConfigurationException | DOMException e) {
+            LOG.error("Exception in Editor config SAX/Parser Exception");
+            e.printStackTrace();
+
+    }
+    }
+
+    private void setTextValue(String tag, Document doc, String textNode, Element element) {
+        Element e = null;
+        e = doc.createElement(tag);
+        e.appendChild(doc.createTextNode(textNode));
+        element.appendChild(e);
+    }
+
+    private void setBooleanValue(String tag, Document doc, Boolean bool, Element element) {
+        Element e = null;
+        e = doc.createElement(tag);
+        e.appendChild(doc.createTextNode(String.valueOf(bool)));
+        element.appendChild(e);
+    }
+
+    private String getTextValue(String def, Element doc, String tag) {
+        String value = def;
+        NodeList nl;
+        nl = doc.getElementsByTagName(tag);
+        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
+            value = nl.item(0).getFirstChild().getNodeValue();
+        }
+        return value;
+    }
+
+    private Boolean getBooleanValue(Boolean def, Element doc, String tag) {
+        Boolean value = def;
+        NodeList nl;
+        nl = doc.getElementsByTagName(tag);
+        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
+            value = Boolean.valueOf(nl.item(0).getFirstChild().getNodeValue());
+        }
+        return value;
+    }
+
     public void updateMapZoomFactor(int zoomFactor) {
         mapPanel.setMapZoomFactor(zoomFactor);
         mapPanel.repaint();
@@ -1028,7 +1154,7 @@ public class AutoDriveEditor extends JFrame {
 
     private String createTitle() {
         StringBuilder sb = new StringBuilder();
-        sb.append(AUTO_DRIVE_COURSE_EDITOR_TITLE);
+        sb.append(AUTODRIVE_COURSE_EDITOR_TITLE);
         if (xmlConfigFile != null) {
             sb.append(" - ").append(xmlConfigFile.getAbsolutePath()).append(isStale() ? " *" : "");
         }

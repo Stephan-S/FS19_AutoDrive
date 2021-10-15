@@ -103,16 +103,14 @@ public class QuadCurve{
         }
     }
 
-    public void commitCurve(int pathType) {
-
+    public void commitCurve() {
         LinkedList<MapNode> mergeNodesList  = new LinkedList<>();
-        MapNode newNode, lastNode;
 
         mergeNodesList.add(curveStartNode);
 
         for (int j = 1; j < curveNodesList.size() - 1; j++) {
             MapNode tempNode = curveNodesList.get(j);
-            newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.z, this.nodeType, false);
+            MapNode newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.z, this.nodeType, false);
             roadMap.mapNodes.add(newNode);
             mergeNodesList.add(newNode);
         }
