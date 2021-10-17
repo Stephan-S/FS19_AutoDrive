@@ -8,7 +8,6 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,21 +19,18 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
 import static de.adEditor.ADUtils.*;
-import static de.adEditor.GUIUtils.*;
-import static de.adEditor.MapPanel.*;
+import static de.adEditor.GUIBuilder.quadSliderDefault;
+import static de.adEditor.GUIBuilder.quadSliderMax;
 
 /* TODO:
     (1) New features?
@@ -45,119 +41,20 @@ import static de.adEditor.MapPanel.*;
 
 public class AutoDriveEditor extends JFrame {
 
-    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2 Beta";
+    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2.1 Beta";
     public static final String AUTODRIVE_INTERNAL_VERSION = "0.2.1-beta";
     private String lastRunVersion;
 
-    public static final int EDITORSTATE_NOOP = -1;
-    public static final int EDITORSTATE_MOVING = 0;
-    public static final int EDITORSTATE_CONNECTING = 1;
-    public static final int EDITORSTATE_CREATE_PRIMARY_NODE = 2;
-    public static final int EDITORSTATE_CHANGE_NODE_PRIORITY = 3;
-    public static final int EDITORSTATE_CREATE_SUBPRIO_NODE = 4;
-    public static final int EDITORSTATE_DELETE_NODES = 5;
-    public static final int EDITORSTATE_CREATING_DESTINATION = 6;
-    public static final int EDITORSTATE_EDITING_DESTINATION = 7;
-    public static final int EDITORSTATE_DELETING_DESTINATION = 8;
-    public static final int EDITORSTATE_ALIGN_HORIZONTAL = 9;
-    public static final int EDITORSTATE_ALIGN_VERTICAL = 10;
-    public static final int EDITORSTATE_CNP_SELECT = 11;
-    public static final int EDITORSTATE_CNP_CUT = 12;
-    public static final int EDITORSTATE_CNP_COPY = 13;
-    public static final int EDITORSTATE_CNP_PASTE = 14;
-
-    public static final int EDITORSTATE_LINEARLINE = 13;
-    public static final int EDITORSTATE_QUADRATICBEZIER = 14;
-
-    public static final String MENU_LOAD_CONFIG = "Load Config";
-    public static final String MENU_SAVE_CONFIG = "Save Config";
-    public static final String MENU_SAVE_SAVEAS = "Save As";
-    public static final String MENU_LOAD_IMAGE = "Load Map";
-    public static final String MENU_ZOOM_1x = "1x";
-    public static final String MENU_ZOOM_4x = "4x";
-    public static final String MENU_ZOOM_16x = "16x";
-    public static final String MENU_CHECKBOX_CONTINUECONNECT = "Continuous Connections";
-    public static final String MENU_CHECKBOX_MIDDLEMOUSEMOVE = "Middle Mouse Move";
-    public static final String MENU_ABOUT = "About";
-
-    public static final String BUTTON_MOVE_NODES = "Move Nodes";
-    public static final String BUTTON_CONNECT_NODES = "Connect Nodes";
-    public static final String BUTTON_CREATE_PRIMARY_NODE = "Create Primary Node";
-    public static final String BUTTON_CHANGE_NODE_PRIORITY = "Change Priority";
-    public static final String BUTTON_CREATE_SUBPRIO_NODE = "Create Secondary Node";
-    public static final String BUTTON_CREATE_REVERSE_CONNECTION = "Create Reverse Connection";
-    public static final String BUTTON_CREATE_DUAL_CONNECTION = "Create Dual Connection";
-    public static final String BUTTON_REMOVE_NODES = "Remove Nodes";
-    public static final String BUTTON_CREATE_DESTINATIONS = "Create Destinations";
-    public static final String BUTTON_EDIT_DESTINATIONS_GROUPS = "Manage Destination Groups";
-    public static final String BUTTON_DELETE_DESTINATIONS = "Remove Destinations";
-    public static final String BUTTON_COPYPASTE_SELECT = "CopyPaste Select";
-    public static final String BUTTON_COPYPASTE_CUT = "CopyPaste Cut";
-    public static final String BUTTON_COPYPASTE_COPY = "CopyPaste Copy";
-    public static final String BUTTON_COPYPASTE_PASTE = "CopyPaste Paste";
-
-    // OCD modes
-
-    public static final String BUTTON_ALIGN_HORIZONTAL = "Horizontally Align Nodes";
-    public static final String BUTTON_ALIGN_VERTICAL = "Vertically Align Nodes";
-
-    public static final String BUTTON_CREATE_LINEARLINE = "Linear Line";
-    public static final String BUTTON_CREATE_QUADRATICBEZIER = "Quadratic Bezier";
-    public static final String BUTTON_COMMIT_CURVE = "Confirm Curve";
-    public static final String BUTTON_CANCEL_CURVE = "Cancel Curve";
-    public static final String RADIOBUTTON_PATHTYPE_REGULAR = "Regular";
-    public static final String RADIOBUTTON_PATHTYPE_SUBPRIO = "SubPrio";
-    public static final String RADIOBUTTON_PATHTYPE_REVERSE = "Reverse";
-    public static final String RADIOBUTTON_PATHTYPE_DUAL = "Dual";
-
-
-
-    private MapPanel mapPanel;
-    private JMenuItem loadImageButton;
-    private JMenuItem saveConfigMenuItem;
-    private JMenuItem saveConfigAsMenuItem;
-    private JToggleButton removeNode;
-    private JToggleButton removeDestination;
-    private JToggleButton moveNode;
-    private JToggleButton connectNodes;
-    private JToggleButton createPrimaryNode;
-    private JToggleButton createDestination;
-    private JToggleButton changePriority;
-    private JToggleButton createSecondaryNode;
-    private JToggleButton createReverseConnection;
-    private JToggleButton createDualConnection;
-    private JToggleButton editDestination;
-    private JToggleButton alignHorizontal;
-    private JToggleButton alignVertical;
-    private JToggleButton linearLine;
-    private JToggleButton quadBezier;
-    private JToggleButton commitCurve;
-    private JToggleButton cancelCurve;
-    private JToggleButton select;
-    private JToggleButton cut;
-    private JToggleButton copy;
-    private JToggleButton paste;
-
-    public static JSlider numIterationsSlider;
-    public static JPanel curvePanel;
-    public static JTextArea textArea;
-    public static JRadioButton curvePathRegular;
-    public static JRadioButton curvePathSubPrio;
-    public static JRadioButton curvePathReverse;
-    public static JRadioButton curvePathDual;
-
-
-    public EditorListener editorListener = new EditorListener(this);
+    public EditorListener editorListener;
     public static ResourceBundle localeString;
     public static Locale locale;
 
-    public int editorState = EDITORSTATE_NOOP;
+    public static int editorState = GUIBuilder.EDITORSTATE_NOOP;
     public File xmlConfigFile;
     private boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
 
     public static BufferedImage tractorImage;
-    public static ImageIcon markerIcon;
     public static BufferedImage nodeImage;
     public static BufferedImage nodeImageSelected;
     public static BufferedImage subPrioNodeImage;
@@ -166,9 +63,23 @@ public class AutoDriveEditor extends JFrame {
     public static BufferedImage controlPointImageSelected;
     public static BufferedImage curveNodeImage;
 
+    public static ImageIcon markerIcon;
+    public static ImageIcon regularConnectionIcon;
+    public static ImageIcon regularConnectionSelectedIcon;
+    public static ImageIcon regularConnectionSubPrioIcon;
+    public static ImageIcon regularConnectionSubPrioSelectedIcon;
+    public static ImageIcon dualConnectionIcon;
+    public static ImageIcon dualConnectionSelectedIcon;
+    public static ImageIcon dualConnectionSubPrioIcon;
+    public static ImageIcon dualConnectionSubPrioSelectedIcon;
+    public static ImageIcon reverseConnectionIcon;
+    public static ImageIcon reverseConnectionSelectedIcon;
+    public static ImageIcon reverseConnectionSubPrioIcon;
+    public static ImageIcon reverseConnectionSubPrioSelectedIcon;
 
     public static boolean bContinuousConnections = false; // default value
     public static boolean bMiddleMouseMove = false; // default value
+    public static int linearLineNodeDistance = 12;
 
     public AutoDriveEditor() {
         super();
@@ -181,15 +92,12 @@ public class AutoDriveEditor extends JFrame {
         setTitle(createTitle());
         loadIcons();
         loadEditorXMLConfig();
-        //setTractorIcon();
-        //setMarkerIcon();
-        //getNodeIcon();
         setPreferredSize(new Dimension(1024,768));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (isStale()) {
-                    int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_exit_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
                         saveMap(null);
                     }
@@ -200,208 +108,17 @@ public class AutoDriveEditor extends JFrame {
         });
         setLayout(new BorderLayout());
 
-        // create a new panel with GridBagLayout manager
-        mapPanel = new MapPanel(this);
+        editorListener = new EditorListener(this);
 
-        // set border for the panel
-        mapPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), localeString.getString("panels_map")));
-
-        // add the panel to this frame
-        add(mapPanel, BorderLayout.CENTER);
-
-        //EditorListener editorListener = new EditorListener(this);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-        //
         // init menu bar
-        //
+        GUIBuilder.createMenu(editorListener);
+        setJMenuBar(GUIBuilder.menuBar);
 
-        JMenuBar menuBar;
-        JMenuItem menuItem;
-        JMenu fileMenu, mapMenu, optionsMenu, helpMenu, subMenu;
+        this.add(GUIBuilder.createButtonPanel(editorListener), BorderLayout.PAGE_START);
+        this.add(GUIBuilder.createMapPanel(this, editorListener), BorderLayout.CENTER);
+        this.add(GUIBuilder.initTextPanel(), BorderLayout.PAGE_END);
 
-        menuBar = new JMenuBar();
-
-        // Create the file Menu
-        fileMenu = makeMenu("menu_file", KeyEvent.VK_F, "menu_file_accstring", menuBar);
-        makeMenuItem("menu_file_loadconfig",  "menu_file_loadconfig_accstring", KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK, fileMenu, editorListener, MENU_LOAD_CONFIG, true );
-        saveConfigMenuItem = makeMenuItem("menu_file_saveconfig",  "menu_file_saveconfig_accstring", KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK, fileMenu, editorListener, MENU_SAVE_CONFIG, false );
-        saveConfigAsMenuItem = makeMenuItem("menu_file_saveasconfig", "menu_file_saveasconfig_accstring",  KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK,fileMenu, editorListener,MENU_SAVE_SAVEAS, false );
-
-        // Create the Map Menu and it's scale sub menu
-        mapMenu = makeMenu("menu_map", KeyEvent.VK_M, "menu_map_accstring", menuBar);
-        loadImageButton = makeMenuItem("menu_map_loadimage", "menu_map_loadimage_accstring", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK,mapMenu,editorListener, MENU_LOAD_IMAGE, false );
-        mapMenu.addSeparator();
-        subMenu = makeSubMenu("menu_map_scale", KeyEvent.VK_M, "menu_map_scale_accstring", mapMenu);
-        ButtonGroup menuZoomGroup = new ButtonGroup();
-        makeRadioButtonMenuItem("menu_map_scale_1x", "menu_map_scale_1x_accstring",KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_1x,true, menuZoomGroup, true);
-        makeRadioButtonMenuItem("menu_map_scale_4x", "menu_map_scale_4x_accstring",KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_4x,true, menuZoomGroup, false);
-        makeRadioButtonMenuItem("menu_map_scale_16x", "menu_map_scale_16x_accstring",KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, subMenu, editorListener, MENU_ZOOM_16x, true, menuZoomGroup, false);
-
-        // Create the Options menu
-
-        optionsMenu = makeMenu("menu_options", KeyEvent.VK_O, "menu_options_accstring", menuBar);
-        makeCheckBoxMenuItem("menu_conconnect", "menu_conconnect_accstring", KeyEvent.VK_C, bContinuousConnections, optionsMenu, editorListener, MENU_CHECKBOX_CONTINUECONNECT);
-        makeCheckBoxMenuItem("menu_middlemousemove", "menu_middlemousemove_accstring", KeyEvent.VK_M, bMiddleMouseMove, optionsMenu, editorListener, MENU_CHECKBOX_MIDDLEMOUSEMOVE);
-
-        // Create the Help menu
-
-        helpMenu = makeMenu("menu_help", KeyEvent.VK_H, "menu_help_accstring", menuBar);
-        makeMenuItem("menu_help_about", "menu_help_about_accstring", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, helpMenu,editorListener, MENU_ABOUT, true );
-
-        //
-        // GUI init
-        //
-
-        // Create node panel
-        JPanel nodeBox = new JPanel();
-        nodeBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_nodes")));
-        buttonPanel.add(nodeBox);
-
-        moveNode = makeImageToggleButton("movenode", "movenode_selected", BUTTON_MOVE_NODES,"nodes_move_tooltip","nodes_move_alt", nodeBox, editorListener);
-        connectNodes = makeImageToggleButton("connectnodes", "connectnodes_selected", BUTTON_CONNECT_NODES,"nodes_connect_tooltip","nodes_connect_alt", nodeBox, editorListener);
-        createPrimaryNode = makeImageToggleButton("createprimary","createprimary_selected", BUTTON_CREATE_PRIMARY_NODE,"nodes_createprimary_tooltip","nodes_createprimary_alt", nodeBox, editorListener);
-        createDualConnection = makeImageToggleButton("createdual","createdual_selected", BUTTON_CREATE_DUAL_CONNECTION,"nodes_createdual_tooltip","nodes_createdual_alt", nodeBox, editorListener);
-        changePriority = makeImageToggleButton("swappriority","swappriority_selected", BUTTON_CHANGE_NODE_PRIORITY,"nodes_priority_tooltip","nodes_priority_alt", nodeBox, editorListener);
-        createSecondaryNode = makeImageToggleButton("createsecondary","createsecondary_selected", BUTTON_CREATE_SUBPRIO_NODE,"nodes_createsecondary_tooltip","nodes_createsecondary_alt", nodeBox, editorListener);
-        createReverseConnection = makeImageToggleButton("createreverse","createreverse_selected", BUTTON_CREATE_REVERSE_CONNECTION,"nodes_createreverse_tooltip","nodes_createreverse_alt", nodeBox, editorListener);
-
-        nodeBox.add(Box.createRigidArea(new Dimension(8, 0)));
-        removeNode = makeImageToggleButton("deletenodes","deletenodes_selected", BUTTON_REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
-
-        //
-        // Create markers panel
-        //
-
-        JPanel markerBox = new JPanel();
-        markerBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_markers")));
-        buttonPanel.add(markerBox);
-
-        createDestination = makeImageToggleButton("addmarker","addmarker_selected", BUTTON_CREATE_DESTINATIONS,"markers_add_tooltip","markers_add_alt", markerBox, editorListener);
-        editDestination = makeImageToggleButton("editmarker","editmarker_selected", BUTTON_EDIT_DESTINATIONS_GROUPS,"markers_edit_tooltip","markers_edit_alt", markerBox, editorListener);
-        markerBox.add(Box.createRigidArea(new Dimension(8, 0)));
-        removeDestination = makeImageToggleButton("deletemarker","deletemarker_selected", BUTTON_DELETE_DESTINATIONS,"markers_delete_tooltip","markers_delete_alt", markerBox, editorListener);
-
-        //
-        // Create alignment panel
-        //
-
-        JPanel alignBox = new JPanel();
-        alignBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_align")));
-        buttonPanel.add(alignBox);
-
-        alignHorizontal = makeImageToggleButton("horizontalalign","horizontalalign_selected", BUTTON_ALIGN_HORIZONTAL,"align_horizontal_tooltip","align_horizontal_alt", alignBox, editorListener);
-        alignVertical = makeImageToggleButton("verticalalign","verticalalign_selected", BUTTON_ALIGN_VERTICAL,"align_vertical_tooltip","align_vertical_alt", alignBox, editorListener);
-        alignBox.add(Box.createRigidArea(new Dimension(16, 0)));
-
-        //
-        // copy/paste panel
-        //
-
-        JPanel copyBox = new JPanel();
-        copyBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_copypaste")));
-        copyBox.setVisible(true);
-        buttonPanel.add(copyBox);
-
-        select = makeImageToggleButton("select","select_selected", BUTTON_COPYPASTE_SELECT, "copypaste_select_tooltip","copypaste_select_alt", copyBox, editorListener);
-        cut = makeImageToggleButton("cut","cut_selected", BUTTON_COPYPASTE_CUT, "copypaste_cut_tooltip","copypaste_cut_alt", copyBox, editorListener);
-        copy = makeImageToggleButton("copy","copy_selected", BUTTON_COPYPASTE_COPY, "copypaste_copy_tooltip","copypaste_copy_alt", copyBox, editorListener);
-        paste = makeImageToggleButton("paste","paste_selected", BUTTON_COPYPASTE_PASTE, "copypaste_paste_tooltip","copypaste_paste_alt", copyBox, editorListener);
-
-        //
-        // create experimental panel
-        //
-
-        JPanel testBox = new JPanel();
-        testBox.setBorder(BorderFactory.createTitledBorder(localeString.getString("panel_helper")));
-        buttonPanel.add(testBox);
-
-        linearLine = makeImageToggleButton("linearline", BUTTON_CREATE_LINEARLINE,"helper_linearline_tooltip","helper_linearline_alt", testBox, editorListener);
-        quadBezier = makeImageToggleButton("quadcurve","quadcurve_selected", BUTTON_CREATE_QUADRATICBEZIER,"helper_quadbezier_tooltip","helper_quadbezier_alt", testBox, editorListener);
-        testBox.add(Box.createRigidArea(new Dimension(48, 0)));
-
-        //
-        // TEST - console area?
-        //
-
-        JPanel textPanel = new JPanel(new BorderLayout());
-        textArea = new JTextArea("this is just a test\n ",3,0);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        textArea.setEditable(false);
-        textPanel.add(scrollPane, BorderLayout.CENTER);
-        this.add(textPanel, BorderLayout.PAGE_END);
-
-        //
-        // curve panel (hidden by default)
-        //
-
-        curvePanel = new JPanel();
-        curvePanel.setLayout(new BoxLayout(curvePanel, BoxLayout.X_AXIS)); //create container ( left to right layout)
-        curvePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
-        curvePanel.setVisible(false);
-        curvePanel.setOpaque(true);
-        curvePanel.setBackground(new Color(25,25,25,128));
-
-        // create panel for slider using vertical layout
-        JPanel slidePanel = new JPanel();
-        slidePanel.setLayout(new BoxLayout(slidePanel, BoxLayout.Y_AXIS));
-        slidePanel.setBorder(BorderFactory.createEmptyBorder());
-        slidePanel.setOpaque(false);
-
-        JLabel label = new JLabel(localeString.getString("panel_slider_label"));
-        label.setForeground(Color.ORANGE);
-
-        numIterationsSlider = new JSlider(JSlider.HORIZONTAL,0, 50, 10);
-        numIterationsSlider.setVisible(true);
-        numIterationsSlider.setOpaque(false);
-        numIterationsSlider.setForeground(Color.ORANGE);
-        numIterationsSlider.setMajorTickSpacing(10);
-        numIterationsSlider.setPaintTicks(true);
-        numIterationsSlider.setPaintLabels(true);
-        numIterationsSlider.addChangeListener(editorListener);
-
-        // create a panel for path radiobuttons using GridLayout
-        JPanel curveRadioPanel = new JPanel();
-        curveRadioPanel.setLayout(new GridLayout(2,2));
-        curveRadioPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, new Color(64,64,64), new Color(32,32,32)));
-        curveRadioPanel.setOpaque(false);
-        //curveRadioPanel.setBackground(new Color(30,30,55));
-
-        ButtonGroup pathNodeGroup = new ButtonGroup();
-
-        curvePathRegular = makeRadioButton("panel_slider_radio_regular", RADIOBUTTON_PATHTYPE_REGULAR,"panel_slider_radio_regular_tooltip", Color.ORANGE,true, false, curveRadioPanel, pathNodeGroup, null, editorListener);
-        curvePathSubPrio = makeRadioButton("panel_slider_radio_subprio", RADIOBUTTON_PATHTYPE_SUBPRIO,"panel_slider_radio_subprio_tooltip", Color.ORANGE,false, false,curveRadioPanel, pathNodeGroup, null, editorListener);
-        //ButtonGroup pathTypeGroup = new ButtonGroup();
-        curvePathReverse = makeRadioButton("panel_slider_radio_reverse", RADIOBUTTON_PATHTYPE_REVERSE,"panel_slider_radio_reverse_tooltip", Color.ORANGE,false, false,curveRadioPanel, null, null, editorListener);
-        curvePathDual = makeRadioButton("panel_slider_radio_dual", RADIOBUTTON_PATHTYPE_DUAL,"panel_slider_radio_dual_tooltip", Color.ORANGE,false, false,curveRadioPanel, null, null, editorListener);
-
-        curvePanel.add(curveRadioPanel);
-        slidePanel.add(label);
-        slidePanel.add(numIterationsSlider);
-        curvePanel.add(slidePanel);
-
-        curvePanel.add(Box.createRigidArea(new Dimension(8, 0)));
-        commitCurve = makeImageToggleButton("confirm","confirm_select", BUTTON_COMMIT_CURVE,"panel_slider_confirm","panel_slider_confirm_alt", curvePanel, editorListener);
-        curvePanel.add(Box.createRigidArea(new Dimension(8, 0)));
-        cancelCurve = makeImageToggleButton("cancel","cancel_select", BUTTON_CANCEL_CURVE,"panel_slider_cancel","panel_slider_cancel_alt", curvePanel, editorListener);
-        curvePanel.add(Box.createRigidArea(new Dimension(8, 0)));
-        mapPanel.add( new GUIUtils.AlphaContainer(curvePanel));
-
-        //
-        // update all gui components
-
-        updateButtons();
-        nodeBoxSetEnabled(false);
-        markerBoxSetEnabled(false);
-        alignBoxSetEnabled(false);
-        copypasteBoxSetEnabled(false);
-        experimentalBoxSetEnabled(false);
-
-        this.setJMenuBar(menuBar);
-        this.add(buttonPanel, BorderLayout.PAGE_START);
-
+        GUIBuilder.updateGUIButtons(false);
         pack();
         setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -414,177 +131,39 @@ public class AutoDriveEditor extends JFrame {
 
     private void loadIcons() {
         //AD Tractor icon for main window
-        tractorImage = getIcon("tractor.png");
+        tractorImage = getImage("tractor.png");
         setIconImage(tractorImage);
         // Marker Icon for Destination dialogs
-        BufferedImage markerImage = getIcon("marker.png");
-        markerIcon = new ImageIcon(markerImage);
-        // test icon to replace g.fillArc
-        nodeImage = getIcon("editor/node.png");
-        //markerIcon = new ImageIcon(markerImage);
-        nodeImageSelected = getIcon("editor/node_selected.png");
-        subPrioNodeImage = getIcon("editor/subprionode.png");
-        subPrioNodeImageSelected = getIcon("editor/subprionode_selected.png");
-        controlPointImage = getIcon("editor/controlpoint.png");
-        controlPointImageSelected = getIcon("editor/controlpoint_selected.png");
-        curveNodeImage = getIcon("editor/curvenode.png");
+        markerIcon = getIcon("marker");
+        // node images for MapPanel
+        nodeImage = getImage("node.png");
+        nodeImageSelected = getImage("node_selected.png");
+        subPrioNodeImage = getImage("subprionode.png");
+        subPrioNodeImageSelected = getImage("subprionode_selected.png");
+        controlPointImage = getImage("controlpoint.png");
+        controlPointImageSelected = getImage("controlpoint_selected.png");
+        curveNodeImage = getImage("curvenode.png");
 
+        // icons for dual state buttons
 
+        regularConnectionIcon = getIcon("connectregular.png");
+        regularConnectionSelectedIcon = getIcon("connectregular_selected.png");
+        regularConnectionSubPrioIcon = getIcon("connectregular_subprio.png");
+        regularConnectionSubPrioSelectedIcon = getIcon("connectregular_subprio_selected.png");
+
+        dualConnectionIcon = getIcon("connectdual.png");
+        dualConnectionSelectedIcon = getIcon("connectdual_selected.png");
+        dualConnectionSubPrioIcon = getIcon("connectdual_subprio.png");
+        dualConnectionSubPrioSelectedIcon = getIcon("connectdual_subprio_selected.png");
+
+        reverseConnectionIcon = getIcon("connectreverse.png");
+        reverseConnectionSelectedIcon = getIcon("connectreverse_selected.png");
+        reverseConnectionSubPrioIcon = getIcon("connectreverse_subprio.png");
+        reverseConnectionSubPrioSelectedIcon = getIcon("connectreverse_subprio_selected.png");
     }
-
-    /*private void setTractorIcon() {
-        tractorImage = getIcon("tractor.png");
-        setIconImage(tractorImage);
-    }
-
-    private void setMarkerIcon() {
-        BufferedImage markerImage = getIcon("marker.png");
-        markerIcon = new ImageIcon(markerImage);
-    }
-
-    private void getNodeIcon() {
-        nodeImage = getIcon("editor/node.png");
-        //markerIcon = new ImageIcon(markerImage);
-    }*/
 
     public static ImageIcon getMarkerIcon() {
         return markerIcon;
-    }
-
-    private void nodeBoxSetEnabled(boolean enabled) {
-        moveNode.setEnabled(enabled);
-        connectNodes.setEnabled(enabled);
-        createPrimaryNode.setEnabled(enabled);
-        changePriority.setEnabled(enabled);
-        createSecondaryNode.setEnabled(enabled);
-        createReverseConnection.setEnabled(enabled);
-        removeNode.setEnabled(enabled);
-        createDualConnection.setEnabled(enabled);
-    }
-    private void markerBoxSetEnabled(boolean enabled) {
-        createDestination.setEnabled(enabled);
-        editDestination.setEnabled(enabled);
-        removeDestination.setEnabled(enabled);
-    }
-
-    private void alignBoxSetEnabled(boolean enabled) {
-        alignHorizontal.setEnabled(enabled);
-        alignVertical.setEnabled(enabled);
-    }
-
-    private void copypasteBoxSetEnabled(boolean enabled) {
-        select.setEnabled(enabled);
-        cut.setEnabled(enabled);
-        copy.setEnabled(enabled);
-        paste.setEnabled(enabled);
-    }
-
-    private void experimentalBoxSetEnabled(boolean enabled) {
-        quadBezier.setEnabled(enabled);
-        linearLine.setEnabled(enabled);
-    }
-
-    private void curveCommitCancelEnabled(boolean enabled) {
-        commitCurve.setEnabled(enabled);
-
-        cancelCurve.setEnabled(enabled);
-        if (enabled) {
-            commitCurve.setToolTipText(localeString.getString("panel_slider_confirm"));
-            cancelCurve.setToolTipText(localeString.getString("panel_slider_cancel"));
-        } else {
-            commitCurve.setToolTipText(localeString.getString("panel_slider_confirm_disabled"));
-            cancelCurve.setToolTipText(localeString.getString("panel_slider_cancel_disabled"));
-        }
-    }
-
-    private void mapMenuEnabled(boolean enabled) {
-        loadImageButton.setEnabled(enabled);
-    }
-
-    private void saveMenuEnabled(boolean enabled) {
-        saveConfigMenuItem.setEnabled(enabled);
-        saveConfigAsMenuItem.setEnabled(enabled);
-    }
-
-    public void updateButtons() {
-        moveNode.setSelected(false);
-        connectNodes.setSelected(false);
-        createPrimaryNode.setSelected(false);
-        changePriority.setSelected(false);
-        createSecondaryNode.setSelected(false);
-        createReverseConnection.setSelected(false);
-        createDualConnection.setSelected(false);
-        removeNode.setSelected(false);
-
-        createDestination.setSelected(false);
-        editDestination.setSelected(false);
-        removeDestination.setSelected(false);
-
-        alignHorizontal.setSelected(false);
-        alignVertical.setSelected(false);
-
-        select.setSelected(false);
-        cut.setSelected(false);
-        copy.setSelected(false);
-        paste.setSelected(false);
-
-        quadBezier.setSelected(false);
-        linearLine.setSelected(false);
-        curveCommitCancelEnabled(false);
-
-
-
-        switch (editorState) {
-            case EDITORSTATE_MOVING:
-                moveNode.setSelected(true);
-                break;
-            case EDITORSTATE_CONNECTING:
-                if (connectionType == CONNECTION_STANDARD) {
-                    connectNodes.setSelected(true);
-                } else if (connectionType == CONNECTION_SUBPRIO) {
-                    changePriority.setSelected(true);
-                } else if (connectionType == CONNECTION_REVERSE) {
-                    createReverseConnection.setSelected(true);
-                } else if (connectionType == CONNECTION_DUAL) {
-                    createDualConnection.setSelected(true);
-                }
-                break;
-            case EDITORSTATE_CREATE_PRIMARY_NODE:
-                createPrimaryNode.setSelected(true);
-                break;
-            case EDITORSTATE_CHANGE_NODE_PRIORITY:
-                changePriority.setSelected(true);
-                break;
-            case EDITORSTATE_CREATE_SUBPRIO_NODE:
-                createSecondaryNode.setSelected(true);
-                break;
-            case EDITORSTATE_DELETE_NODES:
-                removeNode.setSelected(true);
-                break;
-            case EDITORSTATE_CREATING_DESTINATION:
-                createDestination.setSelected(true);
-                break;
-            case EDITORSTATE_EDITING_DESTINATION:
-                editDestination.setSelected(true);
-                break;
-            case EDITORSTATE_DELETING_DESTINATION:
-                removeDestination.setSelected(true);
-                break;
-            case EDITORSTATE_ALIGN_HORIZONTAL:
-                alignHorizontal.setSelected(true);
-                break;
-            case EDITORSTATE_ALIGN_VERTICAL:
-                alignVertical.setSelected(true);
-                break;
-            case EDITORSTATE_CNP_SELECT:
-                select.setSelected(true);
-                break;
-            case EDITORSTATE_QUADRATICBEZIER:
-                quadBezier.setSelected(true);
-                curveCommitCancelEnabled(true);
-            case EDITORSTATE_LINEARLINE:
-                linearLine.setSelected(true);
-        }
     }
 
     public static void main(String[] args) {
@@ -606,7 +185,7 @@ public class AutoDriveEditor extends JFrame {
         LOG.info("loadFile: {}", fXmlFile.getAbsolutePath());
 
         try {
-            mapPanel.setRoadMap(loadXmlConfigFile(fXmlFile));
+            GUIBuilder.getMapPanel().setRoadMap(loadXmlConfigFile(fXmlFile));
             setTitle(AUTODRIVE_COURSE_EDITOR_TITLE + " - " + fXmlFile.getAbsolutePath());
             xmlConfigFile = fXmlFile;
         } catch (Exception e) {
@@ -620,6 +199,14 @@ public class AutoDriveEditor extends JFrame {
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(fXmlFile);
         doc.getDocumentElement().normalize();
+
+        if (getTextValue(null, doc.getDocumentElement(), "version") == null) {
+            String configversion = getTextValue(null, doc.getDocumentElement(), "Version");
+            LOG.info("{}",localeString.getString("console_config_unsupported"));
+        } else {
+            String configversion = getTextValue(null, doc.getDocumentElement(), "version");
+            LOG.info("{} {}", localeString.getString("console_config_version"), configversion);
+        }
 
         LOG.info("{} :{}", localeString.getString("console_root_node"), doc.getDocumentElement().getNodeName());
 
@@ -798,7 +385,7 @@ public class AutoDriveEditor extends JFrame {
                         mapPath = "./" + mapName + ".png";
                         image = ImageIO.read(new File(mapPath));
                     } catch (Exception e3) {
-                        loadImageButton.setEnabled(true);
+                        GUIBuilder.loadImageButton.setEnabled(true);
                         LOG.info("{}}: {}", localeString.getString("console_editor_no_map"), mapName);
                     }
                 }
@@ -806,26 +393,18 @@ public class AutoDriveEditor extends JFrame {
         }
 
         if (image != null) {
-            mapPanel.setImage(image);
+            GUIBuilder.getMapPanel().setImage(image);
         }
 
-        if (mapPanel.getImage() != null) {
-            /*mapPanel.setPreferredSize(new Dimension(1024, 768));
-            mapPanel.setMinimumSize(new Dimension(1024, 768));*/
-            repaint();
-            //mapPanel.repaint();
+        if (GUIBuilder.getMapPanel().getImage() != null) {
+            GUIBuilder.getMapPanel().repaint();
         }
 
-        mapMenuEnabled(true);
-        saveMenuEnabled(true);
+        GUIBuilder.updateGUIButtons(true);
+        GUIBuilder.mapMenuEnabled(true);
+        GUIBuilder.saveMenuEnabled(true);
 
-        nodeBoxSetEnabled(true);
-        markerBoxSetEnabled(true);
-        alignBoxSetEnabled(true);
-        copypasteBoxSetEnabled(true);
-        experimentalBoxSetEnabled(true);
-        editorState = EDITORSTATE_NOOP;
-        updateButtons();
+        editorState = GUIBuilder.EDITORSTATE_NOOP;
 
         LOG.info("{}", localeString.getString("console_config_load_end"));
         return roadMap;
@@ -836,7 +415,7 @@ public class AutoDriveEditor extends JFrame {
 
     public void saveMap(String newName) {
         LOG.info("{}", localeString.getString("console_config_save_start"));
-        RoadMap roadMap = mapPanel.getRoadMap();
+        RoadMap roadMap = GUIBuilder.getMapPanel().getRoadMap();
 
         try
         {
@@ -855,10 +434,7 @@ public class AutoDriveEditor extends JFrame {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.parse(file);
-
         Node AutoDrive = doc.getFirstChild();
-        //Element root = doc.getDocumentElement();
-
         Node waypoints = doc.getElementsByTagName("waypoints").item(0);
 
         // If no <flags> tag was detected on config load, create it
@@ -1062,7 +638,9 @@ public class AutoDriveEditor extends JFrame {
             lastRunVersion = getTextValue(lastRunVersion, e, "Version");
             bContinuousConnections = getBooleanValue(bContinuousConnections, e, "Continuous_Connection");
             bMiddleMouseMove = getBooleanValue(bMiddleMouseMove, e, "MiddleMouseMove");
-
+            linearLineNodeDistance = getIntegerValue(linearLineNodeDistance, e, "LinearLineNodeDistance");
+            quadSliderMax = getIntegerValue(quadSliderMax, e, "QuadSliderMaximum");
+            quadSliderDefault = getIntegerValue(quadSliderDefault, e, "QuadSliderDefault");
 
         } catch (ParserConfigurationException | SAXException pce) {
             LOG.error("Exception in Editor config SAX/Parser Exception");
@@ -1082,6 +660,10 @@ public class AutoDriveEditor extends JFrame {
             setTextValue("Version", doc, AUTODRIVE_INTERNAL_VERSION, root);
             setBooleanValue("Continuous_Connection", doc, bContinuousConnections, root);
             setBooleanValue("MiddleMouseMove", doc, bMiddleMouseMove, root);
+            setIntegerValue("LinearLineNodeDistance", doc, linearLineNodeDistance, root);
+            setIntegerValue("QuadSliderMaximum", doc, quadSliderMax, root);
+            setIntegerValue("QuadSliderDefault", doc, quadSliderDefault, root);
+
 
             doc.appendChild(root);
 
@@ -1114,16 +696,23 @@ public class AutoDriveEditor extends JFrame {
     }
 
     private void setTextValue(String tag, Document doc, String textNode, Element element) {
-        Element e = null;
+        Element e;
         e = doc.createElement(tag);
         e.appendChild(doc.createTextNode(textNode));
         element.appendChild(e);
     }
 
     private void setBooleanValue(String tag, Document doc, Boolean bool, Element element) {
-        Element e = null;
+        Element e;
         e = doc.createElement(tag);
         e.appendChild(doc.createTextNode(String.valueOf(bool)));
+        element.appendChild(e);
+    }
+
+    private void setIntegerValue(String tag, Document doc, int value, Element element) {
+        Element e;
+        e = doc.createElement(tag);
+        e.appendChild(doc.createTextNode(String.valueOf(value)));
         element.appendChild(e);
     }
 
@@ -1147,9 +736,19 @@ public class AutoDriveEditor extends JFrame {
         return value;
     }
 
+    private Integer getIntegerValue(int def, Element doc, String tag) {
+        int value = def;
+        NodeList nl;
+        nl = doc.getElementsByTagName(tag);
+        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
+            value = Integer.parseInt(nl.item(0).getFirstChild().getNodeValue());
+        }
+        return value;
+    }
+
     public void updateMapZoomFactor(int zoomFactor) {
-        mapPanel.setMapZoomFactor(zoomFactor);
-        mapPanel.repaint();
+        GUIBuilder.getMapPanel().setMapZoomFactor(zoomFactor);
+        GUIBuilder.getMapPanel().repaint();
     }
 
     private String createTitle() {
@@ -1161,9 +760,7 @@ public class AutoDriveEditor extends JFrame {
         return sb.toString();
     }
 
-    public MapPanel getMapPanel() {
-        return mapPanel;
-    }
+
 
     public boolean isStale() {
         return stale;

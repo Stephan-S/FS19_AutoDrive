@@ -16,6 +16,7 @@ import de.adEditor.MapHelpers.*;
 
 import static de.adEditor.ADUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
+import static de.adEditor.GUIBuilder.*;
 
 public class MapPanel extends JPanel{
 
@@ -44,16 +45,18 @@ public class MapPanel extends JPanel{
     private MapNode movingNode = null;
     private MapNode selected = null;
 
-    public static int mousePosX = 0;
-    public static int mousePosY = 0;
+    private static int mousePosX = 0;
+    private static int mousePosY = 0;
 
     private boolean isDragging = false;
     private boolean isDraggingNode = false;
     private int lastX = 0;
     private int lastY = 0;
-    private Point2D rectangleStart;
 
-    private boolean multiSelect = false;
+    private Point2D rectangleStart;
+    public boolean isMultiSelectAllowed = false;
+
+    private boolean isMultipleSelected = false;
     private LinkedList<MapNode> multiSelectList  = new LinkedList<>();
 
     private boolean isDraggingRoute = false;
@@ -61,7 +64,11 @@ public class MapPanel extends JPanel{
     private static boolean isQuadCurveCreated = false;
     public static QuadCurve quadCurve;
     public static LinearLine linearLine;
-    public static int connectionType = 0; //default to standard connection
+    public static int connectionType = 0; // 0 = regular , 1 = dual, 2 = reverse
+
+    public static int createRegularConnectionState = 0;
+    public static int createDualConnectionState = 0;
+    public static int createReverseConnectionState = 0;
 
     private final Color BROWN = new Color(152, 104, 50 );
 
@@ -96,18 +103,18 @@ public class MapPanel extends JPanel{
             int sizescaled = (int) (nodeSize * zoomLevel);
             int sizescaledhalf = (int) (sizescaled * 0.5);
 
-            if (this.roadMap != null) {
-                for (MapNode mapNode : this.roadMap.mapNodes) {
+            if (roadMap != null) {
+                for (MapNode mapNode : roadMap.mapNodes) {
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z );
                     if (sizescaled > 3 ) {
                         if (mapNode.selected && mapNode.flag == 0) {
-                            g.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int) sizescaled, (int) sizescaled, null);
+                            g.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         } else if (mapNode.selected && mapNode.flag == 1) {
-                            g.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int) sizescaled, (int) sizescaled, null);
+                            g.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         } else if (mapNode.flag == 1) {
-                            g.drawImage(subPrioNodeImage,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int)sizescaled, (int)sizescaled, null);
+                            g.drawImage(subPrioNodeImage,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         } else {
-                            g.drawImage(nodeImage,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int)sizescaled, (int)sizescaled, null);
+                            g.drawImage(nodeImage,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         }
                     }
 
@@ -144,8 +151,7 @@ public class MapPanel extends JPanel{
                 // change colour of in progress connection line
 
                 if (selected != null) {
-                    if (editor.editorState == AutoDriveEditor.EDITORSTATE_LINEARLINE) {
-                        //LOG.info("linesize = {}",linearLine.lineNodeList.size());
+                    if (editorState == EDITORSTATE_CONNECTING) {
                         if (linearLine.lineNodeList.size() > 1) {
                             for (int j = 0; j < linearLine.lineNodeList.size() -1; j++) { // skip the starting node of the array
                                 MapNode firstPos = linearLine.lineNodeList.get(j);
@@ -159,8 +165,15 @@ public class MapPanel extends JPanel{
                                 if (j < linearLine.lineNodeList.size() - 2 ) {
                                     g.fillArc((int) (endNodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (endNodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
                                 }
-                                g.setColor(Color.GREEN);
+                                if ( connectionType == CONNECTION_DUAL ) {
+                                    g.setColor(Color.BLUE);
+                                } else if ( connectionType == CONNECTION_REVERSE ) {
+                                    g.setColor(Color.CYAN);
+                                } else {
+                                    g.setColor(Color.GREEN);
+                                }
                                 drawArrowBetween(g, startNodePos, endNodePos, false);
+
                             }
                         }  else {
                             if (linearLine.lineNodeList.size() == 1) {
@@ -169,25 +182,13 @@ public class MapPanel extends JPanel{
                                     Point2D startNodePos = worldPosToScreenPos(linearLine.getLineStartNode().x, linearLine.getLineStartNode().z);
                                     Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
                                     drawArrowBetween(g, startNodePos, mousePos, false);
-                                    //g.drawLine((int) startNodePos.getX(), (int) startNodePos.getY(), mousePosX, mousePosY);
                             }
-
                         }
-
                     } else {
-                        Point2D nodePos = worldPosToScreenPos(selected.x, selected.z);
-                        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
-                            if (connectionType == CONNECTION_STANDARD && selected.flag == 1) {
-                                g.setColor(Color.ORANGE);
-                            } else if (connectionType == CONNECTION_STANDARD) { // CONNECTION_SUBPRIO
-                                g.setColor(Color.GREEN);
-                            } else if (connectionType == CONNECTION_DUAL) {
-                                g.setColor(Color.BLUE);
-                            } else if (connectionType == CONNECTION_REVERSE) {
-                                g.setColor(Color.CYAN);
-                            }
-                        }
-                        g.drawLine((int) (nodePos.getX()), (int) (nodePos.getY()), mousePosX, mousePosY);
+                        g.setColor(Color.white);
+                        Point2D startNodePos = worldPosToScreenPos(selected.x, selected.z);
+                        Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
+                        drawArrowBetween(g, startNodePos, mousePos, false);
                     }
                 }
 
@@ -196,9 +197,9 @@ public class MapPanel extends JPanel{
                 if (hoveredNode != null) {
                     Point2D nodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
                     if (hoveredNode.flag == NODE_STANDARD) {
-                        g.drawImage(nodeImageSelected,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int)sizescaled, (int)sizescaled, null);
+                        g.drawImage(nodeImageSelected,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                     } else if (hoveredNode.flag == NODE_SUBPRIO) {
-                        g.drawImage(subPrioNodeImageSelected,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int)sizescaled, (int)sizescaled, null);
+                        g.drawImage(subPrioNodeImageSelected,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                     }
 
                     //draw marker group when hovering over node
@@ -220,9 +221,9 @@ public class MapPanel extends JPanel{
                         // draw control point
                         Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
                         if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
-                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int) sizescaled, (int) sizescaled, null);
+                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         } else {
-                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), (int) sizescaled, (int) sizescaled, null);
+                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         }
 
                         //draw interpolation points for curve
@@ -237,11 +238,22 @@ public class MapPanel extends JPanel{
                             g.setColor(Color.WHITE);
                             //don't draw the first node as it already been drawn
                             if (j != 0) {
-                                g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizescaledhalf), (int) (currentNodePos.getY() - sizescaledhalf), (int)sizescaled, (int)sizescaled, null);
-                                //g.fillArc((int) (currentNodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (currentNodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
+                                if (quadCurve.getNodeType() == NODE_STANDARD) {
+                                    g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizescaledhalf), (int) (currentNodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                                } else {
+                                    g.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizescaledhalf / 2 )), (int) (currentNodePos.getY() - (sizescaledhalf / 2 )), sizescaledhalf, sizescaledhalf, null);
+                                }
                             }
-                            g.setColor(Color.GREEN);
-                            drawArrowBetween(g, currentNodePos, nextNodePos, false);
+                            if (quadCurve.isReversePath()) {
+                                g.setColor(Color.CYAN);
+                            } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_STANDARD) {
+                                g.setColor(Color.BLUE);
+                            } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_SUBPRIO) {
+                                g.setColor(Color.ORANGE);
+                            } else {
+                                g.setColor(Color.GREEN);
+                            }
+                            drawArrowBetween(g, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
                         }
                     }
                 }
@@ -294,12 +306,12 @@ public class MapPanel extends JPanel{
             g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
             g2.dispose();
 
-            lastZoomLevel = zoomLevel;
+            //lastZoomLevel = zoomLevel;
         }
     }
 
     public void moveMapBy(int diffX, int diffY) {
-        if (this.roadMap == null || this.image == null) {
+        if ((roadMap == null) || (this.image == null)) {
             return;
         }
         x -= diffX / (zoomLevel * image.getWidth());
@@ -311,7 +323,7 @@ public class MapPanel extends JPanel{
 
     public void increaseZoomLevelBy(int rotations) {
         double step = rotations * (zoomLevel * 0.1);
-        if (this.roadMap == null || this.image == null) {
+        if ((roadMap == null) || (this.image == null)) {
             return;
         }
         if (((this.getWidth()/(this.zoomLevel - step)) > image.getWidth()) || ((this.getHeight()/(this.zoomLevel - step)) > image.getHeight())) {
@@ -344,8 +356,8 @@ public class MapPanel extends JPanel{
     }
 
     public MapNode getNodeAt(double posX, double posY) {
-        if (this.roadMap != null && this.image != null) {
-            for (MapNode mapNode : this.roadMap.mapNodes) {
+        if ((roadMap != null) && (this.image != null)) {
+            for (MapNode mapNode : roadMap.mapNodes) {
                 double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
                 Point2D outPos = worldPosToScreenPos(mapNode.x, mapNode.z);
@@ -368,7 +380,7 @@ public class MapPanel extends JPanel{
     }
 
     public void removeNode(MapNode toDelete) {
-        this.roadMap.removeMapNode(toDelete);
+        roadMap.removeMapNode(toDelete);
         editor.setStale(true);
         this.repaint();
     }
@@ -382,18 +394,18 @@ public class MapPanel extends JPanel{
             }
         }
         if (destinationToDelete != null) {
-            this.roadMap.removeMapMarker(destinationToDelete);
+            roadMap.removeMapMarker(destinationToDelete);
             editor.setStale(true);
             this.repaint();
         }
     }
 
     public void createNode(double screenX, double screenY, int flag) {
-        if (this.roadMap == null || this.image == null) {
+        if ((roadMap == null) || (this.image == null)) {
             return;
         }
-        MapNode mapNode = new MapNode(this.roadMap.mapNodes.size()+1, screenX, -1, screenY, flag, false); //flag = 0 causes created node to be regular by default
-        this.roadMap.mapNodes.add(mapNode);
+        MapNode mapNode = new MapNode(roadMap.mapNodes.size()+1, screenX, -1, screenY, flag, false); //flag = 0 causes created node to be regular by default
+        roadMap.mapNodes.add(mapNode);
         editor.setStale(true);
         this.repaint();
     }
@@ -480,7 +492,7 @@ public class MapPanel extends JPanel{
         if (mapNode != null && destinationName != null && destinationName.length() > 0) {
             if (groupName == null) groupName = "All";
             MapMarker mapMarker = new MapMarker(mapNode, destinationName, groupName);
-            this.roadMap.addMapMarker(mapMarker);
+            roadMap.addMapMarker(mapMarker);
             editor.setStale(true);
         }
     }
@@ -506,17 +518,13 @@ public class MapPanel extends JPanel{
                     roadMap.removeMapNode(node);
                 }
                 editor.setStale(true);
-
             } else {
                 for (MapNode node : multiSelectList) {
                     node.selected = false;
                 }
             }
             clearMultiSelection();
-
-
         }
-
     }
 
     public void changeAllNodesPriInScreenArea(Point2D rectangleStartScreen, Point2D rectangleEndScreen) {
@@ -532,8 +540,7 @@ public class MapPanel extends JPanel{
     }
 
    public void getAllNodesInArea(Point2D rectangleStartScreen, Point2D rectangleEndScreen) {
-        if (this.roadMap == null || this.image == null) {
-            //multiSelectList = null;
+        if ((roadMap == null) || (this.image == null)) {
             return;
         }
         int screenStartX = (int) rectangleStartScreen.getX();
@@ -548,7 +555,7 @@ public class MapPanel extends JPanel{
         height = (int) rectangle.getHeight();
 
         LinkedList<MapNode> toChange = new LinkedList<>();
-        for (MapNode mapNode : this.roadMap.mapNodes) {
+        for (MapNode mapNode : roadMap.mapNodes) {
             double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
             Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
@@ -563,7 +570,6 @@ public class MapPanel extends JPanel{
                 }
             }
         }
-
         if (isQuadCurveCreated) {
             MapNode controlPoint = quadCurve.getControlPoint();
             if (multiSelectList.contains(controlPoint)) {
@@ -574,9 +580,8 @@ public class MapPanel extends JPanel{
                 controlPoint.selected = true;
             }
         }
-
         if (multiSelectList.size() > 0 ) {
-            multiSelect = true;
+            isMultipleSelected = true;
         }
     }
 
@@ -587,10 +592,8 @@ public class MapPanel extends JPanel{
             }
             multiSelectList.clear();
         }
-        multiSelect = false;
+        isMultipleSelected = false;
     }
-
-
 
     public void drawArrowBetween(Graphics g, Point2D start, Point2D target, boolean dual) {
         double vecX = start.getX() - target.getX();
@@ -639,13 +642,6 @@ public class MapPanel extends JPanel{
         }
     }
 
-    private void showInTextArea(String text) { AutoDriveEditor.textArea.append(text); }
-
-    private void cleatTextArea() {
-        AutoDriveEditor.textArea.selectAll();
-        AutoDriveEditor.textArea.replaceSelection("");
-    }
-
     //
     // Mouse movement and drag detection
     //
@@ -654,23 +650,22 @@ public class MapPanel extends JPanel{
         if (this.image != null) {
             mousePosX = x;
             mousePosY = y;
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING && selected != null) {
+            /*if (editorState == EDITORSTATE_CONNECTING && selected != null) {
                 this.repaint();
-            }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_LINEARLINE && selected != null) {
+            }*/
+            if (editorState == EDITORSTATE_CONNECTING && selected != null) {
                 if (isDraggingRoute) {
                     Point2D pointerPos = screenPosToWorldPos(mousePosX, mousePosY);
                     linearLine.updateLine(pointerPos.getX(), pointerPos.getY());
                     this.repaint();
                 }
             }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER && selected != null) {
+            if (editorState == EDITORSTATE_QUADRATICBEZIER && selected != null) {
                 this.repaint();
             }
             movingNode = getNodeAt(x, y);
             if (movingNode != hoveredNode) {
                 hoveredNode = movingNode;
-                LOG.info("Detected");
                 this.repaint();
             }
         }
@@ -691,7 +686,7 @@ public class MapPanel extends JPanel{
             int diffY = y - lastY;
             lastX = x;
             lastY = y;
-            if (multiSelect && editor.editorState== AutoDriveEditor.EDITORSTATE_MOVING) {
+            if (isMultipleSelected && editorState== EDITORSTATE_MOVING) {
                 for (MapNode node : multiSelectList) {
                     moveNodeBy(node, diffX, diffY);
                 }
@@ -705,33 +700,28 @@ public class MapPanel extends JPanel{
             int diffY = y - lastY;
             lastX = x;
             lastY = y;
-            //if (editor.editorState == EDITORSTATE_QUADRATICBEZIER) {
             moveNodeBy(quadCurve.getControlPoint(), diffX, diffY);
             quadCurve.updateCurve();
-            //}
 
         }
 
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER) {
+        if (editorState == EDITORSTATE_QUADRATICBEZIER) {
             if (movingNode !=null && isQuadCurveCreated) {
                 quadCurve.updateCurve();
                 this.repaint();
             }
         }
 
-
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETE_NODES && rectangleStart != null) {
-            this.repaint();
-        } else if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_NODE_PRIORITY && rectangleStart != null) {
-            this.repaint();
-        } else if (editor.editorState == AutoDriveEditor.EDITORSTATE_MOVING && rectangleStart != null) {
-            this.repaint();
-        } else if (editor.editorState == AutoDriveEditor.EDITORSTATE_ALIGN_HORIZONTAL && rectangleStart != null) {
-            this.repaint();
-        } else if (editor.editorState == AutoDriveEditor.EDITORSTATE_ALIGN_VERTICAL && rectangleStart != null) {
-            this.repaint();
-        } else if (editor.editorState == AutoDriveEditor.EDITORSTATE_LINEARLINE && rectangleStart != null) {
-            this.repaint();
+        if (rectangleStart != null) {
+            switch (editorState) {
+                case EDITORSTATE_DELETE_NODES:
+                case EDITORSTATE_CHANGE_NODE_PRIORITY:
+                case EDITORSTATE_MOVING:
+                case EDITORSTATE_ALIGN_HORIZONTAL:
+                case EDITORSTATE_ALIGN_VERTICAL:
+                case EDITORSTATE_CNP_SELECT:
+                    this.repaint();
+            }
         }
     }
 
@@ -743,11 +733,26 @@ public class MapPanel extends JPanel{
 
         movingNode = getNodeAt(x, y);
 
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATE_PRIMARY_NODE) {
+        if (editorState == EDITORSTATE_CREATE_PRIMARY_NODE) {
             Point2D worldPos = screenPosToWorldPos(x, y);
             createNode(worldPos.getX(), worldPos.getY(),NODE_STANDARD);
         }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATING_DESTINATION) {
+
+        if (editorState == EDITORSTATE_CHANGE_NODE_PRIORITY) {
+            MapNode changingNode = getNodeAt(x, y);
+            if (changingNode != null) {
+                if (changingNode.flag != NODE_CONTROLPOINT) {
+                    changeNodePriority(changingNode);
+                }
+            }
+        }
+
+        if (editorState == EDITORSTATE_CREATE_SUBPRIO_NODE) {
+            Point2D worldPos = screenPosToWorldPos(x, y);
+            createNode(worldPos.getX(), worldPos.getY(),NODE_SUBPRIO);
+        }
+
+        if (editorState == EDITORSTATE_CREATING_DESTINATION) {
             if (movingNode != null) {
                 for (int i = 0; i < RoadMap.mapMarkers.size(); i++) {
                     MapMarker mapMarker = RoadMap.mapMarkers.get(i);
@@ -764,20 +769,8 @@ public class MapPanel extends JPanel{
                 }
             }
         }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_NODE_PRIORITY) {
-            MapNode changingNode = getNodeAt(x, y);
-            if (changingNode != null) {
-                if (changingNode.flag != NODE_CONTROLPOINT) {
-                    changeNodePriority(changingNode);
-                }
-            }
-        }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CREATE_SUBPRIO_NODE) {
-            Point2D worldPos = screenPosToWorldPos(x, y);
-            createNode(worldPos.getX(), worldPos.getY(),NODE_SUBPRIO);
-        }
 
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_EDITING_DESTINATION) {
+        if (editorState == EDITORSTATE_EDITING_DESTINATION) {
             if (movingNode != null) {
                 for (int i = 0; i < RoadMap.mapMarkers.size(); i++) {
                     MapMarker mapMarker = RoadMap.mapMarkers.get(i);
@@ -793,8 +786,8 @@ public class MapPanel extends JPanel{
                 }
             }
         }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_ALIGN_HORIZONTAL) {
-            if (multiSelect && multiSelectList != null && movingNode != null) {
+        if (editorState == EDITORSTATE_ALIGN_HORIZONTAL) {
+            if (isMultipleSelected && multiSelectList != null && movingNode != null) {
                 LOG.info("Horizontal Align {} nodes at {}",multiSelectList.size(), movingNode.y);
                 for (MapNode node : multiSelectList) {
                     node.z = movingNode.z;
@@ -805,11 +798,11 @@ public class MapPanel extends JPanel{
                 editor.setStale(true);
                 clearMultiSelection();
                 this.repaint();
-
             }
         }
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_ALIGN_VERTICAL) {
-            if (multiSelect && multiSelectList != null && movingNode != null) {
+
+        if (editorState == EDITORSTATE_ALIGN_VERTICAL) {
+            if (isMultipleSelected && multiSelectList != null && movingNode != null) {
                 LOG.info("Horizontal Align {} nodes at {}",multiSelectList.size(), movingNode.x);
                 for (MapNode node : multiSelectList) {
                     node.x = movingNode.x;
@@ -824,25 +817,24 @@ public class MapPanel extends JPanel{
             }
         }
 
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER) {
+        if (editorState == EDITORSTATE_QUADRATICBEZIER) {
             if (movingNode != null) {
                 if (selected == null && !isQuadCurveCreated) {
                     selected = movingNode;
                     LOG.info("selected start node of curve");
-                    cleatTextArea();
-                    showInTextArea("selected start node of curve, click on end node of curve\n");
+                    GUIBuilder.showInTextArea("selected start node of curve, now click on end node\n", true);
                 } else if (selected == hoveredNode) {
                     selected = null;
                     LOG.info("curve cancelled");
-                    showInTextArea("curve cancelled\n");
+                    GUIBuilder.showInTextArea("curve cancelled\n", false);
                     stopCurveEdit();
                     this.repaint();
                 } else {
                     if (!isQuadCurveCreated) {
                         LOG.info("selected end node of curve");
-                        showInTextArea("selected end node of curve, creating curve\n");
+                        GUIBuilder.showInTextArea("selected end node, creating curve\n", false);
                         quadCurve = new QuadCurve(selected, movingNode);
-                        quadCurve.setNumInterpolationPoints(AutoDriveEditor.numIterationsSlider.getValue());
+                        quadCurve.setNumInterpolationPoints(GUIBuilder.numIterationsSlider.getValue());
                         isQuadCurveCreated = true;
                         selected = null;
                     }
@@ -857,46 +849,35 @@ public class MapPanel extends JPanel{
         lastX = x;
         lastY = y;
         movingNode = getNodeAt(x, y);
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_CONNECTING) {
-            if (movingNode != null && movingNode.flag !=NODE_CONTROLPOINT) {
-                if (selected == null) {
-                    selected = movingNode;
-                } else if (selected == hoveredNode) {
-                    selected = null;
-                } else {
-                    createConnectionBetween(selected, movingNode, connectionType);
-                    editor.setStale(true);
-                    if (AutoDriveEditor.bContinuousConnections) {
-                        selected = movingNode;
-                    } else {
-                        selected = null;
-                    }
-                }
-                this.repaint();
-            }
-        }
 
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_LINEARLINE) {
+        if (editorState == EDITORSTATE_CONNECTING) {
             if (movingNode != null) {
                 if (selected == null) {
                     selected = movingNode;
                     Point2D pointerPos = screenPosToWorldPos(mousePosX, mousePosY);
                     linearLine = new LinearLine(selected, pointerPos.getX(), pointerPos.getY());
-                    //pointsArray.clear();
                     isDraggingRoute = true;
                     LOG.info("selected start node, click end node to complete or right click to cancel");
-                    cleatTextArea();
-                    showInTextArea("selected start node, click end node to complete or right click to cancel\n");
+                    GUIBuilder.showInTextArea("selected start node, click end node to complete or right click to cancel\n", true);
                 } else if (selected == hoveredNode) {
                     selected = null;
                     LOG.info("Linear Line cancelled");
-                    showInTextArea("Linear Line cancelled\n");
+                    GUIBuilder.showInTextArea("Linear Line cancelled\n", false);
                 } else {
+                    int nodeType = 0;
+                    if (connectionType == CONNECTION_STANDARD) {
+                        nodeType = createRegularConnectionState;
+                    } else if (connectionType == CONNECTION_DUAL) {
+                        nodeType = createDualConnectionState;
+                    } else if (connectionType == CONNECTION_REVERSE) {
+                        nodeType = createReverseConnectionState;
+                    }
 
-                    // TODO - call addnodes - add linear line nodes here
+                    linearLine.commit(movingNode, connectionType, nodeType);
 
                     LOG.info("Linear Line completed");
-                    showInTextArea("Linear Line completed\n");
+                    GUIBuilder.showInTextArea("Linear Line completed\n", false);
+                    linearLine.clear();
                     isDraggingRoute = false;
                     selected = null;
                 }
@@ -904,23 +885,21 @@ public class MapPanel extends JPanel{
             }
         }
 
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER) {
-            if (isQuadCurveCreated && quadCurve.getControlPoint() !=null) {
-                if (movingNode == quadCurve.getControlPoint()) {
+        if (editorState == EDITORSTATE_QUADRATICBEZIER) {
+            if (isQuadCurveCreated && movingNode == quadCurve.getControlPoint()) {
                     isControlNodeSelected = true;
-                }
             }
         }
 
         if (movingNode != null) {
             isDragging = false;
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_MOVING) {
+            if (editorState == EDITORSTATE_MOVING) {
                 isDraggingNode = true;
             }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETE_NODES) {
+            if (editorState == EDITORSTATE_DELETE_NODES) {
                 removeNode(movingNode);
             }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETING_DESTINATION) {
+            if (editorState == EDITORSTATE_DELETING_DESTINATION) {
                 removeDestination(movingNode);
             }
         }
@@ -961,16 +940,18 @@ public class MapPanel extends JPanel{
     }
 
     public void mouseButton3Pressed(int x, int y) {
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_QUADRATICBEZIER) return;
-        if (editor.editorState == AutoDriveEditor.EDITORSTATE_LINEARLINE) return;
-        if (editor.editorState == EDITORSTATE_CONNECTING) {
+
+        if (editorState == EDITORSTATE_CONNECTING) {
             selected = null;
+            linearLine.clear();
+            this.repaint();
             return;
         }
 
-        LOG.info("{} {}/{}", localeString.getString("console_rect_start"), x, y);
-        rectangleStart = new Point2D.Double(x, y);
-
+        if (isMultiSelectAllowed) {
+            rectangleStart = new Point2D.Double(x, y);
+            LOG.info("{} {}/{}", localeString.getString("console_rect_start"), x, y);
+        }
     }
 
     public void mouseButton3Released(int x, int y) {
@@ -978,38 +959,39 @@ public class MapPanel extends JPanel{
 
             Point2D rectangleEnd = new Point2D.Double(x, y);
             LOG.info("{} {}/{}", localeString.getString("console_rect_end"), x, y);
+            LOG.info("Rectangle centre = {} , {}", rectangleEnd.getX() - rectangleStart.getX(), rectangleEnd.getY() - rectangleStart.getY());
 
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_DELETE_NODES) {
-                removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
-                repaint();
+            switch (editorState) {
+                case EDITORSTATE_DELETE_NODES:
+                    removeAllNodesInScreenArea(rectangleStart, rectangleEnd);
+                    this.repaint();
+                    break;
+                case EDITORSTATE_CHANGE_NODE_PRIORITY:
+                    LOG.info("{}", localeString.getString("console_node_priority_toggle"));
+                    changeAllNodesPriInScreenArea(rectangleStart, rectangleEnd);
+                    this.repaint();
+                    break;
+                case EDITORSTATE_MOVING:
+                    LOG.info("{}", localeString.getString("console_node_priority_toggle"));
+                    getAllNodesInArea(rectangleStart, rectangleEnd);
+                    this.repaint();
+                    break;
+                case EDITORSTATE_ALIGN_HORIZONTAL:
+                    LOG.info("{}", localeString.getString("console_node_align_horizontal"));
+                    getAllNodesInArea(rectangleStart, rectangleEnd);
+                    this.repaint();
+                    break;
+                case EDITORSTATE_ALIGN_VERTICAL:
+                    LOG.info("{}", localeString.getString("console_node_align_vertical"));
+                    getAllNodesInArea(rectangleStart, rectangleEnd);
+                    this.repaint();
+                    break;
+                case EDITORSTATE_CNP_SELECT:
+                    getAllNodesInArea(rectangleStart, rectangleEnd);
+                    this.repaint();
             }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_CHANGE_NODE_PRIORITY) {
-
-                LOG.info("{}", localeString.getString("console_node_priority_toggle"));
-                changeAllNodesPriInScreenArea(rectangleStart, rectangleEnd);
-                repaint();
-            }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_MOVING) {
-
-                LOG.info("{}", localeString.getString("console_node_priority_toggle"));
-                getAllNodesInArea(rectangleStart, rectangleEnd);
-                repaint();
-            }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_ALIGN_HORIZONTAL) {
-
-                LOG.info("{}", localeString.getString("console_node_align_horizontal"));
-                getAllNodesInArea(rectangleStart, rectangleEnd);
-                repaint();
-            }
-            if (editor.editorState == AutoDriveEditor.EDITORSTATE_ALIGN_VERTICAL) {
-
-                LOG.info("{}", localeString.getString("console_node_align_vertical"));
-                getAllNodesInArea(rectangleStart, rectangleEnd);
-                repaint();
-            }
-
+            rectangleStart = null;
         }
-        rectangleStart = null;
     }
 
     //

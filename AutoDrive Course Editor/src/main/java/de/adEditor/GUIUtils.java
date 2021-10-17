@@ -8,6 +8,10 @@ import static de.adEditor.AutoDriveEditor.localeString;
 
 public class GUIUtils {
 
+    public static JFrame frame;
+
+    // 1st part of fix for alpha cascading errors on radio buttons.
+
     public static class AlphaContainer extends JComponent
     {
         private JComponent component;
@@ -33,7 +37,18 @@ public class GUIUtils {
         }
     }
 
-    public static JFrame frame;
+    // 2nd part of fix for alpha cascading errors on radio buttons
+
+    static class TransparentRadioButton extends JRadioButton {
+        public TransparentRadioButton(String string) {
+            super(string);
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setForeground(Color.ORANGE);
+            setBackground(new Color(0,0,0,0));
+        }
+    }
 
     //
     // Button Creation functions
@@ -51,14 +66,10 @@ public class GUIUtils {
     }
 
     public static JToggleButton makeImageToggleButton(String imageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
-        return makeImageToggleButton(imageName, null, null, actionCommand, toolTipText, altText, panel, editorListener);
+        return makeImageToggleButton(imageName, null, actionCommand, toolTipText, altText, panel, editorListener);
     }
 
     public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
-        return makeImageToggleButton(imageName, selectedImageName, null, actionCommand, toolTipText, altText, panel, editorListener);
-    }
-
-    public static JToggleButton makeImageToggleButton(String imageName, String selectedImageName, String rollOverImageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
 
         JToggleButton toggleButton = new JToggleButton();
 
@@ -82,17 +93,6 @@ public class GUIUtils {
                 URL selectedImageURL = AutoDriveEditor.class.getResource(selectedImagePath);
                 if (selectedImageURL != null) {
                     toggleButton.setSelectedIcon(new ImageIcon(selectedImageURL, altText));
-                    //toggleButton.setRolloverSelectedIcon(new ImageIcon(selectedImageURL, altText));
-                    //toggleButton.setRolloverIcon(new ImageIcon(selectedImageURL, altText));
-                }
-            }
-            if (rollOverImageName !=  null) {
-                String selectedImagePath = "/editor/" + rollOverImageName + ".png";
-                URL selectedImageURL = AutoDriveEditor.class.getResource(selectedImagePath);
-                if (selectedImageURL != null) {
-                    //toggleButton.setSelectedIcon(new ImageIcon(selectedImageURL, altText));
-                    //toggleButton.setRolloverSelectedIcon(new ImageIcon(selectedImageURL, altText));
-                    toggleButton.setRolloverIcon(new ImageIcon(selectedImageURL, altText));
                 }
             }
         } else {
@@ -103,6 +103,16 @@ public class GUIUtils {
         panel.add(toggleButton);
 
         return toggleButton;
+    }
+
+    //
+    // special version of JToggleButton using a separate listener to change it's right click behaviour
+
+    //
+    public static JToggleButton makeStateChangeImageToggleButton (String imageName, String selectedImageName, String actionCommand, String toolTipText, String altText, JPanel panel, EditorListener editorListener) {
+        JToggleButton button = makeImageToggleButton(imageName, selectedImageName, actionCommand, toolTipText, altText, panel, editorListener);
+        button.addMouseListener(editorListener);
+        return button;
     }
 
     public static JRadioButton makeRadioButton(String text, String actionCommand, String toolTipText, Color textColour, boolean isSelected, boolean isOpaque, JPanel panel, ButtonGroup group, EditorListener actionListener) {
@@ -125,16 +135,7 @@ public class GUIUtils {
         return radioButton;
     }
 
-    static class TransparentRadioButton extends JRadioButton {
-        public TransparentRadioButton(String string) {
-            super(string);
-            setOpaque(false);
-            setContentAreaFilled(false);
-            setBorderPainted(false);
-            setForeground(Color.ORANGE);
-            setBackground(new Color(0,0,0,0));
-        }
-    }
+
     //
     // Menu Creation Functions
 
@@ -195,4 +196,6 @@ public class GUIUtils {
         menu.add(menuItem);
         return menuItem;
     }
+
+
 }

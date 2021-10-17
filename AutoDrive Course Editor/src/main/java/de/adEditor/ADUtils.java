@@ -6,22 +6,16 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-import static de.adEditor.AutoDriveEditor.localeString;
-import static java.util.Locale.getDefault;
 
 public class ADUtils {
 
@@ -55,22 +49,22 @@ public class ADUtils {
     public static File getSelectedFileWithExtension(JFileChooser c) {
         File file = c.getSelectedFile();
         if (c.getFileFilter() instanceof FileNameExtensionFilter) {
-            String[] exts = ((FileNameExtensionFilter)c.getFileFilter()).getExtensions();
+            String[] extension = ((FileNameExtensionFilter)c.getFileFilter()).getExtensions();
             String nameLower = file.getName().toLowerCase();
-            for (String ext : exts) { // check if it already has a valid extension
+            for (String ext : extension) { // check if it already has a valid extension
                 if (nameLower.endsWith('.' + ext.toLowerCase())) {
                     return file; // if yes, return as-is
                 }
             }
             // if not, append the first extension from the selected filter
-            file = new File(file.toString() + '.' + exts[0]);
+            file = new File(file.toString() + '.' + extension[0]);
         }
         return file;
     }
 
-    public static BufferedImage getIcon(String name) {
+    public static BufferedImage getImage(String name) {
         try {
-            URL url = AutoDriveEditor.class.getResource("/" + name);
+            URL url = AutoDriveEditor.class.getResource("/editor/" + name);
             if (url != null) {
                 return ImageIO.read(url);
             }
@@ -80,9 +74,22 @@ public class ADUtils {
         return null;
     }
 
+    public static ImageIcon getIcon(String name) {
+        try {
+            URL url = AutoDriveEditor.class.getResource("/editor/" + name);
+            if (url != null) {
+                BufferedImage newImage = ImageIO.read(url);
+                return new ImageIcon(newImage);
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
     public static ResourceBundle getLocale(){
 
-        String localePath = null;
+        String localePath;
         String localeName = null;
         String classPath = null;
         File newFile;
@@ -98,25 +105,21 @@ public class ADUtils {
             localePath = "./locale/AutoDriveEditor_" + Locale.getDefault() + ".properties";
             if (Paths.get(localePath).toFile().exists()) {
                 classPath = "./locale/";
-                //LOG.info("Found locale file {}", localePath);
             }
 
             localePath = "./src/locale/AutoDriveEditor_" + Locale.getDefault() + ".properties";
             if (Paths.get(localePath).toFile().exists()) {
                 classPath = "./src/locale/";
-                //LOG.info("Found locale file {}", localePath);
             }
 
             localePath = "./AutoDriveEditor_" + Locale.getDefault() + ".properties";
             if (Paths.get(localePath).toFile().exists()) {
                 classPath = "./";
-                //LOG.info("Found locale file {}", localePath);
             }
 
             localePath = "./src/main/resources/locale/AutoDriveEditor_" + Locale.getDefault() + ".properties";
             if (Paths.get(localePath).toFile().exists()) {
                 classPath = "./src/main/resources/locale/";
-                //LOG.info("Found locale file {}", localePath);
             }
 
             if (classPath != null) {
@@ -133,8 +136,7 @@ public class ADUtils {
                 return bundle;
             } else {
                 LOG.info("Locale file not found..loading default locale for {}", new Locale("en", "US"));
-                ResourceBundle bundle = ResourceBundle.getBundle("locale.AutoDriveEditor", new Locale("en", "US"));
-                return bundle;
+                return ResourceBundle.getBundle("locale.AutoDriveEditor", new Locale("en", "US"));
             }
         }
     }

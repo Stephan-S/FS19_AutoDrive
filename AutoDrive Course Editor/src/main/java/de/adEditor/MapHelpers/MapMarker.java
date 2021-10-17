@@ -35,9 +35,7 @@ public class MapMarker implements Comparable {
 
         if (o instanceof MapMarker) {
             MapMarker other = (MapMarker) o;
-            if (other.name.equals(name) && other.mapNode.id == mapNode.id) {
-                return true;
-            }
+            return other.name.equals(name) && other.mapNode.id == mapNode.id;
         }
 
         return false;
