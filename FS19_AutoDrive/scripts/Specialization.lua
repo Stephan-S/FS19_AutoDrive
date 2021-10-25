@@ -50,6 +50,7 @@ function AutoDrive.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointsInRange", AutoDrive.getWayPointsInRange)
     SpecializationUtil.registerFunction(vehicleType, "getWayPointIdsInRange", AutoDrive.getWayPointIdsInRange)
     SpecializationUtil.registerFunction(vehicleType, "onDrawEditorMode", AutoDrive.onDrawEditorMode)
+    SpecializationUtil.registerFunction(vehicleType, "updateClosestWayPoint", AutoDrive.updateClosestWayPoint)
 end
 
 function AutoDrive.registerEvents(vehicleType)
@@ -103,6 +104,8 @@ function AutoDrive:onLoad(savegame)
     self.ad.distances.closestNotReverse = {}
     self.ad.distances.closestNotReverse.wayPoint = -1
     self.ad.distances.closestNotReverse.distance = 0
+
+    self.ad.lastDrawPosition = {x = 0, z = 0}
 
     self.ad.stateModule = ADStateModule:new(self)
     self.ad.recordingModule = ADRecordingModule:new(self)
@@ -197,6 +200,8 @@ function AutoDrive:onPostLoad(savegame)
     setTranslation(self.ad.frontNode, 0, 0, self.sizeLength / 2 + self.lengthOffset + 0.75)
     self.ad.frontNodeGizmo = DebugGizmo:new()
     self.ad.debug = RingQueue:new()
+    local x, y, z = getWorldTranslation(self.components[1].node)
+    self.ad.lastDrawPosition = {x = x, z = z}
 end
 
 function AutoDrive:onWriteStream(streamId, connection)
@@ -225,9 +230,19 @@ end
 
 function AutoDrive:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
     -- waypoints distances are updated once every ~2 frames
-    self:resetClosestWayPoint()
+    -- self:resetClosestWayPoint()
     -- if we want to update distances every frame, when lines drawing is enabled, we can move this at the end of onDraw function
-    self:resetWayPointsDistance()
+
+    if AutoDrive.isEditorShowEnabled() then
+        local x, y, z = getWorldTranslation(self.components[1].node)
+        local distance = MathUtil.vector2Length(x - self.ad.lastDrawPosition.x, z - self.ad.lastDrawPosition.z)
+        if distance > AutoDrive.drawDistance / 2 then
+            self.ad.lastDrawPosition = {x = x, z = z}
+            self:resetWayPointsDistance()
+        end
+    else
+        self:resetWayPointsDistance()
+    end
 
     if self.isServer then
         self.ad.recordingModule:updateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
@@ -558,7 +573,7 @@ function AutoDrive:onDrawEditorMode()
         end
 
         --Draw line to closest point
-        local closest, _ = self:getClosestWayPoint()
+        local closest, _ = self:getClosestWayPoint(true)
         local wp = ADGraphManager:getWayPointById(closest)
         if wp ~= nil then
             DrawingManager:addLineTask(x1, dy, z1, wp.x, wp.y, wp.z, unpack(AutoDrive.currentColors.ad_color_closestLine))
@@ -1059,9 +1074,49 @@ function AutoDrive:getWayPointsDistance()
     return self.ad.distances.wayPoints
 end
 
-function AutoDrive:getClosestWayPoint()
-    if self.ad.distances.closest.wayPoint == -1 then
+function AutoDrive:updateClosestWayPoint()
+    if self.ad.distances.wayPoints == nil then
         self:updateWayPointsDistance()
+    end
+    self.ad.distances.closest.wayPoint = nil
+    self.ad.distances.closest.distance = math.huge
+    self.ad.distances.closestNotReverse.wayPoint = nil
+    self.ad.distances.closestNotReverse.distance = math.huge
+
+    if self.ad.distances.wayPoints == nil then
+        -- something went wrong, so exit
+        return
+    end
+    local x, _, z = getWorldTranslation(self.components[1].node)
+
+    --We should see some perfomance increase by localizing the sqrt/pow functions right here
+    local sqrt = math.sqrt
+    local distanceFunc = function(a, b)
+        return sqrt(a * a + b * b)
+    end
+    for _, elem in pairs(self.ad.distances.wayPoints) do
+        local wp = elem.wayPoint
+        local distance = distanceFunc(wp.x - x, wp.z - z)
+        if distance < self.ad.distances.closest.distance then
+            self.ad.distances.closest.distance = distance
+            self.ad.distances.closest.wayPoint = wp
+        end
+        if distance < self.ad.distances.closestNotReverse.distance and (wp.incoming == nil or #wp.incoming > 0) then
+            self.ad.distances.closestNotReverse.distance = distance
+            self.ad.distances.closestNotReverse.wayPoint = wp
+        end
+    end
+end
+
+-- update distances only if not called in (frame) update functions
+function AutoDrive:getClosestWayPoint(noUpdate)
+    if noUpdate == nil or noUpdate == false then
+        -- update on request function calls - force all update
+        self:updateWayPointsDistance()
+    end
+    if self.ad.distances.closest.wayPoint == nil or noUpdate == true then
+        -- get closest wayPoint in view distance -> perfomance improvement
+        self:updateClosestWayPoint()
     end
     if self.ad.distances.closest.wayPoint ~= nil then
         return self.ad.distances.closest.wayPoint.id, self.ad.distances.closest.distance

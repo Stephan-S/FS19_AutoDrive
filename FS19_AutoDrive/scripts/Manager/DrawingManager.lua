@@ -10,6 +10,7 @@ ADDrawingManager.lines.fileName = "line.i3d"
 ADDrawingManager.lines.buffer = Buffer:new()
 ADDrawingManager.lines.objects = FlaggedTable:new()
 ADDrawingManager.lines.tasks = {}
+ADDrawingManager.lines.itemIDs = {}
 ADDrawingManager.lines.lastDrawZero = true
 
 ADDrawingManager.arrows = {}
@@ -17,6 +18,7 @@ ADDrawingManager.arrows.fileName = "arrow.i3d"
 ADDrawingManager.arrows.buffer = Buffer:new()
 ADDrawingManager.arrows.objects = FlaggedTable:new()
 ADDrawingManager.arrows.tasks = {}
+ADDrawingManager.arrows.itemIDs = {}
 ADDrawingManager.arrows.lastDrawZero = true
 ADDrawingManager.arrows.position = {}
 ADDrawingManager.arrows.position.start = 1
@@ -27,6 +29,7 @@ ADDrawingManager.sSphere.fileName = "sphere_small.i3d"
 ADDrawingManager.sSphere.buffer = Buffer:new()
 ADDrawingManager.sSphere.objects = FlaggedTable:new()
 ADDrawingManager.sSphere.tasks = {}
+ADDrawingManager.sSphere.itemIDs = {}
 ADDrawingManager.sSphere.lastDrawZero = true
 
 ADDrawingManager.sphere = {}
@@ -34,6 +37,7 @@ ADDrawingManager.sphere.fileName = "sphere.i3d"
 ADDrawingManager.sphere.buffer = Buffer:new()
 ADDrawingManager.sphere.objects = FlaggedTable:new()
 ADDrawingManager.sphere.tasks = {}
+ADDrawingManager.sphere.itemIDs = {}
 ADDrawingManager.sphere.lastDrawZero = true
 
 ADDrawingManager.markers = {}
@@ -44,6 +48,7 @@ ADDrawingManager.markers.fileNames[3] = "marker_3.i3d"
 ADDrawingManager.markers.buffer = Buffer:new()
 ADDrawingManager.markers.objects = FlaggedTable:new()
 ADDrawingManager.markers.tasks = {}
+ADDrawingManager.markers.itemIDs = {}
 ADDrawingManager.markers.lastDrawZero = true
 ADDrawingManager.markers.lastDrawFileUsed = 1
 ADDrawingManager.markers.usesSelection = true
@@ -53,6 +58,7 @@ ADDrawingManager.cross.fileName = "cross.i3d"
 ADDrawingManager.cross.buffer = Buffer:new()
 ADDrawingManager.cross.objects = FlaggedTable:new()
 ADDrawingManager.cross.tasks = {}
+ADDrawingManager.cross.itemIDs = {}
 ADDrawingManager.cross.lastDrawZero = true
 
 function ADDrawingManager:load()
@@ -79,31 +85,36 @@ end
 
 function ADDrawingManager:addLineTask(sx, sy, sz, ex, ey, ez, r, g, b)
     -- storing task
-    local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.1f", sx, sy, sz, ex, ey, ez, r, g, b, self.yOffset)
+    local hash = 0
+    -- local hash = string.format("l%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.2f%.1f", sx, sy, sz, ex, ey, ez, r, g, b, self.yOffset)
     table.insert(self.lines.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, hash = hash})
 end
 
 function ADDrawingManager:addArrowTask(sx, sy, sz, ex, ey, ez, position, r, g, b)
     -- storing task
-    local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f%.1f", sx, sy, sz, ex, ey, ez, position, r, g, b, self.yOffset)
+    local hash = 0
+    -- local hash = string.format("a%.2f%.2f%.2f%.2f%.2f%.2f%d%.2f%.2f%.2f%.1f", sx, sy, sz, ex, ey, ez, position, r, g, b, self.yOffset)
     table.insert(self.arrows.tasks, {sx = sx, sy = sy, sz = sz, ex = ex, ey = ey, ez = ez, r = r, g = g, b = b, position = position, hash = hash})
 end
 
 function ADDrawingManager:addSmallSphereTask(x, y, z, r, g, b)
     -- storing task
-    local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f%.1f", x, y, z, r, g, b, self.yOffset)
+    local hash = 0
+    -- local hash = string.format("ss%.2f%.2f%.2f%.2f%.2f%.2f%.1f", x, y, z, r, g, b, self.yOffset)
     table.insert(self.sSphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, hash = hash})
 end
 
 function ADDrawingManager:addMarkerTask(x, y, z)
     -- storing task
-    local hash = string.format("m%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
+    local hash = 0
+    -- local hash = string.format("m%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
     table.insert(self.markers.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
 function ADDrawingManager:addCrossTask(x, y, z)
     -- storing task
-    local hash = string.format("c%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
+    local hash = 0
+    -- local hash = string.format("c%.2f%.2f%.2f%.1f", x, y, z, self.yOffset)
     table.insert(self.cross.tasks, {x = x, y = y, z = z, hash = hash})
 end
 
@@ -111,7 +122,8 @@ function ADDrawingManager:addSphereTask(x, y, z, scale, r, g, b, a)
     scale = scale or 1
     a = a or 0
     -- storing task
-    local hash = string.format("s%.2f%.2f%.2f%.3f%.2f%.2f%.2f%.2f%.1f", x, y, z, scale, r, g, b, a, self.yOffset)
+    local hash = 0
+    -- local hash = string.format("s%.2f%.2f%.2f%.3f%.2f%.2f%.2f%.2f%.1f", x, y, z, scale, r, g, b, a, self.yOffset)
     table.insert(self.sphere.tasks, {x = x, y = y, z = z, r = r, g = g, b = b, a = a, scale = scale, hash = hash})
 end
 
@@ -165,7 +177,64 @@ function ADDrawingManager:draw()
     end
 end
 
-function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
+function ADDrawingManager:drawObjects_alternative(obj, dFunc, iFunc)
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects start...")
+    local taskCount = #obj.tasks
+    local stats = {}
+    stats["Tasks"] = {Total = taskCount}
+    stats["itemIDs"] = {Total = #obj.itemIDs}
+
+    if taskCount > 0 or obj.lastDrawZero == false then
+        -- set all invisible
+        for _, itemID in ipairs (obj.itemIDs) do
+    -- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects setVisibility itemID %s ", tostring(itemID))
+            setVisibility(itemID, false)
+        end
+    end
+
+    if taskCount == 0 then -- nothing to draw
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects nothing to draw ")
+        obj.lastDrawZero = true
+        return stats
+    end
+
+    local fileToUse
+    if obj.usesSelection then
+        local iconSetToUse = AutoDrive.getSetting("iconSetToUse")
+        fileToUse = obj.fileNames[iconSetToUse]
+    else
+        fileToUse = obj.fileName
+    end
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects fileToUse %s ", tostring(fileToUse))
+
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects taskCount %s #obj.itemIDs %s ", tostring(taskCount), tostring(#obj.itemIDs))
+    -- check if enougth objects are available - add missing amount
+    if taskCount > #obj.itemIDs then
+        for i = 1, taskCount - #obj.itemIDs do
+            -- loading new i3ds
+            local itemID = g_i3DManager:loadSharedI3DFile(fileToUse, self.i3DBaseDir)
+            setVisibility(itemID, false)
+            table.insert(obj.itemIDs,iFunc(itemID))
+        end
+    end
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects taskCount %s #obj.itemIDs %s ", tostring(taskCount), tostring(#obj.itemIDs))
+
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects drawing... ")
+    -- drawing tasks
+    local index = 1
+    for _, task in pairs(obj.tasks) do
+        local itemId = obj.itemIDs[index]
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects index %s itemId %s ", tostring(index), tostring(itemId))
+        dFunc(self, itemId, task)
+        index = index + 1
+    end
+    obj.tasks = {}
+-- AutoDrive.debugMsg(nil, "ADDrawingManager:drawObjects end ")
+    obj.lastDrawZero = taskCount == 0
+    return stats
+end
+
+function ADDrawingManager:drawObjects_original(obj, dFunc, iFunc)
     local taskCount = #obj.tasks
 
     local fileToUse
@@ -188,7 +257,7 @@ function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
     end
 
     local stats = {}
-    stats["Tasks"] = {Total = taskCount, Performed = 0}
+    stats["Tasks"] = {Total = taskCount, Performed = 0, Skipped = 0}
     stats["Objects"] = obj.objects:Count()
     stats["Buffer"] = obj.buffer:Count()
 
@@ -208,6 +277,7 @@ function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
         end
         local remainingTaskCount = taskCount - taskSkippedCount
         stats.Tasks.Performed = remainingTaskCount
+        stats.Tasks.Skipped = taskSkippedCount
 
         -- cleaning up not needed objects and send them back to the buffer
         local unusedObjects = obj.objects:RemoveUnflagged()
@@ -242,6 +312,11 @@ function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
     end
     obj.lastDrawZero = taskCount <= 0
     return stats
+end
+
+function ADDrawingManager:drawObjects(obj, dFunc, iFunc)
+    return self:drawObjects_alternative(obj, dFunc, iFunc)
+    -- return self:drawObjects_original(obj, dFunc, iFunc)
 end
 
 function ADDrawingManager:drawLine(id, task)

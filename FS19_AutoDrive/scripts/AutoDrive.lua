@@ -1,5 +1,5 @@
 AutoDrive = {}
-AutoDrive.version = "1.1.1.8"
+AutoDrive.version = "1.1.1.9-RC1"
 
 AutoDrive.directory = g_currentModDirectory
 
@@ -13,6 +13,7 @@ AutoDrive.experimentalFeatures.telemetryOutput = false
 AutoDrive.experimentalFeatures.enableRoutesManagerOnDediServer = false
 AutoDrive.experimentalFeatures.detectGrasField = true
 AutoDrive.experimentalFeatures.colorAssignmentMode = false
+AutoDrive.experimentalFeatures.DrawAlternativ = false
 
 AutoDrive.dynamicChaseDistance = true
 AutoDrive.smootherDriving = true
