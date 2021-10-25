@@ -1,5 +1,6 @@
 package de.adEditor;
 
+import de.adEditor.MapHelpers.ChangeManager;
 import de.adEditor.MapHelpers.MapMarker;
 import de.adEditor.MapHelpers.MapNode;
 import de.adEditor.MapHelpers.RoadMap;
@@ -31,6 +32,7 @@ import java.util.*;
 import static de.adEditor.ADUtils.*;
 import static de.adEditor.GUIBuilder.quadSliderDefault;
 import static de.adEditor.GUIBuilder.quadSliderMax;
+import static de.adEditor.MapPanel.getMapPanel;
 
 /* TODO:
     (1) New features?
@@ -41,8 +43,8 @@ import static de.adEditor.GUIBuilder.quadSliderMax;
 
 public class AutoDriveEditor extends JFrame {
 
-    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.2.1 Beta";
-    public static final String AUTODRIVE_INTERNAL_VERSION = "0.2.1-beta";
+    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.3.0 Beta";
+    public static final String AUTODRIVE_INTERNAL_VERSION = "0.3.0-beta";
     private String lastRunVersion;
 
     public EditorListener editorListener;
@@ -50,8 +52,8 @@ public class AutoDriveEditor extends JFrame {
     public static Locale locale;
 
     public static int editorState = GUIBuilder.EDITORSTATE_NOOP;
-    public File xmlConfigFile;
-    private boolean stale = false;
+    public static File xmlConfigFile;
+    public static boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
 
     public static BufferedImage tractorImage;
@@ -80,6 +82,8 @@ public class AutoDriveEditor extends JFrame {
     public static boolean bContinuousConnections = false; // default value
     public static boolean bMiddleMouseMove = false; // default value
     public static int linearLineNodeDistance = 12;
+
+    public static ChangeManager changeManager;
 
     public AutoDriveEditor() {
         super();
@@ -126,6 +130,8 @@ public class AutoDriveEditor extends JFrame {
             LOG.info("Version Updated Detected");
             // TODO display new version notes
         }
+
+        changeManager = new ChangeManager();
 
     }
 
@@ -185,7 +191,7 @@ public class AutoDriveEditor extends JFrame {
         LOG.info("loadFile: {}", fXmlFile.getAbsolutePath());
 
         try {
-            GUIBuilder.getMapPanel().setRoadMap(loadXmlConfigFile(fXmlFile));
+            getMapPanel().setRoadMap(loadXmlConfigFile(fXmlFile));
             setTitle(AUTODRIVE_COURSE_EDITOR_TITLE + " - " + fXmlFile.getAbsolutePath());
             xmlConfigFile = fXmlFile;
         } catch (Exception e) {
@@ -254,91 +260,90 @@ public class AutoDriveEditor extends JFrame {
 
                 NodeList nodeList = eElement.getElementsByTagName("id").item(0).getChildNodes();
                 Node node = nodeList.item(0);
-                String idString = node.getNodeValue();
-                String[] ids = idString.split(",");
+                if ( node !=null ) {
+                    String idString = node.getNodeValue();
+                    String[] ids = idString.split(",");
 
-                nodeList = eElement.getElementsByTagName("x").item(0).getChildNodes();
-                node = nodeList.item(0);
-                String xString = node.getNodeValue();
-                String[] xValues = xString.split(",");
-
-                nodeList = eElement.getElementsByTagName("y").item(0).getChildNodes();
-                node = nodeList.item(0);
-                String yString = node.getNodeValue();
-                String[] yValues = yString.split(",");
-
-                nodeList = eElement.getElementsByTagName("z").item(0).getChildNodes();
-                node = nodeList.item(0);
-                String zString = node.getNodeValue();
-                String[] zValues = zString.split(",");
-
-                nodeList = eElement.getElementsByTagName("out").item(0).getChildNodes();
-                node = nodeList.item(0);
-                String outString = node.getNodeValue();
-                String[] outValueArrays = outString.split(";");
-
-                nodeList = eElement.getElementsByTagName("incoming").item(0).getChildNodes();
-                node = nodeList.item(0);
-                String incomingString = node.getNodeValue();
-                String[] incomingValueArrays = incomingString.split(";");
-
-
-
-                if (eElement.getElementsByTagName("flags").item(0) != null ) {
-                    nodeList = eElement.getElementsByTagName("flags").item(0).getChildNodes();
+                    nodeList = eElement.getElementsByTagName("x").item(0).getChildNodes();
                     node = nodeList.item(0);
-                    String flagsString = node.getNodeValue();
-                    String[] flagsValue = flagsString.split(",");
-                    hasFlagTag = true;
+                    String xString = node.getNodeValue();
+                    String[] xValues = xString.split(",");
 
-                    for (int i=0; i<ids.length; i++) {
-                        int id = Integer.parseInt(ids[i]);
-                        double x = Double.parseDouble(xValues[i]);
-                        double y = Double.parseDouble(yValues[i]);
-                        double z = Double.parseDouble(zValues[i]);
-                        int flag = Integer.parseInt(flagsValue[i]);
+                    nodeList = eElement.getElementsByTagName("y").item(0).getChildNodes();
+                    node = nodeList.item(0);
+                    String yString = node.getNodeValue();
+                    String[] yValues = yString.split(",");
 
-                        MapNode mapNode = new MapNode(id, x, y, z, flag, false);
-                        nodes.add(mapNode);
-                    }
-                } else {
-                    LOG.info("{}", localeString.getString("console_config_old"));
-                    hasFlagTag = false;
-                    JOptionPane.showMessageDialog(this, localeString.getString("dialog_config_old"), "AutoDrive", JOptionPane.WARNING_MESSAGE);
-                    for (int i=0; i<ids.length; i++) {
-                        int id = Integer.parseInt(ids[i]);
-                        double x = Double.parseDouble(xValues[i]);
-                        double y = Double.parseDouble(yValues[i]);
-                        double z = Double.parseDouble(zValues[i]);
-                        int flag = 0;
+                    nodeList = eElement.getElementsByTagName("z").item(0).getChildNodes();
+                    node = nodeList.item(0);
+                    String zString = node.getNodeValue();
+                    String[] zValues = zString.split(",");
 
-                        MapNode mapNode = new MapNode(id, x, y, z, flag, false);
-                        nodes.add(mapNode);
-                    }
-                }
+                    nodeList = eElement.getElementsByTagName("out").item(0).getChildNodes();
+                    node = nodeList.item(0);
+                    String outString = node.getNodeValue();
+                    String[] outValueArrays = outString.split(";");
 
+                    nodeList = eElement.getElementsByTagName("incoming").item(0).getChildNodes();
+                    node = nodeList.item(0);
+                    String incomingString = node.getNodeValue();
+                    String[] incomingValueArrays = incomingString.split(";");
 
-                for (Map.Entry<Integer, MapMarker> entry : mapMarkerTree.entrySet())
-                {
-                    mapMarkers.add(new MapMarker(nodes.get(entry.getKey()-1), entry.getValue().name, entry.getValue().group));
-                }
+                    if (eElement.getElementsByTagName("flags").item(0) != null ) {
+                        nodeList = eElement.getElementsByTagName("flags").item(0).getChildNodes();
+                        node = nodeList.item(0);
+                        String flagsString = node.getNodeValue();
+                        String[] flagsValue = flagsString.split(",");
+                        hasFlagTag = true;
 
-                for (int i=0; i<ids.length; i++) {
-                    MapNode mapNode = nodes.get(i);
-                    String[] outNodes = outValueArrays[i].split(",");
-                    for (String outNode : outNodes) {
-                        if (Integer.parseInt(outNode) != -1) {
-                            mapNode.outgoing.add(nodes.get(Integer.parseInt(outNode) - 1));
+                        for (int i=0; i<ids.length; i++) {
+                            int id = Integer.parseInt(ids[i]);
+                            double x = Double.parseDouble(xValues[i]);
+                            double y = Double.parseDouble(yValues[i]);
+                            double z = Double.parseDouble(zValues[i]);
+                            int flag = Integer.parseInt(flagsValue[i]);
+
+                            MapNode mapNode = new MapNode(id, x, y, z, flag, false);
+                            nodes.add(mapNode);
+                        }
+                    } else {
+                        LOG.info("{}", localeString.getString("console_config_old"));
+                        hasFlagTag = false;
+                        JOptionPane.showMessageDialog(this, localeString.getString("dialog_config_old"), "AutoDrive", JOptionPane.WARNING_MESSAGE);
+                        for (int i=0; i<ids.length; i++) {
+                            int id = Integer.parseInt(ids[i]);
+                            double x = Double.parseDouble(xValues[i]);
+                            double y = Double.parseDouble(yValues[i]);
+                            double z = Double.parseDouble(zValues[i]);
+                            int flag = 0;
+
+                            MapNode mapNode = new MapNode(id, x, y, z, flag, false);
+                            nodes.add(mapNode);
                         }
                     }
-                }
 
-                for (int i=0; i<ids.length; i++) {
-                    MapNode mapNode = nodes.get(i);
-                    String[] incomingNodes = incomingValueArrays[i].split(",");
-                    for (String incomingNode : incomingNodes) {
-                        if (Integer.parseInt(incomingNode) != -1) {
-                            mapNode.incoming.add(nodes.get(Integer.parseInt(incomingNode)-1));
+                    for (Map.Entry<Integer, MapMarker> entry : mapMarkerTree.entrySet())
+                    {
+                        mapMarkers.add(new MapMarker(nodes.get(entry.getKey()-1), entry.getValue().name, entry.getValue().group));
+                    }
+
+                    for (int i=0; i<ids.length; i++) {
+                        MapNode mapNode = nodes.get(i);
+                        String[] outNodes = outValueArrays[i].split(",");
+                        for (String outNode : outNodes) {
+                            if (Integer.parseInt(outNode) != -1) {
+                                mapNode.outgoing.add(nodes.get(Integer.parseInt(outNode) - 1));
+                            }
+                        }
+                    }
+
+                    for (int i=0; i<ids.length; i++) {
+                        MapNode mapNode = nodes.get(i);
+                        String[] incomingNodes = incomingValueArrays[i].split(",");
+                        for (String incomingNode : incomingNodes) {
+                            if (Integer.parseInt(incomingNode) != -1) {
+                                mapNode.incoming.add(nodes.get(Integer.parseInt(incomingNode)-1));
+                            }
                         }
                     }
                 }
@@ -347,7 +352,7 @@ public class AutoDriveEditor extends JFrame {
 
         RoadMap roadMap = new RoadMap();
         roadMap.mapNodes = nodes;
-        RoadMap.mapMarkers = mapMarkers;
+        roadMap.mapMarkers = mapMarkers;
 
         NodeList mapNameNode = doc.getElementsByTagName("MapName");
         Element mapNameElement = (Element) mapNameNode.item(0);
@@ -393,11 +398,11 @@ public class AutoDriveEditor extends JFrame {
         }
 
         if (image != null) {
-            GUIBuilder.getMapPanel().setImage(image);
+            getMapPanel().setImage(image);
         }
 
-        if (GUIBuilder.getMapPanel().getImage() != null) {
-            GUIBuilder.getMapPanel().repaint();
+        if (getMapPanel().getImage() != null) {
+            getMapPanel().repaint();
         }
 
         GUIBuilder.updateGUIButtons(true);
@@ -415,7 +420,7 @@ public class AutoDriveEditor extends JFrame {
 
     public void saveMap(String newName) {
         LOG.info("{}", localeString.getString("console_config_save_start"));
-        RoadMap roadMap = GUIBuilder.getMapPanel().getRoadMap();
+        RoadMap roadMap = getMapPanel().getRoadMap();
 
         try
         {
@@ -555,7 +560,7 @@ public class AutoDriveEditor extends JFrame {
 
 
 
-        for (int markerIndex = 1; markerIndex < RoadMap.mapMarkers.size() + 100; markerIndex++) {
+        for (int markerIndex = 1; markerIndex < roadMap.mapMarkers.size() + 100; markerIndex++) {
             Element element = (Element) doc.getElementsByTagName("mm" + (markerIndex)).item(0);
             if (element != null) {
                 Element parent = (Element) element.getParentNode();
@@ -567,7 +572,7 @@ public class AutoDriveEditor extends JFrame {
 
         NodeList testwaypoints = doc.getElementsByTagName("mapmarker");
 
-        if (RoadMap.mapMarkers.size() > 0 && testwaypoints.getLength() == 0 ) {
+        if (roadMap.mapMarkers.size() > 0 && testwaypoints.getLength() == 0 ) {
             LOG.info("{}", localeString.getString("console_markers_new"));
             Element test = doc.createElement("mapmarker");
             AutoDrive.appendChild(test);
@@ -576,7 +581,7 @@ public class AutoDriveEditor extends JFrame {
         NodeList markerList = doc.getElementsByTagName("mapmarker");
         Node markerNode = markerList.item(0);
         int mapMarkerCount = 1;
-        for (MapMarker mapMarker : RoadMap.mapMarkers) {
+        for (MapMarker mapMarker : roadMap.mapMarkers) {
             Element newMapMarker = doc.createElement("mm" + mapMarkerCount);
 
             Element markerID = doc.createElement("id");
@@ -621,7 +626,11 @@ public class AutoDriveEditor extends JFrame {
         if (newName == null) {
             result = new StreamResult(xmlConfigFile);
         } else {
-            result = new StreamResult(new File(newName));
+            File newFile = new File(newName);
+            LOG.info("Saving config as {}",newName);
+            result = new StreamResult(newFile);
+            xmlConfigFile = newFile;
+            setTitle(createTitle());
         }
         transformer.transform(source, result);
 
@@ -643,10 +652,10 @@ public class AutoDriveEditor extends JFrame {
             quadSliderDefault = getIntegerValue(quadSliderDefault, e, "QuadSliderDefault");
 
         } catch (ParserConfigurationException | SAXException pce) {
-            LOG.error("Exception in Editor config SAX/Parser Exception");
+            LOG.error("## Exception in loading Editor config ## SAX/Parser Exception");
             System.out.println(pce.getMessage());
         } catch (IOException ioe) {
-            LOG.warn("Editor config not found, using defaults.. a new config will be saved on exit");
+            LOG.warn(localeString.getString("console_editor_config_load_not_found"));
         }
     }
 
@@ -682,14 +691,14 @@ public class AutoDriveEditor extends JFrame {
                     transformer.transform(source, result);
                     LOG.info("{}", localeString.getString("console_editor_config_save_end"));
                 } catch (IOException ioe) {
-                    LOG.error("Editor config could not be saved.. check file/folder access permissions");
+                    LOG.error( localeString.getString("console_editor_config_save_error"));
                 }
 
             } catch (TransformerFactoryConfigurationError | TransformerException | IllegalArgumentException transformerFactoryConfigurationError) {
                 transformerFactoryConfigurationError.printStackTrace();
             }
         } catch (ParserConfigurationException | DOMException e) {
-            LOG.error("Exception in Editor config SAX/Parser Exception");
+            LOG.error("## Exception in saving Editor config ## SAX/Parser Exception");
             e.printStackTrace();
 
     }
@@ -747,11 +756,11 @@ public class AutoDriveEditor extends JFrame {
     }
 
     public void updateMapZoomFactor(int zoomFactor) {
-        GUIBuilder.getMapPanel().setMapZoomFactor(zoomFactor);
-        GUIBuilder.getMapPanel().repaint();
+        getMapPanel().setMapZoomFactor(zoomFactor);
+        getMapPanel().repaint();
     }
 
-    private String createTitle() {
+    public static String createTitle() {
         StringBuilder sb = new StringBuilder();
         sb.append(AUTODRIVE_COURSE_EDITOR_TITLE);
         if (xmlConfigFile != null) {
@@ -762,13 +771,13 @@ public class AutoDriveEditor extends JFrame {
 
 
 
-    public boolean isStale() {
+    public static boolean isStale() {
         return stale;
     }
 
     public void setStale(boolean stale) {
         if (isStale() != stale) {
-            this.stale = stale;
+            AutoDriveEditor.stale = stale;
             setTitle(createTitle());
         }
     }

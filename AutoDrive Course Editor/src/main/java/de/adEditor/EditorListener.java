@@ -30,7 +30,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
         LOG.info("ActionCommand: {}", e.getActionCommand());
 
         JFileChooser fc = new JFileChooser();
-        GUIBuilder.getMapPanel().isMultiSelectAllowed = false;
+        MapPanel.getMapPanel().isMultiSelectAllowed = false;
 
         switch (e.getActionCommand()) {
             case MENU_LOAD_CONFIG:
@@ -47,10 +47,10 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 fc.addChoosableFileFilter(filter);
 
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    GUIBuilder.getMapPanel().stopCurveEdit();
+                    MapPanel.getMapPanel().stopCurveEdit();
                     File fileName = fc.getSelectedFile();
                     editor.loadConfigFile(fileName);
-                    GUIBuilder.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+                    MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
                 }
                 break;
             case MENU_SAVE_CONFIG:
@@ -68,6 +68,9 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     LOG.info("{} {}", localeString.getString("console_config_saveas"), ADUtils.getSelectedFileWithExtension(fc));
                     editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
+                    //xmlConfigFile = fc.getSelectedFile();
+                    //AutoDriveEditor.createTitle();
+                    //editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
 
                 }
                 break;
@@ -83,8 +86,8 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
 
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     try {
-                        GUIBuilder.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
-                        GUIBuilder.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+                        MapPanel.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
+                        MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
 
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);
@@ -105,7 +108,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 break;
             case BUTTON_MOVE_NODES:
                 editorState = EDITORSTATE_MOVING;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 break;
             case BUTTON_CONNECT_NODES:
                 editorState = EDITORSTATE_CONNECTING;
@@ -120,7 +123,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 break;
             case BUTTON_CHANGE_NODE_PRIORITY:
                 editorState = EDITORSTATE_CHANGE_NODE_PRIORITY;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 break;
             case BUTTON_CREATE_SUBPRIO_NODE:
                 editorState = EDITORSTATE_CREATE_SUBPRIO_NODE;
@@ -131,7 +134,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 break;
             case BUTTON_REMOVE_NODES:
                 editorState = EDITORSTATE_DELETE_NODES;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 break;
             case BUTTON_CREATE_DESTINATIONS:
                 editorState = EDITORSTATE_CREATING_DESTINATION;
@@ -141,32 +144,32 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 break;
             case BUTTON_DELETE_DESTINATIONS:
                 editorState = EDITORSTATE_DELETING_DESTINATION;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 break;
             case BUTTON_ALIGN_HORIZONTAL:
                 editorState = EDITORSTATE_ALIGN_HORIZONTAL;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 break;
             case BUTTON_ALIGN_VERTICAL:
                 editorState = EDITORSTATE_ALIGN_VERTICAL;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 break;
             case BUTTON_CREATE_QUADRATICBEZIER:
                 editorState = EDITORSTATE_QUADRATICBEZIER;
                 break;
             case BUTTON_COMMIT_CURVE:
                 quadCurve.commitCurve();
-                GUIBuilder.getMapPanel().stopCurveEdit();
-                GUIBuilder.getMapPanel().repaint();
+                MapPanel.getMapPanel().stopCurveEdit();
+                MapPanel.getMapPanel().repaint();
                 editor.setStale(true);
                 break;
             case BUTTON_CANCEL_CURVE:
-                GUIBuilder.getMapPanel().stopCurveEdit();
-                GUIBuilder.getMapPanel().repaint();
+                MapPanel.getMapPanel().stopCurveEdit();
+                MapPanel.getMapPanel().repaint();
                 break;
             case BUTTON_COPYPASTE_SELECT:
                 editorState = EDITORSTATE_CNP_SELECT;
-                GUIBuilder.getMapPanel().isMultiSelectAllowed = true;
+                MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 JToggleButton tBtn = (JToggleButton)e.getSource();
                 if (tBtn.isSelected()) {
                     System.out.println("button selected");
@@ -175,8 +178,15 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     System.out.println("button not selected");
                 }
                 break;
+            case MENU_EDIT_UNDO:
+                changeManager.undo();
+                enableMultiSelect();
+                break;
+            case MENU_EDIT_REDO:
+                changeManager.redo();
+                enableMultiSelect();
         }
-        GUIBuilder.updateButtons();
+        updateButtons();
     }
 
     @Override
@@ -229,7 +239,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
             if (MapPanel.quadCurve != null) {
                 if (value < 2) value = 2;
                 MapPanel.quadCurve.setNumInterpolationPoints(value);
-                GUIBuilder.getMapPanel().repaint();
+                MapPanel.getMapPanel().repaint();
             }
         }
     }
@@ -287,6 +297,21 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
 
     @Override
     public void mouseExited(MouseEvent e) {}
+
+    public static void enableMultiSelect() {
+        switch (editorState) {
+            case EDITORSTATE_MOVING:
+            case EDITORSTATE_CHANGE_NODE_PRIORITY:
+            case EDITORSTATE_DELETE_NODES:
+            case EDITORSTATE_DELETING_DESTINATION:
+            case EDITORSTATE_ALIGN_HORIZONTAL:
+            case EDITORSTATE_ALIGN_VERTICAL:
+            case EDITORSTATE_CNP_SELECT:
+                mapPanel.isMultiSelectAllowed = true;
+                return;
+        }
+        mapPanel.isMultiSelectAllowed = false;
+    }
 }
 
 

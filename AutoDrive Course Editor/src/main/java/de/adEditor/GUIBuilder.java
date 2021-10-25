@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.GUIUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
@@ -34,6 +35,8 @@ public class GUIBuilder {
     public static final String MENU_SAVE_CONFIG = "Save Config";
     public static final String MENU_SAVE_SAVEAS = "Save As";
     public static final String MENU_LOAD_IMAGE = "Load Map";
+    public static final String MENU_EDIT_UNDO = "Undo";
+    public static final String MENU_EDIT_REDO = "Redo";
     public static final String MENU_EDIT_CUT = "Cut";
     public static final String MENU_EDIT_COPY = "Copy";
     public static final String MENU_EDIT_PASTE = "Paste";
@@ -132,6 +135,8 @@ public class GUIBuilder {
 
         // Disabled due not implemented yet
 
+        makeMenuItem("menu_edit_undo",  "menu_edit_undo_accstring", KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_UNDO, true );
+        makeMenuItem("menu_edit_redo",  "menu_edit_redo_accstring", KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_REDO, true );
         makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_CUT, false );
         makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_COPY, false );
         makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_PASTE, false );
@@ -325,7 +330,7 @@ public class GUIBuilder {
 
     public static JPanel initTextPanel() {
         JPanel textPanel = new JPanel(new BorderLayout());
-        textArea = new JTextArea("this is just a test\n ",3,0);
+        textArea = new JTextArea("Welcome to the AutoDrive Editor... Load a config to start editing..\n ",3,0);
         JScrollPane scrollPane = new JScrollPane(textArea);
         textArea.setEditable(false);
         textPanel.add(scrollPane, BorderLayout.CENTER);
@@ -337,7 +342,8 @@ public class GUIBuilder {
             textArea.selectAll();
             textArea.replaceSelection("");
         }
-        textArea.append(text);
+        LOG.info(text);
+        textArea.append(text + "\n");
     }
 
     public static void updateGUIButtons(boolean enabled) {
@@ -472,9 +478,5 @@ public class GUIBuilder {
             case EDITORSTATE_QUADRATICBEZIER:
                 quadBezier.setSelected(true);
         }
-    }
-
-    public static MapPanel getMapPanel() {
-        return mapPanel;
     }
 }

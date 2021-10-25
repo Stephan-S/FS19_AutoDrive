@@ -1,11 +1,14 @@
 package de.adEditor.MapHelpers;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import de.adEditor.AutoDriveEditor;
 import de.adEditor.MapPanel;
 
+import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.AutoDriveEditor.changeManager;
 import static de.adEditor.MapPanel.*;
 
 public class LinearLine {
@@ -63,17 +66,24 @@ public class LinearLine {
     public void commit(MapNode lineEndNode, int connectionType, int nodeType) {
         LinkedList<MapNode> mergeNodesList  = new LinkedList<>();
 
+        LOG.info("LinearLine size = {}",this.lineNodeList.size());
         mergeNodesList.add(lineStartNode);
 
-        for (int j = 1; j < lineNodeList.size() - 1; j++) {
-            MapNode tempNode = lineNodeList.get(j);
+        for (int j = 1; j < this.lineNodeList.size() - 1; j++) {
+            MapNode tempNode = this.lineNodeList.get(j);
             MapNode newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.y, nodeType, false);
             roadMap.mapNodes.add(newNode);
             mergeNodesList.add(newNode);
         }
 
         mergeNodesList.add(lineEndNode);
+        changeManager.addChangeable( new ChangeManager.LinearLineChanger(this.lineStartNode, lineEndNode, mergeNodesList, connectionType));
+        connectNodes(mergeNodesList, connectionType);
 
+
+    }
+
+    public static void connectNodes(LinkedList<MapNode> mergeNodesList, int connectionType)  {
         for (int j = 0; j < mergeNodesList.size() - 1; j++) {
             MapNode startNode = mergeNodesList.get(j);
             MapNode endNode = mergeNodesList.get(j+1);
@@ -82,18 +92,18 @@ public class LinearLine {
     }
 
     public boolean isLineCreated() {
-        return lineNodeList.size() >0;
+        return this.lineNodeList.size() >0;
     }
 
     // getters and setters
 
     public MapNode getLineStartNode() {
-        return lineStartNode;
+        return this.lineStartNode;
     }
 
-    public int getInterpolationPointDistance() { return interpolationPointDistance; }
+    public int getInterpolationPointDistance() { return this.interpolationPointDistance; }
 
     public void setInterpolationDistance(int distance) {
-        interpolationPointDistance = distance;
+        this.interpolationPointDistance = distance;
     }
 }

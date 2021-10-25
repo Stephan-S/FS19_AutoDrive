@@ -2,18 +2,55 @@ package de.adEditor.MapHelpers;
 
 import java.util.LinkedList;
 
+import static de.adEditor.ADUtils.LOG;
+
 public class RoadMap {
 
     public LinkedList<MapNode> mapNodes;
-    public static LinkedList<MapMarker> mapMarkers;
+    public LinkedList<MapMarker> mapMarkers;
 
     public RoadMap () {
         mapMarkers = new LinkedList<>();
-        this.mapNodes = new LinkedList<>();
+        mapNodes = new LinkedList<>();
     }
 
     public void addMapMarker(MapMarker mapMarker) {
         mapMarkers.add(mapMarker);
+    }
+
+    public void insertMapNode(MapNode toAdd, LinkedList<MapNode> otherNodesInList, LinkedList<MapNode> otherNodesOutList) {
+
+        // starting at the index of where we need to insert the node
+        // increment the ID's of all nodes to the right of the mapNodes by +1
+        // so when we insert the nod the id's match the index
+
+        LinkedList<MapNode> nodes = mapNodes;
+        for (int i = toAdd.id - 1 ; i <= nodes.size() - 1 ; i++) {
+            MapNode mapNode = nodes.get(i);
+            //LOG.info("changing index {} ({}) -- {} to {}",i,i + 1,  mapNode.id, mapNode.id + 1);
+            mapNode.id++;
+        }
+        // insert the MapNode into the list
+        //LOG.info("inserting index {} -- ID {}", toAdd.id - 1, toAdd.id );
+        mapNodes.add(toAdd.id -1 , toAdd);
+
+        //now we need to restore all the connections to/from it
+
+        // restore all the outgoing connections
+
+        if (otherNodesInList != null) {
+            for (int i = 0; i <= otherNodesInList.size() - 1; i++) {
+                MapNode inNode = otherNodesInList.get(i);
+                if (!inNode.incoming.contains(toAdd)) inNode.incoming.add(toAdd);
+            }
+        }
+
+        if (otherNodesOutList != null) {
+            for (int i = 0; i <= otherNodesOutList.size() - 1; i++) {
+                MapNode outNode = otherNodesOutList.get(i);
+                if (!outNode.outgoing.contains(toAdd)) outNode.outgoing.add(toAdd);
+            }
+        }
     }
 
     public void removeMapNode(MapNode toDelete) {
@@ -23,7 +60,9 @@ public class RoadMap {
             deleted = true;
         }
 
-        for (MapNode mapNode : this.mapNodes) {
+        LinkedList<MapNode> nodes = mapNodes;
+        for (int i = 0; i < nodes.size(); i++) {
+            MapNode mapNode = nodes.get(i);
             if (mapNode.outgoing.contains(toDelete)) {
                 mapNode.outgoing.remove(toDelete);
             }

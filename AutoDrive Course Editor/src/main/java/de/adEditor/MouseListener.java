@@ -43,7 +43,7 @@ public class MouseListener implements java.awt.event.MouseListener, MouseMotionL
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            mapPanel.mouseButton1Released();
+            mapPanel.mouseButton1Released(e.getX(), e.getY());
         }
         if (e.getButton() == MouseEvent.BUTTON2) {
             mapPanel.mouseButton2Released();
