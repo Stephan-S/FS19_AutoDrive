@@ -77,6 +77,7 @@ public class LinearLine {
         }
 
         mergeNodesList.add(lineEndNode);
+        LOG.info("mergeNodesList size = {}",mergeNodesList.size());
         changeManager.addChangeable( new ChangeManager.LinearLineChanger(this.lineStartNode, lineEndNode, mergeNodesList, connectionType));
         connectNodes(mergeNodesList, connectionType);
 

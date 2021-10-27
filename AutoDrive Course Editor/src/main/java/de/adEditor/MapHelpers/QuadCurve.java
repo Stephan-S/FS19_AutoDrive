@@ -116,19 +116,19 @@ public class QuadCurve{
         }
 
         mergeNodesList.add(curveEndNode);
-        changeManager.addChangeable( new ChangeManager.QuadCurveChanger(this.curveStartNode, this.curveEndNode, mergeNodesList, connectionType));
-        connectNodes(mergeNodesList);
+        changeManager.addChangeable( new ChangeManager.QuadCurveChanger(mergeNodesList, isReversePath, isDualPath));
+        connectNodes(mergeNodesList, isReversePath, isDualPath);
 
         LOG.info("Curve created {} nodes", mergeNodesList.size() - 2 );
     }
 
-    public static void connectNodes(LinkedList<MapNode> mergeNodesList)  {
+    public static void connectNodes(LinkedList<MapNode> mergeNodesList, boolean reversePath, boolean dualPath)  {
         for (int j = 0; j < mergeNodesList.size() - 1; j++) {
             MapNode startNode = mergeNodesList.get(j);
             MapNode endNode = mergeNodesList.get(j+1);
-            if (isReversePath) {
+            if (reversePath) {
                 MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_REVERSE);
-            } else if (isDualPath) {
+            } else if (dualPath) {
                 MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_DUAL);
             } else {
                 MapPanel.createConnectionBetween(startNode,endNode,CONNECTION_STANDARD);
