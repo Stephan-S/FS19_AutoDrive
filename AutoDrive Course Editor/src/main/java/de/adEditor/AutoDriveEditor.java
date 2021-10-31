@@ -46,6 +46,8 @@ public class AutoDriveEditor extends JFrame {
     public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.3.0 Beta";
     public static final String AUTODRIVE_INTERNAL_VERSION = "0.3.0-beta";
     private String lastRunVersion;
+    public static boolean DEBUG = false;
+    public static boolean EXPERIMENTAL = false;
 
     public EditorListener editorListener;
     public static ResourceBundle localeString;
@@ -55,6 +57,7 @@ public class AutoDriveEditor extends JFrame {
     public static File xmlConfigFile;
     public static boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
+    public static boolean oldConfigFormat = false;
 
     public static BufferedImage tractorImage;
     public static BufferedImage nodeImage;
@@ -122,6 +125,7 @@ public class AutoDriveEditor extends JFrame {
         this.add(GUIBuilder.createMapPanel(this, editorListener), BorderLayout.CENTER);
         this.add(GUIBuilder.initTextPanel(), BorderLayout.PAGE_END);
 
+        GUIBuilder.editMenuEnabled(false);
         GUIBuilder.updateGUIButtons(false);
         pack();
         setLocationRelativeTo(null);
@@ -180,6 +184,21 @@ public class AutoDriveEditor extends JFrame {
             LOG.error(ex.getMessage(), ex);
         }
 
+        for (int i=0;i<args.length;i++) {
+            if (Objects.equals(args[i], "-DEBUG")) {
+                DEBUG = true;
+                LOG.info("##");
+                LOG.info("## WARNING ..... Debug mode active, editor performance may be slower then normal");
+                LOG.info("##");
+            }
+            if (Objects.equals(args[i], "-EXPERIMENTAL")) {
+                EXPERIMENTAL = true;
+                LOG.info("##");
+                LOG.info("## WARNING ..... Experimental features are unlocked, config corruption is possible.. USE --ONLY-- ON BACKUP CONFIGS!!");
+                LOG.info("##");
+            }
+        }
+
         SwingUtilities.invokeLater(() -> {
             GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
             Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
@@ -206,12 +225,15 @@ public class AutoDriveEditor extends JFrame {
         Document doc = dBuilder.parse(fXmlFile);
         doc.getDocumentElement().normalize();
 
-        if (getTextValue(null, doc.getDocumentElement(), "version") == null) {
-            String configversion = getTextValue(null, doc.getDocumentElement(), "Version");
-            LOG.info("{}",localeString.getString("console_config_unsupported"));
+        if (getTextValue(null, doc.getDocumentElement(), "markerID") != null) {
+            JOptionPane.showConfirmDialog(null, "" + localeString.getString("console_config_unsupported1") + "\n\n" + localeString.getString("console_config_unsupported2"), "AutoDrive", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
+            LOG.info("## {}",localeString.getString("console_config_unsupported1"));
+            LOG.info("## {}",localeString.getString("console_config_unsupported2"));
+            oldConfigFormat = true;
         } else {
             String configversion = getTextValue(null, doc.getDocumentElement(), "version");
             LOG.info("{} {}", localeString.getString("console_config_version"), configversion);
+            oldConfigFormat = false;
         }
 
         LOG.info("{} :{}", localeString.getString("console_root_node"), doc.getDocumentElement().getNodeName());
@@ -307,9 +329,7 @@ public class AutoDriveEditor extends JFrame {
                             nodes.add(mapNode);
                         }
                     } else {
-                        LOG.info("{}", localeString.getString("console_config_old"));
                         hasFlagTag = false;
-                        JOptionPane.showMessageDialog(this, localeString.getString("dialog_config_old"), "AutoDrive", JOptionPane.WARNING_MESSAGE);
                         for (int i=0; i<ids.length; i++) {
                             int id = Integer.parseInt(ids[i]);
                             double x = Double.parseDouble(xValues[i]);
@@ -363,7 +383,7 @@ public class AutoDriveEditor extends JFrame {
         if ( mapNameElement != null) {
             NodeList fstNm = mapNameElement.getChildNodes();
              mapName=(fstNm.item(0)).getNodeValue();
-            LOG.info("{}: {}", localeString.getString("console_config_load"), mapName);
+            LOG.info("{} : {}", localeString.getString("console_config_load"), mapName);
             mapPath = "/mapImages/" + mapName + ".png";
             url = AutoDriveEditor.class.getResource(mapPath);
         } else {
@@ -372,26 +392,39 @@ public class AutoDriveEditor extends JFrame {
             url=null;
         }
 
-
-
         BufferedImage image = null;
+
         try {
-            if (url !=null) image = ImageIO.read(url);
+            image = ImageIO.read(url);
         } catch (Exception e) {
             try {
-                mapPath = "./mapImages/" + mapName + ".png";
+                LOG.info("failed to find map image from .JAR");
+                if (mapName == null) {
+                    mapPath = "./mapImages/" + mapName + ".png";
+                }
                 image = ImageIO.read(new File(mapPath));
             } catch (Exception e1) {
+                LOG.info("failed to load {}", mapPath);
                 try {
-                    mapPath = "./src/mapImages/" + mapName + ".png";
+                    if (mapName != null) {
+                        mapPath = "./src/mapImages/" + mapName + ".png";
+                    }
                     image = ImageIO.read(new File(mapPath));
                 } catch (Exception e2) {
+                    LOG.info("failed to load {}", mapPath);
                     try {
-                        mapPath = "./" + mapName + ".png";
+                        if (mapName != null) {
+                            mapPath = "./" + mapName + ".png";
+                        }
                         image = ImageIO.read(new File(mapPath));
                     } catch (Exception e3) {
+                        LOG.info("failed to load {}", mapPath);
                         GUIBuilder.loadImageButton.setEnabled(true);
-                        LOG.info("{}}: {}", localeString.getString("console_editor_no_map"), mapName);
+                        LOG.info("{}", localeString.getString("console_editor_no_map"));
+                        JOptionPane.showConfirmDialog(null, "" + localeString.getString("dialog_mapimage_not_found"), "File Not Found - " + mapName + ".png", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
+                        mapPath = "/mapImages/Blank.png";
+                        url = AutoDriveEditor.class.getResource(mapPath);
+                        image = ImageIO.read(url);
                     }
                 }
             }
@@ -399,15 +432,17 @@ public class AutoDriveEditor extends JFrame {
 
         if (image != null) {
             getMapPanel().setImage(image);
+            GUIBuilder.updateGUIButtons(true);
         }
 
         if (getMapPanel().getImage() != null) {
             getMapPanel().repaint();
         }
 
-        GUIBuilder.updateGUIButtons(true);
+
         GUIBuilder.mapMenuEnabled(true);
-        GUIBuilder.saveMenuEnabled(true);
+
+
 
         editorState = GUIBuilder.EDITORSTATE_NOOP;
 

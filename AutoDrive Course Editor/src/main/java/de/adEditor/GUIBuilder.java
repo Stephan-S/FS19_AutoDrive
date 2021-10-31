@@ -82,6 +82,11 @@ public class GUIBuilder {
     public static JMenuItem loadImageButton;
     public static JMenuItem saveConfigMenuItem;
     public static JMenuItem saveConfigAsMenuItem;
+    public static JMenuItem undoMenuItem;
+    public static JMenuItem redoMenuItem;
+    public static JMenuItem cutMenuItem;
+    public static JMenuItem copyMenuItem;
+    public static JMenuItem pasteMenuItem;
     public static JPanel nodeBox;
     public static JToggleButton removeNode;
     public static JToggleButton removeDestination;
@@ -135,11 +140,11 @@ public class GUIBuilder {
 
         // Disabled due not implemented yet
 
-        makeMenuItem("menu_edit_undo",  "menu_edit_undo_accstring", KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_UNDO, true );
-        makeMenuItem("menu_edit_redo",  "menu_edit_redo_accstring", KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_REDO, true );
-        makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_CUT, false );
-        makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_COPY, false );
-        makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_PASTE, false );
+        undoMenuItem = makeMenuItem("menu_edit_undo",  "menu_edit_undo_accstring", KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_UNDO, false );
+        redoMenuItem = makeMenuItem("menu_edit_redo",  "menu_edit_redo_accstring", KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_REDO, false );
+        cutMenuItem = makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_CUT, false );
+        copyMenuItem = makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_COPY, false );
+        pasteMenuItem = makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_PASTE, false );
 
 
         // Create the Map Menu and it's scale sub menu
@@ -348,10 +353,22 @@ public class GUIBuilder {
 
     public static void updateGUIButtons(boolean enabled) {
         updateButtons();
+        if (AutoDriveEditor.oldConfigFormat) {
+            editorState = GUIBuilder.EDITORSTATE_NOOP;
+            saveMenuEnabled(false);
+            editMenuEnabled(false);
+            enabled = false;
+        }
         nodeBoxSetEnabled(enabled);
         markerBoxSetEnabled(enabled);
         alignBoxSetEnabled(enabled);
-        copypasteBoxSetEnabled(enabled);
+        if (EXPERIMENTAL) {
+            copypasteBoxSetEnabled(enabled);
+        } else {
+            copypasteBoxSetEnabled(false);
+        }
+
+
     }
 
     private static void nodeBoxSetEnabled(boolean enabled) {
@@ -377,24 +394,16 @@ public class GUIBuilder {
     }
 
     private static void copypasteBoxSetEnabled(boolean enabled) {
-        // temporary, buttons do nothing at the moment
-        enabled = false;
-        //
-        select.setEnabled(enabled);
-        cut.setEnabled(enabled);
-        copy.setEnabled(enabled);
-        paste.setEnabled(enabled);
-    }
-
-    private static void curveCommitCancelEnabled(boolean enabled) {
-        commitCurve.setEnabled(enabled);
-        cancelCurve.setEnabled(enabled);
-        if (enabled) {
-            commitCurve.setToolTipText(localeString.getString("panel_slider_confirm"));
-            cancelCurve.setToolTipText(localeString.getString("panel_slider_cancel"));
+        if (EXPERIMENTAL) {
+            select.setEnabled(enabled);
+            cut.setEnabled(enabled);
+            copy.setEnabled(enabled);
+            paste.setEnabled(enabled);
         } else {
-            commitCurve.setToolTipText(localeString.getString("panel_slider_confirm_disabled"));
-            cancelCurve.setToolTipText(localeString.getString("panel_slider_cancel_disabled"));
+            select.setEnabled(false);
+            cut.setEnabled(false);
+            copy.setEnabled(false);
+            paste.setEnabled(false);
         }
     }
 
@@ -405,6 +414,16 @@ public class GUIBuilder {
     public static void saveMenuEnabled(boolean enabled) {
         saveConfigMenuItem.setEnabled(enabled);
         saveConfigAsMenuItem.setEnabled(enabled);
+    }
+
+    public static void editMenuEnabled(boolean enabled) {
+        undoMenuItem.setEnabled(enabled);
+        redoMenuItem.setEnabled(enabled);
+        if (EXPERIMENTAL) {
+            cutMenuItem.setEnabled(enabled);
+            copyMenuItem.setEnabled(enabled);
+            pasteMenuItem.setEnabled(enabled);
+        }
     }
 
     public static void updateButtons() {

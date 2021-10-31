@@ -110,7 +110,7 @@ public class MapPanel extends JPanel{
             if (roadMap != null) {
                 for (MapNode mapNode : roadMap.mapNodes) {
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z );
-                    if (sizescaled > 3 ) {
+                    if (sizescaled > 2 ) {
                         if (mapNode.selected && mapNode.flag == 0) {
                             g.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
                         } else if (mapNode.selected && mapNode.flag == 1) {
@@ -122,14 +122,14 @@ public class MapPanel extends JPanel{
                         }
                     }
 
-                    //
-                    // TODO remove before release
-                    //
-                    g.setColor(Color.WHITE);
-                    //Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x - 1, hoveredNode.z + 3);
-                    String text = "ID " + mapNode.id;
-                    g.drawString(text, (int) (nodePos.getX() - 10 ), (int) (nodePos.getY() + 30 ));
-
+                    if (DEBUG) {
+                        if (sizescaled > 2 ) {
+                            g.setColor(Color.WHITE);
+                            //Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x - 1, hoveredNode.z + 3);
+                            String text = "ID " + mapNode.id;
+                            g.drawString(text, (int) (nodePos.getX() - 10 ), (int) (nodePos.getY() + 30 ));
+                        }
+                    }
                     //
                     //
                     //
@@ -231,10 +231,9 @@ public class MapPanel extends JPanel{
                     for (MapMarker mapMarker : roadMap.mapMarkers) {
                         if (hoveredNode.id == mapMarker.mapNode.id) {
                             g.setColor(Color.WHITE);
-                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z -1);
-                            String text = "ID " + hoveredNode.id +": " +mapMarker.name + " ( " + mapMarker.group + " )";
+                            String text = mapMarker.name + " ( " + mapMarker.group + " )";
+                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
                             g.drawString(text, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
-
                         }
                     }
                 }
@@ -298,6 +297,15 @@ public class MapPanel extends JPanel{
                         height = -height;
                     }
                     g.drawRect(recx, recy, width, height);
+                }
+
+                if (DEBUG) {
+                    if (hoveredNode != null) {
+                        String text = "x = " + hoveredNode.x + " , z = " + hoveredNode.z + " , flags = " + hoveredNode.flag;
+                        Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x + 1, hoveredNode.z);
+                        g.drawString(text, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
+                    }
+
                 }
             }
         }
@@ -573,27 +581,8 @@ public class MapPanel extends JPanel{
         LOG.info("{}", localeString.getString("console_node_area_remove"));
         for (int j = 0; j < multiSelectList.size(); j++) {
             MapNode node = multiSelectList.get(j);
-
             addToDeleteList(node);
-
-            /*LinkedList<MapNode> otherNodesInLinks = new LinkedList<>();
-            LinkedList<MapNode> otherNodesOutLinks = new LinkedList<>();
-
-            LinkedList<MapNode> roadmapNodes = roadMap.mapNodes;
-            for (int i = 0; i < roadmapNodes.size(); i++) {
-                MapNode mapNode = roadmapNodes.get(i);
-                if (mapNode != node) {
-                    if (mapNode.outgoing.contains(node)) {
-                        otherNodesOutLinks.add(mapNode);
-                    }
-                    if (mapNode.incoming.contains(node)) {
-                        otherNodesInLinks.add(mapNode);
-                    }
-                }
-
-            }
-            deleteNodeList.add(new NodeLinks(node, otherNodesInLinks, otherNodesOutLinks));*/
-            LOG.info("Stored {}", node.id);
+            if (DEBUG) LOG.info("Added ID {} to delete list", node.id);
         }
         changeManager.addChangeable( new RemoveNodeChanger(deleteNodeList));
         removeNodes();
@@ -655,6 +644,7 @@ public class MapPanel extends JPanel{
                 controlPoint.selected = true;
             }
         }
+        if (DEBUG) LOG.info("Selected {} nodes", multiSelectList.size());
         if (multiSelectList.size() > 0 ) {
             isMultipleSelected = true;
         }
@@ -863,8 +853,9 @@ public class MapPanel extends JPanel{
             }
         }
         if (editorState == EDITORSTATE_ALIGN_HORIZONTAL) {
+            if (DEBUG) LOG.info("{} , {} , {}", isMultipleSelected, multiSelectList.size(), movingNode);
             if (isMultipleSelected && multiSelectList != null && movingNode != null) {
-                //LOG.info("Horizontal Align {} nodes at {}",multiSelectList.size(), movingNode.y);
+                LOG.info("Horizontal Align {} nodes at {}",multiSelectList.size(), movingNode.y);
                 for (MapNode node : multiSelectList) {
                     node.z = movingNode.z;
                 }
@@ -879,7 +870,7 @@ public class MapPanel extends JPanel{
 
         if (editorState == EDITORSTATE_ALIGN_VERTICAL) {
             if (isMultipleSelected && multiSelectList != null && movingNode != null) {
-                //LOG.info("Horizontal Align {} nodes at {}",multiSelectList.size(), movingNode.x);
+                LOG.info("Vertical Align {} nodes at {}",multiSelectList.size(), movingNode.x);
                 for (MapNode node : multiSelectList) {
                     node.x = movingNode.x;
                 }
@@ -994,16 +985,7 @@ public class MapPanel extends JPanel{
         if (!bMiddleMouseMove) isDragging = false;
         if (isDraggingNode) {
             changeManager.addChangeable( new MoveNodeChanger(multiSelectList, moveDiffX, moveDiffY));
-
-            //moveEnd = new Point2D.Double( movingNode.x,movingNode.z);
-            //LOG.info("start x = {} , y = {}", moveStart.x, moveStart.y);
-            //LOG.info("end x = {} , y = {}", movingNode.x, movingNode.z);
-            //LOG.info("diffx = {} , diffy = {}", ((moveDiffX * mapZoomFactor) / zoomLevel),((moveDiffY * mapZoomFactor) / zoomLevel));
-            //moveNodeBy(movingNode, -moveDiffX, -moveDiffY);
-
-
         }
-        clearMultiSelection();
         isDraggingNode = false;
         isControlNodeSelected=false;
     }
@@ -1274,7 +1256,20 @@ public class MapPanel extends JPanel{
     }
 
     public void setImage(BufferedImage image) {
-        this.image = image;
+        if (image != null) {
+            LOG.info("Selected Image size is {} x {}",image.getWidth(), image.getHeight());
+            if (image.getWidth() != 2048 || image.getHeight() != 2048 ) {
+                int response = JOptionPane.showConfirmDialog(null, "" + localeString.getString("dialog_mapimage_incorrect_size1") + "\n\n" + localeString.getString("dialog_mapimage_incorrect_size2"), "AutoDrive", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+                LOG.info("{} ... {}", localeString.getString("dialog_mapimage_incorrect_size1"), localeString.getString("dialog_mapimage_incorrect_size2"));
+                return;
+            }
+            this.image = image;
+            if (!oldConfigFormat) {
+                GUIBuilder.updateGUIButtons(true);
+                GUIBuilder.saveMenuEnabled(true);
+                GUIBuilder.editMenuEnabled(true);
+            }
+        }
     }
 
     public RoadMap getRoadMap() {

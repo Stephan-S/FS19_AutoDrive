@@ -7,6 +7,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -85,10 +86,14 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    File fileName;
                     try {
-                        MapPanel.getMapPanel().setImage(ImageIO.read(fc.getSelectedFile()));
-                        MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
-
+                        fileName = fc.getSelectedFile();
+                        BufferedImage mapImage = ImageIO.read(fileName);
+                        if (mapImage != null) {
+                            MapPanel.getMapPanel().setImage(mapImage);
+                            MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+                        }
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);
                     }
