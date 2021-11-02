@@ -1,5 +1,7 @@
 package de.adEditor.MapHelpers;
 
+import de.adEditor.MapPanel;
+
 import java.util.LinkedList;
 
 import static de.adEditor.ADUtils.LOG;
@@ -54,6 +56,12 @@ public class RoadMap {
     }
 
     public void removeMapNode(MapNode toDelete) {
+        if (MapPanel.quadCurve != null && MapPanel.isQuadCurveCreated) {
+            if (toDelete == MapPanel.quadCurve.getCurveStartNode() || toDelete == MapPanel.quadCurve.getCurveEndNode()) {
+                LOG.info("Cannot delete the start or end nodes of curve until it is confirmed or cancelled");
+                return;
+            }
+        }
         boolean deleted = false;
         if (mapNodes.contains(toDelete)) {
             mapNodes.remove(toDelete);

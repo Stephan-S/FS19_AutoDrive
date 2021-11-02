@@ -40,6 +40,7 @@ public class MapPanel extends JPanel{
     private int mapZoomFactor = 1;
     private double nodeSize = 1.0;
     private AutoDriveEditor editor;
+    public static boolean stale = false;
 
     public static RoadMap roadMap;
     public static  MapNode hoveredNode = null;
@@ -62,7 +63,7 @@ public class MapPanel extends JPanel{
 
     public boolean isDraggingRoute = false;
     private static boolean isControlNodeSelected = false;
-    private static boolean isQuadCurveCreated = false;
+    public static boolean isQuadCurveCreated = false;
     public static QuadCurve quadCurve;
     public static LinearLine linearLine;
     public static int connectionType = 0; // 0 = regular , 1 = dual, 2 = reverse
@@ -130,6 +131,7 @@ public class MapPanel extends JPanel{
                             g.drawString(text, (int) (nodePos.getX() - 10 ), (int) (nodePos.getY() + 30 ));
                         }
                     }
+
                     //
                     //
                     //
@@ -383,7 +385,7 @@ public class MapPanel extends JPanel{
                     quadCurve.updateControlPoint(node);
                 }
             }
-            editor.setStale(true);
+            //editor.setStale(true);
             repaint();
 
     }
@@ -417,7 +419,7 @@ public class MapPanel extends JPanel{
             MapNode inList = deleteNodeList.get(i).node;
             roadMap.removeMapNode(inList);
         }
-        editor.setStale(true);
+        setStale(true);
         hoveredNode = null;
         this.repaint();
     }
@@ -432,7 +434,7 @@ public class MapPanel extends JPanel{
         }
         if (destinationToDelete != null) {
             roadMap.removeMapMarker(destinationToDelete);
-            editor.setStale(true);
+            setStale(true);
             this.repaint();
         }
     }
@@ -443,9 +445,9 @@ public class MapPanel extends JPanel{
         }
         MapNode mapNode = new MapNode(roadMap.mapNodes.size()+1, screenX, -1, screenY, flag, false); //flag = 0 causes created node to be regular by default
         roadMap.mapNodes.add(mapNode);
-        editor.setStale(true);
         this.repaint();
         changeManager.addChangeable( new AddNodeChanger(mapNode) );
+        MapPanel.getMapPanel().setStale(true);
         LOG.error("");
     }
 
@@ -561,17 +563,14 @@ public class MapPanel extends JPanel{
             if (groupName == null) groupName = "All";
             MapMarker mapMarker = new MapMarker(mapNode, destinationName, groupName);
             roadMap.addMapMarker(mapMarker);
-            editor.setStale(true);
+            setStale(true);
         }
     }
 
     public void changeNodePriority(MapNode nodeToChange) {
-        if (nodeToChange.flag == 0) { // lazy way of doing nodeToChange.flag = 1 - nodeToChange.flag;
-            nodeToChange.flag = 1;
-        } else {
-            nodeToChange.flag = 0;
-        }
-        editor.setStale(true);
+        nodeToChange.flag = 1 - nodeToChange.flag;
+        changeManager.addChangeable( new ChangeManager.NodePriorityChanger(nodeToChange));
+        setStale(true);
         this.repaint();
     }
 
@@ -594,12 +593,12 @@ public class MapPanel extends JPanel{
 
         getAllNodesInArea(rectangleStartScreen, rectangleEndScreen);
         if (!multiSelectList.isEmpty()) {
-            editor.setStale(true);
             for (MapNode node : multiSelectList) {
-                changeNodePriority(node);
+                node.flag = 1 - node.flag;
             }
         }
         changeManager.addChangeable( new ChangeManager.NodePriorityChanger(multiSelectList));
+        setStale(true);
         clearMultiSelection();
     }
 
@@ -617,14 +616,15 @@ public class MapPanel extends JPanel{
         screenStartY = (int) rectangle.getY();
         width = (int) rectangle.getWidth();
         height = (int) rectangle.getHeight();
+       double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
         LinkedList<MapNode> toChange = new LinkedList<>();
         for (MapNode mapNode : roadMap.mapNodes) {
-            double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
             Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
 
             if (screenStartX < nodePos.getX() + currentNodeSize && (screenStartX + width) > nodePos.getX() - currentNodeSize && screenStartY < nodePos.getY() + currentNodeSize && (screenStartY + height) > nodePos.getY() - currentNodeSize) {
+
                 if (multiSelectList.contains(mapNode)) {
                     multiSelectList.remove(mapNode);
                     mapNode.selected = false;
@@ -632,22 +632,39 @@ public class MapPanel extends JPanel{
                     multiSelectList.add(mapNode);
                     mapNode.selected = true;
                 }
+
+                if (isQuadCurveCreated) {
+                    MapNode controlPoint = quadCurve.getControlPoint();
+                    if (multiSelectList.contains(controlPoint)) {
+                        multiSelectList.remove(controlPoint);
+                        controlPoint.selected = false;
+                    } else {
+                        multiSelectList.add(controlPoint);
+                        controlPoint.selected = true;
+                    }
+                }
             }
         }
-        if (isQuadCurveCreated) {
-            MapNode controlPoint = quadCurve.getControlPoint();
-            if (multiSelectList.contains(controlPoint)) {
-                multiSelectList.remove(controlPoint);
-                controlPoint.selected = false;
-            } else {
-                multiSelectList.add(controlPoint);
-                controlPoint.selected = true;
-            }
-        }
-        if (DEBUG) LOG.info("Selected {} nodes", multiSelectList.size());
-        if (multiSelectList.size() > 0 ) {
-            isMultipleSelected = true;
-        }
+
+       if (isQuadCurveCreated) {
+           MapNode controlPoint = quadCurve.getControlPoint();
+           Point2D nodePos = worldPosToScreenPos(controlPoint.x, controlPoint.z);
+           if (screenStartX < nodePos.getX() + currentNodeSize && (screenStartX + width) > nodePos.getX() - currentNodeSize && screenStartY < nodePos.getY() + currentNodeSize && (screenStartY + height) > nodePos.getY() - currentNodeSize) {
+               if (multiSelectList.contains(controlPoint)) {
+                   multiSelectList.remove(controlPoint);
+                   controlPoint.selected = false;
+               } else {
+                   multiSelectList.add(controlPoint);
+                   controlPoint.selected = true;
+               }
+           }
+       }
+
+       if (multiSelectList.size() > 0 ) {
+           isMultipleSelected = true;
+       }
+
+       if (DEBUG) LOG.info("Selected {} nodes", multiSelectList.size());
     }
 
     public static void clearMultiSelection() {
@@ -846,7 +863,7 @@ public class MapPanel extends JPanel{
                             LOG.info("{} {} - Name = {} , Group = {}", localeString.getString("console_marker_modify"), movingNode.id, info.getName(), info.getGroup());
                             mapMarker.name = info.getName();
                             mapMarker.group = info.getGroup();
-                            editor.setStale(true);
+                            setStale(true);
                         }
                     }
                 }
@@ -862,7 +879,7 @@ public class MapPanel extends JPanel{
                 if (isQuadCurveCreated) {
                     quadCurve.updateCurve();
                 }
-                editor.setStale(true);
+                setStale(true);
                 clearMultiSelection();
                 this.repaint();
             }
@@ -877,7 +894,7 @@ public class MapPanel extends JPanel{
                 if (isQuadCurveCreated) {
                     quadCurve.updateCurve();
                 }
-                editor.setStale(true);
+                setStale(true);
                 clearMultiSelection();
                 this.repaint();
 
@@ -891,12 +908,12 @@ public class MapPanel extends JPanel{
                     GUIBuilder.showInTextArea(localeString.getString("quadcurve_start"), true);
                 } else if (selected == hoveredNode) {
                     selected = null;
-                    GUIBuilder.showInTextArea(localeString.getString("quadcurve_cancel"), false);
+                    GUIBuilder.showInTextArea(localeString.getString("quadcurve_cancel"), true);
                     stopCurveEdit();
                     this.repaint();
                 } else {
                     if (!isQuadCurveCreated) {
-                        GUIBuilder.showInTextArea(localeString.getString("quadcurve_complete"), false);
+                        GUIBuilder.showInTextArea(localeString.getString("quadcurve_complete"), true);
                         quadCurve = new QuadCurve(selected, movingNode);
                         quadCurve.setNumInterpolationPoints(GUIBuilder.numIterationsSlider.getValue());
                         isQuadCurveCreated = true;
@@ -924,7 +941,7 @@ public class MapPanel extends JPanel{
                     GUIBuilder.showInTextArea(localeString.getString("linearline_start"), true);
                 } else if (selected == hoveredNode) {
                     selected = null;
-                    GUIBuilder.showInTextArea(localeString.getString("linearline_cancel"), false);
+                    GUIBuilder.showInTextArea(localeString.getString("linearline_cancel"), true);
                 } else {
                     int nodeType = 0;
                     if (connectionType == CONNECTION_STANDARD) {
@@ -936,8 +953,9 @@ public class MapPanel extends JPanel{
                     }
 
                     linearLine.commit(movingNode, connectionType, nodeType);
-                    GUIBuilder.showInTextArea(localeString.getString("linearline_complete"), false);
+                    GUIBuilder.showInTextArea(localeString.getString("linearline_complete"), true);
                     linearLine.clear();
+                    MapPanel.getMapPanel().setStale(true);
 
                     if (AutoDriveEditor.bContinuousConnections) {
                         selected = movingNode;
@@ -985,6 +1003,8 @@ public class MapPanel extends JPanel{
         if (!bMiddleMouseMove) isDragging = false;
         if (isDraggingNode) {
             changeManager.addChangeable( new MoveNodeChanger(multiSelectList, moveDiffX, moveDiffY));
+            setStale(true);
+            clearMultiSelection();
         }
         isDraggingNode = false;
         isControlNodeSelected=false;
@@ -1023,6 +1043,7 @@ public class MapPanel extends JPanel{
         if (editorState == EDITORSTATE_CONNECTING) {
             selected = null;
             if (linearLine != null ) linearLine.clear();
+            GUIBuilder.showInTextArea("",true);
             this.repaint();
             return;
         }
@@ -1284,9 +1305,20 @@ public class MapPanel extends JPanel{
         this.mapZoomFactor = mapZoomFactor;
     }
 
-    public void setStale(boolean stale) {
-        editor.setStale(stale);
+    public boolean isStale() {
+        return stale;
     }
+
+    public void setStale(boolean newStale) {
+        if (isStale() != newStale) {
+            stale = newStale;
+            editor.setTitle(createTitle());
+        }
+    }
+
+
+
+
 
     //
     ///

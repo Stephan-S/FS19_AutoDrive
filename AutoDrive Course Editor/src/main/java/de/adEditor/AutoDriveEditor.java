@@ -55,7 +55,6 @@ public class AutoDriveEditor extends JFrame {
 
     public static int editorState = GUIBuilder.EDITORSTATE_NOOP;
     public static File xmlConfigFile;
-    public static boolean stale = false;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
     public static boolean oldConfigFormat = false;
 
@@ -103,7 +102,7 @@ public class AutoDriveEditor extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (isStale()) {
+                if (MapPanel.getMapPanel().isStale()) {
                     int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_exit_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
                         saveMap(null);
@@ -425,6 +424,17 @@ public class AutoDriveEditor extends JFrame {
                         mapPath = "/mapImages/Blank.png";
                         url = AutoDriveEditor.class.getResource(mapPath);
                         image = ImageIO.read(url);
+
+                        if (EXPERIMENTAL) {
+                            String sUrl = "https://github.com/KillBait/FS19_AutoDrive_MapImages/raw/main/mapImages/" + mapName + ".png";
+                            LOG.info("trying {}",sUrl);
+                            URL gurl = new URL(sUrl);
+                            //where to be download file to
+                            File file = new File("C:/Temp/map.png");
+                            ADUtils.copyURLToFile(gurl, file);
+                        }
+
+
                     }
                 }
             }
@@ -461,7 +471,7 @@ public class AutoDriveEditor extends JFrame {
         {
             if (xmlConfigFile == null) return;
             saveXmlConfig(xmlConfigFile, roadMap, newName);
-            setStale(false);
+            MapPanel.getMapPanel().setStale(false);
             JOptionPane.showMessageDialog(this, xmlConfigFile.getName() + " " + localeString.getString("dialog_save_success"), "AutoDrive", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -799,21 +809,8 @@ public class AutoDriveEditor extends JFrame {
         StringBuilder sb = new StringBuilder();
         sb.append(AUTODRIVE_COURSE_EDITOR_TITLE);
         if (xmlConfigFile != null) {
-            sb.append(" - ").append(xmlConfigFile.getAbsolutePath()).append(isStale() ? " *" : "");
+            sb.append(" - ").append(xmlConfigFile.getAbsolutePath()).append(MapPanel.getMapPanel().isStale() ? " *" : "");
         }
         return sb.toString();
-    }
-
-
-
-    public static boolean isStale() {
-        return stale;
-    }
-
-    public void setStale(boolean stale) {
-        if (isStale() != stale) {
-            AutoDriveEditor.stale = stale;
-            setTitle(createTitle());
-        }
     }
 }

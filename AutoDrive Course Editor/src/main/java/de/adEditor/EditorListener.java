@@ -35,7 +35,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
 
         switch (e.getActionCommand()) {
             case MENU_LOAD_CONFIG:
-                if (editor.isStale()) {
+                if (MapPanel.getMapPanel().isStale()) {
                     int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_exit_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
                         editor.saveMap(null);
@@ -166,7 +166,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 quadCurve.commitCurve();
                 MapPanel.getMapPanel().stopCurveEdit();
                 MapPanel.getMapPanel().repaint();
-                editor.setStale(true);
+                MapPanel.getMapPanel().setStale(true);
                 break;
             case BUTTON_CANCEL_CURVE:
                 MapPanel.getMapPanel().stopCurveEdit();

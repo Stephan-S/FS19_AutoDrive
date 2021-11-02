@@ -1,5 +1,6 @@
 package de.adEditor.MapHelpers;
 
+import de.adEditor.AutoDriveEditor;
 import de.adEditor.GUIBuilder;
 import de.adEditor.MapPanel;
 
@@ -7,6 +8,7 @@ import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
 import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.AutoDriveEditor.DEBUG;
 import static de.adEditor.AutoDriveEditor.changeManager;
 import static de.adEditor.MapPanel.*;
 
@@ -19,8 +21,8 @@ public class QuadCurve{
 
     private int numInterpolationPoints;
     private int nodeType;
-    private static boolean isReversePath;
-    private static boolean isDualPath;
+    private boolean isReversePath;
+    private boolean isDualPath;
 
     public QuadCurve(MapNode startNode, MapNode endNode, int numPoints) {
         this.curveNodesList = new LinkedList<>();
@@ -119,7 +121,7 @@ public class QuadCurve{
         changeManager.addChangeable( new ChangeManager.QuadCurveChanger(mergeNodesList, isReversePath, isDualPath));
         connectNodes(mergeNodesList, isReversePath, isDualPath);
 
-        LOG.info("Curve created {} nodes", mergeNodesList.size() - 2 );
+        if (DEBUG) LOG.info("Curve created {} nodes", mergeNodesList.size() - 2 );
     }
 
     public static void connectNodes(LinkedList<MapNode> mergeNodesList, boolean reversePath, boolean dualPath)  {

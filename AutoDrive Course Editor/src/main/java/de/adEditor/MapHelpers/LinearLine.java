@@ -8,6 +8,7 @@ import de.adEditor.AutoDriveEditor;
 import de.adEditor.MapPanel;
 
 import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.AutoDriveEditor.DEBUG;
 import static de.adEditor.AutoDriveEditor.changeManager;
 import static de.adEditor.MapPanel.*;
 
@@ -66,7 +67,7 @@ public class LinearLine {
     public void commit(MapNode lineEndNode, int connectionType, int nodeType) {
         LinkedList<MapNode> mergeNodesList  = new LinkedList<>();
 
-        LOG.info("LinearLine size = {}",this.lineNodeList.size());
+        if (DEBUG) LOG.info("LinearLine size = {}",this.lineNodeList.size());
         mergeNodesList.add(lineStartNode);
 
         for (int j = 1; j < this.lineNodeList.size() - 1; j++) {
@@ -77,7 +78,7 @@ public class LinearLine {
         }
 
         mergeNodesList.add(lineEndNode);
-        LOG.info("mergeNodesList size = {}",mergeNodesList.size());
+        if (DEBUG) LOG.info("mergeNodesList size = {}",mergeNodesList.size());
         changeManager.addChangeable( new ChangeManager.LinearLineChanger(this.lineStartNode, lineEndNode, mergeNodesList, connectionType));
         connectNodes(mergeNodesList, connectionType);
 
