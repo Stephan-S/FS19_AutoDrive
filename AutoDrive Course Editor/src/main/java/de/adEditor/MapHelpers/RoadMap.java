@@ -1,5 +1,6 @@
 package de.adEditor.MapHelpers;
 
+import de.adEditor.AutoDriveEditor;
 import de.adEditor.MapPanel;
 
 import java.util.LinkedList;
@@ -27,13 +28,15 @@ public class RoadMap {
         // so when we insert the nod the id's match the index
 
         LinkedList<MapNode> nodes = mapNodes;
+        if (AutoDriveEditor.DEBUG) LOG.info("## insertMapNode() ## bumping all ID's of mapNodes index {} -> {} by +1", toAdd.id - 1, nodes.size() - 1 );
         for (int i = toAdd.id - 1 ; i <= nodes.size() - 1 ; i++) {
             MapNode mapNode = nodes.get(i);
-            //LOG.info("changing index {} ({}) -- {} to {}",i,i + 1,  mapNode.id, mapNode.id + 1);
+
             mapNode.id++;
         }
         // insert the MapNode into the list
-        //LOG.info("inserting index {} -- ID {}", toAdd.id - 1, toAdd.id );
+
+        if (AutoDriveEditor.DEBUG) LOG.info("## insertMapNode() ## inserting index {} ( ID {} ) into mapNodes", toAdd.id - 1, toAdd.id );
         mapNodes.add(toAdd.id -1 , toAdd);
 
         //now we need to restore all the connections to/from it

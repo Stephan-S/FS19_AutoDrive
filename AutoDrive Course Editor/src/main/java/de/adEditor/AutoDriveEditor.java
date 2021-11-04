@@ -143,7 +143,7 @@ public class AutoDriveEditor extends JFrame {
         tractorImage = getImage("tractor.png");
         setIconImage(tractorImage);
         // Marker Icon for Destination dialogs
-        markerIcon = getIcon("marker");
+        markerIcon = getIcon("marker.png");
         // node images for MapPanel
         nodeImage = getImage("node.png");
         nodeImageSelected = getImage("node_selected.png");
@@ -183,11 +183,13 @@ public class AutoDriveEditor extends JFrame {
             LOG.error(ex.getMessage(), ex);
         }
 
+        LOG.info("Java Runtime Version {}", Runtime.version().feature());
+
         for (int i=0;i<args.length;i++) {
             if (Objects.equals(args[i], "-DEBUG")) {
                 DEBUG = true;
                 LOG.info("##");
-                LOG.info("## WARNING ..... Debug mode active, editor performance may be slower then normal");
+                LOG.info("## WARNING ..... Debug mode active, editor performance will be slower then normal");
                 LOG.info("##");
             }
             if (Objects.equals(args[i], "-EXPERIMENTAL")) {
@@ -392,52 +394,91 @@ public class AutoDriveEditor extends JFrame {
         }
 
         BufferedImage image = null;
+        String location = getCurrentLocation();
 
-        try {
-            image = ImageIO.read(url);
-        } catch (Exception e) {
+        if (mapName != null) {
             try {
-                LOG.info("failed to find map image from .JAR");
-                if (mapName == null) {
-                    mapPath = "./mapImages/" + mapName + ".png";
-                }
-                image = ImageIO.read(new File(mapPath));
-            } catch (Exception e1) {
-                LOG.info("failed to load {}", mapPath);
+                image = ImageIO.read(url);
+            } catch (Exception e) {
                 try {
-                    if (mapName != null) {
-                        mapPath = "./src/mapImages/" + mapName + ".png";
+                    LOG.info("failed to load map image from JAR .. trying alternate locations");
+                    if (location != null) {
+                        mapPath = location + "mapImages/" + mapName + ".png";
+                    } else {
+                        mapPath = "./mapImages/" + mapName + ".png";
                     }
                     image = ImageIO.read(new File(mapPath));
-                } catch (Exception e2) {
-                    LOG.info("failed to load {}", mapPath);
+                } catch (Exception e1) {
+                    LOG.info("failed to load map image from {}", mapPath.substring(1));
                     try {
-                        if (mapName != null) {
-                            mapPath = "./" + mapName + ".png";
+                        if (location != null) {
+                            mapPath = location + "src/main/resources/mapImages/" + mapName + ".png";
+                        } else {
+                            mapPath = "./src/mapImages/" + mapName + ".png";
                         }
                         image = ImageIO.read(new File(mapPath));
-                    } catch (Exception e3) {
-                        LOG.info("failed to load {}", mapPath);
-                        GUIBuilder.loadImageButton.setEnabled(true);
-                        LOG.info("{}", localeString.getString("console_editor_no_map"));
-                        JOptionPane.showConfirmDialog(null, "" + localeString.getString("dialog_mapimage_not_found"), "File Not Found - " + mapName + ".png", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
-                        mapPath = "/mapImages/Blank.png";
-                        url = AutoDriveEditor.class.getResource(mapPath);
-                        image = ImageIO.read(url);
+                    } catch (Exception e2) {
+                        LOG.info("failed to load map image from {}", mapPath.substring(1));
+                        try {
+                            if (location != null) {
+                                mapPath = location + mapName + ".png";
+                            } else {
+                                mapPath = "./" + mapName + ".png";
+                            }
+                            image = ImageIO.read(new File(mapPath));
+                        } catch (Exception e3) {
+                            LOG.info("failed to load map image from {}", mapPath.substring(1));
+                            GUIBuilder.loadImageButton.setEnabled(true);
+                            LOG.info("{}", localeString.getString("console_editor_no_map"));
+                            JOptionPane.showConfirmDialog(null, "" + localeString.getString("dialog_mapimage_not_found"), "File Not Found - " + mapName + ".png", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
+                            if (EXPERIMENTAL) {
 
-                        if (EXPERIMENTAL) {
-                            String sUrl = "https://github.com/KillBait/FS19_AutoDrive_MapImages/raw/main/mapImages/" + mapName + ".png";
-                            LOG.info("trying {}",sUrl);
-                            URL gurl = new URL(sUrl);
-                            //where to be download file to
-                            File file = new File("C:/Temp/map.png");
-                            ADUtils.copyURLToFile(gurl, file);
+                                //
+                                // This is proof of concept test code - This may get removed at any point
+                                //
+
+                                //where to download file
+
+                                String fullPath;
+                                if (location != null) {
+                                    String gitPath = "https://github.com/KillBait/FS19_AutoDrive_MapImages/raw/main/mapImages/" + mapName + ".png";
+                                    LOG.info("trying GitHub repository - {}",gitPath);
+                                    URL gitUrl = new URL(gitPath);
+
+                                    fullPath = location + "mapImages/" + mapName + ".png";
+                                    File file = new File(fullPath);
+
+                                    if (DEBUG) LOG.info("Saving to {}", fullPath);
+
+                                    File mapImage = ADUtils.copyURLToFile(gitUrl, file);
+
+                                    if (mapImage != null) {
+                                        image = ImageIO.read(mapImage);
+                                    } else {
+                                        fullPath = "/mapImages/Blank.png";
+                                        url = AutoDriveEditor.class.getResource(fullPath);
+                                        if (url != null) {
+                                            image = ImageIO.read(url);
+                                        }
+                                    }
+                                } else {
+                                    if (DEBUG) LOG.info("getCurrentLocation returned null - using blank.png");
+                                    fullPath = "/mapImages/Blank.png";
+                                    url = AutoDriveEditor.class.getResource(fullPath);
+                                    if (url != null) {
+                                        image = ImageIO.read(url);
+                                    }
+                                }
+                            }
                         }
-
-
                     }
                 }
             }
+        } else {
+            LOG.info("Cannot reliably extract map name - using blank.png");
+            mapPath = "/mapImages/Blank.png";
+            url = AutoDriveEditor.class.getResource(mapPath);
+            image = ImageIO.read(url);
         }
 
         if (image != null) {

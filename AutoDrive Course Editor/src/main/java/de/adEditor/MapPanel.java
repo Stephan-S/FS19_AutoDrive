@@ -303,6 +303,7 @@ public class MapPanel extends JPanel{
 
                 if (DEBUG) {
                     if (hoveredNode != null) {
+                        g.setColor(Color.WHITE);
                         String text = "x = " + hoveredNode.x + " , z = " + hoveredNode.z + " , flags = " + hoveredNode.flag;
                         Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x + 1, hoveredNode.z);
                         g.drawString(text, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
@@ -433,6 +434,7 @@ public class MapPanel extends JPanel{
             }
         }
         if (destinationToDelete != null) {
+            changeManager.addChangeable( new ChangeManager.MarkerRemoveChanger(destinationToDelete));
             roadMap.removeMapMarker(destinationToDelete);
             setStale(true);
             this.repaint();
@@ -562,6 +564,7 @@ public class MapPanel extends JPanel{
         if (mapNode != null && destinationName != null && destinationName.length() > 0) {
             if (groupName == null) groupName = "All";
             MapMarker mapMarker = new MapMarker(mapNode, destinationName, groupName);
+            changeManager.addChangeable( new ChangeManager.MarkerAddChanger(mapMarker));
             roadMap.addMapMarker(mapMarker);
             setStale(true);
         }
@@ -631,17 +634,6 @@ public class MapPanel extends JPanel{
                 } else {
                     multiSelectList.add(mapNode);
                     mapNode.selected = true;
-                }
-
-                if (isQuadCurveCreated) {
-                    MapNode controlPoint = quadCurve.getControlPoint();
-                    if (multiSelectList.contains(controlPoint)) {
-                        multiSelectList.remove(controlPoint);
-                        controlPoint.selected = false;
-                    } else {
-                        multiSelectList.add(controlPoint);
-                        controlPoint.selected = true;
-                    }
                 }
             }
         }
@@ -1111,7 +1103,16 @@ public class MapPanel extends JPanel{
             }
 
         }
-        deleteNodeList.add(new NodeLinks(node, otherNodesInLinks, otherNodesOutLinks));
+        MapMarker linkedMarker = null;
+        LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
+        for (MapMarker mapMarker : mapMarkers) {
+            if (mapMarker.mapNode == node) {
+                if (DEBUG) LOG.info("## MapNode ID {} has a linked MapMarker ## storing in case undo system needs it", node.id);
+                linkedMarker = mapMarker;
+            }
+        }
+        // NOTE.. linkedMarker is safe to be passed as null, just means no marker ir linked to that node
+        deleteNodeList.add(new NodeLinks(node, otherNodesInLinks, otherNodesOutLinks, linkedMarker));
     }
 
 
@@ -1329,12 +1330,14 @@ public class MapPanel extends JPanel{
         public int nodeIDbackup;
         public LinkedList<MapNode> otherIncoming;
         public LinkedList<MapNode> otherOutgoing;
+        public MapMarker linkedMarker;
 
-        public NodeLinks(MapNode mapNode, LinkedList<MapNode> in, LinkedList<MapNode> out) {
+        public NodeLinks(MapNode mapNode, LinkedList<MapNode> in, LinkedList<MapNode> out, MapMarker marker) {
             this.node = mapNode;
             this.nodeIDbackup = mapNode.id;
             this.otherIncoming = new LinkedList<>();
             this.otherOutgoing = new LinkedList<>();
+            this.linkedMarker = marker;
 
             for (int i = 0; i <= in.size() - 1 ; i++) {
                 MapNode inNode = in.get(i);

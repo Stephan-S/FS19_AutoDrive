@@ -255,6 +255,10 @@ public class ChangeManager {
                     insertNode.node.id = insertNode.nodeIDbackup;
                 }
                 roadMap.insertMapNode(insertNode.node, insertNode.otherIncoming, insertNode.otherOutgoing);
+                if (insertNode.linkedMarker != null ) {
+                    if (AutoDriveEditor.DEBUG) LOG.info("## RemoveNode Undo ## MapNode ID {} has a linked MapMarker.. restoring {} ( {} )", insertNode.node.id, insertNode.linkedMarker.name, insertNode.linkedMarker.group);
+                    roadMap.addMapMarker(insertNode.linkedMarker);
+                }
             }
             MapPanel.getMapPanel().repaint();
             MapPanel.getMapPanel().setStale(this.isStale);
@@ -459,6 +463,52 @@ public class ChangeManager {
                 MapNode mapNode = this.nodesPriorityChanged.get(i);
                 mapNode.flag = 1 - mapNode.flag;
             }
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(true);
+        }
+    }
+
+    public static class MarkerAddChanger implements Changeable{
+        private final MapMarker markerToChange;
+        private final Boolean isStale;
+
+        public MarkerAddChanger(MapMarker marker){
+            super();
+            this.markerToChange = marker;
+            this.isStale = MapPanel.getMapPanel().isStale();
+        }
+
+        public void undo(){
+            roadMap.removeMapMarker(this.markerToChange);
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(this.isStale);
+        }
+
+        public void redo(){
+            roadMap.addMapMarker(this.markerToChange);
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(true);
+        }
+    }
+
+    public static class MarkerRemoveChanger implements Changeable{
+        private final Boolean isStale;
+        private final MapMarker markerStore;
+
+        public MarkerRemoveChanger(MapMarker marker){
+            super();
+            this.markerStore = marker;
+            this.isStale = MapPanel.getMapPanel().isStale();
+        }
+
+        public void undo(){
+            roadMap.addMapMarker(this.markerStore);
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(this.isStale);
+        }
+
+        public void redo(){
+            roadMap.removeMapMarker(this.markerStore);
             MapPanel.getMapPanel().repaint();
             MapPanel.getMapPanel().setStale(true);
         }

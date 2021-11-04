@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
@@ -143,7 +144,7 @@ public class ADUtils {
         }
     }
 
-    public static void copyURLToFile(URL url, File file) {
+    public static File copyURLToFile(URL url, File file) {
 
         try {
             InputStream input = url.openStream();
@@ -171,12 +172,36 @@ public class ADUtils {
             input.close();
             output.close();
 
-            System.out.println("File '" + file + "' downloaded successfully!");
+            LOG.info("File '{}' downloaded successfully!", file);
+            return file;
         }
         catch(IOException ioEx) {
             ioEx.printStackTrace();
+            return null;
         }
+    }
 
+    public static String getCurrentLocation() {
 
+        //
+        // only works with JDK 11 and above
+        //
+
+        try {
+            String launchPath;
+            String jarPath = AutoDriveEditor.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath();
+            if (AutoDriveEditor.DEBUG) LOG.info("JAR Path : {}", jarPath);
+            launchPath = jarPath.substring(0, jarPath.lastIndexOf("/") + 1);
+            if (AutoDriveEditor.DEBUG) LOG.info("Path : " + launchPath);
+            return launchPath;
+        } catch (URISyntaxException uriSyntaxException) {
+            uriSyntaxException.printStackTrace();
+        }
+        return null;
     }
 }
