@@ -7,6 +7,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RasterFormatException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,15 +31,18 @@ public class MapPanel extends JPanel{
     public static final int CONNECTION_DUAL = 2;
     public static final int CONNECTION_REVERSE = 3;
 
-    private BufferedImage image;
-    private BufferedImage resizedImage;
+    private static BufferedImage image;
+    public static BufferedImage resizedImage;
 
-    private double x = 0.5;
-    private double y = 0.5;
-    private double zoomLevel = 1.0;
+    public NodeDrawThread nodeDraw;
+    public ConnectionDrawThread connectionDraw;
+
+    private static double x = 0.5;
+    private static double y = 0.5;
+    private static double zoomLevel = 1.0;
     private double lastZoomLevel = 1.0;
-    private int mapZoomFactor = 1;
-    private double nodeSize = 1.0;
+    private static int mapZoomFactor = 1;
+    private static double nodeSize = 1.0;
     private AutoDriveEditor editor;
     public static boolean stale = false;
 
@@ -75,7 +79,7 @@ public class MapPanel extends JPanel{
     public static LinkedList<NodeLinks> deleteNodeList = new LinkedList<>();
     public static int moveDiffX, moveDiffY;
 
-    private final Color BROWN = new Color(152, 104, 50 );
+    private static final Color BROWN = new Color(152, 104, 50 );
 
 
     public MapPanel(AutoDriveEditor editor) {
@@ -95,75 +99,129 @@ public class MapPanel extends JPanel{
         });
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    static class NodeDrawThread extends Thread {
 
-        if (this.image != null) {
+        private Graphics gRef = null;
 
-            g.clipRect(0, 0, this.getWidth(), this.getHeight());
+        public NodeDrawThread(Graphics graphics) {
+            gRef = graphics;
+        }
 
-            g.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
+        @Override
+        public void run() {
+            int sizeScaled = (int) (nodeSize * zoomLevel);
+            int sizeScaledHalf = (int) (sizeScaled * 0.5);
 
-            int sizescaled = (int) (nodeSize * zoomLevel);
-            int sizescaledhalf = (int) (sizescaled * 0.5);
-
-            if (roadMap != null) {
+            if (gRef != null) {
                 for (MapNode mapNode : roadMap.mapNodes) {
-                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z );
-                    if (sizescaled > 2 ) {
+                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
+                    if (sizeScaled > 2) {
                         if (mapNode.selected && mapNode.flag == 0) {
-                            g.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                            gRef.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else if (mapNode.selected && mapNode.flag == 1) {
-                            g.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                            gRef.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else if (mapNode.flag == 1) {
-                            g.drawImage(subPrioNodeImage,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                            gRef.drawImage(subPrioNodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else {
-                            g.drawImage(nodeImage,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                            gRef.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         }
                     }
-
-                    if (DEBUG) {
-                        if (sizescaled > 2 ) {
-                            g.setColor(Color.WHITE);
-                            //Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x - 1, hoveredNode.z + 3);
-                            String text = "ID " + mapNode.id;
-                            g.drawString(text, (int) (nodePos.getX() - 10 ), (int) (nodePos.getY() + 30 ));
+                    LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
+                    for (MapMarker mapMarker : mapMarkers) {
+                        //Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1 );
+                        if (mapMarker.mapNode == mapNode) {
+                            gRef.setColor(Color.WHITE);
+                            gRef.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
                         }
                     }
+                }
 
-                    //
-                    //
-                    //
+                // draw map marker name
 
+
+            } else {
+                LOG.error("gRef is null");
+            }
+        }
+    }
+
+    static class ConnectionDrawThread extends Thread {
+
+        private Graphics gRef = null;
+
+        public ConnectionDrawThread(Graphics graphics) {
+            gRef = graphics;
+        }
+
+        @Override
+        public void run() {
+            int sizeScaled = (int) (nodeSize * zoomLevel);
+            int sizeScaledHalf = (int) (sizeScaled * 0.5);
+
+            if (gRef != null) {
+                for (MapNode mapNode : roadMap.mapNodes) {
+                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
                     LinkedList<MapNode> mapNodes = mapNode.outgoing;
                     for (MapNode outgoing : mapNodes) {
                         boolean dual = RoadMap.isDual(mapNode, outgoing);
                         boolean reverse = RoadMap.isReverse(mapNode, outgoing);
 
                         if (dual && mapNode.flag == 1) {
-                            g.setColor(BROWN);
+                            gRef.setColor(BROWN);
                         } else if (dual) {
-                            g.setColor(Color.BLUE);
+                            gRef.setColor(Color.BLUE);
                         } else if (reverse) {
-                            g.setColor(Color.CYAN);
+                            gRef.setColor(Color.CYAN);
                         } else if (mapNode.flag == 1) {
-                            g.setColor(Color.ORANGE);
+                            gRef.setColor(Color.ORANGE);
                         } else {
-                            g.setColor(Color.GREEN);
+                            gRef.setColor(Color.GREEN);
                         }
 
                         Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
-                        drawArrowBetween(g, nodePos, outPos, dual);
+                        drawArrowBetween(gRef, nodePos, outPos, dual);
+                    }
+                    if (DEBUG) {
+                        //Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x - 1, hoveredNode.z + 3);
+                        String text = "ID " + mapNode.id;
+                        gRef.setColor(Color.WHITE);
+                        gRef.drawString(text, (int) (nodePos.getX() - 10 ), (int) (nodePos.getY() + 30 ));
                     }
                 }
+            } else {
+                LOG.error("gRef is null");
+            }
+        }
+    }
 
-                // draw map marker name
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-                for (MapMarker mapMarker : roadMap.mapMarkers) {
-                    g.setColor(Color.WHITE);
-                    Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1 );
-                    g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
+        if (image != null) {
+
+            g.clipRect(0, 0, this.getWidth(), this.getHeight());
+
+            g.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
+
+            int sizeScaled = (int) (nodeSize * zoomLevel);
+            int sizeScaledHalf = (int) (sizeScaled * 0.5);
+
+            if (roadMap != null) {
+                if (image != null) {
+
+                    nodeDraw = new NodeDrawThread(g);
+                    nodeDraw.start();
+
+                    connectionDraw = new ConnectionDrawThread(g);
+                    connectionDraw.start();
+
+                    try {
+                        nodeDraw.join();
+                        connectionDraw.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 // change colour of in progress connection line
@@ -223,9 +281,9 @@ public class MapPanel extends JPanel{
                 if (hoveredNode != null) {
                     Point2D nodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
                     if (hoveredNode.flag == NODE_STANDARD) {
-                        g.drawImage(nodeImageSelected,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                        g.drawImage(nodeImageSelected,(int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     } else if (hoveredNode.flag == NODE_SUBPRIO) {
-                        g.drawImage(subPrioNodeImageSelected,(int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                        g.drawImage(subPrioNodeImageSelected,(int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     }
 
                     //draw marker group when hovering over node
@@ -247,9 +305,9 @@ public class MapPanel extends JPanel{
                         // draw control point
                         Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
                         if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
-                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else {
-                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizescaledhalf), (int) (nodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         }
 
                         //draw interpolation points for curve
@@ -265,9 +323,9 @@ public class MapPanel extends JPanel{
                             //don't draw the first node as it already been drawn
                             if (j != 0) {
                                 if (quadCurve.getNodeType() == NODE_STANDARD) {
-                                    g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizescaledhalf), (int) (currentNodePos.getY() - sizescaledhalf), sizescaled, sizescaled, null);
+                                    g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                                 } else {
-                                    g.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizescaledhalf / 2 )), (int) (currentNodePos.getY() - (sizescaledhalf / 2 )), sizescaledhalf, sizescaledhalf, null);
+                                    g.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
                                 }
                             }
                             if (quadCurve.isReversePath()) {
@@ -314,10 +372,35 @@ public class MapPanel extends JPanel{
         }
     }
 
-    private void resizeMap()  {
+    private void resizeMap() throws RasterFormatException {
         if (image != null) {
+            //LOG.info("Width = {} , zoomLevel = {}",this.getWidth(), zoomLevel);
+            //LOG.info("Height = {} , zoomLevel = {}",this.getWidth(), zoomLevel);
             int widthScaled = (int) (this.getWidth() / zoomLevel);
             int heightScaled = (int) (this.getHeight() / zoomLevel);
+
+            if ( widthScaled > image.getWidth() ) {
+                while ( widthScaled > image.getWidth() ) {
+                    double step = -1 * (zoomLevel * 0.1);
+                    LOG.info("widthScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", widthScaled, step);
+                    zoomLevel -= step;
+                    widthScaled = (int) (this.getWidth() / zoomLevel);
+                }
+                LOG.info("widthScaled is {}", widthScaled);
+            }
+
+            if ( heightScaled > image.getHeight() ) {
+                while ( heightScaled > image.getHeight() ) {
+                    double step = -1 * (zoomLevel * 0.1);
+                    LOG.info("heightScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", heightScaled, step);
+                    zoomLevel -= step;
+                    heightScaled = (int) (this.getHeight() / zoomLevel);
+                }
+                LOG.info("heightScaled is {}", heightScaled);
+            }
+
+            //LOG.info("widthScaled = {}",widthScaled);
+            //LOG.info("heightScaled = {}", heightScaled);
 
             double maxX = 1 - (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
             double minX = (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
@@ -329,18 +412,28 @@ public class MapPanel extends JPanel{
             y = Math.min(y, maxY);
             y = Math.max(y, minY);
 
+            //LOG.info("x = {} , y = {}", x,y);
+
             int centerX = (int) (x * image.getWidth());
             int centerY = (int) (y * image.getHeight());
 
             int offsetX = (centerX - (widthScaled / 2));
             int offsetY = (centerY - (heightScaled / 2));
 
-            BufferedImage croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
+            BufferedImage croppedImage;
 
-            resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), image.getType());
-            Graphics2D g2 = (Graphics2D) resizedImage.getGraphics();
-            g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
-            g2.dispose();
+            try {
+                croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
+                resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), image.getType());
+                Graphics2D g2 = (Graphics2D) resizedImage.getGraphics();
+                g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
+                g2.dispose();
+            } catch (Exception e) {
+                LOG.info("## MapPanel.ResizeMap() ## Exception in getSubImage()");
+                LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
+                e.printStackTrace();
+            }
+
 
             //lastZoomLevel = zoomLevel;
         }
@@ -362,7 +455,11 @@ public class MapPanel extends JPanel{
         if ((roadMap == null) || (this.image == null)) {
             return;
         }
-        if (((this.getWidth()/(this.zoomLevel - step)) > image.getWidth()) || ((this.getHeight()/(this.zoomLevel - step)) > image.getHeight())) {
+
+        int widthScaled = (int) (this.getWidth() / zoomLevel);
+        int heightScaled = (int) (this.getHeight() / zoomLevel);
+
+        if (((this.getWidth()/(this.zoomLevel - step)) > image.getWidth()) || ((this.getHeight()/(this.zoomLevel - step)) > image.getHeight())){
             return;
         }
 
@@ -474,7 +571,7 @@ public class MapPanel extends JPanel{
         return new Point2D.Double(worldPosX, worldPosY);
     }
 
-    public Point2D worldPosToScreenPos(double worldX, double worldY) {
+    public static Point2D worldPosToScreenPos(double worldX, double worldY) {
 
         int centerPointOffset = 1024 * mapZoomFactor;
 
@@ -487,8 +584,8 @@ public class MapPanel extends JPanel{
         double centerXScaled = (x * (image.getWidth()*zoomLevel));
         double centerYScaled = (y * (image.getHeight()*zoomLevel));
 
-        double topLeftX = centerXScaled - ((double) this.getWidth() /2);
-        double topLeftY = centerYScaled - ((double) this.getHeight()/2);
+        double topLeftX = centerXScaled - ((double) mapPanel.getWidth() /2);
+        double topLeftY = centerYScaled - ((double) mapPanel.getHeight()/2);
 
         return new Point2D.Double(scaledX - topLeftX,scaledY - topLeftY);
     }
@@ -669,7 +766,7 @@ public class MapPanel extends JPanel{
         isMultipleSelected = false;
     }
 
-    public void drawArrowBetween(Graphics g, Point2D start, Point2D target, boolean dual) {
+    public static void drawArrowBetween(Graphics g, Point2D start, Point2D target, boolean dual) {
         double vecX = start.getX() - target.getX();
         double vecY = start.getY() - target.getY();
 
@@ -688,9 +785,17 @@ public class MapPanel extends JPanel{
         double arrowRightX = target.getX() + Math.cos(arrowRight) * arrowLength;
         double arrowRightY = target.getY() + Math.sin(arrowRight) * arrowLength;
 
-        g.drawLine((int) (start.getX()), (int) (start.getY()), (int) (target.getX()), (int) (target.getY()));
-        g.drawLine((int) (target.getX()), (int) (target.getY()), (int) arrowLeftX, (int) arrowLeftY);
-        g.drawLine((int) (target.getX()), (int) (target.getY()), (int) arrowRightX, (int) arrowRightY);
+        // calculate where to start the line based around the circumference of the node
+        double sx = start.getX() + (-((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
+        double sy = start.getY() + (-((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
+
+        // calculate where to finish the line based around the circumference of the node
+        double ex = target.getX() + (((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
+        double ey = target.getY() + (((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
+
+        g.drawLine((int) sx, (int) sy, (int) ex, (int) ey);
+        g.drawLine((int) ex, (int) ey, (int) arrowLeftX, (int) arrowLeftY);
+        g.drawLine((int) ex, (int) ey, (int) arrowRightX, (int) arrowRightY);
 
         if (dual) {
             angleRad = normalizeAngle(angleRad+Math.PI);
