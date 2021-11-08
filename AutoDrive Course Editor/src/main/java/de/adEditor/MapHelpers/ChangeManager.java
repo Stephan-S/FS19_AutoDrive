@@ -391,7 +391,7 @@ public class ChangeManager {
                 if (AutoDriveEditor.DEBUG) LOG.info("## QuadCurveChanger.undo ## Removing node ID {}", curveNode.mapNode.id);
                 roadMap.removeMapNode(curveNode.mapNode);
                 if (curveNode.hasChangedID()) {
-                    if (AutoDriveEditor.DEBUG) LOG.info("## QuadCurveChanger.undo ## Removed node ID {} changed", curveNode.mapNode.id);
+                    if (AutoDriveEditor.DEBUG) LOG.info("## QuadCurveChanger.undo ## ID {} changed", curveNode.mapNode.id);
                     curveNode.resetID();
                     if (AutoDriveEditor.DEBUG) LOG.info("## QuadCurveChanger.undo ## Reset ID to {}", curveNode.mapNode.id);
                 }

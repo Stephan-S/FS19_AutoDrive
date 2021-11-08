@@ -36,8 +36,8 @@ import static de.adEditor.MapPanel.getMapPanel;
 
 /* TODO:
     (1) New features?
-    (2) Undo function
-    (2) Fix map refresh on window resizing...
+    (2) Undo function - In Progress
+    (2) Fix map refresh on window resizing - Partial Fix Found 7/11/21
     (3) New button icons
  */
 
@@ -83,6 +83,7 @@ public class AutoDriveEditor extends JFrame {
 
     public static boolean bContinuousConnections = false; // default value
     public static boolean bMiddleMouseMove = false; // default value
+    public static int controlPointMoveScaler = 1; // default value
     public static int linearLineNodeDistance = 12;
 
     public static ChangeManager changeManager;
@@ -189,7 +190,7 @@ public class AutoDriveEditor extends JFrame {
             if (Objects.equals(args[i], "-DEBUG")) {
                 DEBUG = true;
                 LOG.info("##");
-                LOG.info("## WARNING ..... Debug mode active, editor performance will be slower then normal");
+                LOG.info("## WARNING ..... Debug mode active, editor performance may be slower then normal");
                 LOG.info("##");
             }
             if (Objects.equals(args[i], "-EXPERIMENTAL")) {
@@ -736,6 +737,7 @@ public class AutoDriveEditor extends JFrame {
             linearLineNodeDistance = getIntegerValue(linearLineNodeDistance, e, "LinearLineNodeDistance");
             quadSliderMax = getIntegerValue(quadSliderMax, e, "QuadSliderMaximum");
             quadSliderDefault = getIntegerValue(quadSliderDefault, e, "QuadSliderDefault");
+            controlPointMoveScaler = getIntegerValue(controlPointMoveScaler, e, "ControlPointMoveScaler");
 
         } catch (ParserConfigurationException | SAXException pce) {
             LOG.error("## Exception in loading Editor config ## SAX/Parser Exception");
@@ -758,6 +760,7 @@ public class AutoDriveEditor extends JFrame {
             setIntegerValue("LinearLineNodeDistance", doc, linearLineNodeDistance, root);
             setIntegerValue("QuadSliderMaximum", doc, quadSliderMax, root);
             setIntegerValue("QuadSliderDefault", doc, quadSliderDefault, root);
+            setIntegerValue("ControlPointMoveScaler", doc, controlPointMoveScaler, root);
 
 
             doc.appendChild(root);

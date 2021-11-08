@@ -68,7 +68,9 @@ public class MapPanel extends JPanel{
     public boolean isDraggingRoute = false;
     private static boolean isControlNodeSelected = false;
     public static boolean isQuadCurveCreated = false;
+    public static boolean isCubicCurveCreated = false;
     public static QuadCurve quadCurve;
+    public static CubicCurve cubicCurve;
     public static LinearLine linearLine;
     public static int connectionType = 0; // 0 = regular , 1 = dual, 2 = reverse
 
@@ -79,7 +81,7 @@ public class MapPanel extends JPanel{
     public static LinkedList<NodeLinks> deleteNodeList = new LinkedList<>();
     public static int moveDiffX, moveDiffY;
 
-    private static final Color BROWN = new Color(152, 104, 50 );
+    private static Color BROWN = new Color(152, 104, 50 );
 
 
     public MapPanel(AutoDriveEditor editor) {
@@ -126,19 +128,7 @@ public class MapPanel extends JPanel{
                             gRef.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         }
                     }
-                    LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
-                    for (MapMarker mapMarker : mapMarkers) {
-                        //Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1 );
-                        if (mapMarker.mapNode == mapNode) {
-                            gRef.setColor(Color.WHITE);
-                            gRef.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
-                        }
-                    }
                 }
-
-                // draw map marker name
-
-
             } else {
                 LOG.error("gRef is null");
             }
@@ -181,7 +171,7 @@ public class MapPanel extends JPanel{
                         Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
                         drawArrowBetween(gRef, nodePos, outPos, dual);
                     }
-                    if (DEBUG) {
+                    if (bDebugShowID) {
                         //Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x - 1, hoveredNode.z + 3);
                         String text = "ID " + mapNode.id;
                         gRef.setColor(Color.WHITE);
@@ -221,6 +211,17 @@ public class MapPanel extends JPanel{
                         connectionDraw.join();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }
+                }
+
+                // draw map marker name
+
+                LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
+                for (MapMarker mapMarker : mapMarkers) {
+                    if (roadMap.mapNodes.contains(mapMarker.mapNode)) {
+                        Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1 );
+                        g.setColor(Color.WHITE);
+                        g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
                     }
                 }
 
@@ -333,11 +334,65 @@ public class MapPanel extends JPanel{
                             } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_STANDARD) {
                                 g.setColor(Color.BLUE);
                             } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_SUBPRIO) {
+                                g.setColor(BROWN);
+                            } else if (currentcoord.flag == 1) {
                                 g.setColor(Color.ORANGE);
                             } else {
                                 g.setColor(Color.GREEN);
                             }
                             drawArrowBetween(g, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
+                        }
+                    }
+                }
+
+
+
+
+                if (cubicCurve != null) {
+                    if (isCubicCurveCreated) {
+                        // draw control point
+                        Point2D nodePos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
+                        if (cubicCurve.getControlPoint1().selected || hoveredNode == cubicCurve.getControlPoint1()) {
+                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        } else {
+                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        }
+
+                        nodePos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
+                        if (cubicCurve.getControlPoint2().selected || hoveredNode == cubicCurve.getControlPoint2()) {
+                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        } else {
+                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        }
+
+                        //draw interpolation points for curve
+                        for (int j = 0; j < cubicCurve.curveNodesList.size() - 1; j++) {
+
+                            MapNode currentcoord = cubicCurve.curveNodesList.get(j);
+                            MapNode nextcoored = cubicCurve.curveNodesList.get(j + 1);
+
+                            Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
+                            Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
+
+                            g.setColor(Color.WHITE);
+                            //don't draw the first node as it already been drawn
+                            if (j != 0) {
+                                if (cubicCurve.getNodeType() == NODE_STANDARD) {
+                                    g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                } else {
+                                    g.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                                }
+                            }
+                            if (cubicCurve.isReversePath()) {
+                                g.setColor(Color.CYAN);
+                            } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_STANDARD) {
+                                g.setColor(Color.BLUE);
+                            } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_SUBPRIO) {
+                                g.setColor(Color.ORANGE);
+                            } else {
+                                g.setColor(Color.GREEN);
+                            }
+                            drawArrowBetween(g, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
                         }
                     }
                 }
@@ -374,33 +429,28 @@ public class MapPanel extends JPanel{
 
     private void resizeMap() throws RasterFormatException {
         if (image != null) {
-            //LOG.info("Width = {} , zoomLevel = {}",this.getWidth(), zoomLevel);
-            //LOG.info("Height = {} , zoomLevel = {}",this.getWidth(), zoomLevel);
             int widthScaled = (int) (this.getWidth() / zoomLevel);
             int heightScaled = (int) (this.getHeight() / zoomLevel);
 
             if ( widthScaled > image.getWidth() ) {
                 while ( widthScaled > image.getWidth() ) {
                     double step = -1 * (zoomLevel * 0.1);
-                    LOG.info("widthScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", widthScaled, step);
+                    if (DEBUG) LOG.info("widthScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", widthScaled, step);
                     zoomLevel -= step;
                     widthScaled = (int) (this.getWidth() / zoomLevel);
                 }
-                LOG.info("widthScaled is {}", widthScaled);
+                if (DEBUG) LOG.info("widthScaled is {}", widthScaled);
             }
 
             if ( heightScaled > image.getHeight() ) {
                 while ( heightScaled > image.getHeight() ) {
                     double step = -1 * (zoomLevel * 0.1);
-                    LOG.info("heightScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", heightScaled, step);
+                    if (DEBUG) LOG.info("heightScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", heightScaled, step);
                     zoomLevel -= step;
                     heightScaled = (int) (this.getHeight() / zoomLevel);
                 }
-                LOG.info("heightScaled is {}", heightScaled);
+                if (DEBUG) LOG.info("heightScaled is {}", heightScaled);
             }
-
-            //LOG.info("widthScaled = {}",widthScaled);
-            //LOG.info("heightScaled = {}", heightScaled);
 
             double maxX = 1 - (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
             double minX = (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
@@ -412,7 +462,6 @@ public class MapPanel extends JPanel{
             y = Math.min(y, maxY);
             y = Math.max(y, minY);
 
-            //LOG.info("x = {} , y = {}", x,y);
 
             int centerX = (int) (x * image.getWidth());
             int centerY = (int) (y * image.getHeight());
@@ -433,14 +482,11 @@ public class MapPanel extends JPanel{
                 LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
                 e.printStackTrace();
             }
-
-
-            //lastZoomLevel = zoomLevel;
         }
     }
 
     public void moveMapBy(int diffX, int diffY) {
-        if ((roadMap == null) || (this.image == null)) {
+        if ((roadMap == null) || (image == null)) {
             return;
         }
         x -= diffX / (zoomLevel * image.getWidth());
@@ -452,69 +498,102 @@ public class MapPanel extends JPanel{
 
     public void increaseZoomLevelBy(int rotations) {
         double step = rotations * (zoomLevel * 0.1);
-        if ((roadMap == null) || (this.image == null)) {
+        if ((roadMap == null) || (image == null)) {
             return;
         }
 
         int widthScaled = (int) (this.getWidth() / zoomLevel);
         int heightScaled = (int) (this.getHeight() / zoomLevel);
 
-        if (((this.getWidth()/(this.zoomLevel - step)) > image.getWidth()) || ((this.getHeight()/(this.zoomLevel - step)) > image.getHeight())){
+        if (((this.getWidth()/(zoomLevel - step)) > image.getWidth()) || ((this.getHeight()/(zoomLevel - step)) > image.getHeight())){
             return;
         }
 
-        if ((this.zoomLevel - step) < 30) {
-            this.zoomLevel -= step;
+        if ((zoomLevel - step) < 30) {
+            zoomLevel -= step;
             resizeMap();
             repaint();
         }
     }
 
     public void moveNodeBy(MapNode node, int diffX, int diffY) {
-            node.x +=  ((diffX * mapZoomFactor) / zoomLevel);
-            node.z += ((diffY * mapZoomFactor) / zoomLevel);
-            if (isQuadCurveCreated) {
-                if (node == quadCurve.getCurveStartNode()) {
-                    quadCurve.setCurveStartNode(node);
-                } else if (node == quadCurve.getCurveEndNode()) {
-                    quadCurve.setCurveEndNode(node);
-                }
-                if (node == quadCurve.getControlPoint()) {
-                    quadCurve.updateControlPoint(node);
-                }
+
+        double scaledDiffX = (diffX * mapZoomFactor) / zoomLevel;
+        double scaledDiffY = (diffY * mapZoomFactor) / zoomLevel;
+
+        if (isQuadCurveCreated) {
+            if (node == quadCurve.getCurveStartNode()) {
+                quadCurve.setCurveStartNode(node);
+            } else if (node == quadCurve.getCurveEndNode()) {
+                quadCurve.setCurveEndNode(node);
             }
-            //editor.setStale(true);
-            repaint();
+            if (node == quadCurve.getControlPoint()) {
+                quadCurve.updateControlPoint(scaledDiffX, scaledDiffY);
+            }
+        }
+
+        if (isCubicCurveCreated) {
+            if (node == cubicCurve.getCurveStartNode()) {
+                cubicCurve.setCurveStartNode(node);
+            } else if (node == cubicCurve.getCurveEndNode()) {
+                cubicCurve.setCurveEndNode(node);
+            }
+            if (node == cubicCurve.getControlPoint1()) {
+                cubicCurve.updateControlPoint1(scaledDiffX, scaledDiffY);
+            }
+            if (node == cubicCurve.getControlPoint2()) {
+                cubicCurve.updateControlPoint2(scaledDiffX, scaledDiffY);
+            }
+        }
+
+        node.x += scaledDiffX;
+        node.z += scaledDiffY;
+        repaint();
 
     }
 
     public MapNode getNodeAt(double posX, double posY) {
-        if ((roadMap != null) && (this.image != null)) {
+
+        MapNode selected = null;
+
+        if ((roadMap != null) && (image != null)) {
+
+            Point2D outPos;
+            double currentNodeSize = nodeSize * zoomLevel * 0.5;
+
+            // make sure we prioritize returning control nodes over regular nodes
+
             for (MapNode mapNode : roadMap.mapNodes) {
-                double currentNodeSize = nodeSize * zoomLevel * 0.5;
-
-                Point2D outPos = worldPosToScreenPos(mapNode.x, mapNode.z);
-
+                outPos = worldPosToScreenPos(mapNode.x, mapNode.z);
                 if (posX < outPos.getX() + currentNodeSize && posX > outPos.getX() - currentNodeSize && posY < outPos.getY() + currentNodeSize && posY > outPos.getY() - currentNodeSize) {
-                    return mapNode;
+                    selected = mapNode;
+                    break;
                 }
             }
+
             if (isQuadCurveCreated) {
-                double currentNodeSize = nodeSize * zoomLevel * 0.5;
-
-                Point2D outPos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
-
+                outPos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
                 if (posX < outPos.getX() + currentNodeSize && posX > outPos.getX() - currentNodeSize && posY < outPos.getY() + currentNodeSize && posY > outPos.getY() - currentNodeSize) {
                     return quadCurve.getControlPoint();
                 }
             }
+            if (isCubicCurveCreated) {
+                outPos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
+                if (posX < outPos.getX() + currentNodeSize && posX > outPos.getX() - currentNodeSize && posY < outPos.getY() + currentNodeSize && posY > outPos.getY() - currentNodeSize) {
+                    return cubicCurve.getControlPoint1();
+                }
+                outPos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
+                if (posX < outPos.getX() + currentNodeSize && posX > outPos.getX() - currentNodeSize && posY < outPos.getY() + currentNodeSize && posY > outPos.getY() - currentNodeSize) {
+                    return cubicCurve.getControlPoint2();
+                }
+            }
         }
-        return null;
+        return selected;
     }
 
     public void removeNodes() {
-        for (int i = 0; i < deleteNodeList.size(); i++) {
-            MapNode inList = deleteNodeList.get(i).node;
+        for (NodeLinks nodeLinks : deleteNodeList) {
+            MapNode inList = nodeLinks.node;
             roadMap.removeMapNode(inList);
         }
         setStale(true);
@@ -539,7 +618,7 @@ public class MapPanel extends JPanel{
     }
 
     public void createNode(double screenX, double screenY, int flag) {
-        if ((roadMap == null) || (this.image == null)) {
+        if ((roadMap == null) || (image == null)) {
             return;
         }
         MapNode mapNode = new MapNode(roadMap.mapNodes.size()+1, screenX, -1, screenY, flag, false); //flag = 0 causes created node to be regular by default
@@ -547,7 +626,6 @@ public class MapPanel extends JPanel{
         this.repaint();
         changeManager.addChangeable( new AddNodeChanger(mapNode) );
         MapPanel.getMapPanel().setStale(true);
-        LOG.error("");
     }
 
     public Point2D screenPosToWorldPos(int screenX, int screenY) {
@@ -703,37 +781,37 @@ public class MapPanel extends JPanel{
     }
 
    public void getAllNodesInArea(Point2D rectangleStartScreen, Point2D rectangleEndScreen) {
-        if ((roadMap == null) || (this.image == null)) {
-            return;
-        }
-        int screenStartX = (int) rectangleStartScreen.getX();
-        int screenStartY = (int) rectangleStartScreen.getY();
-        int width = (int)(rectangleEndScreen.getX() - rectangleStartScreen.getX());
-        int height = (int)(rectangleEndScreen.getY() - rectangleStartScreen.getY());
+       if ((roadMap == null) || (this.image == null)) {
+           return;
+       }
+       int screenStartX = (int) rectangleStartScreen.getX();
+       int screenStartY = (int) rectangleStartScreen.getY();
+       int width = (int) (rectangleEndScreen.getX() - rectangleStartScreen.getX());
+       int height = (int) (rectangleEndScreen.getY() - rectangleStartScreen.getY());
 
-        Rectangle2D rectangle = ADUtils.getNormalizedRectangleFor(screenStartX, screenStartY, width, height);
-        screenStartX = (int) rectangle.getX();
-        screenStartY = (int) rectangle.getY();
-        width = (int) rectangle.getWidth();
-        height = (int) rectangle.getHeight();
+       Rectangle2D rectangle = ADUtils.getNormalizedRectangleFor(screenStartX, screenStartY, width, height);
+       screenStartX = (int) rectangle.getX();
+       screenStartY = (int) rectangle.getY();
+       width = (int) rectangle.getWidth();
+       height = (int) rectangle.getHeight();
        double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-        LinkedList<MapNode> toChange = new LinkedList<>();
-        for (MapNode mapNode : roadMap.mapNodes) {
+       LinkedList<MapNode> toChange = new LinkedList<>();
+       for (MapNode mapNode : roadMap.mapNodes) {
 
-            Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
+           Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
 
-            if (screenStartX < nodePos.getX() + currentNodeSize && (screenStartX + width) > nodePos.getX() - currentNodeSize && screenStartY < nodePos.getY() + currentNodeSize && (screenStartY + height) > nodePos.getY() - currentNodeSize) {
+           if (screenStartX < nodePos.getX() + currentNodeSize && (screenStartX + width) > nodePos.getX() - currentNodeSize && screenStartY < nodePos.getY() + currentNodeSize && (screenStartY + height) > nodePos.getY() - currentNodeSize) {
 
-                if (multiSelectList.contains(mapNode)) {
-                    multiSelectList.remove(mapNode);
-                    mapNode.selected = false;
-                } else {
-                    multiSelectList.add(mapNode);
-                    mapNode.selected = true;
-                }
-            }
-        }
+               if (multiSelectList.contains(mapNode)) {
+                   multiSelectList.remove(mapNode);
+                   mapNode.selected = false;
+               } else {
+                   multiSelectList.add(mapNode);
+                   mapNode.selected = true;
+               }
+           }
+       }
 
        if (isQuadCurveCreated) {
            MapNode controlPoint = quadCurve.getControlPoint();
@@ -749,12 +827,38 @@ public class MapPanel extends JPanel{
            }
        }
 
-       if (multiSelectList.size() > 0 ) {
+       if (isCubicCurveCreated) {
+           MapNode controlPoint1 = cubicCurve.getControlPoint1();
+           MapNode controlPoint2 = cubicCurve.getControlPoint2();
+
+           Point2D nodePos1 = worldPosToScreenPos(controlPoint1.x, controlPoint1.z);
+           if (screenStartX < nodePos1.getX() + currentNodeSize && (screenStartX + width) > nodePos1.getX() - currentNodeSize && screenStartY < nodePos1.getY() + currentNodeSize && (screenStartY + height) > nodePos1.getY() - currentNodeSize) {
+               if (multiSelectList.contains(controlPoint1)) {
+                   multiSelectList.remove(controlPoint1);
+                   controlPoint1.selected = false;
+               } else {
+                   multiSelectList.add(controlPoint1);
+                   controlPoint1.selected = true;
+               }
+           }
+           Point2D nodePos2 = worldPosToScreenPos(controlPoint1.x, controlPoint1.z);
+           if (screenStartX < nodePos2.getX() + currentNodeSize && (screenStartX + width) > nodePos2.getX() - currentNodeSize && screenStartY < nodePos2.getY() + currentNodeSize && (screenStartY + height) > nodePos2.getY() - currentNodeSize) {
+               if (multiSelectList.contains(controlPoint2)) {
+                   multiSelectList.remove(controlPoint2);
+                   controlPoint2.selected = false;
+               } else {
+                   multiSelectList.add(controlPoint2);
+                   controlPoint2.selected = true;
+               }
+           }
+       }
+
+       if (multiSelectList.size() > 0) {
            isMultipleSelected = true;
        }
 
        if (DEBUG) LOG.info("Selected {} nodes", multiSelectList.size());
-    }
+   }
 
     public static void clearMultiSelection() {
         if (multiSelectList != null && multiSelectList.size() > 0 ) {
@@ -786,16 +890,16 @@ public class MapPanel extends JPanel{
         double arrowRightY = target.getY() + Math.sin(arrowRight) * arrowLength;
 
         // calculate where to start the line based around the circumference of the node
-        double sx = start.getX() + (-((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
-        double sy = start.getY() + (-((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
+        double startX = start.getX() + (-((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
+        double startY = start.getY() + (-((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
 
         // calculate where to finish the line based around the circumference of the node
-        double ex = target.getX() + (((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
-        double ey = target.getY() + (((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
+        double endX = target.getX() + (((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
+        double endY = target.getY() + (((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
 
-        g.drawLine((int) sx, (int) sy, (int) ex, (int) ey);
-        g.drawLine((int) ex, (int) ey, (int) arrowLeftX, (int) arrowLeftY);
-        g.drawLine((int) ex, (int) ey, (int) arrowRightX, (int) arrowRightY);
+        g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
+        g.drawLine((int) endX, (int) endY, (int) arrowLeftX, (int) arrowLeftY);
+        g.drawLine((int) endX, (int) endY, (int) arrowRightX, (int) arrowRightY);
 
         if (dual) {
             angleRad = normalizeAngle(angleRad+Math.PI);
@@ -808,8 +912,8 @@ public class MapPanel extends JPanel{
             arrowRightX = start.getX() + Math.cos(arrowRight) * arrowLength;
             arrowRightY = start.getY() + Math.sin(arrowRight) * arrowLength;
 
-            g.drawLine((int) (start.getX()), (int) (start.getY()), (int) arrowLeftX, (int) arrowLeftY);
-            g.drawLine((int) (start.getX()), (int) (start.getY()), (int) arrowRightX, (int) arrowRightY);
+            g.drawLine((int) (startX), (int) (startY), (int) arrowLeftX, (int) arrowLeftY);
+            g.drawLine((int) (startX), (int) (startY), (int) arrowRightX, (int) arrowRightY);
         }
     }
 
@@ -818,6 +922,14 @@ public class MapPanel extends JPanel{
             quadCurve.clear();
             isQuadCurveCreated = false;
             isControlNodeSelected = false;
+            quadCurve = null;
+
+        }
+        if (cubicCurve!= null) {
+            cubicCurve.clear();
+            isCubicCurveCreated = false;
+            isControlNodeSelected = false;
+            cubicCurve = null;
         }
     }
 
@@ -826,12 +938,10 @@ public class MapPanel extends JPanel{
     //
 
     public void mouseMoved(int x, int y) {
-        if (this.image != null) {
+        if (image != null) {
             mousePosX = x;
             mousePosY = y;
-            /*if (editorState == EDITORSTATE_CONNECTING && selected != null) {
-                this.repaint();
-            }*/
+
             if (editorState == EDITORSTATE_CONNECTING && selected != null) {
                 if (isDraggingRoute) {
                     Point2D pointerPos = screenPosToWorldPos(mousePosX, mousePosY);
@@ -840,6 +950,9 @@ public class MapPanel extends JPanel{
                 }
             }
             if (editorState == EDITORSTATE_QUADRATICBEZIER && selected != null) {
+                this.repaint();
+            }
+            if (editorState == EDITORSTATE_CUBICBEZIER && selected != null) {
                 this.repaint();
             }
             movingNode = getNodeAt(x, y);
@@ -880,14 +993,37 @@ public class MapPanel extends JPanel{
             lastX = x;
             lastY = y;
 
-            moveNodeBy(quadCurve.getControlPoint(), diffX, diffY);
-            quadCurve.updateCurve();
+            if (quadCurve != null && movingNode == quadCurve.getControlPoint()) {
+                moveNodeBy(quadCurve.getControlPoint(), diffX, diffY);
+                quadCurve.updateCurve();
+            }
+            if (cubicCurve != null) {
+                if ( movingNode == cubicCurve.getControlPoint1()) {
+                    moveNodeBy(cubicCurve.getControlPoint1(), diffX, diffY);
+                    cubicCurve.updateCurve();
+                }
+                if ( movingNode == cubicCurve.getControlPoint2()) {
+                    moveNodeBy(cubicCurve.getControlPoint2(), diffX, diffY);
+                    cubicCurve.updateCurve();
+                }
 
+            }
         }
 
         if (editorState == EDITORSTATE_QUADRATICBEZIER) {
             if (movingNode !=null && isQuadCurveCreated) {
-                quadCurve.updateCurve();
+                if (quadCurve != null) {
+                    quadCurve.updateCurve();
+                }
+                this.repaint();
+            }
+        }
+
+        if (editorState == EDITORSTATE_CUBICBEZIER) {
+            if (movingNode !=null && isCubicCurveCreated) {
+                if (cubicCurve != null) {
+                    cubicCurve.updateCurve();
+                }
                 this.repaint();
             }
         }
@@ -1020,6 +1156,29 @@ public class MapPanel extends JPanel{
                 repaint();
             }
         }
+
+        if (editorState == EDITORSTATE_CUBICBEZIER) {
+            if (movingNode != null) {
+                if (selected == null && !isCubicCurveCreated) {
+                    selected = movingNode;
+                    GUIBuilder.showInTextArea(localeString.getString("quadcurve_start"), true);
+                } else if (selected == hoveredNode) {
+                    selected = null;
+                    GUIBuilder.showInTextArea(localeString.getString("quadcurve_cancel"), true);
+                    stopCurveEdit();
+                    this.repaint();
+                } else {
+                    if (!isCubicCurveCreated) {
+                        GUIBuilder.showInTextArea(localeString.getString("quadcurve_complete"), true);
+                        cubicCurve = new CubicCurve(selected, movingNode);
+                        cubicCurve.setNumInterpolationPoints(GUIBuilder.numIterationsSlider.getValue());
+                        isCubicCurveCreated = true;
+                        selected = null;
+                    }
+                }
+                repaint();
+            }
+        }
     }
 
     public void mouseButton1Pressed(int x, int y) {
@@ -1070,6 +1229,14 @@ public class MapPanel extends JPanel{
         if (editorState == EDITORSTATE_QUADRATICBEZIER) {
             if (isQuadCurveCreated && movingNode == quadCurve.getControlPoint()) {
                     isControlNodeSelected = true;
+            }
+        }
+
+        if (editorState == EDITORSTATE_CUBICBEZIER) {
+            if (isCubicCurveCreated) {
+                if (movingNode == cubicCurve.getControlPoint1() || movingNode == cubicCurve.getControlPoint2()) {
+                    isControlNodeSelected = true;
+                }
             }
         }
 
@@ -1216,7 +1383,7 @@ public class MapPanel extends JPanel{
                 linkedMarker = mapMarker;
             }
         }
-        // NOTE.. linkedMarker is safe to be passed as null, just means no marker ir linked to that node
+        // NOTE.. linkedMarker is safe to be passed as null, just means no marker is linked to that node
         deleteNodeList.add(new NodeLinks(node, otherNodesInLinks, otherNodesOutLinks, linkedMarker));
     }
 
@@ -1422,13 +1589,10 @@ public class MapPanel extends JPanel{
         }
     }
 
-
-
-
-
     //
-    ///
     //
+    //
+
     public static class NodeLinks {
 
         public MapNode node;
@@ -1453,8 +1617,5 @@ public class MapPanel extends JPanel{
                 if (!this.otherOutgoing.contains(outNode)) this.otherOutgoing.add(outNode);
             }
         }
-
-
-
     }
 }

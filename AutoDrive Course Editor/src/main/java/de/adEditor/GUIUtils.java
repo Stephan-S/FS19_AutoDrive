@@ -167,9 +167,16 @@ public class GUIUtils {
     }
 
     public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, String accString, int keyEvent, Boolean isSelected, JMenu menu, EditorListener itemListener, String actionCommand) {
+        return makeCheckBoxMenuItem(text, accString, keyEvent, 0, isSelected, menu, itemListener, actionCommand);
+    }
+
+    public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, String accString, int keyEvent, int inputEvent, Boolean isSelected, JMenu menu, EditorListener itemListener, String actionCommand) {
         JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(localeString.getString(text), isSelected);
         cbMenuItem.setActionCommand(actionCommand);
         cbMenuItem.setMnemonic(keyEvent);
+        if (inputEvent >0 ) {
+            cbMenuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, inputEvent));
+        }
         cbMenuItem.setSelected(isSelected);
         cbMenuItem.getAccessibleContext().setAccessibleDescription(localeString.getString(accString));
         cbMenuItem.addItemListener(itemListener);
@@ -177,6 +184,7 @@ public class GUIUtils {
 
         return cbMenuItem;
     }
+
 
     // if no button group is required, set buttonGroup to null and isGroupDefault will be ignored
     public static JRadioButtonMenuItem makeRadioButtonMenuItem(String menuName, String accString, int keyEvent, int inputEvent, JMenu menu, EditorListener itemListener, String actionCommand, Boolean enabled, ButtonGroup buttonGroup, boolean isGroupDefault) {
@@ -196,6 +204,4 @@ public class GUIUtils {
         menu.add(menuItem);
         return menuItem;
     }
-
-
 }

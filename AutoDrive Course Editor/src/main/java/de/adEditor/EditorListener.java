@@ -69,10 +69,6 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
                     LOG.info("{} {}", localeString.getString("console_config_saveas"), ADUtils.getSelectedFileWithExtension(fc));
                     editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
-                    //xmlConfigFile = fc.getSelectedFile();
-                    //AutoDriveEditor.createTitle();
-                    //editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
-
                 }
                 break;
             case MENU_EDIT_CUT:
@@ -162,8 +158,15 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
             case BUTTON_CREATE_QUADRATICBEZIER:
                 editorState = EDITORSTATE_QUADRATICBEZIER;
                 break;
+            case BUTTON_CREATE_CUBICBEZIER:
+                editorState = EDITORSTATE_CUBICBEZIER;
+                break;
             case BUTTON_COMMIT_CURVE:
-                quadCurve.commitCurve();
+                if (quadCurve != null) {
+                    quadCurve.commitCurve();
+                } else if ( cubicCurve != null) {
+                    cubicCurve.commitCurve();
+                }
                 MapPanel.getMapPanel().stopCurveEdit();
                 MapPanel.getMapPanel().repaint();
                 MapPanel.getMapPanel().setStale(true);
@@ -176,12 +179,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 editorState = EDITORSTATE_CNP_SELECT;
                 MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 JToggleButton tBtn = (JToggleButton)e.getSource();
-                if (tBtn.isSelected()) {
-                    System.out.println("button selected");
-
-                } else {
-                    System.out.println("button not selected");
-                }
+                if (DEBUG) LOG.info("CNP area select - {}", tBtn.isSelected());
                 break;
             case MENU_EDIT_UNDO:
                 changeManager.undo();
@@ -204,28 +202,52 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
             case MENU_CHECKBOX_MIDDLEMOUSEMOVE:
                 AutoDriveEditor.bMiddleMouseMove = button.isSelected();
                 break;
+            case MENU_DEBUG_SHOWID:
+                GUIBuilder.bDebugShowID = button.isSelected();
+                getMapPanel().repaint();
+                break;
             case RADIOBUTTON_PATHTYPE_REGULAR:
-                quadCurve.setNodeType(NODE_STANDARD);
+                if (quadCurve != null) {
+                    quadCurve.setNodeType(NODE_STANDARD);
+                } else if (cubicCurve != null) {
+                    cubicCurve.setNodeType(NODE_STANDARD);
+                }
                 mapPanel.repaint();
                 break;
             case RADIOBUTTON_PATHTYPE_SUBPRIO:
-                quadCurve.setNodeType(NODE_SUBPRIO);
+                if (quadCurve != null) {
+                    quadCurve.setNodeType(NODE_SUBPRIO);
+                } else if (cubicCurve != null) {
+                    cubicCurve.setNodeType(NODE_SUBPRIO);
+                }
                 mapPanel.repaint();
                 break;
             case RADIOBUTTON_PATHTYPE_REVERSE:
                 if (button.isSelected()) {
                     GUIBuilder.curvePathDual.setSelected(false);
-                    quadCurve.setDualPath(false);
                 }
-                quadCurve.setReversePath(button.isSelected());
+                if (quadCurve != null) {
+                    quadCurve.setReversePath(button.isSelected());
+                    quadCurve.setDualPath(false);
+                } else if (cubicCurve != null) {
+                    cubicCurve.setReversePath(button.isSelected());
+                    cubicCurve.setDualPath(false);
+                }
                 mapPanel.repaint();
                 break;
             case RADIOBUTTON_PATHTYPE_DUAL:
                 if (button.isSelected()) {
                     GUIBuilder.curvePathReverse.setSelected(false);
-                    quadCurve.setReversePath(false);
+
                 }
-                quadCurve.setDualPath(button.isSelected());
+                if (quadCurve != null) {
+                    quadCurve.setDualPath(button.isSelected());
+                    quadCurve.setReversePath(false);
+                } else if (cubicCurve != null) {
+                    cubicCurve.setDualPath(button.isSelected());
+                    cubicCurve.setReversePath(false);
+                }
+
                 mapPanel.repaint();
                 break;
         }
@@ -241,9 +263,12 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
         JSlider source = (JSlider)e.getSource();
         if (source.getValueIsAdjusting()) {
             int value = source.getValue();
+            if (value < 2) value = 2;
             if (MapPanel.quadCurve != null) {
-                if (value < 2) value = 2;
                 MapPanel.quadCurve.setNumInterpolationPoints(value);
+                MapPanel.getMapPanel().repaint();
+            } else if (cubicCurve != null) {
+                MapPanel.cubicCurve.setNumInterpolationPoints(value);
                 MapPanel.getMapPanel().repaint();
             }
         }

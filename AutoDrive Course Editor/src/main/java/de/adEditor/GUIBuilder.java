@@ -30,6 +30,8 @@ public class GUIBuilder {
     public static final int EDITORSTATE_CNP_COPY = 13;
     public static final int EDITORSTATE_CNP_PASTE = 14;
     public static final int EDITORSTATE_QUADRATICBEZIER = 15;
+    public static final int EDITORSTATE_CUBICBEZIER = 16;
+
 
     public static final String MENU_LOAD_CONFIG = "Load Config";
     public static final String MENU_SAVE_CONFIG = "Save Config";
@@ -46,6 +48,8 @@ public class GUIBuilder {
     public static final String MENU_CHECKBOX_CONTINUECONNECT = "Continuous Connections";
     public static final String MENU_CHECKBOX_MIDDLEMOUSEMOVE = "Middle Mouse Move";
     public static final String MENU_ABOUT = "About";
+    public static final String MENU_DEBUG_SHOWID = "DEBUG ID";
+
 
     public static final String BUTTON_MOVE_NODES = "Move Nodes";
     public static final String BUTTON_CONNECT_NODES = "Connect Nodes";
@@ -70,6 +74,7 @@ public class GUIBuilder {
 
     public static final String BUTTON_CREATE_LINEARLINE = "Linear Line";
     public static final String BUTTON_CREATE_QUADRATICBEZIER = "Quadratic Bezier";
+    public static final String BUTTON_CREATE_CUBICBEZIER = "Cubic Bezier";
     public static final String BUTTON_COMMIT_CURVE = "Confirm Curve";
     public static final String BUTTON_CANCEL_CURVE = "Cancel Curve";
     public static final String RADIOBUTTON_PATHTYPE_REGULAR = "Regular";
@@ -87,6 +92,10 @@ public class GUIBuilder {
     public static JMenuItem cutMenuItem;
     public static JMenuItem copyMenuItem;
     public static JMenuItem pasteMenuItem;
+
+    //public static JMenuItem debugShowID;
+    public static boolean bDebugShowID;
+
     public static JPanel nodeBox;
     public static JToggleButton removeNode;
     public static JToggleButton removeDestination;
@@ -103,6 +112,7 @@ public class GUIBuilder {
     public static JToggleButton alignVertical;
     public static JToggleButton linearLine;
     public static JToggleButton quadBezier;
+    public static JToggleButton cubicBezier;
     public static JToggleButton commitCurve;
     public static JToggleButton cancelCurve;
     public static JToggleButton select;
@@ -123,7 +133,7 @@ public class GUIBuilder {
 
     public static void createMenu(EditorListener editorListener) {
         JMenuItem menuItem;
-        JMenu fileMenu, editMenu, mapMenu, optionsMenu, helpMenu, subMenu;
+        JMenu fileMenu, editMenu, mapMenu, optionsMenu, helpMenu, subMenu, debugMenu;
 
         menuBar = new JMenuBar();
 
@@ -169,6 +179,11 @@ public class GUIBuilder {
         helpMenu = makeMenu("menu_help", KeyEvent.VK_H, "menu_help_accstring", menuBar);
         makeMenuItem("menu_help_about", "menu_help_about_accstring", KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK, helpMenu,editorListener, MENU_ABOUT, true );
 
+        if (DEBUG) {
+            debugMenu = makeMenu("menu_debug", KeyEvent.VK_H, "menu_debug_accstring", menuBar);
+            makeCheckBoxMenuItem("menu_debug_showID", "menu_debug_showID_accstring", KeyEvent.VK_5, InputEvent.ALT_DOWN_MASK, bDebugShowID, debugMenu, editorListener, MENU_DEBUG_SHOWID);
+        }
+
 
     }
 
@@ -207,6 +222,7 @@ public class GUIBuilder {
 
         nodeBox.add(Box.createRigidArea(new Dimension(8, 0)));
         quadBezier = makeImageToggleButton("quadcurve","quadcurve_selected", BUTTON_CREATE_QUADRATICBEZIER,"helper_quadbezier_tooltip","helper_quadbezier_alt", nodeBox, editorListener);
+        cubicBezier = makeImageToggleButton("cubiccurve","cubiccurve_selected", BUTTON_CREATE_CUBICBEZIER,"helper_cubicbezier_tooltip","helper_cubicbezier_alt", nodeBox, editorListener);
         nodeBox.add(Box.createRigidArea(new Dimension(8, 0)));
         removeNode = makeImageToggleButton("deletenodes","deletenodes_selected", BUTTON_REMOVE_NODES,"nodes_remove_tooltip","nodes_remove_alt", nodeBox, editorListener);
 
@@ -381,6 +397,7 @@ public class GUIBuilder {
         removeNode.setEnabled(enabled);
         createDualConnection.setEnabled(enabled);
         quadBezier.setEnabled(enabled);
+        cubicBezier.setEnabled(enabled);
     }
     private static void markerBoxSetEnabled(boolean enabled) {
         createDestination.setEnabled(enabled);
@@ -436,6 +453,7 @@ public class GUIBuilder {
         createDualConnection.setSelected(false);
         removeNode.setSelected(false);
         quadBezier.setSelected(false);
+        cubicBezier.setSelected(false);
 
         createDestination.setSelected(false);
         editDestination.setSelected(false);
@@ -496,6 +514,10 @@ public class GUIBuilder {
                 break;
             case EDITORSTATE_QUADRATICBEZIER:
                 quadBezier.setSelected(true);
+                break;
+            case EDITORSTATE_CUBICBEZIER:
+                cubicBezier.setSelected(true);
+                break;
         }
     }
 }

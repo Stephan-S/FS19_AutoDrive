@@ -7,8 +7,7 @@ import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
 import static de.adEditor.ADUtils.LOG;
-import static de.adEditor.AutoDriveEditor.DEBUG;
-import static de.adEditor.AutoDriveEditor.changeManager;
+import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
 
 public class QuadCurve{
@@ -17,29 +16,29 @@ public class QuadCurve{
     private MapNode curveStartNode;
     private MapNode curveEndNode;
     private MapNode controlPoint1;
+    private Point2D.Double virtualControlPoint1;
+    private double movementScaler = 1;
 
     private int numInterpolationPoints;
     private int nodeType;
     private boolean isReversePath;
     private boolean isDualPath;
 
-    public QuadCurve(MapNode startNode, MapNode endNode, int numPoints) {
+
+    public QuadCurve(MapNode startNode, MapNode endNode) {
         this.curveNodesList = new LinkedList<>();
         this.curveStartNode = startNode;
         this.curveEndNode = endNode;
-        this.numInterpolationPoints = numPoints;
-        this.controlPoint1 = null;
+        this.numInterpolationPoints = GUIBuilder.numIterationsSlider.getValue();
+        if (this.numInterpolationPoints < 2 ) this.numInterpolationPoints = 2 ;
+        this.controlPoint1 = new MapNode(0,startNode.x,0,endNode.z, MapPanel.NODE_CONTROLPOINT, false);
+        this.virtualControlPoint1 = new Point2D.Double(controlPoint1.x,controlPoint1.z);
         this.isReversePath = GUIBuilder.curvePathReverse.isSelected();
         this.isDualPath = GUIBuilder.curvePathDual.isSelected();
         this.nodeType = GUIBuilder.curvePathRegular.isSelected() ? NODE_STANDARD : NODE_SUBPRIO;
+        this.movementScaler = controlPointMoveScaler;
         this.updateCurve();
         GUIBuilder.curvePanel.setVisible(true);
-
-    }
-
-    // if no interpolation number is specified, defaults to default set by the editor config
-    public QuadCurve(MapNode startNode, MapNode endNode) {
-        this(startNode, endNode, GUIBuilder.numIterationsSlider.getValue());
     }
 
     public void setNumInterpolationPoints(int points) {
@@ -47,16 +46,12 @@ public class QuadCurve{
         if (this.curveStartNode != null && this.curveEndNode !=null) {
             getInterpolationPointsForCurve(this.curveStartNode,this.curveEndNode);
         }
-
     }
 
     private void getInterpolationPointsForCurve (MapNode startNode, MapNode endNode) {
 
         if ((startNode == null || endNode == null || this.numInterpolationPoints < 1 )) return;
 
-        if (this.controlPoint1 == null) {
-            this.controlPoint1 = new MapNode(0,startNode.x,0,endNode.z, MapPanel.NODE_CONTROLPOINT, false);
-        }
         double step = 1/(double)this.numInterpolationPoints;
         curveNodesList.clear();
 
@@ -72,7 +67,7 @@ public class QuadCurve{
 
         int id = 0;
         for(double i=step;i+step<1.0001;i += step) {
-            Point2D.Double point = pointsForQuadraticBezier(startNode, endNode, this.controlPoint1.x, this.controlPoint1.z, i);
+            Point2D.Double point = pointsForQuadraticBezier(startNode, endNode, this.virtualControlPoint1.x, this.virtualControlPoint1.y, i);
             curveNodesList.add(new MapNode(id,point.getX(),-1,point.getY(),MapPanel.NODE_STANDARD, false));
             if (i+step >=1.0001 ) LOG.info("WARNING -- last node was not calculated, this should not happen!! -- step = {} ,  ", i+step);
             id++;
@@ -88,15 +83,6 @@ public class QuadCurve{
         point.y = abs * startNode.z + (double)2 * ((double)1 - precision) * precision * pointerY + Math.pow(precision, 2) * endNode.z;
         return point;
     }
-
-    // Untested
-    /*private Point2D.Double pointsForCubicBezier(MapNode startNode, MapNode endNode, double pointer1x, double pointer1y, double pointer2x, double pointer2y, double precision) {
-        Point2D.Double point = new Point2D.Double();
-        double abs = Math.abs(Math.pow((1 - precision), 3));
-        point.x = abs * startNode.x + 3 * Math.pow((1 - precision), 2) * precision * pointer1x + 3 * Math.abs((1 - precision)) * Math.pow(precision, 2) * pointer2x + Math.abs(Math.pow(precision, 3)) * endNode.x;
-        point.y = abs * startNode.z + 3 * Math.pow((1 - precision), 2) * precision * pointer1y + 3 * Math.abs((1 - precision)) * Math.pow(precision, 2) * pointer2y + Math.abs(Math.pow(precision, 3)) * endNode.z;
-        return point;
-    }*/
 
     public void updateCurve() {
         if ((this.curveStartNode != null && this.curveEndNode !=null && this.numInterpolationPoints >= 1)) {
@@ -150,8 +136,9 @@ public class QuadCurve{
         return this.curveNodesList != null && this.controlPoint1 !=null && this.curveNodesList.size() > 2;
     }
 
-    public void updateControlPoint(MapNode controlPoint) {
-        this.controlPoint1 = controlPoint;
+    public void updateControlPoint(double diffX, double diffY) {
+        this.virtualControlPoint1.x += diffX * movementScaler;
+        this.virtualControlPoint1.y += diffY * movementScaler;
         this.updateCurve();
     }
 
@@ -187,7 +174,20 @@ public class QuadCurve{
         this.isDualPath = isSelected;
     }
 
-    public void setNodeType(int nodeType) { this.nodeType = nodeType; }
+    public void setNodeType(int nodeType) {
+        this.nodeType = nodeType;
+        if (nodeType == NODE_SUBPRIO) {
+            for (int j = 1; j < curveNodesList.size() - 1; j++) {
+                MapNode tempNode = curveNodesList.get(j);
+                tempNode.flag = 1;
+            }
+        }  else {
+            for (int j = 1; j < curveNodesList.size() - 1; j++) {
+                MapNode tempNode = curveNodesList.get(j);
+                tempNode.flag = 0;
+            }
+        }
+    }
 
     public void setCurveStartNode(MapNode curveStartNode) {
         this.curveStartNode = curveStartNode;
