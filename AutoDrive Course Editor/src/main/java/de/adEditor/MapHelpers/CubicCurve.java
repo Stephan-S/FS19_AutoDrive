@@ -185,7 +185,20 @@ public class CubicCurve {
         this.isDualPath = isSelected;
     }
 
-    public void setNodeType(int nodeType) { this.nodeType = nodeType; }
+    public void setNodeType(int nodeType) {
+        this.nodeType = nodeType;
+        if (nodeType == NODE_SUBPRIO) {
+            for (int j = 1; j < curveNodesList.size() - 1; j++) {
+                MapNode tempNode = curveNodesList.get(j);
+                tempNode.flag = 1;
+            }
+        } else {
+            for (int j = 1; j < curveNodesList.size() - 1; j++) {
+                MapNode tempNode = curveNodesList.get(j);
+                tempNode.flag = 0;
+            }
+        }
+    }
 
     public void setCurveStartNode(MapNode curveStartNode) {
         this.curveStartNode = curveStartNode;

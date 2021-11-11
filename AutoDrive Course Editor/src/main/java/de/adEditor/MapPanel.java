@@ -12,6 +12,8 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.adEditor.MapHelpers.*;
 
@@ -34,8 +36,9 @@ public class MapPanel extends JPanel{
     private static BufferedImage image;
     public static BufferedImage resizedImage;
 
-    public NodeDrawThread nodeDraw;
-    public ConnectionDrawThread connectionDraw;
+    public Thread nodeDraw;
+    public Thread connectionDraw;
+    private static Lock drawlock = new ReentrantLock();
 
     private static double x = 0.5;
     private static double y = 0.5;
@@ -49,7 +52,7 @@ public class MapPanel extends JPanel{
     public static RoadMap roadMap;
     public static  MapNode hoveredNode = null;
     private MapNode movingNode = null;
-    private MapNode selected = null;
+    private static MapNode selected = null;
 
     private static int mousePosX = 0;
     private static int mousePosY = 0;
@@ -59,7 +62,7 @@ public class MapPanel extends JPanel{
     private int lastX = 0;
     private int lastY = 0;
 
-    private Point2D rectangleStart;
+    private static Point2D rectangleStart;
     public boolean isMultiSelectAllowed = false;
 
     private static boolean isMultipleSelected = false;
@@ -101,23 +104,58 @@ public class MapPanel extends JPanel{
         });
     }
 
-    static class NodeDrawThread extends Thread {
+    //
+    // The NodeDraw thread is 2 or 3 times quicker to execute that connectionDraw(), so we try and spread
+    // some of the draw load around by doing the curve/line/rectangle drawing here
+    //
+
+    static class NodeDrawThread implements Runnable {
 
         private Graphics gRef = null;
+        private int width;
+        private int height;
 
-        public NodeDrawThread(Graphics graphics) {
+        public NodeDrawThread(Graphics graphics, int panelWidth, int panelHeight) {
             gRef = graphics;
+            this.width = panelWidth;
+            this.height = panelHeight;
+        }
+
+        static class TextDisplayStore {
+            String Text;
+            Point2D coord;
+            Color colour;
+
+            public TextDisplayStore(String text, Point2D textCoord, Color textColour) {
+                this.Text = text;
+                this.coord = textCoord;
+                this.colour = textColour;
+            }
         }
 
         @Override
         public void run() {
+
+            long start = System.currentTimeMillis();
+
+            ArrayList<TextDisplayStore> textList = new ArrayList<>();
+
             int sizeScaled = (int) (nodeSize * zoomLevel);
             int sizeScaledHalf = (int) (sizeScaled * 0.5);
+            double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
             if (gRef != null) {
-                for (MapNode mapNode : roadMap.mapNodes) {
+
+                LinkedList<MapNode> mapNodes = roadMap.mapNodes;
+
+                //
+                // Draw all nodes in visible area of map
+                // The original code would draw all the nodes even if they were not visible
+                //
+
+                for (MapNode mapNode : mapNodes) {
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
-                    if (sizeScaled > 2) {
+                    if (0 < nodePos.getX() + currentNodeSize && (width) > nodePos.getX() - currentNodeSize && 0 < nodePos.getY() + currentNodeSize && (height) > nodePos.getY() - currentNodeSize) {
                         if (mapNode.selected && mapNode.flag == 0) {
                             gRef.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else if (mapNode.selected && mapNode.flag == 1) {
@@ -127,59 +165,338 @@ public class MapPanel extends JPanel{
                         } else {
                             gRef.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         }
+
+                        // show the node ID if we in debug mode .. the higher the node count, the more text spam there is :-P
+                        // It will affect editor speed, the more nodes the worse it will get, you have been warned :)
+
+                        if (bDebugShowID) {
+                            textList.add(new TextDisplayStore(String.valueOf(mapNode.id), nodePos, Color.WHITE));
+                        }
+                    }
+
+                }
+
+                // do we draw the node hover-over image and add the marker name/group to the draw list
+
+                if (hoveredNode != null) {
+                    Point2D hoverNodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
+                    if (hoveredNode.flag == NODE_STANDARD) {
+                        gRef.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    } else if (hoveredNode.flag == NODE_SUBPRIO) {
+                        gRef.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    }
+                    for (MapMarker mapMarker : roadMap.mapMarkers) {
+                        if (hoveredNode.id == mapMarker.mapNode.id) {
+                            String text = mapMarker.name + " ( " + mapMarker.group + " )";
+                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
+                            textList.add( new TextDisplayStore( text, nodePosMarker, Color.WHITE));
+                        }
+                    }
+                    if (DEBUG) {
+                        String text = "x = " + hoveredNode.x + " , z = " + hoveredNode.z + " , flags = " + hoveredNode.flag;
+                        Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x + 1, hoveredNode.z);
+                        textList.add( new TextDisplayStore( text, nodePosMarker, Color.WHITE));
                     }
                 }
-            } else {
-                LOG.error("gRef is null");
+
+                // iterate over all the markers and add the names to the draw list
+
+                LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
+                for (MapMarker mapMarker : mapMarkers) {
+                    if (roadMap.mapNodes.contains(mapMarker.mapNode)) {
+                        Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
+                        textList.add(new TextDisplayStore(mapMarker.name, nodePos, Color.WHITE));
+                    }
+                }
+
+                // display all the text we need to render
+
+                for(int i = 0; i <= textList.size() -1; i++ ) {
+                    TextDisplayStore list = textList.get(i);
+
+                    drawlock.lock();
+                    try {
+                        gRef.setColor(list.colour);
+                        gRef.drawString(list.Text, (int) list.coord.getX(), (int) list.coord.getY());
+                    } finally {
+                        drawlock.unlock();
+                    }
+                }
             }
+
+            // Draw any liner lines
+
+            if (selected != null) {
+                if (editorState == EDITORSTATE_CONNECTING) {
+
+                    Color colour = Color.GREEN;
+
+                    if (linearLine.lineNodeList.size() > 1) {
+                        for (int j = 0; j < linearLine.lineNodeList.size() -1; j++) { // skip the starting node of the array
+                            MapNode firstPos = linearLine.lineNodeList.get(j);
+                            MapNode secondPos = linearLine.lineNodeList.get(j+1);
+
+                            Point2D startNodePos = worldPosToScreenPos(firstPos.x, firstPos.y);
+                            Point2D endNodePos = worldPosToScreenPos(secondPos.x, secondPos.y);
+
+                            // don't draw the circle for the last node in the array
+                            if (j < linearLine.lineNodeList.size() - 1 ) {
+                                gRef.drawImage(curveNodeImage, (int) (startNodePos.getX() - sizeScaledHalf), (int) (startNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            }
+                            if ( connectionType == CONNECTION_DUAL ) {
+                                colour = Color.BLUE;
+                            } else if ( connectionType == CONNECTION_REVERSE ) {
+                                colour = Color.CYAN;
+                            }
+                            gRef.setColor(colour);
+                            drawArrowBetween(gRef, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
+
+                        }
+                    }  else {
+                        if (linearLine.lineNodeList.size() == 1) {
+                            if ( connectionType == CONNECTION_DUAL ) {
+                                colour = Color.BLUE;
+                            } else if ( connectionType == CONNECTION_REVERSE ) {
+                                colour = Color.CYAN;
+                            }
+
+                            Point2D startNodePos = worldPosToScreenPos(linearLine.getLineStartNode().x, linearLine.getLineStartNode().z);
+                            Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
+
+                            drawlock.lock();
+                            try {
+                                gRef.setColor(colour);
+                                drawArrowBetween(gRef, startNodePos, mousePos, connectionType == CONNECTION_DUAL);
+                            } finally {
+                                drawlock.unlock();
+                            }
+                        }
+                    }
+                } else {
+
+                    Point2D startNodePos = worldPosToScreenPos(selected.x, selected.z);
+                    Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
+
+                    drawlock.lock();
+                    try {
+                        gRef.setColor(Color.WHITE);
+                        drawArrowBetween(gRef, startNodePos, mousePos, false);
+                    } finally {
+                        drawlock.unlock();
+                    }
+                }
+            }
+
+            // Draw the quad curve connection preview
+
+            if (quadCurve != null) {
+                if (isQuadCurveCreated) {
+                    // draw control point
+                    Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
+                    if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
+                        gRef.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    } else {
+                          gRef.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    }
+
+                    //draw interpolation points for curve
+                    Color colour = Color.GREEN;
+                    for (int j = 0; j < quadCurve.curveNodesList.size() - 1; j++) {
+
+                        MapNode currentcoord = quadCurve.curveNodesList.get(j);
+                        MapNode nextcoored = quadCurve.curveNodesList.get(j + 1);
+
+                        Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
+                        Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
+
+                        //don't draw the first node as it already been drawn
+                        if (j != 0) {
+                            if (quadCurve.getNodeType() == NODE_STANDARD) {
+                                gRef.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            } else {
+                                gRef.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                            }
+                        }
+
+                        if (quadCurve.isReversePath()) {
+                            colour = Color.CYAN;
+                        } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_STANDARD) {
+                            colour = Color.BLUE;
+                        } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_SUBPRIO) {
+                            colour = BROWN;
+                        } else if (currentcoord.flag == 1) {
+                            colour = Color.ORANGE;
+                        }
+
+                        drawlock.lock();
+                        try {
+                            gRef.setColor(colour);
+                            drawArrowBetween(gRef, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
+                        } finally {
+                            drawlock.unlock();
+                        }
+                    }
+                }
+            }
+
+            // Draw the cubic curve connection preview
+
+            if (cubicCurve != null) {
+                if (isCubicCurveCreated) {
+                    // draw control point
+                    Point2D nodePos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
+                    if (cubicCurve.getControlPoint1().selected || hoveredNode == cubicCurve.getControlPoint1()) {
+                        gRef.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    } else {
+                        gRef.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    }
+
+                    nodePos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
+                    if (cubicCurve.getControlPoint2().selected || hoveredNode == cubicCurve.getControlPoint2()) {
+                        gRef.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    } else {
+                        gRef.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    }
+
+                    //draw interpolation points for curve
+                    Color colour = Color.GREEN;
+                    for (int j = 0; j < cubicCurve.curveNodesList.size() - 1; j++) {
+
+                        MapNode currentcoord = cubicCurve.curveNodesList.get(j);
+                        MapNode nextcoored = cubicCurve.curveNodesList.get(j + 1);
+
+                        Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
+                        Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
+
+                        //don't draw the first node as it already been drawn
+                        if (j != 0) {
+                            if (cubicCurve.getNodeType() == NODE_STANDARD) {
+                                gRef.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            } else {
+                                gRef.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                            }
+                        }
+
+                        if (cubicCurve.isReversePath()) {
+                            colour = Color.CYAN;
+                        } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_STANDARD) {
+                            colour = Color.BLUE;
+                        } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_SUBPRIO) {
+                            colour = BROWN;
+                        } else if (currentcoord.flag == 1) {
+                            colour = Color.ORANGE;
+                        }
+
+                        drawlock.lock();
+                        try {
+                            gRef.setColor(colour);
+                            drawArrowBetween(gRef, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
+                        } finally {
+                            drawlock.unlock();
+                        }
+                    }
+                }
+            }
+
+            // draw the right button selection rectangle
+
+            if (rectangleStart != null) {
+
+                int width = (int) (mousePosX - rectangleStart.getX());
+                int height = (int) (mousePosY - rectangleStart.getY());
+                int recX = Double.valueOf(rectangleStart.getX()).intValue();
+                int recY = Double.valueOf(rectangleStart.getY()).intValue();
+                if (width < 0) {
+                    recX += width;
+                    width = -width;
+                }
+                if (height < 0) {
+                    recY += height;
+                    height = -height;
+                }
+
+                drawlock.lock();
+                try {
+                    gRef.setColor(Color.WHITE);
+                    gRef.drawRect(recX, recY, width, height);
+                } finally {
+                    drawlock.unlock();
+                }
+            }
+
+            if (DEBUG) {
+                String text = "Finished Node Rendering in " + (System.currentTimeMillis() - start) + " ms";
+                showInTextArea(text,false);
+            }
+
         }
     }
 
-    static class ConnectionDrawThread extends Thread {
+    //
+    // The connection drawing thread finishes last in almost all cases, so we keep this as small as possible
+    // we only draw the connections in the visible area (plus some extra padding so we don't see the
+    // connections clipping.
+    //
+
+    static class ConnectionDrawThread implements Runnable {
 
         private Graphics gRef = null;
-
-        public ConnectionDrawThread(Graphics graphics) {
-            gRef = graphics;
+        private final int width;
+        private final int height;
+        private ConnectionDrawThread(Graphics graphics, int panelWidth, int panelHeight) {
+            this.gRef = graphics;
+            this.width = panelWidth;
+            this.height = panelHeight;
         }
 
         @Override
         public void run() {
-            int sizeScaled = (int) (nodeSize * zoomLevel);
-            int sizeScaledHalf = (int) (sizeScaled * 0.5);
+
+            long start = System.currentTimeMillis();
+            double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
             if (gRef != null) {
+
+                Color drawColour;
+
                 for (MapNode mapNode : roadMap.mapNodes) {
-                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
                     LinkedList<MapNode> mapNodes = mapNode.outgoing;
-                    for (MapNode outgoing : mapNodes) {
-                        boolean dual = RoadMap.isDual(mapNode, outgoing);
-                        boolean reverse = RoadMap.isReverse(mapNode, outgoing);
+                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
 
-                        if (dual && mapNode.flag == 1) {
-                            gRef.setColor(BROWN);
-                        } else if (dual) {
-                            gRef.setColor(Color.BLUE);
-                        } else if (reverse) {
-                            gRef.setColor(Color.CYAN);
-                        } else if (mapNode.flag == 1) {
-                            gRef.setColor(Color.ORANGE);
-                        } else {
-                            gRef.setColor(Color.GREEN);
+                    if (0 - ( 20 * zoomLevel)  < nodePos.getX() && width + (10 * zoomLevel) > nodePos.getX() && 0 - (20 * zoomLevel) < nodePos.getY() && height + (10 * zoomLevel) > nodePos.getY() ) {
+                        for (MapNode outgoing : mapNodes) {
+                            boolean dual = RoadMap.isDual(mapNode, outgoing);
+                            boolean reverse = RoadMap.isReverse(mapNode, outgoing);
+
+                            if (dual && mapNode.flag == 1) {
+                                drawColour = BROWN;
+                            } else if (dual) {
+                                drawColour = Color.BLUE;
+                            } else if (reverse) {
+                                drawColour = Color.CYAN;
+                            } else if (mapNode.flag == 1) {
+                                drawColour = Color.ORANGE;
+                            } else {
+                                drawColour = Color.GREEN;
+                            }
+
+
+                            Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
+
+                            drawlock.lock();
+                            try {
+                                gRef.setColor(drawColour);
+                                drawArrowBetween(gRef, nodePos, outPos, dual);
+                            } finally {
+                                drawlock.unlock();
+                            }
                         }
-
-                        Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
-                        drawArrowBetween(gRef, nodePos, outPos, dual);
-                    }
-                    if (bDebugShowID) {
-                        //Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x - 1, hoveredNode.z + 3);
-                        String text = "ID " + mapNode.id;
-                        gRef.setColor(Color.WHITE);
-                        gRef.drawString(text, (int) (nodePos.getX() - 10 ), (int) (nodePos.getY() + 30 ));
                     }
                 }
-            } else {
-                LOG.error("gRef is null");
+            }
+            if (DEBUG) {
+                String text = "Finished Connection Rendering in " + (System.currentTimeMillis() - start) + " ms (" + zoomLevel +")";
+                showInTextArea(text,false);
             }
         }
     }
@@ -190,7 +507,9 @@ public class MapPanel extends JPanel{
 
         if (image != null) {
 
-            g.clipRect(0, 0, this.getWidth(), this.getHeight());
+            showInTextArea("", true);
+
+            //g.clipRect(0, 0, this.getWidth(), this.getHeight());
 
             g.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
 
@@ -200,239 +519,33 @@ public class MapPanel extends JPanel{
             if (roadMap != null) {
                 if (image != null) {
 
-                    nodeDraw = new NodeDrawThread(g);
-                    nodeDraw.start();
-
-                    connectionDraw = new ConnectionDrawThread(g);
+                    connectionDraw = new Thread(new ConnectionDrawThread(g, this.getWidth(), this.getHeight()));
                     connectionDraw.start();
+
+                    nodeDraw = new Thread( new NodeDrawThread(g, this.getWidth(), this.getHeight()));
+                    nodeDraw.start();
 
                     try {
                         nodeDraw.join();
                         connectionDraw.join();
+
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }
-
-                // draw map marker name
-
-                LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
-                for (MapMarker mapMarker : mapMarkers) {
-                    if (roadMap.mapNodes.contains(mapMarker.mapNode)) {
-                        Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1 );
-                        g.setColor(Color.WHITE);
-                        g.drawString(mapMarker.name, (int) (nodePos.getX()), (int) (nodePos.getY()));
-                    }
-                }
-
-                // change colour of in progress connection line
-
-                if (selected != null) {
-                    if (editorState == EDITORSTATE_CONNECTING) {
-                        if (linearLine.lineNodeList.size() > 1) {
-                            for (int j = 0; j < linearLine.lineNodeList.size() -1; j++) { // skip the starting node of the array
-                                MapNode firstPos = linearLine.lineNodeList.get(j);
-                                MapNode secondPos = linearLine.lineNodeList.get(j+1);
-
-                                Point2D startNodePos = worldPosToScreenPos(firstPos.x, firstPos.y);
-                                Point2D endNodePos = worldPosToScreenPos(secondPos.x, secondPos.y);
-
-                                g.setColor(Color.WHITE);
-                                // don't draw the circle for the last node in the array
-                                if (j < linearLine.lineNodeList.size() - 2 ) {
-                                    g.fillArc((int) (endNodePos.getX() - ((nodeSize * zoomLevel) * 0.5)), (int) (endNodePos.getY() - ((nodeSize * zoomLevel) * 0.5)), (int) (nodeSize * zoomLevel), (int) (nodeSize * zoomLevel), 0, 360);
-                                }
-                                if ( connectionType == CONNECTION_DUAL ) {
-                                    g.setColor(Color.BLUE);
-                                } else if ( connectionType == CONNECTION_REVERSE ) {
-                                    g.setColor(Color.CYAN);
-                                } else {
-                                    g.setColor(Color.GREEN);
-                                }
-                                drawArrowBetween(g, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
-
-                            }
-                        }  else {
-                            if (linearLine.lineNodeList.size() == 1) {
-
-                                if ( connectionType == CONNECTION_DUAL ) {
-                                    g.setColor(Color.BLUE);
-                                } else if ( connectionType == CONNECTION_REVERSE ) {
-                                    g.setColor(Color.CYAN);
-                                } else {
-                                    g.setColor(Color.GREEN);
-                                }
-
-                                Point2D startNodePos = worldPosToScreenPos(linearLine.getLineStartNode().x, linearLine.getLineStartNode().z);
-                                Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
-                                drawArrowBetween(g, startNodePos, mousePos, connectionType == CONNECTION_DUAL);
-
-                            }
-                        }
-                    } else {
-                        g.setColor(Color.white);
-                        Point2D startNodePos = worldPosToScreenPos(selected.x, selected.z);
-                        Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
-                        drawArrowBetween(g, startNodePos, mousePos, false);
-                    }
-                }
-
-                // draw node different colour if selected
-
-                if (hoveredNode != null) {
-                    Point2D nodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
-                    if (hoveredNode.flag == NODE_STANDARD) {
-                        g.drawImage(nodeImageSelected,(int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    } else if (hoveredNode.flag == NODE_SUBPRIO) {
-                        g.drawImage(subPrioNodeImageSelected,(int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    }
-
-                    //draw marker group when hovering over node
-
-                    for (MapMarker mapMarker : roadMap.mapMarkers) {
-                        if (hoveredNode.id == mapMarker.mapNode.id) {
-                            g.setColor(Color.WHITE);
-                            String text = mapMarker.name + " ( " + mapMarker.group + " )";
-                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
-                            g.drawString(text, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
-                        }
-                    }
-                }
-
-                // draw quad curve related items
-
-                if (quadCurve != null) {
-                    if (isQuadCurveCreated) {
-                        // draw control point
-                        Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
-                        if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
-                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        } else {
-                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        }
-
-                        //draw interpolation points for curve
-                        for (int j = 0; j < quadCurve.curveNodesList.size() - 1; j++) {
-
-                            MapNode currentcoord = quadCurve.curveNodesList.get(j);
-                            MapNode nextcoored = quadCurve.curveNodesList.get(j + 1);
-
-                            Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
-                            Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
-
-                            g.setColor(Color.WHITE);
-                            //don't draw the first node as it already been drawn
-                            if (j != 0) {
-                                if (quadCurve.getNodeType() == NODE_STANDARD) {
-                                    g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                                } else {
-                                    g.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
-                                }
-                            }
-                            if (quadCurve.isReversePath()) {
-                                g.setColor(Color.CYAN);
-                            } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_STANDARD) {
-                                g.setColor(Color.BLUE);
-                            } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_SUBPRIO) {
-                                g.setColor(BROWN);
-                            } else if (currentcoord.flag == 1) {
-                                g.setColor(Color.ORANGE);
-                            } else {
-                                g.setColor(Color.GREEN);
-                            }
-                            drawArrowBetween(g, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
-                        }
-                    }
-                }
-
-
-
-
-                if (cubicCurve != null) {
-                    if (isCubicCurveCreated) {
-                        // draw control point
-                        Point2D nodePos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
-                        if (cubicCurve.getControlPoint1().selected || hoveredNode == cubicCurve.getControlPoint1()) {
-                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        } else {
-                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        }
-
-                        nodePos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
-                        if (cubicCurve.getControlPoint2().selected || hoveredNode == cubicCurve.getControlPoint2()) {
-                            g.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        } else {
-                            g.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        }
-
-                        //draw interpolation points for curve
-                        for (int j = 0; j < cubicCurve.curveNodesList.size() - 1; j++) {
-
-                            MapNode currentcoord = cubicCurve.curveNodesList.get(j);
-                            MapNode nextcoored = cubicCurve.curveNodesList.get(j + 1);
-
-                            Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
-                            Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
-
-                            g.setColor(Color.WHITE);
-                            //don't draw the first node as it already been drawn
-                            if (j != 0) {
-                                if (cubicCurve.getNodeType() == NODE_STANDARD) {
-                                    g.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                                } else {
-                                    g.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
-                                }
-                            }
-                            if (cubicCurve.isReversePath()) {
-                                g.setColor(Color.CYAN);
-                            } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_STANDARD) {
-                                g.setColor(Color.BLUE);
-                            } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_SUBPRIO) {
-                                g.setColor(Color.ORANGE);
-                            } else {
-                                g.setColor(Color.GREEN);
-                            }
-                            drawArrowBetween(g, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
-                        }
-                    }
-                }
-
-                if (rectangleStart != null) {
-                    g.setColor(Color.WHITE);
-                    int width = (int) (mousePosX - rectangleStart.getX());
-                    int height = (int) (mousePosY - rectangleStart.getY());
-                    int recx = Double.valueOf(rectangleStart.getX()).intValue();
-                    int recy = Double.valueOf(rectangleStart.getY()).intValue();
-                    if (width < 0) {
-                        recx += width;
-                        width = -width;
-                    }
-                    if (height < 0) {
-                        recy += height;
-                        height = -height;
-                    }
-                    g.drawRect(recx, recy, width, height);
-                }
-
-                if (DEBUG) {
-                    if (hoveredNode != null) {
-                        g.setColor(Color.WHITE);
-                        String text = "x = " + hoveredNode.x + " , z = " + hoveredNode.z + " , flags = " + hoveredNode.flag;
-                        Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x + 1, hoveredNode.z);
-                        g.drawString(text, (int) (nodePosMarker.getX()), (int) (nodePosMarker.getY()));
-                    }
-
                 }
             }
         }
     }
 
     private void resizeMap() throws RasterFormatException {
+
+        long start = System.currentTimeMillis();
+
         if (image != null) {
             int widthScaled = (int) (this.getWidth() / zoomLevel);
             int heightScaled = (int) (this.getHeight() / zoomLevel);
 
-            if ( widthScaled > image.getWidth() ) {
+            if ( x + widthScaled > image.getWidth() ) {
                 while ( widthScaled > image.getWidth() ) {
                     double step = -1 * (zoomLevel * 0.1);
                     if (DEBUG) LOG.info("widthScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", widthScaled, step);
@@ -442,7 +555,7 @@ public class MapPanel extends JPanel{
                 if (DEBUG) LOG.info("widthScaled is {}", widthScaled);
             }
 
-            if ( heightScaled > image.getHeight() ) {
+            if ( y + heightScaled > image.getHeight() ) {
                 while ( heightScaled > image.getHeight() ) {
                     double step = -1 * (zoomLevel * 0.1);
                     if (DEBUG) LOG.info("heightScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", heightScaled, step);
@@ -452,15 +565,13 @@ public class MapPanel extends JPanel{
                 if (DEBUG) LOG.info("heightScaled is {}", heightScaled);
             }
 
-            double maxX = 1 - (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
-            double minX = (((this.getWidth() * 0.5) / zoomLevel) / image.getWidth());
-            double maxY = 1 - (((this.getHeight() * 0.5) / zoomLevel) / image.getHeight());
-            double minY = (((this.getHeight() * 0.5) / zoomLevel) / image.getHeight());
+            double calcX = ((this.getWidth() * 0.5) / zoomLevel) / image.getWidth();
+            double calcY = ((this.getHeight() * 0.5) / zoomLevel) / image.getHeight();
 
-            x = Math.min(x, maxX);
-            x = Math.max(x, minX);
-            y = Math.min(y, maxY);
-            y = Math.max(y, minY);
+            x = Math.min(x, 1 - calcX);
+            x = Math.max(x, calcX);
+            y = Math.min(y, 1 - calcY);
+            y = Math.max(y, calcY);
 
 
             int centerX = (int) (x * image.getWidth());
@@ -473,8 +584,19 @@ public class MapPanel extends JPanel{
 
             try {
                 croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
-                resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), image.getType());
+                resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2 = (Graphics2D) resizedImage.getGraphics();
+
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+                g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+                g2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+                g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
                 g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
                 g2.dispose();
             } catch (Exception e) {
@@ -482,6 +604,13 @@ public class MapPanel extends JPanel{
                 LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
                 e.printStackTrace();
             }
+
+            if (DEBUG) {
+                String text = "Finished ResizeMap() in " + (System.currentTimeMillis() - start) + " ms ";
+                //showInTextArea(text,false);
+                LOG.info("Finished ResizeMap() in {} ms", System.currentTimeMillis() - start);
+            }
+
         }
     }
 
@@ -881,21 +1010,24 @@ public class MapPanel extends JPanel{
         double arrowLength = 1.3 * zoomLevel;
 
         double arrowLeft = normalizeAngle(angleRad + Math.toRadians(-20));
-        double arrowRight = normalizeAngle(angleRad + Math.toRadians(20));
-
         double arrowLeftX = target.getX() + Math.cos(arrowLeft) * arrowLength;
         double arrowLeftY = target.getY() + Math.sin(arrowLeft) * arrowLength;
 
+        double arrowRight = normalizeAngle(angleRad + Math.toRadians(20));
         double arrowRightX = target.getX() + Math.cos(arrowRight) * arrowLength;
         double arrowRightY = target.getY() + Math.sin(arrowRight) * arrowLength;
 
         // calculate where to start the line based around the circumference of the node
-        double startX = start.getX() + (-((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
-        double startY = start.getY() + (-((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
+
+        double distCos = ((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad);
+        double distSin = ((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad);
+
+        double startX = start.getX() + -distCos;
+        double startY = start.getY() + -distSin;
 
         // calculate where to finish the line based around the circumference of the node
-        double endX = target.getX() + (((nodeSize * zoomLevel) * 0.5) * Math.cos(angleRad));
-        double endY = target.getY() + (((nodeSize * zoomLevel) * 0.5) * Math.sin(angleRad));
+        double endX = target.getX() + distCos;
+        double endY = target.getY() + distSin;
 
         g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
         g.drawLine((int) endX, (int) endY, (int) arrowLeftX, (int) arrowLeftY);
@@ -912,8 +1044,8 @@ public class MapPanel extends JPanel{
             arrowRightX = start.getX() + Math.cos(arrowRight) * arrowLength;
             arrowRightY = start.getY() + Math.sin(arrowRight) * arrowLength;
 
-            g.drawLine((int) (startX), (int) (startY), (int) arrowLeftX, (int) arrowLeftY);
-            g.drawLine((int) (startX), (int) (startY), (int) arrowRightX, (int) arrowRightY);
+            g.drawLine((int) startX, (int) startY, (int) arrowLeftX, (int) arrowLeftY);
+            g.drawLine((int) startX, (int) startY, (int) arrowRightX, (int) arrowRightY);
         }
     }
 

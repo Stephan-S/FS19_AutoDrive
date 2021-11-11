@@ -363,7 +363,7 @@ public class GUIBuilder {
             textArea.selectAll();
             textArea.replaceSelection("");
         }
-        LOG.info(text);
+        //LOG.info(text);
         textArea.append(text + "\n");
     }
 
