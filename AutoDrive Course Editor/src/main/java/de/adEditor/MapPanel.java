@@ -34,7 +34,9 @@ public class MapPanel extends JPanel{
     public static final int CONNECTION_REVERSE = 3;
 
     private static BufferedImage image;
-    public static BufferedImage resizedImage;
+    public static Image resizedImage;
+    public static long time = 0;
+    public static boolean showTime = false;
 
     public Thread nodeDraw;
     public Thread connectionDraw;
@@ -136,7 +138,12 @@ public class MapPanel extends JPanel{
         @Override
         public void run() {
 
-            long start = System.currentTimeMillis();
+            long startTime = 0;
+
+            if (PROFILE) {
+                startTime = System.currentTimeMillis();
+            }
+
 
             ArrayList<TextDisplayStore> textList = new ArrayList<>();
 
@@ -424,8 +431,8 @@ public class MapPanel extends JPanel{
                 }
             }
 
-            if (DEBUG) {
-                String text = "Finished Node Rendering in " + (System.currentTimeMillis() - start) + " ms";
+            if (PROFILE) {
+                String text = "Finished Node Rendering in " + (System.currentTimeMillis() - startTime) + " ms";
                 showInTextArea(text,false);
             }
 
@@ -452,7 +459,12 @@ public class MapPanel extends JPanel{
         @Override
         public void run() {
 
-            long start = System.currentTimeMillis();
+            long startTime = 0;
+
+            if (PROFILE) {
+                startTime = System.currentTimeMillis();
+            }
+
             double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
             if (gRef != null) {
@@ -494,8 +506,8 @@ public class MapPanel extends JPanel{
                     }
                 }
             }
-            if (DEBUG) {
-                String text = "Finished Connection Rendering in " + (System.currentTimeMillis() - start) + " ms (" + zoomLevel +")";
+            if (PROFILE) {
+                String text = "Finished Connection Rendering in " + (System.currentTimeMillis() - startTime) + " ms (" + zoomLevel +")";
                 showInTextArea(text,false);
             }
         }
@@ -505,11 +517,22 @@ public class MapPanel extends JPanel{
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        if (PROFILE) {
+            if (!showTime) {
+                time = System.currentTimeMillis();
+                showTime = true;
+            } else {
+                LOG.info("Time = {}",System.currentTimeMillis() - time);
+                time = System.currentTimeMillis();
+                showInTextArea("", true);
+            }
+        }
+
         if (image != null) {
 
-            showInTextArea("", true);
 
-            //g.clipRect(0, 0, this.getWidth(), this.getHeight());
+
+            g.clipRect(0, 0, this.getWidth(), this.getHeight());
 
             g.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
 
@@ -539,13 +562,26 @@ public class MapPanel extends JPanel{
 
     private void resizeMap() throws RasterFormatException {
 
-        long start = System.currentTimeMillis();
+        long startTime = 0;
+
+        if (PROFILE) {
+            startTime = System.currentTimeMillis();
+        }
+
+
+        double prevX, prevY, preZoom, preWidthScaled, preHeightScaled;
+
+        prevX = x;
+        prevY = y;
+        preZoom = zoomLevel;
+        preWidthScaled = (int) (this.getWidth() / zoomLevel);
+        preHeightScaled = (int) (this.getHeight() / zoomLevel);
 
         if (image != null) {
             int widthScaled = (int) (this.getWidth() / zoomLevel);
             int heightScaled = (int) (this.getHeight() / zoomLevel);
 
-            if ( x + widthScaled > image.getWidth() ) {
+            if ( (int) Math.abs(x) + widthScaled > image.getWidth() ) {
                 while ( widthScaled > image.getWidth() ) {
                     double step = -1 * (zoomLevel * 0.1);
                     if (DEBUG) LOG.info("widthScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", widthScaled, step);
@@ -555,7 +591,7 @@ public class MapPanel extends JPanel{
                 if (DEBUG) LOG.info("widthScaled is {}", widthScaled);
             }
 
-            if ( y + heightScaled > image.getHeight() ) {
+            if ( (int) Math.abs(y) + heightScaled > image.getHeight() ) {
                 while ( heightScaled > image.getHeight() ) {
                     double step = -1 * (zoomLevel * 0.1);
                     if (DEBUG) LOG.info("heightScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", heightScaled, step);
@@ -579,11 +615,8 @@ public class MapPanel extends JPanel{
 
             int offsetX = (centerX - (widthScaled / 2));
             int offsetY = (centerY - (heightScaled / 2));
-
-            BufferedImage croppedImage;
-
             try {
-                croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
+                Image croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
                 resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2 = (Graphics2D) resizedImage.getGraphics();
 
@@ -605,10 +638,10 @@ public class MapPanel extends JPanel{
                 e.printStackTrace();
             }
 
-            if (DEBUG) {
-                String text = "Finished ResizeMap() in " + (System.currentTimeMillis() - start) + " ms ";
+            if (PROFILE) {
+                String text = "Finished ResizeMap() in " + (System.currentTimeMillis() - startTime) + " ms ";
                 //showInTextArea(text,false);
-                LOG.info("Finished ResizeMap() in {} ms", System.currentTimeMillis() - start);
+                LOG.info("Finished ResizeMap() in {} ms", System.currentTimeMillis() - startTime);
             }
 
         }
@@ -1681,15 +1714,24 @@ public class MapPanel extends JPanel{
         return image;
     }
 
-    public void setImage(BufferedImage image) {
-        if (image != null) {
-            LOG.info("Selected Image size is {} x {}",image.getWidth(), image.getHeight());
-            if (image.getWidth() != 2048 || image.getHeight() != 2048 ) {
+    public void setImage(BufferedImage loadedImage) {
+        if (loadedImage != null) {
+            LOG.info("Selected Image size is {} x {}",loadedImage.getWidth(), loadedImage.getHeight());
+            if (loadedImage.getWidth() != 2048 || loadedImage.getHeight() != 2048 ) {
                 int response = JOptionPane.showConfirmDialog(null, "" + localeString.getString("dialog_mapimage_incorrect_size1") + "\n\n" + localeString.getString("dialog_mapimage_incorrect_size2"), "AutoDrive", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
                 LOG.info("{} ... {}", localeString.getString("dialog_mapimage_incorrect_size1"), localeString.getString("dialog_mapimage_incorrect_size2"));
                 return;
             }
-            this.image = image;
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gd = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gd.getDefaultConfiguration();
+            this.image = gc.createCompatibleImage(loadedImage.getWidth(), loadedImage.getHeight());
+            Graphics2D g2d = (Graphics2D) this.image.getGraphics();
+
+            // actually draw the image and dispose of context no longer needed
+            g2d.drawImage(loadedImage, 0, 0, null);
+            g2d.dispose();
+            //..this.image = image;
             if (!oldConfigFormat) {
                 GUIBuilder.updateGUIButtons(true);
                 GUIBuilder.saveMenuEnabled(true);

@@ -48,6 +48,7 @@ public class AutoDriveEditor extends JFrame {
     private String lastRunVersion;
     public static boolean DEBUG = false;
     public static boolean EXPERIMENTAL = false;
+    public static boolean PROFILE = false;
 
     public EditorListener editorListener;
     public static ResourceBundle localeString;
@@ -197,6 +198,13 @@ public class AutoDriveEditor extends JFrame {
                 EXPERIMENTAL = true;
                 LOG.info("##");
                 LOG.info("## WARNING ..... Experimental features are unlocked, config corruption is possible.. USE --ONLY-- ON BACKUP CONFIGS!!");
+                LOG.info("##");
+            }
+
+            if (Objects.equals(args[i], "-PROFILE")) {
+                PROFILE = true;
+                LOG.info("##");
+                LOG.info("## WARNING ..... Profiling is active... Large amounts of logging will occur");
                 LOG.info("##");
             }
         }
