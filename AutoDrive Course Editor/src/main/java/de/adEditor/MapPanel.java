@@ -35,7 +35,6 @@ public class MapPanel extends JPanel{
 
     private static BufferedImage image;
     public static Image resizedImage;
-    public static long time = 0;
     public static boolean showTime = false;
 
     public Thread nodeDraw;
@@ -471,11 +470,12 @@ public class MapPanel extends JPanel{
 
                 Color drawColour;
 
-                for (MapNode mapNode : roadMap.mapNodes) {
+                LinkedList<MapNode> nodes = roadMap.mapNodes;
+                for (MapNode mapNode : nodes) {
                     LinkedList<MapNode> mapNodes = mapNode.outgoing;
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
 
-                    if (0 - ( 20 * zoomLevel)  < nodePos.getX() && width + (10 * zoomLevel) > nodePos.getX() && 0 - (20 * zoomLevel) < nodePos.getY() && height + (10 * zoomLevel) > nodePos.getY() ) {
+                    if (0 - (40 * zoomLevel) < nodePos.getX() && width + (40 * zoomLevel) > nodePos.getX() && 0 - (40 * zoomLevel) < nodePos.getY() && height + (40 * zoomLevel) > nodePos.getY()) {
                         for (MapNode outgoing : mapNodes) {
                             boolean dual = RoadMap.isDual(mapNode, outgoing);
                             boolean reverse = RoadMap.isReverse(mapNode, outgoing);
@@ -517,21 +517,16 @@ public class MapPanel extends JPanel{
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+
+
+
+
         if (PROFILE) {
-            if (!showTime) {
-                time = System.currentTimeMillis();
-                showTime = true;
-            } else {
-                LOG.info("Time = {}",System.currentTimeMillis() - time);
-                time = System.currentTimeMillis();
-                showInTextArea("", true);
-            }
+            startTimer();
+            showInTextArea("", true);
         }
 
         if (image != null) {
-
-
-
             g.clipRect(0, 0, this.getWidth(), this.getHeight());
 
             g.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
@@ -540,34 +535,33 @@ public class MapPanel extends JPanel{
             int sizeScaledHalf = (int) (sizeScaled * 0.5);
 
             if (roadMap != null) {
-                if (image != null) {
+                connectionDraw = new Thread(new ConnectionDrawThread(g, this.getWidth(), this.getHeight()));
+                connectionDraw.start();
 
-                    connectionDraw = new Thread(new ConnectionDrawThread(g, this.getWidth(), this.getHeight()));
-                    connectionDraw.start();
+                nodeDraw = new Thread( new NodeDrawThread(g, this.getWidth(), this.getHeight()));
+                nodeDraw.start();
 
-                    nodeDraw = new Thread( new NodeDrawThread(g, this.getWidth(), this.getHeight()));
-                    nodeDraw.start();
+                try {
+                    nodeDraw.join();
+                    connectionDraw.join();
 
-                    try {
-                        nodeDraw.join();
-                        connectionDraw.join();
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
+        }
+        if (PROFILE) {
+            LOG.info("PaintComponent() finished in {} ms", stopTimer());
         }
     }
 
     private void resizeMap() throws RasterFormatException {
 
-        long startTime = 0;
+
 
         if (PROFILE) {
-            startTime = System.currentTimeMillis();
+            startTimer();
         }
-
 
         double prevX, prevY, preZoom, preWidthScaled, preHeightScaled;
 
@@ -639,9 +633,7 @@ public class MapPanel extends JPanel{
             }
 
             if (PROFILE) {
-                String text = "Finished ResizeMap() in " + (System.currentTimeMillis() - startTime) + " ms ";
-                //showInTextArea(text,false);
-                LOG.info("Finished ResizeMap() in {} ms", System.currentTimeMillis() - startTime);
+                LOG.info("Finished ResizeMap() in {} ms", stopTimer());
             }
 
         }
@@ -674,7 +666,7 @@ public class MapPanel extends JPanel{
         if ((zoomLevel - step) < 30) {
             zoomLevel -= step;
             resizeMap();
-            repaint();
+            this.repaint();
         }
     }
 
@@ -710,7 +702,7 @@ public class MapPanel extends JPanel{
 
         node.x += scaledDiffX;
         node.z += scaledDiffY;
-        repaint();
+        this.repaint();
 
     }
 
@@ -918,8 +910,7 @@ public class MapPanel extends JPanel{
 
         getAllNodesInArea(rectangleStartScreen, rectangleEndScreen);
         LOG.info("{}", localeString.getString("console_node_area_remove"));
-        for (int j = 0; j < multiSelectList.size(); j++) {
-            MapNode node = multiSelectList.get(j);
+        for (MapNode node : multiSelectList) {
             addToDeleteList(node);
             if (DEBUG) LOG.info("Added ID {} to delete list", node.id);
         }
@@ -1246,7 +1237,7 @@ public class MapPanel extends JPanel{
                 if (info != null && info.getName() != null) {
                     LOG.info("{} {} - Name = {} , Group = {}", localeString.getString("console_marker_add"), movingNode.id, info.getName(), info.getGroup());
                     createDestinationAt(movingNode, info.getName(), info.getGroup());
-                    repaint();
+                    this.repaint();
                 }
             }
         }
@@ -1258,7 +1249,8 @@ public class MapPanel extends JPanel{
                     if (mapMarker.mapNode == movingNode) {
                         destInfo info = showEditMarkerDialog(mapMarker.mapNode.id, mapMarker.name, mapMarker.group);
                         if (info != null && info.getName() != null) {
-                            LOG.info("{} {} - Name = {} , Group = {}", localeString.getString("console_marker_modify"), movingNode.id, info.getName(), info.getGroup());
+                            LOG.info("{} {} - old name = {} , old group = {}", localeString.getString("console_marker_modify"), movingNode.id, info.getName(), info.getGroup());
+                            changeManager.addChangeable( new MarkerEditChanger(mapMarker.mapNode, movingNode.id, mapMarker.name, info.getName(), mapMarker.group, info.getGroup()));
                             mapMarker.name = info.getName();
                             mapMarker.group = info.getGroup();
                             setStale(true);
@@ -1271,6 +1263,7 @@ public class MapPanel extends JPanel{
             if (DEBUG) LOG.info("{} , {} , {}", isMultipleSelected, multiSelectList.size(), movingNode);
             if (isMultipleSelected && multiSelectList != null && movingNode != null) {
                 LOG.info("Horizontal Align {} nodes at {}",multiSelectList.size(), movingNode.y);
+                changeManager.addChangeable( new AlignmentChanger(multiSelectList, 0, movingNode.z));
                 for (MapNode node : multiSelectList) {
                     node.z = movingNode.z;
                 }
@@ -1286,6 +1279,7 @@ public class MapPanel extends JPanel{
         if (editorState == EDITORSTATE_ALIGN_VERTICAL) {
             if (isMultipleSelected && multiSelectList != null && movingNode != null) {
                 LOG.info("Vertical Align {} nodes at {}",multiSelectList.size(), movingNode.x);
+                changeManager.addChangeable( new AlignmentChanger(multiSelectList, movingNode.x, 0));
                 for (MapNode node : multiSelectList) {
                     node.x = movingNode.x;
                 }
@@ -1318,7 +1312,7 @@ public class MapPanel extends JPanel{
                         selected = null;
                     }
                 }
-                repaint();
+                this.repaint();
             }
         }
 
@@ -1341,7 +1335,7 @@ public class MapPanel extends JPanel{
                         selected = null;
                     }
                 }
-                repaint();
+                this.repaint();
             }
         }
     }
@@ -1528,8 +1522,7 @@ public class MapPanel extends JPanel{
         LinkedList<MapNode> otherNodesOutLinks = new LinkedList<>();
 
         LinkedList<MapNode> roadmapNodes = roadMap.mapNodes;
-        for (int i = 0; i < roadmapNodes.size(); i++) {
-            MapNode mapNode = roadmapNodes.get(i);
+        for (MapNode mapNode : roadmapNodes) {
             if (mapNode != node) {
                 if (mapNode.outgoing.contains(node)) {
                     otherNodesOutLinks.add(mapNode);

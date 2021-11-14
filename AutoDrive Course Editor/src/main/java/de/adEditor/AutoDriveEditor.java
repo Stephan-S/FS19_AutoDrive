@@ -84,7 +84,7 @@ public class AutoDriveEditor extends JFrame {
 
     public static boolean bContinuousConnections = false; // default value
     public static boolean bMiddleMouseMove = false; // default value
-    public static int controlPointMoveScaler = 1; // default value
+    public static int controlPointMoveScaler = 3; // default value
     public static int linearLineNodeDistance = 12;
 
     public static ChangeManager changeManager;

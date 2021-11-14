@@ -4,9 +4,11 @@ import de.adEditor.AutoDriveEditor;
 import de.adEditor.GUIBuilder;
 import de.adEditor.MapPanel;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.AutoDriveEditor.localeString;
 import static de.adEditor.MapPanel.*;
 
 
@@ -511,6 +513,104 @@ public class ChangeManager {
             roadMap.removeMapMarker(this.markerStore);
             MapPanel.getMapPanel().repaint();
             MapPanel.getMapPanel().setStale(true);
+        }
+    }
+
+    public static class MarkerEditChanger implements Changeable{
+        private final Boolean isStale;
+        private final MapNode mapNode;
+        private final int mapNodeID;
+        private final String oldName;
+        private final String newName;
+        private final String oldGroup;
+        private final String newGroup;
+
+        public MarkerEditChanger(MapNode mapNode, int id, String prevName, String newName, String prevGroup, String newGroup){
+            super();
+            this.isStale = MapPanel.getMapPanel().isStale();
+            this.mapNode = mapNode;
+            this.mapNodeID = id;
+            this.oldName = prevName;
+            this.newName = newName;
+            this.oldGroup = prevGroup;
+            this.newGroup = newGroup;
+        }
+
+        public void undo() {
+            for (int i = 0; i < roadMap.mapMarkers.size(); i++) {
+                MapMarker mapMarker = roadMap.mapMarkers.get(i);
+                if (mapMarker.mapNode == this.mapNode) {
+                    mapMarker.name = this.oldName;
+                    mapMarker.group = this.oldGroup;
+                }
+            }
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(this.isStale);
+        }
+
+        public void redo() {
+            for (int i = 0; i < roadMap.mapMarkers.size(); i++) {
+                MapMarker mapMarker = roadMap.mapMarkers.get(i);
+                if (mapMarker.mapNode == this.mapNode) {
+                    mapMarker.name = this.newName;
+                    mapMarker.group = this.newGroup;
+                }
+            }
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(true);
+        }
+    }
+
+    public static class AlignmentChanger implements Changeable{
+        private final Boolean isStale;
+        private final LinkedList<ZStore> nodeList;
+
+        public AlignmentChanger(LinkedList<MapNode> multiSelectList, double x, double z){
+            super();
+            this.isStale = MapPanel.getMapPanel().isStale();
+            this.nodeList = new LinkedList<>();
+
+            for (MapNode node : multiSelectList) {
+                nodeList.add(new ZStore(node, x, z));
+            }
+        }
+
+        public void undo() {
+            for (ZStore storedNode : nodeList) {
+                storedNode.mapNode.x += storedNode.diffX;
+                storedNode.mapNode.z += storedNode.diffZ;
+            }
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(this.isStale);
+        }
+
+        public void redo() {
+            for (ZStore storedNode : nodeList) {
+                storedNode.mapNode.x += -storedNode.diffX;
+                storedNode.mapNode.z += -storedNode.diffZ;
+            }
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(true);
+        }
+
+        private static class ZStore {
+            private final MapNode mapNode;
+            private final double diffX;
+            private final double diffZ;
+
+            public ZStore(MapNode node, double dX, double dZ) {
+                this.mapNode = node;
+                if (dX == 0) {
+                    this.diffX = 0;
+                } else {
+                    this.diffX = node.x - dX;
+                }
+                if (dZ == 0) {
+                    this.diffZ = 0;
+                } else {
+                    this.diffZ = node.z - dZ;
+                }
+            }
         }
     }
 

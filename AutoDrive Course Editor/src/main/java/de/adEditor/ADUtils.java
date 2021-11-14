@@ -20,9 +20,13 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+
+
 public class ADUtils {
 
     public static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
+    public static long profiletimer = 0;
+    public static long totalTime = 0;
 
     public static Rectangle2D getNormalizedRectangleFor(double x, double y, double width, double height) {
         if (width < 0) {
@@ -203,5 +207,15 @@ public class ADUtils {
             uriSyntaxException.printStackTrace();
         }
         return null;
+    }
+
+    public static void startTimer() {
+        profiletimer = System.currentTimeMillis();
+        totalTime = 0;
+    }
+
+    public static long stopTimer() {
+        totalTime += System.currentTimeMillis() - profiletimer;
+        return totalTime;
     }
 }
