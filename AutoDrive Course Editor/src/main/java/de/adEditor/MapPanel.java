@@ -100,6 +100,9 @@ public class MapPanel extends JPanel{
             @Override
             public void componentResized(ComponentEvent e) {
                 resizeMap();
+                // Part 2 of work around for map resize bug.. force a refresh of all the values
+                // used to redraw the map.
+                moveMapBy(0,0);
                 repaint();
             }
         });
@@ -557,25 +560,23 @@ public class MapPanel extends JPanel{
 
     private void resizeMap() throws RasterFormatException {
 
-
-
         if (PROFILE) {
             startTimer();
         }
-
-        double prevX, prevY, preZoom, preWidthScaled, preHeightScaled;
-
-        prevX = x;
-        prevY = y;
-        preZoom = zoomLevel;
-        preWidthScaled = (int) (this.getWidth() / zoomLevel);
-        preHeightScaled = (int) (this.getHeight() / zoomLevel);
 
         if (image != null) {
             int widthScaled = (int) (this.getWidth() / zoomLevel);
             int heightScaled = (int) (this.getHeight() / zoomLevel);
 
-            if ( (int) Math.abs(x) + widthScaled > image.getWidth() ) {
+            // Part 1 of work around for map resize bug.. increase the zoomLevel
+            // if widthScaled and heightScaled are bigger than the map image dimensions
+            //
+            // This will get us close, but the zoomLevel is still off by a small
+            // amount and just moving the map in any direction will force MoveMapBy()
+            // to run again and recalculate all the values so when run again ResizeMap()
+            // will calculate it correctly.
+
+            if ( (int) x + widthScaled > image.getWidth() ) {
                 while ( widthScaled > image.getWidth() ) {
                     double step = -1 * (zoomLevel * 0.1);
                     if (DEBUG) LOG.info("widthScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", widthScaled, step);
@@ -585,7 +586,7 @@ public class MapPanel extends JPanel{
                 if (DEBUG) LOG.info("widthScaled is {}", widthScaled);
             }
 
-            if ( (int) Math.abs(y) + heightScaled > image.getHeight() ) {
+            if ( (int) y + heightScaled > image.getHeight() ) {
                 while ( heightScaled > image.getHeight() ) {
                     double step = -1 * (zoomLevel * 0.1);
                     if (DEBUG) LOG.info("heightScaled is out of bounds ( {} ) .. increasing zoomLevel by {}", heightScaled, step);
@@ -628,7 +629,7 @@ public class MapPanel extends JPanel{
                 g2.dispose();
             } catch (Exception e) {
                 LOG.info("## MapPanel.ResizeMap() ## Exception in getSubImage()");
-                LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
+                LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {} , offsetX = {} , offsetY = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", x, y, offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
                 e.printStackTrace();
             }
 
@@ -834,15 +835,9 @@ public class MapPanel extends JPanel{
                 if (!target.incoming.contains(start))
                 target.incoming.add(start);
             } else if (type == CONNECTION_REVERSE ) {
-                if (start.incoming.contains(target)) {
-                    start.incoming.remove(target);
-                }
-                if (target.incoming.contains(start)) {
-                    target.incoming.remove(start);
-                }
-                if (target.outgoing.contains(start)) {
-                    target.outgoing.remove(start);
-                }
+                start.incoming.remove(target);
+                target.incoming.remove(start);
+                target.outgoing.remove(start);
             } else if (type == CONNECTION_DUAL) {
                 if (!target.incoming.contains(start)) {
                     target.incoming.add(start);
@@ -856,35 +851,19 @@ public class MapPanel extends JPanel{
             }
         } else {
             if (type == CONNECTION_STANDARD) {
-                if (start.outgoing.contains(target)) {
-                    start.outgoing.remove(target);
-                }
-                if (target.incoming.contains(start)) {
-                    target.incoming.remove(start);
-                }
+                start.outgoing.remove(target);
+                target.incoming.remove(start);
             } else if (type == CONNECTION_REVERSE ) {
                 start.outgoing.remove(target);
-                if (start.incoming.contains(target)) {
-                    start.incoming.remove(target);
-                }
-                if (target.outgoing.contains(start)) {
-                    target.outgoing.remove(start);
-                }
-                if (target.incoming.contains(start)) {
-                    target.incoming.remove(start);
-                }
+                start.incoming.remove(target);
+                target.outgoing.remove(start);
+                target.incoming.remove(start);
 
             } else if (type == CONNECTION_DUAL) {
                 start.outgoing.remove(target);
-                if (start.incoming.contains(target)) {
-                    start.incoming.remove(target);
-                }
-                if (target.incoming.contains(start)) {
-                    target.incoming.remove(start);
-                }
-                if (target.outgoing.contains(start)) {
-                    target.outgoing.remove(start);
-                }
+                start.incoming.remove(target);
+                target.incoming.remove(start);
+                target.outgoing.remove(start);
             }
         }
     }
