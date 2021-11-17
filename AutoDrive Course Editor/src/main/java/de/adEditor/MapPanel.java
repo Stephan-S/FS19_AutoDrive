@@ -41,6 +41,16 @@ public class MapPanel extends JPanel{
     public Thread connectionDraw;
     private static Lock drawlock = new ReentrantLock();
 
+    public int offsetX, oldOffsetX;
+    public int offsetY, oldOffsetY;
+    public int widthScaled, oldWidthScaled;
+    public int heightScaled, oldHeightScaled;
+
+    private BufferedImage croppedImage;
+
+    private BufferedImage doubleBufferImage = null;
+    private static Graphics2D doubleBufferGraphics = null;
+
     private static double x = 0.5;
     private static double y = 0.5;
     private static double zoomLevel = 1.0;
@@ -96,14 +106,27 @@ public class MapPanel extends JPanel{
         addMouseMotionListener(mouseListener);
         addMouseWheelListener(mouseListener);
 
+
         addComponentListener(new ComponentAdapter(){
             @Override
             public void componentResized(ComponentEvent e) {
+                final Dimension d = getSize();
+                doubleBufferImage = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
+                doubleBufferGraphics = (Graphics2D) doubleBufferImage.getGraphics();
+                /*doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);*/
                 resizeMap();
                 // Part 2 of work around for map resize bug.. force a refresh of all the values
                 // used to redraw the map.
                 moveMapBy(0,0);
-                repaint();
+                mapPanel.repaint();
             }
         });
     }
@@ -115,12 +138,12 @@ public class MapPanel extends JPanel{
 
     static class NodeDrawThread implements Runnable {
 
-        private Graphics gRef = null;
+        //private Graphics gRef = null;
         private int width;
         private int height;
 
         public NodeDrawThread(Graphics graphics, int panelWidth, int panelHeight) {
-            gRef = graphics;
+            //gRef = graphics;
             this.width = panelWidth;
             this.height = panelHeight;
         }
@@ -153,7 +176,7 @@ public class MapPanel extends JPanel{
             int sizeScaledHalf = (int) (sizeScaled * 0.5);
             double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-            if (gRef != null) {
+            if (doubleBufferGraphics != null) {
 
                 LinkedList<MapNode> mapNodes = roadMap.mapNodes;
 
@@ -166,20 +189,21 @@ public class MapPanel extends JPanel{
                     Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
                     if (0 < nodePos.getX() + currentNodeSize && (width) > nodePos.getX() - currentNodeSize && 0 < nodePos.getY() + currentNodeSize && (height) > nodePos.getY() - currentNodeSize) {
                         if (mapNode.selected && mapNode.flag == 0) {
-                            gRef.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            doubleBufferGraphics.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else if (mapNode.selected && mapNode.flag == 1) {
-                            gRef.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            doubleBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else if (mapNode.flag == 1) {
-                            gRef.drawImage(subPrioNodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            doubleBufferGraphics.drawImage(subPrioNodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         } else {
-                            gRef.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            doubleBufferGraphics.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                         }
 
                         // show the node ID if we in debug mode .. the higher the node count, the more text spam there is :-P
                         // It will affect editor speed, the more nodes the worse it will get, you have been warned :)
 
                         if (bDebugShowID) {
-                            textList.add(new TextDisplayStore(String.valueOf(mapNode.id), nodePos, Color.WHITE));
+                            Point2D newPoint =  new Point2D.Double(nodePos.getX() - 12 , nodePos.getY() + 30);
+                            textList.add(new TextDisplayStore(String.valueOf(mapNode.id), newPoint, Color.WHITE));
                         }
                     }
 
@@ -190,9 +214,9 @@ public class MapPanel extends JPanel{
                 if (hoveredNode != null) {
                     Point2D hoverNodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
                     if (hoveredNode.flag == NODE_STANDARD) {
-                        gRef.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     } else if (hoveredNode.flag == NODE_SUBPRIO) {
-                        gRef.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     }
                     for (MapMarker mapMarker : roadMap.mapMarkers) {
                         if (hoveredNode.id == mapMarker.mapNode.id) {
@@ -225,8 +249,8 @@ public class MapPanel extends JPanel{
 
                     drawlock.lock();
                     try {
-                        gRef.setColor(list.colour);
-                        gRef.drawString(list.Text, (int) list.coord.getX(), (int) list.coord.getY());
+                        doubleBufferGraphics.setColor(list.colour);
+                        doubleBufferGraphics.drawString(list.Text, (int) list.coord.getX(), (int) list.coord.getY());
                     } finally {
                         drawlock.unlock();
                     }
@@ -250,15 +274,15 @@ public class MapPanel extends JPanel{
 
                             // don't draw the circle for the last node in the array
                             if (j < linearLine.lineNodeList.size() - 1 ) {
-                                gRef.drawImage(curveNodeImage, (int) (startNodePos.getX() - sizeScaledHalf), (int) (startNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                doubleBufferGraphics.drawImage(curveNodeImage, (int) (startNodePos.getX() - sizeScaledHalf), (int) (startNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                             }
                             if ( connectionType == CONNECTION_DUAL ) {
                                 colour = Color.BLUE;
                             } else if ( connectionType == CONNECTION_REVERSE ) {
                                 colour = Color.CYAN;
                             }
-                            gRef.setColor(colour);
-                            drawArrowBetween(gRef, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
+                            doubleBufferGraphics.setColor(colour);
+                            drawArrowBetween(doubleBufferGraphics, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
 
                         }
                     }  else {
@@ -274,8 +298,8 @@ public class MapPanel extends JPanel{
 
                             drawlock.lock();
                             try {
-                                gRef.setColor(colour);
-                                drawArrowBetween(gRef, startNodePos, mousePos, connectionType == CONNECTION_DUAL);
+                                doubleBufferGraphics.setColor(colour);
+                                drawArrowBetween(doubleBufferGraphics, startNodePos, mousePos, connectionType == CONNECTION_DUAL);
                             } finally {
                                 drawlock.unlock();
                             }
@@ -288,8 +312,8 @@ public class MapPanel extends JPanel{
 
                     drawlock.lock();
                     try {
-                        gRef.setColor(Color.WHITE);
-                        drawArrowBetween(gRef, startNodePos, mousePos, false);
+                        doubleBufferGraphics.setColor(Color.WHITE);
+                        drawArrowBetween(doubleBufferGraphics, startNodePos, mousePos, false);
                     } finally {
                         drawlock.unlock();
                     }
@@ -303,9 +327,9 @@ public class MapPanel extends JPanel{
                     // draw control point
                     Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
                     if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
-                        gRef.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     } else {
-                          gRef.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                          doubleBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     }
 
                     //draw interpolation points for curve
@@ -321,9 +345,9 @@ public class MapPanel extends JPanel{
                         //don't draw the first node as it already been drawn
                         if (j != 0) {
                             if (quadCurve.getNodeType() == NODE_STANDARD) {
-                                gRef.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                doubleBufferGraphics.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                             } else {
-                                gRef.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                                doubleBufferGraphics.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
                             }
                         }
 
@@ -339,8 +363,8 @@ public class MapPanel extends JPanel{
 
                         drawlock.lock();
                         try {
-                            gRef.setColor(colour);
-                            drawArrowBetween(gRef, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
+                            doubleBufferGraphics.setColor(colour);
+                            drawArrowBetween(doubleBufferGraphics, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
                         } finally {
                             drawlock.unlock();
                         }
@@ -355,16 +379,16 @@ public class MapPanel extends JPanel{
                     // draw control point
                     Point2D nodePos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
                     if (cubicCurve.getControlPoint1().selected || hoveredNode == cubicCurve.getControlPoint1()) {
-                        gRef.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     } else {
-                        gRef.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     }
 
                     nodePos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
                     if (cubicCurve.getControlPoint2().selected || hoveredNode == cubicCurve.getControlPoint2()) {
-                        gRef.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     } else {
-                        gRef.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                        doubleBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                     }
 
                     //draw interpolation points for curve
@@ -380,9 +404,9 @@ public class MapPanel extends JPanel{
                         //don't draw the first node as it already been drawn
                         if (j != 0) {
                             if (cubicCurve.getNodeType() == NODE_STANDARD) {
-                                gRef.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                doubleBufferGraphics.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                             } else {
-                                gRef.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                                doubleBufferGraphics.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
                             }
                         }
 
@@ -398,8 +422,8 @@ public class MapPanel extends JPanel{
 
                         drawlock.lock();
                         try {
-                            gRef.setColor(colour);
-                            drawArrowBetween(gRef, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
+                            doubleBufferGraphics.setColor(colour);
+                            drawArrowBetween(doubleBufferGraphics, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
                         } finally {
                             drawlock.unlock();
                         }
@@ -426,8 +450,8 @@ public class MapPanel extends JPanel{
 
                 drawlock.lock();
                 try {
-                    gRef.setColor(Color.WHITE);
-                    gRef.drawRect(recX, recY, width, height);
+                    doubleBufferGraphics.setColor(Color.WHITE);
+                    doubleBufferGraphics.drawRect(recX, recY, width, height);
                 } finally {
                     drawlock.unlock();
                 }
@@ -449,11 +473,11 @@ public class MapPanel extends JPanel{
 
     static class ConnectionDrawThread implements Runnable {
 
-        private Graphics gRef = null;
+        //private Graphics doubleBufferGraphics = null;
         private final int width;
         private final int height;
         private ConnectionDrawThread(Graphics graphics, int panelWidth, int panelHeight) {
-            this.gRef = graphics;
+            //this.doubleBufferGraphics = graphics;
             this.width = panelWidth;
             this.height = panelHeight;
         }
@@ -469,7 +493,7 @@ public class MapPanel extends JPanel{
 
             double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-            if (gRef != null) {
+            if (doubleBufferGraphics != null) {
 
                 Color drawColour;
 
@@ -500,8 +524,8 @@ public class MapPanel extends JPanel{
 
                             drawlock.lock();
                             try {
-                                gRef.setColor(drawColour);
-                                drawArrowBetween(gRef, nodePos, outPos, dual);
+                                doubleBufferGraphics.setColor(drawColour);
+                                drawArrowBetween(doubleBufferGraphics, nodePos, outPos, dual);
                             } finally {
                                 drawlock.unlock();
                             }
@@ -520,28 +544,34 @@ public class MapPanel extends JPanel{
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-
-
-
-
         if (PROFILE) {
-            startTimer();
             showInTextArea("", true);
+            startTimer();
         }
 
         if (image != null) {
-            g.clipRect(0, 0, this.getWidth(), this.getHeight());
+            doubleBufferGraphics.clipRect(0, 0, this.getWidth(), this.getHeight());
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+            doubleBufferGraphics.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
 
-            g.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
+            //doubleBuferGraphics.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
 
-            int sizeScaled = (int) (nodeSize * zoomLevel);
-            int sizeScaledHalf = (int) (sizeScaled * 0.5);
+            //int sizeScaled = (int) (nodeSize * zoomLevel);
+            //int sizeScaledHalf = (int) (sizeScaled * 0.5);
 
             if (roadMap != null) {
-                connectionDraw = new Thread(new ConnectionDrawThread(g, this.getWidth(), this.getHeight()));
+                connectionDraw = new Thread(new ConnectionDrawThread(doubleBufferGraphics, this.getWidth(), this.getHeight()));
                 connectionDraw.start();
 
-                nodeDraw = new Thread( new NodeDrawThread(g, this.getWidth(), this.getHeight()));
+                nodeDraw = new Thread( new NodeDrawThread(doubleBufferGraphics, this.getWidth(), this.getHeight()));
                 nodeDraw.start();
 
                 try {
@@ -551,6 +581,7 @@ public class MapPanel extends JPanel{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                g.drawImage(doubleBufferImage, 0, 0, null);
             }
         }
         if (PROFILE) {
@@ -559,14 +590,9 @@ public class MapPanel extends JPanel{
     }
 
     private void resizeMap() throws RasterFormatException {
-
-        if (PROFILE) {
-            startTimer();
-        }
-
         if (image != null) {
-            int widthScaled = (int) (this.getWidth() / zoomLevel);
-            int heightScaled = (int) (this.getHeight() / zoomLevel);
+            widthScaled = (int) (this.getWidth() / zoomLevel);
+            heightScaled = (int) (this.getHeight() / zoomLevel);
 
             // Part 1 of work around for map resize bug.. increase the zoomLevel
             // if widthScaled and heightScaled are bigger than the map image dimensions
@@ -608,35 +634,22 @@ public class MapPanel extends JPanel{
             int centerX = (int) (x * image.getWidth());
             int centerY = (int) (y * image.getHeight());
 
-            int offsetX = (centerX - (widthScaled / 2));
-            int offsetY = (centerY - (heightScaled / 2));
-            try {
-                Image croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
-                resizedImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
-                Graphics2D g2 = (Graphics2D) resizedImage.getGraphics();
+            offsetX = (centerX - (widthScaled / 2));
+            offsetY = (centerY - (heightScaled / 2));
 
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-                g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-                g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
-                g2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
-                g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-
-                g2.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
-                g2.dispose();
-            } catch (Exception e) {
-                LOG.info("## MapPanel.ResizeMap() ## Exception in getSubImage()");
-                LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {} , offsetX = {} , offsetY = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", x, y, offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
-                e.printStackTrace();
+            if (offsetX != oldOffsetX || offsetY != oldOffsetY || widthScaled != oldWidthScaled || heightScaled != oldHeightScaled) {
+                try {
+                    croppedImage = image.getSubimage(offsetX, offsetY, widthScaled, heightScaled);
+                    oldOffsetX = offsetX;
+                    oldOffsetY = offsetY;
+                    oldWidthScaled = widthScaled;
+                    oldHeightScaled = heightScaled;
+                } catch (Exception e) {
+                    LOG.info("## MapPanel.ResizeMap() ## Exception in getSubImage()");
+                    LOG.info("## MapPanel.ResizeMap() ## x = {} , y = {} , offsetX = {} , offsetY = {}  -- width = {} , height = {} , zoomlevel = {} , widthScaled = {} , heightScaled = {}", x, y, offsetX, offsetY, this.getWidth(), this.getHeight(), zoomLevel, widthScaled, heightScaled);
+                    e.printStackTrace();
+                }
             }
-
-            if (PROFILE) {
-                LOG.info("Finished ResizeMap() in {} ms", stopTimer());
-            }
-
         }
     }
 
@@ -889,7 +902,48 @@ public class MapPanel extends JPanel{
 
         getAllNodesInArea(rectangleStartScreen, rectangleEndScreen);
         LOG.info("{}", localeString.getString("console_node_area_remove"));
+        if (quadCurve != null && isQuadCurveCreated) {
+            if (multiSelectList.contains(quadCurve.getCurveStartNode())) {
+                if (DEBUG) LOG.info("Cannot delete start node of quad curve until it is confirmed or cancelled");
+                multiSelectList.remove(quadCurve.getCurveStartNode());
+                quadCurve.getCurveStartNode().selected = false;
+            }
+            if (multiSelectList.contains(quadCurve.getCurveEndNode())) {
+                if (DEBUG) LOG.info("Cannot delete end nodes of quad curve until it is confirmed or cancelled");
+                multiSelectList.remove(quadCurve.getCurveEndNode());
+                quadCurve.getCurveEndNode().selected = false;
+            }
+            if (multiSelectList.contains(quadCurve.getControlPoint())) {
+                if (DEBUG) LOG.info("Cannot delete quad curve control point");
+                multiSelectList.remove(quadCurve.getControlPoint());
+                quadCurve.getControlPoint().selected = false;
+
+            }
+        }
+        if (cubicCurve != null && isCubicCurveCreated) {
+            if (multiSelectList.contains(cubicCurve.getCurveStartNode())) {
+                if (DEBUG) LOG.info("Cannot delete start node of cubic curve until it is confirmed or cancelled");
+                multiSelectList.remove(cubicCurve.getCurveStartNode());
+                cubicCurve.getCurveStartNode().selected = false;
+            }
+            if (multiSelectList.contains(cubicCurve.getCurveEndNode())) {
+                if (DEBUG) LOG.info("Cannot delete end node of cubic curve until it is confirmed or cancelled");
+                multiSelectList.remove(cubicCurve.getCurveEndNode());
+                cubicCurve.getCurveEndNode().selected = false;
+            }
+            if (multiSelectList.contains(cubicCurve.getControlPoint1())) {
+                if (DEBUG) LOG.info("Cannot delete cubic curve control point 1");
+                multiSelectList.remove(cubicCurve.getControlPoint1());
+                cubicCurve.getControlPoint1().selected = false;
+            }
+            if (multiSelectList.contains(cubicCurve.getControlPoint2())) {
+                if (DEBUG) LOG.info("Cannot delete cubic curve control point 2");
+                multiSelectList.remove(cubicCurve.getControlPoint2());
+                cubicCurve.getControlPoint2().selected = false;
+            }
+        }
         for (MapNode node : multiSelectList) {
+
             addToDeleteList(node);
             if (DEBUG) LOG.info("Added ID {} to delete list", node.id);
         }
@@ -1033,22 +1087,25 @@ public class MapPanel extends JPanel{
         double endY = target.getY() + distSin;
 
         g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
-        g.drawLine((int) endX, (int) endY, (int) arrowLeftX, (int) arrowLeftY);
-        g.drawLine((int) endX, (int) endY, (int) arrowRightX, (int) arrowRightY);
 
-        if (dual) {
-            angleRad = normalizeAngle(angleRad+Math.PI);
+        if (zoomLevel > 2.5) {
+            g.drawLine((int) endX, (int) endY, (int) arrowLeftX, (int) arrowLeftY);
+            g.drawLine((int) endX, (int) endY, (int) arrowRightX, (int) arrowRightY);
 
-            arrowLeft = normalizeAngle(angleRad + Math.toRadians(-20));
-            arrowRight = normalizeAngle(angleRad + Math.toRadians(20));
+            if (dual) {
+                angleRad = normalizeAngle(angleRad+Math.PI);
 
-            arrowLeftX = start.getX() + Math.cos(arrowLeft) * arrowLength;
-            arrowLeftY = start.getY() + Math.sin(arrowLeft) * arrowLength;
-            arrowRightX = start.getX() + Math.cos(arrowRight) * arrowLength;
-            arrowRightY = start.getY() + Math.sin(arrowRight) * arrowLength;
+                arrowLeft = normalizeAngle(angleRad + Math.toRadians(-20));
+                arrowRight = normalizeAngle(angleRad + Math.toRadians(20));
 
-            g.drawLine((int) startX, (int) startY, (int) arrowLeftX, (int) arrowLeftY);
-            g.drawLine((int) startX, (int) startY, (int) arrowRightX, (int) arrowRightY);
+                arrowLeftX = start.getX() + Math.cos(arrowLeft) * arrowLength;
+                arrowLeftY = start.getY() + Math.sin(arrowLeft) * arrowLength;
+                arrowRightX = start.getX() + Math.cos(arrowRight) * arrowLength;
+                arrowRightY = start.getY() + Math.sin(arrowRight) * arrowLength;
+
+                g.drawLine((int) startX, (int) startY, (int) arrowLeftX, (int) arrowLeftY);
+                g.drawLine((int) startX, (int) startY, (int) arrowRightX, (int) arrowRightY);
+            }
         }
     }
 
@@ -1380,6 +1437,7 @@ public class MapPanel extends JPanel{
 
         if (movingNode != null) {
             isDragging = false;
+            boolean delete = true;
             if (editorState == EDITORSTATE_MOVING) {
                 moveDiffX = 0;
                 moveDiffY = 0;
@@ -1389,11 +1447,33 @@ public class MapPanel extends JPanel{
                 }
             }
             if (editorState == EDITORSTATE_DELETE_NODES) {
-                addToDeleteList(movingNode);
-                changeManager.addChangeable( new RemoveNodeChanger(deleteNodeList));
-                removeNodes();
-                deleteNodeList.clear();
-                clearMultiSelection();
+                if (quadCurve != null && isQuadCurveCreated) {
+                    if (movingNode == quadCurve.getCurveStartNode() || movingNode == quadCurve.getCurveEndNode()){
+                        if (DEBUG) LOG.info("Cannot delete start node of quad curve until it is confirmed or cancelled");
+                        delete = false;
+                    }
+                    if (movingNode == quadCurve.getControlPoint()) {
+                        if (DEBUG) LOG.info("Cannot delete control point of quad curve");
+                        delete = false;
+                    }
+                }
+                if (cubicCurve != null && isCubicCurveCreated) {
+                    if (movingNode == cubicCurve.getCurveStartNode() || movingNode == cubicCurve.getCurveEndNode()) {
+                        if (DEBUG) LOG.info("Cannot delete start/end node of cubic curve until it is confirmed or cancelled");
+                        delete = false;
+                    }
+                    if (movingNode == cubicCurve.getControlPoint1() || movingNode == cubicCurve.getControlPoint2()) {
+                        if (DEBUG) LOG.info("Cannot delete control point of cubic curve");
+                        delete = false;
+                    }
+                }
+                if (delete) {
+                    addToDeleteList(movingNode);
+                    changeManager.addChangeable( new RemoveNodeChanger(deleteNodeList));
+                    removeNodes();
+                    deleteNodeList.clear();
+                    clearMultiSelection();
+                }
             }
             if (editorState == EDITORSTATE_DELETING_DESTINATION) {
                 removeDestination(movingNode);

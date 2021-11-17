@@ -59,28 +59,17 @@ public class RoadMap {
     }
 
     public void removeMapNode(MapNode toDelete) {
-        if (MapPanel.quadCurve != null && MapPanel.isQuadCurveCreated) {
-            if (toDelete == MapPanel.quadCurve.getCurveStartNode() || toDelete == MapPanel.quadCurve.getCurveEndNode()) {
-                LOG.info("Cannot delete the start or end nodes of curve until it is confirmed or cancelled");
-                return;
-            }
-        }
         boolean deleted = false;
-        if (mapNodes.contains(toDelete)) {
+        /*if (mapNodes.contains(toDelete)) {*/
             mapNodes.remove(toDelete);
-            deleted = true;
-        }
+            //deleted = true;
+        /*}*/
 
         LinkedList<MapNode> nodes = mapNodes;
-        for (int i = 0; i < nodes.size(); i++) {
-            MapNode mapNode = nodes.get(i);
-            if (mapNode.outgoing.contains(toDelete)) {
-                mapNode.outgoing.remove(toDelete);
-            }
-            if (mapNode.incoming.contains(toDelete)) {
-                mapNode.incoming.remove(toDelete);
-            }
-            if (deleted && mapNode.id > toDelete.id) {
+        for (MapNode mapNode : nodes) {
+            mapNode.outgoing.remove(toDelete);
+            mapNode.incoming.remove(toDelete);
+            if (mapNode.id > toDelete.id) {
                 mapNode.id--;
             }
         }
