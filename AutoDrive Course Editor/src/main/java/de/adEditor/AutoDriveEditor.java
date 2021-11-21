@@ -30,8 +30,7 @@ import java.net.URL;
 import java.util.*;
 
 import static de.adEditor.ADUtils.*;
-import static de.adEditor.GUIBuilder.quadSliderDefault;
-import static de.adEditor.GUIBuilder.quadSliderMax;
+import static de.adEditor.GUIBuilder.*;
 import static de.adEditor.MapPanel.getMapPanel;
 
 /* TODO:
@@ -58,6 +57,7 @@ public class AutoDriveEditor extends JFrame {
     public static File xmlConfigFile;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
     public static boolean oldConfigFormat = false;
+    public static int x=0, y=0, width=1024, height=768;
 
     public static BufferedImage tractorImage;
     public static BufferedImage nodeImage;
@@ -110,6 +110,16 @@ public class AutoDriveEditor extends JFrame {
                         saveMap(null);
                     }
                 }
+                if ( getMapPanel().connectionDrawThread != null ) {
+                    MapPanel.ConnectionDrawThread.stop();
+                    getMapPanel().connectionDrawThread.interrupt();
+                }
+
+                if ( getMapPanel().nodeDrawThread != null ) {
+                    MapPanel.NodeDrawThread.stop();
+                    getMapPanel().nodeDrawThread.interrupt();
+                }
+
                 saveEditorXMLConfig();
                 super.windowClosing(e);
             }
@@ -130,14 +140,14 @@ public class AutoDriveEditor extends JFrame {
         GUIBuilder.updateGUIButtons(false);
         pack();
         setLocationRelativeTo(null);
+        setLocation( x, y);
+        setSize(width, height);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         if (lastRunVersion != null && !lastRunVersion.equals(AUTODRIVE_INTERNAL_VERSION)) {
             LOG.info("Version Updated Detected");
             // TODO display new version notes
         }
-
         changeManager = new ChangeManager();
-
     }
 
     private void loadIcons() {
@@ -746,6 +756,12 @@ public class AutoDriveEditor extends JFrame {
             quadSliderMax = getIntegerValue(quadSliderMax, e, "QuadSliderMaximum");
             quadSliderDefault = getIntegerValue(quadSliderDefault, e, "QuadSliderDefault");
             controlPointMoveScaler = getIntegerValue(controlPointMoveScaler, e, "ControlPointMoveScaler");
+            x = getIntegerValue(x, e, "WindowX");
+            if ( x < 0 ) x = 0;
+            y = getIntegerValue(y, e, "WindowY");
+            if ( y < 0 ) y = 0;
+            width = getIntegerValue(width, e, "WindowWidth");
+            height = getIntegerValue(height, e, "WindowHeight");
 
         } catch (ParserConfigurationException | SAXException pce) {
             LOG.error("## Exception in loading Editor config ## SAX/Parser Exception");
@@ -763,13 +779,16 @@ public class AutoDriveEditor extends JFrame {
             Element root = doc.createElement("EditorConfig");
 
             setTextValue("Version", doc, AUTODRIVE_INTERNAL_VERSION, root);
+            setIntegerValue("WindowX", doc, getBounds().x, root);
+            setIntegerValue("WindowY", doc, getBounds().y, root);
+            setIntegerValue("WindowWidth", doc, getBounds().width, root);
+            setIntegerValue("WindowHeight", doc, getBounds().height, root);
             setBooleanValue("Continuous_Connection", doc, bContinuousConnections, root);
             setBooleanValue("MiddleMouseMove", doc, bMiddleMouseMove, root);
             setIntegerValue("LinearLineNodeDistance", doc, linearLineNodeDistance, root);
             setIntegerValue("QuadSliderMaximum", doc, quadSliderMax, root);
             setIntegerValue("QuadSliderDefault", doc, quadSliderDefault, root);
             setIntegerValue("ControlPointMoveScaler", doc, controlPointMoveScaler, root);
-
 
             doc.appendChild(root);
 

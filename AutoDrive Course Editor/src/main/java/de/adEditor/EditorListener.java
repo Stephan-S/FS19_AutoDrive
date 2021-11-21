@@ -72,6 +72,9 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     editor.saveMap(ADUtils.getSelectedFileWithExtension(fc).toString());
                 }
                 break;
+            case MENU_EXIT:
+                System.exit(0);
+                break;
             case MENU_EDIT_CUT:
                 break;
             case MENU_EDIT_COPY:

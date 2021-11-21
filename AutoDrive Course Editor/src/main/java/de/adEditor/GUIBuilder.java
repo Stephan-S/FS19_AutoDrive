@@ -36,6 +36,7 @@ public class GUIBuilder {
     public static final String MENU_LOAD_CONFIG = "Load Config";
     public static final String MENU_SAVE_CONFIG = "Save Config";
     public static final String MENU_SAVE_SAVEAS = "Save As";
+    public static final String MENU_EXIT = "Exit";
     public static final String MENU_LOAD_IMAGE = "Load Map";
     public static final String MENU_EDIT_UNDO = "Undo";
     public static final String MENU_EDIT_REDO = "Redo";
@@ -143,6 +144,7 @@ public class GUIBuilder {
         makeMenuItem("menu_file_loadconfig",  "menu_file_loadconfig_accstring", KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK, fileMenu, editorListener, MENU_LOAD_CONFIG, true );
         saveConfigMenuItem = makeMenuItem("menu_file_saveconfig",  "menu_file_saveconfig_accstring", KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK, fileMenu, editorListener, MENU_SAVE_CONFIG, false );
         saveConfigAsMenuItem = makeMenuItem("menu_file_saveasconfig", "menu_file_saveasconfig_accstring",  KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK,fileMenu, editorListener,MENU_SAVE_SAVEAS, false );
+        makeMenuItem("menu_file_exit",  "menu_file_exit_accstring", KeyEvent.VK_Q, InputEvent.ALT_DOWN_MASK, fileMenu, editorListener, MENU_EXIT, true );
 
         // Create the edit menu
 

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -19,8 +20,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-
 
 public class ADUtils {
 
@@ -41,12 +40,13 @@ public class ADUtils {
     }
 
     public static double normalizeAngle(double input) {
-        if (input > (2*Math.PI)) {
-            input = input - (2*Math.PI);
+        double xPI = (2*Math.PI);
+        if (input > xPI) {
+            input -= xPI;
         }
         else {
-            if (input < -(2*Math.PI)) {
-                input = input + (2*Math.PI);
+            if (input < -xPI ) {
+                input += xPI;
             }
         }
 
@@ -73,7 +73,24 @@ public class ADUtils {
         try {
             URL url = AutoDriveEditor.class.getResource("/editor/" + name);
             if (url != null) {
-                return ImageIO.read(url);
+                BufferedImage file = ImageIO.read(url);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                GraphicsDevice gd = ge.getDefaultScreenDevice();
+                GraphicsConfiguration gc = gd.getDefaultConfiguration();
+                BufferedImage image = gc.createCompatibleImage(file.getWidth(), file.getHeight(), Transparency.BITMASK);
+                Graphics2D g = (Graphics2D) image.getGraphics();
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+                g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+                g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+                g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+                g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+                g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+                g.drawImage(file,0,0,null);
+                //g.dispose();
+                return image;
             }
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);

@@ -12,10 +12,12 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import de.adEditor.MapHelpers.*;
+import org.w3c.dom.NodeList;
 
 import static de.adEditor.ADUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
@@ -37,9 +39,10 @@ public class MapPanel extends JPanel{
     public static Image resizedImage;
     public static boolean showTime = false;
 
-    public Thread nodeDraw;
-    public Thread connectionDraw;
+    public Thread nodeDrawThread;
+    public Thread connectionDrawThread;
     private static Lock drawlock = new ReentrantLock();
+    private static CountDownLatch latch;
 
     public int offsetX, oldOffsetX;
     public int offsetY, oldOffsetY;
@@ -48,8 +51,8 @@ public class MapPanel extends JPanel{
 
     private BufferedImage croppedImage;
 
-    private BufferedImage doubleBufferImage = null;
-    private static Graphics2D doubleBufferGraphics = null;
+    private BufferedImage backBufferImage = null;
+    private static Graphics2D backBufferGraphics = null;
 
     private static double x = 0.5;
     private static double y = 0.5;
@@ -110,18 +113,7 @@ public class MapPanel extends JPanel{
         addComponentListener(new ComponentAdapter(){
             @Override
             public void componentResized(ComponentEvent e) {
-                final Dimension d = getSize();
-                doubleBufferImage = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
-                doubleBufferGraphics = (Graphics2D) doubleBufferImage.getGraphics();
-                /*doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-                doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);*/
+                getNewBackBufferImage();
                 resizeMap();
                 // Part 2 of work around for map resize bug.. force a refresh of all the values
                 // used to redraw the map.
@@ -129,26 +121,26 @@ public class MapPanel extends JPanel{
                 mapPanel.repaint();
             }
         });
+
+        ConnectionDrawThread t1 = new ConnectionDrawThread();
+        connectionDrawThread = new Thread(t1 ,"ConnectionDrawThread");
+        connectionDrawThread.start();
+
+        NodeDrawThread t2 = new NodeDrawThread();
+        nodeDrawThread = new Thread(t2 ,"NodeDrawThread");
+        nodeDrawThread.start();
     }
 
     //
-    // The NodeDraw thread is 2 or 3 times quicker to execute that connectionDraw(), so we try and spread
-    // some of the draw load around by doing the curve/line/rectangle drawing here
+    // The NodeDraw thread is at least 2 or 3 times quicker to execute that connectionDraw(), so we
+    // try and spread the draw load around by doing the curve/line/rectangle drawing here
     //
 
     static class NodeDrawThread implements Runnable {
 
-        //private Graphics gRef = null;
-        private int width;
-        private int height;
+        private static volatile boolean isStopped = false;
 
-        public NodeDrawThread(Graphics graphics, int panelWidth, int panelHeight) {
-            //gRef = graphics;
-            this.width = panelWidth;
-            this.height = panelHeight;
-        }
-
-        static class TextDisplayStore {
+        private static class TextDisplayStore {
             String Text;
             Point2D coord;
             Color colour;
@@ -160,307 +152,337 @@ public class MapPanel extends JPanel{
             }
         }
 
+        public static void stop() {
+            LOG.info("Stopping NodeDraw Thread");
+            isStopped = true;
+        }
+
         @Override
-        public void run() {
-
-            long startTime = 0;
-
-            if (PROFILE) {
-                startTime = System.currentTimeMillis();
-            }
-
+        public synchronized void run() {
 
             ArrayList<TextDisplayStore> textList = new ArrayList<>();
+            LOG.info("NodeDrawThread is running");
 
-            int sizeScaled = (int) (nodeSize * zoomLevel);
-            int sizeScaledHalf = (int) (sizeScaled * 0.5);
-            double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-            if (doubleBufferGraphics != null) {
+            while ( !isStopped ) {
 
-                LinkedList<MapNode> mapNodes = roadMap.mapNodes;
+                try {
+                    //if (DEBUG) LOG.info("NodeDrawThread waiting");
+                    this.wait();
+                } catch (InterruptedException e) {
+                    if (isStopped) {
+                        LOG.info("NodeDrawThread returning");
+                        return;
+                    }
 
-                //
-                // Draw all nodes in visible area of map
-                // The original code would draw all the nodes even if they were not visible
-                //
+                    //int width = getMapPanel().getWidth();
+                    //int height = getMapPanel().getHeight();
 
-                for (MapNode mapNode : mapNodes) {
-                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
-                    if (0 < nodePos.getX() + currentNodeSize && (width) > nodePos.getX() - currentNodeSize && 0 < nodePos.getY() + currentNodeSize && (height) > nodePos.getY() - currentNodeSize) {
-                        if (mapNode.selected && mapNode.flag == 0) {
-                            doubleBufferGraphics.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        } else if (mapNode.selected && mapNode.flag == 1) {
-                            doubleBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        } else if (mapNode.flag == 1) {
-                            doubleBufferGraphics.drawImage(subPrioNodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    long startTime = 0;
+
+                    if (PROFILE) {
+                        startTime = System.currentTimeMillis();
+                    }
+
+
+
+                    int width = getMapPanel().getWidth();
+                    int height = getMapPanel().getHeight();
+
+                    int sizeScaled = (int) (nodeSize * zoomLevel);
+                    int sizeScaledHalf = (int) (sizeScaled * 0.5);
+                    double currentNodeSize = nodeSize * zoomLevel * 0.5;
+
+                    if (backBufferGraphics != null) {
+
+                        LinkedList<MapNode> mapNodes = roadMap.mapNodes;
+                        Color colour;
+
+                        //
+                        // Draw all nodes in visible area of map
+                        // The original code would draw all the nodes even if they were not visible
+                        //
+
+                        for (MapNode mapNode : mapNodes) {
+                            Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
+                                if (0 < nodePos.getX() && width > nodePos.getX() && 0 < nodePos.getY() && height > nodePos.getY()) {
+                                    if (mapNode.selected && mapNode.flag == 0) {
+                                        backBufferGraphics.drawImage(nodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    } else if (mapNode.selected && mapNode.flag == 1) {
+                                        backBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    } else if (mapNode.flag == 1) {
+                                        backBufferGraphics.drawImage(subPrioNodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    } else {
+                                        backBufferGraphics.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    }
+                                }
+
+                            // show the node ID if we in debug mode .. the higher the node count, the more text spam there is :-P
+                            // It will affect editor speed, the more nodes the worse it will get, you have been warned :)
+
+                            if (bDebugShowID) {
+                                Point2D newPoint =  new Point2D.Double(nodePos.getX() - 12 , nodePos.getY() + 30);
+                                textList.add(new TextDisplayStore(String.valueOf(mapNode.id), newPoint, Color.WHITE));
+                            }
+                        }
+
+                        // do we draw the node hover-over image and add the marker name/group to the draw list
+
+                        if (hoveredNode != null) {
+                            Point2D hoverNodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
+                            if (hoveredNode.flag == NODE_STANDARD) {
+                                backBufferGraphics.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            } else if (hoveredNode.flag == NODE_SUBPRIO) {
+                                backBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            }
+                            for (MapMarker mapMarker : roadMap.mapMarkers) {
+                                if (hoveredNode.id == mapMarker.mapNode.id) {
+                                    String text = mapMarker.name + " ( " + mapMarker.group + " )";
+                                    Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
+                                    textList.add( new TextDisplayStore( text, nodePosMarker, Color.WHITE));
+                                }
+                            }
+                            if (DEBUG) {
+                                String text = "x = " + hoveredNode.x + " , z = " + hoveredNode.z + " , flags = " + hoveredNode.flag;
+                                Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x + 1, hoveredNode.z);
+                                textList.add( new TextDisplayStore( text, nodePosMarker, Color.WHITE));
+                            }
+                        }
+
+                        // iterate over all the markers and add the names to the draw list
+
+                        LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
+                        for (MapMarker mapMarker : mapMarkers) {
+                            if (roadMap.mapNodes.contains(mapMarker.mapNode)) {
+                                Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
+                                textList.add(new TextDisplayStore(mapMarker.name, nodePos, Color.WHITE));
+                            }
+                        }
+
+                        // display all the text we need to render
+
+                        drawlock.lock();
+                        try {
+                            for(int i = 0; i <= textList.size() -1; i++ ) {
+                                TextDisplayStore list = textList.get(i);
+                                backBufferGraphics.setColor(list.colour);
+                                backBufferGraphics.drawString(list.Text, (int) list.coord.getX(), (int) list.coord.getY());
+                            }
+                        } finally {
+                            drawlock.unlock();
+                        }
+                    }
+
+                    // Draw any liner lines
+
+                    if (selected != null) {
+                        if (editorState == EDITORSTATE_CONNECTING) {
+
+                            Color colour = Color.GREEN;
+
+                            if (linearLine.lineNodeList.size() > 1) {
+                                for (int j = 0; j < linearLine.lineNodeList.size() -1; j++) { // skip the starting node of the array
+                                    MapNode firstPos = linearLine.lineNodeList.get(j);
+                                    MapNode secondPos = linearLine.lineNodeList.get(j+1);
+
+                                    Point2D startNodePos = worldPosToScreenPos(firstPos.x, firstPos.y);
+                                    Point2D endNodePos = worldPosToScreenPos(secondPos.x, secondPos.y);
+
+                                    // don't draw the circle for the last node in the array
+                                    if (j < linearLine.lineNodeList.size() - 1 ) {
+                                        backBufferGraphics.drawImage(curveNodeImage, (int) (startNodePos.getX() - sizeScaledHalf), (int) (startNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    }
+                                    if ( connectionType == CONNECTION_DUAL ) {
+                                        colour = Color.BLUE;
+                                    } else if ( connectionType == CONNECTION_REVERSE ) {
+                                        colour = Color.CYAN;
+                                    }
+                                    backBufferGraphics.setColor(colour);
+                                    drawArrowBetween(backBufferGraphics, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
+
+                                }
+                            }  else {
+                                if (linearLine.lineNodeList.size() == 1) {
+                                    if ( connectionType == CONNECTION_DUAL ) {
+                                        colour = Color.BLUE;
+                                    } else if ( connectionType == CONNECTION_REVERSE ) {
+                                        colour = Color.CYAN;
+                                    }
+
+                                    Point2D startNodePos = worldPosToScreenPos(linearLine.getLineStartNode().x, linearLine.getLineStartNode().z);
+                                    Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
+
+                                    drawlock.lock();
+                                    try {
+                                        backBufferGraphics.setColor(colour);
+                                        drawArrowBetween(backBufferGraphics, startNodePos, mousePos, connectionType == CONNECTION_DUAL);
+                                    } finally {
+                                        drawlock.unlock();
+                                    }
+                                }
+                            }
                         } else {
-                            doubleBufferGraphics.drawImage(nodeImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                        }
 
-                        // show the node ID if we in debug mode .. the higher the node count, the more text spam there is :-P
-                        // It will affect editor speed, the more nodes the worse it will get, you have been warned :)
-
-                        if (bDebugShowID) {
-                            Point2D newPoint =  new Point2D.Double(nodePos.getX() - 12 , nodePos.getY() + 30);
-                            textList.add(new TextDisplayStore(String.valueOf(mapNode.id), newPoint, Color.WHITE));
-                        }
-                    }
-
-                }
-
-                // do we draw the node hover-over image and add the marker name/group to the draw list
-
-                if (hoveredNode != null) {
-                    Point2D hoverNodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
-                    if (hoveredNode.flag == NODE_STANDARD) {
-                        doubleBufferGraphics.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    } else if (hoveredNode.flag == NODE_SUBPRIO) {
-                        doubleBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    }
-                    for (MapMarker mapMarker : roadMap.mapMarkers) {
-                        if (hoveredNode.id == mapMarker.mapNode.id) {
-                            String text = mapMarker.name + " ( " + mapMarker.group + " )";
-                            Point2D nodePosMarker = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
-                            textList.add( new TextDisplayStore( text, nodePosMarker, Color.WHITE));
-                        }
-                    }
-                    if (DEBUG) {
-                        String text = "x = " + hoveredNode.x + " , z = " + hoveredNode.z + " , flags = " + hoveredNode.flag;
-                        Point2D nodePosMarker = worldPosToScreenPos(hoveredNode.x + 1, hoveredNode.z);
-                        textList.add( new TextDisplayStore( text, nodePosMarker, Color.WHITE));
-                    }
-                }
-
-                // iterate over all the markers and add the names to the draw list
-
-                LinkedList<MapMarker> mapMarkers = roadMap.mapMarkers;
-                for (MapMarker mapMarker : mapMarkers) {
-                    if (roadMap.mapNodes.contains(mapMarker.mapNode)) {
-                        Point2D nodePos = worldPosToScreenPos(mapMarker.mapNode.x - 1, mapMarker.mapNode.z - 1);
-                        textList.add(new TextDisplayStore(mapMarker.name, nodePos, Color.WHITE));
-                    }
-                }
-
-                // display all the text we need to render
-
-                for(int i = 0; i <= textList.size() -1; i++ ) {
-                    TextDisplayStore list = textList.get(i);
-
-                    drawlock.lock();
-                    try {
-                        doubleBufferGraphics.setColor(list.colour);
-                        doubleBufferGraphics.drawString(list.Text, (int) list.coord.getX(), (int) list.coord.getY());
-                    } finally {
-                        drawlock.unlock();
-                    }
-                }
-            }
-
-            // Draw any liner lines
-
-            if (selected != null) {
-                if (editorState == EDITORSTATE_CONNECTING) {
-
-                    Color colour = Color.GREEN;
-
-                    if (linearLine.lineNodeList.size() > 1) {
-                        for (int j = 0; j < linearLine.lineNodeList.size() -1; j++) { // skip the starting node of the array
-                            MapNode firstPos = linearLine.lineNodeList.get(j);
-                            MapNode secondPos = linearLine.lineNodeList.get(j+1);
-
-                            Point2D startNodePos = worldPosToScreenPos(firstPos.x, firstPos.y);
-                            Point2D endNodePos = worldPosToScreenPos(secondPos.x, secondPos.y);
-
-                            // don't draw the circle for the last node in the array
-                            if (j < linearLine.lineNodeList.size() - 1 ) {
-                                doubleBufferGraphics.drawImage(curveNodeImage, (int) (startNodePos.getX() - sizeScaledHalf), (int) (startNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                            }
-                            if ( connectionType == CONNECTION_DUAL ) {
-                                colour = Color.BLUE;
-                            } else if ( connectionType == CONNECTION_REVERSE ) {
-                                colour = Color.CYAN;
-                            }
-                            doubleBufferGraphics.setColor(colour);
-                            drawArrowBetween(doubleBufferGraphics, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
-
-                        }
-                    }  else {
-                        if (linearLine.lineNodeList.size() == 1) {
-                            if ( connectionType == CONNECTION_DUAL ) {
-                                colour = Color.BLUE;
-                            } else if ( connectionType == CONNECTION_REVERSE ) {
-                                colour = Color.CYAN;
-                            }
-
-                            Point2D startNodePos = worldPosToScreenPos(linearLine.getLineStartNode().x, linearLine.getLineStartNode().z);
+                            Point2D startNodePos = worldPosToScreenPos(selected.x, selected.z);
                             Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
 
                             drawlock.lock();
                             try {
-                                doubleBufferGraphics.setColor(colour);
-                                drawArrowBetween(doubleBufferGraphics, startNodePos, mousePos, connectionType == CONNECTION_DUAL);
+                                backBufferGraphics.setColor(Color.WHITE);
+                                drawArrowBetween(backBufferGraphics, startNodePos, mousePos, false);
                             } finally {
                                 drawlock.unlock();
                             }
                         }
                     }
-                } else {
 
-                    Point2D startNodePos = worldPosToScreenPos(selected.x, selected.z);
-                    Point2D mousePos = new Point2D.Double(mousePosX,mousePosY);
+                    // Draw the quad curve connection preview
 
-                    drawlock.lock();
-                    try {
-                        doubleBufferGraphics.setColor(Color.WHITE);
-                        drawArrowBetween(doubleBufferGraphics, startNodePos, mousePos, false);
-                    } finally {
-                        drawlock.unlock();
-                    }
-                }
-            }
-
-            // Draw the quad curve connection preview
-
-            if (quadCurve != null) {
-                if (isQuadCurveCreated) {
-                    // draw control point
-                    Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
-                    if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
-                        doubleBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    } else {
-                          doubleBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    }
-
-                    //draw interpolation points for curve
-                    Color colour = Color.GREEN;
-                    for (int j = 0; j < quadCurve.curveNodesList.size() - 1; j++) {
-
-                        MapNode currentcoord = quadCurve.curveNodesList.get(j);
-                        MapNode nextcoored = quadCurve.curveNodesList.get(j + 1);
-
-                        Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
-                        Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
-
-                        //don't draw the first node as it already been drawn
-                        if (j != 0) {
-                            if (quadCurve.getNodeType() == NODE_STANDARD) {
-                                doubleBufferGraphics.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    if (quadCurve != null) {
+                        if (isQuadCurveCreated) {
+                            // draw control point
+                            Point2D nodePos = worldPosToScreenPos(quadCurve.getControlPoint().x, quadCurve.getControlPoint().z);
+                            if (quadCurve.getControlPoint().selected || hoveredNode == quadCurve.getControlPoint()) {
+                                backBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                             } else {
-                                doubleBufferGraphics.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                                backBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            }
+
+                            //draw interpolation points for curve
+                            Color colour = Color.GREEN;
+                            for (int j = 0; j < quadCurve.curveNodesList.size() - 1; j++) {
+
+                                MapNode currentcoord = quadCurve.curveNodesList.get(j);
+                                MapNode nextcoored = quadCurve.curveNodesList.get(j + 1);
+
+                                Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
+                                Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
+
+                                //don't draw the first node as it already been drawn
+                                if (j != 0) {
+                                    if (quadCurve.getNodeType() == NODE_STANDARD) {
+                                        backBufferGraphics.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    } else {
+                                        backBufferGraphics.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                                    }
+                                }
+
+                                if (quadCurve.isReversePath()) {
+                                    colour = Color.CYAN;
+                                } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_STANDARD) {
+                                    colour = Color.BLUE;
+                                } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_SUBPRIO) {
+                                    colour = BROWN;
+                                } else if (currentcoord.flag == 1) {
+                                    colour = Color.ORANGE;
+                                }
+
+                                drawlock.lock();
+                                try {
+                                    backBufferGraphics.setColor(colour);
+                                    drawArrowBetween(backBufferGraphics, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
+                                } finally {
+                                    drawlock.unlock();
+                                }
                             }
                         }
+                    }
 
-                        if (quadCurve.isReversePath()) {
-                            colour = Color.CYAN;
-                        } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_STANDARD) {
-                            colour = Color.BLUE;
-                        } else if (quadCurve.isDualPath() && quadCurve.getNodeType() == NODE_SUBPRIO) {
-                            colour = BROWN;
-                        } else if (currentcoord.flag == 1) {
-                            colour = Color.ORANGE;
+                    // Draw the cubic curve connection preview
+
+                    if (cubicCurve != null) {
+                        if (isCubicCurveCreated) {
+                            // draw control point
+                            Point2D nodePos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
+                            if (cubicCurve.getControlPoint1().selected || hoveredNode == cubicCurve.getControlPoint1()) {
+                                backBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            } else {
+                                backBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            }
+
+                            nodePos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
+                            if (cubicCurve.getControlPoint2().selected || hoveredNode == cubicCurve.getControlPoint2()) {
+                                backBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            } else {
+                                backBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            }
+
+                            //draw interpolation points for curve
+                            Color colour = Color.GREEN;
+                            for (int j = 0; j < cubicCurve.curveNodesList.size() - 1; j++) {
+
+                                MapNode currentcoord = cubicCurve.curveNodesList.get(j);
+                                MapNode nextcoored = cubicCurve.curveNodesList.get(j + 1);
+
+                                Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
+                                Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
+
+                                //don't draw the first node as it already been drawn
+                                if (j != 0) {
+                                    if (cubicCurve.getNodeType() == NODE_STANDARD) {
+                                        backBufferGraphics.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                                    } else {
+                                        backBufferGraphics.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+                                    }
+                                }
+
+                                if (cubicCurve.isReversePath()) {
+                                    colour = Color.CYAN;
+                                } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_STANDARD) {
+                                    colour = Color.BLUE;
+                                } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_SUBPRIO) {
+                                    colour = BROWN;
+                                } else if (currentcoord.flag == 1) {
+                                    colour = Color.ORANGE;
+                                }
+
+                                drawlock.lock();
+                                try {
+                                    backBufferGraphics.setColor(colour);
+                                    drawArrowBetween(backBufferGraphics, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
+                                } finally {
+                                    drawlock.unlock();
+                                }
+                            }
+                        }
+                    }
+
+                    // draw the right button selection rectangle
+
+                    if (rectangleStart != null) {
+
+                        int recwidth = (int) (mousePosX - rectangleStart.getX());
+                        int recheight = (int) (mousePosY - rectangleStart.getY());
+                        int recX = (int) rectangleStart.getX();
+                        int recY = (int) rectangleStart.getY();
+                        if (recwidth < 0) {
+                            recX += recwidth;
+                            recwidth = -recwidth;
+                        }
+                        if (recheight < 0) {
+                            recY += recheight;
+                            recheight = -recheight;
                         }
 
                         drawlock.lock();
                         try {
-                            doubleBufferGraphics.setColor(colour);
-                            drawArrowBetween(doubleBufferGraphics, currentNodePos, nextNodePos, quadCurve.isDualPath()) ;
+                            backBufferGraphics.setColor(Color.WHITE);
+                            backBufferGraphics.drawRect(recX, recY, recwidth, recheight);
                         } finally {
                             drawlock.unlock();
                         }
                     }
-                }
-            }
 
-            // Draw the cubic curve connection preview
-
-            if (cubicCurve != null) {
-                if (isCubicCurveCreated) {
-                    // draw control point
-                    Point2D nodePos = worldPosToScreenPos(cubicCurve.getControlPoint1().x, cubicCurve.getControlPoint1().z);
-                    if (cubicCurve.getControlPoint1().selected || hoveredNode == cubicCurve.getControlPoint1()) {
-                        doubleBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    } else {
-                        doubleBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                    if (PROFILE) {
+                        String text = "Finished Node Rendering in " + (System.currentTimeMillis() - startTime) + " ms";
+                        showInTextArea(text,false);
                     }
 
-                    nodePos = worldPosToScreenPos(cubicCurve.getControlPoint2().x, cubicCurve.getControlPoint2().z);
-                    if (cubicCurve.getControlPoint2().selected || hoveredNode == cubicCurve.getControlPoint2()) {
-                        doubleBufferGraphics.drawImage(controlPointImageSelected, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    } else {
-                        doubleBufferGraphics.drawImage(controlPointImage, (int) (nodePos.getX() - sizeScaledHalf), (int) (nodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                    }
-
-                    //draw interpolation points for curve
-                    Color colour = Color.GREEN;
-                    for (int j = 0; j < cubicCurve.curveNodesList.size() - 1; j++) {
-
-                        MapNode currentcoord = cubicCurve.curveNodesList.get(j);
-                        MapNode nextcoored = cubicCurve.curveNodesList.get(j + 1);
-
-                        Point2D currentNodePos = worldPosToScreenPos(currentcoord.x, currentcoord.z);
-                        Point2D nextNodePos = worldPosToScreenPos(nextcoored.x, nextcoored.z);
-
-                        //don't draw the first node as it already been drawn
-                        if (j != 0) {
-                            if (cubicCurve.getNodeType() == NODE_STANDARD) {
-                                doubleBufferGraphics.drawImage(curveNodeImage,(int) (currentNodePos.getX() - sizeScaledHalf), (int) (currentNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                            } else {
-                                doubleBufferGraphics.drawImage(subPrioNodeImage,(int) (currentNodePos.getX() - (sizeScaledHalf / 2 )), (int) (currentNodePos.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
-                            }
-                        }
-
-                        if (cubicCurve.isReversePath()) {
-                            colour = Color.CYAN;
-                        } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_STANDARD) {
-                            colour = Color.BLUE;
-                        } else if (cubicCurve.isDualPath() && cubicCurve.getNodeType() == NODE_SUBPRIO) {
-                            colour = BROWN;
-                        } else if (currentcoord.flag == 1) {
-                            colour = Color.ORANGE;
-                        }
-
-                        drawlock.lock();
-                        try {
-                            doubleBufferGraphics.setColor(colour);
-                            drawArrowBetween(doubleBufferGraphics, currentNodePos, nextNodePos, cubicCurve.isDualPath()) ;
-                        } finally {
-                            drawlock.unlock();
-                        }
-                    }
+                    textList.clear();
+                    latch.countDown();
                 }
             }
 
-            // draw the right button selection rectangle
-
-            if (rectangleStart != null) {
-
-                int width = (int) (mousePosX - rectangleStart.getX());
-                int height = (int) (mousePosY - rectangleStart.getY());
-                int recX = Double.valueOf(rectangleStart.getX()).intValue();
-                int recY = Double.valueOf(rectangleStart.getY()).intValue();
-                if (width < 0) {
-                    recX += width;
-                    width = -width;
-                }
-                if (height < 0) {
-                    recY += height;
-                    height = -height;
-                }
-
-                drawlock.lock();
-                try {
-                    doubleBufferGraphics.setColor(Color.WHITE);
-                    doubleBufferGraphics.drawRect(recX, recY, width, height);
-                } finally {
-                    drawlock.unlock();
-                }
-            }
-
-            if (PROFILE) {
-                String text = "Finished Node Rendering in " + (System.currentTimeMillis() - startTime) + " ms";
-                showInTextArea(text,false);
-            }
 
         }
     }
@@ -472,70 +494,174 @@ public class MapPanel extends JPanel{
     //
 
     static class ConnectionDrawThread implements Runnable {
+        private static volatile boolean isStopped = false;
+        private LinkedList<DrawList> whiteDrawList = new LinkedList<>();
+        private LinkedList<DrawList> brownDrawList = new LinkedList<>();
+        private LinkedList<DrawList> blueDrawList = new LinkedList<>();
+        private LinkedList<DrawList> cyanDrawList = new LinkedList<>();
+        private LinkedList<DrawList> orangeDrawList = new LinkedList<>();
+        private LinkedList<DrawList> greenDrawList = new LinkedList<>();
 
-        //private Graphics doubleBufferGraphics = null;
-        private final int width;
-        private final int height;
-        private ConnectionDrawThread(Graphics graphics, int panelWidth, int panelHeight) {
-            //this.doubleBufferGraphics = graphics;
-            this.width = panelWidth;
-            this.height = panelHeight;
+        private static class DrawList {
+            Point2D startPos;
+            Point2D endPos;
+            boolean isDual;
+
+            public DrawList(Point2D start, Point2D end, boolean dual) {
+                this.startPos = start;
+                this.endPos = end;
+                this.isDual = dual;
+
+            }
+        }
+
+        public static void stop() {
+            LOG.info("Stopping ConnectionDraw Thread");
+            isStopped = true;
         }
 
         @Override
-        public void run() {
+        public synchronized void run() {
 
-            long startTime = 0;
+            LOG.info("ConnectionDrawThread is running");
 
-            if (PROFILE) {
-                startTime = System.currentTimeMillis();
-            }
+            while ( !isStopped ) {
 
-            double currentNodeSize = nodeSize * zoomLevel * 0.5;
+                try {
+                    //if (DEBUG) LOG.info("ConnectionDrawThread waiting");
+                    whiteDrawList.clear();
+                    brownDrawList.clear();
+                    blueDrawList.clear();
+                    cyanDrawList.clear();
+                    orangeDrawList.clear();
+                    greenDrawList.clear();
+                    this.wait();
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                    if (isStopped) {
+                        LOG.info("ConnectionDrawThread returning");
+                        return;
+                    }
 
-            if (doubleBufferGraphics != null) {
+                    long startTime = 0;
 
-                Color drawColour;
+                    if (PROFILE) {
+                        startTime = System.currentTimeMillis();
+                    }
 
-                LinkedList<MapNode> nodes = roadMap.mapNodes;
-                for (MapNode mapNode : nodes) {
-                    LinkedList<MapNode> mapNodes = mapNode.outgoing;
-                    Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
+                    double currentNodeSize = nodeSize * zoomLevel * 0.5;
 
-                    if (0 - (40 * zoomLevel) < nodePos.getX() && width + (40 * zoomLevel) > nodePos.getX() && 0 - (40 * zoomLevel) < nodePos.getY() && height + (40 * zoomLevel) > nodePos.getY()) {
-                        for (MapNode outgoing : mapNodes) {
-                            boolean dual = RoadMap.isDual(mapNode, outgoing);
-                            boolean reverse = RoadMap.isReverse(mapNode, outgoing);
+                    if (backBufferGraphics != null) {
 
-                            if (dual && mapNode.flag == 1) {
-                                drawColour = BROWN;
-                            } else if (dual) {
-                                drawColour = Color.BLUE;
-                            } else if (reverse) {
-                                drawColour = Color.CYAN;
-                            } else if (mapNode.flag == 1) {
-                                drawColour = Color.ORANGE;
-                            } else {
-                                drawColour = Color.GREEN;
+                        int width = getMapPanel().getWidth();
+                        int height = getMapPanel().getHeight();
+                        Color drawColour;
+
+                        LinkedList<MapNode> nodes = roadMap.mapNodes;
+
+                        for (MapNode mapNode : nodes) {
+                            LinkedList<MapNode> mapNodes = mapNode.outgoing;
+                            Point2D nodePos = worldPosToScreenPos(mapNode.x, mapNode.z);
+
+                            if (0 - (40 * zoomLevel) < nodePos.getX() && width + (40 * zoomLevel) > nodePos.getX() && 0 - (40 * zoomLevel) < nodePos.getY() && height + (40 * zoomLevel) > nodePos.getY()) {
+                                for (MapNode outgoing : mapNodes) {
+                                    boolean dual = RoadMap.isDual(mapNode, outgoing);
+                                    boolean reverse = RoadMap.isReverse(mapNode, outgoing);
+
+                                    Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
+
+                                    if (dual && mapNode.flag == 1) {
+                                        brownDrawList.add(new DrawList(nodePos, outPos, true));
+                                        //drawColour = BROWN;
+                                    } else if (dual) {
+                                        blueDrawList.add(new DrawList(nodePos, outPos, true));
+                                        //drawColour = Color.BLUE;
+                                    } else if (reverse) {
+                                        cyanDrawList.add(new DrawList(nodePos, outPos, false));
+                                        //drawColour = Color.CYAN;
+                                    } else if (mapNode.flag == 1) {
+                                        orangeDrawList.add(new DrawList(nodePos, outPos, false));
+                                        //drawColour = Color.ORANGE;
+                                    } else {
+                                        greenDrawList.add(new DrawList(nodePos, outPos, false));
+                                        //drawColour = Color.GREEN;
+                                    }
+                                    /*drawlock.lock();
+                                    try {
+                                        backBufferGraphics.setColor(drawColour);
+                                        drawArrowBetween(backBufferGraphics, nodePos, outPos, dual);
+                                    } finally {
+                                        drawlock.unlock();
+                                    }*/
+                                }
                             }
-
-
-                            Point2D outPos = worldPosToScreenPos(outgoing.x, outgoing.z);
-
+                        }
+                        if (brownDrawList.size() > 0) {
                             drawlock.lock();
                             try {
-                                doubleBufferGraphics.setColor(drawColour);
-                                drawArrowBetween(doubleBufferGraphics, nodePos, outPos, dual);
+                                backBufferGraphics.setColor(BROWN);
+                                for (DrawList drawList : brownDrawList) {
+                                    drawArrowBetween(backBufferGraphics, drawList.startPos, drawList.endPos, drawList.isDual);
+                                }
+                            } finally {
+                                drawlock.unlock();
+                            }
+                        }
+
+                        if (blueDrawList.size() > 0) {
+                            drawlock.lock();
+                            try {
+                                backBufferGraphics.setColor(Color.BLUE);
+                                for (DrawList drawList : blueDrawList) {
+                                    drawArrowBetween(backBufferGraphics, drawList.startPos, drawList.endPos, drawList.isDual);
+                                }
+                            } finally {
+                                drawlock.unlock();
+                            }
+                        }
+
+                        if (cyanDrawList.size() > 0) {
+                            drawlock.lock();
+                            try {
+                                backBufferGraphics.setColor(Color.CYAN);
+                                for (DrawList drawList : cyanDrawList) {
+                                    drawArrowBetween(backBufferGraphics, drawList.startPos, drawList.endPos, drawList.isDual);
+                                }
+                            } finally {
+                                drawlock.unlock();
+                            }
+                        }
+
+                        if (orangeDrawList.size() > 0) {
+                            drawlock.lock();
+                            try {
+                                backBufferGraphics.setColor(Color.ORANGE);
+                                for (DrawList drawList : orangeDrawList) {
+                                    drawArrowBetween(backBufferGraphics, drawList.startPos, drawList.endPos, drawList.isDual);
+                                }
+                            } finally {
+                                drawlock.unlock();
+                            }
+                        }
+
+                        if (greenDrawList.size() > 0) {
+                            drawlock.lock();
+                            try {
+                                backBufferGraphics.setColor(Color.GREEN);
+                                for (DrawList drawList : greenDrawList) {
+                                    drawArrowBetween(backBufferGraphics, drawList.startPos, drawList.endPos, drawList.isDual);
+                                }
                             } finally {
                                 drawlock.unlock();
                             }
                         }
                     }
+                    if (PROFILE) {
+                        String text = "Finished Connection Rendering in " + (System.currentTimeMillis() - startTime) + " ms (" + zoomLevel + ")";
+                        showInTextArea(text, false);
+                    }
+                    latch.countDown();
                 }
-            }
-            if (PROFILE) {
-                String text = "Finished Connection Rendering in " + (System.currentTimeMillis() - startTime) + " ms (" + zoomLevel +")";
-                showInTextArea(text,false);
             }
         }
     }
@@ -550,17 +676,8 @@ public class MapPanel extends JPanel{
         }
 
         if (image != null) {
-            doubleBufferGraphics.clipRect(0, 0, this.getWidth(), this.getHeight());
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-            doubleBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-            doubleBufferGraphics.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
+            backBufferGraphics.clipRect(0, 0, this.getWidth(), this.getHeight());
+            backBufferGraphics.drawImage(croppedImage, 0, 0, this.getWidth(), this.getHeight(), null);
 
             //doubleBuferGraphics.drawImage(resizedImage, 0, 0, this); // see javadoc for more info on the parameters
 
@@ -568,20 +685,30 @@ public class MapPanel extends JPanel{
             //int sizeScaledHalf = (int) (sizeScaled * 0.5);
 
             if (roadMap != null) {
-                connectionDraw = new Thread(new ConnectionDrawThread(doubleBufferGraphics, this.getWidth(), this.getHeight()));
-                connectionDraw.start();
+                latch = new CountDownLatch(2);
+                /*connectionDraw = new Thread(new ConnectionDrawThread(doubleBufferGraphics, this.getWidth(), this.getHeight()));
+                connectionDraw.start();*/
+                connectionDrawThread.interrupt();
+                //ConnectionDrawThread.stopConnectionThread();
+                nodeDrawThread.interrupt();
 
-                nodeDraw = new Thread( new NodeDrawThread(doubleBufferGraphics, this.getWidth(), this.getHeight()));
-                nodeDraw.start();
+                /*nodeDraw = new Thread( new NodeDrawThread(doubleBufferGraphics, this.getWidth(), this.getHeight()));
+                nodeDraw.start();*/
 
-                try {
+                /*try {
+                    //connectionDraw.join();
                     nodeDraw.join();
-                    connectionDraw.join();
+                    //connectionDraw.join();
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }*/
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                g.drawImage(doubleBufferImage, 0, 0, null);
+                g.drawImage(backBufferImage, 0, 0, null);
             }
         }
         if (PROFILE) {
@@ -1790,6 +1917,23 @@ public class MapPanel extends JPanel{
                 GUIBuilder.editMenuEnabled(true);
             }
         }
+    }
+
+    public void getNewBackBufferImage() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        backBufferImage = gc.createCompatibleImage(this.getWidth(), this.getHeight(), Transparency.OPAQUE);
+        backBufferGraphics = (Graphics2D) backBufferImage.getGraphics();
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
     }
 
     public RoadMap getRoadMap() {
