@@ -1,12 +1,10 @@
 package de.adEditor.MapHelpers;
 
-import de.adEditor.AutoDriveEditor;
 import de.adEditor.MapPanel;
 import java.util.LinkedList;
 
 import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.DEBUG;
-import static de.adEditor.AutoDriveEditor.localeString;
 import static de.adEditor.MapPanel.*;
 
 

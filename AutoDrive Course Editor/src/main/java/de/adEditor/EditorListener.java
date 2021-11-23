@@ -4,14 +4,16 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
-import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.ADUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
 import static de.adEditor.GUIBuilder.*;
@@ -36,7 +38,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
         switch (e.getActionCommand()) {
             case MENU_LOAD_CONFIG:
                 if (MapPanel.getMapPanel().isStale()) {
-                    int response = JOptionPane.showConfirmDialog(null, localeString.getString("dialog_exit_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    int response = JOptionPane.showConfirmDialog(editor, localeString.getString("dialog_exit_unsaved"), "AutoDrive", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
                         editor.saveMap(null);
                     }
@@ -53,6 +55,8 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     editor.loadConfigFile(fileName);
                     mapPanel.oldWidthScaled = 0;
                     MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+                    isUsingConvertedImage = false;
+                    GUIBuilder.saveImageEnabled(false);
                 }
                 break;
             case MENU_SAVE_CONFIG:
@@ -73,7 +77,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 }
                 break;
             case MENU_EXIT:
-                System.exit(0);
+                editor.dispatchEvent(new WindowEvent(editor, WindowEvent.WINDOW_CLOSING));
                 break;
             case MENU_EDIT_CUT:
                 break;
@@ -92,11 +96,68 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                         BufferedImage mapImage = ImageIO.read(fileName);
                         if (mapImage != null) {
                             MapPanel.getMapPanel().setImage(mapImage);
-                            MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+                            MapPanel.getMapPanel().moveMapBy(0,1); // hacky way to get map image to refresh
                         }
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);
                     }
+                }
+                break;
+            case MENU_SAVE_IMAGE:
+                //String path = mapPath + mapName + ".png";
+                LOG.info("path = {}", mapPath);
+                fc.setDialogTitle(localeString.getString("dialog_save_mapimage"));
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setAcceptAllFileFilterUsed(false);
+                FileNameExtensionFilter imageFilter = new FileNameExtensionFilter("AutoDrive Map Image", "png");
+                if (!oldConfigFormat) fc.setSelectedFile(new File(mapPath));
+                if (!oldConfigFormat) {
+                    fc.setCurrentDirectory(new File (mapPath));
+                } else {
+                    String path = ADUtils.getCurrentLocation() + "/mapImages";
+                    fc.setCurrentDirectory(new File (path));
+                }
+                fc.addChoosableFileFilter(imageFilter);
+
+                if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    LOG.info("{} {}", localeString.getString("console_map_saveimage"), ADUtils.getSelectedFileWithExtension(fc));
+                    saveMapImage(ADUtils.getSelectedFileWithExtension(fc).toString());
+                }
+
+                break;
+            case MENU_IMPORT_DDS:
+                fc.setDialogTitle(localeString.getString("dialog_import_dds_image_title"));
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        // always accept directory's
+                        if ( f.isDirectory() ) return true;
+                        // but only files with a s pecific name
+                        return f.getName().equals("pda_map_H.dds");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return ".dds";
+                    }
+                });
+                if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    if ( !fc.getSelectedFile().getName().equals("pda_map_H.dds") && !fc.getSelectedFile().getName().endsWith(".dds")) {
+                        JOptionPane.showMessageDialog(editor, "The file " + fc.getSelectedFile() + " is not a valid dds file.", "FileType Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    }
+
+                    LOG.info("Valid Filename {}", fc.getSelectedFile().getAbsoluteFile());
+                    try {
+                       createDDSBufferImage(fc.getSelectedFile().getAbsoluteFile().toString());
+                       isUsingConvertedImage = true;
+                       GUIBuilder.saveImageEnabled(true);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    LOG.info("Cancelled PDA Image Import");
                 }
                 break;
             case MENU_ZOOM_1x:
@@ -184,6 +245,12 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 MapPanel.getMapPanel().isMultiSelectAllowed = true;
                 JToggleButton tBtn = (JToggleButton)e.getSource();
                 if (DEBUG) LOG.info("CNP area select - {}", tBtn.isSelected());
+                break;
+            case BUTTON_COPYPASTE_CUT:
+                break;
+            case BUTTON_COPYPASTE_COPY:
+                break;
+            case BUTTON_COPYPASTE_PASTE:
                 break;
             case MENU_EDIT_UNDO:
                 changeManager.undo();

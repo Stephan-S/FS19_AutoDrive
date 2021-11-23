@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.GUIUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
@@ -37,7 +36,9 @@ public class GUIBuilder {
     public static final String MENU_SAVE_CONFIG = "Save Config";
     public static final String MENU_SAVE_SAVEAS = "Save As";
     public static final String MENU_EXIT = "Exit";
-    public static final String MENU_LOAD_IMAGE = "Load Map";
+    public static final String MENU_LOAD_IMAGE = "Load Map Image";
+    public static final String MENU_SAVE_IMAGE = "Save Map Image";
+    public static final String MENU_IMPORT_DDS = "Import DDS";
     public static final String MENU_EDIT_UNDO = "Undo";
     public static final String MENU_EDIT_REDO = "Redo";
     public static final String MENU_EDIT_CUT = "Cut";
@@ -85,7 +86,9 @@ public class GUIBuilder {
 
     public static MapPanel mapPanel;
     public static JMenuBar menuBar;
-    public static JMenuItem loadImageButton;
+    public static JMenuItem loadImageMenuItem;
+    public static JMenuItem importDDSMenuItem;
+    public static JMenuItem saveImageMenuItem;
     public static JMenuItem saveConfigMenuItem;
     public static JMenuItem saveConfigAsMenuItem;
     public static JMenuItem undoMenuItem;
@@ -154,23 +157,27 @@ public class GUIBuilder {
 
         undoMenuItem = makeMenuItem("menu_edit_undo",  "menu_edit_undo_accstring", KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_UNDO, false );
         redoMenuItem = makeMenuItem("menu_edit_redo",  "menu_edit_redo_accstring", KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_REDO, false );
-        cutMenuItem = makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_CUT, false );
-        copyMenuItem = makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_COPY, false );
-        pasteMenuItem = makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.ALT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_PASTE, false );
+        cutMenuItem = makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_CUT, false );
+        copyMenuItem = makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_COPY, false );
+        pasteMenuItem = makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_PASTE, false );
 
 
         // Create the Map Menu and it's scale sub menu
 
         mapMenu = makeMenu("menu_map", KeyEvent.VK_M, "menu_map_accstring", menuBar);
-        loadImageButton = makeMenuItem("menu_map_loadimage", "menu_map_loadimage_accstring", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK,mapMenu,editorListener, MENU_LOAD_IMAGE, false );
+        loadImageMenuItem = makeMenuItem("menu_map_loadimage", "menu_map_loadimage_accstring", KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK,mapMenu,editorListener, MENU_LOAD_IMAGE, false );
+
         mapMenu.addSeparator();
         subMenu = makeSubMenu("menu_map_scale", KeyEvent.VK_M, "menu_map_scale_accstring", mapMenu);
         ButtonGroup menuZoomGroup = new ButtonGroup();
         makeRadioButtonMenuItem("menu_map_scale_1x", "menu_map_scale_1x_accstring",KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_1x,true, menuZoomGroup, true);
         makeRadioButtonMenuItem("menu_map_scale_4x", "menu_map_scale_4x_accstring",KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_4x,true, menuZoomGroup, false);
         makeRadioButtonMenuItem("menu_map_scale_16x", "menu_map_scale_16x_accstring",KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, subMenu, editorListener, MENU_ZOOM_16x, true, menuZoomGroup, false);
+        mapMenu.addSeparator();
+        importDDSMenuItem = makeMenuItem("menu_import_dds", "menu_import_dds_accstring", KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_IMPORT_DDS, false);
+        saveImageMenuItem = makeMenuItem("menu_map_saveimage", "menu_map_saveimage_accstring", KeyEvent.VK_B, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_SAVE_IMAGE, false);
 
-        // Create the Options menu
+        // create the Options menu
 
         optionsMenu = makeMenu("menu_options", KeyEvent.VK_O, "menu_options_accstring", menuBar);
         makeCheckBoxMenuItem("menu_conconnect", "menu_conconnect_accstring", KeyEvent.VK_5, bContinuousConnections, optionsMenu, editorListener, MENU_CHECKBOX_CONTINUECONNECT);
@@ -427,8 +434,14 @@ public class GUIBuilder {
     }
 
     public static void mapMenuEnabled(boolean enabled) {
-        loadImageButton.setEnabled(enabled);
+        loadImageMenuItem.setEnabled(enabled);
+        importDDSMenuItem.setEnabled(enabled);
     }
+
+    public static void saveImageEnabled(boolean enabled) {
+        saveImageMenuItem.setEnabled(enabled);
+    }
+
 
     public static void saveMenuEnabled(boolean enabled) {
         saveConfigMenuItem.setEnabled(enabled);

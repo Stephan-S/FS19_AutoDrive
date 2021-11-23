@@ -8,6 +8,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +50,7 @@ public class MapPanel extends JPanel{
     public int offsetY, oldOffsetY;
     public int widthScaled, oldWidthScaled;
     public int heightScaled, oldHeightScaled;
+    public static boolean isUsingConvertedImage = false;
 
     private BufferedImage croppedImage;
 
@@ -1668,7 +1671,11 @@ public class MapPanel extends JPanel{
 
             Point2D rectangleEnd = new Point2D.Double(x, y);
             LOG.info("{} {}/{}", localeString.getString("console_rect_end"), x, y);
-            LOG.info("Rectangle centre = {} , {}", rectangleEnd.getX() - rectangleStart.getX(), rectangleEnd.getY() - rectangleStart.getY());
+            double rectSizeX = rectangleEnd.getX() - rectangleStart.getX();
+            double rectSizeY = rectangleEnd.getY() - rectangleStart.getY();
+            double rectCentreX = rectangleEnd.getX() - ( rectSizeX / 2 );
+            double rectCentreY = rectangleEnd.getY() - ( rectSizeY / 2 );
+            LOG.info("Rectangle start = {} , {} : end = {} , {} : size = {} , {} : Centre = {} , {}", rectangleStart.getX(), rectangleStart.getY(), rectangleEnd.getX(), rectangleEnd.getY(), rectSizeX, rectSizeY, rectCentreX, rectCentreY);
 
             switch (editorState) {
                 case EDITORSTATE_DELETE_NODES:
@@ -1697,6 +1704,8 @@ public class MapPanel extends JPanel{
                     break;
                 case EDITORSTATE_CNP_SELECT:
                     getAllNodesInArea(rectangleStart, rectangleEnd);
+                    //editorState = EDITORSTATE_NOOP;
+                    //updateButtons();
                     this.repaint();
             }
             rectangleStart = null;
@@ -1897,15 +1906,15 @@ public class MapPanel extends JPanel{
         if (loadedImage != null) {
             LOG.info("Selected Image size is {} x {}",loadedImage.getWidth(), loadedImage.getHeight());
             if (loadedImage.getWidth() != 2048 || loadedImage.getHeight() != 2048 ) {
-                int response = JOptionPane.showConfirmDialog(null, "" + localeString.getString("dialog_mapimage_incorrect_size1") + "\n\n" + localeString.getString("dialog_mapimage_incorrect_size2"), "AutoDrive", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+                int response = JOptionPane.showConfirmDialog(this, "" + localeString.getString("dialog_mapimage_incorrect_size1") + "\n\n" + localeString.getString("dialog_mapimage_incorrect_size2"), "AutoDrive", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
                 LOG.info("{} ... {}", localeString.getString("dialog_mapimage_incorrect_size1"), localeString.getString("dialog_mapimage_incorrect_size2"));
                 return;
             }
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice gd = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gd.getDefaultConfiguration();
-            this.image = gc.createCompatibleImage(loadedImage.getWidth(), loadedImage.getHeight());
-            Graphics2D g2d = (Graphics2D) this.image.getGraphics();
+            image = gc.createCompatibleImage(loadedImage.getWidth(), loadedImage.getHeight());
+            Graphics2D g2d = (Graphics2D) image.getGraphics();
 
             // actually draw the image and dispose of context no longer needed
             g2d.drawImage(loadedImage, 0, 0, null);

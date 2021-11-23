@@ -1,5 +1,6 @@
 package de.adEditor;
 
+import de.adEditor.MapHelpers.DDSReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,10 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -234,5 +232,61 @@ public class ADUtils {
     public static long stopTimer() {
         totalTime += System.currentTimeMillis() - profiletimer;
         return totalTime;
+    }
+
+    public static void createDDSBufferImage(String filename) throws IOException {
+        LOG.info("Creating Bufferimage from {}", filename );
+
+        // load the DDS file into a buffer
+        FileInputStream fis = new FileInputStream(filename);
+        byte [] buffer = new byte[fis.available()];
+        fis.read(buffer);
+        fis.close();
+
+        // convert the DDS file in buffer to an BufferImage
+        int [] pixels = DDSReader.read(buffer, DDSReader.ARGB, 0);
+        int width = DDSReader.getWidth(buffer);
+        int height = DDSReader.getHeight(buffer);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        image.setRGB(0, 0, width, height, pixels, 0, width);
+
+        // Scale the BufferImage to a size the editor can use ( 2048 x 2048 )
+
+        BufferedImage scaledImage = new BufferedImage( 2048, 2048, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) scaledImage.getGraphics();
+        g.drawImage( image, 0, 0, 2048, 2048, null);
+        g.dispose();
+
+        // set the converted and resized image as the map image
+
+
+        MapPanel.getMapPanel().setImage(scaledImage);
+        MapPanel.getMapPanel().moveMapBy(0,1); // hacky way to get map image to refresh
+        MapPanel.isUsingConvertedImage = true;
+    }
+
+    public static void saveMapImage(String filePath) {
+        try {
+            //String location = getCurrentLocation();
+            //String path = location + "mapImages/" + fileName + ".png";
+            File outputFile = new File(filePath);
+
+            if (outputFile.exists()) {
+                if (outputFile.isDirectory())
+                    throw new IOException("File '" + outputFile + "' is a directory");
+
+                if (!outputFile.canWrite())
+                    throw new IOException("File '" + outputFile + "' cannot be written");
+            } else {
+                File parent = outputFile.getParentFile();
+                if ((parent != null) && (!parent.exists()) && (!parent.mkdirs())) {
+                    throw new IOException("File '" + outputFile + "' could not be created");
+                }
+            }
+            ImageIO.write(MapPanel.getMapPanel().getImage(), "png", outputFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
