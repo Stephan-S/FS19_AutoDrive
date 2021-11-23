@@ -59,6 +59,7 @@ public class AutoDriveEditor extends JFrame {
     public static boolean oldConfigFormat = false;
     public static int x=0, y=0, width=1024, height=768;
 
+    public static BufferedImage image = null;
     public static String mapName, mapPath;
 
     public static BufferedImage tractorImage;
@@ -413,7 +414,6 @@ public class AutoDriveEditor extends JFrame {
             url=null;
         }
 
-        BufferedImage image = null;
         String location = getCurrentLocation();
 
         if (mapName != null) {
@@ -451,8 +451,11 @@ public class AutoDriveEditor extends JFrame {
                             GUIBuilder.loadImageMenuItem.setEnabled(true);
                             LOG.info("{}", localeString.getString("console_editor_no_map"));
                             JOptionPane.showConfirmDialog(this, "" + localeString.getString("dialog_mapimage_not_found"), "File Not Found - " + mapName + ".png", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
-                            if (EXPERIMENTAL) {
+                            useDefaultMapImage();
 
+                            if ( !EXPERIMENTAL ) {
+                                useDefaultMapImage();
+                            } else {
                                 //
                                 // This is proof of concept test code - This may get removed at any point
                                 //
@@ -483,11 +486,12 @@ public class AutoDriveEditor extends JFrame {
                                     }
                                 } else {
                                     if (DEBUG) LOG.info("getCurrentLocation returned null - using blank.png");
-                                    fullPath = "/mapImages/Blank.png";
+                                    useDefaultMapImage();
+                                    /*fullPath = "/mapImages/Blank.png";
                                     url = AutoDriveEditor.class.getResource(fullPath);
                                     if (url != null) {
                                         image = ImageIO.read(url);
-                                    }
+                                    }*/
                                 }
                             }
                         }
@@ -496,9 +500,10 @@ public class AutoDriveEditor extends JFrame {
             }
         } else {
             LOG.info("Cannot reliably extract map name - using blank.png");
-            mapPath = "/mapImages/Blank.png";
+            /*mapPath = "/mapImages/Blank.png";
             url = AutoDriveEditor.class.getResource(mapPath);
-            image = ImageIO.read(url);
+            image = ImageIO.read(url);*/
+            useDefaultMapImage();
         }
 
         if (image != null) {
@@ -511,16 +516,24 @@ public class AutoDriveEditor extends JFrame {
             getMapPanel().repaint();
         }
 
-
         GUIBuilder.mapMenuEnabled(true);
-
-
-
         editorState = GUIBuilder.EDITORSTATE_NOOP;
 
         LOG.info("{}", localeString.getString("console_config_load_end"));
         return roadMap;
 
+    }
+
+    public void useDefaultMapImage() {
+        String fullPath = "/mapImages/Blank.png";
+        URL url = AutoDriveEditor.class.getResource(fullPath);
+        if (url != null) {
+            try {
+                image = ImageIO.read(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // this way to save a file under a new name is ugly but works :-/

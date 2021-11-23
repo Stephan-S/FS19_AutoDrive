@@ -53,8 +53,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     MapPanel.getMapPanel().stopCurveEdit();
                     File fileName = fc.getSelectedFile();
                     editor.loadConfigFile(fileName);
-                    mapPanel.oldWidthScaled = 0;
-                    MapPanel.getMapPanel().moveMapBy(0,0); // hacky way to get map image to refresh
+                    forceMapImageRedraw();
                     isUsingConvertedImage = false;
                     GUIBuilder.saveImageEnabled(false);
                 }
@@ -96,7 +95,8 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                         BufferedImage mapImage = ImageIO.read(fileName);
                         if (mapImage != null) {
                             MapPanel.getMapPanel().setImage(mapImage);
-                            MapPanel.getMapPanel().moveMapBy(0,1); // hacky way to get map image to refresh
+                            forceMapImageRedraw();
+                            //MapPanel.getMapPanel().moveMapBy(0,1); // hacky way to get map image to refresh
                         }
                     } catch (IOException e1) {
                         LOG.error(e1.getMessage(), e1);

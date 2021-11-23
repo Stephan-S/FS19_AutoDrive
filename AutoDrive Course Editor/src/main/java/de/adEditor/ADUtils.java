@@ -261,7 +261,7 @@ public class ADUtils {
 
 
         MapPanel.getMapPanel().setImage(scaledImage);
-        MapPanel.getMapPanel().moveMapBy(0,1); // hacky way to get map image to refresh
+        MapPanel.forceMapImageRedraw();
         MapPanel.isUsingConvertedImage = true;
     }
 

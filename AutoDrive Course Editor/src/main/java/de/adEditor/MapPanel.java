@@ -117,11 +117,9 @@ public class MapPanel extends JPanel{
             @Override
             public void componentResized(ComponentEvent e) {
                 getNewBackBufferImage();
-                resizeMap();
                 // Part 2 of work around for map resize bug.. force a refresh of all the values
                 // used to redraw the map.
-                moveMapBy(0,0);
-                mapPanel.repaint();
+                forceMapImageRedraw();
             }
         });
 
@@ -1926,6 +1924,13 @@ public class MapPanel extends JPanel{
                 GUIBuilder.editMenuEnabled(true);
             }
         }
+    }
+
+    public static void forceMapImageRedraw() {
+        mapPanel.oldWidthScaled = 0;
+        MapPanel.getMapPanel().resizeMap();
+        MapPanel.getMapPanel().moveMapBy(0,1); // hacky way to get map image to refresh
+        mapPanel.repaint();
     }
 
     public void getNewBackBufferImage() {
