@@ -19,6 +19,8 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static de.adEditor.AutoDriveEditor.localeString;
+
 public class ADUtils {
 
     public static Logger LOG = LoggerFactory.getLogger(AutoDriveEditor.class);
@@ -252,8 +254,18 @@ public class ADUtils {
 
         // Scale the BufferImage to a size the editor can use ( 2048 x 2048 )
 
-        BufferedImage scaledImage = new BufferedImage( 2048, 2048, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage scaledImage = new BufferedImage( 2048, 2048, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) scaledImage.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
+        g.setRenderingHint(RenderingHints.KEY_RESOLUTION_VARIANT, RenderingHints.VALUE_RESOLUTION_VARIANT_SIZE_FIT);
         g.drawImage( image, 0, 0, 2048, 2048, null);
         g.dispose();
 
@@ -284,6 +296,7 @@ public class ADUtils {
                 }
             }
             ImageIO.write(MapPanel.getMapPanel().getImage(), "png", outputFile);
+            LOG.info("{} {}", localeString.getString("console_map_saveimage_done"), outputFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }

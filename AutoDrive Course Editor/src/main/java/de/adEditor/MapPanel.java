@@ -1911,7 +1911,7 @@ public class MapPanel extends JPanel{
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice gd = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gd.getDefaultConfiguration();
-            image = gc.createCompatibleImage(loadedImage.getWidth(), loadedImage.getHeight());
+            image = gc.createCompatibleImage(loadedImage.getWidth(), loadedImage.getHeight(), Transparency.OPAQUE);
             Graphics2D g2d = (Graphics2D) image.getGraphics();
 
             // actually draw the image and dispose of context no longer needed

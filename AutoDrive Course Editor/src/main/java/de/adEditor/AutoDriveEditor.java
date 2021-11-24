@@ -57,7 +57,8 @@ public class AutoDriveEditor extends JFrame {
     public static File xmlConfigFile;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
     public static boolean oldConfigFormat = false;
-    public static int x=0, y=0, width=1024, height=768;
+    public static int x=-99, y=-99, width=1024, height=768; // x + y are negative on purpose, see end of AutoDriveEditor()
+    private boolean noSavedWindowPosition;
 
     public static BufferedImage image = null;
     public static String mapName, mapPath;
@@ -91,6 +92,7 @@ public class AutoDriveEditor extends JFrame {
     public static int linearLineNodeDistance = 12;
 
     public static ChangeManager changeManager;
+
 
     public AutoDriveEditor() {
         super();
@@ -142,9 +144,13 @@ public class AutoDriveEditor extends JFrame {
         GUIBuilder.editMenuEnabled(false);
         GUIBuilder.updateGUIButtons(false);
         pack();
-        setLocationRelativeTo(null);
-        setLocation( x, y);
-        setSize(width, height);
+        if (noSavedWindowPosition) {
+            LOG.info("No saved window Location/Size");
+            setLocationRelativeTo(null);
+        } else {
+            setLocation( x, y);
+            setSize(width, height);
+        }
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         if (lastRunVersion != null && !lastRunVersion.equals(AUTODRIVE_INTERNAL_VERSION)) {
             LOG.info("Version Updated Detected");
@@ -772,9 +778,9 @@ public class AutoDriveEditor extends JFrame {
             quadSliderDefault = getIntegerValue(quadSliderDefault, e, "QuadSliderDefault");
             controlPointMoveScaler = getIntegerValue(controlPointMoveScaler, e, "ControlPointMoveScaler");
             x = getIntegerValue(x, e, "WindowX");
-            if ( x < 0 ) x = 0;
             y = getIntegerValue(y, e, "WindowY");
-            if ( y < 0 ) y = 0;
+            LOG.info("{} , {}", x, y);
+            if ( x == -99 || y == -99) noSavedWindowPosition = true;
             width = getIntegerValue(width, e, "WindowWidth");
             height = getIntegerValue(height, e, "WindowHeight");
 
@@ -783,6 +789,7 @@ public class AutoDriveEditor extends JFrame {
             System.out.println(pce.getMessage());
         } catch (IOException ioe) {
             LOG.warn(localeString.getString("console_editor_config_load_not_found"));
+            noSavedWindowPosition = true;
         }
     }
 

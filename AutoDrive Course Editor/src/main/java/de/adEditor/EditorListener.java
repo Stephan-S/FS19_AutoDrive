@@ -10,7 +10,6 @@ import java.awt.event.*;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import static de.adEditor.ADUtils.*;
@@ -104,26 +103,54 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 }
                 break;
             case MENU_SAVE_IMAGE:
-                //String path = mapPath + mapName + ".png";
-                LOG.info("path = {}", mapPath);
+                String currentPath;
+                if (!oldConfigFormat) {
+                    currentPath = ADUtils.getCurrentLocation() + "mapImages/" + mapName + ".png";
+                } else {
+                    currentPath = ADUtils.getCurrentLocation() + "mapImages/unknown.png";
+                }
+
+                LOG.info("currentpath = {}", currentPath);
+                File path = new File(currentPath);
+                try {
+                    if (path.exists()) {
+                        if (path.isDirectory())
+                            throw new IOException("File '" + path + "' is a directory");
+
+                        if (!path.canWrite())
+                            throw new IOException("File '" + path + "' cannot be written");
+                    } else {
+                        File parent = path.getParentFile();
+                        LOG.info("parent = {}", parent.getName());
+                        if (!parent.exists() && (!parent.mkdirs())) {
+                            throw new IOException("'" + path + "' could not be created");
+                        }
+                    }
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
+                LOG.info("path = {}", currentPath);
                 fc.setDialogTitle(localeString.getString("dialog_save_mapimage"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setAcceptAllFileFilterUsed(false);
                 FileNameExtensionFilter imageFilter = new FileNameExtensionFilter("AutoDrive Map Image", "png");
-                if (!oldConfigFormat) fc.setSelectedFile(new File(mapPath));
-                if (!oldConfigFormat) {
-                    fc.setCurrentDirectory(new File (mapPath));
-                } else {
-                    String path = ADUtils.getCurrentLocation() + "/mapImages";
-                    fc.setCurrentDirectory(new File (path));
-                }
+                fc.setSelectedFile(path);
+                fc.setCurrentDirectory(path);
                 fc.addChoosableFileFilter(imageFilter);
 
                 if (fc.showSaveDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    LOG.info("{} {}", localeString.getString("console_map_saveimage"), ADUtils.getSelectedFileWithExtension(fc));
+                    File saveImageFile = ADUtils.getSelectedFileWithExtension(fc);
+                    if (saveImageFile.exists()) {
+                        int response = JOptionPane.showConfirmDialog(editor, localeString.getString("dialog_mapimage_overwrite"), "File already exists " + mapName + ".png", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                        if (response == JOptionPane.NO_OPTION) {
+                            LOG.info("Cancelled saving of converted image");
+                            break;
+                        }
+                    }
+                    LOG.info("{} {}", localeString.getString("console_map_saveimage"), saveImageFile);
                     saveMapImage(ADUtils.getSelectedFileWithExtension(fc).toString());
                 }
-
                 break;
             case MENU_IMPORT_DDS:
                 fc.setDialogTitle(localeString.getString("dialog_import_dds_image_title"));
