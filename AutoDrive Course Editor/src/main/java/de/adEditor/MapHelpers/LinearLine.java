@@ -1,7 +1,6 @@
 package de.adEditor.MapHelpers;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import de.adEditor.AutoDriveEditor;

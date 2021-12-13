@@ -1,11 +1,10 @@
 package de.adEditor.MapHelpers;
 
-import de.adEditor.AutoDriveEditor;
-import de.adEditor.MapPanel;
-
+import de.adEditor.GUIBuilder;
 import java.util.LinkedList;
 
-import static de.adEditor.ADUtils.LOG;
+import static de.adEditor.ADUtils.*;
+import static de.adEditor.GUIBuilder.bDebugTest;
 
 public class RoadMap {
 
@@ -25,18 +24,20 @@ public class RoadMap {
 
         // starting at the index of where we need to insert the node
         // increment the ID's of all nodes to the right of the mapNodes by +1
-        // so when we insert the nod the id's match the index
+        // so when we insert the node all the id's match their index
 
-        LinkedList<MapNode> nodes = mapNodes;
-        if (AutoDriveEditor.DEBUG) LOG.info("## insertMapNode() ## bumping all ID's of mapNodes index {} -> {} by +1", toAdd.id - 1, nodes.size() - 1 );
-        for (int i = toAdd.id - 1 ; i <= nodes.size() - 1 ; i++) {
-            MapNode mapNode = nodes.get(i);
-
-            mapNode.id++;
+        if (!bDebugTest) {
+            LinkedList<MapNode> nodes = mapNodes;
+            if (GUIBuilder.bDebugUndoRedo) LOG.info("## insertMapNode() ## bumping all ID's of mapNodes index {} -> {} by +1", toAdd.id - 1, nodes.size() - 1);
+            for (int i = toAdd.id - 1; i <= nodes.size() - 1; i++) {
+                MapNode mapNode = nodes.get(i);
+                mapNode.id++;
+            }
         }
+
         // insert the MapNode into the list
 
-        if (AutoDriveEditor.DEBUG) LOG.info("## insertMapNode() ## inserting index {} ( ID {} ) into mapNodes", toAdd.id - 1, toAdd.id );
+        if (GUIBuilder.bDebugUndoRedo) LOG.info("## insertMapNode() ## inserting index {} ( ID {} ) into mapNodes", toAdd.id - 1, toAdd.id );
         mapNodes.add(toAdd.id -1 , toAdd);
 
         //now we need to restore all the connections to/from it
@@ -44,15 +45,13 @@ public class RoadMap {
         // restore all the outgoing connections
 
         if (otherNodesInList != null) {
-            for (int i = 0; i <= otherNodesInList.size() - 1; i++) {
-                MapNode inNode = otherNodesInList.get(i);
+            for (MapNode inNode : otherNodesInList) {
                 if (!inNode.incoming.contains(toAdd)) inNode.incoming.add(toAdd);
             }
         }
 
         if (otherNodesOutList != null) {
-            for (int i = 0; i <= otherNodesOutList.size() - 1; i++) {
-                MapNode outNode = otherNodesOutList.get(i);
+            for (MapNode outNode : otherNodesOutList) {
                 if (!outNode.outgoing.contains(toAdd)) outNode.outgoing.add(toAdd);
             }
         }

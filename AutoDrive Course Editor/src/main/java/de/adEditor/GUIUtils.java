@@ -166,6 +166,9 @@ public class GUIUtils {
         return menuItem;
     }
 
+    public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, String accString, Boolean isSelected, JMenu menu, EditorListener itemListener, String actionCommand) {
+        return makeCheckBoxMenuItem(text, accString, 0, 0, isSelected, menu, itemListener, actionCommand);
+    }
     public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, String accString, int keyEvent, Boolean isSelected, JMenu menu, EditorListener itemListener, String actionCommand) {
         return makeCheckBoxMenuItem(text, accString, keyEvent, 0, isSelected, menu, itemListener, actionCommand);
     }
@@ -173,8 +176,10 @@ public class GUIUtils {
     public static JCheckBoxMenuItem makeCheckBoxMenuItem (String text, String accString, int keyEvent, int inputEvent, Boolean isSelected, JMenu menu, EditorListener itemListener, String actionCommand) {
         JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem(localeString.getString(text), isSelected);
         cbMenuItem.setActionCommand(actionCommand);
-        cbMenuItem.setMnemonic(keyEvent);
-        if (inputEvent >0 ) {
+        if (keyEvent != 0 ) {
+            cbMenuItem.setMnemonic(keyEvent);
+        }
+        if (inputEvent != 0 ) {
             cbMenuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, inputEvent));
         }
         cbMenuItem.setSelected(isSelected);

@@ -1,11 +1,10 @@
 package de.adEditor.MapHelpers;
 
-import de.adEditor.GUIBuilder;
-import de.adEditor.MapPanel;
-
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
+import de.adEditor.GUIBuilder;
+import de.adEditor.MapPanel;
 import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
@@ -106,7 +105,7 @@ public class QuadCurve{
         changeManager.addChangeable( new ChangeManager.QuadCurveChanger(mergeNodesList, isReversePath, isDualPath));
         connectNodes(mergeNodesList, isReversePath, isDualPath);
 
-        if (DEBUG) LOG.info("Curve created {} nodes", mergeNodesList.size() - 2 );
+        if (DEBUG) LOG.info("QuadCurve created {} nodes", mergeNodesList.size() - 2 );
     }
 
     public static void connectNodes(LinkedList<MapNode> mergeNodesList, boolean reversePath, boolean dualPath)  {
@@ -128,8 +127,8 @@ public class QuadCurve{
         this.controlPoint1 = null;
         this.curveStartNode = null;
         this.curveEndNode = null;
-        //this.numInterpolationPoints = 10;
-        GUIBuilder.curvePanel.setVisible(false);
+        if (cubicCurve == null) GUIBuilder.curvePanel.setVisible(false);
+        //GUIBuilder.curvePanel.setVisible(false);
     }
 
     public Boolean isCurveValid() {
@@ -137,9 +136,22 @@ public class QuadCurve{
     }
 
     public void updateControlPoint(double diffX, double diffY) {
-        this.virtualControlPoint1.x += diffX * movementScaler;
-        this.virtualControlPoint1.y += diffY * movementScaler;
+        if (editorState == GUIBuilder.EDITORSTATE_QUADRATICBEZIER) {
+            this.virtualControlPoint1.x += diffX * movementScaler;
+            this.virtualControlPoint1.y += diffY * movementScaler;
+        } else {
+            this.virtualControlPoint1.x += diffX;
+            this.virtualControlPoint1.y += diffY;
+        }
         this.updateCurve();
+    }
+
+    public boolean isReversePath() { return isReversePath; }
+
+    public boolean isDualPath() { return isDualPath; }
+
+    public Boolean isControlNode(MapNode node) {
+        return node == this.controlPoint1;
     }
 
     // getters
@@ -160,9 +172,7 @@ public class QuadCurve{
 
     public MapNode getControlPoint() { return this.controlPoint1; }
 
-    public boolean isReversePath() { return isReversePath; }
 
-    public boolean isDualPath() { return isDualPath; }
 
     // setters
 

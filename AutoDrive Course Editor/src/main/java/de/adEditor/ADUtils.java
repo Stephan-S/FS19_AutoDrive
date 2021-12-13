@@ -1,6 +1,6 @@
 package de.adEditor;
 
-import de.adEditor.MapHelpers.DDSReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,9 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import de.adEditor.MapHelpers.DDSReader;
 import static de.adEditor.AutoDriveEditor.localeString;
+import static de.adEditor.GUIBuilder.bDebugFileIO;
 
 public class ADUtils {
 
@@ -216,9 +218,9 @@ public class ADUtils {
                     .getLocation()
                     .toURI()
                     .getPath();
-            if (AutoDriveEditor.DEBUG) LOG.info("JAR Path : {}", jarPath);
+            if (bDebugFileIO) LOG.info("JAR Path : {}", jarPath);
             launchPath = jarPath.substring(0, jarPath.lastIndexOf("/") + 1);
-            if (AutoDriveEditor.DEBUG) LOG.info("Path : " + launchPath);
+            if (bDebugFileIO) LOG.info("Path : " + launchPath);
             return launchPath;
         } catch (URISyntaxException uriSyntaxException) {
             uriSyntaxException.printStackTrace();
@@ -226,15 +228,9 @@ public class ADUtils {
         return null;
     }
 
-    public static void startTimer() {
-        profiletimer = System.currentTimeMillis();
-        totalTime = 0;
-    }
+    public static void startTimer() { profiletimer = System.currentTimeMillis(); }
 
-    public static long stopTimer() {
-        totalTime += System.currentTimeMillis() - profiletimer;
-        return totalTime;
-    }
+    public static long stopTimer() { return System.currentTimeMillis() - profiletimer; }
 
     public static void createDDSBufferImage(String filename) throws IOException {
         LOG.info("Creating Bufferimage from {}", filename );
@@ -254,7 +250,10 @@ public class ADUtils {
 
         // Scale the BufferImage to a size the editor can use ( 2048 x 2048 )
 
-        BufferedImage scaledImage = new BufferedImage( 2048, 2048, BufferedImage.TYPE_INT_RGB);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        BufferedImage scaledImage = gc.createCompatibleImage( 2048, 2048, Transparency.OPAQUE);
         Graphics2D g = (Graphics2D) scaledImage.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);

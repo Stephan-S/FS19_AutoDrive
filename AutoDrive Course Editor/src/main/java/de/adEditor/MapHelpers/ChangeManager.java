@@ -1,10 +1,12 @@
 package de.adEditor.MapHelpers;
 
 import de.adEditor.MapPanel;
+
+import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
-import static de.adEditor.ADUtils.LOG;
-import static de.adEditor.AutoDriveEditor.DEBUG;
+import static de.adEditor.ADUtils.*;
+import static de.adEditor.GUIBuilder.*;
 import static de.adEditor.MapPanel.*;
 
 
@@ -168,13 +170,16 @@ public class ChangeManager {
         private final LinkedList<MapNode> moveNodes;
         private final int diffX;
         private final int diffY;
+        private final boolean wasSnapMove;
         private final boolean isStale;
 
-        public MoveNodeChanger(LinkedList<MapNode> mapNodesMoved, int movedX, int movedY){
+        public MoveNodeChanger(LinkedList<MapNode> mapNodesMoved, int movedX, int movedY, boolean snapMove){
             super();
             this.moveNodes = new LinkedList<>();
+            if (bDebugUndoRedo) LOG.info("node moved = {} , {}", movedX, movedY);
             this.diffX = movedX;
             this.diffY = movedY;
+            this.wasSnapMove = snapMove;
             for (int i = 0; i <= mapNodesMoved.size() - 1 ; i++) {
                 MapNode mapNode = mapNodesMoved.get(i);
                 this.moveNodes.add(mapNode);
@@ -185,8 +190,15 @@ public class ChangeManager {
         public void undo(){
             for (int i = 0; i <= this.moveNodes.size() - 1 ; i++) {
                 MapNode mapNode = this.moveNodes.get(i);
-                if (DEBUG) LOG.debug("Moved {}", mapNode);
-                MapPanel.getMapPanel().moveNodeBy(mapNode, -this.diffX, -this.diffY);
+                if (bDebugUndoRedo) LOG.debug("Moving {} - {} , {} .. distance {} , {}", mapNode, mapNode.x, mapNode.z, this.diffX, this.diffY);
+                if (this.wasSnapMove) {
+                    Point2D p = worldPosToScreenPos(mapNode.x, mapNode.z);
+                    MapPanel.getMapPanel().lastX = (int)p.getX();
+                    MapPanel.getMapPanel().lastY = (int)p.getY();
+                    if (bDebugUndoRedo) LOG.info("setting lastX/lastY to node x/z");
+                }
+                MapPanel.getMapPanel().moveNodeBy(mapNode, -this.diffX, -this.diffY, true);
+                if (bDebugUndoRedo) LOG.debug("Moved {} - {} , {}", mapNode, mapNode.x, mapNode.z);
             }
             MapPanel.getMapPanel().repaint();
             MapPanel.getMapPanel().setStale(this.isStale);
@@ -195,7 +207,13 @@ public class ChangeManager {
         public void redo(){
             for (int i = 0; i <= this.moveNodes.size() - 1 ; i++) {
                 MapNode mapNode = this.moveNodes.get(i);
-                MapPanel.getMapPanel().moveNodeBy(mapNode, this.diffX, this.diffY);
+                if (this.wasSnapMove) {
+                    Point2D p = worldPosToScreenPos(mapNode.x, mapNode.z);
+                    MapPanel.getMapPanel().lastX = (int)p.getX();
+                    MapPanel.getMapPanel().lastY = (int)p.getY();
+                    if (bDebugUndoRedo) LOG.info("setting lastX/lastY to node x/z");
+                }
+                MapPanel.getMapPanel().moveNodeBy(mapNode, this.diffX, this.diffY, true);
             }
             MapPanel.getMapPanel().repaint();
             MapPanel.getMapPanel().setStale(true);
@@ -230,6 +248,33 @@ public class ChangeManager {
     }
 
     //
+    // Add node from LinkedList
+    //
+
+    public static class AddMultiNodeChanger implements Changeable{
+        private final LinkedList<MapNode> storeNodes;
+        private final boolean isStale;
+
+        public AddMultiNodeChanger(LinkedList<MapNode> nodes){
+            super();
+            this.storeNodes = (LinkedList<MapNode>) nodes.clone();
+            this.isStale = MapPanel.getMapPanel().isStale();
+        }
+
+        public void undo(){
+            roadMap.mapNodes.removeAll(this.storeNodes);
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(this.isStale);
+        }
+
+        public void redo(){
+            roadMap.mapNodes.addAll(this.storeNodes);
+            MapPanel.getMapPanel().repaint();
+            MapPanel.getMapPanel().setStale(true);
+        }
+    }
+
+    //
     // Delete Node
     //
 
@@ -245,18 +290,29 @@ public class ChangeManager {
         }
 
         public void undo(){
+            if (bDebugTest) startTimer();
             for (NodeLinks insertNode : this.nodeListToDelete) {
-                //LOG.info("Insert {} ({})",insertNode.node.id,insertNode.nodeIDbackup);
+                if (bDebugUndoRedo) LOG.info("Insert {} ({})",insertNode.node.id,insertNode.nodeIDbackup);
                 if (insertNode.node.id != insertNode.nodeIDbackup) {
-                    if (DEBUG) LOG.info("## RemoveNode Undo ## ID mismatch.. correcting ID {} -> ID {}", insertNode.node.id, insertNode.nodeIDbackup);
+                    if (bDebugUndoRedo) LOG.info("## RemoveNode Undo ## ID mismatch.. correcting ID {} -> ID {}", insertNode.node.id, insertNode.nodeIDbackup);
                     insertNode.node.id = insertNode.nodeIDbackup;
                 }
                 roadMap.insertMapNode(insertNode.node, insertNode.otherIncoming, insertNode.otherOutgoing);
                 if (insertNode.linkedMarker != null) {
-                    if (DEBUG) LOG.info("## RemoveNode Undo ## MapNode ID {} has a linked MapMarker.. restoring {} ( {} )", insertNode.node.id, insertNode.linkedMarker.name, insertNode.linkedMarker.group);
+                    if (bDebugUndoRedo) LOG.info("## RemoveNode Undo ## MapNode ID {} has a linked MapMarker.. restoring {} ( {} )", insertNode.node.id, insertNode.linkedMarker.name, insertNode.linkedMarker.group);
                     roadMap.addMapMarker(insertNode.linkedMarker);
                 }
             }
+
+            if (bDebugTest) {
+                LinkedList<MapNode> nodes = getMapPanel().getRoadMap().mapNodes;
+                for (int i = 0; i <= nodes.size() - 1 ; i++) {
+                    MapNode mapNode = nodes.get(i);
+                    mapNode.id = i+1;
+                }
+            }
+
+            if (bDebugTest) LOG.info("result = {}", stopTimer());
             MapPanel.getMapPanel().repaint();
             MapPanel.getMapPanel().setStale(this.isStale);
         }
@@ -294,7 +350,7 @@ public class ChangeManager {
             this.isStale = MapPanel.getMapPanel().isStale();
 
             for (MapNode toStore : inbetweenNodes) {
-                if (DEBUG) LOG.info("## LinearLineChanger ## Adding ID {} to autoGeneratedNodes", toStore.id);
+                if (bDebugUndoRedo) LOG.info("## LinearLineChanger ## Adding ID {} to autoGeneratedNodes", toStore.id);
                 autoGeneratedNodes.add(new MapNodeStore(toStore));
             }
         }
@@ -302,19 +358,19 @@ public class ChangeManager {
         public void undo(){
 
             if (this.autoGeneratedNodes.size() <= 2 ) {
-                if (DEBUG) LOG.info("## LinearLineChanger.undo ## No autoGeneratedNodes - restoring to/from connections");
+                if (bDebugUndoRedo) LOG.info("## LinearLineChanger.undo ## No autoGeneratedNodes - restoring to/from connections");
                 this.fromNode.restoreConnections();
                 this.toNode.restoreConnections();
             } else {
                 for (int j = 1; j < this.autoGeneratedNodes.size() - 1 ; j++) {
                     MapNodeStore storedNode = this.autoGeneratedNodes.get(j);
                     MapNode toDelete = storedNode.getMapNode();
-                    if (DEBUG) LOG.info("## LinearLineChanger.undo ## undo is removing ID {} from MapNodes", toDelete.id);
+                    if (bDebugUndoRedo) LOG.info("## LinearLineChanger.undo ## undo is removing ID {} from MapNodes", toDelete.id);
                     MapPanel.roadMap.removeMapNode(toDelete);
                     if (storedNode.hasChangedID()) {
-                        if (DEBUG) LOG.info("## LinearLineChanger.undo ## Removed node changed ID {}", storedNode.mapNode.id);
+                        if (bDebugUndoRedo) LOG.info("## LinearLineChanger.undo ## Removed node changed ID {}", storedNode.mapNode.id);
                         storedNode.resetID();
-                        if (DEBUG) LOG.info("## LinearLineChanger.undo ## Reset ID to {}", storedNode.mapNode.id);
+                        if (bDebugUndoRedo) LOG.info("## LinearLineChanger.undo ## Reset ID to {}", storedNode.mapNode.id);
                     }
                     if (MapPanel.hoveredNode == toDelete) {
                         MapPanel.hoveredNode = null;
@@ -336,7 +392,7 @@ public class ChangeManager {
                     // the id, .getMapNode() will check this for us and correct if necessary before
                     // passing us the node info.
                     MapNode newNode = storedNode.getMapNode();
-                    if (DEBUG) LOG.info("## LinearLineChanger.redo ## Inserting ID {} in MapNodes", newNode.id);
+                    if (bDebugUndoRedo) LOG.info("## LinearLineChanger.redo ## Inserting ID {} in MapNodes", newNode.id);
                     roadMap.insertMapNode(newNode, null,null);
                 }
             }
@@ -376,7 +432,7 @@ public class ChangeManager {
 
             for (int i = 0; i <= curveNodes.size() -1 ; i++) {
                 MapNode mapNode = curveNodes.get(i);
-                if (DEBUG) LOG.info("## QuadCurveChanger ## Adding ID {} to storedCurveNodeList", mapNode.id);
+                if (bDebugUndoRedo) LOG.info("## QuadCurveChanger ## Adding ID {} to storedCurveNodeList", mapNode.id);
                 this.storedCurveNodeList.add(new MapNodeStore(mapNode));
             }
         }
@@ -384,12 +440,12 @@ public class ChangeManager {
         public void undo(){
             for (int i = 1; i <= this.storedCurveNodeList.size() - 2 ; i++) {
                 MapNodeStore curveNode = this.storedCurveNodeList.get(i);
-                if (DEBUG) LOG.info("## QuadCurveChanger.undo ## Removing node ID {}", curveNode.mapNode.id);
+                if (bDebugUndoRedo) LOG.info("## QuadCurveChanger.undo ## Removing node ID {}", curveNode.mapNode.id);
                 roadMap.removeMapNode(curveNode.mapNode);
                 if (curveNode.hasChangedID()) {
-                    if (DEBUG) LOG.info("## QuadCurveChanger.undo ## ID {} changed", curveNode.mapNode.id);
+                    if (bDebugUndoRedo) LOG.info("## QuadCurveChanger.undo ## ID {} changed", curveNode.mapNode.id);
                     curveNode.resetID();
-                    if (DEBUG) LOG.info("## QuadCurveChanger.undo ## Reset ID to {}", curveNode.mapNode.id);
+                    if (bDebugUndoRedo) LOG.info("## QuadCurveChanger.undo ## Reset ID to {}", curveNode.mapNode.id);
                 }
             }
             MapPanel.getMapPanel().repaint();
@@ -401,7 +457,7 @@ public class ChangeManager {
             for (int i = 1; i <= this.storedCurveNodeList.size() - 2 ; i++) {
                 MapNodeStore curveNode = this.storedCurveNodeList.get(i);
                 curveNode.clearConnections();
-                if (DEBUG) LOG.info("## QuadCurveChanger ## Inserting mapNode ID {}", curveNode.mapNode.id);
+                if (bDebugUndoRedo) LOG.info("## QuadCurveChanger ## Inserting mapNode ID {}", curveNode.mapNode.id);
                 roadMap.insertMapNode(curveNode.getMapNode(), null,null);
                 if (curveNode.hasChangedID()) curveNode.resetID();
             }

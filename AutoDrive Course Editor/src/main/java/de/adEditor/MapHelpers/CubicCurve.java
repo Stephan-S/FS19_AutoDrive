@@ -1,11 +1,10 @@
 package de.adEditor.MapHelpers;
 
-import de.adEditor.GUIBuilder;
-import de.adEditor.MapPanel;
-
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
+import de.adEditor.GUIBuilder;
+import de.adEditor.MapPanel;
 import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
@@ -109,7 +108,7 @@ public class CubicCurve {
         changeManager.addChangeable( new ChangeManager.QuadCurveChanger(mergeNodesList, isReversePath, isDualPath));
         connectNodes(mergeNodesList, isReversePath, isDualPath);
 
-        if (DEBUG) LOG.info("Curve created {} nodes", mergeNodesList.size() - 2 );
+        if (DEBUG) LOG.info("CubicCurve created {} nodes", mergeNodesList.size() - 2 );
     }
 
     public static void connectNodes(LinkedList<MapNode> mergeNodesList, boolean reversePath, boolean dualPath)  {
@@ -132,7 +131,7 @@ public class CubicCurve {
         this.controlPoint2 = null;
         this.curveStartNode = null;
         this.curveEndNode = null;
-        GUIBuilder.curvePanel.setVisible(false);
+        if (quadCurve == null) GUIBuilder.curvePanel.setVisible(false);
     }
 
     public Boolean isCurveValid() {
@@ -140,15 +139,34 @@ public class CubicCurve {
     }
 
     public void updateControlPoint1(double diffX, double diffY) {
-        this.virtualControlPoint1.x += diffX * movementScaler;
-        this.virtualControlPoint1.y += diffY * movementScaler;
+        if (editorState == GUIBuilder.EDITORSTATE_CUBICBEZIER) {
+            this.virtualControlPoint1.x += diffX * movementScaler;
+            this.virtualControlPoint1.y += diffY * movementScaler;
+        } else {
+            this.virtualControlPoint1.x += diffX;
+            this.virtualControlPoint1.y += diffY;
+        }
+
         this.updateCurve();
     }
 
     public void updateControlPoint2(double diffX, double diffY) {
-        this.virtualControlPoint2.x += diffX * movementScaler;
-        this.virtualControlPoint2.y += diffY * movementScaler;
+        if (editorState == GUIBuilder.EDITORSTATE_CUBICBEZIER) {
+            this.virtualControlPoint2.x += diffX * movementScaler;
+            this.virtualControlPoint2.y += diffY * movementScaler;
+        } else {
+            this.virtualControlPoint2.x += diffX;
+            this.virtualControlPoint2.y += diffY;
+        }
         this.updateCurve();
+    }
+
+    public boolean isReversePath() { return isReversePath; }
+
+    public boolean isDualPath() { return isDualPath; }
+
+    public Boolean isControlNode(MapNode node) {
+        return node == this.controlPoint1 || node == this.controlPoint2;
     }
 
     // getters
@@ -157,13 +175,9 @@ public class CubicCurve {
 
     public int getNumInterpolationPoints() { return this.numInterpolationPoints; }
 
-    public LinkedList<MapNode> getCurveNodes() {
-        return this.curveNodesList;
-    }
+    public LinkedList<MapNode> getCurveNodes() { return this.curveNodesList; }
 
-    public MapNode getCurveStartNode() {
-        return this.curveStartNode;
-    }
+    public MapNode getCurveStartNode() { return this.curveStartNode; }
 
     public MapNode getCurveEndNode() { return this.curveEndNode; }
 
@@ -171,9 +185,7 @@ public class CubicCurve {
 
     public MapNode getControlPoint2() { return this.controlPoint2; }
 
-    public boolean isReversePath() { return isReversePath; }
 
-    public boolean isDualPath() { return isDualPath; }
 
     // setters
 

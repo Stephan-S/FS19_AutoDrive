@@ -31,23 +31,20 @@ import java.util.*;
 
 import static de.adEditor.ADUtils.*;
 import static de.adEditor.GUIBuilder.*;
-import static de.adEditor.MapPanel.getMapPanel;
+import static de.adEditor.MapPanel.*;
 
 /* TODO:
     (1) New features?
-    (2) Undo function - In Progress
-    (2) Fix map refresh on window resizing - Partial Fix Found 7/11/21
-    (3) New button icons
+    (2) New button icons
  */
 
 public class AutoDriveEditor extends JFrame {
 
-    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.3.0 Beta";
-    public static final String AUTODRIVE_INTERNAL_VERSION = "0.3.0-beta";
+    public static final String AUTODRIVE_COURSE_EDITOR_TITLE = "AutoDrive Course Editor 0.5.0 Beta";
+    public static final String AUTODRIVE_INTERNAL_VERSION = "0.5.0-beta";
     private String lastRunVersion;
     public static boolean DEBUG = false;
     public static boolean EXPERIMENTAL = false;
-    public static boolean PROFILE = false;
 
     public EditorListener editorListener;
     public static ResourceBundle localeString;
@@ -57,8 +54,10 @@ public class AutoDriveEditor extends JFrame {
     public static File xmlConfigFile;
     private boolean hasFlagTag = false; // indicates if the loaded XML file has the <flags> tag in the <waypoints> element
     public static boolean oldConfigFormat = false;
-    public static int x=-99, y=-99, width=1024, height=768; // x + y are negative on purpose, see end of AutoDriveEditor()
+    public static int x=-99, y=-99, width=1024, height=768; // x + y are negative on purpose
     private boolean noSavedWindowPosition;
+
+    public static ArrayList<MapZoomStore> mapZoomStore  = new ArrayList<>();;
 
     public static BufferedImage image = null;
     public static String mapName, mapPath;
@@ -71,6 +70,7 @@ public class AutoDriveEditor extends JFrame {
     public static BufferedImage controlPointImage;
     public static BufferedImage controlPointImageSelected;
     public static BufferedImage curveNodeImage;
+    public static BufferedImage rotateRing;
 
     public static ImageIcon markerIcon;
     public static ImageIcon regularConnectionIcon;
@@ -90,6 +90,9 @@ public class AutoDriveEditor extends JFrame {
     public static boolean bMiddleMouseMove = false; // default value
     public static int controlPointMoveScaler = 3; // default value
     public static int linearLineNodeDistance = 12;
+    public static double gridSpacingX = 2;
+    public static double gridSpacingY = 2;
+    public static int gridSubDivisions = 4;
 
     public static ChangeManager changeManager;
 
@@ -145,7 +148,7 @@ public class AutoDriveEditor extends JFrame {
         GUIBuilder.updateGUIButtons(false);
         pack();
         if (noSavedWindowPosition) {
-            LOG.info("No saved window Location/Size");
+            LOG.info("Invalid saved window Location/Size");
             setLocationRelativeTo(null);
         } else {
             setLocation( x, y);
@@ -173,6 +176,7 @@ public class AutoDriveEditor extends JFrame {
         controlPointImage = getImage("controlpoint.png");
         controlPointImageSelected = getImage("controlpoint_selected.png");
         curveNodeImage = getImage("curvenode.png");
+        rotateRing = getImage("rotate_ring.png");
 
         // icons for dual state buttons
 
@@ -197,8 +201,12 @@ public class AutoDriveEditor extends JFrame {
     }
 
     public static void main(String[] args) {
+
         // set look and feel to the system look and feel
+        System.setProperty("sun.java2d.opengl", "True");
+
         try {
+
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
@@ -217,13 +225,6 @@ public class AutoDriveEditor extends JFrame {
                 EXPERIMENTAL = true;
                 LOG.info("##");
                 LOG.info("## WARNING ..... Experimental features are unlocked, config corruption is possible.. USE --ONLY-- ON BACKUP CONFIGS!!");
-                LOG.info("##");
-            }
-
-            if (Objects.equals(args[i], "-PROFILE")) {
-                PROFILE = true;
-                LOG.info("##");
-                LOG.info("## WARNING ..... Profiling is active... Large amounts of logging will occur");
                 LOG.info("##");
             }
         }
@@ -412,11 +413,25 @@ public class AutoDriveEditor extends JFrame {
             NodeList fstNm = mapNameElement.getChildNodes();
              mapName=(fstNm.item(0)).getNodeValue();
             LOG.info("{} : {}", localeString.getString("console_config_load"), mapName);
+            boolean found = false;
+            for (int i = 0; i <= mapZoomStore.size() - 1; i++) {
+                MapZoomStore inNode = mapZoomStore.get(i);
+                if (Objects.equals(inNode.mapName, mapName)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                LOG.info("New map detected");
+                mapZoomStore.add(new MapZoomStore(mapName, 1));
+            }
             mapPath = "/mapImages/" + mapName + ".png";
             url = AutoDriveEditor.class.getResource(mapPath);
         } else {
+            LOG.info("Cannot reliably extract map name - using blank.png");
             mapName=null;
             mapPath=null;
+            image=null;
             url=null;
         }
 
@@ -455,72 +470,64 @@ public class AutoDriveEditor extends JFrame {
                         } catch (Exception e3) {
                             LOG.info("failed to load map image from {}", mapPath.substring(1));
                             GUIBuilder.loadImageMenuItem.setEnabled(true);
-                            LOG.info("{}", localeString.getString("console_editor_no_map"));
-                            JOptionPane.showConfirmDialog(this, "" + localeString.getString("dialog_mapimage_not_found"), "File Not Found - " + mapName + ".png", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
-                            useDefaultMapImage();
+
 
                             if ( !EXPERIMENTAL ) {
-                                useDefaultMapImage();
+                                JOptionPane.showConfirmDialog(this, "" + localeString.getString("dialog_mapimage_not_found_message"), "" + localeString.getString("dialog_mapimage_not_found_title") + " - " + mapName + ".png", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE);
+                                //useDefaultMapImage();
+                                LOG.info("{}", localeString.getString("console_editor_no_map"));
                             } else {
-                                //
-                                // This is proof of concept test code - This may get removed at any point
-                                //
-
-                                //where to download file
-
-                                String fullPath;
-                                if (location != null) {
-                                    String gitPath = "https://github.com/KillBait/FS19_AutoDrive_MapImages/raw/main/mapImages/" + mapName + ".png";
-                                    LOG.info("trying GitHub repository - {}",gitPath);
-                                    URL gitUrl = new URL(gitPath);
-
-                                    fullPath = location + "mapImages/" + mapName + ".png";
-                                    File file = new File(fullPath);
-
-                                    if (DEBUG) LOG.info("Saving to {}", fullPath);
-
-                                    File mapImage = ADUtils.copyURLToFile(gitUrl, file);
-
-                                    if (mapImage != null) {
-                                        image = ImageIO.read(mapImage);
-                                    } else {
-                                        fullPath = "/mapImages/Blank.png";
-                                        url = AutoDriveEditor.class.getResource(fullPath);
-                                        if (url != null) {
-                                            image = ImageIO.read(url);
-                                        }
-                                    }
+                                int response = JOptionPane.showConfirmDialog(this, localeString.getString("dialog_mapimage_check_online_message"), localeString.getString("dialog_mapimage_not_found_title") + " - " + mapName + ".png", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                                if (response == JOptionPane.NO_OPTION) {
+                                    LOG.info("Not checking online repository, using default image");
+                                    //useDefaultMapImage();
                                 } else {
-                                    if (DEBUG) LOG.info("getCurrentLocation returned null - using blank.png");
-                                    useDefaultMapImage();
-                                    /*fullPath = "/mapImages/Blank.png";
-                                    url = AutoDriveEditor.class.getResource(fullPath);
-                                    if (url != null) {
-                                        image = ImageIO.read(url);
-                                    }*/
+                                    //
+                                    // This is proof of concept test code - This may get removed at any point
+                                    //
+
+                                    //where to download file
+
+                                    String fullPath;
+                                    if (location != null) {
+                                        String gitPath = "https://github.com/KillBait/FS19_AutoDrive_MapImages/raw/main/mapImages/" + mapName + ".png";
+                                        LOG.info("Checking GitHub repository for {}",gitPath);
+                                        URL gitUrl = new URL(gitPath);
+
+                                        fullPath = location + "mapImages/" + mapName + ".png";
+                                        File file = new File(fullPath);
+
+                                        LOG.info("Saving downloaded image to {}", fullPath);
+
+                                        File mapImage = ADUtils.copyURLToFile(gitUrl, file);
+
+                                        if (mapImage != null) {
+                                            image = ImageIO.read(mapImage);
+                                        /*} else {
+                                            useDefaultMapImage();*/
+                                        }
+                                    } else {
+                                        if (bDebugFileIO) LOG.info("getCurrentLocation returned null - using blank.png");
+                                        //useDefaultMapImage();
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } else {
-            LOG.info("Cannot reliably extract map name - using blank.png");
-            /*mapPath = "/mapImages/Blank.png";
-            url = AutoDriveEditor.class.getResource(mapPath);
-            image = ImageIO.read(url);*/
+        }
+
+        if (image == null) {
             useDefaultMapImage();
-        }
-
-        if (image != null) {
+        } else {
             LOG.info("Loaded map image from {}", mapPath);
-            getMapPanel().setImage(image);
-            GUIBuilder.updateGUIButtons(true);
         }
 
-        if (getMapPanel().getImage() != null) {
-            getMapPanel().repaint();
-        }
+        getMapPanel().setImage(image);
+        GUIBuilder.updateGUIButtons(true);
+        getMapPanel().repaint();
+        getMapZoomFactor(mapName);
 
         GUIBuilder.mapMenuEnabled(true);
         editorState = GUIBuilder.EDITORSTATE_NOOP;
@@ -770,19 +777,50 @@ public class AutoDriveEditor extends JFrame {
             Document doc = docBuilder.parse("EditorConfig.xml");
             Element e = doc.getDocumentElement();
 
+            x = getIntegerValue(x, e, "WindowX");
+            y = getIntegerValue(y, e, "WindowY");
+            if ( x == -99 || y == -99) noSavedWindowPosition = true;
+            width = getIntegerValue(width, e, "WindowWidth");
+            height = getIntegerValue(height, e, "WindowHeight");
+
             lastRunVersion = getTextValue(lastRunVersion, e, "Version");
             bContinuousConnections = getBooleanValue(bContinuousConnections, e, "Continuous_Connection");
             bMiddleMouseMove = getBooleanValue(bMiddleMouseMove, e, "MiddleMouseMove");
             linearLineNodeDistance = getIntegerValue(linearLineNodeDistance, e, "LinearLineNodeDistance");
-            quadSliderMax = getIntegerValue(quadSliderMax, e, "QuadSliderMaximum");
-            quadSliderDefault = getIntegerValue(quadSliderDefault, e, "QuadSliderDefault");
+            quadSliderMax = getIntegerValue(quadSliderMax, e, "CurveSliderMaximum");
+            quadSliderDefault = getIntegerValue(quadSliderDefault, e, "CurveSliderDefault");
             controlPointMoveScaler = getIntegerValue(controlPointMoveScaler, e, "ControlPointMoveScaler");
-            x = getIntegerValue(x, e, "WindowX");
-            y = getIntegerValue(y, e, "WindowY");
-            LOG.info("{} , {}", x, y);
-            if ( x == -99 || y == -99) noSavedWindowPosition = true;
-            width = getIntegerValue(width, e, "WindowWidth");
-            height = getIntegerValue(height, e, "WindowHeight");
+            bShowGrid = getBooleanValue(bShowGrid, e, "ShowGrid");
+            bGridSnap = getBooleanValue(bGridSnap, e, "GridSnapping");
+            gridSpacingX = getFloatValue((float)gridSpacingX, e, "GridSpacingX");
+            gridSpacingY = getFloatValue((float)gridSpacingY, e, "GridSpacingY");
+            bGridSnapSubs = getBooleanValue(bGridSnapSubs, e, "SnapSubDivision");
+            gridSubDivisions = getIntegerValue(gridSubDivisions, e, "GridSubDivisions");
+            rotationAngle = getIntegerValue( rotationAngle, e, "RotationStep");
+
+
+            NodeList zoomFactorList = doc.getElementsByTagName("mapzoomfactor");
+
+            for (int temp = 0; temp < zoomFactorList.getLength(); temp++) {
+                Node zoomNode = zoomFactorList.item(temp);
+                if (zoomNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) zoomNode;
+
+                    NodeList mapID = eElement.getElementsByTagName("Map" + temp + 1);
+                    NodeList mapName = eElement.getElementsByTagName("name");
+                    NodeList mapZoomfactor = eElement.getElementsByTagName("zoomfactor");
+
+                    for (int mapNameIndex = 0; mapNameIndex<mapName.getLength(); mapNameIndex++ ) {
+                        Node node = mapName.item(mapNameIndex).getChildNodes().item(0);
+                        String markerName = node.getNodeValue();
+
+                        node = mapZoomfactor.item(mapNameIndex).getChildNodes().item(0);
+                        String mapZoomInt = node.getNodeValue();
+
+                        mapZoomStore.add(new MapZoomStore(markerName, Integer.parseInt(mapZoomInt)));
+                    }
+                }
+            }
 
         } catch (ParserConfigurationException | SAXException pce) {
             LOG.error("## Exception in loading Editor config ## SAX/Parser Exception");
@@ -808,11 +846,53 @@ public class AutoDriveEditor extends JFrame {
             setBooleanValue("Continuous_Connection", doc, bContinuousConnections, root);
             setBooleanValue("MiddleMouseMove", doc, bMiddleMouseMove, root);
             setIntegerValue("LinearLineNodeDistance", doc, linearLineNodeDistance, root);
-            setIntegerValue("QuadSliderMaximum", doc, quadSliderMax, root);
-            setIntegerValue("QuadSliderDefault", doc, quadSliderDefault, root);
+            setIntegerValue("CurveSliderMaximum", doc, quadSliderMax, root);
+            setIntegerValue("CurveSliderDefault", doc, quadSliderDefault, root);
             setIntegerValue("ControlPointMoveScaler", doc, controlPointMoveScaler, root);
+            setBooleanValue("ShowGrid", doc, bShowGrid, root);
+            setBooleanValue("GridSnapping", doc, bGridSnap, root);
+            setFloatValue("GridSpacingX", doc, (float)gridSpacingX, root);
+            setFloatValue("GridSpacingY", doc, (float)gridSpacingY, root);
+            setBooleanValue("SnapSubDivision",doc, bGridSnapSubs, root);
+            setIntegerValue("GridSubDivisions", doc, gridSubDivisions, root);
+            setIntegerValue("RotationStep", doc, rotationAngle, root);
+
 
             doc.appendChild(root);
+
+            for (int zoomStoreIndex = 1; zoomStoreIndex < mapZoomStore.size(); zoomStoreIndex++) {
+                Element element = (Element) doc.getElementsByTagName("mapzoomfactor" + (zoomStoreIndex)).item(0);
+                if (element != null) {
+                    Element parent = (Element) element.getParentNode();
+                    while (parent.hasChildNodes())
+                        parent.removeChild(parent.getFirstChild());
+                }
+            }
+
+            NodeList zoomList = doc.getElementsByTagName("mapzoomfactor");
+
+            if (mapZoomStore.size() > 0 && zoomList.getLength() == 0 ) {
+                Element test = doc.createElement("mapzoomfactor");
+                root.appendChild(test);
+            }
+
+            NodeList markerList = doc.getElementsByTagName("mapzoomfactor");
+            Node zoomNode = markerList.item(0);
+            int zoomFactorCount = 1;
+            for (MapZoomStore zoomMarker : mapZoomStore) {
+                Element newMapMarker = doc.createElement("Map" + zoomFactorCount);
+
+                Element markerID = doc.createElement("name");
+                markerID.appendChild(doc.createTextNode("" + zoomMarker.mapName));
+                newMapMarker.appendChild(markerID);
+
+                Element markerName = doc.createElement("zoomfactor");
+                markerName.appendChild(doc.createTextNode(String.valueOf(zoomMarker.zoomFactor)));
+                newMapMarker.appendChild(markerName);
+
+                zoomNode.appendChild(newMapMarker);
+                zoomFactorCount += 1;
+            }
 
             try {
                 Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -863,6 +943,13 @@ public class AutoDriveEditor extends JFrame {
         element.appendChild(e);
     }
 
+    private void setFloatValue(String tag, Document doc, float value, Element element) {
+        Element e;
+        e = doc.createElement(tag);
+        e.appendChild(doc.createTextNode(String.valueOf(value)));
+        element.appendChild(e);
+    }
+
     private String getTextValue(String def, Element doc, String tag) {
         String value = def;
         NodeList nl;
@@ -893,9 +980,42 @@ public class AutoDriveEditor extends JFrame {
         return value;
     }
 
+    private Float getFloatValue(float def, Element doc, String tag) {
+        float value = def;
+        NodeList nl;
+        nl = doc.getElementsByTagName(tag);
+        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
+            value = Float.parseFloat(nl.item(0).getFirstChild().getNodeValue());
+        }
+        return value;
+    }
     public void updateMapZoomFactor(int zoomFactor) {
         getMapPanel().setMapZoomFactor(zoomFactor);
         getMapPanel().repaint();
+        for (int i = 0; i <= mapZoomStore.size() - 1; i++) {
+            MapZoomStore store = mapZoomStore.get(i);
+            if (store.mapName.equals(mapName)) {
+                LOG.info("found {} in list of known zoomFactors, setting to {}x", store.mapName, zoomFactor);
+                store.zoomFactor = zoomFactor;
+            }
+        }
+    }
+
+    public void getMapZoomFactor(String mapName) {
+        for (int i = 0; i <= mapZoomStore.size() - 1; i++) {
+            MapZoomStore store = mapZoomStore.get(i);
+            if (store.mapName.equals(mapName)) {
+                //return store.zoomFactor;
+                updateMapZoomFactor(store.zoomFactor);
+                if (store.zoomFactor == 1) {
+                    zoomOneX.setSelected(true);
+                } else if (store.zoomFactor == 2) {
+                    zoomFourX.setSelected(true);
+                } else if (store.zoomFactor == 4) {
+                    zoomSixteenX.setSelected(true);
+                }
+            }
+        }
     }
 
     public static String createTitle() {
@@ -905,5 +1025,15 @@ public class AutoDriveEditor extends JFrame {
             sb.append(" - ").append(xmlConfigFile.getAbsolutePath()).append(MapPanel.getMapPanel().isStale() ? " *" : "");
         }
         return sb.toString();
+    }
+
+    public static class MapZoomStore {
+        String mapName;
+        int zoomFactor;
+
+        public MapZoomStore(String mapname, int zoomfactor) {
+            this.mapName = mapname;
+            this.zoomFactor = zoomfactor;
+        }
     }
 }

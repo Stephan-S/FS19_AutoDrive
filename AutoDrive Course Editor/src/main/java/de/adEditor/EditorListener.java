@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import de.adEditor.MapHelpers.CopyPasteManager;
+
 import static de.adEditor.ADUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
@@ -49,7 +51,7 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 fc.addChoosableFileFilter(filter);
 
                 if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
-                    MapPanel.getMapPanel().stopCurveEdit();
+                    MapPanel.getMapPanel().confirmCurve();
                     File fileName = fc.getSelectedFile();
                     editor.loadConfigFile(fileName);
                     forceMapImageRedraw();
@@ -254,30 +256,23 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 editorState = EDITORSTATE_CUBICBEZIER;
                 break;
             case BUTTON_COMMIT_CURVE:
-                if (quadCurve != null) {
-                    quadCurve.commitCurve();
-                } else if ( cubicCurve != null) {
-                    cubicCurve.commitCurve();
-                }
-                MapPanel.getMapPanel().stopCurveEdit();
-                MapPanel.getMapPanel().repaint();
-                MapPanel.getMapPanel().setStale(true);
+                MapPanel.getMapPanel().confirmCurve();
                 break;
             case BUTTON_CANCEL_CURVE:
-                MapPanel.getMapPanel().stopCurveEdit();
-                MapPanel.getMapPanel().repaint();
+                MapPanel.getMapPanel().cancelCurve();
                 break;
             case BUTTON_COPYPASTE_SELECT:
                 editorState = EDITORSTATE_CNP_SELECT;
                 MapPanel.getMapPanel().isMultiSelectAllowed = true;
-                JToggleButton tBtn = (JToggleButton)e.getSource();
-                if (DEBUG) LOG.info("CNP area select - {}", tBtn.isSelected());
                 break;
             case BUTTON_COPYPASTE_CUT:
+                cutSelected();
                 break;
             case BUTTON_COPYPASTE_COPY:
+                copySelected();
                 break;
             case BUTTON_COPYPASTE_PASTE:
+                pasteSelected();
                 break;
             case MENU_EDIT_UNDO:
                 changeManager.undo();
@@ -286,6 +281,25 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
             case MENU_EDIT_REDO:
                 changeManager.redo();
                 enableMultiSelect();
+                break;
+            case MENU_GRID_SET:
+                MapPanel.getMapPanel().showGridSettingDialog();
+                break;
+            case MENU_ROTATE_SET:
+                MapPanel.getMapPanel().showRotationSettingDialog();
+                break;
+            case MENU_ROTATE_CLOCKWISE:
+                CopyPasteManager.rotateSelected(45);
+                break;
+            case MENU_ROTATE_ANTICLOCKWISE:
+                CopyPasteManager.rotateSelected(-45);
+                break;
+            case MENU_ROTATE_CLOCKWISE_NINTY:
+                CopyPasteManager.rotateSelected(90);
+                break;
+            case MENU_ROTATE_ANTICLOCKWISE_NINTY:
+                CopyPasteManager.rotateSelected(-90);
+                break;
         }
         updateButtons();
     }
@@ -300,22 +314,53 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
             case MENU_CHECKBOX_MIDDLEMOUSEMOVE:
                 AutoDriveEditor.bMiddleMouseMove = button.isSelected();
                 break;
+            case MENU_GRID_SHOW:
+                GUIBuilder.bShowGrid = button.isSelected();
+                MapPanel.getMapPanel().repaint();
+                break;
+            case MENU_GRID_SNAP:
+                GUIBuilder.bGridSnap = button.isSelected();
+                if (!button.isSelected()) {
+                    bGridSnapSubs = false;
+                    gridSnapSubDivisionMenuItem.setSelected(false);
+                }
+                break;
+            case MENU_GRID_SNAP_SUBS:
+                GUIBuilder.bGridSnapSubs = button.isSelected();
+                break;
             case MENU_DEBUG_SHOWID:
                 GUIBuilder.bDebugShowID = button.isSelected();
-                getMapPanel().repaint();
+                mapPanel.repaint();
+                break;
+            case MENU_DEBUG_SELECTED_LOCATION:
+                GUIBuilder.bDebugShowSelectedLocation = button.isSelected();
+                break;
+            case MENU_DEBUG_FILEIO:
+                GUIBuilder.bDebugFileIO = button.isSelected();
+                break;
+            case MENU_DEBUG_PROFILE:
+                GUIBuilder.bDebugProfile = button.isSelected();
+                break;
+            case MENU_DEBUG_UNDO:
+                GUIBuilder.bDebugUndoRedo = button.isSelected();
+                break;
+            case MENU_DEBUG_TEST:
+                GUIBuilder.bDebugTest = button.isSelected();
+                isDraggingNode = true;
+                MapPanel.getMapPanel().mouseDragged(-1, 0);
                 break;
             case RADIOBUTTON_PATHTYPE_REGULAR:
-                if (quadCurve != null) {
+                if (quadCurve != null && isQuadCurveCreated) {
                     quadCurve.setNodeType(NODE_STANDARD);
-                } else if (cubicCurve != null) {
+                } else if (cubicCurve != null && isCubicCurveCreated) {
                     cubicCurve.setNodeType(NODE_STANDARD);
                 }
                 mapPanel.repaint();
                 break;
             case RADIOBUTTON_PATHTYPE_SUBPRIO:
-                if (quadCurve != null) {
+                if (quadCurve != null && isQuadCurveCreated) {
                     quadCurve.setNodeType(NODE_SUBPRIO);
-                } else if (cubicCurve != null) {
+                } else if (cubicCurve != null && isCubicCurveCreated) {
                     cubicCurve.setNodeType(NODE_SUBPRIO);
                 }
                 mapPanel.repaint();

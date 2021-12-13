@@ -5,10 +5,19 @@ import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 
+import de.adEditor.MapHelpers.CopyPasteManager;
+
+import static de.adEditor.ADUtils.LOG;
 import static de.adEditor.GUIUtils.*;
 import static de.adEditor.AutoDriveEditor.*;
 import static de.adEditor.MapPanel.*;
+import static java.lang.Math.PI;
+import static javax.swing.BoxLayout.*;
 
 public class GUIBuilder {
 
@@ -49,8 +58,25 @@ public class GUIBuilder {
     public static final String MENU_ZOOM_16x = "16x";
     public static final String MENU_CHECKBOX_CONTINUECONNECT = "Continuous Connections";
     public static final String MENU_CHECKBOX_MIDDLEMOUSEMOVE = "Middle Mouse Move";
+    public static final String MENU_GRID_SET = "Grid Set";
+    public static final String MENU_GRID_SHOW = "Grid Show";
+    public static final String MENU_GRID_SNAP = "Grid Snap";
+    public static final String MENU_GRID_SNAP_SUBS = "Grid Snap Subs";
+    public static final String MENU_ROTATE_SET = "Set Rotate Step";
+    public static final String MENU_ROTATE_CLOCKWISE_NINTY ="Rotate 90 Clockwise";
+    public static final String MENU_ROTATE_ANTICLOCKWISE_NINTY ="Rotate 90 Anticlockwise";
+    public static final String MENU_ROTATE_CLOCKWISE="Rotate Clockwise";
+    public static final String MENU_ROTATE_ANTICLOCKWISE="Rotate Anticlockwise";
     public static final String MENU_ABOUT = "About";
+
     public static final String MENU_DEBUG_SHOWID = "DEBUG ID";
+    public static final String MENU_DEBUG_FILEIO = "DEBUG CONFIG";
+    public static final String MENU_DEBUG_SELECTED_LOCATION = "DEBUG SELECTED LOCATION";
+    public static final String MENU_DEBUG_PROFILE = "DEBUG PROFILE";
+    public static final String MENU_DEBUG_UNDO = "DEBUG UNDO/REDO SYSTEM";
+    public static final String MENU_DEBUG_ZOOMSCALE = "ZOOMSCALE";
+    //public static final String MENU_DEBUG_TEST = "TEST";
+    public static final String MENU_DEBUG_TEST = "TEST";
 
 
     public static final String BUTTON_MOVE_NODES = "Move Nodes";
@@ -96,9 +122,30 @@ public class GUIBuilder {
     public static JMenuItem cutMenuItem;
     public static JMenuItem copyMenuItem;
     public static JMenuItem pasteMenuItem;
+    public static JMenuItem zoomOneX;
+    public static JMenuItem zoomFourX;
+    public static JMenuItem zoomSixteenX;
+    public static JMenuItem gridSnapMenuItem;
+    public static JMenuItem gridSnapSubDivisionMenuItem;
 
-    //public static JMenuItem debugShowID;
+    public static JMenuItem rClockwiseMenuItem;
+    public static JMenuItem r90ClockwiseMenuItem;
+    public static JMenuItem rAntiClockwiseMenuItem;
+    public static JMenuItem r90AntiClockwiseMenuItem;
+
+
+    public static boolean bShowGrid;
+    public static boolean bGridSnap;
+    public static boolean bGridSnapSubs;
+
+
     public static boolean bDebugShowID;
+    public static boolean bDebugFileIO;
+    public static boolean bDebugShowSelectedLocation;
+    public static boolean bDebugProfile;
+    public static boolean bDebugUndoRedo;
+    public static boolean bDebugZoomScale;
+    public static boolean bDebugTest;
 
     public static JPanel nodeBox;
     public static JToggleButton removeNode;
@@ -137,7 +184,7 @@ public class GUIBuilder {
 
     public static void createMenu(EditorListener editorListener) {
         JMenuItem menuItem;
-        JMenu fileMenu, editMenu, mapMenu, optionsMenu, helpMenu, subMenu, debugMenu;
+        JMenu fileMenu, editMenu, mapMenu, optionsMenu, helpMenu, subMenu, gridMenu, rotationMenu, debugMenu;
 
         menuBar = new JMenuBar();
 
@@ -153,13 +200,13 @@ public class GUIBuilder {
 
         editMenu = makeMenu("menu_edit", KeyEvent.VK_E, "menu_edit_accstring", menuBar);
 
-        // Disabled due not implemented yet
+        // Create the Undo/Redo menu
 
         undoMenuItem = makeMenuItem("menu_edit_undo",  "menu_edit_undo_accstring", KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_UNDO, false );
         redoMenuItem = makeMenuItem("menu_edit_redo",  "menu_edit_redo_accstring", KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK, editMenu, editorListener, MENU_EDIT_REDO, false );
-        cutMenuItem = makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_CUT, false );
-        copyMenuItem = makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_COPY, false );
-        pasteMenuItem = makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, MENU_EDIT_PASTE, false );
+        cutMenuItem = makeMenuItem("menu_edit_cut",  "menu_edit_cut_accstring", KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, BUTTON_COPYPASTE_CUT, false );
+        copyMenuItem = makeMenuItem("menu_edit_copy",  "menu_edit_copy_accstring", KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, BUTTON_COPYPASTE_COPY, false );
+        pasteMenuItem = makeMenuItem("menu_edit_paste",  "menu_edit_paste_accstring", KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK, editMenu, editorListener, BUTTON_COPYPASTE_PASTE, false );
 
 
         // Create the Map Menu and it's scale sub menu
@@ -170,9 +217,9 @@ public class GUIBuilder {
         mapMenu.addSeparator();
         subMenu = makeSubMenu("menu_map_scale", KeyEvent.VK_M, "menu_map_scale_accstring", mapMenu);
         ButtonGroup menuZoomGroup = new ButtonGroup();
-        makeRadioButtonMenuItem("menu_map_scale_1x", "menu_map_scale_1x_accstring",KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_1x,true, menuZoomGroup, true);
-        makeRadioButtonMenuItem("menu_map_scale_4x", "menu_map_scale_4x_accstring",KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_4x,true, menuZoomGroup, false);
-        makeRadioButtonMenuItem("menu_map_scale_16x", "menu_map_scale_16x_accstring",KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, subMenu, editorListener, MENU_ZOOM_16x, true, menuZoomGroup, false);
+        zoomOneX = makeRadioButtonMenuItem("menu_map_scale_1x", "menu_map_scale_1x_accstring",KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_1x,true, menuZoomGroup, true);
+        zoomFourX = makeRadioButtonMenuItem("menu_map_scale_4x", "menu_map_scale_4x_accstring",KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_4x,true, menuZoomGroup, false);
+        zoomSixteenX = makeRadioButtonMenuItem("menu_map_scale_16x", "menu_map_scale_16x_accstring",KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, subMenu, editorListener, MENU_ZOOM_16x, true, menuZoomGroup, false);
         mapMenu.addSeparator();
         importDDSMenuItem = makeMenuItem("menu_import_dds", "menu_import_dds_accstring", KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_IMPORT_DDS, false);
         saveImageMenuItem = makeMenuItem("menu_map_saveimage", "menu_map_saveimage_accstring", KeyEvent.VK_B, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_SAVE_IMAGE, false);
@@ -180,8 +227,26 @@ public class GUIBuilder {
         // create the Options menu
 
         optionsMenu = makeMenu("menu_options", KeyEvent.VK_O, "menu_options_accstring", menuBar);
-        makeCheckBoxMenuItem("menu_conconnect", "menu_conconnect_accstring", KeyEvent.VK_5, bContinuousConnections, optionsMenu, editorListener, MENU_CHECKBOX_CONTINUECONNECT);
-        makeCheckBoxMenuItem("menu_middlemousemove", "menu_middlemousemove_accstring", KeyEvent.VK_6, bMiddleMouseMove, optionsMenu, editorListener, MENU_CHECKBOX_MIDDLEMOUSEMOVE);
+        makeCheckBoxMenuItem("menu_conconnect", "menu_conconnect_accstring", KeyEvent.VK_4, bContinuousConnections, optionsMenu, editorListener, MENU_CHECKBOX_CONTINUECONNECT);
+        makeCheckBoxMenuItem("menu_middlemousemove", "menu_middlemousemove_accstring", KeyEvent.VK_5, bMiddleMouseMove, optionsMenu, editorListener, MENU_CHECKBOX_MIDDLEMOUSEMOVE);
+
+        // create the grid snap menu
+
+        gridMenu = makeMenu("menu_grid", KeyEvent.VK_G, "menu_grid_accstring", menuBar);
+        makeCheckBoxMenuItem("menu_grid_show", "menu_grid_show_accstring", KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK, bShowGrid, gridMenu, editorListener, MENU_GRID_SHOW);
+        gridSnapMenuItem = makeCheckBoxMenuItem("menu_grid_snap", "menu_grid_snap_accstring", KeyEvent.VK_S, bGridSnap, gridMenu, editorListener, MENU_GRID_SNAP);
+        gridSnapSubDivisionMenuItem = makeCheckBoxMenuItem("menu_grid_snap_subdivide", "menu_grid_snap_subdivide_accstring", KeyEvent.VK_D, bGridSnapSubs, gridMenu, editorListener, MENU_GRID_SNAP_SUBS);
+        gridMenu.addSeparator();
+        makeMenuItem("menu_grid_set_size", "menu_grid_set_size_accstring", KeyEvent.VK_F, InputEvent.ALT_DOWN_MASK, gridMenu, editorListener, MENU_GRID_SET, true );
+
+        // Create the Rotation Menu
+
+        rotationMenu = makeMenu("menu_rotate", KeyEvent.VK_R, "menu_rotate_accstring", menuBar);
+        makeMenuItem("menu_rotate_set_step", "menu_rotate_set_step_accstring", KeyEvent.VK_Y, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_SET, true );
+        rClockwiseMenuItem = makeMenuItem("menu_rotate_clockwise", "menu_rotate_clockwise_accstring", KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_CLOCKWISE, false );
+        r90ClockwiseMenuItem = makeMenuItem("menu_rotate_clockwise_ninty", "menu_rotate_clockwise_ninty_accstring", KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_CLOCKWISE_NINTY, false );
+        rAntiClockwiseMenuItem = makeMenuItem("menu_rotate_anticlockwise", "menu_rotate_anticlockwise_accstring", KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_ANTICLOCKWISE, false );
+        r90AntiClockwiseMenuItem = makeMenuItem("menu_rotate_anticlockwise_ninty", "menu_rotate_anticlockwise_ninty_accstring", KeyEvent.VK_R, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_ANTICLOCKWISE_NINTY, false );
 
         // Create the Help menu
 
@@ -189,8 +254,17 @@ public class GUIBuilder {
         makeMenuItem("menu_help_about", "menu_help_about_accstring", KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK, helpMenu,editorListener, MENU_ABOUT, true );
 
         if (DEBUG) {
-            debugMenu = makeMenu("menu_debug", KeyEvent.VK_H, "menu_debug_accstring", menuBar);
-            makeCheckBoxMenuItem("menu_debug_showID", "menu_debug_showID_accstring", KeyEvent.VK_5, InputEvent.ALT_DOWN_MASK, bDebugShowID, debugMenu, editorListener, MENU_DEBUG_SHOWID);
+            debugMenu = makeMenu("menu_debug", KeyEvent.VK_D, "menu_debug_accstring", menuBar);
+            makeCheckBoxMenuItem("menu_debug_showID", "menu_debug_showID_accstring", KeyEvent.VK_6, InputEvent.ALT_DOWN_MASK, bDebugShowID, debugMenu, editorListener, MENU_DEBUG_SHOWID);
+
+            makeCheckBoxMenuItem("menu_debug_showselectedlocation", "menu_debug_showselectedlocation_accstring", KeyEvent.VK_7, InputEvent.ALT_DOWN_MASK, bDebugShowSelectedLocation, debugMenu, editorListener, MENU_DEBUG_SELECTED_LOCATION);
+            makeCheckBoxMenuItem("menu_debug_profile", "menu_debug_profile_accstring", bDebugProfile, debugMenu, editorListener, MENU_DEBUG_PROFILE);
+            makeCheckBoxMenuItem("menu_debug_zoom", "menu_debug_zoom_accstring", bDebugZoomScale, debugMenu, editorListener, MENU_DEBUG_ZOOMSCALE);
+            makeCheckBoxMenuItem("menu_debug_test", "menu_debug_test_accstring", bDebugTest, debugMenu, editorListener, MENU_DEBUG_TEST);
+            debugMenu.addSeparator();
+            makeCheckBoxMenuItem("menu_debug_fileio", "menu_debug_fileio_accstring", bDebugFileIO, debugMenu, editorListener, MENU_DEBUG_FILEIO);
+            makeCheckBoxMenuItem("menu_debug_undo", "menu_debug_undo_accstring", bDebugUndoRedo, debugMenu, editorListener, MENU_DEBUG_UNDO);
+
         }
 
 
@@ -199,11 +273,15 @@ public class GUIBuilder {
     public static MapPanel createMapPanel(AutoDriveEditor editor, EditorListener listener) {
 
         mapPanel = new MapPanel(editor);
+        //mapPanel.setLayout(new BorderLayout());
         // set border for the panel
         mapPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), localeString.getString("panels_map")));
 
         mapPanel.add( new GUIUtils.AlphaContainer(initCurvePanel(listener)));
+
+        //JRotation rot = new JRotation();
+        //mapPanel.add(rot);
 
         return mapPanel;
 
@@ -296,7 +374,7 @@ public class GUIBuilder {
         //
 
         curvePanel = new JPanel();
-        curvePanel.setLayout(new BoxLayout(curvePanel, BoxLayout.X_AXIS)); //create container ( left to right layout)
+        curvePanel.setLayout(new BoxLayout(curvePanel, X_AXIS)); //create container ( left to right layout)
         curvePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
         curvePanel.setVisible(false);
         curvePanel.setOpaque(true);
@@ -321,7 +399,7 @@ public class GUIBuilder {
         // create panel for slider using vertical layout
 
         JPanel interpSliderPanel = new JPanel();
-        interpSliderPanel.setLayout(new BoxLayout(interpSliderPanel, BoxLayout.Y_AXIS));
+        interpSliderPanel.setLayout(new BoxLayout(interpSliderPanel, Y_AXIS));
         interpSliderPanel.setBorder(BorderFactory.createEmptyBorder());
         interpSliderPanel.setOpaque(false);
 
@@ -380,6 +458,7 @@ public class GUIBuilder {
         updateButtons();
         if (AutoDriveEditor.oldConfigFormat) {
             editorState = GUIBuilder.EDITORSTATE_NOOP;
+
             saveMenuEnabled(false);
             editMenuEnabled(false);
             enabled = false;
@@ -387,13 +466,7 @@ public class GUIBuilder {
         nodeBoxSetEnabled(enabled);
         markerBoxSetEnabled(enabled);
         alignBoxSetEnabled(enabled);
-        if (EXPERIMENTAL) {
-            copypasteBoxSetEnabled(enabled);
-        } else {
-            copypasteBoxSetEnabled(false);
-        }
-
-
+        copypasteBoxSetEnabled(enabled);
     }
 
     private static void nodeBoxSetEnabled(boolean enabled) {
@@ -420,17 +493,10 @@ public class GUIBuilder {
     }
 
     private static void copypasteBoxSetEnabled(boolean enabled) {
-        if (EXPERIMENTAL) {
-            select.setEnabled(enabled);
-            cut.setEnabled(enabled);
-            copy.setEnabled(enabled);
-            paste.setEnabled(enabled);
-        } else {
-            select.setEnabled(false);
-            cut.setEnabled(false);
-            copy.setEnabled(false);
-            paste.setEnabled(false);
-        }
+        select.setEnabled(enabled);
+        cut.setEnabled(enabled);
+        copy.setEnabled(enabled);
+        paste.setEnabled(enabled);
     }
 
     public static void mapMenuEnabled(boolean enabled) {
@@ -451,11 +517,16 @@ public class GUIBuilder {
     public static void editMenuEnabled(boolean enabled) {
         undoMenuItem.setEnabled(enabled);
         redoMenuItem.setEnabled(enabled);
-        if (EXPERIMENTAL) {
-            cutMenuItem.setEnabled(enabled);
-            copyMenuItem.setEnabled(enabled);
-            pasteMenuItem.setEnabled(enabled);
-        }
+        cutMenuItem.setEnabled(enabled);
+        copyMenuItem.setEnabled(enabled);
+        pasteMenuItem.setEnabled(enabled);
+    }
+
+    public static void rotationMenuEnabled(boolean enabled) {
+        rClockwiseMenuItem.setEnabled(enabled);
+        r90ClockwiseMenuItem.setEnabled(enabled);
+        rAntiClockwiseMenuItem.setEnabled(enabled);
+        r90AntiClockwiseMenuItem.setEnabled(enabled);
     }
 
     public static void updateButtons() {
@@ -485,6 +556,7 @@ public class GUIBuilder {
         switch (AutoDriveEditor.editorState) {
             case EDITORSTATE_MOVING:
                 moveNode.setSelected(true);
+                showInTextArea("Left click ( or area select ) and drag to move", true);
                 break;
             case EDITORSTATE_CONNECTING:
                 if (connectionType == CONNECTION_STANDARD) {
@@ -496,43 +568,167 @@ public class GUIBuilder {
                 } else if (connectionType == CONNECTION_DUAL) {
                     createDualConnection.setSelected(true);
                 }
+                showInTextArea("click on start node then on end node to create a connection", true);
                 break;
             case EDITORSTATE_CREATE_PRIMARY_NODE:
                 createPrimaryNode.setSelected(true);
+                showInTextArea("click on map to create a primary node", true);
                 break;
             case EDITORSTATE_CHANGE_NODE_PRIORITY:
                 changePriority.setSelected(true);
+                showInTextArea("click on a node to change it's priority, or area select to swap multiple nodes", true);
                 break;
             case EDITORSTATE_CREATE_SUBPRIO_NODE:
                 createSecondaryNode.setSelected(true);
+                showInTextArea("click on map to create a secondary node", true);
                 break;
             case EDITORSTATE_DELETE_NODES:
                 removeNode.setSelected(true);
+                showInTextArea("click to delete a node, or area select to delete multiple nodes", true);
                 break;
             case EDITORSTATE_CREATING_DESTINATION:
                 createDestination.setSelected(true);
+                showInTextArea("click on a node to create a map marker", true);
                 break;
             case EDITORSTATE_EDITING_DESTINATION:
                 editDestination.setSelected(true);
+                showInTextArea("click on a marker to edit", true);
                 break;
             case EDITORSTATE_DELETING_DESTINATION:
                 removeDestination.setSelected(true);
+                showInTextArea("click on a node to delete it's map marker", true);
                 break;
             case EDITORSTATE_ALIGN_HORIZONTAL:
                 alignHorizontal.setSelected(true);
+                showInTextArea("Hold Right click and drag to area select nodes, then click node to align too", true);
                 break;
             case EDITORSTATE_ALIGN_VERTICAL:
                 alignVertical.setSelected(true);
+                showInTextArea("Hold Right click and drag to area select nodes, then click node to align too", true);
                 break;
             case EDITORSTATE_CNP_SELECT:
                 select.setSelected(true);
+                showInTextArea("Hold Right click and drag to area select", true);
                 break;
             case EDITORSTATE_QUADRATICBEZIER:
                 quadBezier.setSelected(true);
+                showInTextArea("click start node, then end node to create curve", true);
                 break;
             case EDITORSTATE_CUBICBEZIER:
                 cubicBezier.setSelected(true);
+                showInTextArea("click start node, then end node to create curve", true);
                 break;
+        }
+    }
+
+    //@SuppressWarnings("serial")
+    static class JRotation extends JPanel implements MouseMotionListener {
+
+        private double rotation = 0;
+        private double angle = 0;
+        private double lastAngle = 0;
+        private double lastDegree = 0;
+        private int lastrot = 0;
+        public double getRotation() {
+            return rotation;
+        }
+
+        public JRotation() {
+            setPreferredSize(new Dimension(100, 100));
+            addMouseMotionListener(this);
+        }
+
+        public static Point2D rotate(Graphics g, Point2D point, Point2D centre, double angle) {
+            int width = getMapPanel().getWidth();
+            int height = getMapPanel().getHeight();
+
+            int sizeScaled = (int) (nodeSize * zoomLevel);
+            int sizeScaledHalf = (int) (sizeScaled * 0.5);
+            double currentNodeSize = nodeSize * zoomLevel * 0.5;
+            Point2D result = new Point2D.Double();
+            AffineTransform rotation = new AffineTransform();
+            //angle = ADUtils.normalizeAngle(angle);
+            double angleInRadians = Math.toRadians(angle);
+            rotation.rotate(angle, centre.getX(), centre.getY());
+            rotation.transform(new Point2D.Double(point.getX(), point.getY()), result);
+            g.drawImage(nodeImage, (int) (result.getX() - (nodeImage.getWidth() / 4)), (int) (result.getY() - (nodeImage.getWidth() / 4)), nodeImage.getWidth() / 2, nodeImage.getHeight() / 2, null);
+            //  g.drawImage(nodeImage,(int) (point.getX() - (getMapPanel().sizeScaledHalf / 2 )), (int) (point.getY() - (sizeScaledHalf / 2 )), sizeScaledHalf, sizeScaledHalf, null);
+            return result;
+
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D)g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            //g2.setPaint(Color.white);
+            //g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.drawImage(rotateRing, 0, 0, rotateRing.getWidth(), rotateRing.getHeight(), null);
+            rotate(g2, new Point2D.Double(50, 7), new Point2D.Double(getPreferredSize().getWidth() / 2, getPreferredSize().getHeight() / 2), angle);
+            //g2.rotate(-rotation);0
+
+            //g2.setPaint(Color.black);
+            //AffineTransform t = g2.getTransform();
+            //g2.translate(getWidth()/2, getHeight()/2);
+            //g2.rotate(Math.toDegrees(rotation));
+
+            //g2.drawLine(0, 0, 0, -40);
+            //g2.drawImage(nodeImage, -7, -50, nodeImage.getWidth() / 2, nodeImage.getHeight() / 2, null);
+            //g2.setTransform(t);
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            double step = 0;
+            int x = e.getX();
+            int y = e.getY();
+            int midX = getWidth() / 2;
+            int midY = getHeight() / 2;
+
+            angle = Math.atan2(midY - y, midX - x) - PI / 2;
+            if (angle < 0) // between -PI/2 and 0
+                angle += 2*PI;
+
+            step = Math.toDegrees(angle) - lastAngle;
+            CopyPasteManager.rotateSelected(step);
+            lastAngle = Math.toDegrees(angle);
+
+            mapPanel.repaint();
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+
+        }
+
+        public static float LerpDegrees(float start, float end, float amount)
+        {
+            float difference = Math.abs(end - start);
+            if (difference > 180)
+            {
+                // We need to add on to one of the values.
+                if (end > start)
+                {
+                    // We'll add it on to start...
+                    start += 360;
+                }
+                else
+                {
+                    // Add it on to end.
+                    end += 360;
+                }
+            }
+
+            // Interpolate it.
+            float value = (start + ((end - start) * amount));
+
+            // Wrap it..
+            float rangeZero = 360;
+
+            if (value >= 0 && value <= 360)
+                return value;
+
+            return (value % rangeZero);
         }
     }
 }
