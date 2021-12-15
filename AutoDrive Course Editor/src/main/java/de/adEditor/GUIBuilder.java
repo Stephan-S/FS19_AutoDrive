@@ -242,11 +242,12 @@ public class GUIBuilder {
         // Create the Rotation Menu
 
         rotationMenu = makeMenu("menu_rotate", KeyEvent.VK_R, "menu_rotate_accstring", menuBar);
-        makeMenuItem("menu_rotate_set_step", "menu_rotate_set_step_accstring", KeyEvent.VK_Y, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_SET, true );
         rClockwiseMenuItem = makeMenuItem("menu_rotate_clockwise", "menu_rotate_clockwise_accstring", KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_CLOCKWISE, false );
         r90ClockwiseMenuItem = makeMenuItem("menu_rotate_clockwise_ninty", "menu_rotate_clockwise_ninty_accstring", KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_CLOCKWISE_NINTY, false );
         rAntiClockwiseMenuItem = makeMenuItem("menu_rotate_anticlockwise", "menu_rotate_anticlockwise_accstring", KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_ANTICLOCKWISE, false );
         r90AntiClockwiseMenuItem = makeMenuItem("menu_rotate_anticlockwise_ninty", "menu_rotate_anticlockwise_ninty_accstring", KeyEvent.VK_R, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_ANTICLOCKWISE_NINTY, false );
+        rotationMenu.addSeparator();
+        makeMenuItem("menu_rotate_set_step", "menu_rotate_set_step_accstring", KeyEvent.VK_Y, InputEvent.SHIFT_DOWN_MASK, rotationMenu, editorListener, MENU_ROTATE_SET, true );
 
         // Create the Help menu
 

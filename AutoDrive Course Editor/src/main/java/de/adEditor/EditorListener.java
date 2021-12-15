@@ -289,10 +289,10 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                 MapPanel.getMapPanel().showRotationSettingDialog();
                 break;
             case MENU_ROTATE_CLOCKWISE:
-                CopyPasteManager.rotateSelected(45);
+                CopyPasteManager.rotateSelected(rotationAngle);
                 break;
             case MENU_ROTATE_ANTICLOCKWISE:
-                CopyPasteManager.rotateSelected(-45);
+                CopyPasteManager.rotateSelected(-rotationAngle);
                 break;
             case MENU_ROTATE_CLOCKWISE_NINTY:
                 CopyPasteManager.rotateSelected(90);
