@@ -31,8 +31,8 @@ public class CubicCurve {
         this.curveEndNode = endNode;
         this.numInterpolationPoints = GUIBuilder.numIterationsSlider.getValue();
         if (this.numInterpolationPoints < 2 ) this.numInterpolationPoints = 2 ;
-        this.controlPoint1 = new MapNode(0, startNode.x,0, endNode.z, MapPanel.NODE_CONTROLPOINT, false);
-        this.controlPoint2 = new MapNode(1, endNode.x,0, startNode.z, MapPanel.NODE_CONTROLPOINT, false);
+        this.controlPoint1 = new MapNode(0, startNode.x,0, endNode.z, MapPanel.NODE_CONTROLPOINT, false, true);
+        this.controlPoint2 = new MapNode(1, endNode.x,0, startNode.z, MapPanel.NODE_CONTROLPOINT, false, true);
         this.virtualControlPoint1 = new Point2D.Double(controlPoint1.x,controlPoint1.z);
         this.virtualControlPoint2 = new Point2D.Double(controlPoint2.x,controlPoint2.z);
         this.isReversePath = GUIBuilder.curvePathReverse.isSelected();
@@ -70,7 +70,7 @@ public class CubicCurve {
         int id = 0;
         for(double i=step;i+step<1.0001;i += step) {
             Point2D.Double point = pointsForCubicBezier(startNode, endNode, this.virtualControlPoint1.x, this.virtualControlPoint1.y, this.virtualControlPoint2.x, this.virtualControlPoint2.y, i);
-            curveNodesList.add(new MapNode(id,point.getX(),-1,point.getY(),MapPanel.NODE_STANDARD, false));
+            curveNodesList.add(new MapNode(id,point.getX(),-1,point.getY(),MapPanel.NODE_STANDARD, false, false));
             if (i+step >=1.0001 ) LOG.info("WARNING -- last node was not calculated, this should not happen!! -- step = {} ,  ", i+step);
             id++;
         }
@@ -99,7 +99,7 @@ public class CubicCurve {
 
         for (int j = 1; j < curveNodesList.size() - 1; j++) {
             MapNode tempNode = curveNodesList.get(j);
-            MapNode newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.z, this.nodeType, false);
+            MapNode newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.z, this.nodeType, false, false);
             roadMap.mapNodes.add(newNode);
             mergeNodesList.add(newNode);
         }

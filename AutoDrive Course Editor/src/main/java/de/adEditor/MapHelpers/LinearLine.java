@@ -47,7 +47,7 @@ public class LinearLine {
             Point2D.Double point = new Point2D.Double();
             point.x = startNode.x * ((double)1 - ((double)i/(double)multiplier)) + endX * ((double)i / (double)multiplier);
             point.y = startNode.z * (1 - (i/(double)multiplier)) + endY * (i / (double)multiplier);
-            lineNodeList.add(new MapNode(id,point.getX(),point.getY(),0,MapPanel.NODE_STANDARD, false));
+            lineNodeList.add(new MapNode(id,point.getX(),point.getY(),0,MapPanel.NODE_STANDARD, false, false));
             id++;
         }
     }
@@ -71,7 +71,7 @@ public class LinearLine {
 
         for (int j = 1; j < this.lineNodeList.size() - 1; j++) {
             MapNode tempNode = this.lineNodeList.get(j);
-            MapNode newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.y, nodeType, false);
+            MapNode newNode = new MapNode(roadMap.mapNodes.size() + 1, tempNode.x, -1, tempNode.y, nodeType, false, false);
             roadMap.mapNodes.add(newNode);
             mergeNodesList.add(newNode);
         }

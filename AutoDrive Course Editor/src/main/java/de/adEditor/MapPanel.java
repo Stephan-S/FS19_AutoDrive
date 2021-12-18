@@ -242,11 +242,17 @@ public class MapPanel extends JPanel{
 
                         if (hoveredNode != null) {
                             Point2D hoverNodePos = worldPosToScreenPos(hoveredNode.x, hoveredNode.z);
-                            if (hoveredNode.flag == NODE_STANDARD) {
+
+                            if (hoveredNode.flag == NODE_SUBPRIO) {
+                                backBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            } else if (!hoveredNode.controlPoint) {
+                                backBufferGraphics.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
+                            }
+                            /*if (hoveredNode.flag == NODE_STANDARD) {
                                 backBufferGraphics.drawImage(nodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
                             } else if (hoveredNode.flag == NODE_SUBPRIO) {
                                 backBufferGraphics.drawImage(subPrioNodeImageSelected, (int) (hoverNodePos.getX() - sizeScaledHalf), (int) (hoverNodePos.getY() - sizeScaledHalf), sizeScaled, sizeScaled, null);
-                            }
+                            }*/
                             for (MapMarker mapMarker : roadMap.mapMarkers) {
                                 if (hoveredNode.id == mapMarker.mapNode.id) {
                                     String text = mapMarker.name + " ( " + mapMarker.group + " )";
@@ -309,8 +315,15 @@ public class MapPanel extends JPanel{
                                     } else if ( connectionType == CONNECTION_REVERSE ) {
                                         colour = Color.CYAN;
                                     }
-                                    backBufferGraphics.setColor(colour);
-                                    drawArrowBetween(backBufferGraphics, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
+
+                                    drawlock.lock();
+                                    try {
+                                        backBufferGraphics.setColor(colour);
+                                        drawArrowBetween(backBufferGraphics, startNodePos, endNodePos, connectionType == CONNECTION_DUAL);
+                                    } finally {
+                                        drawlock.unlock();
+                                    }
+
 
                                 }
                             }  else {
@@ -979,7 +992,7 @@ public class MapPanel extends JPanel{
         if ((roadMap == null) || (image == null)) {
             return;
         }
-        MapNode mapNode = new MapNode(roadMap.mapNodes.size()+1, screenX, -1, screenY, flag, false); //flag = 0 causes created node to be regular by default
+        MapNode mapNode = new MapNode(roadMap.mapNodes.size()+1, screenX, -1, screenY, flag, false, false); //flag = 0 causes created node to be regular by default
         roadMap.mapNodes.add(mapNode);
         this.repaint();
         changeManager.addChangeable( new AddNodeChanger(mapNode) );
@@ -1293,7 +1306,7 @@ public class MapPanel extends JPanel{
             g.drawLine((int) lineEndX, (int) lineEndY, (int) arrowLeftX, (int) arrowLeftY);
             g.drawLine((int) lineEndX, (int) lineEndY, (int) arrowRightX, (int) arrowRightY);
 
-            if (dual) {
+            /*if (dual) {
                 angleRad = normalizeAngle(angleRad+Math.PI);
 
                 arrowLeft = normalizeAngle(angleRad + Math.toRadians(-20));
@@ -1306,7 +1319,7 @@ public class MapPanel extends JPanel{
 
                 g.drawLine((int) startX, (int) startY, (int) arrowLeftX, (int) arrowLeftY);
                 g.drawLine((int) startX, (int) startY, (int) arrowRightX, (int) arrowRightY);
-            }
+            }*/
         }
     }
 

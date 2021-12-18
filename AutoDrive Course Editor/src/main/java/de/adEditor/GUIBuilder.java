@@ -47,7 +47,8 @@ public class GUIBuilder {
     public static final String MENU_EXIT = "Exit";
     public static final String MENU_LOAD_IMAGE = "Load Map Image";
     public static final String MENU_SAVE_IMAGE = "Save Map Image";
-    public static final String MENU_IMPORT_DDS = "Import DDS";
+    public static final String MENU_IMPORT_FS19_DDS = "Import FS19 DDS";
+    public static final String MENU_IMPORT_FS22_DDS = "Import FS22 DDS";
     public static final String MENU_EDIT_UNDO = "Undo";
     public static final String MENU_EDIT_REDO = "Redo";
     public static final String MENU_EDIT_CUT = "Cut";
@@ -113,7 +114,8 @@ public class GUIBuilder {
     public static MapPanel mapPanel;
     public static JMenuBar menuBar;
     public static JMenuItem loadImageMenuItem;
-    public static JMenuItem importDDSMenuItem;
+    public static JMenuItem importFS19DDSMenuItem;
+    public static JMenuItem importFS22DDSMenuItem;
     public static JMenuItem saveImageMenuItem;
     public static JMenuItem saveConfigMenuItem;
     public static JMenuItem saveConfigAsMenuItem;
@@ -221,7 +223,8 @@ public class GUIBuilder {
         zoomFourX = makeRadioButtonMenuItem("menu_map_scale_4x", "menu_map_scale_4x_accstring",KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK, subMenu, editorListener,  MENU_ZOOM_4x,true, menuZoomGroup, false);
         zoomSixteenX = makeRadioButtonMenuItem("menu_map_scale_16x", "menu_map_scale_16x_accstring",KeyEvent.VK_3, InputEvent.ALT_DOWN_MASK, subMenu, editorListener, MENU_ZOOM_16x, true, menuZoomGroup, false);
         mapMenu.addSeparator();
-        importDDSMenuItem = makeMenuItem("menu_import_dds", "menu_import_dds_accstring", KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_IMPORT_DDS, false);
+        importFS19DDSMenuItem = makeMenuItem("menu_import_fs19_dds", "menu_import_fs19_dds_accstring", KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_IMPORT_FS19_DDS, false);
+        importFS22DDSMenuItem = makeMenuItem("menu_import_fs22_dds", "menu_import_fs22_dds_accstring", KeyEvent.VK_P, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_IMPORT_FS22_DDS, false);
         saveImageMenuItem = makeMenuItem("menu_map_saveimage", "menu_map_saveimage_accstring", KeyEvent.VK_B, InputEvent.ALT_DOWN_MASK, mapMenu, editorListener, MENU_SAVE_IMAGE, false);
 
         // create the Options menu
@@ -502,7 +505,8 @@ public class GUIBuilder {
 
     public static void mapMenuEnabled(boolean enabled) {
         loadImageMenuItem.setEnabled(enabled);
-        importDDSMenuItem.setEnabled(enabled);
+        importFS19DDSMenuItem.setEnabled(enabled);
+        importFS22DDSMenuItem.setEnabled(enabled);
     }
 
     public static void saveImageEnabled(boolean enabled) {

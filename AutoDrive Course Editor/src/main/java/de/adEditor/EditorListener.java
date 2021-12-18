@@ -154,8 +154,8 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     saveMapImage(ADUtils.getSelectedFileWithExtension(fc).toString());
                 }
                 break;
-            case MENU_IMPORT_DDS:
-                fc.setDialogTitle(localeString.getString("dialog_import_dds_image_title"));
+            case MENU_IMPORT_FS19_DDS:
+                fc.setDialogTitle(localeString.getString("dialog_import_FS19_dds_image_title"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setFileFilter(new FileFilter() {
                     @Override
@@ -178,15 +178,46 @@ public class EditorListener implements ActionListener, ItemListener, ChangeListe
                     }
 
                     LOG.info("Valid Filename {}", fc.getSelectedFile().getAbsoluteFile());
-                    try {
-                       createDDSBufferImage(fc.getSelectedFile().getAbsoluteFile().toString());
-                       isUsingConvertedImage = true;
-                       GUIBuilder.saveImageEnabled(true);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    boolean result = importFromFS19(fc.getSelectedFile().getAbsoluteFile().toString());
+                    if (result) {
+                        isUsingConvertedImage = true;
+                        GUIBuilder.saveImageEnabled(true);
                     }
                 } else {
-                    LOG.info("Cancelled PDA Image Import");
+                    LOG.info("Cancelled FS19 PDA Image Import");
+                }
+                break;
+            case MENU_IMPORT_FS22_DDS:
+                fc.setDialogTitle(localeString.getString("dialog_import_FS22_dds_image_title"));
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        // always accept directory's
+                        if ( f.isDirectory() ) return true;
+                        // but only files with a s pecific name
+                        return f.getName().equals("overview.dds");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return ".dds";
+                    }
+                });
+                if (fc.showOpenDialog(editor) == JFileChooser.APPROVE_OPTION) {
+                    if ( !fc.getSelectedFile().getName().equals("overview.dds") && !fc.getSelectedFile().getName().endsWith(".dds")) {
+                        JOptionPane.showMessageDialog(editor, "The file " + fc.getSelectedFile() + " is not a valid dds file.", "FileType Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    }
+
+                    LOG.info("Valid Filename {}", fc.getSelectedFile().getAbsoluteFile());
+                    boolean result = importFromFS22(fc.getSelectedFile().getAbsoluteFile().toString());
+                    if (result) {
+                        isUsingConvertedImage = true;
+                        GUIBuilder.saveImageEnabled(true);
+                    }
+                } else {
+                    LOG.info("Cancelled FS22 PDA Image Import");
                 }
                 break;
             case MENU_ZOOM_1x:

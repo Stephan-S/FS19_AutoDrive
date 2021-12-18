@@ -291,7 +291,7 @@ public class AutoDriveEditor extends JFrame {
                     node = groupNodeList.item(markerIndex).getChildNodes().item(0);
                     String markerGroup = node.getNodeValue();
 
-                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0, 0, false);
+                    MapNode dummyNode = new MapNode((int)Double.parseDouble(markerNodeId), 0, 0, 0, 0, false, false);
                     MapMarker mapMarker = new MapMarker(dummyNode, markerName, markerGroup);
                     mapMarkerTree.put((int)Double.parseDouble(markerNodeId), mapMarker);
                 }
@@ -353,9 +353,14 @@ public class AutoDriveEditor extends JFrame {
                             double x = Double.parseDouble(xValues[i]);
                             double y = Double.parseDouble(yValues[i]);
                             double z = Double.parseDouble(zValues[i]);
+
+                            /*int readflag = Integer.parseInt(flagsValue[i]);
+                            if (readflag == 2 || readflag == 4) {
+                                readflag = 0;
+                            }*/
                             int flag = Integer.parseInt(flagsValue[i]);
 
-                            MapNode mapNode = new MapNode(id, x, y, z, flag, false);
+                            MapNode mapNode = new MapNode(id, x, y, z, flag, false, false);
                             nodes.add(mapNode);
                         }
                     } else {
@@ -367,7 +372,7 @@ public class AutoDriveEditor extends JFrame {
                             double z = Double.parseDouble(zValues[i]);
                             int flag = 0;
 
-                            MapNode mapNode = new MapNode(id, x, y, z, flag, false);
+                            MapNode mapNode = new MapNode(id, x, y, z, flag, false, false);
                             nodes.add(mapNode);
                         }
                     }

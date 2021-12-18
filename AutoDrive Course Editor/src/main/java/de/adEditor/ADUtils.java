@@ -22,6 +22,7 @@ import java.util.ResourceBundle;
 import de.adEditor.MapHelpers.DDSReader;
 import static de.adEditor.AutoDriveEditor.localeString;
 import static de.adEditor.GUIBuilder.bDebugFileIO;
+import static de.adEditor.MapPanel.isUsingConvertedImage;
 
 public class ADUtils {
 
@@ -232,7 +233,34 @@ public class ADUtils {
 
     public static long stopTimer() { return System.currentTimeMillis() - profiletimer; }
 
-    public static void createDDSBufferImage(String filename) throws IOException {
+    public static Boolean importFromFS19(String filename) {
+
+        try {
+            createDDSBufferImage(filename, 0 , 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        isUsingConvertedImage = true;
+        GUIBuilder.saveImageEnabled(true);
+        return true;
+    }
+
+    public static Boolean importFromFS22(String filename) {
+
+        try {
+            createDDSBufferImage(filename, 1024, 1024);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        isUsingConvertedImage = true;
+        GUIBuilder.saveImageEnabled(true);
+        return true;
+    }
+
+    public static void createDDSBufferImage(String filename, int offsetX, int offsetY) throws IOException {
         LOG.info("Creating Bufferimage from {}", filename );
 
         // load the DDS file into a buffer
@@ -247,12 +275,14 @@ public class ADUtils {
         int height = DDSReader.getHeight(buffer);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         image.setRGB(0, 0, width, height, pixels, 0, width);
+        LOG.info(" {} , {}", image.getWidth(), image.getHeight());
 
         // Scale the BufferImage to a size the editor can use ( 2048 x 2048 )
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
+
         BufferedImage scaledImage = gc.createCompatibleImage( 2048, 2048, Transparency.OPAQUE);
         Graphics2D g = (Graphics2D) scaledImage.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -265,7 +295,12 @@ public class ADUtils {
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
         g.setRenderingHint(RenderingHints.KEY_RESOLUTION_VARIANT, RenderingHints.VALUE_RESOLUTION_VARIANT_SIZE_FIT);
-        g.drawImage( image, 0, 0, 2048, 2048, null);
+        if (offsetX != 0 || offsetY != 0) {
+            BufferedImage crop = image.getSubimage(offsetX, offsetY, 2048, 2048);
+            g.drawImage( crop, 0, 0, 2048, 2048, null);
+        } else {
+            g.drawImage( image, 0, 0, 2048, 2048, null);
+        }
         g.dispose();
 
         // set the converted and resized image as the map image

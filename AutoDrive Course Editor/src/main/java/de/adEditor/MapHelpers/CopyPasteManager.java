@@ -85,7 +85,7 @@ public class CopyPasteManager {
 
         int n = 1;
         for (MapNode node : list) {
-            MapNode workBufferNode = new MapNode(n++, node.x - rectCentreX, node.y, node.z - rectCentreY, node.flag, true);
+            MapNode workBufferNode = new MapNode(n++, node.x - rectCentreX, node.y, node.z - rectCentreY, node.flag, true, false);
             workBuffer.add(new NodeTransform(node, workBufferNode));
         }
 
